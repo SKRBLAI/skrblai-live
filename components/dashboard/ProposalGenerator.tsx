@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
+interface Proposal {
+  id: string;
+  projectName: string;
+  notes: string;
+  budget: string;
+  createdAt: string;
+  pdfUrl: string;
+}
+
 export default function ProposalGenerator() {
   const [formData, setFormData] = useState({
     projectName: '',
@@ -11,7 +20,7 @@ export default function ProposalGenerator() {
     budget: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [proposals, setProposals] = useState([]);
+  const [proposals, setProposals] = useState<Proposal[]>([]);
 
   useEffect(() => {
     fetchProposals();
@@ -53,7 +62,7 @@ export default function ProposalGenerator() {
       } else {
         throw new Error(result.error || 'Failed to generate proposal');
       }
-    } catch (error) {
+    } catch (error: any) {
       toast.error(error.message);
     } finally {
       setIsSubmitting(false);
@@ -69,7 +78,7 @@ export default function ProposalGenerator() {
           <input
             type="text"
             value={formData.projectName}
-            onChange={(e) => setFormData({...formData, projectName: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
             className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
             required
           />
@@ -79,7 +88,7 @@ export default function ProposalGenerator() {
           <label className="block mb-2">Notes</label>
           <textarea
             value={formData.notes}
-            onChange={(e) => setFormData({...formData, notes: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
             rows={4}
             required
@@ -91,7 +100,7 @@ export default function ProposalGenerator() {
           <input
             type="number"
             value={formData.budget}
-            onChange={(e) => setFormData({...formData, budget: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
             className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
             required
           />
@@ -142,4 +151,4 @@ export default function ProposalGenerator() {
       </div>
     </div>
   );
-} 
+}
