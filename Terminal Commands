@@ -1,0 +1,4 @@
+npm run build
+git add .
+git commit -m "Add missing UI components (Feature, Testimonial, Pricing, CTA Sections)"
+git push origin master 
