@@ -1,0 +1,4 @@
+cd "C:\Users\baked\OneDrive\Desktop\SKRBL_AI_DEPLOY_2025"
+git add .
+git commit -m "Deploying fresh optimized SKRBL AI build"
+git push origin master 

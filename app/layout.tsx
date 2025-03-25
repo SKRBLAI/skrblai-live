@@ -1,0 +1,41 @@
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Layout from '@/components/layout/Layout';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'SKRBL AI - AI-Powered Marketing Automation',
+  description: 'Next-gen AI tools for publishing, branding, and business automation',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://skrbl.ai',
+    siteName: 'SKRBL AI',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'SKRBL AI',
+      },
+    ],
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={`${inter.className} bg-deep-navy text-soft-gray min-h-screen`}>
+        <Layout>
+          {children}
+        </Layout>
+      </body>
+    </html>
+  );
+} 

@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --electric-blue: #1E90FF;
+  --teal: #30D5C8;
+  --deep-navy: #0B132B;
+  --soft-gray: #F7F7F7;
+  
+  /* Neon glow variables */
+  --neon-blue-glow: 0 0 5px rgba(30, 144, 255, 0.5), 0 0 20px rgba(30, 144, 255, 0.3);
+  --neon-teal-glow: 0 0 5px rgba(48, 213, 200, 0.5), 0 0 20px rgba(48, 213, 200, 0.3);
+}
+
+@layer base {
+  body {
+    @apply bg-deep-navy text-soft-gray;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+  }
+  
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-electric-blue text-white px-6 py-2 rounded-md hover:shadow-md transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent border border-teal text-teal px-6 py-2 rounded-md hover:bg-teal hover:text-deep-navy transition-all duration-300;
+  }
+  
+  .card {
+    @apply bg-deep-navy/80 rounded-xl p-6 backdrop-blur-sm;
+  }
+  
+  .neon-border {
+    @apply border border-electric-blue shadow-[var(--neon-blue-glow)];
+  }
+  
+  .neon-text {
+    @apply text-electric-blue shadow-[var(--neon-blue-glow)];
+  }
+  
+  .pseudo-3d {
+    @apply transition-transform duration-300 hover:translate-y-[-5px] hover:shadow-xl;
+  }
+}
+
+@layer utilities {
+  .bg-deep-navy {
+    background-color: var(--deep-navy);
+  }
+  
+  .bg-electric-blue {
+    background-color: var(--electric-blue);
+  }
+  
+  .bg-teal {
+    background-color: var(--teal);
+  }
+  
+  .text-electric-blue {
+    color: var(--electric-blue);
+  }
+  
+  .text-teal {
+    color: var(--teal);
+  }
+  
+  .text-soft-gray {
+    color: var(--soft-gray);
+  }
+  
+  .border-electric-blue {
+    border-color: var(--electric-blue);
+  }
+  
+  .border-teal {
+    border-color: var(--teal);
+  }
+  
+  .pseudo-3d-hover {
+    transform: perspective(600px) rotateX(3deg) rotateY(3deg) scale(1.03);
+    transition: all 0.3s ease;
+  }
+  
+  .pseudo-3d-hover:hover {
+    transform: perspective(600px) rotateX(0deg) rotateY(0deg) scale(1.05);
+  }
+} 

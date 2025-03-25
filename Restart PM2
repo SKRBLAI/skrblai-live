@@ -1,0 +1,4 @@
+pm2 stop skrblai-live
+pm2 delete skrblai-live
+pm2 start npm --name "skrblai-live" -- start
+pm2 save 

@@ -1,0 +1,1 @@
+sudo certbot --nginx -d skrblai.io -d www.skrblai.io --non-interactive --redirect 
