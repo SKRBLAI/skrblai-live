@@ -1,4 +1,41 @@
+# Create src directory and move files
+mkdir src
+mv app components pages utils src/
+
+# Update config files
+echo '{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}' > jsconfig.json
+
+echo '{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "jsx": "preserve"
+  }
+}' > tsconfig.json
+
+# Fix toast import in VideoContentQueue.tsx
+sed -i "s/import { toast } from 'react-toastify';/import { toast } from 'react-hot-toast';/" src/components/dashboard/VideoContentQueue.tsx
+
+# Clean and rebuild
+rm -rf .next
+npm install
 npm run build
+
+# Commit changes
 git add .
-git commit -m "Add missing UI components (Feature, Testimonial, Pricing, CTA Sections)"
-git push origin master 
+git commit -m "✅ Auto-fixed Framer Motion className errors in dashboard components — Mamba Mentality locked! 🐍"
+git push origin master
+
+# Restart PM2
+pm2 restart skrblai-live
+pm2 save
+curl http://localhost:3000 

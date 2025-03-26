@@ -3,8 +3,21 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-export default function DashboardSidebar({ activeSection, setActiveSection }) {
-  const navItems = [
+interface NavItem {
+  id: string;
+  label: string;
+}
+
+interface DashboardSidebarProps {
+  activeSection: string;
+  setActiveSection: (section: string) => void;
+}
+
+export default function DashboardSidebar({
+  activeSection,
+  setActiveSection,
+}: DashboardSidebarProps) {
+  const navItems: NavItem[] = [
     { id: 'overview', label: 'Dashboard Overview' },
     { id: 'metrics', label: 'Campaign Metrics' },
     { id: 'scheduler', label: 'Schedule a Post' },
@@ -16,27 +29,28 @@ export default function DashboardSidebar({ activeSection, setActiveSection }) {
   ];
 
   return (
-    <motion.nav 
-      className="w-64 bg-deep-navy/90 backdrop-blur-md border-r border-electric-blue/20 p-4"
+    <motion.div
       initial={{ x: -100 }}
       animate={{ x: 0 }}
       transition={{ type: 'spring', stiffness: 100 }}
     >
-      <div className="space-y-2">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveSection(item.id)}
-            className={`w-full text-left p-2 rounded-md transition-colors ${
-              activeSection === item.id
-                ? 'bg-electric-blue/10 text-electric-blue'
-                : 'text-soft-gray hover:bg-electric-blue/5 hover:text-electric-blue'
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
-      </div>
-    </motion.nav>
+      <nav className="w-64 bg-deep-navy/90 backdrop-blur-md border-r border-electric-blue/20 p-4">
+        <div className="space-y-2">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                activeSection === item.id
+                  ? 'bg-electric-blue/10 text-electric-blue'
+                  : 'text-soft-gray/80 hover:bg-electric-blue/5'
+              }`}
+              onClick={() => setActiveSection(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </nav>
+    </motion.div>
   );
-} 
+}

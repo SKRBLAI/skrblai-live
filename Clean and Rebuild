@@ -1,0 +1,5 @@
+rm -rf .next
+npm install
+npm run build
+pm2 restart skrblai-live
+pm2 save 

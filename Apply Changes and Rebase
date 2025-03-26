@@ -1,0 +1,11 @@
+# Add resolved files
+git add components/dashboard/BillingInfo.tsx
+git add components/dashboard/ProposalGenerator.tsx
+git add jsconfig.json
+git add tsconfig.json
+
+# Complete the rebase
+git rebase --continue
+
+# Force push to update remote
+git push origin master --force 

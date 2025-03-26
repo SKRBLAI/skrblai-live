@@ -1,0 +1,3 @@
+pm2 delete skrblai-live
+PORT=3000 pm2 start npm --name "skrblai-live" -- start
+pm2 save 

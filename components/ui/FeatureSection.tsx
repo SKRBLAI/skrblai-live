@@ -37,11 +37,12 @@ export function FeatureSection() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.2 }}
             viewport={{ once: true }}
-            className="bg-deep-navy/80 p-8 rounded-xl border border-electric-blue/20"
           >
-            <div className="text-4xl mb-4">{feature.icon}</div>
-            <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-            <p className="text-soft-gray/80">{feature.description}</p>
+            <div className="bg-deep-navy/80 p-8 rounded-xl border border-electric-blue/20">
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+              <p className="text-soft-gray/80">{feature.description}</p>
+            </div>
           </motion.div>
         ))}
       </div>

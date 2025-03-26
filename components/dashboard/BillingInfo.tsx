@@ -3,9 +3,18 @@
 import { useState, useEffect } from 'react';
 import { createCustomerPortalLink } from '@/utils/stripe';
 
+interface Subscription {
+  plan: {
+    name: string;
+    amount: number;
+  };
+  next_invoice_date: string;
+  payment_method: string;
+}
+
 export default function BillingInfo() {
-  const [subscription, setSubscription] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchSubscription = async () => {
