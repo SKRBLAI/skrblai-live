@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster, toast } from 'react-hot-toast';
+import 'react-hot-toast/dist/react-hot-toast.css';
 
 interface VideoItem {
   id: string;
@@ -64,7 +64,7 @@ export default function VideoContentQueue() {
       >
         Request Custom Video Script
       </button>
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <Toaster position="bottom-right" />
     </div>
   );
 }
