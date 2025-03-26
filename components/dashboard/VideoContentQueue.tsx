@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Toaster, toast } from 'react-hot-toast';
-import 'react-hot-toast/dist/react-hot-toast.css';
+import 'react-hot-toast/dist/style.css';
 
 interface VideoItem {
   id: string;
