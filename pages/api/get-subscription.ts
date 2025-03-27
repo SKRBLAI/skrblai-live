@@ -6,8 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
 
 export default async function handler(req, res) {
   try {
-    // In a real application, you'd get the customer ID from the authenticated user
-    const customerId = 'cus_123456789'; // Replace with actual customer ID
+    // customerId removed from here
     const subscriptionId = 'sub_123456789'; // Replace with actual subscription ID
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);

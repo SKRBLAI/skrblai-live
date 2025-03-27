@@ -39,7 +39,7 @@ export function PricingSection() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         {pricingTiers.map((tier, index) => (
           <motion.div
-            key={tier.id}
+            key={index}
             whileHover={{ y: -10 }}
             transition={{ type: 'spring', stiffness: 300 }}
             className="bg-deep-navy/80 p-8 rounded-xl border border-electric-blue/20"
@@ -58,4 +58,4 @@ export function PricingSection() {
       </div>
     </section>
   );
-} 
+}

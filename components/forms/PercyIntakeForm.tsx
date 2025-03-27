@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { percyAgent } from '@/ai-agents/percyAgent';
 import { saveLeadToFirebase } from '@/utils/firebase';
 import { sendWelcomeEmail } from '@/utils/email';
 import { toast } from 'react-hot-toast';
@@ -72,7 +71,6 @@ const timelineOptions = [
 export default function PercyIntakeForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     businessName: '',
     industry: '',
@@ -150,7 +148,7 @@ export default function PercyIntakeForm() {
     setCurrentStep(prev => prev - 1);
   };
 
-  if (isSuccess) {
+  if (isSubmitting) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -171,16 +169,10 @@ export default function PercyIntakeForm() {
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
           />
         </svg>
-        <h3 className="text-2xl font-bold mb-4">Thank You!</h3>
+        <h3 className="text-2xl font-bold mb-4">Submitting...</h3>
         <p className="mb-8 max-w-lg mx-auto">
-          Your information has been submitted successfully. Our AI is analyzing your needs and a team member will be in touch shortly.
+          Your information is being submitted. Please wait a moment.
         </p>
-        <button 
-          onClick={() => window.location.reload()} 
-          className="btn-primary"
-        >
-          Submit Another Request
-        </button>
       </motion.div>
     );
   }

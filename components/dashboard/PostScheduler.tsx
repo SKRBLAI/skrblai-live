@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
@@ -66,6 +66,7 @@ export default function PostScheduler() {
               onChange={(e) => setFormData({...formData, platform: e.target.value})}
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               required
+              aria-label="Select platform"
             >
               <option value="">Select platform</option>
               <option value="Instagram">Instagram</option>
@@ -83,6 +84,7 @@ export default function PostScheduler() {
               onChange={(e) => setFormData({...formData, postDate: e.target.value})}
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               required
+              aria-label="Post date"
             />
           </div>
 
@@ -94,6 +96,7 @@ export default function PostScheduler() {
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               rows={4}
               required
+              aria-label="Post description"
             />
           </div>
 
@@ -115,4 +118,4 @@ export default function PostScheduler() {
       </div>
     </motion.div>
   );
-} 
+}

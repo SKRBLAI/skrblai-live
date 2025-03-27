@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { loadStripe } from '@stripe/stripe-js';
 import { getStripePromise } from '@/utils/stripe';
 
 interface Plan {

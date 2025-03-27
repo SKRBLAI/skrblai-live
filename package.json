@@ -11,7 +11,6 @@
   "dependencies": {
     "@firebase/storage-compat": "^0.3.17",
     "@stripe/stripe-js": "^2.2.0",
-    "@supabase/supabase-js": "^2.39.0",
     "chart.js": "^4.4.8",
     "critters": "^0.0.23",
     "firebase": "^10.7.0",

@@ -38,4 +38,15 @@ git push origin master
 # Restart PM2
 pm2 restart skrblai-live
 pm2 save
-curl http://localhost:3000 
+curl http://localhost:3000
+
+# Remove any remaining Supabase files
+rm -rf src/utils/supabase.ts
+
+# Install dependencies and run lint/build
+npm install
+npm run lint
+npm run build
+
+# Deploy to Vercel
+vercel --prod 

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { HeroSection } from '@/components/ui/HeroSection';
 import { FeatureSection } from '@/components/ui/FeatureSection';
 import { TestimonialSection } from '@/components/ui/TestimonialSection';

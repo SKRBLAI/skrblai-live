@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getAuth } from 'firebase/auth';
-import { app } from '@/utils/firebase';
-
-const auth = getAuth(app);
+import { auth } from '@/utils/firebase';
 
 export function middleware(request: NextRequest) {
   const currentUser = auth.currentUser;
@@ -11,4 +8,4 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
   return NextResponse.next();
-} 
+}

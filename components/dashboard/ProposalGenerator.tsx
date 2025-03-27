@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
@@ -90,6 +90,7 @@ export default function ProposalGenerator() {
               onChange={(e) => setFormData({ ...formData, projectName: e.target.value })}
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               required
+              aria-label="Project Name"
             />
           </div>
 
@@ -101,6 +102,7 @@ export default function ProposalGenerator() {
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               rows={4}
               required
+              aria-label="Project Notes"
             />
           </div>
 
@@ -112,6 +114,7 @@ export default function ProposalGenerator() {
               onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
               className="w-full p-2 rounded bg-deep-navy/80 border border-electric-blue/30"
               required
+              aria-label="Estimated Budget"
             />
           </div>
 
@@ -139,22 +142,23 @@ export default function ProposalGenerator() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-deep-navy/80 p-4 rounded-xl border border-electric-blue/20 flex justify-between items-center"
             >
-              <div>
-                <h4 className="font-semibold">{proposal.projectName}</h4>
-                <p className="text-sm text-soft-gray/80">
-                  {new Date(proposal.createdAt).toLocaleDateString()}
-                </p>
+              <div className="bg-deep-navy/80 p-4 rounded-xl border border-electric-blue/20 flex justify-between items-center">
+                <div>
+                  <h4 className="font-semibold">{proposal.projectName}</h4>
+                  <p className="text-sm text-soft-gray/80">
+                    {new Date(proposal.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <a
+                  href={proposal.pdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                >
+                  Download
+                </a>
               </div>
-              <a
-                href={proposal.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary"
-              >
-                Download
-              </a>
             </motion.div>
           ))}
         </div>
