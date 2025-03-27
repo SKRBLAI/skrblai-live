@@ -6,8 +6,9 @@ import Layout from '../components/layout/Layout';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SKRBL AI - AI-Powered Marketing Automation',
-  description: 'Next-gen AI tools for publishing, branding, and business automation',
+  metadataBase: new URL('https://skrblai.io'),
+  title: 'SKRBL AI',
+  description: 'Your AI-powered assistant',
   openGraph: {
     type: 'website',
     locale: 'en_US',

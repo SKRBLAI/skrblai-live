@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, setDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -34,18 +34,24 @@ export const uploadFileToStorage = async (file: File, path: string) => {
   }
 };
 
-export const saveToFirestore = async (collection: string, data: any, id?: string) => {
+export const saveToFirestore = async (collectionName: string, data: any, id?: string) => {
   try {
     let docRef;
     if (id) {
-      docRef = doc(db, collection, id);
+      docRef = doc(db, collectionName, id);
       await setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
     } else {
-      docRef = await addDoc(collection(db, collection), {
-        ...data,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      try {
+        const colRef = collection(db, collectionName);
+        docRef = await addDoc(colRef, {
+          ...data,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        });
+      } catch (error) {
+        console.error('Error adding document: ', error);
+        throw error;
+      }
     }
     return { success: true, id: id || docRef.id };
   } catch (error) {
@@ -123,3 +129,18 @@ export const getProposals = async () => {
     return [];
   }
 }; 
+
+export const saveUser = async (userId: string, userName: string, userEmail: string) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      name: userName,
+      email: userEmail,
+      createdAt: serverTimestamp()
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving user:', error);
+    return { success: false, error };
+  }
+};

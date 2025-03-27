@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
@@ -49,4 +50,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-} 
+}

@@ -1,15 +1,24 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { loadStripe } from '@stripe/stripe-js';
 import { getStripePromise } from '@/utils/stripe';
 
+interface Plan {
+  id: string;
+  name: string;
+  unit_amount: number;
+  features: string[];
+}
+
 const stripePromise = getStripePromise();
 
 export default function PricingPage() {
-  const [plans, setPlans] = useState([]);
-  const [recommendedPlan, setRecommendedPlan] = useState(null);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [recommendedPlan, setRecommendedPlan] = useState<Plan['name'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -47,6 +56,9 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId) => {
     const stripe = await stripePromise;
+    if (!stripe) {
+      throw new Error('Stripe failed to initialize');
+    }
     const { error } = await stripe.redirectToCheckout({
       lineItems: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
@@ -127,9 +139,10 @@ function RecommendationForm({ onSubmit }) {
       <div>
         <label className="block mb-2">Monthly marketing budget?</label>
         <select
+          title="Select budget"
+          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={budget}
           onChange={(e) => setBudget(e.target.value)}
-          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           required
         >
           <option value="">Select budget</option>
@@ -143,9 +156,10 @@ function RecommendationForm({ onSubmit }) {
       <div>
         <label className="block mb-2">Team size?</label>
         <select
+          title="Select team size"
+          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={teamSize}
           onChange={(e) => setTeamSize(e.target.value)}
-          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           required
         >
           <option value="">Select team size</option>
@@ -158,9 +172,10 @@ function RecommendationForm({ onSubmit }) {
       <div>
         <label className="block mb-2">Primary focus?</label>
         <select
+          title="Select focus"
+          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={focus}
           onChange={(e) => setFocus(e.target.value)}
-          className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           required
         >
           <option value="">Select focus</option>

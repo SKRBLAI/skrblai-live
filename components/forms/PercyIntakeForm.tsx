@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { submitIntakeForm } from '@/ai-agents/percyAgent';
+import { percyAgent } from '@/ai-agents/percyAgent';
 import { saveLeadToFirebase } from '@/utils/firebase';
 import { sendWelcomeEmail } from '@/utils/email';
 import { toast } from 'react-hot-toast';
+import styles from '@/styles/forms.css';
 
 type FormData = {
   businessName: string;
@@ -185,51 +186,24 @@ export default function PercyIntakeForm() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-8">
-        <div className="flex justify-between items-center">
-          {[1, 2, 3, 4].map((step) => (
-            <div 
-              key={step} 
-              className={`relative flex flex-col items-center ${step < currentStep ? 'text-teal' : step === currentStep ? 'text-electric-blue' : 'text-gray-400'}`}
-            >
-              <div 
-                className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold ${
-                  step < currentStep 
-                    ? 'border-teal bg-teal/20 text-teal' 
-                    : step === currentStep 
-                      ? 'border-electric-blue bg-electric-blue/20 text-electric-blue' 
-                      : 'border-gray-400 bg-deep-navy text-gray-400'
-                }`}
-              >
-                {step < currentStep ? (
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  step
-                )}
-              </div>
-              <div className="text-sm mt-2">{
-                step === 1 ? 'Business Info' :
-                step === 2 ? 'Goals' :
-                step === 3 ? 'Budget & Timeline' :
-                'Confirm'
-              }</div>
-              {step < 4 && (
-                <div 
-                  className={`absolute top-5 left-full w-full h-0.5 ${
-                    step < currentStep ? 'bg-teal' : 'bg-gray-400'
-                  }`} 
-                  style={{ width: "calc(100% - 2.5rem)", left: "2.5rem" }}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+    <div className={`${styles.formContainer} max-w-2xl mx-auto`}>
+      <div className={styles.formStep}>
+        {[1, 2, 3, 4].map((step) => (
+          <div
+            key={step}
+            className={`
+              ${styles.formStepItem}
+              ${currentStep === step ? styles.active : ''}
+              ${currentStep > step ? styles.completed : ''}
+              ${currentStep < step ? styles.inactive : ''}
+            `}
+          >
+            {step}
+          </div>
+        ))}
       </div>
       
-      <form onSubmit={handleSubmit} className="bg-deep-navy/50 backdrop-blur-sm border border-electric-blue/30 rounded-xl p-6">
+      <form onSubmit={handleSubmit} className={styles.form}>
         {currentStep === 1 && (
           <motion.div 
             initial={{ opacity: 0, x: -20 }}

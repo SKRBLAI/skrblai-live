@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 
+export const dynamic = 'force-dynamic';
+
 export default function TermsOfService() {
   return (
     <motion.div
