@@ -143,3 +143,24 @@ export const saveUser = async (userId: string, userName: string, userEmail: stri
     return { success: false, error };
   }
 };
+
+export const logAgentActivity = async (activityData: {
+  agentName: string;
+  userId: string;
+  action: string;
+  status: 'success' | 'error';
+  timestamp: string;
+  details?: Record<string, any>;
+  error?: string;
+}) => {
+  try {
+    const docRef = await addDoc(collection(db, 'agentActivity'), {
+      ...activityData,
+      createdAt: serverTimestamp()
+    });
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error logging agent activity:', error);
+    return { success: false, error };
+  }
+};
