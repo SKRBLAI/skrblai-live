@@ -29,9 +29,9 @@ export function FeatureSection() {
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-4xl font-bold mb-10">Core Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <motion.div
-              key={feature.id}
+              key={feature.title}
               whileHover={{ y: -5 }}
               className="p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
             >

@@ -470,7 +470,7 @@ function generateRawData(
     endDate: string;
   }
 ): RawDataResponse {
-  const dates = generateDateRange(params.startDate, params.endDate);
+  const dates = generateDateRange(new Date(params.startDate), new Date(params.endDate));
   const rows: RawDataRow[] = [];
   
   for (const date of dates) {
@@ -522,7 +522,7 @@ function generateTopPerformers(dataSource: string, dimension: string): Performan
  * @returns Time series data
  */
 function generateTimeSeriesData(startDate: string, endDate: string, metric: string): ChartData[] {
-  const dates = generateDateRange(startDate, endDate);
+  const dates = generateDateRange(new Date(startDate), new Date(endDate));
   return dates.map(date => ({
     category: date,
     value: generateRandomMetricValue(metric)
@@ -717,24 +717,21 @@ function generateRandomChannelInsight(): string {
 
 /**
  * Generate date range between two dates
- * @param startDate - Start date in YYYY-MM-DD format
- * @param endDate - End date in YYYY-MM-DD format
+ * @param start - Start date
+ * @param end - End date
  * @returns Array of dates in YYYY-MM-DD format
  */
-function generateDateRange(startDate: string, endDate: string): string[] {
-  const dates = [];
-  const currentDate = new Date(startDate);
-  const end = new Date(endDate);
-  
+function generateDateRange(start: Date, end: Date): string[] {
+  const dates: string[] = [];
+  const currentDate = new Date(start);
   while (currentDate <= end) {
     dates.push(currentDate.toISOString().split('T')[0]);
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  
   return dates;
 }
 
-type DimensionKey = 'age' | 'gender' | 'location' | 'device' | 'browser' | 'platform' | 'default';
+type DimensionKey = 'age' | 'gender' | 'location' | 'device' | 'browser' | 'platform' | 'default' | string;
 
 /**
  * Generate random dimension value

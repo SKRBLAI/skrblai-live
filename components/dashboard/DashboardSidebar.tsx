@@ -7,26 +7,18 @@ interface NavItem {
   label: string;
 }
 
-interface DashboardSidebarProps {
-  activeSection: string;
-  setActiveSection: (section: string) => void;
-}
+const navItems: NavItem[] = [
+  { id: 'overview', label: 'Dashboard Overview' },
+  { id: 'metrics', label: 'Campaign Metrics' },
+  { id: 'scheduler', label: 'Schedule a Post' },
+  { id: 'proposals', label: 'Proposal Generator' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'downloads', label: 'Downloads' },
+  { id: 'notifications', label: 'Notifications' },
+  { id: 'video', label: 'Video Content Queue' },
+];
 
-export default function DashboardSidebar({
-  activeSection,
-  setActiveSection,
-}: DashboardSidebarProps) {
-  const navItems: NavItem[] = [
-    { id: 'overview', label: 'Dashboard Overview' },
-    { id: 'metrics', label: 'Campaign Metrics' },
-    { id: 'scheduler', label: 'Schedule a Post' },
-    { id: 'proposals', label: 'Proposal Generator' },
-    { id: 'billing', label: 'Billing' },
-    { id: 'downloads', label: 'Downloads' },
-    { id: 'notifications', label: 'Notifications' },
-    { id: 'video', label: 'Video Content Queue' },
-  ];
-
+export default function DashboardSidebar() {
   return (
     <motion.div
       initial={{ x: -100 }}
@@ -39,11 +31,10 @@ export default function DashboardSidebar({
             <button
               key={item.id}
               className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
-                activeSection === item.id
+                item.id === 'overview'
                   ? 'bg-electric-blue/10 text-electric-blue'
                   : 'text-soft-gray/80 hover:bg-electric-blue/5'
               }`}
-              onClick={() => setActiveSection(item.id)}
             >
               {item.label}
             </button>

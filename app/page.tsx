@@ -1,8 +1,8 @@
 import { HeroSection } from '@/components/ui/HeroSection';
 import { FeatureSection } from '@/components/ui/FeatureSection';
-import { TestimonialSection } from '@/components/ui/TestimonialSection';
+import TestimonialSection from '@/components/ui/TestimonialSection';
 import { PricingSection } from '@/components/ui/PricingSection';
-import { CTASection } from '@/components/ui/CTASection';
+import CTASection from '@/components/ui/CTASection';
 
 export default function Home() {
   return (
@@ -14,4 +14,4 @@ export default function Home() {
       <CTASection />
     </div>
   );
-} 
+}

@@ -34,6 +34,13 @@ interface BusinessPlan {
   budget: number;
 }
 
+interface Task {
+  title: string;
+  description: string;
+  assignedTo: string;
+  priority: string;
+}
+
 /**
  * Business Agent - Analyzes business data and provides strategic insights
  * @param input - Business analysis parameters
@@ -179,33 +186,30 @@ function generateRecommendations(
   businessGoals: string[],
   challenges: string[],
   timeframe: string
-): any {
-  // In a real implementation, this would generate tailored recommendations
-  // For now, we'll generate placeholder recommendations
-  
+): {
+  summary: string;
+  strategies: Task[];
+} {
   return {
     summary: `Based on the ${industry} industry and ${businessGoals} goals, we recommend the following strategies to address ${challenges} challenges over the ${timeframe} timeframe.`,
     strategies: [
       {
         title: 'Develop a digital transformation strategy',
         description: 'Invest in digital technologies to enhance customer experiences and improve operational efficiency.',
-        priority: 'High',
-        timeline: '6-12 months',
-        keyMetrics: ['Digital adoption rate', 'Customer satisfaction', 'Operational efficiency']
+        assignedTo: 'Technology Lead',
+        priority: 'High'
       },
       {
         title: 'Enhance data-driven decision making',
         description: 'Implement data analytics tools to inform business decisions and drive growth.',
-        priority: 'Medium',
-        timeline: '3-6 months',
-        keyMetrics: ['Data quality', 'Decision-making speed', 'Business outcomes']
+        assignedTo: 'Data Analytics Team',
+        priority: 'Medium'
       },
       {
         title: 'Foster a culture of innovation',
         description: 'Encourage experimentation and innovation to stay ahead of competitors and address emerging challenges.',
-        priority: 'Medium',
-        timeline: 'Ongoing',
-        keyMetrics: ['Innovation pipeline', 'Employee engagement', 'Time-to-market']
+        assignedTo: 'Innovation Team',
+        priority: 'Medium'
       }
     ]
   };
@@ -243,8 +247,8 @@ function generateInitiatives(goals: string[]): BusinessInitiative[] {
   return goals.map(goal => ({
     title: `Initiative for ${goal}`,
     description: `Strategic initiative to achieve ${goal}`,
-    priority: ['High', 'Medium', 'Low'][Math.floor(Math.random() * 3)],
-    timeline: ['Q1', 'Q2', 'Q3', 'Q4'][Math.floor(Math.random() * 4)],
+    priority: 'High',
+    timeline: 'Q1',
     keyMetrics: ['Revenue', 'User Growth', 'Engagement'],
     resources: ['Team A', 'Budget B', 'Tools C']
   }));
