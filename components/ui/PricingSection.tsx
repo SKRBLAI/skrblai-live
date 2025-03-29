@@ -2,67 +2,94 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { fadeInUp, staggerContainer } from '@/utils/animations';
 
-export function PricingSection() {
+const PricingSection = () => {
   return (
-    <section className="bg-gray-50 py-20 px-6">
-      <div className="max-w-6xl mx-auto text-center">
-        <h2 className="text-4xl font-bold mb-10">Pricing Plans</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <section className="bg-gradient-to-b from-deep-navy to-black text-white py-32 px-6 relative overflow-hidden">
+      <motion.div 
+        className="max-w-6xl mx-auto"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+        viewport={{ once: true }}
+      >
+        <motion.div variants={fadeInUp} className="text-center mb-20">
+          <h2 className="text-5xl font-bold mb-6 font-poppins bg-gradient-to-r from-electric-blue to-teal bg-clip-text text-transparent">
+            Pricing Plans
+          </h2>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto font-inter">
+            Choose the perfect plan for your business needs
+          </p>
+        </motion.div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <motion.div
-            whileHover={{ y: -5 }}
-            className="p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            variants={fadeInUp}
+            className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-electric-blue/50 transition-all duration-300"
           >
-            <h3 className="text-xl font-semibold mb-4">Starter</h3>
-            <p className="text-3xl font-bold mb-6 text-teal-500">$99/mo</p>
-            <p className="text-gray-600 mb-8">Perfect for small teams</p>
-            <Link href="/signup">
-              <button className="w-full px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors duration-300">
+            <h3 className="text-2xl font-semibold mb-4 font-poppins text-electric-blue">Starter</h3>
+            <p className="text-4xl font-bold mb-6 text-white">$99<span className="text-xl">/mo</span></p>
+            <ul className="space-y-4 mb-8 text-gray-300">
+              <li>✓ 5 AI Agents</li>
+              <li>✓ Basic Analytics</li>
+              <li>✓ 100 Pages/mo</li>
+              <li>✓ Email Support</li>
+            </ul>
+            <Link href="/signup" className="block">
+              <button className="w-full px-8 py-4 bg-gradient-to-r from-electric-blue to-teal hover:from-teal hover:to-electric-blue transition-all duration-300 rounded-lg text-lg font-semibold">
                 Get Started
               </button>
             </Link>
           </motion.div>
+
           <motion.div
-            whileHover={{ y: -5 }}
-            className="p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            variants={fadeInUp}
+            className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border-2 border-electric-blue shadow-[0_0_30px_rgba(0,149,255,0.15)] relative"
           >
-            <h3 className="text-xl font-semibold mb-4">Growth</h3>
-            <p className="text-3xl font-bold mb-6 text-teal-500">$299/mo</p>
-            <p className="text-gray-600 mb-8">For growing businesses</p>
-            <Link href="/signup">
-              <button className="w-full px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors duration-300">
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-electric-blue to-teal px-4 py-1 rounded-full text-sm font-semibold">
+              Most Popular
+            </div>
+            <h3 className="text-2xl font-semibold mb-4 font-poppins text-electric-blue">Growth</h3>
+            <p className="text-4xl font-bold mb-6 text-white">$299<span className="text-xl">/mo</span></p>
+            <ul className="space-y-4 mb-8 text-gray-300">
+              <li>✓ 15 AI Agents</li>
+              <li>✓ Advanced Analytics</li>
+              <li>✓ 500 Pages/mo</li>
+              <li>✓ Priority Support</li>
+              <li>✓ Custom Branding</li>
+            </ul>
+            <Link href="/signup" className="block">
+              <button className="w-full px-8 py-4 bg-gradient-to-r from-electric-blue to-teal hover:from-teal hover:to-electric-blue transition-all duration-300 rounded-lg text-lg font-semibold">
                 Get Started
               </button>
             </Link>
           </motion.div>
+
           <motion.div
-            whileHover={{ y: -5 }}
-            className="p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+            variants={fadeInUp}
+            className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 hover:border-electric-blue/50 transition-all duration-300"
           >
-            <h3 className="text-xl font-semibold mb-4">Scale</h3>
-            <p className="text-3xl font-bold mb-6 text-teal-500">$599/mo</p>
-            <p className="text-gray-600 mb-8">Advanced features</p>
-            <Link href="/signup">
-              <button className="w-full px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors duration-300">
-                Get Started
-              </button>
-            </Link>
-          </motion.div>
-          <motion.div
-            whileHover={{ y: -5 }}
-            className="p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-          >
-            <h3 className="text-xl font-semibold mb-4">Enterprise</h3>
-            <p className="text-3xl font-bold mb-6 text-teal-500">Custom</p>
-            <p className="text-gray-600 mb-8">Custom solutions</p>
-            <Link href="/contact">
-              <button className="w-full px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors duration-300">
-                Contact Us
+            <h3 className="text-2xl font-semibold mb-4 font-poppins text-electric-blue">Enterprise</h3>
+            <p className="text-4xl font-bold mb-6 text-white">Custom</p>
+            <ul className="space-y-4 mb-8 text-gray-300">
+              <li>✓ Unlimited AI Agents</li>
+              <li>✓ Custom Analytics</li>
+              <li>✓ Unlimited Pages</li>
+              <li>✓ 24/7 Support</li>
+              <li>✓ API Access</li>
+              <li>✓ Custom Integration</li>
+            </ul>
+            <Link href="/contact" className="block">
+              <button className="w-full px-8 py-4 bg-gradient-to-r from-electric-blue to-teal hover:from-teal hover:to-electric-blue transition-all duration-300 rounded-lg text-lg font-semibold">
+                Contact Sales
               </button>
             </Link>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
-}
+};
+
+export default PricingSection;
