@@ -7,8 +7,8 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-deep-navy/90 backdrop-blur-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+    <header className="sticky top-0 z-50 bg-deep-navy/95 backdrop-blur-md border-b border-electric-blue/20">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <div className="w-10 h-10 relative">
             <Image 
@@ -25,21 +25,15 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
-          <Link href="/services" className="text-soft-gray hover:text-electric-blue transition-colors">
+        <nav className="hidden md:flex space-x-8">
+          <Link href="/services" className="text-gray-300 hover:text-teal-300 transition-colors">
             Services
           </Link>
-          <Link href="/pricing" className="text-soft-gray hover:text-electric-blue transition-colors">
+          <Link href="/pricing" className="text-gray-300 hover:text-teal-300 transition-colors">
             Pricing
           </Link>
-          <Link href="/about" className="text-soft-gray hover:text-electric-blue transition-colors">
+          <Link href="/about" className="text-gray-300 hover:text-teal-300 transition-colors">
             About
-          </Link>
-          <Link href="/login" className="btn-secondary">
-            Login
-          </Link>
-          <Link href="/signup" className="btn-primary">
-            Sign Up
           </Link>
         </nav>
 
@@ -58,6 +52,15 @@ export default function Header() {
             </svg>
           )}
         </button>
+
+        <div className="flex items-center space-x-4">
+          <Link href="/login" className="px-4 py-2 text-gray-300 hover:text-teal-300 transition-colors">
+            Login
+          </Link>
+          <Link href="/signup" className="px-6 py-2 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors">
+            Sign Up
+          </Link>
+        </div>
       </div>
 
       {/* Mobile Navigation */}

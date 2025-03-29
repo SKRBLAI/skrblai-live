@@ -1,32 +1,33 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-export function CTASection() {
+export default function CTASection() {
   return (
-    <section className="container mx-auto px-4 py-20">
-      <div className="bg-deep-navy/80 p-12 rounded-xl border border-electric-blue/20 text-center">
-        <h2 className="text-3xl font-bold mb-6 text-electric-blue">
+    <section className="relative py-20 bg-gradient-to-br from-deep-navy to-electric-blue/20">
+      <div className="max-w-6xl mx-auto px-6 text-center">
+        <h2 className="text-4xl font-bold text-white mb-6">
           Ready to Transform Your Business?
         </h2>
-        <p className="text-soft-gray/80 mb-8">
-          Join thousands of businesses using SKRBL AI to power their marketing
+        <p className="text-lg text-gray-200 mb-8">
+          Join thousands of businesses leveraging SKRBL AI to automate and scale their operations.
         </p>
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
+        <div className="space-x-4">
           <Link
             href="/signup"
-            className="btn-primary inline-block"
+            className="inline-block px-8 py-3 bg-teal-500 hover:bg-teal-400 text-white font-semibold rounded-lg transition-all transform hover:scale-105"
           >
-            Get Started Free
+            Get Started
           </Link>
-        </motion.div>
+          <Link
+            href="/demo"
+            className="inline-block px-8 py-3 border-2 border-teal-500 text-teal-500 hover:bg-teal-500 hover:text-white font-semibold rounded-lg transition-all transform hover:scale-105"
+          >
+            Request Demo
+          </Link>
+        </div>
       </div>
+      <div className="absolute inset-0 bg-noise-pattern opacity-10 pointer-events-none" />
     </section>
   );
-} 
+}

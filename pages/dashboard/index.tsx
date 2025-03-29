@@ -1,7 +1,9 @@
 'use client';
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import app from '@/lib/firebase';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
@@ -15,6 +17,24 @@ import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState('overview');
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        window.location.href = '/login';
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
   const renderSection = () => {
     switch (activeSection) {
