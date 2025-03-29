@@ -23,6 +23,22 @@ interface AgentResponse {
   data?: any;
 }
 
+// Add this interface at the top of the file
+interface ClientAction {
+  action: string;
+  description: string;
+  assignedTo: string;
+  priority: string;
+}
+
+// Add these interfaces at the top of the file
+interface HelpfulResource {
+  title: string;
+  description: string;
+  url: string;
+  type: string;
+}
+
 /**
  * Client Success Agent - Handles client support requests and provides responses
  * @param input - Client support request parameters
@@ -399,105 +415,57 @@ function generateSuggestedActions(
   // In a real implementation, this would generate tailored actions
   // For now, we'll generate placeholder actions based on request type and category
   
-  const actions = [];
+  const actions: ClientAction[] = [];
   
   // Add standard actions based on request type
   switch (requestType) {
     case 'question':
-      actions.push(
-        {
-          action: 'Research answer',
-          description: 'Look up relevant documentation or knowledge base articles',
-          assignedTo: 'Support specialist',
-          priority: 'Medium'
-        },
-        {
-          action: 'Prepare detailed response',
-          description: 'Draft comprehensive answer with examples if applicable',
-          assignedTo: 'Support specialist',
-          priority: 'Medium'
-        }
-      );
+      actions.push({
+        action: 'Research answer',
+        description: 'Look up relevant documentation or knowledge base articles',
+        assignedTo: 'Support specialist',
+        priority: 'High'
+      });
       break;
     case 'issue':
-      actions.push(
-        {
-          action: 'Investigate issue',
-          description: 'Reproduce the problem and identify root cause',
-          assignedTo: 'Technical support',
-          priority: 'High'
-        },
-        {
-          action: 'Develop solution',
-          description: 'Create fix or workaround for the issue',
-          assignedTo: 'Technical support',
-          priority: 'High'
-        },
-        {
-          action: 'Update customer',
-          description: 'Provide status update within 24 hours',
-          assignedTo: 'Support specialist',
-          priority: 'Medium'
-        }
-      );
+      actions.push({
+        action: 'Investigate issue',
+        description: 'Reproduce the problem and identify root cause',
+        assignedTo: 'Technical support',
+        priority: 'High'
+      });
       break;
     case 'feedback':
-      actions.push(
-        {
-          action: 'Categorize feedback',
-          description: 'Tag and organize feedback for product team review',
-          assignedTo: 'Support specialist',
-          priority: 'Low'
-        },
-        {
-          action: 'Share with product team',
-          description: 'Add to feedback collection for next product meeting',
-          assignedTo: 'Product liaison',
-          priority: 'Low'
-        }
-      );
+      actions.push({
+        action: 'Categorize feedback',
+        description: 'Tag and organize feedback for product team review',
+        assignedTo: 'Support specialist',
+        priority: 'Low'
+      });
       break;
     case 'feature_request':
-      actions.push(
-        {
-          action: 'Evaluate request',
-          description: 'Assess feasibility and alignment with product roadmap',
-          assignedTo: 'Product manager',
-          priority: 'Medium'
-        },
-        {
-          action: 'Add to feature backlog',
-          description: 'Create feature request ticket in development system',
-          assignedTo: 'Product liaison',
-          priority: 'Medium'
-        }
-      );
+      actions.push({
+        action: 'Evaluate request',
+        description: 'Assess feasibility and alignment with product roadmap',
+        assignedTo: 'Product manager',
+        priority: 'Medium'
+      });
       break;
     case 'billing':
-      actions.push(
-        {
-          action: 'Review account',
-          description: 'Check billing records and payment history',
-          assignedTo: 'Billing specialist',
-          priority: 'Medium'
-        },
-        {
-          action: 'Resolve billing issue',
-          description: 'Process adjustment, refund, or explanation as needed',
-          assignedTo: 'Billing specialist',
-          priority: 'Medium'
-        }
-      );
+      actions.push({
+        action: 'Review account',
+        description: 'Check billing records and payment history',
+        assignedTo: 'Billing specialist',
+        priority: 'Medium'
+      });
       break;
     default:
-      actions.push(
-        {
-          action: 'Review request',
-          description: 'Determine appropriate next steps based on content',
-          assignedTo: 'Support specialist',
-          priority: 'Medium'
-        }
-      );
+      actions.push({
+        action: 'Review request',
+        description: 'Determine appropriate next steps based on content',
+        assignedTo: 'Support specialist',
+        priority: 'Medium'
+      });
   }
   
   // Add category-specific actions
@@ -548,11 +516,8 @@ function generateSuggestedActions(
 function generateHelpfulResources(
   requestType: string,
   category: string
-): any[] {
-  // In a real implementation, this would link to actual resources
-  // For now, we'll generate placeholder resources based on request type and category
-  
-  const resources = [];
+): HelpfulResource[] {
+  const resources: HelpfulResource[] = [];
   
   // Add standard resources based on request type
   switch (requestType) {
@@ -674,10 +639,7 @@ function generateFollowUpQuestions(
   description: string,
   category: string
 ): string[] {
-  // In a real implementation, this would generate tailored questions
-  // For now, we'll generate placeholder questions based on request type and category
-  
-  const questions = [];
+  const questions: string[] = [];
   
   // Add standard questions based on request type
   switch (requestType) {
@@ -746,8 +708,7 @@ function generateFollowUpQuestions(
       break;
   }
   
-  // Limit to 5 most relevant questions
-  return questions.slice(0, 5);
+  return questions;
 }
 
 /**

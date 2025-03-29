@@ -260,23 +260,20 @@ function generateInitiatives(goals: string[]): BusinessInitiative[] {
  * @param userId - User ID
  * @param activity - Activity details
  */
-function logAgentActivity(agentName: string, userId: string, activity: any): void {
-  // In a real implementation, this would log the activity to a database or analytics platform
-  // For now, we'll just console.log the activity
+function logAgentActivity(agentName: string, userId: string, activity: Record<string, unknown>): void {
   console.log(`Agent ${agentName} activity for user ${userId}:`, activity);
 }
 
 export const bizAgent = {
-  analyzeBusiness: async (businessData: any) => {
-    // Create a basic input with the business data
+  analyzeBusiness: async (businessData: Record<string, unknown>): Promise<AgentResponse> => {
     const input: AgentInput = {
-      userId: businessData.userId || 'system',
-      businessName: businessData.businessName || 'Sample Business',
-      industry: businessData.industry || 'Technology',
-      companySize: businessData.companySize,
-      businessGoals: businessData.businessGoals,
-      challenges: businessData.challenges,
-      location: businessData.location
+      userId: businessData.userId as string || 'system',
+      businessName: businessData.businessName as string || 'Sample Business',
+      industry: businessData.industry as string || 'Technology',
+      companySize: businessData.companySize as string,
+      businessGoals: businessData.businessGoals as string[],
+      challenges: businessData.challenges as string[],
+      location: businessData.location as string
     };
     
     return runAgent(input);

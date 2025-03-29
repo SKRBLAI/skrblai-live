@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Dispatch, SetStateAction } from 'react';
 import { motion } from 'framer-motion';
 
 interface NavItem {
@@ -7,40 +8,48 @@ interface NavItem {
   label: string;
 }
 
-const navItems: NavItem[] = [
-  { id: 'overview', label: 'Dashboard Overview' },
-  { id: 'metrics', label: 'Campaign Metrics' },
-  { id: 'scheduler', label: 'Schedule a Post' },
-  { id: 'proposals', label: 'Proposal Generator' },
-  { id: 'billing', label: 'Billing' },
-  { id: 'downloads', label: 'Downloads' },
-  { id: 'notifications', label: 'Notifications' },
-  { id: 'video', label: 'Video Content Queue' },
-];
+interface DashboardSidebarProps {
+  activeSection: string;
+  setActiveSection: Dispatch<SetStateAction<string>>;
+}
 
-export default function DashboardSidebar() {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
+  activeSection,
+  setActiveSection
+}) => {
+  const navItems: NavItem[] = [
+    { id: 'overview', label: 'Dashboard Overview' },
+    { id: 'metrics', label: 'Campaign Metrics' },
+    { id: 'content', label: 'Content Calendar' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'social', label: 'Social Media Planner' },
+    { id: 'video', label: 'Video Content Queue' }
+  ];
+
   return (
     <motion.div
       initial={{ x: -100 }}
       animate={{ x: 0 }}
-      transition={{ type: 'spring', stiffness: 100 }}
+      transition={{ duration: 0.5 }}
+      className="w-64 bg-deep-navy/95 border-r border-electric-blue/20"
     >
-      <nav className="w-64 bg-deep-navy/90 backdrop-blur-md border-r border-electric-blue/20 p-4">
-        <div className="space-y-2">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
-                item.id === 'overview'
-                  ? 'bg-electric-blue/10 text-electric-blue'
-                  : 'text-soft-gray/80 hover:bg-electric-blue/5'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-      </nav>
+      <div className="p-6">
+        {navItems.map(item => (
+          <div
+            key={item.id}
+            onClick={() => setActiveSection(item.id)}
+            className={`p-3 mb-2 rounded-lg cursor-pointer ${
+              activeSection === item.id 
+                ? 'bg-electric-blue/10 text-electric-blue' 
+                : 'text-gray-300 hover:bg-deep-navy/80'
+            }`}
+          >
+            {item.label}
+          </div>
+        ))}
+      </div>
     </motion.div>
   );
-}
+};
+
+export default DashboardSidebar;
