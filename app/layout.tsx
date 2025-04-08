@@ -54,8 +54,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="min-h-screen bg-deep-navy text-white">
+    <html lang="en" className={`${inter.variable} ${poppins.variable} overflow-x-hidden`}>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className="min-h-screen bg-[#0D1117] text-white font-sans antialiased overflow-x-hidden">
         <Layout>{children}</Layout>
       </body>
     </html>

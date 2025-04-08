@@ -34,8 +34,8 @@ const CTASection = dynamic(() => import('@/components/ui/CTASection'), {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-deep-navy">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-deep-navy overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Suspense fallback={<div className="h-screen animate-pulse bg-deep-navy" />}>
           <HeroSection />
         </Suspense>
