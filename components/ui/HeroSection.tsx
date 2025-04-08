@@ -5,23 +5,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { fadeInUp, staggerContainer, hoverScale } from '@/utils/animations';
 
+import FloatingBackground from './FloatingBackground';
+
 const HeroSection = () => {
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deep-navy to-black text-white px-4 relative overflow-hidden py-20">
-      {/* Animated background gradients */}
-      <motion.div 
-        className="absolute inset-0 opacity-20 bg-gradient-radial"
-        initial={{ opacity: 0.2 }}
-        animate={{ opacity: [0.2, 0.3, 0.2] }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          repeatType: "reverse"
-        }}
-      >
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-electric-blue/30 rounded-full filter blur-[100px] -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-teal/30 rounded-full filter blur-[100px] translate-y-1/2 -translate-x-1/2"></div>
-      </motion.div>
+    <section className="min-h-screen flex items-center justify-center text-white px-4 relative overflow-hidden py-20">
+      <FloatingBackground />
       
       <motion.div 
         className="max-w-4xl text-center z-10"
@@ -66,8 +55,11 @@ const HeroSection = () => {
           className="mt-16 relative max-w-3xl mx-auto"
         >
           <motion.div 
-            className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-2xl border border-white/10"
-            whileHover={{ scale: 1.02 }}
+            className="relative w-full h-[400px] rounded-xl overflow-hidden shadow-2xl border border-white/10 glass-card"
+            whileHover={{ 
+              scale: 1.02,
+              filter: 'drop-shadow(0 0 30px rgba(56, 189, 248, 0.2))'
+            }}
             transition={{ duration: 0.3 }}
           >
             <Image
@@ -78,6 +70,18 @@ const HeroSection = () => {
               priority
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-500/10"
+              animate={{
+                opacity: [0, 0.5, 0],
+                x: ['0%', '100%', '0%']
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: 'linear'
+              }}
+            />
           </motion.div>
         </motion.div>
       </motion.div>

@@ -116,6 +116,8 @@ const AgentGrid = () => {
   return (
     <section className="py-32 px-6 relative overflow-hidden bg-deep-navy">
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-electric-blue/5 to-transparent" />
+      
       <motion.div
         className="max-w-7xl mx-auto relative z-10"
         variants={staggerContainer}
@@ -124,10 +126,10 @@ const AgentGrid = () => {
         viewport={{ once: true }}
       >
         <motion.div variants={fadeInUp} className="text-center mb-20">
-          <h2 className="text-5xl font-bold mb-6 font-poppins bg-gradient-to-r from-electric-blue to-teal bg-clip-text text-transparent">
+          <h2 className="text-5xl font-bold mb-6 font-poppins neon-text">
             Meet Your SKRBL AI Team
           </h2>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto font-inter">
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto font-inter leading-relaxed">
             AI-powered content creation and automation for your business growth
           </p>
         </motion.div>
@@ -142,18 +144,14 @@ const AgentGrid = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <div 
-                className={`relative bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 
-                  hover:border-electric-blue/50 transition-all duration-300
-                  before:absolute before:inset-0 before:rounded-2xl before:bg-gradient-to-br 
-                  before:${agent.color} before:opacity-0 before:transition-opacity hover:before:opacity-5`}
-              >
-                <div className="relative z-10">
-                  <span className="text-4xl mb-4 block filter drop-shadow-glow">{agent.emoji}</span>
-                  <h3 className="text-2xl font-semibold mb-2 font-poppins text-electric-blue group-hover:text-white transition-colors">
+              <div className="glass-card h-full transform transition-all duration-500 hover:scale-105 hover:shadow-2xl relative overflow-hidden group-hover:border-electric-blue/30">
+                <div className={`absolute inset-0 bg-gradient-to-br ${agent.color} opacity-5 group-hover:opacity-10 transition-opacity duration-500`} />
+                <div className="relative z-10 p-6 flex flex-col h-full">
+                  <div className="text-4xl mb-6 transform group-hover:scale-110 transition-transform duration-300">{agent.emoji}</div>
+                  <h3 className="text-2xl font-semibold mb-3 font-poppins bg-gradient-to-r from-electric-blue to-teal bg-clip-text text-transparent group-hover:text-white transition-colors">
                     {agent.name}
                   </h3>
-                  <p className="text-teal mb-4 font-medium">
+                  <p className="text-teal mb-4 font-medium tracking-wide">
                     {agent.role}
                   </p>
                   <p className="text-gray-300 leading-relaxed">

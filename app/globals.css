@@ -2,11 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 15s ease infinite;
+  }
+  
+  .animate-gradient-y {
+    background-size: 200% 200%;
+    animation: gradient-y 15s ease infinite;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-teal-500;
+  }
+
+  .text-gradient-animated {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-teal-500 animate-gradient-x;
+  }
+
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl;
+  }
+
+  .btn-primary {
+    @apply px-6 py-2 rounded-full bg-gradient-to-r from-electric-blue to-teal-500 text-white font-medium
+    hover:from-teal-500 hover:to-electric-blue transition-all duration-300 shadow-lg hover:shadow-electric-blue/20;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2 rounded-full border border-electric-blue/30 text-electric-blue font-medium
+    hover:bg-electric-blue/10 transition-all duration-300;
+  }
+
+  .neon-text {
+    text-shadow: 0 0 10px rgba(56, 189, 248, 0.5),
+                0 0 20px rgba(56, 189, 248, 0.3),
+                0 0 30px rgba(56, 189, 248, 0.1);
+  }
+}
+
+@keyframes gradient-x {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradient-y {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+:root {
+  --deep-navy: #020617;
+  --electric-blue: #38bdf8;
+}
+
+.bg-deep-navy {
+  background-color: var(--deep-navy);
+}
+
+.text-electric-blue {
+  color: var(--electric-blue);
+}
+
+.from-electric-blue {
+  --tw-gradient-from: var(--electric-blue);
+}
+
+.to-electric-blue {
+  --tw-gradient-to: var(--electric-blue);
+}
+
 :root {
   --electric-blue: #1E90FF;
   --teal: #30D5C8;
   --deep-navy: #0B132B;
   --soft-gray: #F7F7F7;
+  --gradient-blue: linear-gradient(135deg, var(--electric-blue), var(--teal));
+  --card-bg: rgba(11, 19, 43, 0.8);
+  --header-height: 4rem;
   
   /* Neon glow variables */
   --neon-blue-glow: 0 0 5px rgba(30, 144, 255, 0.5), 0 0 20px rgba(30, 144, 255, 0.3);
@@ -37,27 +113,38 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-electric-blue text-white px-6 py-2 rounded-md hover:shadow-md transition-all duration-300;
+    @apply bg-gradient-to-r from-electric-blue to-teal text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 transform;
   }
   
   .btn-secondary {
-    @apply bg-transparent border border-teal text-teal px-6 py-2 rounded-md hover:bg-teal hover:text-deep-navy transition-all duration-300;
+    @apply bg-transparent border-2 border-teal text-teal px-6 py-3 rounded-lg font-semibold hover:bg-teal/10 hover:scale-105 transition-all duration-300 transform;
   }
   
   .card {
-    @apply bg-deep-navy/80 rounded-xl p-6 backdrop-blur-sm;
+    @apply bg-deep-navy/90 rounded-xl p-6 backdrop-blur-md border border-electric-blue/20 hover:border-electric-blue/40 transition-colors duration-300 shadow-lg;
+  }
+  
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-xl;
   }
   
   .neon-border {
-    @apply border border-electric-blue shadow-[var(--neon-blue-glow)];
+    @apply border-2 border-electric-blue shadow-[var(--neon-blue-glow)] hover:shadow-[var(--neon-teal-glow)] transition-shadow duration-300;
   }
   
   .neon-text {
-    @apply text-electric-blue shadow-[var(--neon-blue-glow)];
+    @apply bg-gradient-to-r from-electric-blue to-teal bg-clip-text text-transparent font-bold;
   }
   
   .pseudo-3d {
-    @apply transition-transform duration-300 hover:translate-y-[-5px] hover:shadow-xl;
+    @apply transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl hover:scale-105;
+  }
+  
+  .gradient-border {
+    @apply relative rounded-xl overflow-hidden;
+    background: linear-gradient(var(--deep-navy), var(--deep-navy)) padding-box,
+                var(--gradient-blue) border-box;
+    border: 2px solid transparent;
   }
 }
 
