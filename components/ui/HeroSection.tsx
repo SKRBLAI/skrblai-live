@@ -10,13 +10,9 @@ const HeroSection = () => {
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-deep-navy to-black text-white px-4 relative overflow-hidden py-20">
       {/* Animated background gradients */}
       <motion.div 
-        className="absolute inset-0 opacity-20"
-        animate={{
-          background: [
-            'radial-gradient(circle, rgba(30,144,255,0.2) 0%, rgba(0,0,0,0) 50%)',
-            'radial-gradient(circle, rgba(48,213,200,0.2) 0%, rgba(0,0,0,0) 50%)',
-          ],
-        }}
+        className="absolute inset-0 opacity-20 bg-gradient-radial"
+        initial={{ opacity: 0.2 }}
+        animate={{ opacity: [0.2, 0.3, 0.2] }}
         transition={{
           duration: 5,
           repeat: Infinity,

@@ -44,7 +44,8 @@ export default function PostScheduler() {
         throw new Error(result.error || 'Failed to schedule post');
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error('Error scheduling post:', error);
+      toast.error(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
     }

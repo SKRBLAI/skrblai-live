@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     domains: [
       'firebasestorage.googleapis.com',
@@ -30,15 +29,15 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   typescript: {
-    ignoreBuildErrors: true
+    ignoreBuildErrors: false
   },
   eslint: {
-    ignoreDuringBuilds: true
+    ignoreDuringBuilds: false
   },
   transpilePackages: ['@stripe/stripe-js', 'firebase', 'framer-motion'],
   trailingSlash: false,
   output: 'standalone',
-  distDir: 'out',
+  distDir: '.next',
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

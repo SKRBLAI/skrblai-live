@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getStripePromise } from '@/utils/stripe';
 
@@ -19,7 +19,7 @@ export default function PricingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [recommendedPlan, setRecommendedPlan] = useState<Plan['name'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -28,7 +28,8 @@ export default function PricingPage() {
         const data = await response.json();
         setPlans(data.plans);
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'Failed to load pricing plans.');
+        console.error('Failed to fetch pricing plans:', err);
       } finally {
         setIsLoading(false);
       }
@@ -37,23 +38,26 @@ export default function PricingPage() {
     fetchPlans();
   }, []);
 
-  const handleRecommendationSubmit = async (answers) => {
+  const handleRecommendationSubmit = async (answers: Record<string, string>) => {
     // AI recommendation logic
     const recommended = determineRecommendedPlan(answers);
     setRecommendedPlan(recommended);
   };
 
-  const determineRecommendedPlan = (answers) => {
+  const determineRecommendedPlan = (answers: Record<string, string>) => {
     // Simple recommendation logic - can be enhanced with AI
     const { budget, teamSize, focus } = answers;
     
-    if (budget < 1000 || teamSize === '1-3') return 'Starter';
-    if (budget < 5000 || teamSize === '4-10') return 'Growth';
+    const numericBudget = parseInt(budget, 10);
+    const numericTeamSize = parseInt(teamSize, 10);
+
+    if (numericBudget < 1000 || numericTeamSize < 10) return 'Starter';
+    if (numericBudget < 5000 || numericTeamSize < 50) return 'Growth';
     if (focus === 'All') return 'Scale';
     return 'Enterprise';
   };
 
-  const handleSubscribe = async (priceId) => {
+  const handleSubscribe = async (priceId: string) => {
     const stripe = await stripePromise;
     if (!stripe) {
       throw new Error('Stripe failed to initialize');
@@ -93,8 +97,7 @@ export default function PricingPage() {
             }`}
             whileHover={{ scale: 1.05 }}
             animate={{
-              scale: recommendedPlan === plan.name ? 1.1 : 1,
-              boxShadow: recommendedPlan === plan.name ? '0 0 20px rgba(30, 144, 255, 0.5)' : 'none'
+              scale: recommendedPlan === plan.name ? 1.1 : 1
             }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
@@ -123,14 +126,20 @@ export default function PricingPage() {
   );
 }
 
-function RecommendationForm({ onSubmit }) {
+function RecommendationForm({ onSubmit }: { onSubmit: (answers: Record<string, string>) => void }) {
   const [budget, setBudget] = useState('');
   const [teamSize, setTeamSize] = useState('');
   const [focus, setFocus] = useState('');
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     onSubmit({ budget, teamSize, focus });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    if (name === 'budget') setBudget(value);
+    if (name === 'teamSize') setTeamSize(value);
+    if (name === 'focus') setFocus(value);
   };
 
   return (
@@ -141,7 +150,7 @@ function RecommendationForm({ onSubmit }) {
           title="Select budget"
           className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={budget}
-          onChange={(e) => setBudget(e.target.value)}
+          onChange={handleChange}
           required
         >
           <option value="">Select budget</option>
@@ -158,7 +167,7 @@ function RecommendationForm({ onSubmit }) {
           title="Select team size"
           className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={teamSize}
-          onChange={(e) => setTeamSize(e.target.value)}
+          onChange={handleChange}
           required
         >
           <option value="">Select team size</option>
@@ -174,7 +183,7 @@ function RecommendationForm({ onSubmit }) {
           title="Select focus"
           className="w-full p-2 rounded bg-deep-navy border border-electric-blue/30"
           value={focus}
-          onChange={(e) => setFocus(e.target.value)}
+          onChange={handleChange}
           required
         >
           <option value="">Select focus</option>
@@ -190,4 +199,4 @@ function RecommendationForm({ onSubmit }) {
       </button>
     </form>
   );
-} 
+}

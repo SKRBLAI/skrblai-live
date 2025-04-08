@@ -1,12 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
+interface AIChatInterfaceProps {
+  agentName: string;
+  agentDescription: string;
+  initialMessage?: string;
+  onSubmit: (message: string) => Promise<string>;
+}
+
 export default function AIChatInterface({
   agentName,
   agentDescription,
   initialMessage = "Hi there! How can I help you today?",
   onSubmit
-}) {
+}: AIChatInterfaceProps): React.ReactElement {
   const [messages, setMessages] = useState([
     {
       id: '1',
