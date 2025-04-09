@@ -1,125 +1,133 @@
 import { db } from '@/utils/firebase';
-import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 
-// Define intent mapping for Percy's routing
+// Import agent implementations
+import { socialBotAgent } from '../agents/socialBotAgent';
+import { publishingAgent } from '../agents/publishingAgent';
+import { sitegenAgent } from '../agents/sitegenAgent';
+import { brandingAgent } from '../agents/brandingAgent';
+import { analyticsAgent } from '../agents/analyticsAgent';
+
+// Type-safe agent map
+const AGENT_HANDLERS = {
+  socialBotAgent,
+  publishingAgent,
+  sitegenAgent,
+  brandingAgent,
+  analyticsAgent
+} as const;
+
+type AgentName = keyof typeof AGENT_HANDLERS;
+
+// Intent configuration
 const INTENT_MAPPING = {
   'grow_social_media': {
-    type: 'social',
-    message: "I'll help you grow your social media presence! Let me connect you with our Social Media experts.",
+    agent: 'socialBotAgent',
+    message: "🎯 Great! I've assigned your request to the SocialBot Agent. You'll receive updates shortly.",
     priority: 'high'
   },
   'publish_book': {
-    type: 'publishing',
-    message: "Ready to help you publish your book! I'll get our Publishing team started.",
+    agent: 'publishingAgent', 
+    message: "📖 Publishing team activated! Your manuscript is now in professional hands.",
     priority: 'medium'
   },
   'launch_website': {
-    type: 'website',
-    message: "Excited to help you launch your website! Connecting you with our Web Development specialists.",
+    agent: 'sitegenAgent',
+    message: "🚀 Website launch sequence initiated with our SiteGen specialists!",
     priority: 'high'
   },
   'design_brand': {
-    type: 'branding',
-    message: "Let's create an amazing brand identity! I'll bring in our Branding experts.",
+    agent: 'brandingAgent',
+    message: "🎨 Branding vision unlocked! Our design team is on the case.",
     priority: 'medium'
   },
   'improve_marketing': {
-    type: 'analytics',
-    message: "Time to optimize your marketing! Connecting you with our Marketing Analytics team.",
+    agent: 'analyticsAgent',
+    message: "📈 Marketing optimization in progress - crunching numbers with our Analytics AI.",
     priority: 'medium'
   }
 } as const;
 
 type IntentKey = keyof typeof INTENT_MAPPING;
-type AgentType = (typeof INTENT_MAPPING)[IntentKey]['type'];
-type Priority = (typeof INTENT_MAPPING)[IntentKey]['priority'];
 
-// Define input interface for Percy Sync Agent
-interface AgentInput {
+export interface AgentInput {
   userId: string;
   projectId?: string;
   intent: IntentKey;
-  additionalNotes?: string;
   customParams?: Record<string, any>;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: Record<string, any>;
-}
-
-// Define agent job interface
 interface AgentJob {
   id: string;
   userId: string;
   agentName: string;
-  agentType: AgentType;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   intent: IntentKey;
-  priority: Priority;
+  priority: 'low' | 'medium' | 'high';
   timestamp: number;
-  result?: Record<string, any>;
+  customParams: Record<string, any>;
 }
 
-// Percy's main routing function
+export interface AgentResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    jobId: string;
+    agent: string;
+    nextSteps: string;
+  };
+}
+
 export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentResponse> {
   try {
-    const intentConfig = INTENT_MAPPING[input.intent];
-    console.log(`🤖 Percy routing request for intent: ${input.intent}`);
+    // Validate intent exists
+    if (!INTENT_MAPPING[input.intent]) {
+      throw new Error(`Invalid intent: ${input.intent}`);
+    }
 
-    // Create a new job in Firestore
+    const { agent, message, priority } = INTENT_MAPPING[input.intent];
+    const agentHandler = AGENT_HANDLERS[agent as AgentName];
+
+    // Create Firestore job document
     const job: AgentJob = {
       id: `${input.userId}-${Date.now()}`,
       userId: input.userId,
-      agentName: `${intentConfig.type.charAt(0).toUpperCase()}${intentConfig.type.slice(1)} Agent`,
-      agentType: intentConfig.type,
+      agentName: agent,
       status: 'pending',
       intent: input.intent,
-      priority: intentConfig.priority,
-      timestamp: Date.now()
+      priority,
+      timestamp: Date.now(),
+      customParams: input.customParams || {}
     };
 
-    // Log the job to Firestore
-    const jobsRef = collection(db, 'agent_jobs');
-    await addDoc(jobsRef, job);
+    const docRef = await addDoc(collection(db, 'agent_jobs'), job);
+    
+    // Initiate agent processing
+    agentHandler.process({
+      jobId: docRef.id,
+      userId: input.userId,
+      ...input.customParams
+    });
 
-    // Return Percy's confirmation message
     return {
       success: true,
-      message: intentConfig.message,
+      message,
       data: {
-        jobId: job.id,
-        agentType: job.agentType,
-        priority: job.priority
+        jobId: docRef.id,
+        agent,
+        nextSteps: 'Monitor progress in your dashboard or wait for email updates'
       }
     };
 
   } catch (error) {
-    console.error('Percy routing error:', error);
+    console.error(`Routing error: ${error instanceof Error ? error.message : error}`);
     return {
       success: false,
-      message: "I'm having trouble connecting to the right agent. Please try again in a moment.",
-      data: { error: error instanceof Error ? error.message : 'Unknown error' }
+      message: "⚠️ Oops! Our systems are a bit overwhelmed. Please try again in 30 seconds.",
+      data: {
+        retryable: true,
+        errorType: 'routing_error'
+      }
     };
-  }
-}
-
-// Function to update job status
-export async function updateJobStatus(
-  jobId: string,
-  status: AgentJob['status'],
-  result?: Record<string, any>
-): Promise<void> {
-  try {
-    const jobRef = doc(db, 'agent_jobs', jobId);
-    await updateDoc(jobRef, {
-      status,
-      ...(result && { result })
-    });
-  } catch (error) {
-    console.error('Error updating job status:', error);
-    throw error;
   }
 }

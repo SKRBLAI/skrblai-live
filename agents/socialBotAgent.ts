@@ -1,5 +1,11 @@
 import { Agent, AgentInput, AgentResponse } from '@/types/agent';
 
+interface AgentParams {
+  jobId: string;
+  userId: string;
+  [key: string]: any;
+}
+
 export const socialBotAgent: Agent = {
   config: {
     name: 'Social Bot Agent',
@@ -11,10 +17,16 @@ export const socialBotAgent: Agent = {
       'Hashtag research'
     ]
   },
-  runAgent: async (input: AgentInput): Promise<AgentResponse> => {
-    console.log('🤖 Social Bot Agent activated:', input);
+  async process(params: AgentParams): Promise<AgentResponse> => {
+    console.log(`Starting social bot job ${params.jobId}`);
     
     // TODO: Implement actual social media automation logic
+    
+    // Example workflow:
+    // 1. Validate input params
+    // 2. Connect to social platforms
+    // 3. Schedule/optimize content
+    // 4. Update Firestore status
     
     return {
       success: true,

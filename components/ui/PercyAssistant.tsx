@@ -6,12 +6,22 @@ import { useState } from 'react';
 import { ChatBubble } from './ChatBubble';
 import { routeToAgentFromIntent } from '@/ai-agents/percySyncAgent';
 
+const INTENT_MAPPING = {
+  grow_social_media: 'Grow My Social Media',
+  publish_book: 'Publish a Book',
+  launch_website: 'Launch Website',
+  design_brand: 'Design Brand',
+  improve_marketing: 'Improve Marketing'
+};
+
+type IntentKey = keyof typeof INTENT_MAPPING;
+
 interface UserGoal {
   id: string;
   label: string;
   icon: string;
   description: string;
-  intent: string;
+  intent: IntentKey;
 }
 
 interface ChatMessage {
@@ -23,37 +33,37 @@ interface ChatMessage {
 const userGoals: UserGoal[] = [
   {
     id: 'social',
-    label: 'Grow my social media',
+    label: 'Grow My Social Media',
     icon: '🚀',
     description: 'Boost your presence across platforms',
     intent: 'grow_social_media'
   },
   {
-    id: 'brand',
-    label: 'Build my brand',
-    icon: '✨',
-    description: 'Create a strong, memorable identity',
-    intent: 'design_brand'
-  },
-  {
-    id: 'content',
-    label: 'Automate content publishing',
-    icon: '📱',
-    description: 'Schedule and optimize your content',
+    id: 'publishing',
+    label: 'Publish a Book',
+    icon: '📖',
+    description: 'Professional publishing services',
     intent: 'publish_book'
   },
   {
     id: 'website',
-    label: 'Launch a website',
+    label: 'Launch Website',
     icon: '🌐',
-    description: 'Create a professional online presence',
+    description: 'Create professional online presence',
     intent: 'launch_website'
   },
   {
-    id: 'marketing',
-    label: 'Improve marketing',
+    id: 'branding',
+    label: 'Design Brand',
+    icon: '🎨',
+    description: 'Create cohesive brand identity',
+    intent: 'design_brand'
+  },
+  {
+    id: 'analytics',
+    label: 'Improve Marketing',
     icon: '📈',
-    description: 'Optimize your marketing strategy',
+    description: 'Optimize marketing strategy',
     intent: 'improve_marketing'
   }
 ];
@@ -72,36 +82,34 @@ export default function PercyAssistant() {
   const handleGoalClick = async (goal: UserGoal) => {
     if (isLoading) return;
 
-    // Add user's selection to chat
-    const userMessage = `I want to ${goal.label.toLowerCase()}`;
     setMessages(prev => [...prev, {
       id: `user-${Date.now()}`,
       type: 'user',
-      message: userMessage
+      message: `Initiate: ${goal.label}`
     }]);
 
     setIsLoading(true);
 
     try {
-      // Call Percy Sync Agent
       const response = await routeToAgentFromIntent({
-        userId: 'demo-user', // TODO: Replace with actual user ID
-        intent: goal.intent as any,
-        additionalNotes: userMessage
+        userId: 'current-user-id', // Replace with actual user ID
+        intent: goal.intent,
+        customParams: {
+          initiatedFrom: 'percy-assistant',
+          timestamp: new Date().toISOString()
+        }
       });
 
-      // Add Percy's response to chat
       setMessages(prev => [...prev, {
-        id: `assistant-${Date.now()}`,
+        id: `system-${Date.now()}`,
         type: 'assistant',
-        message: response.message
+        message: response.success 
+          ? response.message
+          : "⚠️ Hmm, that didn't work. Try clicking the button again?"
       }]);
+
     } catch (error) {
-      setMessages(prev => [...prev, {
-        id: `error-${Date.now()}`,
-        type: 'assistant',
-        message: "I'm having trouble connecting right now. Please try again in a moment. 🙇‍♂️"
-      }]);
+      console.error('Agent routing failed:', error);
     } finally {
       setIsLoading(false);
     }

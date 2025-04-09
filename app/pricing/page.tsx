@@ -6,7 +6,8 @@ import { useState } from 'react';
 interface PricingTier {
   id: string;
   name: string;
-  price: string;
+  monthlyPrice: number;
+  yearlyPrice: number;
   description: string;
   features: string[];
   badge?: string;
@@ -17,7 +18,8 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: '$99',
+    monthlyPrice: 99,
+    yearlyPrice: 79,
     description: 'Perfect for individuals and small teams getting started with content automation.',
     features: [
       'Up to 100 AI generations per month',
@@ -30,7 +32,8 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'growth',
     name: 'Growth',
-    price: '$299',
+    monthlyPrice: 299,
+    yearlyPrice: 239,
     description: 'Ideal for growing businesses looking to scale their content creation.',
     features: [
       'Unlimited AI generations',
@@ -46,7 +49,8 @@ const pricingTiers: PricingTier[] = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 'Custom',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
     description: 'For large organizations requiring custom solutions and dedicated support.',
     features: [
       'Everything in Growth, plus:',
@@ -95,7 +99,11 @@ export default function PricingPage() {
             Scale your content creation with our flexible pricing options
           </motion.p>
 
-          <div className="mt-8 inline-flex items-center bg-white/5 rounded-full p-1">
+          <motion.div 
+            className="mt-8 inline-flex items-center bg-white/5 rounded-full p-1"
+            animate={{ scale: [0.95, 1] }}
+            transition={{ duration: 0.2 }}
+          >
             <button
               onClick={() => setIsAnnual(false)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
@@ -139,12 +147,23 @@ export default function PricingPage() {
 
               <div className="relative z-10">
                 <h3 className="text-2xl font-bold mb-2 text-white">{tier.name}</h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-white">{tier.price}</span>
+                <motion.div 
+                  className="mb-4"
+                  key={isAnnual ? 'yearly' : 'monthly'}
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <span className="text-4xl font-bold text-white">
+                    {tier.id === 'enterprise' ? 'Custom' : 
+                      `$${isAnnual ? tier.yearlyPrice : tier.monthlyPrice}`
+                    }
+                  </span>
                   {tier.id !== 'enterprise' && (
                     <span className="text-gray-400 ml-2">{isAnnual ? '/year' : '/month'}</span>
                   )}
-                </div>
+                </motion.div>
                 <p className="text-gray-400 mb-6">{tier.description}</p>
 
                 <ul className="space-y-4 mb-8">
