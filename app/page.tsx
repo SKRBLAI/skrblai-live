@@ -7,7 +7,7 @@ const HeroSection = dynamic(() => import('@/components/ui/HeroSection'), {
   loading: () => <div className="h-screen animate-pulse bg-deep-navy" />
 });
 
-const AgentGrid = dynamic(() => import('@/components/ui/AgentGrid'), {
+const PercyAssistant = dynamic(() => import('@/components/ui/PercyAssistant'), {
   ssr: true,
   loading: () => <div className="h-[800px] animate-pulse bg-deep-navy" />
 });
@@ -41,7 +41,7 @@ export default function Home() {
         </Suspense>
 
         <Suspense fallback={<div className="h-[800px] animate-pulse bg-deep-navy" />}>
-          <AgentGrid />
+          <PercyAssistant />
         </Suspense>
 
         <Suspense fallback={<div className="h-96 animate-pulse bg-deep-navy" />}>
