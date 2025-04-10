@@ -1,5 +1,5 @@
 import { db } from '@/utils/firebase';
-import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc } from '@/utils/firebase';
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent

@@ -1,12 +1,11 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { agentDb } from '@/utils/db';
 
 // Import agent implementations
-import { socialBotAgent } from '../agents/socialBotAgent';
-import { publishingAgent } from '../agents/publishingAgent';
-import { sitegenAgent } from '../agents/sitegenAgent';
-import { brandingAgent } from '../agents/brandingAgent';
-import { analyticsAgent } from '../agents/analyticsAgent';
+import { socialBotAgent } from '@/ai-agents/socialBotAgent';
+import { publishingAgent } from '@/ai-agents/publishingAgent';
+import { sitegenAgent } from '@/ai-agents/sitegenAgent';
+import { brandingAgent } from '@/ai-agents/brandingAgent';
+import { analyticsAgent } from '@/ai-agents/analyticsAgent';
 
 // Type-safe agent map
 const AGENT_HANDLERS = {
@@ -23,27 +22,27 @@ type AgentName = keyof typeof AGENT_HANDLERS;
 const INTENT_MAPPING = {
   'grow_social_media': {
     agent: 'socialBotAgent',
-    message: "🎯 Great! I've assigned your request to the SocialBot Agent. You'll receive updates shortly.",
+    message: " Great! I've assigned your request to the SocialBot Agent. You'll receive updates shortly.",
     priority: 'high'
   },
   'publish_book': {
     agent: 'publishingAgent', 
-    message: "📖 Publishing team activated! Your manuscript is now in professional hands.",
+    message: " Publishing team activated! Your manuscript is now in professional hands.",
     priority: 'medium'
   },
   'launch_website': {
     agent: 'sitegenAgent',
-    message: "🚀 Website launch sequence initiated with our SiteGen specialists!",
+    message: " Website launch sequence initiated with our SiteGen specialists!",
     priority: 'high'
   },
   'design_brand': {
     agent: 'brandingAgent',
-    message: "🎨 Branding vision unlocked! Our design team is on the case.",
+    message: " Branding vision unlocked! Our design team is on the case.",
     priority: 'medium'
   },
   'improve_marketing': {
     agent: 'analyticsAgent',
-    message: "📈 Marketing optimization in progress - crunching numbers with our Analytics AI.",
+    message: " Marketing optimization in progress - crunching numbers with our Analytics AI.",
     priority: 'medium'
   }
 } as const;
@@ -100,14 +99,17 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
       customParams: input.customParams || {}
     };
 
-    const docRef = await addDoc(collection(db, 'agent_jobs'), job);
+    const jobId = await agentDb.saveJob(job);
+    
+    // Log agent activity
+    await agentDb.logActivity(agent, 'job_created', { jobId, userId: input.userId });
     
     // Initiate agent processing
     agentHandler.runAgent({
       userId: input.userId,
       goal: input.intent,
       metadata: {
-        jobId: docRef.id,
+        jobId,
         ...input.customParams
       }
     });
@@ -116,7 +118,7 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
       success: true,
       message,
       data: {
-        jobId: docRef.id,
+        jobId,
         agent,
         nextSteps: 'Monitor progress in your dashboard or wait for email updates'
       }
@@ -126,7 +128,7 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     console.error(`Routing error: ${error instanceof Error ? error.message : error}`);
     return {
       success: false,
-      message: "⚠️ Oops! Our systems are a bit overwhelmed. Please try again in 30 seconds.",
+      message: " Oops! Our systems are a bit overwhelmed. Please try again in 30 seconds.",
       data: {
         jobId: 'error',
         agent: 'PercySync',

@@ -1,5 +1,5 @@
 import { db } from '@/utils/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc } from '@/utils/firebase';
 
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 

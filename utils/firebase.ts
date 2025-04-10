@@ -1,31 +1,71 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, setDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  getDocs,
+  getDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+  type Firestore,
+  type DocumentData,
+  type DocumentReference,
+  type QuerySnapshot,
+} from 'firebase/firestore';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getStorage, ref, uploadBytes, getDownloadURL, type FirebaseStorage } from 'firebase/storage';
+import { getAnalytics, isSupported } from 'firebase/analytics';
+
+type FirestoreTimestamp = ReturnType<typeof serverTimestamp>;
+
+interface BaseDocument {
+  createdAt?: FirestoreTimestamp;
+  updatedAt?: FirestoreTimestamp;
+}
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID!,
 };
 
 // Initialize Firebase with SSR protection
-let app: any;
-let db: any;
-let auth: any;
-let storage: any;
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const db: Firestore = getFirestore(app);
+const auth: Auth = getAuth(app);
+const storage: FirebaseStorage = getStorage(app);
 
+// Client-side analytics
 if (typeof window !== 'undefined') {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
+  isSupported().then((yes) => {
+    if (yes) getAnalytics(app);
+  });
 }
 
+// Export Firebase instances
 export { app, db, auth, storage };
+
+// Export Firestore utility functions
+export {
+  collection,
+  addDoc,
+  setDoc,
+  getDocs,
+  getDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+  type DocumentData,
+  type DocumentReference,
+  type QuerySnapshot,
+  type Firestore
+};
 
 // Helper functions for common Firebase operations
 export const uploadFileToStorage = async (file: File, path: string) => {
@@ -40,118 +80,93 @@ export const uploadFileToStorage = async (file: File, path: string) => {
   }
 };
 
-export const saveToFirestore = async (collectionName: string, data: any, id?: string) => {
+export const saveToFirestore = async <T extends BaseDocument>(
+  collectionName: string,
+  data: T,
+  id?: string
+): Promise<{ success: boolean; id?: string; error?: any }> => {
   try {
-    let docRef;
+    let docRef: DocumentReference<DocumentData>;
     if (id) {
       docRef = doc(db, collectionName, id);
       await setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
     } else {
-      try {
-        const colRef = collection(db, collectionName);
-        docRef = await addDoc(colRef, {
-          ...data,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-      } catch (error) {
-        console.error('Error adding document: ', error);
-        throw error;
-      }
+      const colRef = collection(db, collectionName);
+      docRef = await addDoc(colRef, {
+        ...data,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
     }
-    return { success: true, id: id || docRef.id };
+    return { success: true, id: docRef.id };
   } catch (error) {
     console.error('Error saving to Firestore:', error);
     return { success: false, error };
   }
 };
 
-export const saveLeadToFirebase = async (leadData: {
+interface Lead extends BaseDocument {
   name: string;
   email: string;
   company: string;
   serviceInterest: string;
   message: string;
-}) => {
-  try {
-    const docRef = await addDoc(collection(db, 'leads'), {
-      ...leadData,
-      createdAt: serverTimestamp()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error('Error saving lead:', error);
-    return { success: false, error };
-  }
+}
+
+export const saveLeadToFirebase = async (leadData: Lead) => {
+  return saveToFirestore('leads', leadData);
 };
 
-export const saveScheduledPost = async (postData: {
+interface ScheduledPost extends BaseDocument {
   platform: string;
   postDate: string;
   description: string;
   status: string;
-}) => {
-  try {
-    const docRef = await addDoc(collection(db, 'scheduledPosts'), {
-      ...postData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error('Error saving scheduled post:', error);
-    return { success: false, error };
-  }
+}
+
+export const saveScheduledPost = async (postData: ScheduledPost) => {
+  return saveToFirestore('scheduledPosts', postData);
 };
 
-export const saveProposal = async (proposalData: {
+interface Proposal extends BaseDocument {
   projectName: string;
   notes: string;
   budget: string;
   pdfUrl: string;
-}) => {
-  try {
-    const docRef = await addDoc(collection(db, 'proposals'), {
-      ...proposalData,
-      createdAt: serverTimestamp()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error('Error saving proposal:', error);
-    return { success: false, error };
-  }
+}
+
+export const saveProposal = async (proposalData: Proposal) => {
+  return saveToFirestore('proposals', proposalData);
 };
 
-export const getProposals = async () => {
+export const getProposals = async (): Promise<Array<Proposal & { id: string }>> => {
   try {
     const querySnapshot = await getDocs(collection(db, 'proposals'));
-    return querySnapshot.docs.map(doc => ({
+    return querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data(),
+      ...(doc.data() as Proposal),
       createdAt: doc.data().createdAt?.toDate() || new Date()
     }));
   } catch (error) {
     console.error('Error getting proposals:', error);
     return [];
   }
-}; 
-
-export const saveUser = async (userId: string, userName: string, userEmail: string) => {
-  try {
-    const userRef = doc(db, 'users', userId);
-    await setDoc(userRef, {
-      name: userName,
-      email: userEmail,
-      createdAt: serverTimestamp()
-    });
-    return { success: true };
-  } catch (error) {
-    console.error('Error saving user:', error);
-    return { success: false, error };
-  }
 };
 
-export const logAgentActivity = async (activityData: {
+interface User extends BaseDocument {
+  name: string;
+  email: string;
+}
+
+export const saveUser = async (userId: string, userName: string, userEmail: string) => {
+  const userData: User = {
+    name: userName,
+    email: userEmail
+  };
+  return saveToFirestore('users', userData, userId);
+};
+
+interface AgentActivity extends BaseDocument {
   agentName: string;
   userId: string;
   action: string;
@@ -159,15 +174,8 @@ export const logAgentActivity = async (activityData: {
   timestamp: string;
   details?: Record<string, any>;
   error?: string;
-}) => {
-  try {
-    const docRef = await addDoc(collection(db, 'agentActivity'), {
-      ...activityData,
-      createdAt: serverTimestamp()
-    });
-    return { success: true, id: docRef.id };
-  } catch (error) {
-    console.error('Error logging agent activity:', error);
-    return { success: false, error };
-  }
+}
+
+export const logAgentActivity = async (activityData: AgentActivity) => {
+  return saveToFirestore('agentActivity', activityData);
 };

@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { db, collection, addDoc } from '@/utils/firebase';
 
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -46,7 +45,6 @@ const runAdCreative = async (input: AdCreativeInput) => {
     // Generate ad creative based on platform and parameters
     const adCreative = await generateAdCreative(
       input.productName,
-      input.productDescription,
       input.targetAudience,
       input.platform,
       adParams
@@ -98,7 +96,6 @@ const runAdCreative = async (input: AdCreativeInput) => {
 /**
  * Generate ad creative based on product details and platform
  * @param productName - Name of the product
- * @param productDescription - Description of the product
  * @param targetAudience - Target audience description
  * @param platform - Ad platform
  * @param params - Additional ad parameters
@@ -106,7 +103,6 @@ const runAdCreative = async (input: AdCreativeInput) => {
  */
 async function generateAdCreative(
   productName: string,
-  productDescription: string,
   targetAudience: string,
   platform: string,
   params: {
@@ -127,22 +123,22 @@ async function generateAdCreative(
   // Extract key selling points or generate default ones
   const sellingPoints = params.keySellingPoints.length > 0 
     ? params.keySellingPoints 
-    : generateDefaultSellingPoints(productDescription);
+    : generateDefaultSellingPoints('');
   
   // Generate platform-specific ad content
   switch (platform.toLowerCase()) {
     case 'facebook':
-      return generateFacebookAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateFacebookAd(productName, '', targetAudience, sellingPoints, params);
     case 'instagram':
-      return generateInstagramAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateInstagramAd(productName, '', targetAudience, sellingPoints, params);
     case 'google':
-      return generateGoogleAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateGoogleAd(productName, '', targetAudience, sellingPoints, params);
     case 'linkedin':
-      return generateLinkedInAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateLinkedInAd(productName, '', targetAudience, sellingPoints, params);
     case 'twitter':
-      return generateTwitterAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateTwitterAd(productName, '', targetAudience, sellingPoints, params);
     default:
-      return generateGenericAd(productName, productDescription, targetAudience, sellingPoints, params);
+      return generateGenericAd(productName, '', targetAudience, sellingPoints, params);
   }
 }
 

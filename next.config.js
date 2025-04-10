@@ -14,7 +14,10 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
-    scrollRestoration: true
+    scrollRestoration: true,
+    serverActions: {
+      allowedOrigins: ['*']
+    }
   },
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
@@ -48,8 +51,14 @@ const nextConfig = {
         net: false,
         tls: false,
         child_process: false,
+        dns: false,
+        tty: false
       };
     }
+    config.module = {
+      ...config.module,
+      exprContextCritical: false
+    };
     return config;
   },
   productionBrowserSourceMaps: true, // Enable source maps for debugging
