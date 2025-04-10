@@ -9,10 +9,17 @@ import {
   updateDoc,
   doc,
   serverTimestamp,
+  query,
+  where,
+  orderBy,
+  limit,
   type Firestore,
   type DocumentData,
   type DocumentReference,
   type QuerySnapshot,
+  type Query,
+  type WhereFilterOp,
+  type OrderByDirection,
 } from 'firebase/firestore';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL, type FirebaseStorage } from 'firebase/storage';
@@ -61,10 +68,17 @@ export {
   updateDoc,
   doc,
   serverTimestamp,
+  query,
+  where,
+  orderBy,
+  limit,
   type DocumentData,
   type DocumentReference,
   type QuerySnapshot,
-  type Firestore
+  type Firestore,
+  type Query,
+  type WhereFilterOp,
+  type OrderByDirection
 };
 
 // Helper functions for common Firebase operations

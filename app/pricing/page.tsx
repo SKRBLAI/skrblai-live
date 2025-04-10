@@ -121,7 +121,7 @@ export default function PricingPage() {
               Annual
               <span className="ml-1 text-xs opacity-75">Save 20%</span>
             </button>
-          </div>
+          </motion.div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

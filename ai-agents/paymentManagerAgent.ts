@@ -1,5 +1,5 @@
 import { db } from '@/utils/firebase';
-import { collection, addDoc, doc, getDoc, updateDoc } from '@/utils/firebase';
+import { collection, addDoc } from '@/utils/firebase';
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
@@ -45,7 +45,7 @@ interface ReceiptItem {
 }
 
 // Define stubs for missing functions
-async function updateUserSubscription(userId: string, amount: number, params: any): Promise<void> {
+async function updateUserSubscription(userId: string, amount: number): Promise<void> {
   // Stub implementation
   console.log(`Updating user subscription for userId: ${userId} with amount: ${amount}`);
 }
@@ -177,8 +177,7 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
     const paymentResult = await processPayment(
       input.paymentType,
       input.amount,
-      paymentParams,
-      {}
+      paymentParams
     );
 
     // Generate receipt
@@ -221,7 +220,7 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
 
     // Update user account if needed
     if (input.paymentType === 'subscription') {
-      await updateUserSubscription(input.userId, input.amount, paymentParams);
+      await updateUserSubscription(input.userId, input.amount);
     }
 
     return {
@@ -298,8 +297,7 @@ function validatePaymentDetails(paymentMethod: string, paymentDetails: any): voi
 async function processPayment(
   paymentType: string,
   amount: number,
-  params: any,
-  userAccount: any
+  params: any
 ): Promise<any> {
   // Simulate payment processing
 

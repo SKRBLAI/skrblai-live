@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { db, collection, addDoc } from '@/utils/firebase';
 
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -265,11 +264,12 @@ function generateTikTokPost(businessName: string, industry: string, topic: strin
  */
 function generatePinterestPost(businessName: string, industry: string, topic: string, tone: string, includeHashtags: boolean): Post {
   const title = `${topic.charAt(0).toUpperCase() + topic.slice(1)} Tips for ${industry}`;
+  const hashtags = includeHashtags ? getHashtags(industry, topic, 3, true) : '';
   
   return {
     type: 'image',
     title,
-    description: getPostIntro(topic, tone, true),
+    description: `${getPostIntro(topic, tone, true)}${hashtags ? '\n\n' + hashtags : ''}`,
     imageDescription: `Visually appealing image related to ${topic} in the ${industry} industry`,
     recommendedTime: getRecommendedTime('pinterest')
   };

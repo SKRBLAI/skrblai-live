@@ -255,7 +255,7 @@ function generateMainContent(
     title: point,
     duration: Math.round(params.duration * 0.7 / mainPoints.length),
     narration: generatePointNarration(point),
-    visualDescription: generatePointVisuals(point, videoType)
+    visualDescription: generatePointVisuals(point)
   }));
 }
 
@@ -274,7 +274,7 @@ const generatePointNarration = (point: string): string => {
  * @param videoType - Type of video
  * @returns Visual description
  */
-const generatePointVisuals = (point: string, videoType: string): string => {
+const generatePointVisuals = (point: string): string => {
   return `Visual representation of: ${point}`;
 }
 
