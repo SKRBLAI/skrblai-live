@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Site Generation Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface SiteGenInput extends BaseAgentInput {
   businessName: string;
   industry: string;
   pages: string[];
@@ -16,19 +16,12 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
-
 /**
  * Site Generation Agent - Creates website structure and content
  * @param input - Website generation parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runSiteGen = async (input: SiteGenInput) =>  {
   try {
     // Validate input
     if (!input.userId || !input.businessName || !input.industry || !input.pages || input.pages.length === 0) {
@@ -87,7 +80,6 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated website structure to Firestore
     const websiteRef = await addDoc(collection(db, 'websites'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
       businessName: input.businessName,
       industry: input.industry,
       structure: websiteStructure,
@@ -177,8 +169,20 @@ function generatePageSections(pageName: string, businessName: string, industry: 
   }
 }
 
-export const sitegenAgent = {
-  generateWebsite: async (requirements: any) => {
-    return runAgent(requirements);
-  }
+export const sitegenAgent: Agent = {
+  config: {
+    name: 'Site Generator',
+    description: 'AI-powered website structure and content generation',
+    capabilities: ['Page Structure', 'Content Generation', 'Design System', 'SEO Optimization']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to site gen input with required fields
+    const siteGenInput: SiteGenInput = {
+      ...input,
+      businessName: (input as any).businessName || '',
+      industry: (input as any).industry || '',
+      pages: (input as any).pages || ['home', 'about', 'contact']
+    };
+    return runSiteGen(siteGenInput);
+  }) as AgentFunction
 };

@@ -1,6 +1,7 @@
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Business Agent Types
-interface AgentInput {
-  userId: string;
+interface BizAgentInput extends BaseAgentInput {
   businessName: string;
   industry: string;
   businessGoals?: string[];
@@ -8,14 +9,7 @@ interface AgentInput {
   annualRevenue?: number;
   companySize?: string;
   challenges?: string[];
-  projectId?: string;
   location?: string;
-}
-
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
 }
 
 interface BusinessInitiative {
@@ -46,7 +40,7 @@ interface Task {
  * @param input - Business analysis parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runBizAgent = async (input: BizAgentInput) => {
   try {
     // Validate required fields
     if (!input.userId || !input.businessName || !input.industry) {
@@ -264,18 +258,25 @@ function logAgentActivity(agentName: string, userId: string, activity: Record<st
   console.log(`Agent ${agentName} activity for user ${userId}:`, activity);
 }
 
-export const bizAgent = {
-  analyzeBusiness: async (businessData: Record<string, unknown>): Promise<AgentResponse> => {
-    const input: AgentInput = {
-      userId: businessData.userId as string || 'system',
-      businessName: businessData.businessName as string || 'Sample Business',
-      industry: businessData.industry as string || 'Technology',
-      companySize: businessData.companySize as string,
-      businessGoals: businessData.businessGoals as string[],
-      challenges: businessData.challenges as string[],
-      location: businessData.location as string
+export const bizAgent: Agent = {
+  config: {
+    name: 'Business Advisor',
+    description: 'AI-powered business analysis and strategic planning',
+    capabilities: ['Market Analysis', 'Competitor Analysis', 'Strategic Planning', 'Business Recommendations']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to biz agent input with required fields
+    const bizInput: BizAgentInput = {
+      ...input,
+      businessName: (input as any).businessName || '',
+      industry: (input as any).industry || '',
+      businessGoals: (input as any).businessGoals || [],
+      timeframe: (input as any).timeframe || '1 year',
+      annualRevenue: (input as any).annualRevenue || 0,
+      companySize: (input as any).companySize || 'small',
+      challenges: (input as any).challenges || [],
+      location: (input as any).location || ''
     };
-    
-    return runAgent(input);
-  }
+    return runBizAgent(bizInput);
+  }) as AgentFunction
 };

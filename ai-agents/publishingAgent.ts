@@ -1,7 +1,7 @@
 import { logAgentActivity } from '@/utils/firebase';
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
-interface PublishingAgentInput {
-  userId: string;
+interface PublishingAgentInput extends BaseAgentInput {
   manuscriptUrl: string;
   publishingPlatform: "Amazon" | "Apple Books" | "Google Play Books" | "Other";
   genre: string;
@@ -12,24 +12,8 @@ interface PublishingAgentInput {
   keywords: string[];
 }
 
-interface PublishingAgentResponse {
-  success: boolean;
-  data?: {
-    platformSubmissionId?: string;
-    estimatedPublishTime?: string;
-    publishingSteps: string[];
-    metadata: {
-      platform: string;
-      title: string;
-      author: string;
-      genre: string;
-    };
-  };
-  error?: string;
-}
+const runPublishing = async (input: PublishingAgentInput) => {
 
-export const publishingAgent = {
-  async runAgent(input: PublishingAgentInput): Promise<PublishingAgentResponse> {
     try {
       // Validate input
       if (!input.userId || !input.manuscriptUrl || !input.publishingPlatform ||
@@ -91,5 +75,27 @@ export const publishingAgent = {
         error: error instanceof Error ? error.message : 'Failed to publish book'
       };
     }
-  }
+};
+
+export const publishingAgent: Agent = {
+  config: {
+    name: 'Publishing Agent',
+    description: 'AI-powered book publishing and content distribution',
+    capabilities: ['Manuscript Validation', 'Platform Integration', 'Metadata Management', 'Publishing Automation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to publishing input with required fields
+    const publishingInput: PublishingAgentInput = {
+      ...input,
+      manuscriptUrl: (input as any).manuscriptUrl || '',
+      publishingPlatform: (input as any).publishingPlatform || 'Amazon',
+      genre: (input as any).genre || '',
+      bookTitle: (input as any).bookTitle || '',
+      authorName: (input as any).authorName || '',
+      description: (input as any).description || '',
+      coverImageUrl: (input as any).coverImageUrl || '',
+      keywords: (input as any).keywords || []
+    };
+    return runPublishing(publishingInput);
+  }) as AgentFunction
 };

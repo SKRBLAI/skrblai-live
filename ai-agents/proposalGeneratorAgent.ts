@@ -1,8 +1,8 @@
 import { logAgentActivity } from '@/utils/firebase';
 
-interface ProposalAgentInput {
-  userId: string;
-  projectId?: string;
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
+interface ProposalAgentInput extends BaseAgentInput {
   clientName: string;
   clientIndustry: string;
   projectScope: string;
@@ -12,53 +12,62 @@ interface ProposalAgentInput {
   customRequirements?: string;
 }
 
-interface ProposalAgentResponse {
-  success: boolean;
-  data?: {
-    executiveSummary: string;
-    scopeOfWork: string;
-    timeline: string;
-    pricing: string;
-    termsAndConditions: string;
-  };
-  error?: string;
-}
 
-export const proposalGeneratorAgent = {
-  async runAgent(input: ProposalAgentInput): Promise<ProposalAgentResponse> {
+
+export const proposalGeneratorAgent: Agent = {
+  config: {
+    name: 'Proposal Generator',
+    description: 'AI-powered business proposal generation',
+    capabilities: ['Executive Summary', 'Scope Definition', 'Timeline Planning', 'Budget Allocation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to proposal agent input with required fields
+    const proposalInput: ProposalAgentInput = {
+      ...input,
+      clientName: (input as any).clientName || '',
+      clientIndustry: (input as any).clientIndustry || '',
+      projectScope: (input as any).projectScope || '',
+      projectTimeline: (input as any).projectTimeline || '',
+      budget: (input as any).budget || '',
+      services: (input as any).services || [],
+      customRequirements: (input as any).customRequirements
+    };
+
     try {
       // Validate input
-      if (!input.userId || !input.clientName || !input.clientIndustry || 
-          !input.projectScope || !input.projectTimeline || !input.budget || 
-          !input.services || input.services.length === 0) {
+      if (!proposalInput.clientName || !proposalInput.clientIndustry || 
+          !proposalInput.projectScope || !proposalInput.projectTimeline || 
+          !proposalInput.budget || !proposalInput.services || 
+          proposalInput.services.length === 0) {
         throw new Error('Missing required fields');
       }
 
       // Generate proposal sections
       const proposal = {
-        executiveSummary: `Strategic proposal for ${input.clientName} in the ${input.clientIndustry} industry.`,
-        scopeOfWork: `Project scope includes: ${input.projectScope}\nServices: ${input.services.join(', ')}`,
-        timeline: `Project Timeline: ${input.projectTimeline}`,
-        pricing: `Budget Allocation: ${input.budget}`,
+        executiveSummary: `Strategic proposal for ${proposalInput.clientName} in the ${proposalInput.clientIndustry} industry.`,
+        scopeOfWork: `Project scope includes: ${proposalInput.projectScope}\nServices: ${proposalInput.services.join(', ')}`,
+        timeline: `Project Timeline: ${proposalInput.projectTimeline}`,
+        pricing: `Budget Allocation: ${proposalInput.budget}`,
         termsAndConditions: 'Standard terms and conditions apply.'
       };
 
       // Log to Firestore
       await logAgentActivity({
         agentName: 'proposalGenerator',
-        userId: input.userId,
+        userId: proposalInput.userId,
         action: 'generate_proposal',
         status: 'success',
         timestamp: new Date().toISOString(),
         details: {
-          clientName: input.clientName,
-          projectId: input.projectId,
-          services: input.services
+          clientName: proposalInput.clientName,
+          services: proposalInput.services
         }
       });
 
       return {
         success: true,
+        message: 'Proposal generated successfully',
+        agentName: 'proposalGenerator',
         data: proposal
       };
 
@@ -66,7 +75,7 @@ export const proposalGeneratorAgent = {
       // Log error to Firestore
       await logAgentActivity({
         agentName: 'proposalGenerator',
-        userId: input.userId,
+        userId: proposalInput.userId,
         action: 'generate_proposal',
         status: 'error',
         timestamp: new Date().toISOString(),
@@ -75,8 +84,9 @@ export const proposalGeneratorAgent = {
 
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to generate proposal'
+        message: error instanceof Error ? error.message : 'Failed to generate proposal',
+        agentName: 'proposalGenerator'
       };
     }
-  }
+  }) as AgentFunction
 };

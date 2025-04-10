@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Analytics Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface AnalyticsInput extends BaseAgentInput {
   dataSource: 'website' | 'social' | 'email' | 'ads' | 'content' | 'sales' | 'all';
   timeframe: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
   startDate?: string;
@@ -20,13 +20,6 @@ interface AgentInput {
   segmentBy?: string[];
   includeRawData?: boolean;
   customInstructions?: string;
-}
-
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
 }
 
 interface RawDataRow {
@@ -56,7 +49,7 @@ interface ChartData {
  * @param input - Analytics parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runAnalytics = async (input: AnalyticsInput) =>  {
   try {
     // Validate input
     if (!input.userId || !input.dataSource || !input.timeframe) {
@@ -126,7 +119,6 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated analytics to Firestore
     const analyticsRef = await addDoc(collection(db, 'analytics-reports'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
       dataSource: input.dataSource,
       timeframe: input.timeframe,
       results: analyticsResults,
@@ -754,14 +746,18 @@ function generateRandomDimensionValue(dimension: DimensionKey): string {
 }
 
 export const analyticsAgent = {
-  analyzePerformance: async (data: any) => {
-    // Create a basic input with the data
-    const input: AgentInput = {
-      userId: data.userId || 'system',
-      dataSource: data.dataSource || 'website',
-      timeframe: data.timeframe || 'month'
+  config: {
+    name: 'Analytics',
+    description: 'AI-powered marketing analytics and optimization',
+    capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to analytics input with required fields
+    const analyticsInput: AnalyticsInput = {
+      ...input,
+      dataSource: (input as any).dataSource || 'website',
+      timeframe: (input as any).timeframe || 'month'
     };
-    
-    return runAgent(input);
-  }
+    return runAnalytics(analyticsInput);
+  }) as AgentFunction
 };

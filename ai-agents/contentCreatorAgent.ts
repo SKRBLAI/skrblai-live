@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
+
 // Define input interface for Content Creator Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface ContentAgentInput extends BaseAgentInput {
   contentType: 'blog' | 'social' | 'email' | 'website' | 'ad' | 'product' | 'video' | 'custom';
   topic: string;
   tone?: 'professional' | 'casual' | 'friendly' | 'authoritative' | 'humorous' | 'technical';
@@ -16,18 +16,14 @@ interface AgentInput {
 }
 
 // Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
+
 
 /**
  * Content Creator Agent - Generates various types of content based on input parameters
  * @param input - Content creation parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runContentAgent = async (input: ContentAgentInput): Promise<AgentResponse> => {
   try {
     // Validate input
     if (!input.userId || !input.contentType || !input.topic) {
@@ -63,7 +59,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated content to Firestore
     const contentRef = await addDoc(collection(db, 'content'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
+      projectId: 'general',
       contentType: input.contentType,
       topic: input.topic,
       content: generatedContent,
@@ -75,6 +71,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     return {
       success: true,
       message: `${capitalizeFirstLetter(input.contentType)} content created successfully`,
+      agentName: 'contentCreator',
       data: {
         contentId: contentRef.id,
         content: generatedContent,
@@ -90,7 +87,8 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     console.error('Content creator agent failed:', error);
     return {
       success: false,
-      message: `Content creator agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Content creator agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      agentName: 'contentCreator'
     };
   }
 }
@@ -435,3 +433,26 @@ function getDefaultWordCount(contentType: string): number {
 function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+export const contentCreatorAgent: Agent = {
+  config: {
+    name: 'Content Creator',
+    description: 'AI-powered content generation for various platforms',
+    capabilities: ['Blog Posts', 'Social Media', 'Email Content', 'Website Copy', 'Ad Copy', 'Product Descriptions', 'Video Scripts']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to content agent input with required fields
+    const contentInput: ContentAgentInput = {
+      ...input,
+      contentType: (input as any).contentType || 'blog',
+      topic: (input as any).topic || '',
+      tone: (input as any).tone,
+      keywords: (input as any).keywords || [],
+      targetAudience: (input as any).targetAudience,
+      wordCount: (input as any).wordCount,
+      references: (input as any).references || [],
+      customInstructions: (input as any).customInstructions
+    };
+    return runContentAgent(contentInput);
+  }) as AgentFunction
+};

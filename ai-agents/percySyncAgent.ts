@@ -103,10 +103,13 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     const docRef = await addDoc(collection(db, 'agent_jobs'), job);
     
     // Initiate agent processing
-    agentHandler.process({
-      jobId: docRef.id,
+    agentHandler.runAgent({
       userId: input.userId,
-      ...input.customParams
+      goal: input.intent,
+      metadata: {
+        jobId: docRef.id,
+        ...input.customParams
+      }
     });
 
     return {
@@ -125,8 +128,9 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
       success: false,
       message: "⚠️ Oops! Our systems are a bit overwhelmed. Please try again in 30 seconds.",
       data: {
-        retryable: true,
-        errorType: 'routing_error'
+        jobId: 'error',
+        agent: 'PercySync',
+        nextSteps: 'Please try again in 30 seconds'
       }
     };
   }

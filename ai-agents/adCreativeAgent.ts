@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Ad Creative Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface AdCreativeInput extends BaseAgentInput {
   productName: string;
   productDescription: string;
   targetAudience: string;
@@ -21,19 +21,12 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
-
 /**
  * Ad Creative Agent - Generates advertising creative content for various platforms
  * @param input - Ad creation parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runAdCreative = async (input: AdCreativeInput) => {
   try {
     // Validate input
     if (!input.userId || !input.productName || !input.productDescription || !input.targetAudience || !input.platform) {
@@ -71,7 +64,6 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated ad creative to Firestore
     const adRef = await addDoc(collection(db, 'ad-creatives'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
       productName: input.productName,
       platform: input.platform,
       adCreative,
@@ -597,3 +589,27 @@ function recommendPlatformsForAudience(targetAudience: string): string[] {
     return ['Facebook', 'Instagram', 'Google', 'YouTube', 'Twitter'];
   }
 }
+
+export const adCreativeAgent: Agent = {
+  config: {
+    name: 'Ad Creative',
+    description: 'AI-powered advertising creative generation',
+    capabilities: ['Multi-Platform Ads', 'Creative Generation', 'Audience Targeting', 'Campaign Optimization']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to ad creative input with required fields
+    const adCreativeInput: AdCreativeInput = {
+      ...input,
+      productName: (input as any).productName || '',
+      productDescription: (input as any).productDescription || '',
+      targetAudience: (input as any).targetAudience || '',
+      platform: (input as any).platform || 'general',
+      adType: (input as any).adType || 'mixed',
+      budget: (input as any).budget || 1000,
+      campaignGoal: (input as any).campaignGoal || 'consideration',
+      keySellingPoints: (input as any).keySellingPoints || [],
+      brandGuidelines: (input as any).brandGuidelines || {}
+    };
+    return runAdCreative(adCreativeInput);
+  }) as AgentFunction
+};

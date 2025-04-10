@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Social Bot Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface SocialBotInput extends BaseAgentInput {
   businessName: string;
   industry: string;
   platforms: ('instagram' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'pinterest')[];
@@ -21,13 +21,6 @@ interface AgentInput {
   includeHashtags?: boolean;
   schedulePosts?: boolean;
   customInstructions?: string;
-}
-
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
 }
 
 // Define post interface
@@ -60,7 +53,7 @@ interface ScheduleItem {
  * @param input - Social media content generation parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runSocialBot = async (input: SocialBotInput) =>  {
   try {
     // Validate input
     if (!input.userId || !input.businessName || !input.industry || !input.platforms || input.platforms.length === 0) {
@@ -111,7 +104,6 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated social content to Firestore
     const socialRef = await addDoc(collection(db, 'social-content'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
       businessName: input.businessName,
       industry: input.industry,
       content: socialContent,
@@ -470,8 +462,20 @@ function generatePostSchedule(platforms: string[], postCount: number): ScheduleI
   return schedule;
 }
 
-export const socialBotAgent = {
-  manageSocialMedia: async (content: string) => {
-    return runAgent(JSON.parse(content));
-  }
+export const socialBotAgent: Agent = {
+  config: {
+    name: 'Social Bot',
+    description: 'AI-powered social media content generation and management',
+    capabilities: ['Content Generation', 'Post Scheduling', 'Multi-Platform Support', 'Hashtag Generation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to social bot input with required fields
+    const socialBotInput: SocialBotInput = {
+      ...input,
+      businessName: (input as any).businessName || '',
+      industry: (input as any).industry || '',
+      platforms: (input as any).platforms || ['instagram', 'twitter', 'facebook']
+    };
+    return runSocialBot(socialBotInput);
+  }) as AgentFunction
 };

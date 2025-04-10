@@ -1,8 +1,9 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Client Success Agent
-interface AgentInput {
+interface ClientSuccessInput extends Omit<BaseAgentInput, 'goal'> {
   userId: string;
   projectId?: string;
   clientId: string;
@@ -16,12 +17,8 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
+// Import AgentResponse from types/agent
+import { AgentResponse } from '@/types/agent';
 
 // Add this interface at the top of the file
 interface ClientAction {
@@ -39,110 +36,7 @@ interface HelpfulResource {
   type: string;
 }
 
-/**
- * Client Success Agent - Handles client support requests and provides responses
- * @param input - Client support request parameters
- * @returns Promise with success status, message and optional data
- */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
-  try {
-    // Validate input
-    if (!input.userId || !input.clientId || !input.requestType || !input.subject || !input.description) {
-      throw new Error('Missing required fields: userId, clientId, requestType, subject, and description');
-    }
-
-    // Set defaults for optional parameters
-    const supportParams = {
-      priority: input.priority || getPriorityFromContent(input.requestType, input.description),
-      category: input.category || getCategoryFromContent(input.requestType, input.description),
-      attachments: input.attachments || [],
-      previousInteractions: input.previousInteractions || [],
-      customInstructions: input.customInstructions || ''
-    };
-
-    // Check client history if available
-    const clientHistory = await getClientHistory(input.clientId);
-
-    // Generate support response
-    const supportResponse = {
-      initialResponse: generateInitialResponse(
-        input.requestType,
-        input.subject,
-        input.description,
-        supportParams.priority,
-        supportParams.category
-      ),
-      suggestedActions: generateSuggestedActions(
-        input.requestType,
-        input.description,
-        supportParams.category,
-        clientHistory
-      ),
-      resources: generateHelpfulResources(
-        input.requestType,
-        supportParams.category
-      ),
-      followUpQuestions: generateFollowUpQuestions(
-        input.requestType,
-        input.description,
-        supportParams.category
-      ),
-      internalNotes: generateInternalNotes(
-        input.clientId,
-        input.requestType,
-        supportParams.priority,
-        clientHistory
-      ),
-      metadata: {
-        clientId: input.clientId,
-        requestType: input.requestType,
-        subject: input.subject,
-        priority: supportParams.priority,
-        category: supportParams.category,
-        generatedAt: new Date().toISOString()
-      }
-    };
-
-    // Log the support request to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'clientSuccessAgent',
-      input,
-      clientId: input.clientId,
-      requestType: input.requestType,
-      timestamp: new Date().toISOString()
-    });
-
-    // Save the support request and response to Firestore
-    const supportRef = await addDoc(collection(db, 'support-tickets'), {
-      userId: input.userId,
-      projectId: input.projectId || 'general',
-      clientId: input.clientId,
-      requestType: input.requestType,
-      subject: input.subject,
-      description: input.description,
-      response: supportResponse,
-      params: supportParams,
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-
-    return {
-      success: true,
-      message: `Support response generated successfully for ${input.subject}`,
-      data: {
-        supportTicketId: supportRef.id,
-        response: supportResponse
-      }
-    };
-  } catch (error) {
-    console.error('Client success agent failed:', error);
-    return {
-      success: false,
-      message: `Client success agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-    };
-  }
-}
+// Helper functions
 
 /**
  * Determine priority based on request type and content
@@ -150,7 +44,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
  * @param description - Request description
  * @returns Appropriate priority level
  */
-function getPriorityFromContent(requestType: string, description: string): 'low' | 'medium' | 'high' | 'urgent' {
+const getPriorityFromContent = (requestType: string, description: string): 'low' | 'medium' | 'high' | 'urgent' => {
   const lowercaseDesc = description.toLowerCase();
   
   // Check for urgent keywords
@@ -198,7 +92,7 @@ function getPriorityFromContent(requestType: string, description: string): 'low'
  * @param description - Request description
  * @returns Appropriate category
  */
-function getCategoryFromContent(requestType: string, description: string): string {
+const getCategoryFromContent = (requestType: string, description: string): string => {
   const lowercaseDesc = description.toLowerCase();
   
   // Check for technical issues
@@ -280,7 +174,7 @@ function getCategoryFromContent(requestType: string, description: string): strin
  * @param clientId - Client identifier
  * @returns Client history data
  */
-async function getClientHistory(clientId: string): Promise<any> {
+const getClientHistory = async (clientId: string): Promise<any> => {
   try {
     // Query previous support tickets
     const ticketsQuery = query(
@@ -329,7 +223,7 @@ async function getClientHistory(clientId: string): Promise<any> {
  * @param tickets - Previous support tickets
  * @returns Array of common categories
  */
-function getCommonCategories(tickets: any[]): string[] {
+const getCommonCategories = (tickets: any[]): string[] => {
   if (!tickets || tickets.length === 0) {
     return [];
   }
@@ -358,13 +252,13 @@ function getCommonCategories(tickets: any[]): string[] {
  * @param category - Request category
  * @returns Generated initial response
  */
-function generateInitialResponse(
+const generateInitialResponse = (
   requestType: string,
   subject: string,
   description: string,
   priority: string,
   category: string
-): string {
+): string => {
   // In a real implementation, this would generate a tailored response
   // For now, we'll generate a placeholder response based on request type
   
@@ -406,12 +300,12 @@ function generateInitialResponse(
  * @param clientHistory - Client's previous interactions
  * @returns Array of suggested actions
  */
-function generateSuggestedActions(
+const generateSuggestedActions = (
   requestType: string,
   description: string,
   category: string,
   clientHistory: any
-): any[] {
+): any[] => {
   // In a real implementation, this would generate tailored actions
   // For now, we'll generate placeholder actions based on request type and category
   
@@ -513,10 +407,10 @@ function generateSuggestedActions(
  * @param category - Request category
  * @returns Array of helpful resources
  */
-function generateHelpfulResources(
+const generateHelpfulResources = (
   requestType: string,
   category: string
-): HelpfulResource[] {
+): HelpfulResource[] => {
   const resources: HelpfulResource[] = [];
   
   // Add standard resources based on request type
@@ -634,11 +528,11 @@ function generateHelpfulResources(
  * @param category - Request category
  * @returns Array of follow-up questions
  */
-function generateFollowUpQuestions(
+const generateFollowUpQuestions = (
   requestType: string,
   description: string,
   category: string
-): string[] {
+): string[] => {
   const questions: string[] = [];
   
   // Add standard questions based on request type
@@ -719,12 +613,12 @@ function generateFollowUpQuestions(
  * @param clientHistory - Client's previous interactions
  * @returns Internal notes for support team
  */
-function generateInternalNotes(
+const generateInternalNotes = (
   clientId: string,
   requestType: string,
   priority: string,
   clientHistory: any
-): string {
+): string => {
   // In a real implementation, this would generate tailored notes
   // For now, we'll generate placeholder notes based on request type and client history
   
@@ -778,19 +672,92 @@ function generateInternalNotes(
   return notes;
 }
 
-export const clientSuccessAgent = {
-  handleSupportRequest: async (request: any) => {
-    // Create a basic input with the request data
-    const input: AgentInput = {
-      userId: request.userId || 'system',
-      clientId: request.clientId || request.userId || 'anonymous',
-      requestType: request.requestType || 'general',
-      subject: request.subject || 'Support Request',
-      description: request.description || 'No description provided',
-      priority: request.priority,
-      category: request.category
+const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentResponse> => {
+  try {
+    // Validate input
+    if (!input.userId || !input.clientId || !input.requestType || !input.subject || !input.description) {
+      throw new Error('Missing required fields');
+    }
+
+    // Set default values for optional parameters
+    const priority = input.priority || getPriorityFromContent(input.requestType, input.description);
+    const category = input.category || getCategoryFromContent(input.requestType, input.description);
+
+    // Get client history
+    const clientHistory = await getClientHistory(input.clientId);
+
+    // Generate response components
+    const initialResponse = generateInitialResponse(input.requestType, input.subject, input.description, priority, category);
+    const suggestedActions = generateSuggestedActions(input.requestType, input.description, category, clientHistory);
+    const helpfulResources = generateHelpfulResources(input.requestType, category);
+    const followUpQuestions = generateFollowUpQuestions(input.requestType, input.description, category);
+    const internalNotes = generateInternalNotes(input.clientId, input.requestType, priority, clientHistory);
+
+    // Save support ticket to Firestore
+    const ticketRef = await addDoc(collection(db, 'support-tickets'), {
+      userId: input.userId,
+      projectId: input.projectId || 'general',
+      clientId: input.clientId,
+      requestType: input.requestType,
+      subject: input.subject,
+      description: input.description,
+      priority,
+      category,
+      attachments: input.attachments || [],
+      previousInteractions: input.previousInteractions || [],
+      initialResponse,
+      suggestedActions,
+      helpfulResources,
+      followUpQuestions,
+      internalNotes,
+      status: 'open',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+
+    return {
+      success: true,
+      message: 'Support request processed successfully',
+      agentName: 'clientSuccess',
+      data: {
+        ticketId: ticketRef.id,
+        initialResponse,
+        suggestedActions,
+        helpfulResources,
+        followUpQuestions
+      },
+      error: undefined
     };
-    
-    return runAgent(input);
+  } catch (error) {
+    console.error('Client success agent failed:', error);
+    return {
+      success: false,
+      message: `Client success agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      agentName: 'clientSuccess',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
   }
+};
+
+export const clientSuccessAgent: Agent = {
+  config: {
+    name: 'Client Success',
+    description: 'Handles client support requests and ticket management',
+    capabilities: ['Support Request Processing', 'Ticket Management', 'Client History Analysis', 'Resource Generation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to client success input
+    const clientInput: ClientSuccessInput = {
+      ...input,
+      clientId: (input as any).clientId || '',
+      requestType: (input as any).requestType || 'general',
+      subject: (input as any).subject || '',
+      description: (input as any).description || '',
+      priority: (input as any).priority,
+      category: (input as any).category,
+      attachments: (input as any).attachments,
+      previousInteractions: (input as any).previousInteractions
+    };
+    return runClientSuccessAgent(clientInput);
+  }) as AgentFunction
 };

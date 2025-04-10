@@ -1,8 +1,9 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
-interface AgentInput {
+interface PaymentAgentInput extends Omit<BaseAgentInput, 'goal'> {
   userId: string;
   projectId?: string;
   paymentType: 'subscription' | 'one_time' | 'invoice' | 'refund';
@@ -33,12 +34,8 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
+// Import AgentResponse from types/agent
+import { AgentResponse } from '@/types/agent';
 
 // Define ReceiptItem interface
 interface ReceiptItem {
@@ -155,7 +152,7 @@ function generateReceipt(
  * @param input - Payment processing parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse> => {
   try {
     // Validate input
     if (!input.userId || !input.paymentType || !input.amount) {
@@ -230,20 +227,22 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     return {
       success: true,
       message: `Payment ${paymentResult.status} for ${paymentParams.currency} ${input.amount}`,
+      agentName: 'paymentManager',
       data: {
         paymentId: paymentRef.id,
         transactionId: paymentResult.transactionId,
         status: paymentResult.status,
         receipt,
       },
+      error: undefined
     };
   } catch (error) {
     console.error('Payment manager agent failed:', error);
     return {
       success: false,
-      message: `Payment manager agent failed: ${
-        error instanceof Error ? error.message : 'Unknown error'
-      }`,
+      message: `Payment manager agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      agentName: 'paymentManager',
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
@@ -360,3 +359,26 @@ async function processPayment(
       };
   }
 }
+
+export const paymentManagerAgent: Agent = {
+  config: {
+    name: 'Payment Manager',
+    description: 'Handles payment processing and management',
+    capabilities: ['Payment Processing', 'Subscription Management', 'Receipt Generation', 'Payment Validation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to payment agent input
+    const paymentInput: PaymentAgentInput = {
+      ...input,
+      paymentType: (input as any).paymentType || 'one_time',
+      amount: (input as any).amount || 0,
+      currency: (input as any).currency || 'USD',
+      paymentMethod: (input as any).paymentMethod,
+      paymentDetails: (input as any).paymentDetails,
+      billingAddress: (input as any).billingAddress,
+      invoiceId: (input as any).invoiceId,
+      subscriptionId: (input as any).subscriptionId
+    };
+    return runPaymentAgent(paymentInput);
+  }) as AgentFunction
+};

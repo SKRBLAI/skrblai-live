@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Branding Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface BrandingInput extends BaseAgentInput {
   businessName: string;
   industry: string;
   targetAudience: string;
@@ -21,19 +21,12 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
-
 /**
  * Branding Agent - Generates brand identity assets and guidelines
  * @param input - Branding parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runBranding = async (input: BrandingInput) => {
   try {
     // Validate input
     if (!input.userId || !input.businessName || !input.industry || !input.targetAudience) {
@@ -71,7 +64,6 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated branding to Firestore
     const brandingRef = await addDoc(collection(db, 'branding'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
       businessName: input.businessName,
       industry: input.industry,
       targetAudience: input.targetAudience,
@@ -571,3 +563,21 @@ function generateBrandGuidelines(
     conclusion: `Consistent application of these guidelines will help build and maintain a strong brand identity for ${businessName}. For questions or additional guidance, please contact the brand team.`
   };
 }
+
+export const brandingAgent: Agent = {
+  config: {
+    name: 'Branding',
+    description: 'AI-powered brand identity and guidelines generation',
+    capabilities: ['Brand Identity', 'Color Palette', 'Typography', 'Logo Design', 'Brand Voice']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to branding input with required fields
+    const brandingInput: BrandingInput = {
+      ...input,
+      businessName: (input as any).businessName || '',
+      industry: (input as any).industry || '',
+      targetAudience: (input as any).targetAudience || ''
+    };
+    return runBranding(brandingInput);
+  }) as AgentFunction
+};

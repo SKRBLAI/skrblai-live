@@ -1,8 +1,9 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Percy Agent
-interface AgentInput {
+interface PercyAgentInput extends Omit<BaseAgentInput, 'goal'> {
   type: 'text' | 'form';
   data: string | FormData;
 }
@@ -16,19 +17,15 @@ interface FormData {
   company?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
+// Import AgentResponse from types/agent
+import { AgentResponse } from '@/types/agent';
 
 /**
  * Percy Agent - Main AI assistant that handles user inquiries and form intake
  * @param input - Text input or form data
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runPercyAgent = async (input: PercyAgentInput): Promise<AgentResponse> => {
   try {
     let result;
 
@@ -52,13 +49,17 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     return {
       success: true,
       message: 'Percy agent completed successfully',
-      data: result
+      agentName: 'percy',
+      data: result,
+      error: undefined
     };
   } catch (error) {
     console.error('Percy agent failed:', error);
     return {
       success: false,
-      message: `Percy agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Percy agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      agentName: 'percy',
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
@@ -68,7 +69,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
  * @param text - User's text query
  * @returns Processed response
  */
-async function processTextInput(text: string): Promise<any> {
+const processTextInput = async (text: string): Promise<any> => {
   // Analyze the user's query to determine intent and context
   const intent = analyzeIntent(text);
   
@@ -87,7 +88,7 @@ async function processTextInput(text: string): Promise<any> {
  * @param formData - User's form submission
  * @returns Processing result
  */
-async function processFormData(formData: FormData): Promise<any> {
+const processFormData = async (formData: FormData): Promise<any> => {
   // Validate form data
   if (!formData.name || !formData.email || !formData.service) {
     throw new Error('Missing required form fields');
@@ -113,7 +114,7 @@ async function processFormData(formData: FormData): Promise<any> {
  * @param text - User's text input
  * @returns Identified intent
  */
-function analyzeIntent(text: string): string {
+const analyzeIntent = (text: string): string => {
   const textLower = text.toLowerCase();
   
   if (textLower.includes('pricing') || textLower.includes('cost') || textLower.includes('price')) {
@@ -135,7 +136,7 @@ function analyzeIntent(text: string): string {
  * @param intent - Identified intent
  * @returns Generated response
  */
-function generateResponse(text: string, intent: string): string {
+const generateResponse = (text: string, intent: string): string => {
   switch (intent) {
     case 'pricing':
       return "Our pricing varies based on project scope and requirements. We offer packages starting at $1,000 for basic services, with custom solutions available for larger projects. Would you like to discuss your specific needs?";
@@ -157,7 +158,7 @@ function generateResponse(text: string, intent: string): string {
  * @param intent - Identified user intent
  * @returns Array of suggestions
  */
-function generateSuggestions(intent: string): string[] {
+const generateSuggestions = (intent: string): string[] => {
   switch (intent) {
     case 'pricing':
       return ['Schedule a consultation', 'View service packages', 'Request a custom quote'];
@@ -179,7 +180,7 @@ function generateSuggestions(intent: string): string[] {
  * @param service - Service selected by user
  * @returns Next steps information
  */
-function determineNextSteps(service: string): any {
+const determineNextSteps = (service: string): any => {
   const serviceLower = service.toLowerCase();
   
   if (serviceLower.includes('content') || serviceLower.includes('writing')) {
@@ -220,3 +221,20 @@ function determineNextSteps(service: string): any {
     };
   }
 }
+
+export const percyAgent: Agent = {
+  config: {
+    name: 'Percy',
+    description: 'AI assistant that handles user inquiries and form intake',
+    capabilities: ['Text Processing', 'Form Processing', 'Intent Analysis', 'Response Generation']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to percy agent input
+    const percyInput: PercyAgentInput = {
+      ...input,
+      type: (input as any).type || 'text',
+      data: (input as any).data || ''
+    };
+    return runPercyAgent(percyInput);
+  }) as AgentFunction
+};

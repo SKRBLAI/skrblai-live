@@ -1,10 +1,10 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
 // Define input interface for Video Content Agent
-interface AgentInput {
-  userId: string;
-  projectId?: string;
+interface VideoAgentInput extends Omit<BaseAgentInput, 'goal'> {
   title: string;
   topic: string;
   videoType: 'explainer' | 'tutorial' | 'promotional' | 'educational' | 'storytelling' | 'testimonial' | 'product' | 'custom';
@@ -21,12 +21,8 @@ interface AgentInput {
   customInstructions?: string;
 }
 
-// Define response interface
-interface AgentResponse {
-  success: boolean;
-  message: string;
-  data?: any;
-}
+// Import AgentResponse from types/agent
+import { AgentResponse } from '@/types/agent';
 
 interface ScriptSection {
   section: string;
@@ -48,7 +44,7 @@ interface VideoParams {
  * @param input - Video content generation parameters
  * @returns Promise with success status, message and optional data
  */
-export async function runAgent(input: AgentInput): Promise<AgentResponse> {
+const runVideoAgent = async (input: VideoAgentInput): Promise<AgentResponse> => {
   try {
     // Validate input
     if (!input.userId || !input.title || !input.topic || !input.videoType) {
@@ -100,7 +96,7 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     // Save the generated video content to Firestore
     const videoRef = await addDoc(collection(db, 'video-content'), {
       userId: input.userId,
-      projectId: input.projectId || 'general',
+      projectId: 'general',
       title: input.title,
       topic: input.topic,
       videoType: input.videoType,
@@ -113,16 +109,20 @@ export async function runAgent(input: AgentInput): Promise<AgentResponse> {
     return {
       success: true,
       message: `Video content generated successfully for "${input.title}"`,
+      agentName: 'videoContent',
       data: {
         videoContentId: videoRef.id,
         content: videoContent
-      }
+      },
+      error: undefined
     };
   } catch (error) {
     console.error('Video content agent failed:', error);
     return {
       success: false,
-      message: `Video content agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      message: `Video content agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      agentName: 'videoContent',
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
@@ -244,13 +244,19 @@ function generateMainContent(
   videoType: string,
   params: VideoParams
 ): ScriptSection[] {
-  return [{
+  const mainPoints = [
+    'Introduction to ' + topic,
+    'Key features and benefits',
+    'Real-world applications'
+  ];
+
+  return mainPoints.map(point => ({
     section: 'Main Content',
-    title: 'Key Points',
-    duration: Math.round(params.duration * 0.7),
-    narration: `Main content about ${topic}`,
-    visualDescription: 'Visual representation of main points'
-  }];
+    title: point,
+    duration: Math.round(params.duration * 0.7 / mainPoints.length),
+    narration: generatePointNarration(point),
+    visualDescription: generatePointVisuals(point, videoType)
+  }));
 }
 
 /**
@@ -258,7 +264,7 @@ function generateMainContent(
  * @param point - Key point
  * @returns Narration for the point
  */
-function generatePointNarration(point: string): string {
+const generatePointNarration = (point: string): string => {
   return `Detailed explanation of: ${point}`;
 }
 
@@ -268,7 +274,7 @@ function generatePointNarration(point: string): string {
  * @param videoType - Type of video
  * @returns Visual description
  */
-function generatePointVisuals(point: string, videoType: string): string {
+const generatePointVisuals = (point: string, videoType: string): string => {
   return `Visual representation of: ${point}`;
 }
 
@@ -352,7 +358,7 @@ function generateStoryboard(
  * @param sections - Script sections
  * @returns Total word count
  */
-function calculateTotalWordCount(sections: ScriptSection[]): number {
+const calculateTotalWordCount = (sections: ScriptSection[]): number => {
   let totalWords = 0;
   
   sections.forEach(section => {
@@ -364,16 +370,26 @@ function calculateTotalWordCount(sections: ScriptSection[]): number {
   return totalWords;
 }
 
-export const videoContentAgent = {
-  generateVideoScript: async (topic: string) => {
-    // Create a basic input with the topic
-    const input: AgentInput = {
-      userId: 'system',
-      title: `All About ${topic}`,
-      topic,
-      videoType: 'educational'
+export const videoContentAgent: Agent = {
+  config: {
+    name: 'Video Content',
+    description: 'AI-powered video script and storyboard generation',
+    capabilities: ['Script Writing', 'Storyboard Creation', 'Video Planning', 'Duration Management']
+  },
+  runAgent: (async (input: BaseAgentInput) => {
+    // Cast the base input to video agent input with required fields
+    const videoInput: VideoAgentInput = {
+      ...input,
+      title: (input as any).title || '',
+      topic: (input as any).topic || '',
+      videoType: (input as any).videoType || 'explainer',
+      duration: (input as any).duration,
+      targetAudience: (input as any).targetAudience,
+      tone: (input as any).tone,
+      keyPoints: (input as any).keyPoints || [],
+      includeCallToAction: (input as any).includeCallToAction || false,
+      brandGuidelines: (input as any).brandGuidelines || {}
     };
-    
-    return runAgent(input);
-  }
+    return runVideoAgent(videoInput);
+  }) as AgentFunction
 };
