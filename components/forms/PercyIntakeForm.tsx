@@ -1,410 +1,274 @@
-'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { saveLeadToFirebase } from '@/utils/firebase';
-import { sendWelcomeEmail } from '@/utils/email';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import styles from '@/styles/forms.css';
+import { percySyncAgent } from '@/ai-agents/percySyncAgent';
 
-type FormData = {
-  businessName: string;
-  industry: string;
-  goals: string[];
-  budget: string;
-  timeline: string;
-  userId: string;
+interface FormData {
   name: string;
   email: string;
-  company: string;
-  serviceInterest: string;
-  message: string;
-};
+  plan: string;
+}
 
-const industries = [
-  'E-commerce',
-  'SaaS',
-  'Healthcare',
-  'Education',
-  'Finance',
-  'Real Estate',
-  'Hospitality',
-  'Travel',
-  'Food & Beverage',
-  'Professional Services',
-  'Entertainment',
-  'Manufacturing',
-  'Retail',
-  'Other'
-];
+interface Step {
+  message: string | ((name: string) => string);
+  field: keyof FormData;
+  options?: string[];
+}
 
-const goalOptions = [
-  'Increase website traffic',
-  'Generate more leads',
-  'Improve brand awareness',
-  'Boost sales',
-  'Launch a new product/service',
-  'Redesign website',
-  'Develop content strategy',
-  'Optimize conversion rate',
-  'Expand to new markets',
-  'Social media growth',
-  'Other'
-];
-
-const budgetOptions = [
-  'Under $5,000',
-  '$5,000 - $10,000',
-  '$10,000 - $25,000',
-  '$25,000 - $50,000',
-  '$50,000+'
-];
-
-const timelineOptions = [
-  'ASAP (1-2 weeks)',
-  'Short term (1-2 months)',
-  'Medium term (3-6 months)',
-  'Long term (6+ months)',
-  'Ongoing'
-];
-
-export default function PercyIntakeForm() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const PercyIntakeForm = () => {
+  const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    businessName: '',
-    industry: '',
-    goals: [],
-    budget: '',
-    timeline: '',
-    userId: 'temp-user-id', // This would normally come from authentication
     name: '',
     email: '',
-    company: '',
-    serviceInterest: '',
-    message: ''
+    plan: ''
   });
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const steps: Step[] = [
+    {
+      message: "Welcome! I'm Percy, your AI assistant. What's your name?",
+      field: 'name',
+    },
+    {
+      message: (name) => `Nice to meet you, ${name}! What's your email address?`,
+      field: 'email',
+    },
+    {
+      message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
+      options: ['7-Day Free Trial', 'Subscribe Now'],
+      field: 'plan'
+    }
+  ];
 
-  const handleGoalChange = (goal: string) => {
-    setFormData(prev => {
-      const updatedGoals = prev.goals.includes(goal)
-        ? prev.goals.filter(g => g !== goal)
-        : [...prev.goals, goal];
-      
-      return { ...prev, goals: updatedGoals };
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Save lead to Firebase
-      const saveResult = await saveLeadToFirebase(formData);
-      
-      if (saveResult.success) {
-        // Send welcome email
-        const emailResult = await sendWelcomeEmail(formData.email, formData.name);
-        
-        if (emailResult.success) {
-          toast.success('Thank you! We\'ll be in touch soon.');
-          setFormData({
-            businessName: '',
-            industry: '',
-            goals: [],
-            budget: '',
-            timeline: '',
-            userId: 'temp-user-id',
-            name: '',
-            email: '',
-            company: '',
-            serviceInterest: '',
-            message: ''
-          });
-        } else {
-          throw new Error('Failed to send welcome email');
-        }
-      } else {
-        throw new Error('Failed to save lead');
-      }
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+  const handleContinue = () => {
+    if (step < steps.length - 1) {
+      setIsTyping(true);
+      setTimeout(() => {
+        setStep(step + 1);
+        setIsTyping(false);
+      }, 1000);
     }
   };
 
-  const goToNextStep = () => {
-    setCurrentStep(prev => prev + 1);
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    try {
+      // Add default values for company, serviceInterest, and message to match Lead type
+      const leadData = {
+        ...formData,
+        company: '',
+        serviceInterest: formData.plan,
+        message: `Onboarded via Percy chat interface`
+      };
+      
+      await saveLeadToFirebase(leadData);
+      const route = await percySyncAgent.handleOnboarding(leadData);
+      toast.success('Welcome to SKRBL AI!');
+      router.push(route);
+    } catch (error) {
+      toast.error('Error saving your information');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const goToPreviousStep = () => {
-    setCurrentStep(prev => prev - 1);
+  // Percy avatar animation variants
+  const avatarVariants = {
+    idle: {
+      y: [0, -10, 0],
+      transition: {
+        y: {
+          repeat: Infinity,
+          duration: 3,
+          ease: "easeInOut"
+        }
+      }
+    },
+    blink: {
+      opacity: [1, 0.85, 1],
+      transition: {
+        opacity: {
+          repeat: Infinity,
+          duration: 2.5,
+          ease: "easeInOut",
+          repeatDelay: 3
+        }
+      }
+    }
   };
 
-  if (isSubmitting) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center py-12"
-      >
-        <svg 
-          className="w-20 h-20 text-teal mx-auto mb-6" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
-          />
-        </svg>
-        <h3 className="text-2xl font-bold mb-4">Submitting...</h3>
-        <p className="mb-8 max-w-lg mx-auto">
-          Your information is being submitted. Please wait a moment.
-        </p>
-      </motion.div>
-    );
-  }
+  // Animated particles background
+  useEffect(() => {
+    const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles: any[] = [];
+    const particleCount = 50;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        color: `rgba(255, 255, 255, ${Math.random() * 0.3})`,
+        speedX: Math.random() * 2 - 1,
+        speedY: Math.random() * 2 - 1
+      });
+    }
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(particle => {
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.fill();
+        
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
+        
+        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+      });
+    };
+    
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <div className={`${styles.formContainer} max-w-2xl mx-auto`}>
-      <div className={styles.formStep}>
-        {[1, 2, 3, 4].map((step) => (
-          <div
-            key={step}
-            className={`
-              ${styles.formStepItem}
-              ${currentStep === step ? styles.active : ''}
-              ${currentStep > step ? styles.completed : ''}
-              ${currentStep < step ? styles.inactive : ''}
-            `}
+    <div className="fixed inset-0 overflow-hidden">
+      {/* Animated background */}
+      <canvas id="particle-canvas" className="absolute inset-0 bg-gradient-to-br from-purple-500 to-teal-600" />
+      
+      <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
+        {/* Percy avatar */}
+        <motion.div 
+          className="absolute top-20 md:top-32"
+          variants={avatarVariants}
+          animate="idle"
+        >
+          <motion.div
+            variants={avatarVariants}
+            animate="blink"
+            className="relative w-32 h-32 md:w-40 md:h-40 bg-white/10 rounded-full p-2 backdrop-blur-sm border border-white/20 shadow-lg shadow-purple-500/20"
           >
-            {step}
+            <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-electric-blue to-teal-400 flex items-center justify-center">
+              <span className="text-4xl md:text-5xl">🤖</span>
+              {/* Replace with actual Percy image when available */}
+              {/* <Image src="/images/percy-avatar.png" alt="Percy AI" width={150} height={150} /> */}
+            </div>
+          </motion.div>
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9, y: 40 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="glass-card p-8 rounded-2xl max-w-xl w-full backdrop-blur-md border border-white/20 shadow-xl shadow-purple-500/10"
+        >
+        {steps.slice(0, step + 1).map((s, i) => (
+          <div key={i} className="mb-6">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white/10 p-4 rounded-lg mb-4"
+            >
+              <p className="text-white">
+                {typeof s.message === 'function' ? s.message(formData.name) : s.message}
+              </p>
+            </motion.div>
+
+            {isTyping && i === step - 1 && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center space-x-2 p-2 bg-white/5 rounded-lg w-24"
+              >
+                <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-0"></span>
+                <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-150"></span>
+                <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-300"></span>
+              </motion.div>
+            )}
+            
+            {i === step && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {!s.options ? (
+                  <div className="space-y-3">
+                    <input
+                      type={s.field === 'email' ? 'email' : 'text'}
+                      value={formData[s.field]}
+                      onChange={(e) => setFormData({...formData, [s.field]: e.target.value})}
+                      className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                      placeholder={s.field === 'email' ? 'your@email.com' : 'Your name'}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleContinue}
+                      disabled={!formData[s.field]}
+                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${!formData[s.field] ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                    >
+                      Continue
+                    </motion.button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-3">
+                    {s.options.map((option) => (
+                      <motion.button
+                        key={option}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          setFormData({...formData, plan: option});
+                          handleSubmit();
+                        }}
+                        disabled={isLoading}
+                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${option.includes('Free') ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                      >
+                        {isLoading ? (
+                          <span className="flex items-center justify-center">
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </span>
+                        ) : option}
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            )}
           </div>
         ))}
+      </motion.div>
       </div>
-      
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {currentStep === 1 && (
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h3 className="text-xl font-bold mb-6 text-electric-blue">Tell us about your business</h3>
-            
-            <div className="mb-6">
-              <label htmlFor="businessName" className="block text-soft-gray mb-2">Business Name</label>
-              <input
-                type="text"
-                id="businessName"
-                name="businessName"
-                value={formData.businessName}
-                onChange={handleTextChange}
-                className="w-full bg-deep-navy/80 border border-electric-blue/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-electric-blue/50"
-                required
-              />
-            </div>
-            
-            <div className="mb-6">
-              <label htmlFor="industry" className="block text-soft-gray mb-2">Industry</label>
-              <select
-                id="industry"
-                name="industry"
-                value={formData.industry}
-                onChange={handleTextChange}
-                className="w-full bg-deep-navy/80 border border-electric-blue/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-electric-blue/50"
-                required
-              >
-                <option value="">Select an industry</option>
-                {industries.map((industry) => (
-                  <option key={industry} value={industry}>{industry}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={goToNextStep}
-                disabled={!formData.businessName || !formData.industry}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </motion.div>
-        )}
-        
-        {currentStep === 2 && (
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h3 className="text-xl font-bold mb-6 text-electric-blue">What are your goals?</h3>
-            
-            <div className="mb-6">
-              <label className="block text-soft-gray mb-2">Select all that apply</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {goalOptions.map((goal) => (
-                  <div key={goal} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`goal-${goal}`}
-                      checked={formData.goals.includes(goal)}
-                      onChange={() => handleGoalChange(goal)}
-                      className="w-4 h-4 text-electric-blue border-electric-blue/30 rounded focus:ring-electric-blue/50"
-                    />
-                    <label htmlFor={`goal-${goal}`} className="ml-2 text-soft-gray">{goal}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={goToPreviousStep}
-                className="btn-secondary"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={goToNextStep}
-                disabled={formData.goals.length === 0}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </motion.div>
-        )}
-        
-        {currentStep === 3 && (
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h3 className="text-xl font-bold mb-6 text-electric-blue">Budget & Timeline</h3>
-            
-            <div className="mb-6">
-              <label htmlFor="budget" className="block text-soft-gray mb-2">Approximate Budget</label>
-              <select
-                id="budget"
-                name="budget"
-                value={formData.budget}
-                onChange={handleTextChange}
-                className="w-full bg-deep-navy/80 border border-electric-blue/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-electric-blue/50"
-                required
-              >
-                <option value="">Select a budget range</option>
-                {budgetOptions.map((budget) => (
-                  <option key={budget} value={budget}>{budget}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="mb-6">
-              <label htmlFor="timeline" className="block text-soft-gray mb-2">Desired Timeline</label>
-              <select
-                id="timeline"
-                name="timeline"
-                value={formData.timeline}
-                onChange={handleTextChange}
-                className="w-full bg-deep-navy/80 border border-electric-blue/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-electric-blue/50"
-                required
-              >
-                <option value="">Select a timeline</option>
-                {timelineOptions.map((timeline) => (
-                  <option key={timeline} value={timeline}>{timeline}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={goToPreviousStep}
-                className="btn-secondary"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={goToNextStep}
-                disabled={!formData.budget || !formData.timeline}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Next
-              </button>
-            </div>
-          </motion.div>
-        )}
-        
-        {currentStep === 4 && (
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-          >
-            <h3 className="text-xl font-bold mb-6 text-electric-blue">Confirm Your Information</h3>
-            
-            <div className="bg-deep-navy/80 border border-electric-blue/30 rounded-lg p-4 mb-6">
-              <div className="mb-4">
-                <h4 className="text-electric-blue font-semibold">Business Information</h4>
-                <p><span className="text-gray-400">Business Name:</span> {formData.businessName}</p>
-                <p><span className="text-gray-400">Industry:</span> {formData.industry}</p>
-              </div>
-              
-              <div className="mb-4">
-                <h4 className="text-electric-blue font-semibold">Goals</h4>
-                <ul className="list-disc list-inside">
-                  {formData.goals.map((goal) => (
-                    <li key={goal}>{goal}</li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="text-electric-blue font-semibold">Budget & Timeline</h4>
-                <p><span className="text-gray-400">Budget:</span> {formData.budget}</p>
-                <p><span className="text-gray-400">Timeline:</span> {formData.timeline}</p>
-              </div>
-            </div>
-            
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={goToPreviousStep}
-                className="btn-secondary"
-              >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit'}
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </form>
     </div>
   );
-} 
+};
+
+export default PercyIntakeForm;
