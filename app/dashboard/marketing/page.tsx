@@ -1,0 +1,296 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
+
+export default function MarketingDashboard() {
+  return (
+    <div className="min-h-screen bg-deep-navy">
+      <DashboardHeader />
+      <div className="flex">
+        <DashboardSidebar />
+        <main className="flex-1 p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-7xl mx-auto"
+          >
+            <motion.h1 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+            >
+              Marketing Analytics
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-gray-300 mb-8"
+            >
+              Optimize your marketing efforts with AI-powered insights and automation.
+            </motion.p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="glass-card p-6 rounded-xl col-span-2"
+              >
+                <h2 className="text-xl font-semibold mb-4 text-white">Performance Overview</h2>
+                <CampaignMetrics />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="glass-card p-6 rounded-xl"
+              >
+                <h2 className="text-xl font-semibold mb-4 text-white">Quick Actions</h2>
+                <div className="space-y-4">
+                  <motion.button
+                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                  >
+                    Create Campaign
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 px-4 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20"
+                  >
+                    Analyze Competitors
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 px-4 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20"
+                  >
+                    Generate Ad Copy
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3 px-4 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20"
+                  >
+                    SEO Analysis
+                  </motion.button>
+                </div>
+              </motion.div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                className="glass-card p-6 rounded-xl"
+              >
+                <h2 className="text-xl font-semibold mb-4 text-white">Active Campaigns</h2>
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Summer Promotion</h3>
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">Active</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-400 mb-3">
+                      <span>Budget: $1,200</span>
+                      <span>ROI: 3.2x</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '65%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">65% Complete</span>
+                      <span className="text-xs text-gray-400">18 days left</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Product Launch</h3>
+                      <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">Planning</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-400 mb-3">
+                      <span>Budget: $3,500</span>
+                      <span>ROI: --</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '25%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">25% Complete</span>
+                      <span className="text-xs text-gray-400">Starts in 14 days</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Email Nurture</h3>
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">Active</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-gray-400 mb-3">
+                      <span>Budget: $800</span>
+                      <span>ROI: 4.7x</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '80%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">80% Complete</span>
+                      <span className="text-xs text-gray-400">Ongoing</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="glass-card p-6 rounded-xl"
+              >
+                <h2 className="text-xl font-semibold mb-4 text-white">Channel Performance</h2>
+                <div className="space-y-4">
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Social Media</h3>
+                      <span className="text-electric-blue font-medium">+24%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-3">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '78%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">Engagement</span>
+                      <span className="text-xs text-gray-400">78%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Email Marketing</h3>
+                      <span className="text-electric-blue font-medium">+12%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-3">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '65%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">Open Rate</span>
+                      <span className="text-xs text-gray-400">65%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Search Ads</h3>
+                      <span className="text-electric-blue font-medium">+8%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-3">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '42%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">Click-through Rate</span>
+                      <span className="text-xs text-gray-400">42%</span>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/5 p-4 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-white font-medium">Content Marketing</h3>
+                      <span className="text-electric-blue font-medium">+31%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-3">
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '85%' }}></div>
+                    </div>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-gray-400">Conversion Rate</span>
+                      <span className="text-xs text-gray-400">85%</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.8 }}
+              className="glass-card p-6 rounded-xl"
+            >
+              <h2 className="text-xl font-semibold mb-4 text-white">AI Recommendations</h2>
+              <div className="space-y-4">
+                <div className="bg-white/5 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-electric-blue flex items-center justify-center mr-4">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-medium">Increase Instagram Ad Budget</h3>
+                      <p className="text-gray-400 text-sm mt-1">Your Instagram ads are performing 37% better than other channels. Consider reallocating budget from underperforming channels.</p>
+                      <div className="mt-3 flex space-x-3">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-3 py-1 rounded-lg bg-electric-blue text-white text-sm font-medium"
+                        >
+                          Apply
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-3 py-1 rounded-lg bg-white/10 text-white text-sm font-medium"
+                        >
+                          Dismiss
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white/5 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-electric-blue flex items-center justify-center mr-4">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="text-white font-medium">Optimize Email Subject Lines</h3>
+                      <p className="text-gray-400 text-sm mt-1">AI analysis shows your email open rates could improve by 18% with more compelling subject lines. We've generated alternatives.</p>
+                      <div className="mt-3 flex space-x-3">
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-3 py-1 rounded-lg bg-electric-blue text-white text-sm font-medium"
+                        >
+                          View Suggestions
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-3 py-1 rounded-lg bg-white/10 text-white text-sm font-medium"
+                        >
+                          Dismiss
+                        </motion.button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </main>
+      </div>
+    </div>
+  );
+}

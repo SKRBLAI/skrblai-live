@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Inter, Poppins } from 'next/font/google';
 import './globals.css';
 import Layout from '../components/layout/Layout';
+import DomainRedirect from '@/components/utils/DomainRedirect';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const poppins = Poppins({ 
@@ -59,7 +60,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-screen bg-[#0D1117] text-white font-sans antialiased overflow-x-hidden">
-        <Layout>{children}</Layout>
+        <DomainRedirect>
+          <Layout>{children}</Layout>
+        </DomainRedirect>
       </body>
     </html>
   );

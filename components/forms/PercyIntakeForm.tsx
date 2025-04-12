@@ -11,6 +11,8 @@ interface FormData {
   name: string;
   email: string;
   plan: string;
+  businessGoal?: string;
+  freeTrial?: boolean;
 }
 
 interface Step {
@@ -43,6 +45,11 @@ const PercyIntakeForm = () => {
       message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
       options: ['7-Day Free Trial', 'Subscribe Now'],
       field: 'plan'
+    },
+    {
+      message: (name) => `Great choice, ${name}! What's your primary business goal with SKRBL AI?`,
+      options: ['Grow Social Media', 'Publish a Book', 'Launch a Website', 'Design Brand', 'Improve Marketing'],
+      field: 'businessGoal'
     }
   ];
 
@@ -56,7 +63,39 @@ const PercyIntakeForm = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleBusinessGoalSelection = (goal: string) => {
+    // Map UI-friendly goal names to intent keys
+    const goalToIntentMap: Record<string, string> = {
+      'Grow Social Media': 'grow_social_media',
+      'Publish a Book': 'publish_book',
+      'Launch a Website': 'launch_website',
+      'Design Brand': 'design_brand',
+      'Improve Marketing': 'improve_marketing'
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      businessGoal: goalToIntentMap[goal] || goal
+    }));
+    
+    // If they chose free trial earlier, handle that flow
+    if (formData.plan.includes('Free Trial')) {
+      handleSubmit(goalToIntentMap[goal] || goal, true);
+    } else {
+      handleSubmit(goalToIntentMap[goal] || goal, false);
+    }
+  };
+
+  const handlePlanSelection = (plan: string) => {
+    setFormData(prev => ({
+      ...prev,
+      plan,
+      freeTrial: plan.includes('Free Trial')
+    }));
+    handleContinue();
+  };
+
+  const handleSubmit = async (intent?: string, isFreeTrial = false) => {
     setIsLoading(true);
     try {
       // Add default values for company, serviceInterest, and message to match Lead type
@@ -64,7 +103,9 @@ const PercyIntakeForm = () => {
         ...formData,
         company: '',
         serviceInterest: formData.plan,
-        message: `Onboarded via Percy chat interface`
+        message: `Onboarded via Percy chat interface`,
+        freeTrial: isFreeTrial,
+        businessGoal: intent || formData.businessGoal
       };
       
       await saveLeadToFirebase(leadData);
@@ -244,11 +285,14 @@ const PercyIntakeForm = () => {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => {
-                          setFormData({...formData, plan: option});
-                          handleSubmit();
+                          if (s.field === 'plan') {
+                            handlePlanSelection(option);
+                          } else if (s.field === 'businessGoal') {
+                            handleBusinessGoalSelection(option);
+                          }
                         }}
                         disabled={isLoading}
-                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${option.includes('Free') ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${(typeof option === 'string' && option.includes('Free')) || s.field === 'businessGoal' ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
                       >
                         {isLoading ? (
                           <span className="flex items-center justify-center">

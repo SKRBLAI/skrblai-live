@@ -137,3 +137,78 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     };
   }
 }
+
+// Define Lead interface for type safety
+export interface Lead {
+  name: string;
+  email: string;
+  plan: string;
+  company: string;
+  serviceInterest: string;
+  message: string;
+  freeTrial?: boolean;
+  businessGoal?: string;
+}
+
+// Add the percySyncAgent export
+export const percySyncAgent = {
+  // Handle user onboarding from Percy chat
+  handleOnboarding: async (userData: Lead): Promise<string> => {
+    try {
+      // Log the onboarding
+      await agentDb.logActivity('percySyncAgent', 'user_onboarding', {
+        userId: userData.email,
+        plan: userData.plan,
+        freeTrial: userData.freeTrial,
+        businessGoal: userData.businessGoal,
+        timestamp: Date.now()
+      });
+      
+      // If there's a business goal, route to the appropriate agent
+      if (userData.businessGoal) {
+        const intent = userData.businessGoal as IntentKey;
+        
+        // Create a temporary user ID based on email
+        const userId = userData.email.replace('@', '-at-').replace(/\./g, '-');
+        
+        // Route to the agent based on intent
+        if (INTENT_MAPPING[intent]) {
+          await routeToAgentFromIntent({
+            userId,
+            intent,
+            customParams: {
+              name: userData.name,
+              email: userData.email,
+              freeTrial: userData.freeTrial,
+              plan: userData.plan
+            }
+          });
+          
+          // Route to the appropriate dashboard page based on intent
+          if (intent === 'grow_social_media') {
+            return '/dashboard/social-media';
+          } else if (intent === 'publish_book') {
+            return '/dashboard/book-publishing';
+          } else if (intent === 'launch_website') {
+            return '/dashboard/website';
+          } else if (intent === 'design_brand') {
+            return '/dashboard/branding';
+          } else if (intent === 'improve_marketing') {
+            return '/dashboard/marketing';
+          }
+        }
+      }
+      
+      // Default routing based on plan if no specific goal
+      if (userData.freeTrial || userData.plan.includes('Free Trial')) {
+        return '/dashboard/getting-started';
+      } else {
+        return '/dashboard';
+      }
+    } catch (error) {
+      console.error('Error in Percy onboarding:', error);
+      // Default to dashboard on error
+      return '/dashboard';
+    }
+  }
+};

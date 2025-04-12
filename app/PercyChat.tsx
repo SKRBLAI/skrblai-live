@@ -1,19 +1,33 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import PercyButton from './PercyButton';
 
-export default function PercyChat({ onComplete }) {
+interface PercyChatProps {
+  onComplete: (data: { name: string; email: string; plan: string }) => void;
+}
+
+interface Step {
+  message: string;
+  input?: boolean;
+  field?: 'name' | 'email';
+  options?: string[];
+  action: (value: string) => void;
+}
+
+export default function PercyChat({ onComplete }: PercyChatProps) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [selectedPlan, setSelectedPlan] = useState('');
 
-  const steps = [
+  const steps: Step[] = [
     {
       message: "What's your name?",
       input: true,
       field: 'name',
-      action: (value) => {
+      action: (value: string) => {
         setName(value);
         setStep(1);
       }
@@ -22,7 +36,7 @@ export default function PercyChat({ onComplete }) {
       message: `Nice to meet you, ${name}! What's your email address?`,
       input: true,
       field: 'email',
-      action: (value) => {
+      action: (value: string) => {
         setEmail(value);
         setStep(2);
       }
@@ -30,7 +44,7 @@ export default function PercyChat({ onComplete }) {
     {
       message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
       options: ['7-Day Free Trial', 'Subscribe Now'],
-      action: (value) => {
+      action: (value: string) => {
         setSelectedPlan(value);
         onComplete({ name, email, plan: value });
       }
@@ -70,7 +84,7 @@ export default function PercyChat({ onComplete }) {
                   />
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    {s.options.map((option, idx) => (
+                    {s.options?.map((option, idx) => (
                       <PercyButton 
                         key={idx}
                         onClick={() => s.action(option)}

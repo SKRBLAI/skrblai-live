@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import PercyChat from './PercyChat';
 import AnimatedBackground from './AnimatedBackground';
+import PercyButton from './PercyButton';
 
 export default function PercyHero() {
   const [showChat, setShowChat] = useState(false);

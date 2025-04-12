@@ -9,13 +9,13 @@ interface NavItem {
 }
 
 interface DashboardSidebarProps {
-  activeSection: string;
-  setActiveSection: Dispatch<SetStateAction<string>>;
+  activeSection?: string;
+  setActiveSection?: Dispatch<SetStateAction<string>>;
 }
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
-  activeSection,
-  setActiveSection
+  activeSection = 'overview',
+  setActiveSection = () => {}
 }) => {
   const navItems: NavItem[] = [
     { id: 'overview', label: 'Dashboard Overview' },
