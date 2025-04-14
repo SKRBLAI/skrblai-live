@@ -13,14 +13,13 @@ interface Step {
   input?: boolean;
   field?: 'name' | 'email';
   options?: string[];
-  action: (value: string) => void;
+  action: (inputValue: string) => void;
 }
 
 export default function PercyChat({ onComplete }: PercyChatProps) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [selectedPlan, setSelectedPlan] = useState('');
 
   const steps: Step[] = [
     {
@@ -45,7 +44,6 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
       message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
       options: ['7-Day Free Trial', 'Subscribe Now'],
       action: (value: string) => {
-        setSelectedPlan(value);
         onComplete({ name, email, plan: value });
       }
     }

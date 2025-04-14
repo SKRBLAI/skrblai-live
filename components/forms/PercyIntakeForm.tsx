@@ -263,7 +263,11 @@ const PercyIntakeForm = () => {
                     <input
                       type={s.field === 'email' ? 'email' : 'text'}
                       value={formData[s.field]}
-                      onChange={(e) => setFormData({...formData, [s.field]: e.target.value})}
+                      onChange={(e) => {
+                        if (s.field) {
+                          setFormData({...formData, [s.field]: e.target.value});
+                        }
+                      }}
                       className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
                       placeholder={s.field === 'email' ? 'your@email.com' : 'Your name'}
                     />
@@ -292,7 +296,7 @@ const PercyIntakeForm = () => {
                           }
                         }}
                         disabled={isLoading}
-                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${(typeof option === 'string' && option.includes('Free')) || s.field === 'businessGoal' ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${((typeof option === 'string' && option.includes('Free')) || s.field === 'businessGoal') ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
                       >
                         {isLoading ? (
                           <span className="flex items-center justify-center">

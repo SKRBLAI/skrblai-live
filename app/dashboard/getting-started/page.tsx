@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import ProposalGenerator from '@/components/dashboard/ProposalGenerator';
 
 export default function GettingStartedDashboard() {
   return (
