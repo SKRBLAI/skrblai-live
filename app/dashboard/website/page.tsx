@@ -225,6 +225,25 @@ export default function WebsiteDashboard() {
                 </div>
               </div>
             </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.7 }}
+              className="glass-card p-6 rounded-xl mt-6 text-center"
+            >
+              <h2 className="text-xl font-semibold mb-4 text-white">Need Additional Website Features?</h2>
+              <p className="text-gray-300 mb-4">Get a personalized website development plan with our AI assistant</p>
+              <a href="/?intent=launch_website#percy" className="inline-block">
+                <motion.button
+                  whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                  whileTap={{ scale: 0.98 }}
+                  className="py-3 px-6 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                >
+                  Get Started
+                </motion.button>
+              </a>
+            </motion.div>
           </motion.div>
         </main>
       </div>

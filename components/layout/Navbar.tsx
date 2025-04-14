@@ -43,10 +43,10 @@ export default function Navbar() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <span className="text-2xl font-bold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">
-                Percy
+              <span className="text-2xl font-bold">
+                <span className="bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">SKRBL</span>
+                <span className="text-white">AI</span>
               </span>
-              <span className="text-white">AI</span>
             </motion.div>
           </Link>
 
@@ -62,20 +62,38 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center gap-4">
-              <Link
-                href="/login"
+              <a
+                href="/#percy"
                 className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const percySection = document.getElementById('percy');
+                  if (percySection) {
+                    percySection.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.location.href = '/#percy';
+                  }
+                }}
               >
                 Login
-              </Link>
-              <Link
-                href="/signup"
+              </a>
+              <a
+                href="/#percy"
                 className="px-6 py-2.5 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-full
                 hover:from-teal-400 hover:to-electric-blue transition-all duration-300 shadow-lg hover:shadow-electric-blue/20
                 transform hover:scale-105"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const percySection = document.getElementById('percy');
+                  if (percySection) {
+                    percySection.scrollIntoView({ behavior: 'smooth' });
+                  } else {
+                    window.location.href = '/#percy';
+                  }
+                }}
               >
                 Get Started
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -144,20 +162,38 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             transition={{ delay: navLinks.length * 0.1 }}
           >
-            <Link
-              href="/login"
+            <a
+              href="/#percy"
               className="block w-full px-4 py-2 text-center text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-colors duration-200"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setIsMobileMenuOpen(false);
+                const percySection = document.getElementById('percy');
+                if (percySection) {
+                  percySection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.location.href = '/#percy';
+                }
+              }}
             >
               Login
-            </Link>
-            <Link
-              href="/signup"
+            </a>
+            <a
+              href="/#percy"
               className="block w-full px-4 py-2 text-center bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium rounded-md hover:from-teal-400 hover:to-electric-blue transition-all duration-300"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                setIsMobileMenuOpen(false);
+                const percySection = document.getElementById('percy');
+                if (percySection) {
+                  percySection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.location.href = '/#percy';
+                }
+              }}
             >
               Get Started
-            </Link>
+            </a>
           </motion.div>
         </div>
       </motion.div>

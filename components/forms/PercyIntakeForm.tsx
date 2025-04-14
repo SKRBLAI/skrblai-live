@@ -1,16 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { saveLeadToFirebase } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { percySyncAgent } from '@/ai-agents/percySyncAgent';
+import { useSearchParams } from 'next/navigation';
 
 interface FormData {
   name: string;
   email: string;
   selectedPlan: string;
   intent: string;
+}
+
+interface IntentContent {
+  title: string;
+  description: string;
+  icon: string;
 }
 
 interface Step {
@@ -21,16 +28,63 @@ interface Step {
 
 const PercyIntakeForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [showIntentContent, setShowIntentContent] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     selectedPlan: '',
     intent: ''
   });
+
+  // Intent content mapping - memoized to prevent recreation on each render
+  const intentContent = useMemo<Record<string, IntentContent>>(() => ({
+    'grow_social_media': {
+      title: 'Social Media Growth',
+      description: 'Elevate your social presence with AI-powered content generation, audience analysis, and engagement strategies tailored to your brand voice.',
+      icon: '🚀'
+    },
+    'publish_book': {
+      title: 'Book Publishing',
+      description: 'Transform your manuscript into a professional publication with our comprehensive editing, formatting, and publishing services.',
+      icon: '📖'
+    },
+    'launch_website': {
+      title: 'Website Launch',
+      description: 'Build a stunning, conversion-optimized website with our AI-powered tools that handle design, content, and technical implementation.',
+      icon: '🌐'
+    },
+    'design_brand': {
+      title: 'Brand Design',
+      description: 'Create a cohesive brand identity with our AI-generated logos, color palettes, typography selections, and brand guidelines.',
+      icon: '🎨'
+    },
+    'improve_marketing': {
+      title: 'Marketing Optimization',
+      description: 'Analyze performance metrics and implement data-driven strategies to maximize ROI across all your marketing channels.',
+      icon: '📊'
+    }
+  }), []);
+
+  // Check for intent in URL
+  useEffect(() => {
+    if (searchParams) {
+      const urlIntent = searchParams.get('intent');
+      if (urlIntent && Object.keys(intentContent).includes(urlIntent)) {
+        setFormData(prev => ({
+          ...prev,
+          intent: urlIntent
+        }));
+        setShowIntentContent(true);
+        // Skip to plan selection for users coming from service page
+        setStep(2); 
+      }
+    }
+  }, [searchParams, intentContent]);
 
   const steps: Step[] = [
     {
@@ -92,6 +146,13 @@ const PercyIntakeForm = () => {
     setStatus('loading');
     setErrorMsg('');
     try {
+      // If we have intent from URL but missing name/email, show error message
+      if (showIntentContent && (!formData.name || !formData.email)) {
+        setStatus('error');
+        setErrorMsg("Please provide your name and email to continue.");
+        return;
+      }
+
       // Prepare lead data for submission (matches new Lead interface)
       const leadData = {
         name: formData.name,
@@ -99,7 +160,7 @@ const PercyIntakeForm = () => {
         selectedPlan: formData.selectedPlan,
         intent: intent || formData.intent
       };
-      // Log the submission attempt
+      
       console.log('Submitting lead data:', leadData);
       // Save lead to Firebase
       const saveResult = await saveLeadToFirebase(leadData);
@@ -108,7 +169,7 @@ const PercyIntakeForm = () => {
       }
       // Route to appropriate dashboard via Percy agent
       const route = await percySyncAgent.handleOnboarding(leadData);
-      if (route === 'Hmm, that didn’t work...') {
+      if (route === "Hmm, that didn't work...") {
         setStatus('error');
         setErrorMsg("Something went wrong. Please try again or pick a different goal.");
         return;
@@ -241,9 +302,22 @@ const PercyIntakeForm = () => {
               animate={{ opacity: 1, x: 0 }}
               className="bg-white/10 p-4 rounded-lg mb-4"
             >
-              <p className="text-white">
-                {typeof s.message === 'function' ? s.message(formData.name) : s.message}
-              </p>
+              {showIntentContent && i === 2 ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{intentContent[formData.intent]?.icon || '🚀'}</span>
+                    <h3 className="text-xl font-semibold text-white">{intentContent[formData.intent]?.title || 'Our Service'}</h3>
+                  </div>
+                  <p className="text-white">{intentContent[formData.intent]?.description || 'Let us help you achieve your goals!'}</p>
+                  <div className="pt-2">
+                    <p className="text-white font-medium">Would you like to try our 7-Day Free Trial or subscribe to a plan?</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-white">
+                  {typeof s.message === 'function' ? s.message(formData.name) : s.message}
+                </p>
+              )}
             </motion.div>
 
             {isTyping && i === step - 1 && (
@@ -265,28 +339,50 @@ const PercyIntakeForm = () => {
               >
                 {!s.options ? (
                   <div className="space-y-3">
-                    <input
-                      type={s.field === 'email' ? 'email' : 'text'}
-                      // Type-safe dynamic field binding for all string fields in FormData
-                      value={typeof formData[s.field] === 'string' ? formData[s.field] ?? '' : ''}
-                      onChange={(e) => {
-                        // Only update if the field is a string (prevents accidental boolean overwrite)
-                        if (typeof formData[s.field] === 'string') {
-                          setFormData({
-                            ...formData,
-                            [s.field]: e.target.value
-                          });
-                        }
-                      }}
-                      className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
-                      placeholder={s.field === 'email' ? 'your@email.com' : 'Your name'}
-                    />
+                    {/* If intent is from URL and we're at step 2, show name and email inputs together */}
+                    {showIntentContent && i === 2 ? (
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => setFormData({...formData, name: e.target.value})}
+                          className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                          placeholder="Your name"
+                        />
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({...formData, email: e.target.value})}
+                          className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                          placeholder="your@email.com"
+                        />
+                      </div>
+                    ) : (
+                      <input
+                        type={s.field === 'email' ? 'email' : 'text'}
+                        // Type-safe dynamic field binding for all string fields in FormData
+                        value={typeof formData[s.field] === 'string' ? formData[s.field] ?? '' : ''}
+                        onChange={(e) => {
+                          // Only update if the field is a string (prevents accidental boolean overwrite)
+                          if (typeof formData[s.field] === 'string') {
+                            setFormData({
+                              ...formData,
+                              [s.field]: e.target.value
+                            });
+                          }
+                        }}
+                        className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                        placeholder={s.field === 'email' ? 'your@email.com' : 'Your name'}
+                      />
+                    )}
                     <motion.button
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={handleContinue}
-                      disabled={!s.field || !formData[s.field] || status === 'loading' || status === 'success'}
-                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${!s.field || !formData[s.field] || status === 'loading' || status === 'success' ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                      disabled={(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
+                              !(showIntentContent && i === 2 && formData.name && formData.email)}
+                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
+                          !(showIntentContent && i === 2 && formData.name && formData.email) ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
                     >
                       Continue
                     </motion.button>
