@@ -17,7 +17,7 @@ export default function ContentAutomationPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-[0_0_4px_rgba(138,43,226,0.7)]"
           >
             Content Automation
           </motion.h1>
@@ -39,7 +39,7 @@ export default function ContentAutomationPage() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col justify-center"
           >
-            <h2 className="text-3xl font-bold mb-6 text-white">Automate Your <span className="bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">Entire Content Workflow</span></h2>
+            <h2 className="text-3xl font-bold mb-6 text-white">Automate Your <span className="text-electric-blue">Entire Content Workflow</span></h2>
             <p className="text-xl text-gray-300 mb-8">Our AI content platform handles every step of the content process, from idea generation to distribution and analytics.</p>
             
             <div className="space-y-4">
@@ -131,7 +131,7 @@ export default function ContentAutomationPage() {
           transition={{ duration: 0.5, delay: 0.7 }}
           className="mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-center text-white">Your Content <span className="bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">Workflow</span></h2>
+          <h2 className="text-3xl font-bold mb-8 text-center text-white">Your Content <span className="text-electric-blue">Workflow</span></h2>
           
           <div className="relative">
             <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-electric-blue to-teal-400 rounded-full"></div>

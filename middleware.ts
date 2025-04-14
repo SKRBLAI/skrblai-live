@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server';
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/user-dashboard/:path*',
     '/api/:path*'
   ],
   runtime: 'experimental-edge' // Setting back based on build error
@@ -13,8 +14,11 @@ export function middleware(request: NextRequest) {
   // Check for auth cookie instead of firebase directly
   const authCookie = request.cookies.get('auth');
   
-  if (!authCookie && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Protect both dashboard routes
+  if (!authCookie && 
+      (request.nextUrl.pathname.startsWith('/dashboard') || 
+       request.nextUrl.pathname.startsWith('/user-dashboard'))) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Add security headers

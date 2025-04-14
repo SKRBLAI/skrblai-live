@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { saveLeadToFirebase } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { percySyncAgent } from '@/ai-agents/percySyncAgent';
+import { auth } from '@/utils/firebase';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
 
 interface FormData {
@@ -29,6 +31,15 @@ interface Step {
 const PercyIntakeForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const urlIntent = searchParams?.get('intent') || null;
+
+  // Set initial intent from URL if present
+  useEffect(() => {
+    if (urlIntent) {
+      setFormData(prev => ({ ...prev, intent: urlIntent }));
+      setShowIntentContent(true);
+    }
+  }, [urlIntent]);
   const [step, setStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
@@ -40,6 +51,26 @@ const PercyIntakeForm = () => {
     selectedPlan: '',
     intent: ''
   });
+
+  // Get custom message based on intent
+  const getIntentMessage = (intent: string | null): string => {
+    if (!intent) return "Welcome! Let's get started with SKRBL AI.";
+    
+    switch (intent) {
+      case 'publish_book':
+        return "Ready to publish your book? Let's make your publishing journey smooth and successful!";
+      case 'design_brand':
+        return "Let's build your brand with SKRBL AI's creative suite!";
+      case 'launch_website':
+        return "Ready to launch your website? We'll help you create a stunning online presence!";
+      case 'grow_social_media':
+        return "Let's boost your social media presence with AI-powered strategies!";
+      case 'improve_marketing':
+        return "Ready to supercharge your marketing? Let's create impactful campaigns together!";
+      default:
+        return "Welcome to SKRBL AI! How can we help you today?";
+    }
+  };
 
   // Intent content mapping - memoized to prevent recreation on each render
   const intentContent = useMemo<Record<string, IntentContent>>(() => ({
@@ -167,6 +198,27 @@ const PercyIntakeForm = () => {
       if (!saveResult.success) {
         throw new Error('Failed to save lead data to Firebase');
       }
+      
+      // Check if user already exists in Firebase Auth
+      try {
+        // Generate a temporary password
+        const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        
+        // Create Firebase Auth user if they don't exist
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, tempPassword);
+        console.log('Created new user account:', userCredential.user.uid);
+        
+        // Send password reset email so they can set their own password
+        await sendPasswordResetEmail(auth, formData.email);
+        console.log('Password reset email sent');
+      } catch (authError: any) {
+        // If error is 'email-already-in-use', this is fine - user already exists
+        if (authError.code !== 'auth/email-already-in-use') {
+          console.error('Error creating user account:', authError);
+        } else {
+          console.log('User already exists, continuing with intake flow');
+        }
+      }
       // Route to appropriate dashboard via Percy agent
       const route = await percySyncAgent.handleOnboarding(leadData);
       if (route === "Hmm, that didn't work...") {
@@ -174,9 +226,33 @@ const PercyIntakeForm = () => {
         setErrorMsg("Something went wrong. Please try again or pick a different goal.");
         return;
       }
+      
+      // Update the route to go to the user dashboard with the intent section
+      let dashboardRoute = '/user-dashboard';
+      
+      // Map intent to dashboard section
+      if (intent || formData.intent) {
+        const intentValue = intent || formData.intent;
+        switch (intentValue) {
+          case 'publish_book':
+            dashboardRoute = '/user-dashboard/uploads?category=manuscripts';
+            break;
+          case 'design_brand':
+            dashboardRoute = '/user-dashboard/uploads?category=brand-assets';
+            break;
+          case 'launch_website':
+          case 'grow_social_media':
+            dashboardRoute = '/user-dashboard/tasks';
+            break;
+          default:
+            dashboardRoute = '/user-dashboard';
+        }
+      }
+      
       setStatus('success');
       setTimeout(() => {
-        router.push(route);
+        // Now we route to the user dashboard instead of the original route
+        router.push(dashboardRoute);
       }, 500); // brief delay for success state
     } catch (error) {
       setStatus('error');

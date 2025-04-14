@@ -1,4 +1,5 @@
 import { db, collection, addDoc } from '@/utils/firebase';
+import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
 
 import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -7,6 +8,7 @@ interface SocialBotInput extends BaseAgentInput {
   businessName: string;
   industry: string;
   platforms: ('instagram' | 'twitter' | 'facebook' | 'linkedin' | 'tiktok' | 'pinterest')[];
+  jobId?: string; // Optional job ID for tracking status
   contentType?: 'image' | 'video' | 'carousel' | 'text' | 'mixed';
   postCount?: number;
   tone?: 'professional' | 'casual' | 'friendly' | 'authoritative' | 'humorous' | 'technical';
@@ -54,9 +56,18 @@ interface ScheduleItem {
  */
 const runSocialBot = async (input: SocialBotInput) =>  {
   try {
+    // Update job status to in_progress if jobId is provided
+    if (input.jobId) {
+      await markJobStarted(input.jobId);
+    }
     // Validate input
     if (!input.userId || !input.businessName || !input.industry || !input.platforms || input.platforms.length === 0) {
-      throw new Error('Missing required fields: userId, businessName, industry, and platforms');
+      const errorMsg = 'Missing required fields: userId, businessName, industry, and platforms';
+      // Mark job as failed if jobId is provided
+      if (input.jobId) {
+        await markJobFailed(input.jobId, errorMsg);
+      }
+      throw new Error(errorMsg);
     }
 
     // Set defaults for optional parameters
@@ -72,6 +83,11 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       customInstructions: input.customInstructions || ''
     };
 
+    // Update progress to 20%
+    if (input.jobId) {
+      await updateJobProgress(input.jobId, 20);
+    }
+    
     // Generate social media content for each platform
     const socialContent = {
       businessName: input.businessName,
@@ -91,6 +107,11 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       schedule: socialParams.schedulePosts ? generatePostSchedule(input.platforms, socialParams.postCount) : null
     };
 
+    // Update progress to 50%
+    if (input.jobId) {
+      await updateJobProgress(input.jobId, 50);
+    }
+    
     // Log the social content generation to Firestore
     await addDoc(collection(db, 'agent-logs'), {
       agent: 'socialBotAgent',
@@ -100,6 +121,11 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       timestamp: new Date().toISOString()
     });
 
+    // Update progress to 80%
+    if (input.jobId) {
+      await updateJobProgress(input.jobId, 80);
+    }
+    
     // Save the generated social content to Firestore
     const socialRef = await addDoc(collection(db, 'social-content'), {
       userId: input.userId,
@@ -111,6 +137,15 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       status: 'completed'
     });
 
+    // Mark job as complete if jobId is provided
+    if (input.jobId) {
+      await markJobComplete(input.jobId, {
+        socialContentId: socialRef.id,
+        platformCount: input.platforms.length,
+        postCount: socialParams.postCount
+      });
+    }
+    
     return {
       success: true,
       message: `Social media content generated successfully for ${input.businessName} on ${input.platforms.join(', ')}`,
@@ -127,6 +162,12 @@ const runSocialBot = async (input: SocialBotInput) =>  {
     };
   } catch (error) {
     console.error('Social bot agent failed:', error);
+    
+    // Mark job as failed if jobId is provided
+    if (input.jobId) {
+      await markJobFailed(input.jobId, error instanceof Error ? error.message : 'Unknown error');
+    }
+    
     return {
       success: false,
       message: `Social bot agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`

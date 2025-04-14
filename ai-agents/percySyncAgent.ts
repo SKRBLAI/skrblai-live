@@ -60,11 +60,15 @@ interface AgentJob {
   id: string;
   userId: string;
   agentName: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
+  status: 'queued' | 'in_progress' | 'complete' | 'failed';
   intent: IntentKey;
   priority: 'low' | 'medium' | 'high';
   timestamp: number;
   customParams: Record<string, any>;
+  title?: string;
+  type?: string;
+  createdAt?: any;
+  progress?: number;
 }
 
 export interface AgentResponse {
@@ -88,18 +92,24 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     const agentHandler = AGENT_HANDLERS[agent as AgentName];
 
     // Create Firestore job document
+    const jobId = `${input.userId}-${Date.now()}`;
     const job: AgentJob = {
-      id: `${input.userId}-${Date.now()}`,
+      id: jobId,
       userId: input.userId,
       agentName: agent,
-      status: 'pending',
+      status: 'queued',
       intent: input.intent,
       priority,
       timestamp: Date.now(),
-      customParams: input.customParams || {}
+      customParams: input.customParams || {},
+      title: `${input.intent.replace(/_/g, ' ')} task`,
+      type: input.intent.split('_')[0], // e.g., 'grow' from 'grow_social_media'
+      createdAt: new Date(),
+      progress: 0
     };
 
-    const jobId = await agentDb.saveJob(job);
+    // Save to database - using existing method
+    await agentDb.saveJob(job);
     
     // Log agent activity
     await agentDb.logActivity(agent, 'job_created', { jobId, userId: input.userId });
@@ -108,8 +118,9 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     agentHandler.runAgent({
       userId: input.userId,
       goal: input.intent,
+      jobId, // Pass jobId directly as parameter
       metadata: {
-        jobId,
+        jobId, // Also include in metadata for backward compatibility
         ...input.customParams
       }
     });
@@ -151,6 +162,9 @@ export const percySyncAgent = {
   // Handle user onboarding from Percy chat
   handleOnboarding: async (userData: Lead): Promise<string> => {
     try {
+      // Generate a user ID from email
+      const userId = userData.email.replace('@', '-at-').replace(/\./g, '-');
+      
       // Log the onboarding
       await agentDb.logActivity('percySyncAgent', 'user_onboarding', {
         userId: userData.email,
@@ -158,6 +172,34 @@ export const percySyncAgent = {
         intent: userData.intent,
         timestamp: Date.now()
       });
+      
+      // Create an initial job record for the dashboard
+      if (userData.intent && Object.keys(INTENT_MAPPING).includes(userData.intent)) {
+        const intent = userData.intent as IntentKey;
+        const jobId = `${userId}-${Date.now()}`;
+        const { agent, priority } = INTENT_MAPPING[intent];
+        
+        // Create job in agent_jobs collection - using Firebase directly
+        const { db } = await import('@/utils/firebase');
+        const { collection, doc, setDoc } = await import('firebase/firestore');
+        await setDoc(doc(collection(db, 'agent_jobs'), jobId), {
+          id: jobId,
+          userId,
+          title: `New ${intent.replace(/_/g, ' ')} project`,
+          status: 'queued',
+          type: intent.split('_')[0], // e.g., 'grow' from 'grow_social_media'
+          agentType: agent,
+          intent,
+          priority,
+          createdAt: new Date(),
+          progress: 0,
+          customParams: {
+            name: userData.name,
+            email: userData.email,
+            selectedPlan: userData.selectedPlan
+          }
+        });
+      }
 
       // Route based on intent
       if (userData.intent && Object.keys(INTENT_MAPPING).includes(userData.intent)) {

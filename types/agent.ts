@@ -1,6 +1,7 @@
 export interface AgentInput {
   userId: string;
   goal: string;
+  jobId?: string; // Job ID for tracking status in dashboard
   additionalNotes?: string;
   metadata?: Record<string, any>;
 }

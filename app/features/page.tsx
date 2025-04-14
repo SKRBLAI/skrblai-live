@@ -55,7 +55,7 @@ export default function FeaturesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-[0_0_4px_rgba(138,43,226,0.7)]"
           >
             Supercharge Your Content Creation
           </motion.h1>
@@ -101,6 +101,21 @@ export default function FeaturesPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* CTA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="text-center mt-16"
+        >
+          <a
+            href="/?intent=launch_website#percy"
+            className="inline-block px-8 py-4 bg-electric-blue hover:bg-electric-blue/90 text-white rounded-lg font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+          >
+            Get Started with SKRBL AI
+          </a>
+        </motion.div>
       </div>
     </motion.div>
   );

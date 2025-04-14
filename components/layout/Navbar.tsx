@@ -77,23 +77,12 @@ export default function Navbar() {
               >
                 Login
               </a>
-              <a
-                href="/#percy"
-                className="px-6 py-2.5 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-full
-                hover:from-teal-400 hover:to-electric-blue transition-all duration-300 shadow-lg hover:shadow-electric-blue/20
-                transform hover:scale-105"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const percySection = document.getElementById('percy');
-                  if (percySection) {
-                    percySection.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    window.location.href = '/#percy';
-                  }
-                }}
+              <Link
+                href="/?intent=grow_social_media#percy"
+                className="px-6 py-2.5 bg-electric-blue hover:bg-electric-blue/90 text-white font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-lg transform hover:scale-105"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -178,22 +167,13 @@ export default function Navbar() {
             >
               Login
             </a>
-            <a
-              href="/#percy"
-              className="block w-full px-4 py-2 text-center bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium rounded-md hover:from-teal-400 hover:to-electric-blue transition-all duration-300"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                const percySection = document.getElementById('percy');
-                if (percySection) {
-                  percySection.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.location.href = '/#percy';
-                }
-              }}
+            <Link
+              href="/?intent=grow_social_media#percy"
+              className="block w-full px-4 py-2 text-center bg-electric-blue hover:bg-electric-blue/90 text-white font-medium rounded-md transition-all duration-300"
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               Get Started
-            </a>
+            </Link>
           </motion.div>
         </div>
       </motion.div>
