@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { doc, getDoc } from 'firebase/firestore';
+import styles from './TaskDetail.module.css';
 import { db } from '@/utils/firebase';
 import { JobStatus } from '@/utils/agentJobStatus';
 
@@ -140,10 +141,10 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
         <div className="bg-gray-800 rounded-xl p-6">
           <h3 className="text-gray-400 text-sm mb-2">Progress</h3>
           <div className="flex items-center">
-            <div className="w-full bg-gray-700 rounded-full h-2.5 mr-2">
+            <div className={styles.progressBar}>
               <div 
-                className="bg-electric-blue h-2.5 rounded-full" 
-                style={{ width: `${task.progress || 0}%` }}
+                className={styles.progressBarFill}
+                style={{ '--progress-width': `${task.progress || 0}%` } as React.CSSProperties}
               ></div>
             </div>
             <span className="text-white font-bold">{task.progress || 0}%</span>

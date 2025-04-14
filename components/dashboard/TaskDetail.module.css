@@ -1,0 +1,15 @@
+.progressBar {
+  width: 100%;
+  background-color: rgb(55, 65, 81); /* bg-gray-700 */
+  border-radius: 9999px;
+  height: 0.625rem; /* h-2.5 */
+  margin-right: 0.5rem; /* mr-2 */
+}
+
+.progressBarFill {
+  height: 0.625rem; /* h-2.5 */
+  border-radius: 9999px;
+  background-color: #00a3ff; /* bg-electric-blue */
+  transition: width 0.3s ease;
+  width: var(--progress-width);
+}

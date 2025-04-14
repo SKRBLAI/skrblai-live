@@ -1,4 +1,5 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
+import { getAuth, type Auth } from 'firebase/auth';
 import {
   getFirestore,
   collection,
@@ -21,7 +22,6 @@ import {
   type WhereFilterOp,
   type OrderByDirection,
 } from 'firebase/firestore';
-import { getAuth, type Auth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL, type FirebaseStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
@@ -32,7 +32,8 @@ interface BaseDocument {
   updatedAt?: FirestoreTimestamp;
 }
 
-const firebaseConfig = {
+// Firebase configuration
+const config = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
@@ -43,20 +44,23 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase with SSR protection
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db: Firestore = getFirestore(app);
-const auth: Auth = getAuth(app);
-const storage: FirebaseStorage = getStorage(app);
+const app = getApps().length === 0 ? initializeApp(config) : getApps()[0];
 
-// Client-side analytics
+// Initialize and export Firebase services
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+let analytics: ReturnType<typeof getAnalytics> | null = null;
+
+// Initialize analytics only in browser
 if (typeof window !== 'undefined') {
-  isSupported().then((yes) => {
-    if (yes) getAnalytics(app);
+  isSupported().then(yes => {
+    if (yes) analytics = getAnalytics(app);
   });
 }
 
 // Export Firebase instances
-export { app, db, auth, storage };
+export { app, auth, db, storage, analytics };
 
 // Export Firestore utility functions
 export {
@@ -119,11 +123,13 @@ export const saveToFirestore = async <T extends BaseDocument>(
   }
 };
 
-export interface Lead {
+export interface Lead extends BaseDocument {
   name: string;
   email: string;
   selectedPlan: string;
   intent: string;
+  freeTrial?: boolean;
+  businessGoal?: string;
 }
 
 export const saveLeadToFirebase = async (leadData: Lead) => {
