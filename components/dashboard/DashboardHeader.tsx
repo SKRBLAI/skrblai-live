@@ -2,7 +2,7 @@
 
 import { signOut } from 'firebase/auth';
 import { auth } from '@/utils/firebase';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardHeader() {
   const router = useRouter();
