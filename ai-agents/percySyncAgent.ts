@@ -142,12 +142,8 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
 export interface Lead {
   name: string;
   email: string;
-  plan: string;
-  company: string;
-  serviceInterest: string;
-  message: string;
-  freeTrial?: boolean;
-  businessGoal?: string;
+  selectedPlan: string;
+  intent: string;
 }
 
 // Add the percySyncAgent export
@@ -158,57 +154,51 @@ export const percySyncAgent = {
       // Log the onboarding
       await agentDb.logActivity('percySyncAgent', 'user_onboarding', {
         userId: userData.email,
-        plan: userData.plan,
-        freeTrial: userData.freeTrial,
-        businessGoal: userData.businessGoal,
+        selectedPlan: userData.selectedPlan,
+        intent: userData.intent,
         timestamp: Date.now()
       });
-      
-      // If there's a business goal, route to the appropriate agent
-      if (userData.businessGoal) {
-        const intent = userData.businessGoal as IntentKey;
-        
-        // Create a temporary user ID based on email
+
+      // Route based on intent
+      if (userData.intent && Object.keys(INTENT_MAPPING).includes(userData.intent)) {
+        const intent = userData.intent as IntentKey;
         const userId = userData.email.replace('@', '-at-').replace(/\./g, '-');
-        
-        // Route to the agent based on intent
-        if (INTENT_MAPPING[intent]) {
-          await routeToAgentFromIntent({
-            userId,
-            intent,
-            customParams: {
-              name: userData.name,
-              email: userData.email,
-              freeTrial: userData.freeTrial,
-              plan: userData.plan
-            }
-          });
-          
-          // Route to the appropriate dashboard page based on intent
-          if (intent === 'grow_social_media') {
-            return '/dashboard/social-media';
-          } else if (intent === 'publish_book') {
-            return '/dashboard/book-publishing';
-          } else if (intent === 'launch_website') {
-            return '/dashboard/website';
-          } else if (intent === 'design_brand') {
-            return '/dashboard/branding';
-          } else if (intent === 'improve_marketing') {
-            return '/dashboard/marketing';
+        await agentDb.logActivity('percySyncAgent', 'intent_routing', {
+          intent,
+          userId,
+          timestamp: Date.now()
+        });
+        await routeToAgentFromIntent({
+          userId,
+          intent,
+          customParams: {
+            name: userData.name,
+            email: userData.email,
+            selectedPlan: userData.selectedPlan
           }
-        }
-      }
-      
-      // Default routing based on plan if no specific goal
-      if (userData.freeTrial || userData.plan.includes('Free Trial')) {
-        return '/dashboard/getting-started';
+        });
+        const intentToDashboardMap: Record<IntentKey, string> = {
+          'grow_social_media': '/dashboard/social-media',
+          'publish_book': '/dashboard/book-publishing',
+          'launch_website': '/dashboard/website',
+          'design_brand': '/dashboard/branding',
+          'improve_marketing': '/dashboard/marketing'
+        };
+        return intentToDashboardMap[intent];
       } else {
-        return '/dashboard';
+        // Invalid or missing intent
+        await agentDb.logActivity('percySyncAgent', 'invalid_intent', {
+          providedIntent: userData.intent,
+          validIntents: Object.keys(INTENT_MAPPING),
+          timestamp: Date.now()
+        });
+        // Return error string per checklist
+        return 'Hmm, that didn’t work...';
       }
     } catch (error) {
       console.error('Error in Percy onboarding:', error);
-      // Default to dashboard on error
-      return '/dashboard';
+      // Return error string per checklist
+      return 'Hmm, that didn’t work...';
     }
   }
 };

@@ -119,16 +119,20 @@ export const saveToFirestore = async <T extends BaseDocument>(
   }
 };
 
-interface Lead extends BaseDocument {
+export interface Lead {
   name: string;
   email: string;
-  company: string;
-  serviceInterest: string;
-  message: string;
+  selectedPlan: string;
+  intent: string;
 }
 
 export const saveLeadToFirebase = async (leadData: Lead) => {
-  return saveToFirestore('leads', leadData);
+  // Only save the required fields for Lead
+  const enrichedData = {
+    ...leadData,
+    createdAt: serverTimestamp()
+  };
+  return saveToFirestore('leads', enrichedData);
 };
 
 interface ScheduledPost extends BaseDocument {

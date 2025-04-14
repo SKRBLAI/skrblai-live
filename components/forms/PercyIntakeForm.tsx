@@ -4,15 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { saveLeadToFirebase } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
 import { percySyncAgent } from '@/ai-agents/percySyncAgent';
 
 interface FormData {
   name: string;
   email: string;
-  plan: string;
-  businessGoal?: string;
-  freeTrial?: boolean;
+  selectedPlan: string;
+  intent: string;
 }
 
 interface Step {
@@ -24,12 +22,14 @@ interface Step {
 const PercyIntakeForm = () => {
   const router = useRouter();
   const [step, setStep] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'loading' | 'error' | 'success'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
-    plan: ''
+    selectedPlan: '',
+    intent: ''
   });
 
   const steps: Step[] = [
@@ -44,12 +44,12 @@ const PercyIntakeForm = () => {
     {
       message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
       options: ['7-Day Free Trial', 'Subscribe Now'],
-      field: 'plan'
+      field: 'selectedPlan'
     },
     {
       message: (name) => `Great choice, ${name}! What's your primary business goal with SKRBL AI?`,
       options: ['Grow Social Media', 'Publish a Book', 'Launch a Website', 'Design Brand', 'Improve Marketing'],
-      field: 'businessGoal'
+      field: 'intent'
     }
   ];
 
@@ -63,7 +63,7 @@ const PercyIntakeForm = () => {
     }
   };
 
-  const handleBusinessGoalSelection = (goal: string) => {
+  const handleIntentSelection = (goal: string) => {
     // Map UI-friendly goal names to intent keys
     const goalToIntentMap: Record<string, string> = {
       'Grow Social Media': 'grow_social_media',
@@ -75,47 +75,52 @@ const PercyIntakeForm = () => {
 
     setFormData(prev => ({
       ...prev,
-      businessGoal: goalToIntentMap[goal] || goal
+      intent: goalToIntentMap[goal] || goal
     }));
-    
-    // If they chose free trial earlier, handle that flow
-    if (formData.plan.includes('Free Trial')) {
-      handleSubmit(goalToIntentMap[goal] || goal, true);
-    } else {
-      handleSubmit(goalToIntentMap[goal] || goal, false);
-    }
+    handleSubmit(goalToIntentMap[goal] || goal);
   };
 
-  const handlePlanSelection = (plan: string) => {
+  const handlePlanSelection = (selectedPlan: string) => {
     setFormData(prev => ({
       ...prev,
-      plan,
-      freeTrial: plan.includes('Free Trial')
+      selectedPlan
     }));
     handleContinue();
   };
 
-  const handleSubmit = async (intent?: string, isFreeTrial = false) => {
-    setIsLoading(true);
+  const handleSubmit = async (intent?: string) => {
+    setStatus('loading');
+    setErrorMsg('');
     try {
-      // Add default values for company, serviceInterest, and message to match Lead type
+      // Prepare lead data for submission (matches new Lead interface)
       const leadData = {
-        ...formData,
-        company: '',
-        serviceInterest: formData.plan,
-        message: `Onboarded via Percy chat interface`,
-        freeTrial: isFreeTrial,
-        businessGoal: intent || formData.businessGoal
+        name: formData.name,
+        email: formData.email,
+        selectedPlan: formData.selectedPlan,
+        intent: intent || formData.intent
       };
-      
-      await saveLeadToFirebase(leadData);
+      // Log the submission attempt
+      console.log('Submitting lead data:', leadData);
+      // Save lead to Firebase
+      const saveResult = await saveLeadToFirebase(leadData);
+      if (!saveResult.success) {
+        throw new Error('Failed to save lead data to Firebase');
+      }
+      // Route to appropriate dashboard via Percy agent
       const route = await percySyncAgent.handleOnboarding(leadData);
-      toast.success('Welcome to SKRBL AI!');
-      router.push(route);
+      if (route === 'Hmm, that didn’t work...') {
+        setStatus('error');
+        setErrorMsg("Something went wrong. Please try again or pick a different goal.");
+        return;
+      }
+      setStatus('success');
+      setTimeout(() => {
+        router.push(route);
+      }, 500); // brief delay for success state
     } catch (error) {
-      toast.error('Error saving your information');
-    } finally {
-      setIsLoading(false);
+      setStatus('error');
+      setErrorMsg("Something went wrong. Please try again.");
+      console.error('Error in form submission:', error);
     }
   };
 
@@ -262,10 +267,15 @@ const PercyIntakeForm = () => {
                   <div className="space-y-3">
                     <input
                       type={s.field === 'email' ? 'email' : 'text'}
-                      value={formData[s.field]}
+                      // Type-safe dynamic field binding for all string fields in FormData
+                      value={typeof formData[s.field] === 'string' ? formData[s.field] ?? '' : ''}
                       onChange={(e) => {
-                        if (s.field) {
-                          setFormData({...formData, [s.field]: e.target.value});
+                        // Only update if the field is a string (prevents accidental boolean overwrite)
+                        if (typeof formData[s.field] === 'string') {
+                          setFormData({
+                            ...formData,
+                            [s.field]: e.target.value
+                          });
                         }
                       }}
                       className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
@@ -275,8 +285,8 @@ const PercyIntakeForm = () => {
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
                       onClick={handleContinue}
-                      disabled={!formData[s.field]}
-                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${!formData[s.field] ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                      disabled={!s.field || !formData[s.field] || status === 'loading' || status === 'success'}
+                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${!s.field || !formData[s.field] || status === 'loading' || status === 'success' ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
                     >
                       Continue
                     </motion.button>
@@ -289,16 +299,16 @@ const PercyIntakeForm = () => {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => {
-                          if (s.field === 'plan') {
+                          if (s.field === 'selectedPlan') {
                             handlePlanSelection(option);
-                          } else if (s.field === 'businessGoal') {
-                            handleBusinessGoalSelection(option);
+                          } else if (s.field === 'intent') {
+                            handleIntentSelection(option);
                           }
                         }}
-                        disabled={isLoading}
-                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${((typeof option === 'string' && option.includes('Free')) || s.field === 'businessGoal') ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                        disabled={status === 'loading' || status === 'success'}
+                        className={`glass-button px-6 py-3 rounded-lg font-medium transition-all duration-300 ${((typeof option === 'string' && option.includes('Free')) || s.field === 'intent') ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20' : 'bg-white/10 text-white hover:bg-white/20'}`}
                       >
-                        {isLoading ? (
+                        {status === 'loading' ? (
                           <span className="flex items-center justify-center">
                             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
