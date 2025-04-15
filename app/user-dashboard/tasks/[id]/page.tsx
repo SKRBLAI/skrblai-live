@@ -23,8 +23,13 @@ interface TaskDetail {
   error?: string;
 }
 
+interface TaskParams {
+  [key: string]: string | string[] | undefined;
+  id: string;
+}
+
 export default function TaskDetailPage() {
-  const params = useParams();
+  const params = useParams<TaskParams>();
   const router = useRouter();
   const [task, setTask] = useState<TaskDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,7 +44,13 @@ export default function TaskDetailPage() {
           return;
         }
 
-        const taskId = params.id as string;
+        if (!params?.id) {
+          setError('Task ID is required');
+          setLoading(false);
+          return;
+        }
+
+        const taskId = params.id;
         const taskRef = doc(db, 'agent_jobs', taskId);
         const taskDoc = await getDoc(taskRef);
 

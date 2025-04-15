@@ -3,9 +3,20 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  type User
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  query,
+  where,
+  limit,
+  getDocs,
+  type QuerySnapshot,
+  doc, 
+  setDoc, 
+  getDoc
+} from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 // Create user with Firebase Auth and store initial user data
@@ -62,10 +73,12 @@ export const checkUserExists = async (email: string) => {
   try {
     // This is simplified and would need to be implemented with Firestore queries
     // or Firebase Admin SDK in a real implementation
-    const querySnapshot = await db.collection('users')
-      .where('email', '==', email)
-      .limit(1)
-      .get();
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, 
+      where('email', '==', email),
+      limit(1)
+    );
+    const querySnapshot = await getDocs(q);
     
     return !querySnapshot.empty;
   } catch (error) {
