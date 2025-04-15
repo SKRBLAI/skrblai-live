@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { motion } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 export default function WebsiteDashboard() {
   return (
@@ -23,10 +24,48 @@ export default function WebsiteDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+              className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]"
             >
               Website Creation
             </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-gray-300 mb-8"
+            >
+              Create a stunning website tailored to your business needs with AI assistance.
+            </motion.p>
+
+            <div className="glass-card p-6 rounded-xl mb-8 bg-gradient-to-br from-[#0c1225]/80 to-[#0a192f]/80">
+              <h2 className="text-2xl font-bold text-white mb-4">Upload Your Website Materials</h2>
+              <p className="text-gray-300 mb-6">Upload your design materials, content, and existing website assets to help us create your ideal site.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <FileUploadCard
+                  title="Website Content"
+                  description="Upload text content, copy, and information for your website pages."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>}
+                  acceptedFileTypes=".doc,.docx,.pdf,.txt,.md"
+                  fileCategory="content"
+                  intentType="launch_website"
+                />
+                
+                <FileUploadCard
+                  title="Design Assets"
+                  description="Upload images, logos, colors, or design inspirations for your website."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>}
+                  acceptedFileTypes=".jpg,.jpeg,.png,.pdf,.svg,.ai,.zip"
+                  fileCategory="design"
+                  intentType="launch_website"
+                />
+              </div>
+            </div>
             
             <motion.p
               initial={{ opacity: 0 }}
@@ -52,7 +91,7 @@ export default function WebsiteDashboard() {
                       <span className="text-electric-blue">100%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2.5">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full" style={{ width: '100%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full w-full"></div>
                     </div>
                   </div>
                   
@@ -62,7 +101,7 @@ export default function WebsiteDashboard() {
                       <span className="text-electric-blue">60%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2.5">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full" style={{ width: '60%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full w-[60%]"></div>
                     </div>
                   </div>
                   
@@ -72,7 +111,7 @@ export default function WebsiteDashboard() {
                       <span className="text-electric-blue">40%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2.5">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full" style={{ width: '40%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full w-[40%]"></div>
                     </div>
                   </div>
                   
@@ -82,7 +121,7 @@ export default function WebsiteDashboard() {
                       <span className="text-electric-blue">25%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2.5">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full" style={{ width: '25%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2.5 rounded-full w-1/4"></div>
                     </div>
                   </div>
                 </div>
@@ -144,16 +183,18 @@ export default function WebsiteDashboard() {
                     <span className="text-white">Homepage</span>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Edit page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
+                      <span className="sr-only">Edit page</span>
                     </button>
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Preview page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                      <span className="sr-only">Preview page</span>
                     </button>
                   </div>
                 </div>
@@ -166,16 +207,18 @@ export default function WebsiteDashboard() {
                     <span className="text-white">Products/Services</span>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Edit page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
+                      <span className="sr-only">Edit page</span>
                     </button>
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Preview page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                      <span className="sr-only">Preview page</span>
                     </button>
                   </div>
                 </div>
@@ -188,16 +231,18 @@ export default function WebsiteDashboard() {
                     <span className="text-white">About Us</span>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Edit page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
+                      <span className="sr-only">Edit page</span>
                     </button>
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Preview page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                      <span className="sr-only">Preview page</span>
                     </button>
                   </div>
                 </div>
@@ -210,16 +255,18 @@ export default function WebsiteDashboard() {
                     <span className="text-white">Contact</span>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Edit page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
+                      <span className="sr-only">Edit page</span>
                     </button>
-                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button className="p-2 rounded-lg bg-white/10 hover:bg-white/20" title="Preview page">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
+                      <span className="sr-only">Preview page</span>
                     </button>
                   </div>
                 </div>

@@ -17,7 +17,7 @@ export default function BookPublishingPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-[0_0_4px_rgba(138,43,226,0.7)]"
+            className="text-white text-4xl md:text-5xl font-bold mb-4 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]"
           >
             AI-Powered Book Publishing
           </motion.h1>
@@ -128,11 +128,10 @@ export default function BookPublishingPage() {
           transition={{ duration: 0.5, delay: 0.7 }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Publish Your Book?</h2>
-          <Link href="/signup">
-            <button className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-lg
-              hover:from-teal-400 hover:to-electric-blue transition-all duration-300 shadow-lg hover:shadow-electric-blue/20
-              transform hover:scale-105">
+          <h2 className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]">Ready to Publish Your Book?</h2>
+          <Link href="/?intent=publish_book#percy">
+            <button className="bg-electric-blue hover:shadow-lg text-white font-semibold px-6 py-3 rounded-lg transition-all
+              duration-300 hover:drop-shadow-[0_0_8px_rgba(165,120,255,0.75)] transform hover:scale-105">
               Start Publishing Now
             </button>
           </Link>

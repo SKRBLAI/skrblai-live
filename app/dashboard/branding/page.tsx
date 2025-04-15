@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 import { motion } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 export default function BrandingDashboard() {
   return (
@@ -23,7 +24,7 @@ export default function BrandingDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+              className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]"
             >
               Brand Design
             </motion.h1>
@@ -36,6 +37,35 @@ export default function BrandingDashboard() {
             >
               Create a powerful brand identity that resonates with your audience.
             </motion.p>
+            
+            <div className="glass-card p-6 rounded-xl mb-8 bg-gradient-to-br from-[#0c1225]/80 to-[#0a192f]/80">
+              <h2 className="text-2xl font-bold text-white mb-4">Upload Your Brand Assets</h2>
+              <p className="text-gray-300 mb-6">Upload your existing brand assets or design brief to get started with AI-powered brand enhancement.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <FileUploadCard
+                  title="Logo Files"
+                  description="Upload your existing logo or sketches for AI enhancement or redesign."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>}
+                  acceptedFileTypes=".png,.jpg,.jpeg,.svg,.ai,.pdf"
+                  fileCategory="logo"
+                  intentType="design_brand"
+                />
+                
+                <FileUploadCard
+                  title="Brand Guidelines"
+                  description="Upload any existing brand guidelines or documentation to ensure consistency."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>}
+                  acceptedFileTypes=".pdf,.doc,.docx,.ppt,.pptx"
+                  fileCategory="guidelines"
+                  intentType="design_brand"
+                />
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <motion.div

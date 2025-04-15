@@ -216,40 +216,28 @@ const PercyIntakeForm = () => {
         }
       }
       // Route to appropriate dashboard via Percy agent
-      const route = await percySyncAgent.handleOnboarding(leadData);
-      if (route === "Hmm, that didn't work...") {
+      const agentResponse = await percySyncAgent.handleOnboarding(leadData);
+      if (!agentResponse.success) {
         setStatus('error');
-        setErrorMsg("Something went wrong. Please try again or pick a different goal.");
+        setErrorMsg(agentResponse.message || "Something went wrong. Please try again or pick a different goal.");
         return;
       }
       
-      // Update the route to go to the user dashboard with the intent section
-      let dashboardRoute = '/user-dashboard';
-      
-      // Map intent to dashboard section
-      if (intent || formData.intent) {
-        const intentValue = intent || formData.intent;
-        switch (intentValue) {
-          case 'publish_book':
-            dashboardRoute = '/user-dashboard/uploads?category=manuscripts';
-            break;
-          case 'design_brand':
-            dashboardRoute = '/user-dashboard/uploads?category=brand-assets';
-            break;
-          case 'launch_website':
-          case 'grow_social_media':
-            dashboardRoute = '/user-dashboard/tasks';
-            break;
-          default:
-            dashboardRoute = '/user-dashboard';
-        }
-      }
-      
+      // Show success message from agent
       setStatus('success');
+      
+      // Set timeout to redirect to dashboard
       setTimeout(() => {
-        // Now we route to the user dashboard instead of the original route
-        router.push(dashboardRoute);
-      }, 500); // brief delay for success state
+        if (agentResponse.redirectPath) {
+          router.push(agentResponse.redirectPath);
+        } else {
+          router.push('/dashboard');
+        }
+      }, 1500); // Allow time to see success message
+      
+      return;
+      
+      // This code is now handled by the agentResponse.redirectPath above
     } catch (error) {
       setStatus('error');
       setErrorMsg("Something went wrong. Please try again.");
@@ -294,14 +282,14 @@ const PercyIntakeForm = () => {
     canvas.height = window.innerHeight;
 
     const particles: any[] = [];
-    const particleCount = 50;
+    const particleCount = 80;
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         radius: Math.random() * 2 + 1,
-        color: `rgba(255, 255, 255, ${Math.random() * 0.3})`,
+        color: Math.random() > 0.5 ? `rgba(165, 120, 255, ${Math.random() * 0.4})` : `rgba(100, 210, 255, ${Math.random() * 0.4})`,
         speedX: Math.random() * 2 - 1,
         speedY: Math.random() * 2 - 1
       });
@@ -339,7 +327,7 @@ const PercyIntakeForm = () => {
   return (
     <div className="fixed inset-0 overflow-hidden">
       {/* Animated background */}
-      <canvas id="particle-canvas" className="absolute inset-0 bg-gradient-to-br from-purple-500 to-teal-600" />
+      <canvas id="particle-canvas" className="absolute inset-0 bg-gradient-to-br from-[#0c1225] to-[#0a192f] opacity-90" />
       
       <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
         {/* Percy avatar */}
@@ -353,7 +341,7 @@ const PercyIntakeForm = () => {
             animate="blink"
             className="relative w-32 h-32 md:w-40 md:h-40 bg-white/10 rounded-full p-2 backdrop-blur-sm border border-white/20 shadow-lg shadow-purple-500/20"
           >
-            <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-electric-blue to-teal-400 flex items-center justify-center">
+            <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-electric-blue to-teal-400 flex items-center justify-center shadow-[0_0_15px_rgba(165,120,255,0.6)]">
               <span className="text-4xl md:text-5xl">🤖</span>
               {/* Replace with actual Percy image when available */}
               {/* <Image src="/images/percy-avatar.png" alt="Percy AI" width={150} height={150} /> */}

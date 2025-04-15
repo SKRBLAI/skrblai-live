@@ -1,32 +1,12 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import type { Lead } from '@/types/lead';
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  setDoc,
-  getDocs,
-  getDoc,
-  updateDoc,
-  doc,
-  serverTimestamp,
-  query,
-  where,
-  orderBy,
-  limit,
-  type Firestore,
-  type DocumentData,
-  type DocumentReference,
-  type QuerySnapshot,
-  type Query,
-  type WhereFilterOp,
-  type OrderByDirection,
-} from 'firebase/firestore';
+import { getFirestore, collection, addDoc, setDoc, getDoc, getDocs, updateDoc, doc, serverTimestamp, query, where, orderBy, limit, Timestamp, type Firestore, type DocumentData, type DocumentReference, type QuerySnapshot, type Query, type WhereFilterOp, type OrderByDirection, CollectionReference } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL, type FirebaseStorage } from 'firebase/storage';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 
-type FirestoreTimestamp = ReturnType<typeof serverTimestamp>;
+export type FirestoreTimestamp = ReturnType<typeof serverTimestamp>;
+export type FirestoreCollection<T = DocumentData> = CollectionReference<T>;
 
 interface BaseDocument {
   createdAt?: FirestoreTimestamp;
@@ -124,13 +104,20 @@ export const saveToFirestore = async <T extends BaseDocument>(
   }
 };
 
-export const saveLeadToFirebase = async (leadData: Lead) => {
-  // Only save the required fields for Lead
-  const enrichedData = {
-    ...leadData,
-    createdAt: serverTimestamp()
-  };
-  return saveToFirestore('leads', enrichedData);
+export const saveLeadToFirebase = async (leadData: Lead): Promise<{ success: boolean; id?: string; error?: any }> => {
+  try {
+    // Make sure createdAt is always included
+    const leadToSave = {
+      ...leadData,
+      createdAt: serverTimestamp()
+    };
+    
+    const docRef = await addDoc(collection(db, 'leads'), leadToSave);
+    return { success: true, id: docRef.id };
+  } catch (error) {
+    console.error('Error saving lead:', error);
+    return { success: false, error };
+  }
 };
 
 interface ScheduledPost extends BaseDocument {

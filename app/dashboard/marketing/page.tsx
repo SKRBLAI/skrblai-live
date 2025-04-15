@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
+import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 export default function MarketingDashboard() {
   return (
@@ -24,10 +25,48 @@ export default function MarketingDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+              className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]"
             >
               Marketing Analytics
             </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="text-gray-300 mb-8"
+            >
+              Optimize your marketing strategy with AI-powered analytics and insights.
+            </motion.p>
+
+            <div className="glass-card p-6 rounded-xl mb-8 bg-gradient-to-br from-[#0c1225]/80 to-[#0a192f]/80">
+              <h2 className="text-2xl font-bold text-white mb-4">Upload Your Marketing Materials</h2>
+              <p className="text-gray-300 mb-6">Upload your marketing assets and data for AI-driven optimization and insights.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <FileUploadCard
+                  title="Marketing Strategy"
+                  description="Upload your marketing plan, strategy docs, or market research."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>}
+                  acceptedFileTypes=".doc,.docx,.pdf,.ppt,.pptx,.xls,.xlsx"
+                  fileCategory="strategy"
+                  intentType="improve_marketing"
+                />
+                
+                <FileUploadCard
+                  title="Analytics Data"
+                  description="Upload analytics data, campaign performance metrics, or customer data."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+                  </svg>}
+                  acceptedFileTypes=".csv,.xls,.xlsx,.json,.pdf"
+                  fileCategory="analytics"
+                  intentType="improve_marketing"
+                />
+              </div>
+            </div>
             
             <motion.p
               initial={{ opacity: 0 }}
@@ -108,7 +147,7 @@ export default function MarketingDashboard() {
                       <span>ROI: 3.2x</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '65%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full w-[65%]"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">65% Complete</span>
@@ -126,7 +165,7 @@ export default function MarketingDashboard() {
                       <span>ROI: --</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '25%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full w-1/4"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">25% Complete</span>
@@ -144,7 +183,7 @@ export default function MarketingDashboard() {
                       <span>ROI: 4.7x</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-2">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full" style={{ width: '80%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-2 rounded-full w-4/5"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">80% Complete</span>
@@ -168,7 +207,7 @@ export default function MarketingDashboard() {
                       <span className="text-electric-blue font-medium">+24%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '78%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full w-[78%]"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">Engagement</span>
@@ -182,7 +221,7 @@ export default function MarketingDashboard() {
                       <span className="text-electric-blue font-medium">+12%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '65%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full w-[65%]"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">Open Rate</span>
@@ -196,7 +235,7 @@ export default function MarketingDashboard() {
                       <span className="text-electric-blue font-medium">+8%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '42%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full w-[42%]"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">Click-through Rate</span>
@@ -210,7 +249,7 @@ export default function MarketingDashboard() {
                       <span className="text-electric-blue font-medium">+31%</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3">
-                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full" style={{ width: '85%' }}></div>
+                      <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-3 rounded-full w-[85%]"></div>
                     </div>
                     <div className="flex justify-between mt-1">
                       <span className="text-xs text-gray-400">Conversion Rate</span>

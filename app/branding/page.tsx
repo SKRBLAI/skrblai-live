@@ -141,11 +141,10 @@ export default function BrandingPage() {
           transition={{ duration: 0.5, delay: 1 }}
           className="text-center"
         >
-          <h2 className="text-3xl font-bold mb-6 text-white">Ready to Transform Your Brand?</h2>
-          <Link href="/signup">
-            <button className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-lg
-              hover:from-teal-400 hover:to-electric-blue transition-all duration-300 shadow-lg hover:shadow-electric-blue/20
-              transform hover:scale-105">
+          <h2 className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]">Ready to Transform Your Brand?</h2>
+          <Link href="/?intent=design_brand#percy">
+            <button className="bg-electric-blue hover:shadow-lg text-white font-semibold px-6 py-3 rounded-lg transition-all
+              duration-300 hover:drop-shadow-[0_0_8px_rgba(165,120,255,0.75)] transform hover:scale-105">
               Start Building Your Brand
             </button>
           </Link>

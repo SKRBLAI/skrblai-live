@@ -7,6 +7,7 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import PostScheduler from '@/components/dashboard/PostScheduler';
 import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
+import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 export default function SocialMediaDashboard() {
   return (
@@ -25,7 +26,7 @@ export default function SocialMediaDashboard() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
+              className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]"
             >
               Social Media Growth
             </motion.h1>
@@ -38,6 +39,35 @@ export default function SocialMediaDashboard() {
             >
               Welcome to your social media command center. Let's grow your audience and engagement.
             </motion.p>
+
+            <div className="glass-card p-6 rounded-xl mb-8 bg-gradient-to-br from-[#0c1225]/80 to-[#0a192f]/80">
+              <h2 className="text-2xl font-bold text-white mb-4">Upload Your Social Media Assets</h2>
+              <p className="text-gray-300 mb-6">Upload branding materials and content to kickstart your social media growth strategy.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                <FileUploadCard
+                  title="Content Calendar"
+                  description="Upload your content calendar or content ideas for AI enhancement."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>}
+                  acceptedFileTypes=".xls,.xlsx,.csv,.doc,.docx,.pdf"
+                  fileCategory="calendar"
+                  intentType="grow_social_media"
+                />
+                
+                <FileUploadCard
+                  title="Brand Assets"
+                  description="Upload logos, images, and visual brand elements for consistent social content."
+                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>}
+                  acceptedFileTypes=".jpg,.jpeg,.png,.gif,.svg,.zip"
+                  fileCategory="assets"
+                  intentType="grow_social_media"
+                />
+              </div>
+            </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <motion.div
