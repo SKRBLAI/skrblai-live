@@ -8,13 +8,9 @@ import { percySyncAgent } from '@/ai-agents/percySyncAgent';
 import { auth } from '@/utils/firebase';
 import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { useSearchParams } from 'next/navigation';
+import type { Lead } from '@/types/lead';
 
-interface FormData {
-  name: string;
-  email: string;
-  selectedPlan: string;
-  intent: string;
-}
+type FormData = Pick<Lead, 'name' | 'email' | 'selectedPlan' | 'intent'>;
 
 interface IntentContent {
   title: string;
@@ -49,7 +45,7 @@ const PercyIntakeForm = () => {
     name: '',
     email: '',
     selectedPlan: '',
-    intent: ''
+    intent: urlIntent || ''
   });
 
   // Get custom message based on intent

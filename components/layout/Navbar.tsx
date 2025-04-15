@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { auth } from '@/utils/firebase';
+import { useRouter } from 'next/navigation';
+import type { User } from 'firebase/auth';
 
 
 const navLinks = [
@@ -17,6 +20,8 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(auth.currentUser);
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,7 +29,16 @@ export default function Navbar() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    // Listen for auth state changes
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user);
+    });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      unsubscribe();
+    };
   }, []);
 
   return (
@@ -50,7 +64,7 @@ export default function Navbar() {
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -62,27 +76,40 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center gap-4">
-              <a
-                href="/#percy"
-                className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
-                onClick={(e) => {
-                  e.preventDefault();
-                  const percySection = document.getElementById('percy');
-                  if (percySection) {
-                    percySection.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    window.location.href = '/#percy';
-                  }
-                }}
-              >
-                Login
-              </a>
-              <Link
-                href="/?intent=grow_social_media#percy"
-                className="px-6 py-2.5 bg-electric-blue hover:bg-electric-blue/90 text-white font-semibold rounded-full transition-all duration-300 shadow-lg hover:shadow-lg transform hover:scale-105"
-              >
-                Get Started
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      auth.signOut();
+                      router.push('/');
+                    }}
+                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="bg-gradient-to-r from-electric-blue to-teal-400 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-teal-400 hover:to-electric-blue transition-all duration-300"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -151,22 +178,13 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             transition={{ delay: navLinks.length * 0.1 }}
           >
-            <a
-              href="/#percy"
+            <Link
+              href="/login"
               className="block w-full px-4 py-2 text-center text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition-colors duration-200"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsMobileMenuOpen(false);
-                const percySection = document.getElementById('percy');
-                if (percySection) {
-                  percySection.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  window.location.href = '/#percy';
-                }
-              }}
+              onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
-            </a>
+            </Link>
             <Link
               href="/?intent=grow_social_media#percy"
               className="block w-full px-4 py-2 text-center bg-electric-blue hover:bg-electric-blue/90 text-white font-medium rounded-md transition-all duration-300"

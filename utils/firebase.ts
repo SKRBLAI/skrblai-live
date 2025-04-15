@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
+import type { Lead } from '@/types/lead';
 import {
   getFirestore,
   collection,
@@ -122,15 +123,6 @@ export const saveToFirestore = async <T extends BaseDocument>(
     return { success: false, error };
   }
 };
-
-export interface Lead extends BaseDocument {
-  name: string;
-  email: string;
-  selectedPlan: string;
-  intent: string;
-  freeTrial?: boolean;
-  businessGoal?: string;
-}
 
 export const saveLeadToFirebase = async (leadData: Lead) => {
   // Only save the required fields for Lead
