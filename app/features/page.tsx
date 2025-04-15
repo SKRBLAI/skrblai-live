@@ -36,6 +36,38 @@ const features: Feature[] = [
     stat: '23%',
     statDescription: 'increase in click-through rate',
     icon: '🎯'
+  },
+  {
+    id: 'time-savings',
+    title: 'Accelerated Workflow',
+    description: 'Dramatically reduce time-to-market for your digital assets, content, and campaigns with our AI automation.',
+    stat: '92%',
+    statDescription: 'time savings using SKRBL AI',
+    icon: '⏱️'
+  },
+  {
+    id: 'launches',
+    title: 'Business Automation',
+    description: 'Join the growing number of businesses that have streamlined their digital operations through SKRBL AI.',
+    stat: '80+',
+    statDescription: 'businesses automated launches',
+    icon: '🚀'
+  },
+  {
+    id: 'speed',
+    title: 'Market Velocity',
+    description: 'Gain a competitive edge by bringing your ideas to market faster than your competitors.',
+    stat: '10x',
+    statDescription: 'faster time to market',
+    icon: '⚡'
+  },
+  {
+    id: 'satisfaction',
+    title: 'Client Satisfaction',
+    description: 'Our beta users report outstanding satisfaction with the results and efficiency of SKRBL AI tools.',
+    stat: '96%',
+    statDescription: 'satisfaction rating (beta feedback)',
+    icon: '🏆'
   }
 ];
 
