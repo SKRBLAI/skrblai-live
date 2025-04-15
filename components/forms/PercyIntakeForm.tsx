@@ -162,30 +162,45 @@ const PercyIntakeForm = () => {
   };
 
   const handlePlanSelection = (selectedPlan: string) => {
+    // Update form data with selected plan
     setFormData(prev => ({
       ...prev,
-      selectedPlan
+      selectedPlan,
+      freeTrial: selectedPlan.includes('Free Trial')
     }));
-    handleContinue();
+    
+    // If user chose to subscribe, redirect to pricing page
+    if (selectedPlan === 'Subscribe Now') {
+      setStatus('loading');
+      setTimeout(() => {
+        router.push('/pricing#subscribe');
+      }, 1000);
+      return;
+    }
+    
+    // For free trial, continue with the form
+    handleSubmit();
   };
 
   const handleSubmit = async (intent?: string) => {
     setStatus('loading');
     setErrorMsg('');
     try {
-      // If we have intent from URL but missing name/email, show error message
-      if (showIntentContent && (!formData.name || !formData.email)) {
+      // Check if we have all required data
+      if (!formData.name || !formData.email || !formData.intent) {
         setStatus('error');
-        setErrorMsg("Please provide your name and email to continue.");
+        setErrorMsg("Please provide your name, email, and select your goal to continue.");
         return;
       }
 
-      // Prepare lead data for submission (matches new Lead interface)
+      // Prepare lead data for submission (matches Lead interface)
       const leadData = {
         name: formData.name,
         email: formData.email,
         selectedPlan: formData.selectedPlan,
-        intent: intent || formData.intent
+        intent: intent || formData.intent,
+        freeTrial: formData.selectedPlan?.includes('Free Trial'),
+        businessGoal: intent || formData.intent
       };
       
       console.log('Submitting lead data:', leadData);

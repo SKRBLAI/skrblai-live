@@ -30,6 +30,19 @@
     background-color: rgba(255, 255, 255, 0.05);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
+  }
+
+  .hover-shadow-glow {
+    transition: all 0.3s ease;
+  }
+
+  .hover-shadow-glow:hover {
+    box-shadow: 0 0 20px rgba(100, 255, 218, 0.6), 0 0 40px rgba(56, 189, 248, 0.3);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     -webkit-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);

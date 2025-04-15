@@ -1,16 +1,30 @@
 import { Suspense } from 'react';
-import PercyIntakeForm from '@/components/forms/PercyIntakeForm';
+import HeroSection from '@/components/home/HeroSection';
+import dynamic from 'next/dynamic';
+
+// Use dynamic import for components with client-side animations
+const DynamicHeroSection = dynamic(
+  () => import('@/components/home/HeroSection'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#0c1225] to-[#07101f]">
+        <div className="animate-pulse text-white text-xl">Loading amazing experiences...</div>
+      </div>
+    ),
+  }
+);
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-deep-navy overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-teal-600">
-        <div className="animate-pulse text-white text-xl">Loading...</div>
-      </div>}>
-        <PercyIntakeForm />
+      <Suspense fallback={
+        <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-[#0c1225] to-[#07101f]">
+          <div className="animate-pulse text-white text-xl">Loading amazing experiences...</div>
+        </div>
+      }>
+        <DynamicHeroSection />
       </Suspense>
-      </div>
     </main>
   );
 }
