@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginUser, initAuth } from '@/utils/auth';
-
-import { useSearchParams } from 'next/navigation';
+import SessionAlert from '@/components/alerts/SessionAlert';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -52,10 +51,7 @@ export default function LoginPage() {
     }
   };
   
-  const searchParams = useSearchParams();
-  const [showSessionAlert, setShowSessionAlert] = useState(
-    searchParams?.get('reason') === 'session-expired'
-  );
+  // Session alert state will be managed by the SessionAlert component
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -65,12 +61,9 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-lg"
       >
-        {showSessionAlert && (
-          <div className="mb-4 p-3 rounded-lg bg-red-500/90 text-white flex items-center justify-between">
-            <span>Your session expired. Please log in again to continue.</span>
-            <button onClick={() => setShowSessionAlert(false)} className="ml-4 text-white hover:text-red-200 font-bold">&times;</button>
-          </div>
-        )}
+        <Suspense fallback={<div className="h-12"></div>}>
+          <SessionAlert />
+        </Suspense>
         <div>
           <Link href="/" className="flex justify-center mb-6">
             <span className="text-3xl font-bold">
