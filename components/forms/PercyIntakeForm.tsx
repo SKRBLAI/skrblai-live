@@ -15,6 +15,8 @@ type FormData = Pick<Lead, 'name' | 'email' | 'selectedPlan' | 'intent'> & {
   userLink?: string;
   userFileUrl?: string;
   userFileName?: string;
+  // Adding a dummy field for the final step that won't be saved but helps with type safety
+  userNeeds?: string;
 };
 
 interface IntentContent {
@@ -146,7 +148,7 @@ const PercyIntakeForm = () => {
     },
     {
       message: () => `To help Percy understand your needs, you can: paste a link, describe your project, or upload a file. You can do one, two, or all three!`,
-      field: 'userNeeds',
+      field: 'userNeeds',  // This is just a placeholder field, not directly used for data storage
     }
   ];
 
@@ -548,6 +550,9 @@ const handleSubmit = async (intent?: string) => {
                             }
                           }}
                           className="block w-full text-white/80"
+                          aria-label="Upload a file related to your project"
+                          title="Choose a file to upload"
+                          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
                         />
                         {formData.userFileName && (
                           <div className="text-green-400 text-sm mt-2">File uploaded: {formData.userFileName}</div>

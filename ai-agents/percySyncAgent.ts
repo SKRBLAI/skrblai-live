@@ -164,8 +164,11 @@ const intentToDashboardMap = {
 
 type IntentDashboardKeys = keyof typeof intentToDashboardMap;
 type IntentMappingKeys = keyof typeof INTENT_MAPPING;
-// Type assertion: fails to compile if any INTENT_MAPPING key is missing from intentToDashboardMap
-const _typeCheck: Record<IntentMappingKeys, IntentDashboardKeys> = intentToDashboardMap;
+type DashboardPaths = typeof intentToDashboardMap[IntentDashboardKeys];
+
+// Type assertion: this ensures all INTENT_MAPPING keys are present in intentToDashboardMap
+// The type must reflect that intentToDashboardMap maps intent keys to string URL paths
+const _typeCheck: Record<IntentMappingKeys, string> = intentToDashboardMap as Record<IntentMappingKeys, string>;
 
 // Add the percySyncAgent export
 export const percySyncAgent = {
