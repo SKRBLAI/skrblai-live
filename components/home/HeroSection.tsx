@@ -340,6 +340,96 @@ export default function HeroSection() {
           </motion.div>
         </div>
       </div>
+
+      {/* Social Proof Section: Testimonials & Trusted Logos */}
+      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        {/* Testimonials Carousel */}
+        <div className="mb-12">
+          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">What Our Users Say</h3>
+          <TestimonialCarousel />
+        </div>
+        {/* Trusted Brand Logos */}
+        <div>
+          <h4 className="text-lg font-semibold text-gray-300 text-center mb-4">Trusted by teams at</h4>
+          <TrustedLogosGrid />
+        </div>
+      </section>
     </div>
   );
 }
+
+// --- Testimonial Carousel ---
+const testimonials = [
+  {
+    quote: "SKRBL AI revolutionized our content workflow. We save hours every week and our engagement has doubled!",
+    name: "Sarah Johnson",
+    title: "Marketing Director, TechVision"
+  },
+  {
+    quote: "The branding tools are next-level. We got a full brand kit in minutes, and our clients love it.",
+    name: "Alex Kim",
+    title: "Founder, BrightPath Agency"
+  },
+  {
+    quote: "I launched my book with SKRBL AI's help and hit #1 in my category. The automation is incredible.",
+    name: "Priya Patel",
+    title: "Author & Coach"
+  },
+  {
+    quote: "Our startup's website and social presence were up in days, not weeks. Highly recommended!",
+    name: "James Lee",
+    title: "Co-founder, FinTechFlow"
+  }
+];
+
+function TestimonialCarousel() {
+  const [index, setIndex] = React.useState(0);
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+  const t = testimonials[index];
+  return (
+    <motion.div
+      key={index}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.6 }}
+      className="bg-white/5 rounded-xl p-8 shadow-lg mx-auto max-w-2xl text-center"
+    >
+      <p className="text-xl text-white font-medium mb-4">“{t.quote}”</p>
+      <div className="flex flex-col items-center gap-1">
+        <span className="text-electric-blue font-semibold">{t.name}</span>
+        <span className="text-gray-400 text-sm">{t.title}</span>
+      </div>
+    </motion.div>
+  );
+}
+
+// --- Trusted Logos Grid ---
+const logos = [
+  { src: "/images/logos/google.svg", alt: "Google" },
+  { src: "/images/logos/shopify.svg", alt: "Shopify" },
+  { src: "/images/logos/stripe.svg", alt: "Stripe" },
+  { src: "/images/logos/airbnb.svg", alt: "Airbnb" },
+  { src: "/images/logos/notion.svg", alt: "Notion" },
+  { src: "/images/logos/zoom.svg", alt: "Zoom" },
+  { src: "/images/logos/slack.svg", alt: "Slack" },
+  { src: "/images/logos/atlassian.svg", alt: "Atlassian" }
+];
+
+function TrustedLogosGrid() {
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6 items-center justify-center opacity-80">
+      {logos.map((logo) => (
+        <div key={logo.alt} className="flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
+          <img src={logo.src} alt={logo.alt} className="h-10 md:h-12 w-auto max-w-[120px] object-contain" />
+        </div>
+      ))}
+    </div>
+  );
+}
+

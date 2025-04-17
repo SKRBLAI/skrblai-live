@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { loginUser, initAuth } from '@/utils/auth';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +52,11 @@ export default function LoginPage() {
     }
   };
   
+  const searchParams = useSearchParams();
+  const [showSessionAlert, setShowSessionAlert] = useState(
+    searchParams?.get('reason') === 'session-expired'
+  );
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
@@ -58,6 +65,12 @@ export default function LoginPage() {
         transition={{ duration: 0.5 }}
         className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-xl shadow-lg"
       >
+        {showSessionAlert && (
+          <div className="mb-4 p-3 rounded-lg bg-red-500/90 text-white flex items-center justify-between">
+            <span>Your session expired. Please log in again to continue.</span>
+            <button onClick={() => setShowSessionAlert(false)} className="ml-4 text-white hover:text-red-200 font-bold">&times;</button>
+          </div>
+        )}
         <div>
           <Link href="/" className="flex justify-center mb-6">
             <span className="text-3xl font-bold">

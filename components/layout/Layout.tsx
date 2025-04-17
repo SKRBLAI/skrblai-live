@@ -1,13 +1,7 @@
 import { ReactNode } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
-import dynamic from 'next/dynamic';
-
-// Dynamically import FloatingPercy to ensure it only runs on client-side
-const DynamicFloatingPercy = dynamic(
-  () => import('../assistant/FloatingPercy'),
-  { ssr: false }
-);
+import ClientAssistantWrapper from '../assistant/ClientAssistantWrapper';
 
 type LayoutProps = {
   children: ReactNode;
@@ -23,7 +17,7 @@ export default function Layout({ children }: LayoutProps) {
       <Footer />
       
       {/* Floating Percy Assistant - available on all pages */}
-      <DynamicFloatingPercy />
+      <ClientAssistantWrapper />
     </div>
   );
 }

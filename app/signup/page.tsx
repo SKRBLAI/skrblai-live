@@ -40,10 +40,30 @@ export default function SignupPage() {
       if (result.success) {
         router.push('/dashboard');
       } else {
-        setError(result.error || 'Failed to create account');
+        // Map Firebase error codes to user-friendly messages
+        let message = 'Failed to create account.';
+        if (result.error) {
+          if (result.error.includes('auth/email-already-in-use')) {
+            message = 'This email is already registered. Please log in or use a different email.';
+          } else if (result.error.includes('auth/invalid-email')) {
+            message = 'Invalid email address. Please enter a valid email.';
+          } else if (result.error.includes('auth/weak-password')) {
+            message = 'Password is too weak. Please choose a stronger password.';
+          } else if (result.error.includes('auth/operation-not-allowed')) {
+            message = 'Signups are currently unavailable. Please contact support or try again later.';
+          } else {
+            message = result.error;
+          }
+        }
+        setError(message);
       }
     } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred');
+      // Handle unexpected errors
+      let message = err.message || 'An unexpected error occurred.';
+      if (message.includes('auth/operation-not-allowed')) {
+        message = 'Signups are currently unavailable. Please contact support or try again later.';
+      }
+      setError(message);
     } finally {
       setLoading(false);
     }

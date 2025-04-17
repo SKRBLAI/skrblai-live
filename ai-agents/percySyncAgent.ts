@@ -153,6 +153,7 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
 import type { Lead } from '@/types/lead';
 
 // Intent to dashboard path mapping
+// IMPORTANT: Every key in INTENT_MAPPING must be present here, or users will not be routed correctly after onboarding!
 const intentToDashboardMap = {
   design_brand: '/dashboard/branding',
   grow_social_media: '/dashboard/social-media',
@@ -160,6 +161,11 @@ const intentToDashboardMap = {
   improve_marketing: '/dashboard/marketing',
   publish_book: '/dashboard/book-publishing'
 } as const;
+
+type IntentDashboardKeys = keyof typeof intentToDashboardMap;
+type IntentMappingKeys = keyof typeof INTENT_MAPPING;
+// Type assertion: fails to compile if any INTENT_MAPPING key is missing from intentToDashboardMap
+const _typeCheck: Record<IntentMappingKeys, IntentDashboardKeys> = intentToDashboardMap;
 
 // Add the percySyncAgent export
 export const percySyncAgent = {

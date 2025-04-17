@@ -10,7 +10,12 @@ import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase
 import { useSearchParams } from 'next/navigation';
 import type { Lead } from '@/types/lead';
 
-type FormData = Pick<Lead, 'name' | 'email' | 'selectedPlan' | 'intent'>;
+type FormData = Pick<Lead, 'name' | 'email' | 'selectedPlan' | 'intent'> & {
+  userPrompt?: string;
+  userLink?: string;
+  userFileUrl?: string;
+  userFileName?: string;
+};
 
 interface IntentContent {
   title: string;
@@ -25,6 +30,13 @@ interface Step {
 }
 
 const PercyIntakeForm = () => {
+  // Type-safe helper for updating formData fields
+  function handleFieldChange<K extends keyof FormData>(field: K, value: FormData[K]) {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  }
   const router = useRouter();
   const searchParams = useSearchParams();
   const urlIntent = searchParams?.get('intent') || null;
@@ -32,7 +44,7 @@ const PercyIntakeForm = () => {
   // Set initial intent from URL if present
   useEffect(() => {
     if (urlIntent) {
-      setFormData(prev => ({ ...prev, intent: urlIntent }));
+      if (urlIntent) handleFieldChange('intent', urlIntent);
       setShowIntentContent(true);
     }
   }, [urlIntent]);
@@ -131,10 +143,24 @@ const PercyIntakeForm = () => {
       message: (name) => `Would you like to try a 7-Day Free Trial? (Limited features) Or subscribe to unlock all capabilities?`,
       options: ['7-Day Free Trial', 'Subscribe Now'],
       field: 'selectedPlan'
+    },
+    {
+      message: () => `To help Percy understand your needs, you can: paste a link, describe your project, or upload a file. You can do one, two, or all three!`,
+      field: 'userNeeds',
     }
   ];
 
   const handleContinue = () => {
+    // On user needs step, require at least one input
+    if (step === steps.length - 1) {
+      if (!formData.userPrompt && !formData.userLink && !formData.userFileUrl) {
+        setErrorMsg('Please provide at least one: a link, a description, or a file upload.');
+        setStatus('error');
+        return;
+      }
+    }
+    setErrorMsg('');
+    setStatus('idle');
     if (step < steps.length - 1) {
       setIsTyping(true);
       setTimeout(() => {
@@ -154,10 +180,7 @@ const PercyIntakeForm = () => {
       'Improve Marketing': 'improve_marketing'
     };
 
-    setFormData(prev => ({
-      ...prev,
-      intent: goalToIntentMap[goal] || goal
-    }));
+    handleFieldChange('intent', goalToIntentMap[goal] || goal);
     handleSubmit(goalToIntentMap[goal] || goal);
   };
 
@@ -182,7 +205,28 @@ const PercyIntakeForm = () => {
     handleSubmit();
   };
 
-  const handleSubmit = async (intent?: string) => {
+  const handleFileUpload = async (file: File) => {
+  // Simple upload to Firebase Storage; replace with FileUploadCard if available
+  try {
+    setStatus('loading');
+    setErrorMsg('');
+    const user = auth.currentUser;
+    if (!user) throw new Error('You must be logged in to upload files');
+    const storage = (await import('firebase/storage')).getStorage();
+    const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
+    const fileRef = ref(storage, `intake_uploads/${user.uid}/${Date.now()}_${file.name}`);
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+    setFormData(prev => ({ ...prev, userFileUrl: url, userFileName: file.name }));
+    setStatus('idle');
+    setErrorMsg('');
+  } catch (e: any) {
+    setStatus('error');
+    setErrorMsg(e.message || 'Failed to upload file.');
+  }
+};
+
+const handleSubmit = async (intent?: string) => {
     setStatus('loading');
     setErrorMsg('');
     try {
@@ -200,7 +244,11 @@ const PercyIntakeForm = () => {
         selectedPlan: formData.selectedPlan,
         intent: intent || formData.intent,
         freeTrial: formData.selectedPlan?.includes('Free Trial'),
-        businessGoal: intent || formData.intent
+        businessGoal: intent || formData.intent,
+        userPrompt: formData.userPrompt || '',
+        userLink: formData.userLink || '',
+        userFileUrl: formData.userFileUrl || '',
+        userFileName: formData.userFileName || ''
       };
       
       console.log('Submitting lead data:', leadData);
@@ -473,6 +521,50 @@ const PercyIntakeForm = () => {
                           placeholder="your@email.com"
                         />
                       </div>
+                    ) : i === steps.length - 1 ? (
+                      <div className="space-y-4">
+                        <label className="block text-white/80 font-medium">Paste a link (optional):</label>
+                        <input
+                          type="url"
+                          value={formData.userLink || ''}
+                          onChange={e => setFormData({ ...formData, userLink: e.target.value })}
+                          className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                          placeholder="https://your-link.com"
+                        />
+                        <label className="block text-white/80 font-medium">Describe your project or needs (optional):</label>
+                        <textarea
+                          value={formData.userPrompt || ''}
+                          onChange={e => setFormData({ ...formData, userPrompt: e.target.value })}
+                          className="bg-white/5 border border-white/10 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-electric-blue/50 focus:border-transparent transition-all duration-300"
+                          placeholder="Describe what you want Percy to help with..."
+                          rows={3}
+                        />
+                        <label className="block text-white/80 font-medium">Upload a file (optional):</label>
+                        <input
+                          type="file"
+                          onChange={async e => {
+                            if (e.target.files && e.target.files[0]) {
+                              await handleFileUpload(e.target.files[0]);
+                            }
+                          }}
+                          className="block w-full text-white/80"
+                        />
+                        {formData.userFileName && (
+                          <div className="text-green-400 text-sm mt-2">File uploaded: {formData.userFileName}</div>
+                        )}
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={handleContinue}
+                          disabled={status === 'loading' || status === 'success'}
+                          className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${status === 'loading' || status === 'success' ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                        >
+                          Continue
+                        </motion.button>
+                        {status === 'error' && errorMsg && (
+                          <div className="text-red-400 text-sm mt-2">{errorMsg}</div>
+                        )}
+                      </div>
                     ) : (
                       <input
                         type={s.field === 'email' ? 'email' : 'text'}
@@ -491,17 +583,19 @@ const PercyIntakeForm = () => {
                         placeholder={s.field === 'email' ? 'your@email.com' : 'Your name'}
                       />
                     )}
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={handleContinue}
-                      disabled={(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
-                              !(showIntentContent && i === 2 && formData.name && formData.email)}
-                      className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
-                          !(showIntentContent && i === 2 && formData.name && formData.email) ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
-                    >
-                      Continue
-                    </motion.button>
+                    {i !== steps.length - 1 && (
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={handleContinue}
+                        disabled={(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
+                                !(showIntentContent && i === 2 && formData.name && formData.email)}
+                        className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${(!s.field || !formData[s.field] || status === 'loading' || status === 'success') && 
+                            !(showIntentContent && i === 2 && formData.name && formData.email) ? 'bg-white/10 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                      >
+                        Continue
+                      </motion.button>
+                    )}
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-3">

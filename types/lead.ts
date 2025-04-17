@@ -7,4 +7,8 @@ export interface Lead {
   businessGoal?: string;
   createdAt?: string;
   userId?: string;
+  userPrompt?: string;
+  userLink?: string;
+  userFileUrl?: string;
+  userFileName?: string;
 }

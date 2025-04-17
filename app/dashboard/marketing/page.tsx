@@ -8,7 +8,37 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
+import { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { app } from '@/utils/firebase';
+import { useRouter } from 'next/navigation';
+
 export default function MarketingDashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push('/login');
+      }
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="w-16 h-16 rounded-full bg-electric-blue/30 mb-4"></div>
+          <div className="h-4 w-24 bg-electric-blue/30 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-deep-navy">
       <DashboardHeader />
