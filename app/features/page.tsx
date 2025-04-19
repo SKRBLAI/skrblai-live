@@ -1,7 +1,12 @@
+/** Features Page Enhancements – Interactivity + Visual Polish – April 2025 */
+
 'use client';
 
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import StatCounter from '@/components/features/StatCounter';
+import FeatureModal from '@/components/features/FeatureModal';
+import '@/styles/components/Features.css';
 
 interface Feature {
   id: string;
@@ -73,6 +78,69 @@ const features: Feature[] = [
 
 export default function FeaturesPage() {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const containerRef = useRef(null);
+  const isInView = useInView(containerRef, { once: true });
+
+  useEffect(() => {
+    // Initialize particles (simplified for performance)
+    const canvas = document.createElement('canvas');
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '0';
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext('2d')!;
+    const particles: Array<{ x: number; y: number; size: number; speed: number }> = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Create particles
+    for (let i = 0; i < (window.innerWidth < 768 ? 30 : 50); i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1,
+        speed: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    let animationFrame: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+
+      particles.forEach(particle => {
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+
+        particle.y += particle.speed;
+        if (particle.y > canvas.height) {
+          particle.y = 0;
+          particle.x = Math.random() * canvas.width;
+        }
+      });
+
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener('resize', resize);
+      canvas.remove();
+    };
+  }, []);
 
   return (
     <motion.div
@@ -81,7 +149,7 @@ export default function FeaturesPage() {
       transition={{ duration: 0.5 }}
       className="min-h-screen py-20"
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4" ref={containerRef}>
         <div className="text-center mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -106,25 +174,18 @@ export default function FeaturesPage() {
             <motion.div
               key={feature.id}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
               onHoverStart={() => setHoveredFeature(feature.id)}
               onHoverEnd={() => setHoveredFeature(null)}
-              className={`glass-card p-8 relative overflow-hidden transition-all duration-300 ${hoveredFeature === feature.id ? 'transform scale-105' : ''}`}
             >
-              <div className="relative z-10">
-                <span className="text-4xl mb-4 block">{feature.icon}</span>
-                <h3 className="text-2xl font-bold mb-2 text-white">{feature.title}</h3>
-                <p className="text-gray-400 mb-6">{feature.description}</p>
-                
-                <div className="bg-electric-blue/10 rounded-lg p-4">
-                  <div className="text-3xl font-bold text-electric-blue mb-1">
-                    {feature.stat}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    {feature.statDescription}
-                  </div>
-                </div>
+              <div className="text-4xl mb-4">{feature.icon}</div>
+              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+              <p className="text-gray-400 mb-4">{feature.description}</p>
+              <div className="stat-card">
+                <StatCounter
+                  end={parseInt(feature.stat)}
+                  suffix={feature.stat.includes('+') ? '+' : feature.stat.includes('x') ? 'x' : '%'}
+                />
+                <div className="text-sm text-gray-500 mt-2">{feature.statDescription}</div>
               </div>
 
               <div 
@@ -149,6 +210,20 @@ export default function FeaturesPage() {
           </a>
         </motion.div>
       </div>
+
+      <motion.button
+        className="fab"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.05 }}
+        onClick={() => setIsModalOpen(true)}
+        aria-label="Ask Percy for feature details"
+      >
+        Ask Percy
+        <span className="fab-tooltip">Need help deciding?</span>
+      </motion.button>
+
+      <FeatureModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </motion.div>
   );
 }

@@ -112,23 +112,23 @@ export default function GettingStartedDashboard() {
                 <h2 className="text-xl font-semibold mb-4 text-white">Choose Your Path</h2>
                 <div className="space-y-4">
                   <motion.button
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                    className="feature-button"
                   >
                     Social Media Growth
                   </motion.button>
                   <motion.button
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                    className="feature-button"
                   >
                     Book Publishing
                   </motion.button>
                   <motion.button
-                    whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                    whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                    className="feature-button"
                   >
                     Website Creation
                   </motion.button>
@@ -144,8 +144,8 @@ export default function GettingStartedDashboard() {
                 <h2 className="text-xl font-semibold mb-4 text-white">Trial Status</h2>
                 <div className="mb-4">
                   <p className="text-gray-400 mb-2">Days Remaining</p>
-                  <div className="w-full bg-white/10 rounded-full h-4">
-                    <div className="bg-gradient-to-r from-electric-blue to-teal-400 h-4 rounded-full" style={{ width: '100%' }}></div>
+                  <div className="progress-bar">
+                    <div className="progress-bar-fill" style={{ width: '100%' }}></div>
                   </div>
                   <div className="flex justify-between mt-1">
                     <span className="text-xs text-gray-400">Day 1</span>
@@ -184,9 +184,9 @@ export default function GettingStartedDashboard() {
                 </div>
                 
                 <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-medium"
+                  className="feature-button"
                 >
                   Upgrade to Full Plan
                 </motion.button>

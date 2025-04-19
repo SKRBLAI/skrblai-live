@@ -1,21 +1,133 @@
+/** Book Publishing Enhancements - Prompt Input + File Upload - April 2025 */
+
 'use client';
 
 export const dynamic = 'force-dynamic';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
-
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, CSSProperties } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '@/utils/firebase';
+import { app, storage } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
+import { useDropzone } from 'react-dropzone';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import '@/styles/components/BookPublishing.css';
+import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
 
 export default function BookPublishingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState<BookPublishingState>({
+    prompt: '',
+    uploadedFile: null,
+    uploadedFileName: '',
+    uploadedFileUrl: '',
+    isSubmitting: false,
+    response: null
+  });
+  const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({
+    progress: 0,
+    success: false
+  });
   const router = useRouter();
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (!file) return;
+
+    setState(prev => ({
+      ...prev,
+      uploadedFile: file,
+      uploadedFileName: file.name
+    }));
+
+    const storageRef = ref(storage, `manuscripts/${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadStatus(prev => ({ ...prev, progress }));
+      },
+      (error) => {
+        setUploadStatus(prev => ({ ...prev, error: error.message }));
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setState(prev => ({
+          ...prev,
+          uploadedFileUrl: downloadURL
+        }));
+        setUploadStatus(prev => ({ ...prev, success: true }));
+      }
+    );
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
+      'text/plain': ['.txt']
+    },
+    maxFiles: 1
+  });
+
+  const handlePromptSubmit = async () => {
+    if (!state.prompt.trim() && !state.uploadedFile) return;
+
+    setState(prev => ({ ...prev, isSubmitting: true }));
+
+    // Mock response - replace with actual API call
+    setTimeout(() => {
+      setState(prev => ({
+        ...prev,
+        isSubmitting: false,
+        response: {
+          steps: [
+            {
+              title: 'Initial Review',
+              description: 'AI-powered analysis of your manuscript',
+              timeline: '1-2 days'
+            },
+            {
+              title: 'Content Enhancement',
+              description: 'Style and clarity improvements',
+              timeline: '3-5 days'
+            }
+          ],
+          recommendations: [
+            'Consider strengthening the opening chapter',
+            'Add more character development in chapter 3',
+            'Enhance dialogue authenticity'
+          ],
+          nextSteps: [
+            'Review AI suggestions',
+            'Schedule consultation',
+            'Begin cover design process'
+          ],
+          estimatedCompletion: '2 weeks'
+        }
+      }));
+    }, 2000);
+  };
+
+  const removeFile = () => {
+    setState(prev => ({
+      ...prev,
+      uploadedFile: null,
+      uploadedFileName: '',
+      uploadedFileUrl: ''
+    }));
+    setUploadStatus({
+      progress: 0,
+      success: false
+    });
+  };
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -69,33 +181,132 @@ export default function BookPublishingDashboard() {
               Your book publishing journey starts here. Let's bring your story to life.
             </motion.p>
             
-            <div className="glass-card p-6 rounded-xl mb-8 bg-gradient-to-br from-[#0c1225]/80 to-[#0a192f]/80">
-              <h2 className="text-2xl font-bold text-white mb-4">Upload Your Manuscript</h2>
-              <p className="text-gray-300 mb-6">Upload your manuscript and supporting materials to begin the publishing process.</p>
+            <div className="prompt-input-container">
+              <h2 className="text-2xl font-bold text-white mb-4">Tell Us About Your Book</h2>
+              <p className="text-gray-300 mb-6">Share your vision or upload your manuscript to get started.</p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <FileUploadCard
-                  title="Manuscript"
-                  description="Upload your complete manuscript for processing and publishing."
-                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>}
-                  acceptedFileTypes=".doc,.docx,.pdf,.txt,.rtf,.odt"
-                  fileCategory="manuscript"
-                  intentType="publish_book"
-                />
-                
-                <FileUploadCard
-                  title="Cover Art"
-                  description="Upload cover art concepts or images for your book."
-                  icon={<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>}
-                  acceptedFileTypes=".jpg,.jpeg,.png,.pdf,.ai,.psd"
-                  fileCategory="cover"
-                  intentType="publish_book"
-                />
+              <textarea
+                className="prompt-input"
+                placeholder="Tell us what you need help publishing..."
+                value={state.prompt}
+                onChange={(e) => setState(prev => ({ ...prev, prompt: e.target.value }))}
+              />
+
+              <div className="mt-6">
+                <div {...getRootProps()} className={`file-drop-zone ${isDragActive ? 'dragging' : ''}`}>
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p className="text-white">Drop your manuscript here...</p>
+                  ) : (
+                    <p className="text-gray-300">
+                      Drag & drop your manuscript here, or click to select
+                      <br />
+                      <span className="text-sm text-gray-400">(.doc, .docx, .pdf, .txt)</span>
+                    </p>
+                  )}
+                </div>
+
+                {state.uploadedFile && (
+                  <div className="file-preview">
+                    <svg className="file-preview-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <div className="file-preview-info">
+                      <p className="text-white font-medium">{state.uploadedFileName}</p>
+                      {uploadStatus.progress < 100 && (
+                        <div className="upload-progress-bar">
+                          <div
+                            className="upload-progress-bar-fill"
+                            style={{ '--upload-progress': `${uploadStatus.progress}%` } as CSSProperties}
+                          />
+                        </div>
+                      )}
+                      {uploadStatus.error && (
+                        <p className="text-red-400 text-sm mt-1">{uploadStatus.error}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFile();
+                      }}
+                      className="file-preview-remove"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
+
+              <motion.button
+                className="action-button mt-6"
+                onClick={handlePromptSubmit}
+                disabled={!state.prompt.trim() && !state.uploadedFile}
+                whileHover={{ scale: state.isSubmitting ? 1 : 1.02 }}
+                whileTap={{ scale: state.isSubmitting ? 1 : 0.98 }}
+              >
+                {state.isSubmitting ? 'Generating Plan...' : 'Generate Plan of Action'}
+              </motion.button>
+
+              <AnimatePresence>
+                {state.response && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className="response-panel"
+                  >
+                    <h3 className="text-xl font-semibold text-white mb-4">Your Publishing Plan</h3>
+                    
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="text-white font-medium mb-2">Timeline & Steps</h4>
+                        <div className="space-y-3">
+                          {state.response.steps.map((step, index) => (
+                            <div key={index} className="flex items-start">
+                              <div className="w-8 h-8 rounded-full bg-electric-blue flex items-center justify-center mr-3 flex-shrink-0">
+                                <span className="text-white font-bold">{index + 1}</span>
+                              </div>
+                              <div>
+                                <h5 className="text-white font-medium">{step.title}</h5>
+                                <p className="text-gray-400 text-sm">{step.description}</p>
+                                <p className="text-electric-blue text-sm mt-1">{step.timeline}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-white font-medium mb-2">Recommendations</h4>
+                        <ul className="list-disc list-inside space-y-2 text-gray-300">
+                          {state.response.recommendations.map((rec, index) => (
+                            <li key={index}>{rec}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h4 className="text-white font-medium mb-2">Next Steps</h4>
+                        <ul className="list-disc list-inside space-y-2 text-gray-300">
+                          {state.response.nextSteps.map((step, index) => (
+                            <li key={index}>{step}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="pt-4 border-t border-white/10">
+                        <p className="text-gray-400">
+                          Estimated completion time: 
+                          <span className="text-electric-blue font-medium ml-2">
+                            {state.response.estimatedCompletion}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

@@ -1,0 +1,69 @@
+/* Percy Assistant Styles */
+.percy-container {
+  position: fixed;
+  bottom: 24px;
+  right: 8px;
+  width: 24rem;
+  background-color: #0D1117;
+  border: 1px solid #30363D;
+  border-radius: 0.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 50;
+}
+
+.percy-header {
+  padding: 1rem;
+  border-bottom: 1px solid #30363D;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.percy-title {
+  color: white;
+  font-weight: 600;
+}
+
+.percy-close-btn {
+  color: #9CA3AF;
+}
+
+.percy-close-btn:hover {
+  color: white;
+}
+
+.percy-messages {
+  height: 24rem;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.percy-messages-space {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.percy-toggle-btn {
+  position: fixed;
+  bottom: 8px;
+  right: 8px;
+  padding: 1rem;
+  background-image: linear-gradient(to right, var(--electric-blue), #2DD4BF);
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+}
+
+.percy-toggle-btn:hover {
+  box-shadow: 0 0 15px var(--electric-blue);
+  transform: scale(1.05);
+}
+
+.percy-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.percy-toggle-icon {
+  font-size: 1.5rem;
+}
