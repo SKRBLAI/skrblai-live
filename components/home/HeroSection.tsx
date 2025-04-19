@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import PercyAvatar from '@/components/home/PercyAvatar';
 
@@ -20,12 +21,44 @@ const demoPrompts = [
   'Draft a marketing plan for my new book release'
 ];
 
+// --- Testimonial Carousel Data ---
+const testimonials = [
+  {
+    quote: "SKRBL AI revolutionized our content workflow. We save hours every week and our engagement has doubled!",
+    name: "Sarah Johnson",
+    title: "Marketing Director, TechStart Inc"
+  },
+  {
+    quote: "From idea to launch in days instead of months. The AI-powered automation is simply game-changing.",
+    name: "Michael Chen",
+    title: "Founder, GrowthLabs"
+  },
+  {
+    quote: "As a solo entrepreneur, SKRBL AI feels like having a full creative team at my fingertips.",
+    name: "Jessica Williams",
+    title: "Independent Author & Creator"
+  }
+];
+
+// --- Trusted Logos Grid Data ---
+const logos = [
+  { src: "/logos/google.png", alt: "Google" },
+  { src: "/logos/shopify.png", alt: "Shopify" },
+  { src: "/logos/stripe.png", alt: "Stripe" },
+  { src: "/logos/airbnb.png", alt: "Airbnb" },
+  { src: "/logos/notion.png", alt: "Notion" },
+  { src: "/logos/zoom.png", alt: "Zoom" },
+  { src: "/logos/slack.png", alt: "Slack" },
+  { src: "/logos/atlassian.png", alt: "Atlassian" }
+];
+
 export default function HeroSection() {
   const [currentMetricIndex, setCurrentMetricIndex] = useState(0);
   const [demoStep, setDemoStep] = useState(0);
   const [demoResponse, setDemoResponse] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState('');
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const router = useRouter();
   
@@ -34,6 +67,15 @@ export default function HeroSection() {
     const interval = setInterval(() => {
       setCurrentMetricIndex((prev) => (prev + 1) % metrics.length);
     }, 3000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate testimonials every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
     
     return () => clearInterval(interval);
   }, []);
@@ -186,250 +228,179 @@ export default function HeroSection() {
   };
   
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <section className="w-full overflow-hidden bg-gradient-to-b from-midnight via-black to-black">
       {/* Enhanced animated background */}
       <canvas 
         ref={canvasRef} 
         className="absolute inset-0 bg-gradient-to-br from-[#0c1225] to-[#07101f] z-0" 
       />
       
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left column: Hero content */}
-          <div className="text-center lg:text-left">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                <span className="block">AI-Powered</span>
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-electric-blue to-teal-400">
-                  Content & Marketing
-                </span>
-              </h1>
-              
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentMetricIndex}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.5 }}
-                  className="mt-6 mb-8"
-                >
-                  <div className="inline-flex items-center bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                    <span className="text-2xl md:text-3xl font-bold text-electric-blue mr-2">
-                      {metrics[currentMetricIndex].value}
-                    </span>
-                    <span className="text-gray-300">
-                      {metrics[currentMetricIndex].label}
-                    </span>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-              
-              <p className="text-lg md:text-xl text-gray-300 mt-6 mb-8 max-w-lg mx-auto lg:mx-0">
-                SKRBL AI automates your marketing, branding, and content creation with intelligent agents that understand your business goals.
-              </p>
-              
-              <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 mt-8">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleGetStarted}
-                  className="px-8 py-4 rounded-xl bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold text-lg hover:shadow-glow transition duration-300"
-                >
-                  Get 7-Day Free Trial
-                </motion.button>
+      <div className="relative z-10 px-4 sm:px-6 lg:px-8 pt-20 pb-32">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Left column: Hero content */}
+            <div className="text-center lg:text-left">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-electric-blue to-purple-400">
+                  AI-Powered <br />Content Creation
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-300 mb-8">
+                  Automate your digital content workflow with AI that understands your brand voice and audience.
+                </p>
                 
-                <Link href="/features" passHref>
-                  <motion.a
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="px-8 py-4 rounded-xl bg-white/10 border border-white/20 text-white font-semibold text-lg backdrop-blur-sm hover:bg-white/20 transition duration-300"
+                {/* Animated metric ticker */}
+                <div className="flex items-center justify-center lg:justify-start space-x-4 mb-10">
+                  <AnimatePresence mode="wait">
+                    <motion.div 
+                      key={currentMetricIndex}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center"
+                    >
+                      <span className="text-3xl font-bold text-electric-blue mr-2">
+                        {metrics[currentMetricIndex].value}
+                      </span>
+                      <span className="text-gray-400">
+                        {metrics[currentMetricIndex].label}
+                      </span>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+                
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                  <button 
+                    onClick={handleGetStarted}
+                    className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-black font-semibold rounded-lg transform transition duration-300 hover:scale-105 hover:shadow-glow-blue"
                   >
-                    See Features
-                  </motion.a>
-                </Link>
+                    Get Started Free
+                  </button>
+                  <Link href="/features" className="group flex items-center text-gray-300 hover:text-white transition duration-300">
+                    <span>Explore Features</span>
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      className="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300" 
+                      viewBox="0 0 20 20" 
+                      fill="currentColor"
+                    >
+                      <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </Link>
+                </div>
+              </motion.div>
+            </div>
+            
+            {/* Right column: Percy demo */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="hidden lg:block"
+            >
+              <div className="bg-gradient-to-br from-black to-[#0a1222] p-6 rounded-2xl shadow-glow relative border border-gray-800">
+                <div className="flex items-center mb-4">
+                  <PercyAvatar className="w-12 h-12" />
+                  <div className="ml-3">
+                    <h3 className="text-white font-semibold">Percy AI</h3>
+                    <p className="text-gray-400 text-sm">Content Assistant</p>
+                  </div>
+                </div>
+                
+                {/* Interactive demo UI */}
+                <div>
+                  {demoStep === 0 && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="space-y-3 mb-4"
+                    >
+                      <p className="text-gray-300 mb-2">What can I help you with today?</p>
+                      {demoPrompts.map((prompt, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => handleDemoPromptSelect(prompt)}
+                          className="bg-[#121f30] hover:bg-[#182638] px-4 py-3 rounded-lg cursor-pointer text-gray-300 transition duration-200"
+                        >
+                          {prompt}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                  
+                  {demoStep >= 1 && (
+                    <div>
+                      <div className="bg-[#121f30] px-4 py-3 rounded-lg text-gray-300 mb-4">
+                        {selectedPrompt}
+                      </div>
+                      
+                      <div className="bg-gradient-to-r from-[#182a47] to-[#192840] px-4 py-3 rounded-lg text-white min-h-[150px] flex items-start">
+                        <PercyAvatar className="w-8 h-8 mt-1 mr-3 flex-shrink-0" />
+                        <div>
+                          {demoResponse}
+                          {isTyping && (
+                            <span className="ml-1 inline-block w-2 h-4 bg-electric-blue animate-pulse rounded-sm"></span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>
-          
-          {/* Right column: Interactive demo */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-md shadow-xl shadow-purple-500/10"
-          >
-            <div className="flex items-center mb-6">
-              <PercyAvatar size="sm" />
-              <h2 className="text-xl font-semibold text-white ml-3">Try SKRBL AI</h2>
+        
+          {/* Testimonials and Logos */}
+          <div className="mt-20">
+            {/* Testimonials Carousel */}
+            <div className="mb-12">
+              <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">What Our Users Say</h3>
+              <div className="relative h-48">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentTestimonial}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-white/5 rounded-xl p-8 shadow-lg mx-auto max-w-2xl text-center"
+                  >
+                    <p className="text-xl text-white font-medium mb-4">"{testimonials[currentTestimonial].quote}"</p>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-electric-blue font-semibold">{testimonials[currentTestimonial].name}</span>
+                      <span className="text-gray-400 text-sm">{testimonials[currentTestimonial].title}</span>
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
             </div>
             
-            {demoStep === 0 && (
-              <div className="space-y-4">
-                <p className="text-gray-300 mb-4">Select a task to see how SKRBL AI can help:</p>
-                <div className="grid grid-cols-1 gap-3">
-                  {demoPrompts.map((prompt, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{ scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleDemoPromptSelect(prompt)}
-                      className="text-left p-4 rounded-lg bg-white/10 text-white hover:bg-white/15 transition-all"
-                    >
-                      {prompt}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {demoStep >= 1 && (
-              <div className="space-y-4">
-                <div className="bg-white/10 p-4 rounded-lg mb-4">
-                  <p className="text-white">{selectedPrompt}</p>
-                </div>
-                
-                {isTyping && (
-                  <div className="flex items-center space-x-2 p-2 bg-white/5 rounded-lg w-24">
-                    <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-0"></span>
-                    <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-150"></span>
-                    <span className="w-2 h-2 bg-electric-blue rounded-full animate-bounce delay-300"></span>
+            {/* Trusted Brand Logos */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-300 text-center mb-6">Trusted by teams at</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 items-center justify-center opacity-80">
+                {logos.map((logo) => (
+                  <div key={logo.alt} className="flex items-center justify-center">
+                    <Image 
+                      src={logo.src} 
+                      alt={logo.alt} 
+                      width={100} 
+                      height={50} 
+                      className="grayscale hover:grayscale-0 transition duration-300"
+                      loading="lazy" 
+                    />
                   </div>
-                )}
-                
-                {demoResponse && (
-                  <div className="bg-electric-blue/10 border border-electric-blue/30 p-4 rounded-lg">
-                    <p className="text-white">{demoResponse}</p>
-                  </div>
-                )}
-                
-                {demoStep === 2 && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mt-4"
-                  >
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleGetStarted}
-                      className="w-full py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold"
-                    >
-                      Start Your Free Trial
-                    </motion.button>
-                    
-                    <button
-                      onClick={() => {
-                        setDemoStep(0);
-                        setSelectedPrompt('');
-                        setDemoResponse('');
-                      }}
-                      className="w-full mt-3 text-center text-sm text-gray-400 hover:text-white transition-colors"
-                    >
-                      Try Another Example
-                    </button>
-                  </motion.div>
-                )}
+                ))}
               </div>
-            )}
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Social Proof Section: Testimonials & Trusted Logos */}
-      <section className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-        {/* Testimonials Carousel */}
-        <div className="mb-12">
-          <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-6">What Our Users Say</h3>
-          <TestimonialCarousel />
-        </div>
-        {/* Trusted Brand Logos */}
-        <div>
-          <h4 className="text-lg font-semibold text-gray-300 text-center mb-4">Trusted by teams at</h4>
-          <TrustedLogosGrid />
-        </div>
-      </section>
-    </div>
+    </section>
   );
 }
-
-// --- Testimonial Carousel ---
-const testimonials = [
-  {
-    quote: "SKRBL AI revolutionized our content workflow. We save hours every week and our engagement has doubled!",
-    name: "Sarah Johnson",
-    title: "Marketing Director, TechVision"
-  },
-  {
-    quote: "The branding tools are next-level. We got a full brand kit in minutes, and our clients love it.",
-    name: "Alex Kim",
-    title: "Founder, BrightPath Agency"
-  },
-  {
-    quote: "I launched my book with SKRBL AI's help and hit #1 in my category. The automation is incredible.",
-    name: "Priya Patel",
-    title: "Author & Coach"
-  },
-  {
-    quote: "Our startup's website and social presence were up in days, not weeks. Highly recommended!",
-    name: "James Lee",
-    title: "Co-founder, FinTechFlow"
-  }
-];
-
-function TestimonialCarousel() {
-  const [index, setIndex] = React.useState(0);
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-  const t = testimonials[index];
-  return (
-    <motion.div
-      key={index}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.6 }}
-      className="bg-white/5 rounded-xl p-8 shadow-lg mx-auto max-w-2xl text-center"
-    >
-      <p className="text-xl text-white font-medium mb-4">“{t.quote}”</p>
-      <div className="flex flex-col items-center gap-1">
-        <span className="text-electric-blue font-semibold">{t.name}</span>
-        <span className="text-gray-400 text-sm">{t.title}</span>
-      </div>
-    </motion.div>
-  );
-}
-
-// --- Trusted Logos Grid ---
-const logos = [
-  { src: "/images/logos/google.svg", alt: "Google" },
-  { src: "/images/logos/shopify.svg", alt: "Shopify" },
-  { src: "/images/logos/stripe.svg", alt: "Stripe" },
-  { src: "/images/logos/airbnb.svg", alt: "Airbnb" },
-  { src: "/images/logos/notion.svg", alt: "Notion" },
-  { src: "/images/logos/zoom.svg", alt: "Zoom" },
-  { src: "/images/logos/slack.svg", alt: "Slack" },
-  { src: "/images/logos/atlassian.svg", alt: "Atlassian" }
-];
-
-function TrustedLogosGrid() {
-  return (
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-6 items-center justify-center opacity-80">
-      {logos.map((logo) => (
-        <div key={logo.alt} className="flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300">
-          <img src={logo.src} alt={logo.alt} className="h-10 md:h-12 w-auto max-w-[120px] object-contain" />
-        </div>
-      ))}
-    </div>
-  );
-}
-

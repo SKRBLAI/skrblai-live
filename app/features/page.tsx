@@ -169,30 +169,45 @@ export default function FeaturesPage() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.id}
-              initial={{ opacity: 0, y: 20 }}
-              onHoverStart={() => setHoveredFeature(feature.id)}
-              onHoverEnd={() => setHoveredFeature(null)}
-            >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-400 mb-4">{feature.description}</p>
-              <div className="stat-card">
-                <StatCounter
-                  end={parseInt(feature.stat)}
-                  suffix={feature.stat.includes('+') ? '+' : feature.stat.includes('x') ? 'x' : '%'}
-                />
-                <div className="text-sm text-gray-500 mt-2">{feature.statDescription}</div>
-              </div>
+        <div className="relative overflow-hidden">
+          <motion.div
+            className="flex space-x-8 py-8 px-4 overflow-x-auto hide-scrollbar"
+            drag="x"
+            dragConstraints={{ left: -(features.length - 1) * 400, right: 0 }}
+            dragElastic={0.2}
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.id}
+                className="feature-card flex-shrink-0 w-[350px]"
+                initial={{ opacity: 0, y: 50 }}
+                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+                onHoverStart={() => setHoveredFeature(feature.id)}
+                onHoverEnd={() => setHoveredFeature(null)}
+              >
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-400 mb-4">{feature.description}</p>
+                <div className="stat-card">
+                  <StatCounter
+                    end={parseFloat(feature.stat.replace(/[^0-9.]/g, ''))}
+                    suffix={feature.stat.replace(/[0-9.]/g, '').trim()}
+                    duration={2000}
+                  />
+                  <div className="text-sm text-gray-500 mt-2">{feature.statDescription}</div>
+                </div>
 
-              <div 
-                className={`absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-400/10 transition-opacity duration-300 ${hoveredFeature === feature.id ? 'opacity-100' : 'opacity-0'}`}
-              />
-            </motion.div>
-          ))}
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-400/10"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: hoveredFeature === feature.id ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
 
         {/* CTA Section */}

@@ -124,6 +124,31 @@
   opacity: 1;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-container {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 0;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 2rem;
+  cursor: grab;
+}
+
+.carousel-track:active {
+  cursor: grabbing;
+}
+
 @media (max-width: 768px) {
   .features-container {
     padding: 2rem 1rem;
