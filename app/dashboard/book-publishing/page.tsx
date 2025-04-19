@@ -217,7 +217,7 @@ export default function BookPublishingDashboard() {
                         <div className="upload-progress-bar">
                           <div
                             className="upload-progress-bar-fill"
-                            style={{ ['--upload-progress' as string]: `${uploadStatus.progress}%` }}
+                            data-progress={`${uploadStatus.progress}%`}
                           />
                         </div>
                       )}
