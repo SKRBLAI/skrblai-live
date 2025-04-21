@@ -4,15 +4,23 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePercyContext } from '@/contexts/PercyContext';
-import { saveLeadToFirebase, type Lead } from '@/utils/firebase';
+import { saveLeadToFirebase, type Lead, type FirestoreTimestamp } from '@/utils/firebase';
+import { serverTimestamp } from 'firebase/firestore';
 
-interface IntakeFormData extends Omit<Lead, 'id'> {
+interface IntakeFormData {
+  name: string;
+  email: string;
+  selectedPlan: string;
+  intent: string;
+  freeTrial?: boolean;
+  businessGoal?: string;
+  createdAt?: string;
+  userId?: string;
   userPrompt?: string;
+  userLink?: string;
   userFileUrl?: string;
   userFileName?: string;
-  userLink?: string;
-  intent?: string;
-  timestamp?: string;
+  timestamp?: FirestoreTimestamp;
 }
 
 type IntentType = 'logo-design' | 'visual-identity' | 'brand-voice' | 'brand-guidelines' | 'social-kit' | 'brand-strategy' | 'default';
@@ -31,10 +39,16 @@ export default function PercyIntakeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { percyIntent } = usePercyContext();
-  const [formData, setFormData] = useState<IntakeFormData>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const intent = searchParams?.get('intent') || percyIntent;
+  
+  const [formData, setFormData] = useState<IntakeFormData>({
+    name: '',
+    email: '',
+    selectedPlan: 'basic',
+    intent: intent || 'default',
+    timestamp: serverTimestamp()
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const welcomeMessage = intent && intent in intentMessages
     ? intentMessages[intent as IntentType]
     : intentMessages.default;
@@ -58,8 +72,8 @@ export default function PercyIntakeForm() {
     try {
       await saveLeadToFirebase({
         ...formData,
-        intent,
-        timestamp: new Date().toISOString()
+        intent: intent || 'default',
+        timestamp: serverTimestamp()
       });
 
       // Route to appropriate dashboard section
