@@ -14,14 +14,12 @@ interface BrandingCardProps {
 }
 
 export default function BrandingCard({ title, description, icon, intent, index }: BrandingCardProps) {
-  const router = useRouter();
   const { openPercy, setPercyIntent } = usePercyContext();
 
   const handleCardClick = useCallback(() => {
     setPercyIntent(intent);
-    router.push(`/?intent=${intent}#percy`);
     openPercy();
-  }, [intent, openPercy, setPercyIntent, router]);
+  }, [intent, openPercy, setPercyIntent]);
 
   return (
     <motion.div
@@ -29,18 +27,20 @@ export default function BrandingCard({ title, description, icon, intent, index }
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
       whileHover={{ 
-        y: -12,
-        rotateX: 4,
-        rotateY: 4,
-        scale: 1.02
+        y: -16,
+        rotateX: 6,
+        rotateY: 6,
+        scale: 1.07,
+        boxShadow: '0 6px 32px 0 rgba(0,180,255,0.09)'
       }}
       whileTap={{ 
-        y: -4,
-        rotateX: 2,
-        rotateY: 2,
-        scale: 0.98
+        y: -2,
+        rotateX: 1,
+        rotateY: 1,
+        scale: 0.97,
+        boxShadow: '0 2px 8px 0 rgba(0,180,255,0.04)'
       }}
-      className="glass-card interactive p-6 rounded-2xl transform-gpu"
+      className="glass-card interactive p-6 rounded-2xl transform-gpu cursor-pointer transition-all duration-200"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
@@ -53,7 +53,12 @@ export default function BrandingCard({ title, description, icon, intent, index }
       aria-label={`${title} - Click to start branding process`}
     >
       <div className="h-12 w-12 rounded-xl bg-electric-blue/20 flex items-center justify-center mb-4">
-        <span className="text-2xl" role="img" aria-label={title}>
+        <span
+          className="text-2xl select-none"
+          role="img"
+          aria-label={title}
+          style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, NotoColorEmoji, Android Emoji, EmojiSymbols, emoji, sans-serif' }}
+        >
           {icon}
         </span>
       </div>

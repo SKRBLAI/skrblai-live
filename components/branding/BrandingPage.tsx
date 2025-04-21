@@ -10,37 +10,37 @@ const brandingServices = [
   {
     title: 'Logo Generation',
     description: 'Generate custom logos that align with your brand values and aesthetic preferences.',
-    icon: 'Logo',
+    icon: '🎨',
     intent: 'logo-design'
   },
   {
     title: 'Visual Identity',
     description: 'Develop a complete visual identity including color palettes, typography, and design elements.',
-    icon: 'Identity',
+    icon: '🖌️',
     intent: 'visual-identity'
   },
   {
     title: 'Brand Voice',
     description: 'Define your brand\'s tone, voice, and messaging strategy for consistent communication.',
-    icon: 'Voice',
+    icon: '🗣️',
     intent: 'brand-voice'
   },
   {
     title: 'Brand Guidelines',
     description: 'Generate comprehensive brand guidelines to ensure consistency across all channels.',
-    icon: 'Guidelines',
+    icon: '📖',
     intent: 'brand-guidelines'
   },
   {
     title: 'Social Media Kits',
     description: 'Create platform-specific branding assets optimized for each social media channel.',
-    icon: 'Social',
+    icon: '📱',
     intent: 'social-kit'
   },
   {
     title: 'Brand Strategy',
     description: 'Develop a comprehensive brand strategy aligned with your business goals.',
-    icon: 'Strategy',
+    icon: '🚀',
     intent: 'brand-strategy'
   }
 ];
