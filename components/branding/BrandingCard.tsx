@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useCallback } from 'react';
 import { usePercyContext } from '@/contexts/PercyContext';
 
 interface BrandingCardProps {
@@ -26,62 +25,36 @@ export default function BrandingCard({ title, description, icon, intent, index }
     openPercy();
   }, [intent, openPercy, setPercyIntent]);
 
-  if (!isMounted) return (
-    <div className="glass-card p-6 rounded-2xl animate-pulse h-48" />
-  );
+  if (!isMounted) {
+    return <div className="glass-card p-6 rounded-2xl animate-pulse h-48" />;
+  }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
-      whileHover={{ 
-        y: -16,
-        rotateX: 6,
-        rotateY: 6,
-        scale: 1.07,
-        boxShadow: '0 6px 32px 0 rgba(0,180,255,0.09)'
-      }}
-      whileTap={{ 
-        y: -2,
-        rotateX: 1,
-        rotateY: 1,
-        scale: 0.97,
-        boxShadow: '0 2px 8px 0 rgba(0,180,255,0.04)'
-      }}
-      className="glass-card interactive p-6 rounded-2xl transform-gpu cursor-pointer transition-all duration-200"
+      className="glass-card p-6 cursor-pointer hover:bg-gray-800/60 transition-colors"
       onClick={handleCardClick}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
+      onKeyDown={(e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           handleCardClick();
         }
       }}
-      aria-label={`${title} - Click to start branding process`}
     >
-      <div className="h-12 w-12 rounded-xl bg-electric-blue/20 flex items-center justify-center mb-4">
-        {isMounted && (
-          <span
-            className="text-2xl select-none emoji-font"
-            role="img"
-            aria-label={title}
-          >
-            {icon}
-          </span>
-        )}
-      </div>
-      <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
-      <p className="text-gray-400">{description}</p>
-      
-      {/* Interactive indicator */}
-      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <motion.div
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="w-2 h-2 bg-blue-400 rounded-full"
-        />
+      <div className="flex items-start space-x-4">
+        <span className="text-3xl" role="img" aria-label={`${title} icon`}>
+          {icon}
+        </span>
+        <div>
+          <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+          <p className="text-gray-300">{description}</p>
+        </div>
       </div>
     </motion.div>
   );

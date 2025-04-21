@@ -195,17 +195,17 @@ export default function PublishingAssistantPanel({ className = '' }: { className
                   transition={{ delay: 0.5 }}
                 >
                   <h4 className="text-lg font-semibold text-white">Publishing Plan</h4>
-                  <motion.ul className="space-y-3">
+                  <ul className="space-y-3">
                     {state.response.steps.map((s, i) => (
                       <li key={i} className="flex flex-col text-white gap-1">
-                        <motion.div>
+                        <div>
                           <strong>{s.title}:</strong>
                           <span>{s.description}</span>
                           <span>Timeline: {s.timeline}</span>
-                        </motion.div>
+                        </div>
                       </li>
                     ))}
-                  </motion.ul>
+                  </ul>
                 </motion.div>
               </motion.div>
             )}
