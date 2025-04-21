@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/contexts/PercyContext';
 
 interface BrandingCardProps {
@@ -54,10 +53,9 @@ export default function BrandingCard({ title, description, icon, intent, index }
     >
       <div className="h-12 w-12 rounded-xl bg-electric-blue/20 flex items-center justify-center mb-4">
         <span
-          className="text-2xl select-none"
+          className="text-2xl select-none emoji-font"
           role="img"
           aria-label={title}
-          style={{ fontFamily: 'Apple Color Emoji, Segoe UI Emoji, NotoColorEmoji, Android Emoji, EmojiSymbols, emoji, sans-serif' }}
         >
           {icon}
         </span>

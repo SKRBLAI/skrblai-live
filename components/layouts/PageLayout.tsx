@@ -20,14 +20,17 @@ export default function PageLayout({ children, title, showPercy = true }: PageLa
   const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   return (
-    <div ref={containerRef} className="page-container min-h-screen">
-      {/* Animated background */}
+    <div ref={containerRef} className="page-container min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950">
+      {/* Enhanced floating particles */}
       <motion.div
-        className="floating-particles"
+        className="floating-particles absolute inset-0 z-0"
         style={{ y: backgroundY }}
         aria-hidden="true"
       />
-
+      
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-900/70 via-slate-900/40 to-slate-950/90" />
+      
       <div className="page-content relative z-10">
         <div className="responsive-container py-20">
           {title && (

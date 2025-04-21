@@ -9,6 +9,7 @@ import PercyAvatar from '@/components/home/PercyAvatar';
 import type { BookPublishingState, FileUploadStatus, BookPublishingResponse } from '@/types/book-publishing';
 import classNames from 'classnames';
 import Link from 'next/link';
+import PageLayout from '@/components/layouts/PageLayout';
 
 type StepType = BookPublishingResponse['steps'][number];
 
@@ -101,117 +102,121 @@ export default function PublishingAssistantPanel({ className = '' }: { className
   });
 
   return (
-    <motion.div 
-      className={`publishing-panel glass-card p-6 ${className}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="steps-indicator mb-6 flex justify-between items-center">
-        {[1, 2, 3].map((step) => (
-          <motion.div
-            key={step}
-            className={`step-circle ${currentStep >= step ? 'active' : ''}`}
-            initial={{ scale: 0.8 }}
-            animate={{ 
-              scale: currentStep === step ? 1.1 : 1,
-              backgroundColor: currentStep >= step ? '#3B82F6' : '#1F2937'
-            }}
+    <PageLayout title="Book Publishing Assistant">
+      <div className={`glass-panel p-8 rounded-3xl ${className}`}>
+        <motion.div 
+          className={`publishing-panel glass-card p-6`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="steps-indicator mb-6 flex justify-between items-center">
+            {[1, 2, 3].map((step) => (
+              <motion.div
+                key={step}
+                className={`step-circle ${currentStep >= step ? 'active' : ''}`}
+                initial={{ scale: 0.8 }}
+                animate={{ 
+                  scale: currentStep === step ? 1.1 : 1,
+                  backgroundColor: currentStep >= step ? '#3B82F6' : '#1F2937'
+                }}
+              >
+                {step}
+              </motion.div>
+            ))}
+          </div>
+          
+          <motion.h2 
+            className="text-2xl text-white font-semibold mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
           >
-            {step}
-          </motion.div>
-        ))}
-      </div>
-      
-      <motion.h2 
-        className="text-2xl text-white font-semibold mb-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
-        {currentStep === 1 ? 'Describe Your Book' :
-         currentStep === 2 ? 'Upload Your Manuscript' :
-         'AI Analysis & Publishing Plan'}
-      </motion.h2>
-      <textarea
-        className="w-full bg-black/20 text-white rounded-lg p-4 mb-4"
-        value={state.prompt}
-        placeholder="Describe your book concept, genre, or story..."
-        onChange={(e) => setState(prev => ({ ...prev, prompt: e.target.value }))}
-      />
-      <div {...getRootProps()} className="border-dashed border-2 border-blue-300 p-6 mb-4 cursor-pointer">
-        <input {...getInputProps()} />
-        <p className="text-white">{isDragActive ? 'Drop the file...' : 'Drag & drop a manuscript, or click to select file'}</p>
-      </div>
-      {state.uploadedFile && (
-        <div className="text-white mb-4">
-          <strong>Uploaded:</strong> {state.uploadedFileName}
-          <button onClick={removeFile} className="ml-4 text-red-500 underline">Remove</button>
-        </div>
-      )}
-      <button onClick={handlePromptSubmit} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
-        {state.isSubmitting ? 'Analyzing...' : 'Submit to Percy'}
-      </button>
-      <AnimatePresence>
-        {state.response && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -20 }}
-            className="mt-8 bg-white/10 p-4 rounded-xl"
-          >
-            <div className="flex items-center mb-4">
-              <PercyAvatar size="sm" />
-              <div className="ml-3">
-                <h3 className="text-white font-bold">AI Analysis Complete</h3>
-                <p className="text-blue-400 text-sm">Publishing plan generated</p>
-              </div>
+            {currentStep === 1 ? 'Describe Your Book' :
+             currentStep === 2 ? 'Upload Your Manuscript' :
+             'AI Analysis & Publishing Plan'}
+          </motion.h2>
+          <textarea
+            className="w-full bg-black/20 text-white rounded-lg p-4 mb-4"
+            value={state.prompt}
+            placeholder="Describe your book concept, genre, or story..."
+            onChange={(e) => setState(prev => ({ ...prev, prompt: e.target.value }))}
+          />
+          <div {...getRootProps()} className="border-dashed border-2 border-blue-300 p-6 mb-4 cursor-pointer">
+            <input {...getInputProps()} />
+            <p className="text-white">{isDragActive ? 'Drop the file...' : 'Drag & drop a manuscript, or click to select file'}</p>
+          </div>
+          {state.uploadedFile && (
+            <div className="text-white mb-4">
+              <strong>Uploaded:</strong> {state.uploadedFileName}
+              <button onClick={removeFile} className="ml-4 text-red-500 underline">Remove</button>
             </div>
+          )}
+          <button onClick={handlePromptSubmit} className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+            {state.isSubmitting ? 'Analyzing...' : 'Submit to Percy'}
+          </button>
+          <AnimatePresence>
+            {state.response && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -20 }}
+                className="mt-8 bg-white/10 p-4 rounded-xl"
+              >
+                <div className="flex items-center mb-4">
+                  <PercyAvatar size="sm" />
+                  <div className="ml-3">
+                    <h3 className="text-white font-bold">AI Analysis Complete</h3>
+                    <p className="text-blue-400 text-sm">Publishing plan generated</p>
+                  </div>
+                </div>
 
-            <div className="space-y-6">
-              {aiStages.map((stage, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ 
-                    opacity: aiAnalysisStage >= index ? 1 : 0.5,
-                    x: aiAnalysisStage >= index ? 0 : -10
-                  }}
-                  className={`flex items-center ${aiAnalysisStage >= index ? 'text-white' : 'text-gray-500'}`}
-                >
-                  <div className={`w-2 h-2 rounded-full mr-3 ${aiAnalysisStage >= index ? 'bg-blue-500' : 'bg-gray-600'}`} />
-                  {stage}
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.div 
-              className="mt-6 space-y-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <h4 className="text-lg font-semibold text-white">Publishing Plan</h4>
-              <motion.ul className="space-y-3 list-none">
-                {state.response.steps.map((s, i) => (
-                  <li key={i} className="flex flex-col text-white gap-1">
+                <div className="space-y-6">
+                  {aiStages.map((stage, index) => (
                     <motion.div
+                      key={index}
                       initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 * i }}
-                      className="flex flex-col"
+                      animate={{ 
+                        opacity: aiAnalysisStage >= index ? 1 : 0.5,
+                        x: aiAnalysisStage >= index ? 0 : -10
+                      }}
+                      className={`flex items-center ${aiAnalysisStage >= index ? 'text-white' : 'text-gray-500'}`}
                     >
-                      <strong className="text-blue-400">{s.title}:</strong>
-                      <span className="text-gray-300 ml-4">{s.description}</span>
-                      <span className="text-sm text-blue-300 ml-4">Timeline: {s.timeline}</span>
+                      <div className={`w-2 h-2 rounded-full mr-3 ${aiAnalysisStage >= index ? 'bg-blue-500' : 'bg-gray-600'}`} />
+                      {stage}
                     </motion.div>
-                  </li>
-                ))}
-              </motion.ul>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+                  ))}
+                </div>
+
+                <motion.div 
+                  className="mt-6 space-y-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <h4 className="text-lg font-semibold text-white">Publishing Plan</h4>
+                  <motion.ul className="space-y-3">
+                    {state.response.steps.map((s, i) => (
+                      <li key={i}>
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.2 * i }}
+                          className="flex flex-col"
+                        >
+                          <strong className="text-blue-400">{s.title}:</strong>
+                          <span className="text-gray-300 ml-4">{s.description}</span>
+                          <span className="text-sm text-blue-300 ml-4">Timeline: {s.timeline}</span>
+                        </motion.div>
+                      </li>
+                    ))}
+                  </motion.ul>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </PageLayout>
   );
 }
