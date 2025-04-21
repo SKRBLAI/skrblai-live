@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/contexts/PercyContext';
 
 interface BrandingCardProps {
@@ -13,12 +14,14 @@ interface BrandingCardProps {
 }
 
 export default function BrandingCard({ title, description, icon, intent, index }: BrandingCardProps) {
+  const router = useRouter();
   const { openPercy, setPercyIntent } = usePercyContext();
 
   const handleCardClick = useCallback(() => {
     setPercyIntent(intent);
+    router.push(`/?intent=${intent}#percy`);
     openPercy();
-  }, [intent, openPercy, setPercyIntent]);
+  }, [intent, openPercy, setPercyIntent, router]);
 
   return (
     <motion.div

@@ -1,3 +1,5 @@
+import type { FirestoreTimestamp } from '@/utils/firebase';
+
 export interface Lead {
   name: string;
   email: string;
@@ -11,4 +13,5 @@ export interface Lead {
   userLink?: string;
   userFileUrl?: string;
   userFileName?: string;
+  timestamp?: FirestoreTimestamp;
 }

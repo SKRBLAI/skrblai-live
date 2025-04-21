@@ -192,21 +192,22 @@ export default function PublishingAssistantPanel({ className = '' }: { className
               transition={{ delay: 0.5 }}
             >
               <h4 className="text-lg font-semibold text-white">Publishing Plan</h4>
-              <ul className="space-y-3">
+              <motion.ul className="space-y-3 list-none">
                 {state.response.steps.map((s, i) => (
-                  <motion.li 
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.2 * i }}
-                    className="flex flex-col text-white gap-1"
-                  >
-                    <strong className="text-blue-400">{s.title}:</strong>
-                    <p className="ml-4 text-gray-300">{s.description}</p>
-                    <p className="ml-4 text-sm text-blue-300">Timeline: {s.timeline}</p>
-                  </motion.li>
+                  <li key={i} className="flex flex-col text-white gap-1">
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 * i }}
+                      className="flex flex-col"
+                    >
+                      <strong className="text-blue-400">{s.title}:</strong>
+                      <span className="text-gray-300 ml-4">{s.description}</span>
+                      <span className="text-sm text-blue-300 ml-4">Timeline: {s.timeline}</span>
+                    </motion.div>
+                  </li>
                 ))}
-              </ul>
+              </motion.ul>
             </motion.div>
           </motion.div>
         )}
