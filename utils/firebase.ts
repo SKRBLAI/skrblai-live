@@ -7,6 +7,7 @@ import { getAnalytics, isSupported } from 'firebase/analytics';
 
 export type FirestoreTimestamp = ReturnType<typeof serverTimestamp>;
 export type FirestoreCollection<T = DocumentData> = CollectionReference<T>;
+export type { Lead };
 
 interface BaseDocument {
   createdAt?: FirestoreTimestamp;
