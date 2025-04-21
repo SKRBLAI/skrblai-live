@@ -25,6 +25,15 @@ export default function PublishingAssistantPanel({ className = '' }: { className
   const [state, setState] = useState(initialState);
   const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({ progress: 0, success: false });
   const [isTyping, setIsTyping] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [aiAnalysisStage, setAiAnalysisStage] = useState(0);
+
+  const aiStages = [
+    'Analyzing manuscript structure...',
+    'Evaluating writing style...',
+    'Generating publishing recommendations...',
+    'Creating distribution strategy...'
+  ];
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -52,6 +61,20 @@ export default function PublishingAssistantPanel({ className = '' }: { className
     if (!state.prompt.trim() && !state.uploadedFile) return;
     setState(prev => ({ ...prev, isSubmitting: true }));
     setIsTyping(true);
+    setCurrentStep(3);
+
+    // Animate through AI analysis stages
+    const maxStages = aiStages.length;
+    const stageInterval = setInterval(() => {
+      setAiAnalysisStage(prev => {
+        if (prev >= maxStages - 1) {
+          clearInterval(stageInterval);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1500);
+
     setTimeout(() => {
       setIsTyping(false);
       setState(prev => ({
@@ -69,7 +92,7 @@ export default function PublishingAssistantPanel({ className = '' }: { className
         }
       }));
     }, 1500);
-  }, [state.prompt, state.uploadedFile]);
+  }, [state.prompt, state.uploadedFile, aiStages.length]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -78,8 +101,38 @@ export default function PublishingAssistantPanel({ className = '' }: { className
   });
 
   return (
-    <div className={`publishing-panel glass-card p-6 ${className}`}>
-      <h2 className="text-xl text-white font-semibold mb-4">Upload or Describe Your Book</h2>
+    <motion.div 
+      className={`publishing-panel glass-card p-6 ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="steps-indicator mb-6 flex justify-between items-center">
+        {[1, 2, 3].map((step) => (
+          <motion.div
+            key={step}
+            className={`step-circle ${currentStep >= step ? 'active' : ''}`}
+            initial={{ scale: 0.8 }}
+            animate={{ 
+              scale: currentStep === step ? 1.1 : 1,
+              backgroundColor: currentStep >= step ? '#3B82F6' : '#1F2937'
+            }}
+          >
+            {step}
+          </motion.div>
+        ))}
+      </div>
+      
+      <motion.h2 
+        className="text-2xl text-white font-semibold mb-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+      >
+        {currentStep === 1 ? 'Describe Your Book' :
+         currentStep === 2 ? 'Upload Your Manuscript' :
+         'AI Analysis & Publishing Plan'}
+      </motion.h2>
       <textarea
         className="w-full bg-black/20 text-white rounded-lg p-4 mb-4"
         value={state.prompt}
@@ -101,17 +154,63 @@ export default function PublishingAssistantPanel({ className = '' }: { className
       </button>
       <AnimatePresence>
         {state.response && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 bg-white/10 p-4 rounded-xl">
-            <PercyAvatar size="sm" />
-            <h3 className="text-white font-bold mb-2 mt-4">Publishing Plan</h3>
-            <ul className="text-white space-y-2">
-              {state.response.steps.map((s, i) => (
-                <li key={i}><strong>{s.title}:</strong> {s.description} – <em>{s.timeline}</em></li>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -20 }}
+            className="mt-8 bg-white/10 p-4 rounded-xl"
+          >
+            <div className="flex items-center mb-4">
+              <PercyAvatar size="sm" />
+              <div className="ml-3">
+                <h3 className="text-white font-bold">AI Analysis Complete</h3>
+                <p className="text-blue-400 text-sm">Publishing plan generated</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {aiStages.map((stage, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ 
+                    opacity: aiAnalysisStage >= index ? 1 : 0.5,
+                    x: aiAnalysisStage >= index ? 0 : -10
+                  }}
+                  className={`flex items-center ${aiAnalysisStage >= index ? 'text-white' : 'text-gray-500'}`}
+                >
+                  <div className={`w-2 h-2 rounded-full mr-3 ${aiAnalysisStage >= index ? 'bg-blue-500' : 'bg-gray-600'}`} />
+                  {stage}
+                </motion.div>
               ))}
-            </ul>
+            </div>
+
+            <motion.div 
+              className="mt-6 space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <h4 className="text-lg font-semibold text-white">Publishing Plan</h4>
+              <ul className="space-y-3">
+                {state.response.steps.map((s, i) => (
+                  <motion.li 
+                    key={i}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 * i }}
+                    className="flex flex-col text-white gap-1"
+                  >
+                    <strong className="text-blue-400">{s.title}:</strong>
+                    <p className="ml-4 text-gray-300">{s.description}</p>
+                    <p className="ml-4 text-sm text-blue-300">Timeline: {s.timeline}</p>
+                  </motion.li>
+                ))}
+              </ul>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

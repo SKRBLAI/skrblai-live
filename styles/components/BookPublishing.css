@@ -23,18 +23,20 @@
   overflow-y: auto;
 }
 
-/* Firefox scrollbar */
+/* Cross-browser scrollbar styles */
 .prompt-input {
+  /* Modern Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  
+  /* Legacy browsers */
+  overflow-y: auto;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
-/* Webkit scrollbar */
+/* Webkit browsers */
 .prompt-input::-webkit-scrollbar {
   width: 8px;
-}
-
-.prompt-input::-webkit-scrollbar-track {
   background: transparent;
 }
 
