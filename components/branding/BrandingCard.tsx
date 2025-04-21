@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useCallback } from 'react';
 import { usePercyContext } from '@/contexts/PercyContext';
@@ -13,12 +14,21 @@ interface BrandingCardProps {
 }
 
 export default function BrandingCard({ title, description, icon, intent, index }: BrandingCardProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const { openPercy, setPercyIntent } = usePercyContext();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleCardClick = useCallback(() => {
     setPercyIntent(intent);
     openPercy();
   }, [intent, openPercy, setPercyIntent]);
+
+  if (!isMounted) return (
+    <div className="glass-card p-6 rounded-2xl animate-pulse h-48" />
+  );
 
   return (
     <motion.div
@@ -52,13 +62,15 @@ export default function BrandingCard({ title, description, icon, intent, index }
       aria-label={`${title} - Click to start branding process`}
     >
       <div className="h-12 w-12 rounded-xl bg-electric-blue/20 flex items-center justify-center mb-4">
-        <span
-          className="text-2xl select-none emoji-font"
-          role="img"
-          aria-label={title}
-        >
-          {icon}
-        </span>
+        {isMounted && (
+          <span
+            className="text-2xl select-none emoji-font"
+            role="img"
+            aria-label={title}
+          >
+            {icon}
+          </span>
+        )}
       </div>
       <h3 className="text-xl font-semibold mb-2 text-white">{title}</h3>
       <p className="text-gray-400">{description}</p>

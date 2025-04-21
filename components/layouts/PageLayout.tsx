@@ -22,17 +22,36 @@ export default function PageLayout({ children, title, showPercy = true }: PageLa
   return (
     <div ref={containerRef} className="page-container min-h-screen relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950">
       {/* Enhanced floating particles */}
-      <motion.div
-        className="floating-particles absolute inset-0 z-0"
-        style={{ y: backgroundY }}
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0 overflow-hidden">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-electric-blue/20"
+            style={{
+              width: Math.random() * 10 + 5,
+              height: Math.random() * 10 + 5,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, Math.random() * 100 - 50],
+              x: [0, Math.random() * 100 - 50],
+              opacity: [0.2, 0.8, 0.2],
+            }}
+            transition={{
+              duration: Math.random() * 20 + 10,
+              repeat: Infinity,
+              repeatType: 'reverse',
+            }}
+          />
+        ))}
+      </div>
       
       {/* Gradient overlay */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-slate-900/70 via-slate-900/40 to-slate-950/90" />
       
       <div className="page-content relative z-10">
-        <div className="responsive-container py-20">
+        <div className="responsive-container py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {title && (
             <motion.div 
               className="text-center mb-16"
