@@ -5,7 +5,7 @@ import { useState } from 'react';
 import PercyButton from './PercyButton';
 
 interface PercyChatProps {
-  onComplete: (data: { name: string; email: string; plan: string }) => void;
+  onComplete: (data: { name: string; email: string; plan: string; intent: string }) => void;
 }
 
 interface Step {
@@ -16,10 +16,13 @@ interface Step {
   action: (inputValue: string) => void;
 }
 
+import { usePercyContext } from '../contexts/PercyContext';
+
 export default function PercyChat({ onComplete }: PercyChatProps) {
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const { routeToAgent } = usePercyContext();
 
   const steps: Step[] = [
     {
@@ -41,10 +44,31 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
       }
     },
     {
-      message: "Would you like to try our 7-Day Free Trial or subscribe to a plan?",
-      options: ['7-Day Free Trial', 'Subscribe Now'],
+      message: "How can I help you today?",
+      options: [
+        "I have a book idea I need help with.",
+        "I need business branding and marketing support.",
+        "I'd like to automate my content.",
+        "I need help creating my website."
+      ],
       action: (value: string) => {
-        onComplete({ name, email, plan: value });
+        let intent = '';
+        switch (value) {
+          case "I have a book idea I need help with.":
+            intent = 'book-publishing';
+            break;
+          case "I need business branding and marketing support.":
+            intent = 'branding';
+            break;
+          case "I'd like to automate my content.":
+            intent = 'content-automation';
+            break;
+          case "I need help creating my website.":
+            intent = 'web-creation';
+            break;
+        }
+        onComplete({ name, email, plan: 'Initial Inquiry', intent });
+        routeToAgent(intent);
       }
     }
   ];

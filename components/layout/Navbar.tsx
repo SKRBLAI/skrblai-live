@@ -8,13 +8,11 @@ import { useRouter } from 'next/navigation';
 import type { User } from 'firebase/auth';
 
 
+// New simplified navigation
 const navLinks = [
-  { href: '/features', label: 'Features' },
-  { href: '/book-publishing', label: 'Book Publishing' },
-  { href: '/branding', label: 'Branding' },
-  { href: '/content-automation', label: 'Content' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/contact', label: 'Contact' }
+  { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
+  { href: '/ask-percy', label: 'Ask Percy' }
 ];
 
 export default function Navbar() {
@@ -66,6 +64,7 @@ export default function Navbar() {
 
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center gap-8">
+            {/* Render new nav links */}
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -76,40 +75,13 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => {
-                      auth.signOut();
-                      router.push('/');
-                    }}
-                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="bg-gradient-to-r from-electric-blue to-teal-400 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-teal-400 hover:to-electric-blue transition-all duration-300"
-                  >
-                    Get Started
-                  </Link>
-                </>
-              )}
+              {/* Always show Login button, routes to dashboard auth */}
+              <Link
+                href="/login"
+                className="text-gray-200 hover:text-electric-blue font-medium transition-all duration-200 hover:scale-105"
+              >
+                Login
+              </Link>
             </div>
           </div>
 
@@ -156,6 +128,7 @@ export default function Navbar() {
         className="md:hidden overflow-hidden bg-black/50 backdrop-blur-lg border-t border-white/10"
       >
         <div className="px-4 py-2 space-y-1">
+          {/* Mobile nav links */}
           {navLinks.map((link, index) => (
             <motion.div
               key={link.href}
@@ -184,13 +157,6 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Login
-            </Link>
-            <Link
-              href="/?intent=grow_social_media#percy"
-              className="block w-full px-4 py-2 text-center bg-electric-blue hover:bg-electric-blue/90 text-white font-medium rounded-md transition-all duration-300"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Get Started
             </Link>
           </motion.div>
         </div>
