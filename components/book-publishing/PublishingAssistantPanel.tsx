@@ -9,7 +9,7 @@ import PercyAvatar from '@/components/home/PercyAvatar';
 import type { BookPublishingState, FileUploadStatus, BookPublishingResponse } from '@/types/book-publishing';
 import classNames from 'classnames';
 import Link from 'next/link';
-import PageLayout from '@/components/layouts/PageLayout';
+import PageLayout from '@/components/layout/PageLayout';
 
 type StepType = BookPublishingResponse['steps'][number];
 

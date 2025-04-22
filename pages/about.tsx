@@ -1,6 +1,4 @@
 import PageLayout from '@/components/layout/PageLayout'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
 
 const About = () => (
   <PageLayout title="About SKRBL AI">
