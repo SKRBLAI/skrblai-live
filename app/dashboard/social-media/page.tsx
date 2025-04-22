@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function SocialMediaDashboard() {
   const [isLoading, setIsLoading] = useState(true);
@@ -159,7 +160,7 @@ export default function SocialMediaDashboard() {
             >
               <h2 className="text-xl font-semibold mb-4 text-white">Need More Social Media Help?</h2>
               <p className="text-gray-300 mb-4">Get a personalized social growth strategy with our AI assistant</p>
-              <a href="/?intent=grow_social_media#percy" className="inline-block">
+              <Link href="/?intent=grow_social_media#percy" className="inline-block">
                 <motion.button
                   whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
@@ -167,7 +168,7 @@ export default function SocialMediaDashboard() {
                 >
                   Get Started
                 </motion.button>
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
         </main>

@@ -11,6 +11,7 @@ import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import { useCallback, useEffect, useState, CSSProperties } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import Link from 'next/link';
 import { app, storage } from '@/utils/firebase';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
@@ -418,7 +419,7 @@ export default function BookPublishingDashboard() {
             >
               <h2 className="text-xl font-semibold mb-4 text-white">Need More Publishing Services?</h2>
               <p className="text-gray-300 mb-4">Get a personalized publishing plan with our AI assistant</p>
-              <a href="/?intent=publish_book#percy" className="inline-block">
+              <Link href="/?intent=publish_book#percy" className="inline-block">
                 <motion.button
                   whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
@@ -426,7 +427,7 @@ export default function BookPublishingDashboard() {
                 >
                   Get Started
                 </motion.button>
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
         </main>

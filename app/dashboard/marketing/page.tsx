@@ -11,6 +11,7 @@ import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { app } from '@/utils/firebase';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function MarketingDashboard() {
@@ -368,7 +369,7 @@ export default function MarketingDashboard() {
             >
               <h2 className="text-xl font-semibold mb-4 text-white">Need More Marketing Insights?</h2>
               <p className="text-gray-300 mb-4">Get a personalized marketing optimization plan with our AI assistant</p>
-              <a href="/?intent=improve_marketing#percy" className="inline-block">
+              <Link href="/?intent=improve_marketing#percy" className="inline-block">
                 <motion.button
                   whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
@@ -376,7 +377,7 @@ export default function MarketingDashboard() {
                 >
                   Get Started
                 </motion.button>
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
         </main>

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
+import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -311,7 +312,7 @@ export default function WebsiteDashboard() {
             >
               <h2 className="text-xl font-semibold mb-4 text-white">Need Additional Website Features?</h2>
               <p className="text-gray-300 mb-4">Get a personalized website development plan with our AI assistant</p>
-              <a href="/?intent=launch_website#percy" className="inline-block">
+              <Link href="/?intent=launch_website#percy" className="inline-block">
                 <motion.button
                   whileHover={{ scale: 1.02, boxShadow: "0 0 15px rgba(56, 189, 248, 0.5)" }}
                   whileTap={{ scale: 0.98 }}
@@ -319,7 +320,7 @@ export default function WebsiteDashboard() {
                 >
                   Get Started
                 </motion.button>
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
         </main>
