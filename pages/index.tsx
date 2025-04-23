@@ -1,26 +1,28 @@
 import PageLayout from '@/components/layout/PageLayout'
+import PercyChat from '@/components/PercyChat'
 import Link from 'next/link'
 
-const Home = () => (
-  <PageLayout title="Welcome to SKRBL AI">
-    <section className="max-w-4xl mx-auto px-4 py-16 text-center glass-card rounded-xl shadow-lg backdrop-blur-md bg-white/10 border border-white/20">
-      <h1 className="text-5xl font-bold mb-6 text-white drop-shadow">Welcome to SKRBL AI</h1>
-      <p className="text-lg text-gray-300 mb-8">
-        Your all-in-one AI platform for publishing, branding, content automation, and more. Let Percy help you get started.
-      </p>
-      <div className="flex justify-center flex-wrap gap-4">
-        <Link href="/ask-percy" className="bg-teal-500 text-white px-6 py-3 rounded-lg hover:bg-teal-600 transition">
-          Ask Percy
-        </Link>
-        <Link href="/services" className="bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-100 transition">
-          Explore Services
-        </Link>
-        <Link href="/about" className="border border-white text-white px-6 py-3 rounded-lg hover:bg-white hover:text-black transition">
-          Learn About Us
-        </Link>
+export default function Home() {
+  return (
+    <PageLayout title="SKRBL AI – Your All-in-One AI Automation Platform">
+      {/* Animated background (particles or floating icons) */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="pointer-events-none animate-pulse-slow opacity-40">
+          {/* Example: animated floating icons or SVGs */}
+          <div className="absolute left-1/4 top-10 w-32 h-32 bg-teal-500 rounded-full blur-3xl opacity-50 animate-bounce" />
+          <div className="absolute right-1/4 bottom-10 w-40 h-40 bg-electric-blue rounded-full blur-2xl opacity-40 animate-pulse" />
+        </div>
       </div>
-    </section>
-  </PageLayout>
-)
-
-export default Home
+      <section className="max-w-6xl mx-auto px-6 py-20 text-center space-y-6">
+        <h1 className="text-5xl font-bold leading-tight drop-shadow-lg">AI That Works While You Sleep 🧠⚡</h1>
+        <p className="text-lg text-gray-300">Welcome to SKRBL — automate your content, branding, and publishing workflows with powerful AI agents.</p>
+        <div className="flex flex-wrap justify-center gap-4">
+          <Link href="/ask-percy" className="bg-teal-500 text-white px-6 py-3 rounded-xl hover:bg-teal-600 shadow-lg transition">Ask Percy</Link>
+          <Link href="/services" className="bg-white text-black px-6 py-3 rounded-xl hover:bg-gray-100 shadow-lg transition">Explore Services</Link>
+          <Link href="/agents" className="border border-white text-white px-6 py-3 rounded-xl hover:bg-white hover:text-black shadow-lg transition">Meet the Agents</Link>
+        </div>
+      </section>
+      <PercyChat />
+    </PageLayout>
+  );
+}

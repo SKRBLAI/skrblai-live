@@ -2,4 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Add any custom styles below if needed */
+body {
+  @apply bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] text-white font-sans;
+}

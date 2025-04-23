@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Navbar from './Navbar';
+import PercyWidget from '@/components/percy/PercyWidget';
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -14,6 +15,8 @@ export default function PageLayout({ children, title }: PageLayoutProps) {
         {title && <h1 className="text-3xl font-bold mb-6 text-white">{title}</h1>}
         {children}
       </main>
+      {/* Global Percy Floating Widget */}
+      <PercyWidget />
     </div>
   );
 }

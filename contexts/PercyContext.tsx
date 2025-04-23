@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 interface PercyContextType {
   isOpen: boolean;
@@ -23,21 +24,11 @@ export function PercyProvider({ children }: { children: React.ReactNode }) {
   const closePercy = useCallback(() => setIsOpen(false), []);
   const routeToAgent = useCallback((intent: string) => {
     setPercyIntent(intent);
-    switch (intent) {
-      case 'book-publishing':
-        router.push('/services/book-publishing');
-        break;
-      case 'branding':
-        router.push('/services/branding');
-        break;
-      case 'content-automation':
-        router.push('/services/content-automation');
-        break;
-      case 'web-creation':
-        router.push('/services/website-creation');
-        break;
-      default:
-        router.push('/ask-percy');
+    const agent = agentRegistry.find(agent => agent.intent === intent);
+    if (agent?.route) {
+      router.push(agent.route);
+    } else {
+      router.push('/ask-percy?error=not-found');
     }
   }, [router]);
 
@@ -54,4 +45,10 @@ export function usePercyContext() {
     throw new Error('usePercyContext must be used within a PercyProvider');
   }
   return context;
+}
+
+// Named hook for direct routing use
+export function usePercyRouter() {
+  const { routeToAgent } = usePercyContext();
+  return { routeToAgent };
 }

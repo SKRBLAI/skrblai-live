@@ -16,6 +16,10 @@ import BillingInfo from '@/components/dashboard/BillingInfo';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import Notifications from '@/components/dashboard/Notifications';
 import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
+import { checkUserRole } from '@/lib/auth/checkUserRole';
+import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
+import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
@@ -23,6 +27,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Stripe Role Gating: restrict premium dashboard sections
   useEffect(() => {
     const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -34,8 +39,42 @@ export default function Dashboard() {
       setIsLoading(false);
     });
 
+    // Role-based gating for premium dashboard sections
+    async function checkAccess() {
+      const role = await checkUserRole();
+      // Only allow premium users to access premium sections
+      if (
+        ['metrics', 'proposals', 'billing', 'downloads', 'video'].includes(activeSection)
+        && role !== 'premium'
+      ) {
+        router.push('/upgrade');
+      }
+    }
+    checkAccess();
+
     return () => unsubscribe();
-  }, [router]);
+  }, [router, activeSection]);
+
+  // Workflow handler with Resend email confirmation
+  const handleRunWorkflow = async (agentId: string, payload: any, user: any) => {
+    const db = getFirestore();
+    const result = await runAgentWorkflow(agentId, payload);
+    await addDoc(collection(db, 'workflowLogs'), {
+      userId: user.uid,
+      agentId,
+      result: result.result,
+      status: result.status,
+      timestamp: new Date()
+    });
+    if (user.email) {
+      await sendWorkflowResultEmail({
+        email: user.email,
+        agentId,
+        result: result.result
+      });
+    }
+    return result;
+  };
 
   const renderSection = () => {
     switch (activeSection) {
