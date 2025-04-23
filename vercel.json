@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "skrblai-live",
   "alias": ["skrblai.io", "www.skrblai.io"],
   "builds": [
     {
@@ -21,4 +20,3 @@
     "productionBranch": "master"
   }
 }
-

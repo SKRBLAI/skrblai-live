@@ -13,7 +13,7 @@ import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
 
-export default function PercyWidget() {
+function PercyWidget() {
   // Always call hooks at the top level
   const routerResult = usePercyRouter();
   const [open, setOpen] = useState(false);
@@ -29,12 +29,10 @@ export default function PercyWidget() {
   const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
   const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
 
-  if (!routerResult) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('PercyWidget: PercyProvider not found, skipping render.');
   // Fetch Firestore-powered Percy memory on open
   useEffect(() => {
     if (!routerResult) return;
+
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('lastUsedAgent');
       setLastUsedIntent(stored ?? '');
@@ -213,3 +211,5 @@ export default function PercyWidget() {
     </>
   );
 }
+
+export default PercyWidget;
