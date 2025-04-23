@@ -1,9 +1,7 @@
-'use client';
-
 import React from 'react';
 import type { ReactNode } from 'react';
 import PageLayout from '@/components/layout/PageLayout';
-import { PercyProvider } from '@/contexts/PercyContext';
+import PercyProviderWrapper from '@/components/percy/ClientProviders';
 
 export const metadata = {
   title: 'SKRBL AI',
@@ -14,11 +12,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <PercyProvider>
+        <PercyProviderWrapper>
           <PageLayout>
             {children}
           </PageLayout>
-        </PercyProvider>
+        </PercyProviderWrapper>
       </body>
     </html>
   );
