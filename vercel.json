@@ -1,18 +1,12 @@
 {
   "version": 2,
   "alias": ["skrblai.io", "www.skrblai.io"],
-  "builds": [
-    {
-      "src": "next.config.js",
-      "use": "@vercel/next"
-    }
+  "rewrites": [
+    { "source": "/", "destination": "/" }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
+  "redirects": [],
+  "headers": [],
+  "cleanUrls": true,
   "github": {
     "enabled": true,
     "autoJobCancelation": true,
