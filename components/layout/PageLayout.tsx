@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import Navbar from './Navbar';
-import PercyWidget from '@/components/percy/PercyWidget';
+import dynamic from "next/dynamic";
+const PercyWidget = dynamic(() => import('@/components/percy/PercyWidget'), { ssr: false });
 
 type PageLayoutProps = {
   children: ReactNode;
