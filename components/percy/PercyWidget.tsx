@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import { usePercyRouter } from '@/contexts/PercyContext';
