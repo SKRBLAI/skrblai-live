@@ -1,24 +1,19 @@
-'use client';
-
-import React from 'react';
-import type { ReactNode } from 'react';
-import PageLayout from '@/components/layout/PageLayout';
-import { PercyProvider } from '@/contexts/PercyContext';
+import "./globals.css";
+import PercyWrapper from "@/components/providers/PercyWrapper";
+import type { ReactNode } from "react";
 
 export const metadata = {
-  title: 'SKRBL AI',
-  description: 'Your AI-powered writing assistant',
+  title: "SKRBL AI",
+  description: "Your AI-powered automation hub",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <PercyProvider>
-          <PageLayout>
-            {children}
-          </PageLayout>
-        </PercyProvider>
+        <PercyWrapper>
+          {children}
+        </PercyWrapper>
       </body>
     </html>
   );
