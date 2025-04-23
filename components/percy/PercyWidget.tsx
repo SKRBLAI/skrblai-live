@@ -14,8 +14,16 @@ import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
 
 export default function PercyWidget() {
+  let contextError: Error | null = null;
+  let routerResult: ReturnType<typeof usePercyRouter> | null = null;
+  try {
+    routerResult = usePercyRouter();
+  } catch (err) {
+    contextError = err as Error;
+  }
+
+  // All hooks must be called unconditionally at the top
   const [open, setOpen] = useState(false);
-  const { routeToAgent } = usePercyRouter();
   const [lastUsedIntent, setLastUsedIntent] = useState<string>('');
   const [messages, setMessages] = useState<{ role: 'assistant' | 'user'; text: string }[]>([]);
   const [memory, setMemory] = useState<any[]>([]);
@@ -27,6 +35,15 @@ export default function PercyWidget() {
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
   const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
+
+  if (contextError || !routerResult) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('PercyWidget: PercyProvider not found, skipping render.');
+    }
+    return null;
+  }
+
+  const { routeToAgent } = routerResult;
 
   // Fetch Firestore-powered Percy memory on open
   useEffect(() => {
