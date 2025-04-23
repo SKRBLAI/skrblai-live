@@ -1,16 +1,3 @@
 {
-  "version": 2,
-  "alias": ["skrblai.io", "www.skrblai.io"],
-  "rewrites": [
-    { "source": "/", "destination": "/" }
-  ],
-  "redirects": [],
-  "headers": [],
-  "cleanUrls": true,
-  "github": {
-    "enabled": true,
-    "autoJobCancelation": true,
-    "silent": false,
-    "productionBranch": "master"
-  }
+  "cleanUrls": true
 }
