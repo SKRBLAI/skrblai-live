@@ -14,15 +14,8 @@ import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
 
 export default function PercyWidget() {
-  let contextError: Error | null = null;
-  let routerResult: ReturnType<typeof usePercyRouter> | null = null;
-  try {
-    routerResult = usePercyRouter();
-  } catch (err) {
-    contextError = err as Error;
-  }
-
-  // All hooks must be called unconditionally at the top
+  // Always call hooks at the top level
+  const routerResult = usePercyRouter();
   const [open, setOpen] = useState(false);
   const [lastUsedIntent, setLastUsedIntent] = useState<string>('');
   const [messages, setMessages] = useState<{ role: 'assistant' | 'user'; text: string }[]>([]);
@@ -36,17 +29,12 @@ export default function PercyWidget() {
   const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
   const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
 
-  if (contextError || !routerResult) {
+  if (!routerResult) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('PercyWidget: PercyProvider not found, skipping render.');
-    }
-    return null;
-  }
-
-  const { routeToAgent } = routerResult;
-
   // Fetch Firestore-powered Percy memory on open
   useEffect(() => {
+    if (!routerResult) return;
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('lastUsedAgent');
       setLastUsedIntent(stored ?? '');
@@ -60,7 +48,16 @@ export default function PercyWidget() {
       setMemory(history);
     }
     if (open) fetchMemory();
-  }, [open]);
+  }, [open, routerResult]);
+
+  if (!routerResult) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('PercyWidget: PercyProvider not found, skipping render.');
+    }
+    return null;
+  }
+
+  const { routeToAgent } = routerResult;
 
   // Suggest agents based on onboarding answers (goal/platform)
   const suggestedAgents = agentRegistry
