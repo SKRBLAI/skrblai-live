@@ -161,7 +161,7 @@
   }
   
   .btn-secondary {
-    @apply bg-transparent border-2 border-teal text-teal px-6 py-3 rounded-lg font-semibold hover:bg-teal/10 hover:scale-105 transition-all duration-300 transform;
+    @apply bg-transparent border-2 border-teal text-teal px-6 py-3 rounded-lg font-semibold hover:bg-teal-500/10 hover:scale-105 transition-all duration-300 transform;
   }
   
   .card {
