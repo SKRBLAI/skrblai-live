@@ -2,6 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .bg-deep-navy {
+    background-color: #0D1117;
+  }
+
+  .bg-glass {
+    background-color: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .bg-glass-dark {
+    background-color: rgba(13, 17, 23, 0.8);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(30, 144, 255, 0.2);
+  }
+
+  .text-gradient {
+    background: linear-gradient(to right, #1E90FF, #30D5C8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+:root {
+  --electric-blue: #1E90FF;
+  --teal: #30D5C8;
+  --deep-navy: #0B132B;
+  --soft-gray: #F7F7F7;
+  --gradient-blue: linear-gradient(135deg, var(--electric-blue), var(--teal));
+  --card-bg: rgba(11, 19, 43, 0.8);
+  --header-height: 4rem;
+  --neon-blue-glow: 0 0 5px rgba(30, 144, 255, 0.5), 0 0 20px rgba(30, 144, 255, 0.3);
+  --neon-teal-glow: 0 0 5px rgba(48, 213, 200, 0.5), 0 0 20px rgba(48, 213, 200, 0.3);
+}
+
 @layer components {
   .animate-gradient-x {
     background-size: 200% 200%;
@@ -29,6 +94,7 @@
   .glass-card {
     background-color: rgba(255, 255, 255, 0.05);
     -webkit-backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
   }
 
@@ -42,6 +108,7 @@
 
   .shadow-glow {
     box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
@@ -96,12 +163,7 @@
   100% { background-position: 50% 0%; }
 }
 
-:root {
-  --deep-navy: #0B132B;
-  --electric-blue: #1E90FF;
-  --teal: #30D5C8;
-  --soft-gray: #F7F7F7;
-}
+
 
 .bg-deep-navy {
   background-color: var(--deep-navy);
@@ -119,69 +181,125 @@
   --tw-gradient-to: var(--electric-blue);
 }
 
-:root {
-  --electric-blue: #1E90FF;
-  --teal: #30D5C8;
-  --deep-navy: #0B132B;
-  --soft-gray: #F7F7F7;
-  --gradient-blue: linear-gradient(135deg, var(--electric-blue), var(--teal));
-  --card-bg: rgba(11, 19, 43, 0.8);
-  --header-height: 4rem;
-  
-  /* Neon glow variables */
-  --neon-blue-glow: 0 0 5px rgba(30, 144, 255, 0.5), 0 0 20px rgba(30, 144, 255, 0.3);
-  --neon-teal-glow: 0 0 5px rgba(48, 213, 200, 0.5), 0 0 20px rgba(48, 213, 200, 0.3);
-}
+
 
 @layer base {
   body {
-    @apply bg-deep-navy text-soft-gray;
+    background-color: #0B132B;
+    color: #F7F7F7;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold;
+    font-weight: 700;
   }
   
   h1 {
-    @apply text-4xl md:text-5xl;
+    font-size: 2.25rem;
+  }
+  @media (min-width: 768px) {
+    h1 {
+      font-size: 3rem;
+    }
   }
   
   h2 {
-    @apply text-3xl md:text-4xl;
+    font-size: 1.875rem;
+  }
+  @media (min-width: 768px) {
+    h2 {
+      font-size: 2.25rem;
+    }
   }
   
   h3 {
-    @apply text-2xl md:text-3xl;
+    font-size: 1.5rem;
+  }
+  @media (min-width: 768px) {
+    h3 {
+      font-size: 1.875rem;
+    }
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-electric-blue to-teal-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 transform;
+    background: linear-gradient(to right, #1E90FF, #30D5C8);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
   }
   
   .btn-secondary {
-    @apply bg-transparent border-2 border-teal text-teal px-6 py-3 rounded-lg font-semibold hover:bg-teal-500/10 hover:scale-105 transition-all duration-300 transform;
+    background: transparent;
+    border: 2px solid #30D5C8;
+    color: #30D5C8;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: rgba(48, 213, 200, 0.1);
+    transform: scale(1.05);
   }
   
   .card {
-    @apply bg-deep-navy/90 rounded-xl p-6 backdrop-blur-md border border-electric-blue/20 hover:border-electric-blue/40 transition-colors duration-300 shadow-lg;
+    background-color: rgba(11, 19, 43, 0.9);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(30, 144, 255, 0.2);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(30, 144, 255, 0.4);
   }
   
   .glass-card {
-    @apply bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-xl;
+    background-color: rgba(255, 255, 255, 0.05);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
   
   .neon-border {
-    @apply border-2 border-electric-blue shadow-[var(--neon-blue-glow)] hover:shadow-[var(--neon-teal-glow)] transition-shadow duration-300;
+    border: 2px solid #1E90FF;
+    box-shadow: var(--neon-blue-glow);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .neon-border:hover {
+    box-shadow: var(--neon-teal-glow);
   }
   
   .neon-text {
-    @apply bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent font-bold;
+    background: linear-gradient(to right, #1E90FF, #30D5C8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: bold;
   }
   
   .pseudo-3d {
-    @apply transition-all duration-300 hover:translate-y-[-5px] hover:shadow-xl hover:scale-105;
+    transition: all 0.3s ease;
+  }
+
+  .pseudo-3d:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   }
   
   .gradient-border {

@@ -48,6 +48,30 @@ function PercyWidget() {
     if (open) fetchMemory();
   }, [open, routerResult]);
 
+  // Initialize local state based on window availability
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('lastUsedAgent');
+      setLastUsedIntent(stored ?? '');
+      setUserProfile({
+        goal: localStorage.getItem('userGoal') || '',
+        platform: localStorage.getItem('userPlatform') || ''
+      });
+      setShowOnboarding(localStorage.getItem('onboardingComplete') !== 'true');
+    }
+  }, []);
+
+  // Fetch Percy memory when widget opens
+  useEffect(() => {
+    if (!open || !routerResult) return;
+
+    async function fetchMemory() {
+      const history = await getRecentPercyMemory();
+      setMemory(history);
+    }
+    fetchMemory();
+  }, [open, routerResult]);
+
   if (!routerResult) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('PercyWidget: PercyProvider not found, skipping render.');
