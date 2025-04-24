@@ -11,7 +11,7 @@ import { collection, query, where, orderBy, getDocs, limit, addDoc } from 'fireb
 
 import { motion } from 'framer-motion';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '@/utils/firebase';
+
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
@@ -42,7 +42,7 @@ export default function Dashboard() {
 
   // Stripe Role Gating: restrict premium dashboard sections
   useEffect(() => {
-    const auth = getAuth(app);
+    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         // User is authenticated, continue
@@ -72,7 +72,6 @@ export default function Dashboard() {
 
   // Workflow handler with Resend email confirmation
   const handleRunWorkflow = async (agentId: string, payload: any, user: any) => {
-    const db = getFirestore();
     const result = await runAgentWorkflow(agentId, payload);
     await addDoc(collection(db, 'workflowLogs'), {
       userId: user.uid,
