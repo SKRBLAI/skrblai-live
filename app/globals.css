@@ -157,7 +157,7 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-gradient-to-r from-electric-blue to-teal text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 transform;
+    @apply bg-gradient-to-r from-electric-blue to-teal-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg hover:scale-105 transition-all duration-300 transform;
   }
   
   .btn-secondary {
@@ -177,7 +177,7 @@
   }
   
   .neon-text {
-    @apply bg-gradient-to-r from-electric-blue to-teal bg-clip-text text-transparent font-bold;
+    @apply bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent font-bold;
   }
   
   .pseudo-3d {
@@ -209,9 +209,14 @@
     color: var(--electric-blue);
   }
   
+@layer utilities {
   .text-teal {
     color: var(--teal);
   }
+  .border-teal {
+    border-color: var(--teal);
+  }
+}
   
   .text-soft-gray {
     color: var(--soft-gray);
