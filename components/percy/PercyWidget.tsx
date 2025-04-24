@@ -22,9 +22,33 @@ function PercyWidget() {
   const [memory, setMemory] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const [running, setRunning] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(
-    typeof window !== 'undefined' && localStorage.getItem('onboardingComplete') !== 'true'
-  );
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check onboardingComplete from Firestore and localStorage
+  useEffect(() => {
+    async function checkOnboarding() {
+      let complete = false;
+      if (typeof window !== 'undefined') {
+        complete = localStorage.getItem('onboardingComplete') === 'true';
+      }
+      try {
+        const { getAuth } = await import('firebase/auth');
+        const { db, getDoc, doc } = await import('@/utils/firebase');
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+          const onboardingDoc = await getDoc(doc(db, 'users', user.uid, 'memory', 'onboarding'));
+          if (onboardingDoc.exists()) {
+            complete = onboardingDoc.data().onboardingComplete;
+          }
+        }
+      } catch (e) {
+        // Ignore Firestore onboarding check errors, fallback to localStorage only
+      }
+      setShowOnboarding(!complete);
+    }
+    checkOnboarding();
+  }, []);
   const [showUpsellModal, setShowUpsellModal] = useState(false);
   const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
   const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
@@ -123,6 +147,25 @@ function PercyWidget() {
     await sendWorkflowResultEmail({ email: user.email, agentId: agent.id, result: result.result });
     await savePercyMemory(agent.intent ?? '');
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
+    // Track agent usage in Firestore
+    try {
+      const { getAuth } = await import('firebase/auth');
+      const { db, doc, setDoc, getDoc, serverTimestamp } = await import('@/utils/firebase');
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        if (typeof agent.intent === 'string' && agent.intent.length > 0) {
+          const usageRef = doc(db, 'users', user.uid, 'memory', agent.intent);
+          const usageSnap = await getDoc(usageRef);
+          const prevCount = usageSnap.exists() ? usageSnap.data().count || 0 : 0;
+          await setDoc(usageRef, {
+            intent: agent.intent,
+            count: prevCount + 1,
+            updatedAt: serverTimestamp(),
+          });
+        }
+      }
+    } catch (e) {/* ignore */}
     setMessages((prev) => [
       ...prev,
       { role: 'assistant', text: `✅ ${agent.name} completed! Result: ${result.result}` }
@@ -173,17 +216,20 @@ function PercyWidget() {
             {/* Firestore-Powered Percy Memory Chips */}
             {memory.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs text-gray-400 mb-1">🧠 Previously Used Agents</p>
+                <p className="text-xs text-gray-400 mb-1">🧠 Top Used Agents</p>
                 <div className="flex flex-wrap gap-2">
-                  {memory.map((entry, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleIntent(entry.intent)}
-                      className="px-3 py-1 text-xs bg-white/20 hover:bg-teal-500 rounded-full"
-                    >
-                      {entry.intent}
-                    </button>
-                  ))}
+                  {memory
+                    .sort((a, b) => (b.count || 0) - (a.count || 0))
+                    .slice(0, 5)
+                    .map((entry, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleIntent(entry.intent)}
+                        className="px-3 py-1 text-xs bg-white/20 hover:bg-teal-500 rounded-full"
+                      >
+                        {entry.intent}
+                      </button>
+                    ))}
                 </div>
               </div>
             )}

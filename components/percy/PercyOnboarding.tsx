@@ -11,10 +11,27 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [goal, setGoal] = useState('');
   const [platform, setPlatform] = useState('');
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('userGoal', goal);
     localStorage.setItem('userPlatform', platform);
+    // Firestore sync
+    try {
+      const { getAuth } = await import('firebase/auth');
+      const { db, setDoc, doc, serverTimestamp } = await import('@/utils/firebase');
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        await setDoc(doc(db, 'users', user.uid, 'memory', 'onboarding'), {
+          onboardingComplete: true,
+          goal,
+          platform,
+          updatedAt: serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      // fail silently, fallback to localStorage
+    }
     onComplete({ goal, platform });
   };
 
