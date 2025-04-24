@@ -74,7 +74,7 @@ export default function Navbar() {
                 <div key={link.href} className="relative group">
                   <Link
                     href={link.href}
-                    className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${pathname.startsWith(link.href) ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+                    className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '').startsWith(link.href) ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
                   >
                     {link.label}
                   </Link>
@@ -95,7 +95,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${pathname === link.href ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+                  className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '') === link.href ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
                 >
                   {link.label}
                 </Link>
