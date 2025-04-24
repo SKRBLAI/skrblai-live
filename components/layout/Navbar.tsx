@@ -54,17 +54,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center space-x-2">
-            <motion.div
-              whileHover={{ rotate: 6, scale: 1.08 }}
-              whileTap={{ scale: 0.95, rotate: -6 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <span className="text-2xl font-bold">
-                <span className="bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">SKRBL</span>
-                <span className="text-white drop-shadow-glow">AI</span>
-              </span>
-            </motion.div>
-          </Link>
+  <motion.div
+    whileHover={{ rotate: 6, scale: 1.08, textShadow: '0 0 18px #d0a8ff, 0 0 8px #14ffe9' }}
+    whileTap={{ scale: 0.95, rotate: -6 }}
+    transition={{ type: 'spring', stiffness: 300 }}
+    className="text-skbl font-extrabold text-3xl tracking-tight select-none"
+    style={{ textShadow: '0 0 10px #d0a8ff, 0 0 8px #14ffe9' }}
+  >
+    SKRBL <span className="text-white drop-shadow-glow">AI</span>
+  </motion.div>
+</Link>
 
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -74,7 +73,8 @@ export default function Navbar() {
                 <div key={link.href} className="relative group">
                   <Link
                     href={link.href}
-                    className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '').startsWith(link.href) ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+                    className={`text-white font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '').startsWith(link.href) ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+style={{ textShadow: '0 0 8px #fff' }}
                   >
                     {link.label}
                   </Link>
@@ -95,7 +95,8 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-gray-200 font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '') === link.href ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+                  className={`text-white font-medium px-2 py-1 rounded transition-all duration-300 hover:text-teal-400 hover:shadow-glow ${(pathname ?? '') === link.href ? 'border-b-2 border-teal-500 glow-border text-teal-300 shadow-glow' : ''}`}
+style={{ textShadow: '0 0 8px #fff' }}
                 >
                   {link.label}
                 </Link>
