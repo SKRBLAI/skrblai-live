@@ -1,7 +1,9 @@
+'use client';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from '@/lib/firebase';
 import { useRouter } from "next/navigation";
 
 const pricingTiers = [
@@ -54,7 +56,6 @@ export default function UpgradePage() {
       const auth = getAuth();
       const user = auth.currentUser;
       if (user) {
-        const db = getFirestore();
         await updateDoc(doc(db, "users", user.uid), { stripeRole: "premium" });
       }
       setSuccess(true);

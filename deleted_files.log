@@ -1,0 +1,7 @@
+Deleted legacy Next.js pages for App Router migration:
+- /pages/index.tsx
+- /pages/services.tsx
+- /pages/services/book-publishing.tsx
+- /pages/services/branding.tsx
+- /pages/services/content-automation.tsx
+- /pages/services/website-creation.tsx

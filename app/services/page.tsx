@@ -1,3 +1,5 @@
+'use client';
+import React from "react";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
@@ -79,7 +81,7 @@ export default function ServicesPage() {
         </div>
         {/* Agent grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {filteredAgents.map((agent, idx) => (
+          {(filteredAgents as any[]).map((agent, idx): React.ReactNode => (
             <motion.div
               key={agent.id}
               initial={{ opacity: 0, y: 40 }}

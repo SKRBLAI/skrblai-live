@@ -7,7 +7,7 @@ import agentRegistry from '@/lib/agents/agentRegistry';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import UpsellModal from '@/components/percy/UpsellModal';
 import { db } from '@/lib/firebase';
-import { collection, query, where, orderBy, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, limit, addDoc } from 'firebase/firestore';
 
 import { motion } from 'framer-motion';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
@@ -25,7 +25,7 @@ import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
 import { checkUserRole } from '@/lib/auth/checkUserRole';
 import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+
 import { useRouter } from 'next/navigation';
 
 export default function Dashboard() {
