@@ -1,12 +1,12 @@
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export async function checkUserRole(): Promise<'free' | 'premium'> {
   const auth = getAuth();
   const user = auth.currentUser;
   if (!user) return 'free';
 
-  const db = getFirestore();
   const userDoc = await getDoc(doc(db, 'users', user.uid));
   const data = userDoc.data();
 

@@ -1,20 +1,26 @@
+@import "@fontsource/inter/variable.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] text-white font-sans font-inter;
+@layer base {
+  body {
+    @apply bg-gradient-to-b from-[#0a0a0a] to-[#1a1a1a] text-white font-sans;
+  }
 }
 
-.text-skbl {
-  @apply text-teal-400;
-  text-shadow: 0 0 10px #d0a8ff, 0 0 8px #14ffe9;
-}
-
-.glass-card {
-  @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
-}
-
-.drop-shadow-glow {
-  text-shadow: 0 0 8px #14ffe9, 0 0 4px #fff;
+@layer utilities {
+  .text-skbl {
+    @apply text-teal-400;
+    text-shadow: 0 0 10px #d0a8ff, 0 0 8px #14ffe9;
+  }
+  .glass-card {
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
+  }
+  .drop-shadow-glow {
+    text-shadow: 0 0 8px #14ffe9, 0 0 4px #fff;
+  }
+  .hover\:bg-teal-100\/10:hover {
+    background-color: rgb(204 251 241 / 0.1);
+  }
 }
