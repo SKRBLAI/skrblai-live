@@ -9,11 +9,14 @@
   }
 }
 
-@layer utilities {
+@layer components {
   .text-skbl {
-    @apply text-teal-400;
+    @apply text-[#14ffe9];
     text-shadow: 0 0 10px #d0a8ff, 0 0 8px #14ffe9;
   }
+}
+
+@layer utilities {
   .glass-card {
     @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
   }
