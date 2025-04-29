@@ -15,6 +15,7 @@ import UpsellModal from './UpsellModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import PercyAvatar from '@/components/home/PercyAvatar';
 
+
 function getBestAgents(goal: string, platform: string) {
   // Score agents by goal/platform match
   const lowerGoal = goal.toLowerCase();
@@ -52,6 +53,15 @@ function PercyWidget() {
   const [showAgentSuggestions, setShowAgentSuggestions] = useState(false);
   const [suggestedAgents, setSuggestedAgents] = useState<any[]>([]);
   const [agentTooltip, setAgentTooltip] = useState<string | null>(null);
+  const [lastUsedAgent, setLastUsedAgent] = useState<string | null>(null);
+  const lastUsedAgentObj = lastUsedAgent ? agentRegistry.find(a => a.intent === lastUsedAgent || a.id === lastUsedAgent) : null;
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const agent = localStorage.getItem('lastUsedAgent');
+      setLastUsedAgent(agent);
+    }
+  }, []);
 
   // Check onboardingComplete from Firestore and localStorage
   useEffect(() => {
@@ -320,14 +330,14 @@ function PercyWidget() {
               </div>
             )}
             {/* Recently Used Agent */}
-            {lastUsedAgent && (
+            {lastUsedAgentObj && (
               <div className="mb-3">
                 <p className="text-xs text-gray-400 mb-1">Recently Used</p>
                 <button
-                  onClick={() => handleIntent(lastUsedAgent.intent as string)}
+                  onClick={() => handleIntent(lastUsedAgentObj.intent as string)}
                   className="px-3 py-1 text-xs bg-white/20 hover:bg-teal-500 rounded-full"
                 >
-                  {lastUsedAgent.name}
+                  {lastUsedAgentObj.name}
                 </button>
               </div>
             )}

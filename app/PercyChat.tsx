@@ -552,11 +552,6 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
     return 'Workflow team is ready! Ask for help, or describe your next step.';
   }
 
-        </motion.div>
-      </div>
-    );
-  }
-
   // Default: agent onboarding and regular chat
   return (
     <div className="relative">

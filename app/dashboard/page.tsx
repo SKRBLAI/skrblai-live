@@ -85,7 +85,7 @@ export default function Dashboard() {
                 const agent = agentRegistry.find(a => a.intent === intent);
                 if (agent && !used.find(u => u.id === agent.id)) used.push(agent);
               });
-            } catch {}
+            } catch { /* future quick actions here */ }
           }
         }
         setLastUsed(used.slice(0, 5));
