@@ -31,4 +31,16 @@ export interface Agent {
   intent?: string | null;
   visible: boolean;
   premium?: boolean;
+  config?: {
+    name: string;
+    description: string;
+    capabilities?: string[];
+  };
+  runAgent?: (input: any, context?: any) => Promise<any>;
+  promptTemplate?: string;
+  params?: Record<string, any>;
+  examples?: Array<{
+    input: string;
+    output: string;
+  }>;
 }
