@@ -23,6 +23,12 @@ export interface AgentConfig {
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;
 
 export interface Agent {
-  config: AgentConfig;
-  runAgent: AgentFunction;
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  route?: string | null;
+  intent?: string | null;
+  visible: boolean;
+  premium?: boolean;
 }

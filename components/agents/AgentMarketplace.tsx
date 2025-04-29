@@ -18,15 +18,16 @@ const sortOptions = [
 interface AgentMarketplaceProps {
   userRole: 'free' | 'premium';
   recommendedAgents?: Agent[];
+  agents?: Agent[];
 }
 
-const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommendedAgents }) => {
+const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommendedAgents, agents: agentsProp }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sort, setSort] = useState<string>('popular');
   const router = useRouter();
 
-  // Only show visible agents
-  const agents = useMemo(() => agentRegistry.filter(a => a.visible !== false), []);
+  // Only show visible agents, using prop if provided
+  const agents = useMemo(() => (agentsProp ? agentsProp : agentRegistry.filter(a => a.visible !== false)), [agentsProp]);
   const categories = useMemo(() => getCategories(agents), [agents]);
 
   // Filtered/sorted agents
@@ -61,15 +62,17 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
           </button>
         ))}
       </motion.div>
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }} className="flex justify-center mb-8">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.5 }} className="flex items-center gap-2 mb-4">
+        <label htmlFor="sort-select" className="sr-only">Sort agents</label>
         <select
-          className="glass-card px-4 py-2 rounded-lg text-white bg-transparent border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          id="sort-select"
           value={sort}
           onChange={e => setSort(e.target.value)}
+          className="rounded-lg px-3 py-2 bg-white/20 backdrop-blur text-sm text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          {sortOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
+          <option value="popular">Most Popular</option>
+          <option value="new">Newest</option>
+          <option value="premium">Premium</option>
         </select>
       </motion.div>
       {/* Recommended Section (optional) */}

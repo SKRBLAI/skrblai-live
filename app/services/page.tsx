@@ -7,6 +7,7 @@ import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import nextDynamic from 'next/dynamic';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
+import agentRegistry from 'lib/agents/agentRegistry';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -27,7 +28,7 @@ export default function ServicesPage(): JSX.Element {
               {/* TODO: Replace 'free' with actual userRole if available */}
               {typeof window !== 'undefined' && (
                 <div className="relative z-10">
-                  <AgentMarketplace userRole="free" />
+                  <AgentMarketplace userRole="free" agents={agentRegistry.filter(agent => agent.visible)} />
                 </div>
               )}
             </div>
