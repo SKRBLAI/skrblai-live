@@ -1,8 +1,24 @@
 "use client";
 import { motion } from "framer-motion";
 import PercyAvatar from "./PercyAvatar";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 export default function PercyHero() {
+  const router = useRouter();
+  const featuresRef = useRef<null | HTMLElement>(null);
+
+  // Handler for Explore Features
+  const handleExplore = () => {
+    const el = document.getElementById("features");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    } else {
+      // fallback: route to /features
+      router.push("/features");
+    }
+  };
+
   return (
     <section className="relative flex flex-col items-center justify-center min-h-[70vh] py-16 px-4 z-10">
       {/* Animated floating icons */}
@@ -28,9 +44,10 @@ export default function PercyHero() {
         transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
         className="glass-card max-w-xl w-full mx-auto p-10 rounded-2xl shadow-2xl border border-teal-400/40 backdrop-blur-lg bg-white/10 flex flex-col items-center gap-6"
       >
+        {/* Percy avatar with tilt/float animation */}
         <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 2.5 }}
+          animate={{ rotate: [0, 2, -2, 0], y: [0, -8, 0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
         >
           <PercyAvatar size="lg" />
         </motion.div>
@@ -38,9 +55,9 @@ export default function PercyHero() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.7 }}
-          className="text-4xl md:text-5xl font-extrabold text-center bg-gradient-to-r from-purple-300 via-teal-400 to-purple-500 bg-clip-text text-transparent mb-2 drop-shadow-glow"
+          className="text-4xl md:text-5xl font-extrabold text-center mb-2"
         >
-          Hi, I’m Percy, your AI assistant for <span className="text-skbl">SKRBL AI</span>.
+          Hi, I'm Percy, your AI assistant for <span className="text-skbl">SKRBL AI</span>.
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 10 }}
@@ -50,12 +67,26 @@ export default function PercyHero() {
         >
           Automate content, marketing, and business workflows with next-gen AI.
         </motion.p>
-        <motion.button
-          whileHover={{ scale: 1.08, boxShadow: "0 0 24px #14ffe9, 0 0 12px #a259ff" }}
-          className="px-8 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all"
-        >
-          Let’s Get Started
-        </motion.button>
+        <div className="flex flex-col md:flex-row gap-4 w-full justify-center">
+          <motion.button
+            whileHover={{ scale: 1.08, boxShadow: "0 0 24px #14ffe9, 0 0 12px #a259ff" }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push("/features")}
+            className="flex-1 px-8 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all glass-card animate-pulse"
+            style={{ minWidth: 180 }}
+          >
+            Let's Get Started
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.06, boxShadow: "0 0 16px #14ffe9, 0 0 8px #a259ff" }}
+            whileTap={{ scale: 0.97 }}
+            onClick={handleExplore}
+            className="flex-1 px-8 py-3 rounded-lg bg-white/10 text-white font-semibold text-lg border-2 border-teal-400/40 shadow-md glass-card hover:bg-white/20 transition-all"
+            style={{ minWidth: 180 }}
+          >
+            Explore Features
+          </motion.button>
+        </div>
       </motion.div>
     </section>
   );
