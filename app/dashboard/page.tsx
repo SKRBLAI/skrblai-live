@@ -30,7 +30,6 @@ import { useRouter } from 'next/navigation';
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import PercyAvatar from "@/components/home/PercyAvatar";
 
-import { motion } from 'framer-motion';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 
