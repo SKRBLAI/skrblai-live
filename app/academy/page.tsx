@@ -34,7 +34,7 @@ const MISSIONS = [
 
 type MissionState = Record<string, boolean>;
 
-import { motion } from 'framer-motion';
+
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 

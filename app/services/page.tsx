@@ -1,5 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
+import React from 'react';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';

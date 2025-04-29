@@ -34,10 +34,7 @@ import { motion } from 'framer-motion';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 
-export const metadata = {
-  title: "SKRBL AI - Dashboard",
-  description: "Automate content, branding, and business workflows with Percy and SKRBL AI."
-};
+
 export const revalidate = 0;
 
 export default function Dashboard() {

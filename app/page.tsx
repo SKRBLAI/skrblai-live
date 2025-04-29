@@ -5,10 +5,7 @@ import PercyHeroSection from "@/components/home/PercyHeroSection";
 import TestimonialSection from "@/components/__archive__/TestimonialSection";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 
-export const metadata = {
-  title: "SKRBL AI - Home",
-  description: "Automate content, branding, and business workflows with Percy and SKRBL AI."
-};
+
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
