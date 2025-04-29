@@ -1,6 +1,6 @@
 'use client';
-// Needed for JSX.Element return type
 import React from 'react';
+import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
