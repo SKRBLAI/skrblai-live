@@ -64,6 +64,16 @@ const pricingTiers: PricingTier[] = [
   }
 ];
 
+import PercyProvider from 'components/assistant/PercyProvider';
+import PageLayout from '@/components/layout/PageLayout';
+
+export const metadata = {
+  title: "SKRBL AI - Pricing Plans",
+  description: "Automate content, branding, and business workflows with Percy and SKRBL AI."
+};
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 export default function PricingPage() {
   const [isAnnual, setIsAnnual] = useState(true);
   const [hoveredTier, setHoveredTier] = useState<string | null>(null);

@@ -34,6 +34,17 @@ const MISSIONS = [
 
 type MissionState = Record<string, boolean>;
 
+import { motion } from 'framer-motion';
+import PercyProvider from 'components/assistant/PercyProvider';
+import PageLayout from '@/components/layout/PageLayout';
+
+export const metadata = {
+  title: "SKRBL AI - Percy Academy",
+  description: "Automate content, branding, and business workflows with Percy and SKRBL AI."
+};
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 export default function PercyAcademyPage() {
   // Mission completion state (local only for now)
   const [missionState, setMissionState] = useState<MissionState>({

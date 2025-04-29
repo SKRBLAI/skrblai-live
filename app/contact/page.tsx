@@ -3,6 +3,15 @@
 import { motion } from 'framer-motion';
 import { useState, ChangeEvent, FormEvent } from 'react';
 import Link from 'next/link';
+import PercyProvider from 'components/assistant/PercyProvider';
+import PageLayout from '@/components/layout/PageLayout';
+
+export const metadata = {
+  title: "SKRBL AI - Contact Us",
+  description: "Automate content, branding, and business workflows with Percy and SKRBL AI."
+};
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
