@@ -150,7 +150,7 @@ function PercyWidget() {
 
   // Percy-initiated workflow handler with upsell modal
   const handleIntent = async (intent: string) => {
-    const agent = agentRegistry.find((a) => a.intent === intent) as PercyAgent | undefined;
+    const agent = agentRegistry.find((a) => a.intent === intent);
     if (!agent) {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn't find an agent for "${intent}".` }]);
       return;
