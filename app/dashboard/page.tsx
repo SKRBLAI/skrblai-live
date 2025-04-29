@@ -27,6 +27,8 @@ import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
 
 import { useRouter } from 'next/navigation';
+import FloatingParticles from "@/components/ui/FloatingParticles";
+import PercyAvatar from "@/components/home/PercyAvatar";
 
 export default function Dashboard() {
   const [recentAgents, setRecentAgents] = useState<any[]>([]);
@@ -39,6 +41,10 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState('overview');
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+
+  const [lastUsed, setLastUsed] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [suggestion, setSuggestion] = useState<string>("");
 
   // Stripe Role Gating: restrict premium dashboard sections
   useEffect(() => {
@@ -61,6 +67,37 @@ export default function Dashboard() {
         // Get user role
         const role = await checkUserRole();
         setUserRole(role);
+
+        // Simulate fetching last used agents from localStorage or Firestore
+        let used: any[] = [];
+        if (typeof window !== 'undefined') {
+          const last = localStorage.getItem('lastUsedAgent');
+          if (last) {
+            const agent = agentRegistry.find(a => a.intent === last || a.id === last);
+            if (agent) used.push(agent);
+          }
+          // Optionally add more recent agents from memory (simulate)
+          const memory = localStorage.getItem('percyMemory');
+          if (memory) {
+            try {
+              const arr = JSON.parse(memory);
+              arr.forEach((intent: string) => {
+                const agent = agentRegistry.find(a => a.intent === intent);
+                if (agent && !used.find(u => u.id === agent.id)) used.push(agent);
+              });
+            } catch {}
+          }
+        }
+        setLastUsed(used.slice(0, 5));
+        // Simulate activity timeline (replace with Firestore in prod)
+        setActivity(used.map((a, i) => ({
+          name: a.name,
+          intent: a.intent,
+          timestamp: Date.now() - i * 1000 * 60 * 60,
+          status: i % 3 === 0 ? 'fail' : 'success',
+        })));
+        // Percy suggestion
+        setSuggestion("Launch Branding Bot?");
       } else {
         router.push('/login');
       }

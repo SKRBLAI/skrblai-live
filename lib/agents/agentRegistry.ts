@@ -125,6 +125,16 @@ const agentRegistry = [
     intent: null,
     visible: false,
   },
+  {
+    id: 'smart-proposal',
+    name: 'Smart Proposal Generator',
+    category: 'Sales Enablement',
+    description: 'Generate beautiful business proposals, pitch decks, and PDFs with Percy.',
+    route: '/services/smart-proposal',
+    intent: 'smart-proposal',
+    visible: true,
+    premium: false,
+  },
 ];
 
 export default agentRegistry;

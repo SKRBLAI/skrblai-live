@@ -1,10 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import PercyAvatar from '@/components/home/PercyAvatar';
 
 interface PercyOnboardingProps {
   onComplete: (data: { goal: string; platform: string }) => void;
 }
+
+const GOALS = [
+  { value: 'content', label: 'Automate content creation' },
+  { value: 'branding', label: 'Build my brand' },
+  { value: 'publishing', label: 'Publish a book' },
+  { value: 'web', label: 'Create a website' },
+];
+const PLATFORMS = [
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'youtube', label: 'YouTube' },
+  { value: 'shopify', label: 'Shopify' },
+  { value: 'none', label: 'None' },
+];
 
 export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [step, setStep] = useState(1);
@@ -36,32 +50,54 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur p-6 rounded-xl text-white max-w-md mx-auto mt-10 border border-white/20">
+    <div className="bg-white/10 backdrop-blur p-6 rounded-xl text-white max-w-md mx-auto mt-10 border border-white/20 flex flex-col items-center">
+      {/* Animated Percy avatar */}
+      <div className="mb-6">
+        <PercyAvatar size="md" />
+      </div>
+      <h2 className="text-2xl font-bold mb-2 text-center">Hi, I'm Percy — your AI assistant for SKRBL AI.<br/>Let's find the right tools for you.</h2>
       {step === 1 && (
-        <>
-          <h2 className="text-xl font-bold mb-2">What’s your main goal?</h2>
-          <select value={goal} onChange={(e) => setGoal(e.target.value)} className="w-full p-2 mt-2 rounded bg-white/20">
-            <option value="">Select one</option>
-            <option value="content">Automate content creation</option>
-            <option value="branding">Build my brand</option>
-            <option value="publishing">Publish a book</option>
-            <option value="web">Create a website</option>
-          </select>
-          <button onClick={() => setStep(2)} className="mt-4 px-4 py-2 bg-teal-500 rounded">Next</button>
-        </>
+        <div className="w-full">
+          <h3 className="text-lg font-semibold mb-4 text-center">What's your main goal?</h3>
+          <div className="flex flex-col gap-3">
+            {GOALS.map(g => (
+              <button
+                key={g.value}
+                onClick={() => { setGoal(g.value); setStep(2); }}
+                className={`w-full py-3 rounded-lg bg-white/10 hover:bg-teal-500/20 border border-white/20 text-white font-medium transition-all ${goal === g.value ? 'ring-2 ring-teal-400' : ''}`}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
       {step === 2 && (
-        <>
-          <h2 className="text-xl font-bold mb-2">What platform do you use the most?</h2>
-          <select value={platform} onChange={(e) => setPlatform(e.target.value)} className="w-full p-2 mt-2 rounded bg-white/20">
-            <option value="">Select one</option>
-            <option value="instagram">Instagram</option>
-            <option value="youtube">YouTube</option>
-            <option value="shopify">Shopify</option>
-            <option value="none">None</option>
-          </select>
-          <button onClick={handleSubmit} className="mt-4 px-4 py-2 bg-teal-500 rounded">Finish</button>
-        </>
+        <div className="w-full">
+          <h3 className="text-lg font-semibold mb-4 text-center">What platform do you use the most?</h3>
+          <div className="flex flex-col gap-3">
+            {PLATFORMS.map(p => (
+              <button
+                key={p.value}
+                onClick={() => { setPlatform(p.value); setStep(3); }}
+                className={`w-full py-3 rounded-lg bg-white/10 hover:bg-teal-500/20 border border-white/20 text-white font-medium transition-all ${platform === p.value ? 'ring-2 ring-teal-400' : ''}`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {step === 3 && (
+        <div className="w-full flex flex-col items-center">
+          <h3 className="text-lg font-semibold mb-4 text-center">Ready to get started?</h3>
+          <button
+            onClick={handleSubmit}
+            className="w-full py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all"
+          >
+            Finish Onboarding
+          </button>
+        </div>
       )}
     </div>
   );

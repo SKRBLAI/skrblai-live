@@ -12,6 +12,29 @@ import { savePercyMemory } from '@/lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
+import { motion, AnimatePresence } from 'framer-motion';
+import PercyAvatar from '@/components/home/PercyAvatar';
+
+function getBestAgents(goal: string, platform: string) {
+  // Score agents by goal/platform match
+  const lowerGoal = goal.toLowerCase();
+  const lowerPlatform = platform.toLowerCase();
+  let matches = agentRegistry.filter(a => a.visible && (
+    (a.category && lowerGoal && a.category.toLowerCase().includes(lowerGoal)) ||
+    (a.name && lowerGoal && a.name.toLowerCase().includes(lowerGoal)) ||
+    (a.intent && lowerGoal && a.intent.toLowerCase().includes(lowerGoal)) ||
+    (a.category && lowerPlatform && a.category.toLowerCase().includes(lowerPlatform)) ||
+    (a.name && lowerPlatform && a.name.toLowerCase().includes(lowerPlatform)) ||
+    (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform))
+  ));
+  // Fallback: top 3 visible agents
+  if (matches.length === 0) {
+    matches = agentRegistry.filter(a => a.visible).slice(0, 3);
+  } else {
+    matches = matches.slice(0, 3);
+  }
+  return matches;
+}
 
 function PercyWidget() {
   // Always call hooks at the top level
@@ -23,6 +46,12 @@ function PercyWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [running, setRunning] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showUpsellModal, setShowUpsellModal] = useState(false);
+  const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
+  const [showAgentSuggestions, setShowAgentSuggestions] = useState(false);
+  const [suggestedAgents, setSuggestedAgents] = useState<any[]>([]);
+  const [agentTooltip, setAgentTooltip] = useState<string | null>(null);
 
   // Check onboardingComplete from Firestore and localStorage
   useEffect(() => {
@@ -46,12 +75,16 @@ function PercyWidget() {
         // Ignore Firestore onboarding check errors, fallback to localStorage only
       }
       setShowOnboarding(!complete);
+      setShowAgentSuggestions(complete);
+      if (complete && typeof window !== 'undefined') {
+        const goal = localStorage.getItem('userGoal') || '';
+        const platform = localStorage.getItem('userPlatform') || '';
+        setUserProfile({ goal, platform });
+        setSuggestedAgents(getBestAgents(goal, platform));
+      }
     }
     checkOnboarding();
   }, []);
-  const [showUpsellModal, setShowUpsellModal] = useState(false);
-  const [pendingAgent, setPendingAgent] = useState<{ name: string; description: string } | null>(null);
-  const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
 
   // Fetch Firestore-powered Percy memory on open
   useEffect(() => {
@@ -105,20 +138,11 @@ function PercyWidget() {
 
   const { routeToAgent } = routerResult;
 
-  // Suggest agents based on onboarding answers (goal/platform)
-  const suggestedAgents = agentRegistry
-    .filter(a => a.visible && (!userProfile.goal || a.category?.toLowerCase().includes(userProfile.goal)))
-    .slice(0, 4);
-  const lastUsedAgent = lastUsedIntent ? agentRegistry.find(agent => agent.intent === lastUsedIntent && agent.visible) : null;
-
-  // Extend agent type to include premium
-  type PercyAgent = typeof agentRegistry[number] & { premium?: boolean };
-
   // Percy-initiated workflow handler with upsell modal
   const handleIntent = async (intent: string) => {
     const agent = agentRegistry.find((a) => a.intent === intent) as PercyAgent | undefined;
     if (!agent) {
-      setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn’t find an agent for "${intent}".` }]);
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn't find an agent for "${intent}".` }]);
       return;
     }
     const auth = getAuth();
@@ -187,6 +211,16 @@ function PercyWidget() {
     }
   };
 
+  // Handle agent card click
+  const handleAgentClick = (agent: any) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lastSelectedAgent', agent.intent);
+    }
+    // Route to PercyChat with personalized welcome
+    routeToAgent(agent.intent);
+    // Optionally: pass personalized prompt to PercyChat (implementation depends on PercyChat context)
+  };
+
   return (
     <>
       {showOnboarding && (
@@ -194,12 +228,64 @@ function PercyWidget() {
           onComplete={({ goal, platform }) => {
             setShowOnboarding(false);
             setUserProfile({ goal, platform });
+            setSuggestedAgents(getBestAgents(goal, platform));
+            setShowAgentSuggestions(true);
           }}
         />
       )}
       {showUpsellModal && pendingAgent && (
         <UpsellModal agent={pendingAgent} onClose={() => setShowUpsellModal(false)} />
       )}
+      {/* Inline agent suggestions after onboarding */}
+      <AnimatePresence>
+        {showAgentSuggestions && suggestedAgents.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-2xl mx-auto mt-8 flex flex-col items-center"
+          >
+            <h3 className="text-2xl font-bold mb-6 text-center text-white">Percy recommends these agents for you:</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full">
+              {suggestedAgents.map((agent, idx) => (
+                <motion.div
+                  key={agent.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + idx * 0.15, duration: 0.5, type: 'spring' }}
+                  className="glass-card p-5 rounded-xl flex flex-col items-center border border-teal-400/40 shadow-lg relative group cursor-pointer hover:scale-105 transition-transform"
+                  onClick={() => handleAgentClick(agent)}
+                  onMouseEnter={() => setAgentTooltip(agent.id)}
+                  onMouseLeave={() => setAgentTooltip(null)}
+                >
+                  <PercyAvatar size="sm" />
+                  <div className="mt-3 text-lg font-bold text-white flex items-center gap-2">
+                    <span>{agent.name}</span>
+                    <span className="text-2xl">{agent.category === 'Brand Development' ? '🎨' : agent.category === 'Ebook Creation' ? '📚' : agent.category === 'Paid Marketing' ? '💸' : agent.category === 'Business Intelligence' ? '📊' : agent.category === 'Strategy & Growth' ? '🚀' : agent.category === 'Support Automation' ? '🤖' : agent.category === 'Sales Enablement' ? '📈' : agent.category === 'Short-Form Video' ? '🎬' : agent.category === 'Copywriting' ? '✍️' : agent.category === 'Automation' ? '⚡' : agent.category === 'Social Media Automation' ? '📱' : agent.category === 'Web Automation' ? '🌐' : agent.category === 'Back Office' ? '💼' : '🤖'}</span>
+                  </div>
+                  <div className="text-xs text-teal-200 mt-1 mb-2">{agent.category}</div>
+                  {/* Why this agent tooltip/modal */}
+                  <AnimatePresence>
+                    {agentTooltip === agent.id && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-64 bg-[#181f2a] border border-teal-400/40 rounded-xl shadow-xl p-4 z-50 text-white text-sm"
+                      >
+                        <div className="font-semibold mb-1 text-teal-300">Why this agent?</div>
+                        <div>{agent.description}</div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="fixed bottom-6 right-6 z-50">
         {/* Toggle Button */}
         <button
@@ -212,7 +298,7 @@ function PercyWidget() {
         {/* Chat Bubble */}
         {open && (
           <div className="mt-4 w-80 bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 shadow-2xl text-white">
-            <p className="text-sm mb-2">👋 Hi! I’m Percy. What can I help you with today?</p>
+            <p className="text-sm mb-2">👋 Hi! I'm Percy. What can I help you with today?</p>
             {/* Firestore-Powered Percy Memory Chips */}
             {memory.length > 0 && (
               <div className="mb-3">
