@@ -1,5 +1,5 @@
 import './globals.css';
-import { PercyProvider } from '@/components/PercyProvider';
+import PercyProvider from '../components/assistant/PercyProvider';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 
