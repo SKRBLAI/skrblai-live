@@ -5,18 +5,22 @@ import { motion } from 'framer-motion';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import nextDynamic from 'next/dynamic';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
 import agentRegistry from 'lib/agents/agentRegistry';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+export const metadata = {
+  title: "SKRBL AI Services – Meet Your AI Agents",
+  description: "Browse and deploy AI agents tailored for your business. SKRBL AI's Agent Marketplace brings automation to your workflow.",
+};
+
 export default function ServicesPage(): JSX.Element {
   return (
     <PercyProvider>
       <PageLayout>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-x-hidden">
             {/* Animated background */}
             <FloatingParticles />
