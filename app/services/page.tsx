@@ -2,19 +2,11 @@
 import React from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import PercyProvider from 'components/assistant/PercyProvider';
+import PercyProvider from '../../components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
 import agentRegistry from 'lib/agents/agentRegistry';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-export const metadata = {
-  title: "SKRBL AI Services – Meet Your AI Agents",
-  description: "Browse and deploy AI agents tailored for your business. SKRBL AI's Agent Marketplace brings automation to your workflow.",
-};
 
 export default function ServicesPage(): JSX.Element {
   return (
