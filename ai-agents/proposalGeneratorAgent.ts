@@ -12,15 +12,18 @@ interface ProposalAgentInput extends BaseAgentInput {
   customRequirements?: string;
 }
 
-
-
-export const proposalGeneratorAgent: Agent = {
+const proposalGeneratorAgent: Agent = {
+  id: 'proposal-generator-agent',
+  name: 'Proposal Generator',
+  category: 'Business',
+  description: 'AI-powered business proposal generation',
+  visible: true,
   config: {
     name: 'Proposal Generator',
     description: 'AI-powered business proposal generation',
     capabilities: ['Executive Summary', 'Scope Definition', 'Timeline Planning', 'Budget Allocation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to proposal agent input with required fields
     const proposalInput: ProposalAgentInput = {
       ...input,
@@ -88,5 +91,7 @@ export const proposalGeneratorAgent: Agent = {
         agentName: 'proposalGenerator'
       };
     }
-  }) as AgentFunction
+  }
 };
+
+export default proposalGeneratorAgent;

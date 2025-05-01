@@ -434,13 +434,18 @@ function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export const contentCreatorAgent: Agent = {
+const contentCreatorAgent: Agent = {
+  id: 'content-creator-agent',
+  name: 'Content Creator',
+  category: 'Content',
+  description: 'AI-powered content generation for various platforms',
+  visible: true,
   config: {
     name: 'Content Creator',
     description: 'AI-powered content generation for various platforms',
     capabilities: ['Blog Posts', 'Social Media', 'Email Content', 'Website Copy', 'Ad Copy', 'Product Descriptions', 'Video Scripts']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to content agent input with required fields
     const contentInput: ContentAgentInput = {
       ...input,
@@ -454,5 +459,7 @@ export const contentCreatorAgent: Agent = {
       customInstructions: (input as any).customInstructions
     };
     return runContentAgent(contentInput);
-  }) as AgentFunction
+  }
 };
+
+export default contentCreatorAgent;

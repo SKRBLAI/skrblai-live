@@ -503,13 +503,18 @@ function generatePostSchedule(platforms: string[], postCount: number): ScheduleI
   return schedule;
 }
 
-export const socialBotAgent: Agent = {
+const socialBotAgent: Agent = {
+  id: 'social-bot-agent',
+  name: 'Social Bot',
+  category: 'Marketing',
+  description: 'AI-powered social media content generation and management',
+  visible: true,
   config: {
     name: 'Social Bot',
     description: 'AI-powered social media content generation and management',
     capabilities: ['Content Generation', 'Post Scheduling', 'Multi-Platform Support', 'Hashtag Generation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to social bot input with required fields
     const socialBotInput: SocialBotInput = {
       ...input,
@@ -518,5 +523,7 @@ export const socialBotAgent: Agent = {
       platforms: (input as any).platforms || ['instagram', 'twitter', 'facebook']
     };
     return runSocialBot(socialBotInput);
-  }) as AgentFunction
+  }
 };
+
+export default socialBotAgent;

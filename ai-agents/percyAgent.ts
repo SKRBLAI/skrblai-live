@@ -222,13 +222,18 @@ const determineNextSteps = (service: string): any => {
   }
 }
 
-export const percyAgent: Agent = {
+const percyAgent: Agent = {
+  id: 'percy-agent',
+  name: 'Percy',
+  category: 'Assistant',
+  description: 'AI assistant that handles user inquiries and form intake',
+  visible: true,
   config: {
     name: 'Percy',
     description: 'AI assistant that handles user inquiries and form intake',
     capabilities: ['Text Processing', 'Form Processing', 'Intent Analysis', 'Response Generation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to percy agent input
     const percyInput: PercyAgentInput = {
       ...input,
@@ -236,5 +241,7 @@ export const percyAgent: Agent = {
       data: (input as any).data || ''
     };
     return runPercyAgent(percyInput);
-  }) as AgentFunction
+  }
 };
+
+export default percyAgent;

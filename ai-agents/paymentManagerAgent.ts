@@ -358,13 +358,18 @@ async function processPayment(
   }
 }
 
-export const paymentManagerAgent: Agent = {
+const paymentManagerAgent: Agent = {
+  id: 'payment-manager-agent',
+  name: 'Payment Manager',
+  category: 'Finance',
+  description: 'Handles payment processing and management',
+  visible: true,
   config: {
     name: 'Payment Manager',
     description: 'Handles payment processing and management',
     capabilities: ['Payment Processing', 'Subscription Management', 'Receipt Generation', 'Payment Validation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to payment agent input
     const paymentInput: PaymentAgentInput = {
       ...input,
@@ -378,5 +383,7 @@ export const paymentManagerAgent: Agent = {
       subscriptionId: (input as any).subscriptionId
     };
     return runPaymentAgent(paymentInput);
-  }) as AgentFunction
+  }
 };
+
+export default paymentManagerAgent;

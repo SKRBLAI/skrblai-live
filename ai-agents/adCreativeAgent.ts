@@ -586,13 +586,18 @@ function recommendPlatformsForAudience(targetAudience: string): string[] {
   }
 }
 
-export const adCreativeAgent: Agent = {
+const adCreativeAgent: Agent = {
+  id: 'ad-creative-agent',
+  name: 'Ad Creative Agent',
+  category: 'Marketing',
+  description: 'Generates creative ad copy and visuals for your campaigns.',
+  visible: true,
   config: {
     name: 'Ad Creative',
     description: 'AI-powered advertising creative generation',
     capabilities: ['Multi-Platform Ads', 'Creative Generation', 'Audience Targeting', 'Campaign Optimization']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to ad creative input with required fields
     const adCreativeInput: AdCreativeInput = {
       ...input,
@@ -607,5 +612,7 @@ export const adCreativeAgent: Agent = {
       brandGuidelines: (input as any).brandGuidelines || {}
     };
     return runAdCreative(adCreativeInput);
-  }) as AgentFunction
+  }
 };
+
+export default adCreativeAgent;

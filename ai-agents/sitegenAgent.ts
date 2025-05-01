@@ -169,13 +169,18 @@ function generatePageSections(pageName: string, businessName: string, industry: 
   }
 }
 
-export const sitegenAgent: Agent = {
+const sitegenAgent: Agent = {
+  id: 'sitegen-agent',
+  name: 'Site Generator',
+  category: 'Web',
+  description: 'AI-powered website structure and content generation',
+  visible: true,
   config: {
     name: 'Site Generator',
     description: 'AI-powered website structure and content generation',
     capabilities: ['Page Structure', 'Content Generation', 'Design System', 'SEO Optimization']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to site gen input with required fields
     const siteGenInput: SiteGenInput = {
       ...input,
@@ -184,5 +189,7 @@ export const sitegenAgent: Agent = {
       pages: (input as any).pages || ['home', 'about', 'contact']
     };
     return runSiteGen(siteGenInput);
-  }) as AgentFunction
+  }
 };
+
+export default sitegenAgent;

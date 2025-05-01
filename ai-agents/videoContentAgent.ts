@@ -370,13 +370,18 @@ const calculateTotalWordCount = (sections: ScriptSection[]): number => {
   return totalWords;
 }
 
-export const videoContentAgent: Agent = {
+const videoContentAgent: Agent = {
+  id: 'video-content-agent',
+  name: 'Video Content',
+  category: 'Content',
+  description: 'AI-powered video script and storyboard generation',
+  visible: true,
   config: {
     name: 'Video Content',
     description: 'AI-powered video script and storyboard generation',
     capabilities: ['Script Writing', 'Storyboard Creation', 'Video Planning', 'Duration Management']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to video agent input with required fields
     const videoInput: VideoAgentInput = {
       ...input,
@@ -391,5 +396,7 @@ export const videoContentAgent: Agent = {
       brandGuidelines: (input as any).brandGuidelines || {}
     };
     return runVideoAgent(videoInput);
-  }) as AgentFunction
+  }
 };
+
+export default videoContentAgent;

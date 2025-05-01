@@ -258,13 +258,18 @@ function logAgentActivity(agentName: string, userId: string, activity: Record<st
   console.log(`Agent ${agentName} activity for user ${userId}:`, activity);
 }
 
-export const bizAgent: Agent = {
+const bizAgent: Agent = {
+  id: 'biz-agent',
+  name: 'Business Advisor',
+  category: 'Business',
+  description: 'AI-powered business analysis and strategic planning',
+  visible: true,
   config: {
     name: 'Business Advisor',
     description: 'AI-powered business analysis and strategic planning',
     capabilities: ['Market Analysis', 'Competitor Analysis', 'Strategic Planning', 'Business Recommendations']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to biz agent input with required fields
     const bizInput: BizAgentInput = {
       ...input,
@@ -278,5 +283,7 @@ export const bizAgent: Agent = {
       location: (input as any).location || ''
     };
     return runBizAgent(bizInput);
-  }) as AgentFunction
+  }
 };
+
+export default bizAgent;

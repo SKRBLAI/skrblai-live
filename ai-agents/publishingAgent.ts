@@ -77,13 +77,18 @@ const runPublishing = async (input: PublishingAgentInput) => {
     }
 };
 
-export const publishingAgent: Agent = {
+const publishingAgent: Agent = {
+  id: 'publishing-agent',
+  name: 'Publishing Agent',
+  category: 'Publishing',
+  description: 'AI-powered book publishing and content distribution',
+  visible: true,
   config: {
     name: 'Publishing Agent',
     description: 'AI-powered book publishing and content distribution',
     capabilities: ['Manuscript Validation', 'Platform Integration', 'Metadata Management', 'Publishing Automation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to publishing input with required fields
     const publishingInput: PublishingAgentInput = {
       ...input,
@@ -97,5 +102,7 @@ export const publishingAgent: Agent = {
       keywords: (input as any).keywords || []
     };
     return runPublishing(publishingInput);
-  }) as AgentFunction
+  }
 };
+
+export default publishingAgent;

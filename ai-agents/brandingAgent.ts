@@ -564,13 +564,18 @@ function generateBrandGuidelines(
   };
 }
 
-export const brandingAgent: Agent = {
+const brandingAgent: Agent = {
+  id: 'branding-agent',
+  name: 'Branding',
+  category: 'Branding',
+  description: 'AI-powered brand identity and guidelines generation',
+  visible: true,
   config: {
     name: 'Branding',
     description: 'AI-powered brand identity and guidelines generation',
     capabilities: ['Brand Identity', 'Color Palette', 'Typography', 'Logo Design', 'Brand Voice']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to branding input with required fields
     const brandingInput: BrandingInput = {
       ...input,
@@ -579,5 +584,7 @@ export const brandingAgent: Agent = {
       targetAudience: (input as any).targetAudience || ''
     };
     return runBranding(brandingInput);
-  }) as AgentFunction
+  }
 };
+
+export default brandingAgent;

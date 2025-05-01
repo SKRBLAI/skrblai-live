@@ -739,13 +739,18 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
   }
 };
 
-export const clientSuccessAgent: Agent = {
+const clientSuccessAgent: Agent = {
+  id: 'client-success-agent',
+  name: 'Client Success',
+  category: 'Support',
+  description: 'Handles client support requests and ticket management',
+  visible: true,
   config: {
     name: 'Client Success',
     description: 'Handles client support requests and ticket management',
     capabilities: ['Support Request Processing', 'Ticket Management', 'Client History Analysis', 'Resource Generation']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to client success input
     const clientInput: ClientSuccessInput = {
       ...input,
@@ -759,5 +764,7 @@ export const clientSuccessAgent: Agent = {
       previousInteractions: (input as any).previousInteractions
     };
     return runClientSuccessAgent(clientInput);
-  }) as AgentFunction
+  }
 };
+
+export default clientSuccessAgent;

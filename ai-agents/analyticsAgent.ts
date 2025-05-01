@@ -745,13 +745,18 @@ function generateRandomDimensionValue(dimension: DimensionKey): string {
   return values[Math.floor(Math.random() * values.length)];
 }
 
-export const analyticsAgent = {
+const analyticsAgent: Agent = {
+  id: 'analytics-agent',
+  name: 'Analytics',
+  category: 'Marketing',
+  description: 'AI-powered marketing analytics and optimization',
+  visible: true,
   config: {
     name: 'Analytics',
     description: 'AI-powered marketing analytics and optimization',
     capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
   },
-  runAgent: (async (input: BaseAgentInput) => {
+  runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to analytics input with required fields
     const analyticsInput: AnalyticsInput = {
       ...input,
@@ -759,5 +764,7 @@ export const analyticsAgent = {
       timeframe: (input as any).timeframe || 'month'
     };
     return runAnalytics(analyticsInput);
-  }) as AgentFunction
+  }
 };
+
+export default analyticsAgent;
