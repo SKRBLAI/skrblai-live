@@ -1,140 +1,37 @@
-const agentRegistry = [
-  {
-    id: 'branding',
-    name: 'Branding Agent',
-    category: 'Brand Development',
-    description: 'Creates a custom brand kit including logo themes, fonts, and messaging.',
-    route: '/services/branding',
-    intent: 'branding',
-    visible: true,
-  },
-  {
-    id: 'book-publishing',
-    name: 'Publishing Agent',
-    category: 'Ebook Creation',
-    description: 'Helps users write, edit, and publish digital books or guides.',
-    route: '/services/book-publishing',
-    intent: 'book-publishing',
-    visible: true,
-  },
-  {
-    id: 'ad-creative',
-    name: 'Ad Creative Agent',
-    category: 'Paid Marketing',
-    description: 'Generates high-converting ad copy and creatives for social media platforms.',
-    route: '/services/ads',
-    intent: 'ad-creative',
-    visible: true,
-  },
-  {
-    id: 'analytics',
-    name: 'Analytics Agent',
-    category: 'Business Intelligence',
-    description: 'Analyzes your web, content, and ad data to deliver insights and reports.',
-    route: '/services/analytics',
-    intent: 'analytics',
-    visible: true,
-  },
-  {
-    id: 'biz-growth',
-    name: 'Business Advisor Agent',
-    category: 'Strategy & Growth',
-    description: 'Builds business plans, growth strategies, and market analysis.',
-    route: '/services/business-growth',
-    intent: 'biz-growth',
-    visible: true,
-  },
-  {
-    id: 'client-support',
-    name: 'Client Success Agent',
-    category: 'Support Automation',
-    description: 'Manages customer support flows and auto-responses.',
-    route: '/dashboard/client-support',
-    intent: 'client-support',
-    visible: false,
-  },
-  {
-    id: 'proposal',
-    name: 'Proposal Generator Agent',
-    category: 'Sales Enablement',
-    description: 'Creates investor decks, sales proposals, and custom PDFs.',
-    route: '/services/sales-docs',
-    intent: 'proposal',
-    visible: true,
-  },
-  {
-    id: 'video-content',
-    name: 'Video Content Agent',
-    category: 'Short-Form Video',
-    description: 'Writes short-form content ideas, scripts, and hooks for reels & TikToks.',
-    route: '/services/content-automation',
-    intent: 'video-content',
-    visible: true,
-  },
-  {
-    id: 'content',
-    name: 'Content Creator Agent',
-    category: 'Copywriting',
-    description: 'Writes blogs, social captions, product descriptions, and emails.',
-    route: '/services/content-automation',
-    intent: 'content',
-    visible: true,
-  },
-  {
-    id: 'social-bot',
-    name: 'SocialBot Agent',
-    category: 'Social Media Automation',
-    description: 'Plans posts, captions, and content calendars for Instagram, Twitter, and more.',
-    route: '/services/content-automation',
-    intent: 'social-bot',
-    visible: true,
-  },
-  {
-    id: 'website',
-    name: 'SiteGen Agent',
-    category: 'Web Automation',
-    description: 'Creates landing pages and websites from prompts.',
-    route: '/services/website-creation',
-    intent: 'website',
-    visible: true,
-  },
-  {
-    id: 'billing',
-    name: 'Payment Manager Agent',
-    category: 'Back Office',
-    description: 'Handles billing, invoices, and payment tracking.',
-    route: '/dashboard/payments',
-    intent: 'billing',
-    visible: false,
-  },
-  {
-    id: 'percy',
-    name: 'Percy Assistant',
-    category: 'Concierge',
-    description: 'Intake assistant that helps users choose the right automation or workflow.',
-    route: '/ask-percy',
-    intent: 'percy',
-    visible: false,
-  },
-  {
-    id: 'percy-sync',
-    name: 'Percy Sync Agent',
-    category: 'Orchestration',
-    description: 'Handles background sync and workflow transitions (invisible to user).',
-    route: null,
-    intent: null,
-    visible: false,
-  },
-  {
-    id: 'smart-proposal',
-    name: 'Smart Proposal Generator',
-    category: 'Sales Enablement',
-    description: 'Generate beautiful business proposals, pitch decks, and PDFs with Percy.',
-    route: '/services/smart-proposal',
-    intent: 'smart-proposal',
-    visible: true,
-    premium: false,
-  },
-];
+import { Agent } from '@/types/agent';
+
+// Import all agents
+import adCreativeAgent from '@/ai-agents/adCreativeAgent';
+import analyticsAgent from '@/ai-agents/analyticsAgent';
+import bizAgent from '@/ai-agents/bizAgent';
+import brandingAgent from '@/ai-agents/brandingAgent';
+import clientSuccessAgent from '@/ai-agents/clientSuccessAgent';
+import contentCreatorAgent from '@/ai-agents/contentCreatorAgent';
+import paymentManagerAgent from '@/ai-agents/paymentManagerAgent';
+import percyAgent from '@/ai-agents/percyAgent';
+import percySyncAgent from '@/ai-agents/percySyncAgent';
+import proposalGeneratorAgent from '@/ai-agents/proposalGeneratorAgent';
+import publishingAgent from '@/ai-agents/publishingAgent';
+import sitegenAgent from '@/ai-agents/sitegenAgent';
+import socialBotAgent from '@/ai-agents/socialBotAgent';
+import videoContentAgent from '@/ai-agents/videoContentAgent';
+
+// Create the registry array with all agents
+const agentRegistry: Agent[] = [
+  adCreativeAgent,
+  analyticsAgent,
+  bizAgent,
+  brandingAgent,
+  clientSuccessAgent,
+  contentCreatorAgent,
+  paymentManagerAgent,
+  percyAgent,
+  percySyncAgent,
+  proposalGeneratorAgent,
+  publishingAgent,
+  sitegenAgent,
+  socialBotAgent,
+  videoContentAgent
+].filter(agent => agent.visible); // Only show visible agents
 
 export default agentRegistry;

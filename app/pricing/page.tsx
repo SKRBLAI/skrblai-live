@@ -1,216 +1,137 @@
 'use client';
-
+import React from 'react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import PageLayout from 'components/layout/PageLayout';
+import PercyProvider from '../../components/assistant/PercyProvider';
+import FloatingParticles from '@/components/ui/FloatingParticles';
+import Link from 'next/link';
 
-interface PricingTier {
-  id: string;
-  name: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  description: string;
-  features: string[];
-  badge?: string;
-  isPopular?: boolean;
-}
-
-const pricingTiers: PricingTier[] = [
+const plans = [
   {
-    id: 'starter',
-    name: 'Starter',
-    monthlyPrice: 99,
-    yearlyPrice: 79,
-    description: 'Perfect for individuals and small teams getting started with content automation.',
+    title: 'Free',
+    price: '$0',
+    period: 'forever',
+    description: 'Explore basic features and try out a few AI agents.',
     features: [
-      'Up to 100 AI generations per month',
-      'Basic content scheduling',
-      'Social media automation',
-      'Email support',
-      'Basic analytics'
-    ]
-  },
-  {
-    id: 'growth',
-    name: 'Growth',
-    monthlyPrice: 299,
-    yearlyPrice: 239,
-    description: 'Ideal for growing businesses looking to scale their content creation.',
-    features: [
-      'Unlimited AI generations',
-      'Advanced scheduling & automation',
-      'Custom branding templates',
-      'Priority support',
-      'Advanced analytics & reporting',
-      'Team collaboration tools'
+      'Access to 3 AI Agents',
+      'Limited Publishing',
+      'Community Support',
+      'Basic Analytics'
     ],
-    badge: 'Most Popular',
-    isPopular: true
+    gradient: 'from-sky-400 to-teal-300',
+    cta: 'Start Free',
+    href: '/auth/signup'
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    description: 'For large organizations requiring custom solutions and dedicated support.',
+    title: 'Pro',
+    price: '$19',
+    period: 'per month',
+    description: 'Perfect for creators and solopreneurs ready to scale.',
     features: [
-      'Everything in Growth, plus:',
-      'Custom AI model training',
-      'Dedicated account manager',
-      'API access',
-      'SSO & advanced security',
-      'Custom integrations',
-      'SLA guarantees'
-    ]
+      'All AI Agents',
+      'Unlimited Publishing',
+      'Priority Percy Access',
+      'Advanced Analytics',
+      'Custom Workflows'
+    ],
+    gradient: 'from-amber-500 to-orange-500',
+    cta: 'Upgrade Now',
+    href: '/auth/signup?plan=pro',
+    popular: true
+  },
+  {
+    title: 'Enterprise',
+    price: 'Custom',
+    period: 'per month',
+    description: 'For teams and orgs needing full-scale automation.',
+    features: [
+      'Dedicated AI Concierge',
+      'Custom Agent Development',
+      'Team Access & Collaboration',
+      'Priority Support',
+      'Custom Integrations'
+    ],
+    gradient: 'from-purple-500 to-indigo-500',
+    cta: 'Talk to Percy',
+    href: '/contact'
   }
 ];
 
-import PercyProvider from 'components/assistant/PercyProvider';
-import PageLayout from '@/components/layout/PageLayout';
-
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
-
 export default function PricingPage() {
-  const [isAnnual, setIsAnnual] = useState(true);
-  const [hoveredTier, setHoveredTier] = useState<string | null>(null);
-
-  const handlePlanClick = (tierId: string) => {
-    // This will be implemented later with proper routing
-    alert(`Selected plan: ${tierId}. Sign up functionality coming soon!`);
-  };
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen py-20"
-    >
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-16">
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
-          >
-            Choose Your Plan
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-xl text-gray-400"
-          >
-            Scale your content creation with our flexible pricing options
-          </motion.p>
-
-          <motion.div 
-            className="mt-8 inline-flex items-center bg-white/5 rounded-full p-1"
-            animate={{ scale: [0.95, 1] }}
-            transition={{ duration: 0.2 }}
-          >
-            <button
-              onClick={() => setIsAnnual(false)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                !isAnnual ? 'bg-electric-blue text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setIsAnnual(true)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                isAnnual ? 'bg-electric-blue text-white' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              Annual
-              <span className="ml-1 text-xs opacity-75">Save 20%</span>
-            </button>
-          </motion.div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {pricingTiers.map((tier, index) => (
-            <motion.div
-              key={tier.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
-              onHoverStart={() => setHoveredTier(tier.id)}
-              onHoverEnd={() => setHoveredTier(null)}
-              className={`glass-card p-8 relative overflow-hidden transition-all duration-300 ${
-                hoveredTier === tier.id ? 'transform scale-105' : ''
-              } ${tier.isPopular ? 'border-electric-blue' : ''}`}
-            >
-              {tier.badge && (
-                <div className="absolute top-4 right-4">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-electric-blue text-white">
-                    {tier.badge}
-                  </span>
-                </div>
-              )}
-
-              <div className="relative z-10">
-                <h3 className="text-2xl font-bold mb-2 text-white">{tier.name}</h3>
-                <motion.div 
-                  className="mb-4"
-                  key={isAnnual ? 'yearly' : 'monthly'}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.2 }}
+    <PercyProvider>
+      <PageLayout>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+          <div className="relative min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-hidden">
+            <FloatingParticles />
+            <div className="max-w-7xl mx-auto px-4 py-16 z-10 relative">
+              <div className="text-center mb-16">
+                <motion.h1 
+                  className="text-4xl font-bold text-white mb-4"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  <span className="text-4xl font-bold text-white">
-                    {tier.id === 'enterprise' ? 'Custom' : 
-                      `$${isAnnual ? tier.yearlyPrice : tier.monthlyPrice}`
-                    }
-                  </span>
-                  {tier.id !== 'enterprise' && (
-                    <span className="text-gray-400 ml-2">{isAnnual ? '/year' : '/month'}</span>
-                  )}
-                </motion.div>
-                <p className="text-gray-400 mb-6">{tier.description}</p>
-
-                <ul className="space-y-4 mb-8">
-                  {tier.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center text-gray-300">
-                      <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.4 + featureIndex * 0.1 }}
-                        className="flex items-center w-full"
-                      >
-                        <svg className="w-5 h-5 text-electric-blue mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>{feature}</span>
-                      </motion.div>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => handlePlanClick(tier.id)}
-                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
-                    tier.isPopular
-                      ? 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'
-                      : 'bg-white/10 text-white hover:bg-white/20'
-                  }`}
+                  Choose Your Plan
+                </motion.h1>
+                <motion.p 
+                  className="text-lg text-gray-300"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  {tier.id === 'enterprise' ? 'Contact Sales' : 'Get Started'}
-                </button>
+                  Whether you're starting out or scaling up, SKRBL AI has a plan for you.
+                </motion.p>
               </div>
 
-              <div 
-                className={`absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-400/10 transition-opacity duration-300 ${
-                  hoveredTier === tier.id ? 'opacity-100' : 'opacity-0'
-                }`}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {plans.map((plan, idx) => (
+                  <motion.div
+                    key={plan.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 + 0.4 }}
+                    className={`glass-card p-6 rounded-xl backdrop-blur-lg border ${
+                      plan.popular ? 'border-teal-400/50 shadow-teal-400/20' : 'border-sky-500/10'
+                    } relative`}
+                  >
+                    {plan.popular && (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                        <span className="bg-teal-400 text-deep-navy px-3 py-1 rounded-full text-sm font-semibold">
+                          Most Popular
+                        </span>
+                      </div>
+                    )}
+                    <h2 className="text-2xl font-semibold text-white mb-2">{plan.title}</h2>
+                    <div className="mb-4">
+                      <span className="text-3xl font-bold text-white">{plan.price}</span>
+                      <span className="text-gray-400 ml-2">/{plan.period}</span>
+                    </div>
+                    <p className="text-gray-300 mb-6">{plan.description}</p>
+                    <ul className="space-y-3 mb-8">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="text-gray-300 flex items-center">
+                          <span className="text-teal-400 mr-2">✓</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link href={plan.href}>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`w-full px-4 py-2 rounded-lg bg-gradient-to-r ${plan.gradient} text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20`}
+                      >
+                        {plan.cta}
+                      </motion.button>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </PageLayout>
+    </PercyProvider>
   );
 }

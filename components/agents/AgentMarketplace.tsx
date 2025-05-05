@@ -1,8 +1,10 @@
+'use client';
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentCard, { Agent } from './AgentCard';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import AgentInputModal from './AgentInputModal';
 
 const getCategories = (agents: Agent[]) => {
   const cats = Array.from(new Set(agents.map(agent => agent.category)));
@@ -25,6 +27,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sort, setSort] = useState<string>('popular');
   const router = useRouter();
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
 
   // Only show visible agents, using prop if provided
   const agents = useMemo(() => (agentsProp ? agentsProp : agentRegistry.filter(a => a.visible !== false)), [agentsProp]);
@@ -46,7 +49,31 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
   }, [agents, selectedCategory, sort, recommendedAgents]);
 
   const handleAgentClick = (agent: Agent) => {
-    router.push(agent.route);
+    setSelectedAgent(agent);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedAgent(null);
+  };
+
+  const handleRunAgent = async (input: string) => {
+    if (!selectedAgent) return;
+
+    try {
+      const result = await selectedAgent.runAgent({
+        userId: 'demo', // TODO: Get actual userId
+        input,
+        agentId: selectedAgent.id
+      });
+
+      console.log('Agent result:', result);
+      // TODO: Handle agent response (show in UI, save to history, etc.)
+    } catch (error) {
+      console.error('Error running agent:', error);
+      // TODO: Show error message to user
+    }
+
+    handleCloseModal();
   };
 
   return (
@@ -99,18 +126,39 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
         <AnimatePresence>
           {filteredAgents.length > 0 ? (
             filteredAgents.map(agent => (
-              <AgentCard
+              <motion.div
                 key={agent.id}
-                agent={agent}
-                onClick={handleAgentClick}
-                isPremiumLocked={agent.premium && userRole === 'free'}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={() => handleAgentClick(agent)}
+                className="glass-card p-6 rounded-xl backdrop-blur-lg border border-sky-500/10 cursor-pointer"
+              >
+                <h3 className="text-xl font-semibold text-white mb-2">{agent.name}</h3>
+                <p className="text-gray-300 text-sm mb-4">{agent.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-teal-400 text-sm">{agent.category}</span>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20"
+                  >
+                    Use Agent
+                  </motion.button>
+                </div>
+              </motion.div>
             ))
           ) : (
             <motion.div className="col-span-full text-center text-slate-400 py-12">No agents found for this category.</motion.div>
           )}
         </AnimatePresence>
       </motion.div>
+
+      <AgentInputModal
+        agent={selectedAgent}
+        onClose={handleCloseModal}
+        onSubmit={handleRunAgent}
+      />
     </div>
   );
 };

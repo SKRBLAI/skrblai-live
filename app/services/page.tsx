@@ -16,17 +16,16 @@ export default function ServicesPage(): JSX.Element {
           <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-x-hidden">
             {/* Animated background */}
             <FloatingParticles />
-            <h1 className="text-4xl font-bold text-white text-center mt-12">
-              Meet Your AI Agents
-            </h1>
-            <div className="mt-8">
-              {/* Agent Marketplace grid */}
-              {/* TODO: Replace 'free' with actual userRole if available */}
-              {typeof window !== 'undefined' && (
-                <div className="relative z-10">
-                  <AgentMarketplace userRole="free" agents={agentRegistry.filter(agent => agent.visible)} />
-                </div>
-              )}
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              <h1 className="text-4xl font-bold text-white text-center mt-12 mb-16">
+                Meet Your AI Agents
+              </h1>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <AgentMarketplace 
+                  userRole="free" 
+                  agents={agentRegistry} 
+                />
+              </div>
             </div>
           </div>
         </motion.div>
