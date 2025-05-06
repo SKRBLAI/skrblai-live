@@ -171,7 +171,7 @@ type DashboardPaths = typeof intentToDashboardMap[IntentDashboardKeys];
 const _typeCheck: Record<IntentMappingKeys, string> = intentToDashboardMap as Record<IntentMappingKeys, string>;
 
 // Add the percySyncAgent export
-export const percySyncAgent = {
+const percySyncAgent = {
   // Handle user onboarding from Percy chat
   async handleOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
     try {
