@@ -192,4 +192,5 @@ const sitegenAgent: Agent = {
   }
 };
 
+export { sitegenAgent };
 export default sitegenAgent;

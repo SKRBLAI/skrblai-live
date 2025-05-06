@@ -286,4 +286,5 @@ const bizAgent: Agent = {
   }
 };
 
+export { bizAgent };
 export default bizAgent;

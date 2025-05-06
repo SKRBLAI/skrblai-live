@@ -615,4 +615,5 @@ const adCreativeAgent: Agent = {
   }
 };
 
+export { adCreativeAgent };
 export default adCreativeAgent;

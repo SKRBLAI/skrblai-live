@@ -587,4 +587,5 @@ const brandingAgent: Agent = {
   }
 };
 
+export { brandingAgent };
 export default brandingAgent;

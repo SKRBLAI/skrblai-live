@@ -94,4 +94,5 @@ const proposalGeneratorAgent: Agent = {
   }
 };
 
+export { proposalGeneratorAgent };
 export default proposalGeneratorAgent;

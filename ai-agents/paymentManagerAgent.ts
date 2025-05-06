@@ -386,4 +386,5 @@ const paymentManagerAgent: Agent = {
   }
 };
 
+export { paymentManagerAgent };
 export default paymentManagerAgent;

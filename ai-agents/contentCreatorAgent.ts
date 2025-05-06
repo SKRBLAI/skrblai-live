@@ -462,4 +462,5 @@ const contentCreatorAgent: Agent = {
   }
 };
 
+export { contentCreatorAgent };
 export default contentCreatorAgent;

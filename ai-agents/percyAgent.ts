@@ -244,4 +244,5 @@ const percyAgent: Agent = {
   }
 };
 
+export { percyAgent };
 export default percyAgent;

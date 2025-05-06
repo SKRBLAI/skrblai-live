@@ -399,4 +399,5 @@ const videoContentAgent: Agent = {
   }
 };
 
+export { videoContentAgent };
 export default videoContentAgent;

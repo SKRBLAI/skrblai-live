@@ -105,4 +105,5 @@ const publishingAgent: Agent = {
   }
 };
 
+export { publishingAgent };
 export default publishingAgent;

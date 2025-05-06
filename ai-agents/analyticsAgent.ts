@@ -767,4 +767,5 @@ const analyticsAgent: Agent = {
   }
 };
 
+export { analyticsAgent };
 export default analyticsAgent;

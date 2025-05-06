@@ -767,4 +767,5 @@ const clientSuccessAgent: Agent = {
   }
 };
 
+export { clientSuccessAgent };
 export default clientSuccessAgent;

@@ -526,4 +526,5 @@ const socialBotAgent: Agent = {
   }
 };
 
+export { socialBotAgent };
 export default socialBotAgent;
