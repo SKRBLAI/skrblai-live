@@ -20,7 +20,7 @@ const sections = [
   },
   {
     title: 'Why Percy?',
-    content: 'Percy is more than an AI assistant - he's your dedicated concierge in the world of automation. Trained to understand your unique needs, Percy guides you toward success by leveraging our suite of AI agents effectively.',
+    content: "Percy is more than an AI assistant - he's your dedicated concierge in the world of automation. Trained to understand your unique needs, Percy guides you toward success by leveraging our suite of AI agents effectively.",
     icon: '🤖'
   }
 ];
