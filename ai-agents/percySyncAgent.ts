@@ -237,3 +237,5 @@ export const percySyncAgent = {
     }
   }
 };
+
+export default percySyncAgent;
