@@ -1,7 +1,7 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
 
-import { AgentInput as BaseAgentInput, AgentFunction, Agent } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Analytics Agent
 interface AnalyticsInput extends BaseAgentInput {

@@ -1,6 +1,6 @@
 import { db, collection, addDoc } from '@/utils/firebase';
 
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Ad Creative Agent
 interface AdCreativeInput extends BaseAgentInput {

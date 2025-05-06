@@ -1,6 +1,6 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Percy Agent
 interface PercyAgentInput extends Omit<BaseAgentInput, 'goal'> {
@@ -16,9 +16,6 @@ interface FormData {
   message?: string;
   company?: string;
 }
-
-// Import AgentResponse from types/agent
-import { AgentResponse } from '@/types/agent';
 
 /**
  * Percy Agent - Main AI assistant that handles user inquiries and form intake

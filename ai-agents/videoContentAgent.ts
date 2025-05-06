@@ -1,7 +1,6 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
-
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Video Content Agent
 interface VideoAgentInput extends Omit<BaseAgentInput, 'goal'> {
@@ -20,9 +19,6 @@ interface VideoAgentInput extends Omit<BaseAgentInput, 'goal'> {
   };
   customInstructions?: string;
 }
-
-// Import AgentResponse from types/agent
-import { AgentResponse } from '@/types/agent';
 
 interface ScriptSection {
   section: string;

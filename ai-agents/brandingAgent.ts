@@ -1,7 +1,7 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
 
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Branding Agent
 interface BrandingInput extends BaseAgentInput {

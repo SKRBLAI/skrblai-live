@@ -1,6 +1,6 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Client Success Agent
 interface ClientSuccessInput extends Omit<BaseAgentInput, 'goal'> {
@@ -16,9 +16,6 @@ interface ClientSuccessInput extends Omit<BaseAgentInput, 'goal'> {
   previousInteractions?: string[];
   customInstructions?: string;
 }
-
-// Import AgentResponse from types/agent
-import { AgentResponse } from '@/types/agent';
 
 // Add this interface at the top of the file
 interface ClientAction {

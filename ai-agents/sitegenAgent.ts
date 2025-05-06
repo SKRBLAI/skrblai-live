@@ -1,7 +1,5 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
-
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import { db, collection, addDoc } from '@/utils/firebase';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Site Generation Agent
 interface SiteGenInput extends BaseAgentInput {

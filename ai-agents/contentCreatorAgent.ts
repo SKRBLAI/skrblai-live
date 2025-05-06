@@ -1,7 +1,7 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
 
-import { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Content Creator Agent
 interface ContentAgentInput extends BaseAgentInput {

@@ -1,7 +1,6 @@
 import { db, collection, addDoc } from '@/utils/firebase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
-
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Social Bot Agent
 interface SocialBotInput extends BaseAgentInput {

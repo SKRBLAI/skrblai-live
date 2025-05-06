@@ -1,5 +1,5 @@
 import { agentDb } from '@/utils/db';
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Import agent implementations
 import { socialBotAgent } from '@/ai-agents/socialBotAgent';

@@ -1,6 +1,5 @@
 import { logAgentActivity } from '@/utils/firebase';
-
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 interface ProposalAgentInput extends BaseAgentInput {
   clientName: string;

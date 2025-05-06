@@ -1,6 +1,6 @@
 import { db } from '@/utils/firebase';
 import { collection, addDoc } from '@/utils/firebase';
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
 interface PaymentAgentInput extends Omit<BaseAgentInput, 'goal'> {
@@ -33,9 +33,6 @@ interface PaymentAgentInput extends Omit<BaseAgentInput, 'goal'> {
   subscriptionId?: string;
   customInstructions?: string;
 }
-
-// Import AgentResponse from types/agent
-import { AgentResponse } from '@/types/agent';
 
 // Define ReceiptItem interface
 interface ReceiptItem {

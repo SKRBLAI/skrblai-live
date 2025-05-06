@@ -1,4 +1,4 @@
-import { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Business Agent Types
 interface BizAgentInput extends BaseAgentInput {
