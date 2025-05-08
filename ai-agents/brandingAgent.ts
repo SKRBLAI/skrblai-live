@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -52,32 +51,39 @@ const runBranding = async (input: BrandingInput) => {
       brandingParams
     );
 
-    // Log the branding creation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'brandingAgent',
-      input,
-      businessName: input.businessName,
-      industry: input.industry,
-      timestamp: new Date().toISOString()
-    });
+    // Log the branding creation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'brandingAgent',
+        input,
+        businessName: input.businessName,
+        industry: input.industry,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated branding to Firestore
-    const brandingRef = await addDoc(collection(db, 'branding'), {
-      userId: input.userId,
-      businessName: input.businessName,
-      industry: input.industry,
-      targetAudience: input.targetAudience,
-      brandIdentity,
-      params: brandingParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated branding to Supabase
+    const { data: brandingData, error: brandingError } = await supabase
+      .from('branding')
+      .insert({
+        userId: input.userId,
+        businessName: input.businessName,
+        industry: input.industry,
+        targetAudience: input.targetAudience,
+        brandIdentity,
+        params: brandingParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (brandingError) throw brandingError;
 
     return {
       success: true,
       message: `Brand identity created successfully for ${input.businessName}`,
       data: {
-        brandingId: brandingRef.id,
+        brandingId: brandingData[0].id,
         brandIdentity,
         metadata: {
           businessName: input.businessName,

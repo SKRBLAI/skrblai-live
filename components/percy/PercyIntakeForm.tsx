@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePercyContext } from '@/contexts/PercyContext';
-import { saveLeadToFirebase, type Lead, type FirestoreTimestamp } from '@/utils/firebase';
-import { serverTimestamp } from 'firebase/firestore';
+import { saveLeadToSupabase } from '@/utils/supabase-helpers';
+import type { SupabaseTimestamp, Lead } from '@/types/supabase';
 
 interface IntakeFormData {
   name: string;
@@ -20,7 +20,7 @@ interface IntakeFormData {
   userLink?: string;
   userFileUrl?: string;
   userFileName?: string;
-  timestamp?: FirestoreTimestamp;
+  timestamp?: SupabaseTimestamp;
 }
 
 type IntentType = 'logo-design' | 'visual-identity' | 'brand-voice' | 'brand-guidelines' | 'social-kit' | 'brand-strategy' | 'default';
@@ -46,7 +46,7 @@ export default function PercyIntakeForm() {
     email: '',
     selectedPlan: 'basic',
     intent: intent || 'default',
-    timestamp: serverTimestamp()
+    timestamp: new Date().toISOString()
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const welcomeMessage = intent && intent in intentMessages
@@ -70,11 +70,11 @@ export default function PercyIntakeForm() {
     setIsSubmitting(true);
 
     try {
-      await saveLeadToFirebase({
+      await saveLeadToSupabase({
         ...formData,
         intent: intent || 'default',
-        timestamp: serverTimestamp()
-      });
+        timestamp: new Date().toISOString()
+      } as Lead);
 
       // Route to appropriate dashboard section
       router.push(`/dashboard/${intent || 'branding'}`);

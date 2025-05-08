@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import { auth } from '@/utils/firebase';
+import { auth } from '@/utils/supabase-auth';
 import { ChatBubble } from '@/components/ui/ChatBubble';
 
 interface PercyContextType {

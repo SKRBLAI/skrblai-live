@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -47,33 +46,40 @@ const runContentAgent = async (input: ContentAgentInput): Promise<AgentResponse>
       contentParams
     );
 
-    // Log the content creation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'contentCreatorAgent',
-      input,
-      contentType: input.contentType,
-      topic: input.topic,
-      timestamp: new Date().toISOString()
-    });
+    // Log the content creation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'contentCreatorAgent',
+        input,
+        contentType: input.contentType,
+        topic: input.topic,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated content to Firestore
-    const contentRef = await addDoc(collection(db, 'content'), {
-      userId: input.userId,
-      projectId: 'general',
-      contentType: input.contentType,
-      topic: input.topic,
-      content: generatedContent,
-      params: contentParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated content to Supabase
+    const { data: contentData, error: contentError } = await supabase
+      .from('content')
+      .insert({
+        userId: input.userId,
+        projectId: 'general',
+        contentType: input.contentType,
+        topic: input.topic,
+        content: generatedContent,
+        params: contentParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (contentError) throw contentError;
 
     return {
       success: true,
       message: `${capitalizeFirstLetter(input.contentType)} content created successfully`,
       agentName: 'contentCreator',
       data: {
-        contentId: contentRef.id,
+        contentId: contentData[0].id,
         content: generatedContent,
         metadata: {
           contentType: input.contentType,

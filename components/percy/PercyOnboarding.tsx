@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import PercyAvatar from '@/components/home/PercyAvatar';
+import { supabase } from '@/utils/supabase';
+import { getCurrentUser } from '@/utils/supabase-auth';
 
 interface PercyOnboardingProps {
   onComplete: (data: { goal: string; platform: string }) => void;
@@ -29,19 +31,19 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('userGoal', goal);
     localStorage.setItem('userPlatform', platform);
-    // Firestore sync
+    // Supabase sync
     try {
-      const { getAuth } = await import('firebase/auth');
-      const { db, setDoc, doc, serverTimestamp } = await import('@/utils/firebase');
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const user = await getCurrentUser();
       if (user) {
-        await setDoc(doc(db, 'users', user.uid, 'memory', 'onboarding'), {
-          onboardingComplete: true,
-          goal,
-          platform,
-          updatedAt: serverTimestamp(),
-        });
+        await supabase
+          .from('user_settings')
+          .upsert({
+            userId: user.id,
+            onboardingComplete: true,
+            goal,
+            platform,
+            updatedAt: new Date().toISOString()
+          }, { onConflict: 'userId' });
       }
     } catch (e) {
       // fail silently, fallback to localStorage

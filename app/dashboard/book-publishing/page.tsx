@@ -10,12 +10,11 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import { useCallback, useEffect, useState, CSSProperties } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/utils/supabase-auth';
 import Link from 'next/link';
-import { app, storage } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import '@/styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
 
@@ -45,26 +44,62 @@ export default function BookPublishingDashboard() {
       uploadedFileName: file.name
     }));
 
-    const storageRef = ref(storage, `manuscripts/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    // Generate a unique file name
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    const filePath = `manuscripts/${fileName}`;
 
-    uploadTask.on('state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadStatus(prev => ({ ...prev, progress }));
-      },
-      (error) => {
-        setUploadStatus(prev => ({ ...prev, error: error.message }));
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        setState(prev => ({
-          ...prev,
-          uploadedFileUrl: downloadURL
-        }));
-        setUploadStatus(prev => ({ ...prev, success: true }));
-      }
-    );
+    try {
+      setUploadStatus(prev => ({ ...prev, progress: 0 }));
+      
+      // Create form data to track upload progress
+      const data = new FormData();
+      data.append('file', file);
+      
+      // Custom upload with progress tracking
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadStatus(prev => ({ ...prev, progress }));
+        }
+      });
+      
+      xhr.addEventListener('load', async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // Once XHR upload is complete, use Supabase to store the file
+          const { data, error } = await supabase.storage
+            .from('manuscripts')
+            .upload(fileName, file);
+            
+          if (error) throw error;
+          
+          // Get the public URL
+          const { data: urlData } = supabase.storage
+            .from('manuscripts')
+            .getPublicUrl(fileName);
+            
+          setState(prev => ({
+            ...prev,
+            uploadedFileUrl: urlData.publicUrl
+          }));
+          setUploadStatus(prev => ({ ...prev, success: true, progress: 100 }));
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        setUploadStatus(prev => ({ ...prev, error: 'Upload failed' }));
+      });
+      
+      // Start upload using XHR (this is just to track progress, the actual upload happens with Supabase)
+      xhr.open('POST', '/api/dummy-upload');
+      xhr.send(data);
+      
+    } catch (error: any) {
+      setUploadStatus(prev => ({ ...prev, error: error.message }));
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -131,8 +166,7 @@ export default function BookPublishingDashboard() {
   };
 
   useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         router.push('/login');
       }

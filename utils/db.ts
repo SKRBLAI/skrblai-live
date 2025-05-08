@@ -1,18 +1,21 @@
-import { db } from './firebase';
+import { supabase } from './supabase';
 
 // Centralized database operations for agents
 export const agentDb = {
   // Log agent activity
-  logActivity: async (agentName: string, action: string, data: any) => {
-    const { collection, addDoc } = await import('firebase/firestore');
+  logActivity: async (agentName: string, action: string, activityData: any) => {
     try {
-      const activityRef = collection(db, 'agent_activities');
-      await addDoc(activityRef, {
+      const { data, error } = await supabase
+        .from('agent_activities')
+        .insert([{
         agentName,
         action,
-        data,
+        activityData,
         timestamp: new Date().toISOString()
-      });
+      }]).select();
+      
+      if (error) throw error;
+      return data[0];
     } catch (error) {
       console.error(`Error logging agent activity: ${error}`);
     }
@@ -20,14 +23,16 @@ export const agentDb = {
 
   // Save agent job
   saveJob: async (jobData: any) => {
-    const { collection, addDoc } = await import('firebase/firestore');
     try {
-      const jobsRef = collection(db, 'agent_jobs');
-      const docRef = await addDoc(jobsRef, {
+      const { data, error } = await supabase
+        .from('agent_jobs')
+        .insert([{
         ...jobData,
         createdAt: new Date().toISOString()
-      });
-      return docRef.id;
+      }]).select();
+      
+      if (error) throw error;
+      return data[0].id;
     } catch (error) {
       console.error(`Error saving agent job: ${error}`);
       throw error;
@@ -36,18 +41,17 @@ export const agentDb = {
 
   // Query agent jobs
   queryJobs: async (agentName: string, userId: string, maxResults = 10) => {
-    const { collection, query, where, getDocs, orderBy, limit } = await import('firebase/firestore');
     try {
-      const jobsRef = collection(db, 'agent_jobs');
-      const q = query(
-        jobsRef,
-        where('agentName', '==', agentName),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(maxResults)
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() as Record<string, any> }));
+      const { data, error } = await supabase
+        .from('agent_jobs')
+        .select('*')
+        .eq('agentName', agentName)
+        .eq('userId', userId)
+        .order('createdAt', { ascending: false })
+        .limit(maxResults);
+
+      if (error) throw error;
+      return data;
     } catch (error) {
       console.error(`Error querying agent jobs: ${error}`);
       throw error;

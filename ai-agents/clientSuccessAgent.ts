@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Client Success Agent
@@ -167,41 +166,37 @@ const getCategoryFromContent = (requestType: string, description: string): strin
 }
 
 /**
- * Get client history from Firestore
+ * Get client history from Supabase
  * @param clientId - Client identifier
  * @returns Client history data
  */
 const getClientHistory = async (clientId: string): Promise<any> => {
   try {
     // Query previous support tickets
-    const ticketsQuery = query(
-      collection(db, 'support-tickets'),
-      where('clientId', '==', clientId),
-      orderBy('createdAt', 'desc'),
-      limit(10)
-    );
+    const { data: tickets, error: ticketsError } = await supabase
+      .from('support-tickets')
+      .select('*')
+      .eq('clientId', clientId)
+      .order('createdAt', { ascending: false })
+      .limit(10);
     
-    const ticketsSnapshot = await getDocs(ticketsQuery);
-    const tickets = ticketsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+    if (ticketsError) throw ticketsError;
     
     // Query client information
-    const clientsQuery = query(
-      collection(db, 'clients'),
-      where('clientId', '==', clientId)
-    );
+    const { data: clientInfo, error: clientError } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('clientId', clientId)
+      .limit(1);
     
-    const clientsSnapshot = await getDocs(clientsQuery);
-    const clientInfo = clientsSnapshot.empty ? null : clientsSnapshot.docs[0].data();
+    if (clientError) throw clientError;
     
     return {
-      previousTickets: tickets,
-      clientInfo,
-      ticketCount: tickets.length,
-      mostRecentTicket: tickets.length > 0 ? tickets[0] : null,
-      commonCategories: getCommonCategories(tickets)
+      previousTickets: tickets || [],
+      clientInfo: clientInfo && clientInfo.length > 0 ? clientInfo[0] : null,
+      ticketCount: tickets ? tickets.length : 0,
+      mostRecentTicket: tickets && tickets.length > 0 ? tickets[0] : null,
+      commonCategories: getCommonCategories(tickets || [])
     };
   } catch (error) {
     console.error('Error fetching client history:', error);
@@ -669,59 +664,120 @@ const generateInternalNotes = (
   return notes;
 }
 
+/**
+ * Client Success Agent - Handles customer support requests
+ * @param input - Support request parameters
+ * @returns Promise with success status, message and optional data
+ */
 const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentResponse> => {
   try {
     // Validate input
     if (!input.userId || !input.clientId || !input.requestType || !input.subject || !input.description) {
-      throw new Error('Missing required fields');
+      throw new Error('Missing required fields: userId, clientId, requestType, subject, and description');
     }
 
-    // Set default values for optional parameters
-    const priority = input.priority || getPriorityFromContent(input.requestType, input.description);
-    const category = input.category || getCategoryFromContent(input.requestType, input.description);
+    // Set defaults for optional parameters
+    const ticketParams = {
+      priority: input.priority || getPriorityFromContent(input.requestType, input.description),
+      category: input.category || getCategoryFromContent(input.requestType, input.description),
+      attachments: input.attachments || [],
+      previousInteractions: input.previousInteractions || [],
+      customInstructions: input.customInstructions || ''
+    };
 
     // Get client history
     const clientHistory = await getClientHistory(input.clientId);
 
     // Generate response components
-    const initialResponse = generateInitialResponse(input.requestType, input.subject, input.description, priority, category);
-    const suggestedActions = generateSuggestedActions(input.requestType, input.description, category, clientHistory);
-    const helpfulResources = generateHelpfulResources(input.requestType, category);
-    const followUpQuestions = generateFollowUpQuestions(input.requestType, input.description, category);
-    const internalNotes = generateInternalNotes(input.clientId, input.requestType, priority, clientHistory);
+    const initialResponse = generateInitialResponse(
+      input.requestType,
+      input.subject,
+      input.description,
+      ticketParams.priority,
+      ticketParams.category
+    );
+    
+    const suggestedActions = generateSuggestedActions(
+      input.requestType,
+      input.description,
+      ticketParams.category,
+      clientHistory
+    );
+    
+    const helpfulResources = generateHelpfulResources(
+      input.requestType,
+      ticketParams.category
+    );
+    
+    const followUpQuestions = generateFollowUpQuestions(
+      input.requestType,
+      input.description,
+      ticketParams.category
+    );
+    
+    const internalNotes = generateInternalNotes(
+      input.clientId,
+      input.requestType,
+      ticketParams.priority,
+      clientHistory
+    );
 
-    // Save support ticket to Firestore
-    const ticketRef = await addDoc(collection(db, 'support-tickets'), {
-      userId: input.userId,
-      projectId: input.projectId || 'general',
-      clientId: input.clientId,
-      requestType: input.requestType,
-      subject: input.subject,
-      description: input.description,
-      priority,
-      category,
-      attachments: input.attachments || [],
-      previousInteractions: input.previousInteractions || [],
-      initialResponse,
-      suggestedActions,
-      helpfulResources,
-      followUpQuestions,
-      internalNotes,
-      status: 'open',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
+    // Create ticket in Supabase
+    const { data: ticketData, error: ticketError } = await supabase
+      .from('support-tickets')
+      .insert({
+        userId: input.userId,
+        clientId: input.clientId,
+        projectId: input.projectId || 'general',
+        requestType: input.requestType,
+        subject: input.subject,
+        description: input.description,
+        status: 'open',
+        priority: ticketParams.priority,
+        category: ticketParams.category,
+        attachments: ticketParams.attachments,
+        response: initialResponse,
+        actions: suggestedActions,
+        resources: helpfulResources,
+        followUpQuestions: followUpQuestions,
+        internalNotes: internalNotes,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      .select();
+    
+    if (ticketError) throw ticketError;
+
+    // Log the ticket creation
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'clientSuccessAgent',
+        input: {
+          clientId: input.clientId,
+          requestType: input.requestType,
+          subject: input.subject
+        },
+        timestamp: new Date().toISOString()
+      });
+
+    if (logError) throw logError;
 
     return {
       success: true,
-      message: 'Support request processed successfully',
+      message: `Support ticket created successfully for "${input.subject}"`,
       agentName: 'clientSuccess',
       data: {
-        ticketId: ticketRef.id,
-        initialResponse,
-        suggestedActions,
-        helpfulResources,
-        followUpQuestions
+        ticketId: ticketData[0].id,
+        response: initialResponse,
+        actions: suggestedActions,
+        resources: helpfulResources,
+        followUpQuestions: followUpQuestions,
+        metadata: {
+          priority: ticketParams.priority,
+          category: ticketParams.category,
+          status: 'open'
+        }
       },
       error: undefined
     };
@@ -734,7 +790,7 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
-};
+}
 
 const clientSuccessAgent: Agent = {
   id: 'client-success-agent',

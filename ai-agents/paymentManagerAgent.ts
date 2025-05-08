@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
@@ -185,35 +184,42 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
       paymentResult
     );
 
-    // Log the payment processing to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'paymentManagerAgent',
-      input: {
+    // Log the payment processing to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'paymentManagerAgent',
+        input: {
+          userId: input.userId,
+          paymentType: input.paymentType,
+          amount: input.amount,
+          currency: paymentParams.currency,
+          paymentMethod: paymentParams.paymentMethod,
+        },
+        timestamp: new Date().toISOString(),
+      });
+    if (logError) throw logError;
+
+    // Save the payment record to Supabase
+    const { data: paymentData, error: paymentError } = await supabase
+      .from('payments')
+      .insert({
         userId: input.userId,
+        projectId: input.projectId || 'general',
         paymentType: input.paymentType,
         amount: input.amount,
         currency: paymentParams.currency,
         paymentMethod: paymentParams.paymentMethod,
-      },
-      timestamp: new Date().toISOString(),
-    });
-
-    // Save the payment record to Firestore
-    const paymentRef = await addDoc(collection(db, 'payments'), {
-      userId: input.userId,
-      projectId: input.projectId || 'general',
-      paymentType: input.paymentType,
-      amount: input.amount,
-      currency: paymentParams.currency,
-      paymentMethod: paymentParams.paymentMethod,
-      billingAddress: paymentParams.billingAddress,
-      invoiceId: paymentParams.invoiceId,
-      subscriptionId: paymentParams.subscriptionId,
-      paymentResult,
-      receipt,
-      status: paymentResult.status,
-      createdAt: new Date().toISOString(),
-    });
+        billingAddress: paymentParams.billingAddress,
+        invoiceId: paymentParams.invoiceId,
+        subscriptionId: paymentParams.subscriptionId,
+        paymentResult,
+        receipt,
+        status: paymentResult.status,
+        createdAt: new Date().toISOString(),
+      })
+      .select();
+    if (paymentError) throw paymentError;
 
     // Update user account if needed
     if (input.paymentType === 'subscription') {
@@ -225,7 +231,7 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
       message: `Payment ${paymentResult.status} for ${paymentParams.currency} ${input.amount}`,
       agentName: 'paymentManager',
       data: {
-        paymentId: paymentRef.id,
+        paymentId: paymentData[0].id,
         transactionId: paymentResult.transactionId,
         status: paymentResult.status,
         receipt,

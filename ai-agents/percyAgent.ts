@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Percy Agent
@@ -35,13 +34,16 @@ const runPercyAgent = async (input: PercyAgentInput): Promise<AgentResponse> => 
       throw new Error('Invalid input type');
     }
 
-    // Log the agent execution to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'percyAgent',
-      input,
-      result,
-      timestamp: new Date().toISOString()
-    });
+    // Log the agent execution to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'percyAgent',
+        input,
+        result,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
     return {
       success: true,
@@ -91,16 +93,21 @@ const processFormData = async (formData: FormData): Promise<any> => {
     throw new Error('Missing required form fields');
   }
   
-  // Save lead information to Firestore
-  const docRef = await addDoc(collection(db, 'leads'), {
-    ...formData,
-    source: 'percy-intake',
-    status: 'new',
-    createdAt: new Date().toISOString()
-  });
+  // Save lead information to Supabase
+  const { data, error } = await supabase
+    .from('leads')
+    .insert({
+      ...formData,
+      source: 'percy-intake',
+      status: 'new',
+      createdAt: new Date().toISOString()
+    })
+    .select();
+  
+  if (error) throw error;
   
   return {
-    leadId: docRef.id,
+    leadId: data[0].id,
     service: formData.service,
     nextSteps: determineNextSteps(formData.service)
   };

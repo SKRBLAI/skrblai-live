@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Video Content Agent
@@ -80,34 +79,41 @@ const runVideoAgent = async (input: VideoAgentInput): Promise<AgentResponse> => 
       }
     };
 
-    // Log the video content generation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'videoContentAgent',
-      input,
-      title: input.title,
-      videoType: input.videoType,
-      timestamp: new Date().toISOString()
-    });
+    // Log agent activity
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'videoContentAgent',
+        input,
+        title: input.title,
+        videoType: input.videoType,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated video content to Firestore
-    const videoRef = await addDoc(collection(db, 'video-content'), {
-      userId: input.userId,
-      projectId: 'general',
-      title: input.title,
-      topic: input.topic,
-      videoType: input.videoType,
-      content: videoContent,
-      params: videoParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated video content to Supabase
+    const { data: videoData, error: videoError } = await supabase
+      .from('video-content')
+      .insert({
+        userId: input.userId,
+        projectId: 'general',
+        title: input.title,
+        topic: input.topic,
+        videoType: input.videoType,
+        content: videoContent,
+        params: videoParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (videoError) throw videoError;
 
     return {
       success: true,
       message: `Video content generated successfully for "${input.title}"`,
       agentName: 'videoContent',
       data: {
-        videoContentId: videoRef.id,
+        videoId: videoData[0].id,
         content: videoContent
       },
       error: undefined

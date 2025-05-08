@@ -1,4 +1,4 @@
-import { logAgentActivity } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 interface ProposalAgentInput extends BaseAgentInput {
@@ -10,6 +10,17 @@ interface ProposalAgentInput extends BaseAgentInput {
   services: string[];
   customRequirements?: string;
 }
+
+// Supabase helper function to replace Firebase's logAgentActivity
+const logAgentActivity = async (activityData: any) => {
+  const { error } = await supabase
+    .from('agent-activities')
+    .insert({
+      ...activityData,
+      created_at: new Date().toISOString()
+    });
+  if (error) throw error;
+};
 
 const proposalGeneratorAgent: Agent = {
   id: 'proposal-generator-agent',
@@ -53,7 +64,7 @@ const proposalGeneratorAgent: Agent = {
         termsAndConditions: 'Standard terms and conditions apply.'
       };
 
-      // Log to Firestore
+      // Log to Supabase
       await logAgentActivity({
         agentName: 'proposalGenerator',
         userId: proposalInput.userId,
@@ -74,7 +85,7 @@ const proposalGeneratorAgent: Agent = {
       };
 
     } catch (error) {
-      // Log error to Firestore
+      // Log error to Supabase
       await logAgentActivity({
         agentName: 'proposalGenerator',
         userId: proposalInput.userId,

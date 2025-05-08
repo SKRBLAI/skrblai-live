@@ -7,8 +7,7 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '@/utils/firebase';
+import { auth } from '@/utils/supabase-auth';
 import { useRouter } from 'next/navigation';
 
 export default function GettingStartedDashboard() {
@@ -16,8 +15,7 @@ export default function GettingStartedDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         router.push('/login');
       }

@@ -2,9 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { auth } from '@/utils/firebase';
+import { uploadFileToStorage } from '@/utils/supabase-helpers';
+import { supabase } from '@/utils/supabase';
 
 interface FileUploadCardProps {
   title: string;
@@ -55,38 +54,44 @@ export default function FileUploadCard({
       setProgress(10);
       
       // Get current user
-      const user = auth.currentUser;
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         throw new Error('You must be logged in to upload files');
       }
 
-      // Upload to Firebase Storage
-      const storage = getStorage();
-      const fileRef = ref(storage, `${intentType}/${user.uid}/${fileCategory}/${Date.now()}_${file.name}`);
+      // Upload file path
+      const filePath = `${intentType}/${user.id}/${fileCategory}/${Date.now()}_${file.name}`;
       
       setProgress(30);
-      await uploadBytes(fileRef, file);
+      // Upload to Supabase Storage
+      const result = await uploadFileToStorage(file, filePath);
+      
+      if (!result.success || !result.url) {
+        throw new Error('Failed to upload file');
+      }
       
       setProgress(70);
-      const downloadURL = await getDownloadURL(fileRef);
       
-      // Create a job in Firestore
-      const db = getFirestore();
-      const jobRef = await addDoc(collection(db, 'agent_jobs'), {
-        userId: user.uid,
-        title: `${title} - ${file.name}`,
-        fileUrl: downloadURL,
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-        category: fileCategory,
-        intentType: intentType,
-        userPrompt: prompt.trim() || `Process this ${fileCategory} file`,
-        status: 'pending',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        progress: 0
-      });
+      // Create a job in Supabase
+      const { error: jobError } = await supabase
+        .from('agent_jobs')
+        .insert({
+          userId: user.id,
+          title: `${title} - ${file.name}`,
+          fileUrl: result.url,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+          category: fileCategory,
+          intentType: intentType,
+          userPrompt: prompt.trim() || `Process this ${fileCategory} file`,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          progress: 0
+        });
+        
+      if (jobError) throw jobError;
       
       setProgress(100);
       setSuccess(true);

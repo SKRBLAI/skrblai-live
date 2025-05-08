@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { doc, getDoc } from 'firebase/firestore';
 import styles from './TaskDetail.module.css';
-import { db } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import { JobStatus } from '@/utils/agentJobStatus';
 
 interface TaskDetailProps {
@@ -35,14 +34,16 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
       try {
         setLoading(true);
         
-        const taskRef = doc(db, 'agent_jobs', taskId);
-        const taskSnap = await getDoc(taskRef);
+        const { data, error } = await supabase
+          .from('agent_jobs')
+          .select('*')
+          .eq('id', taskId)
+          .single();
         
-        if (taskSnap.exists()) {
-          setTask({
-            id: taskSnap.id,
-            ...taskSnap.data()
-          } as TaskData);
+        if (error) throw error;
+        
+        if (data) {
+          setTask(data as TaskData);
         } else {
           setError('Task not found');
         }
@@ -63,8 +64,8 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
     if (!timestamp) return 'N/A';
     
     try {
-      // Handle Firestore timestamp objects
-      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+      // Handle ISO string or timestamp
+      const date = new Date(timestamp);
       return date.toLocaleString();
     } catch (err) {
       console.error('Error formatting date:', err);

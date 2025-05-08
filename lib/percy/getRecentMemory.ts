@@ -1,19 +1,24 @@
-import { getAuth } from 'firebase/auth';
-import { db } from '@/lib/firebase';
-import { query, collection, where, orderBy, getDocs, limit } from 'firebase/firestore';
+import { supabase } from '@/utils/supabase';
+import { getCurrentUser } from '@/utils/supabase-auth';
 
-export async function getRecentPercyMemory() {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (!user) return [];
+export const getRecentPercyMemory = async () => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return [];
 
-  const q = query(
-    collection(db, 'percyMemory'),
-    where('userId', '==', user.uid),
-    orderBy('timestamp', 'desc'),
-    limit(5)
-  );
+    // Get recent memory from Supabase
+    const { data, error } = await supabase
+      .from('percy_memory')
+      .select('*')
+      .eq('userId', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
 
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => doc.data());
-}
+    if (error) throw error;
+    
+    return data || [];
+  } catch (error) {
+    console.error('Error fetching Percy memory:', error);
+    return [];
+  }
+};

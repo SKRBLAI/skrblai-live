@@ -1,4 +1,4 @@
-import { db, collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Site Generation Agent
@@ -66,33 +66,40 @@ const runSiteGen = async (input: SiteGenInput) =>  {
       }
     };
 
-    // Log the website generation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'sitegenAgent',
-      input,
-      businessName: input.businessName,
-      industry: input.industry,
-      timestamp: new Date().toISOString()
-    });
+    // Log the website generation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'sitegenAgent',
+        input,
+        businessName: input.businessName,
+        industry: input.industry,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated website structure to Firestore
-    const websiteRef = await addDoc(collection(db, 'websites'), {
-      userId: input.userId,
-      businessName: input.businessName,
-      industry: input.industry,
-      structure: websiteStructure,
-      params: siteParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed',
-      deploymentUrl: '',
-      repositoryUrl: ''
-    });
+    // Save the generated website structure to Supabase
+    const { data: websiteData, error: websiteError } = await supabase
+      .from('websites')
+      .insert({
+        userId: input.userId,
+        businessName: input.businessName,
+        industry: input.industry,
+        structure: websiteStructure,
+        params: siteParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed',
+        deploymentUrl: '',
+        repositoryUrl: ''
+      })
+      .select();
+    if (websiteError) throw websiteError;
 
     return {
       success: true,
       message: `Website structure generated successfully for ${input.businessName}`,
       data: {
-        websiteId: websiteRef.id,
+        websiteId: websiteData[0].id,
         structure: websiteStructure,
         metadata: {
           businessName: input.businessName,

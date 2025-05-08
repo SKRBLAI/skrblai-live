@@ -2,9 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { storage, db, auth } from '@/utils/firebase';
+import { uploadFileToStorage } from '@/utils/supabase-helpers';
+import { supabase } from '@/utils/supabase';
 
 interface FileUploadProps {
   category: string;
@@ -50,7 +49,8 @@ export default function FileUpload({
   const handleUpload = async () => {
     if (!file) return;
     
-    const user = auth.currentUser;
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setError('You must be logged in to upload files');
       return;
@@ -62,53 +62,49 @@ export default function FileUpload({
     try {
       // Create a unique filename
       const timestamp = Date.now();
-      const fileName = `${category}/${user.uid}/${timestamp}_${file.name}`;
-      const storageRef = ref(storage, fileName);
+      const fileName = `${category}/${user.id}/${timestamp}_${file.name}`;
       
-      // Start upload
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      // Start upload with progress simulation
+      setProgress(10);
       
-      // Listen for upload progress
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(progress);
-        },
-        (error) => {
-          console.error('Upload error:', error);
-          setError('Failed to upload file. Please try again.');
-          setUploading(false);
-        },
-        async () => {
-          // Upload complete
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          
-          // Save file metadata to Firestore
-          const fileData = {
-            userId: user.uid,
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            category,
-            storagePath: fileName,
-            downloadURL,
-            uploadedAt: serverTimestamp()
-          };
-          
-          const fileId = `${user.uid}_${timestamp}`;
-          await setDoc(doc(db, 'user_files', fileId), fileData);
-          
-          // Reset state
-          setUploading(false);
-          setFile(null);
-          setProgress(0);
-          if (fileInputRef.current) fileInputRef.current.value = '';
-          
-          // Callback with file data
-          onUploadComplete(downloadURL, fileData);
-        }
-      );
+      // Upload file to Supabase storage
+      const result = await uploadFileToStorage(file, fileName);
+      
+      setProgress(70);
+      
+      if (!result.success || !result.url) {
+        throw new Error('Failed to upload file');
+      }
+      
+      // Save file metadata to Supabase
+      const fileData = {
+        userId: user.id,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+        category,
+        storagePath: fileName,
+        downloadURL: result.url,
+        uploadedAt: new Date().toISOString()
+      };
+      
+      const { data, error: saveError } = await supabase
+        .from('user_files')
+        .insert(fileData)
+        .select();
+      
+      if (saveError) throw saveError;
+      
+      setProgress(100);
+      
+      // Reset state
+      setUploading(false);
+      setFile(null);
+      setProgress(0);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      
+      // Callback with file data
+      onUploadComplete(result.url, fileData);
     } catch (error) {
       console.error('Upload error:', error);
       setError('Failed to upload file. Please try again.');

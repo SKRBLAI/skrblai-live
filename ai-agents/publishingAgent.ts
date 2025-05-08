@@ -1,4 +1,4 @@
-import { logAgentActivity } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 interface PublishingAgentInput extends BaseAgentInput {
@@ -11,6 +11,17 @@ interface PublishingAgentInput extends BaseAgentInput {
   coverImageUrl: string;
   keywords: string[];
 }
+
+// Supabase helper function to replace Firebase's logAgentActivity
+const logAgentActivity = async (activityData: any) => {
+  const { error } = await supabase
+    .from('agent-activities')
+    .insert({
+      ...activityData,
+      created_at: new Date().toISOString()
+    });
+  if (error) throw error;
+};
 
 const runPublishing = async (input: PublishingAgentInput) => {
 
@@ -30,7 +41,7 @@ const runPublishing = async (input: PublishingAgentInput) => {
         'Initiating publishing process'
       ];
 
-      // Log to Firestore
+      // Log to Supabase
       await logAgentActivity({
         agentName: 'publishing',
         userId: input.userId,
@@ -60,7 +71,7 @@ const runPublishing = async (input: PublishingAgentInput) => {
       };
 
     } catch (error) {
-      // Log error to Firestore
+      // Log error to Supabase
       await logAgentActivity({
         agentName: 'publishing',
         userId: input.userId,

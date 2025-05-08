@@ -1,14 +1,24 @@
-import { getAuth } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { supabase } from '@/utils/supabase';
+import { getCurrentUser } from '@/utils/supabase-auth';
 
 export async function checkUserRole(): Promise<'free' | 'premium'> {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (!user) return 'free';
+  try {
+    const user = await getCurrentUser();
+    if (!user) return 'free';
 
-  const userDoc = await getDoc(doc(db, 'users', user.uid));
-  const data = userDoc.data();
+    // Check user role from Supabase
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('userId', user.id)
+      .maybeSingle();
 
-  return data?.stripeRole === 'premium' ? 'premium' : 'free';
+    if (error) throw error;
+    
+    // If no role is found or there's an error, default to free
+    return (data?.role === 'premium') ? 'premium' : 'free';
+  } catch (error) {
+    console.error('Error checking user role:', error);
+    return 'free';
+  }
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { auth } from '@/utils/firebase';
+import { auth } from '@/utils/supabase-auth';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import { PersistentPercy } from '@/components/assistant/PersistentPercy';
 

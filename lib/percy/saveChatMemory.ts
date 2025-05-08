@@ -1,15 +1,25 @@
-import { getAuth } from 'firebase/auth';
-import { db } from '@/lib/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { supabase } from '@/utils/supabase';
+import { getCurrentUser } from '@/utils/supabase-auth';
 
-export async function savePercyMemory(intent: string) {
-  const auth = getAuth();
-  const user = auth.currentUser;
-  if (!user) return;
-
-  await addDoc(collection(db, 'percyMemory'), {
-    userId: user.uid,
-    intent,
-    timestamp: new Date()
-  });
-}
+export const saveChatMemory = async (intent: string, message: string) => {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: 'No authenticated user' };
+    
+    const { error } = await supabase
+      .from('percy_memory')
+      .insert({
+        userId: user.id,
+        intent,
+        message,
+        created_at: new Date().toISOString()
+      });
+      
+    if (error) throw error;
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving chat memory:', error);
+    return { success: false, error };
+  }
+};

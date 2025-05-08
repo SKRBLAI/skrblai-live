@@ -1,3 +1,8 @@
+// This file has been deprecated in favor of Supabase
+// All Firebase functionality has been migrated to Supabase
+// Keeping this file as a reference but it's no longer in use
+
+/* 
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import type { Lead } from '@/types/lead';
@@ -183,3 +188,4 @@ interface AgentActivity extends BaseDocument {
 export const logAgentActivity = async (activityData: AgentActivity) => {
   return saveToFirestore('agentActivity', activityData);
 };
+*/

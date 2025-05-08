@@ -1,7 +1,6 @@
 'use client';
 
-import { signOut } from 'firebase/auth';
-import { auth } from '@/utils/firebase';
+import { signOut } from '@/utils/supabase-auth';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardHeader() {
@@ -9,8 +8,12 @@ export default function DashboardHeader() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      router.push('/');
+      const result = await signOut();
+      if (result.success) {
+        router.push('/');
+      } else {
+        console.error('Logout error:', result.error);
+      }
     } catch (error) {
       console.error('Logout error:', error);
     }

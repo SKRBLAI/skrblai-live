@@ -5,10 +5,9 @@ import agentRegistry from '@/lib/agents/agentRegistry';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
 import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
-import { getAuth } from 'firebase/auth';
-import { db } from '@/lib/firebase';
-import { addDoc, collection } from 'firebase/firestore';
-import { savePercyMemory } from '@/lib/percy/saveChatMemory';
+import { getCurrentUser } from '@/utils/supabase-auth';
+import { supabase } from '@/utils/supabase';
+import { saveChatMemory } from '@/lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
@@ -63,7 +62,7 @@ function PercyWidget() {
     }
   }, []);
 
-  // Check onboardingComplete from Firestore and localStorage
+  // Check onboardingComplete from Supabase and localStorage
   useEffect(() => {
     async function checkOnboarding() {
       let complete = false;
@@ -71,18 +70,20 @@ function PercyWidget() {
         complete = localStorage.getItem('onboardingComplete') === 'true';
       }
       try {
-        const { getAuth } = await import('firebase/auth');
-        const { db, getDoc, doc } = await import('@/utils/firebase');
-        const auth = getAuth();
-        const user = auth.currentUser;
+        const user = await getCurrentUser();
         if (user) {
-          const onboardingDoc = await getDoc(doc(db, 'users', user.uid, 'memory', 'onboarding'));
-          if (onboardingDoc.exists()) {
-            complete = onboardingDoc.data().onboardingComplete;
+          const { data, error } = await supabase
+            .from('user_settings')
+            .select('onboardingComplete')
+            .eq('userId', user.id)
+            .maybeSingle();
+            
+          if (!error && data) {
+            complete = data.onboardingComplete;
           }
         }
       } catch (e) {
-        // Ignore Firestore onboarding check errors, fallback to localStorage only
+        // Ignore Supabase onboarding check errors, fallback to localStorage only
       }
       setShowOnboarding(!complete);
       setShowAgentSuggestions(complete);
@@ -96,7 +97,7 @@ function PercyWidget() {
     checkOnboarding();
   }, []);
 
-  // Fetch Firestore-powered Percy memory on open
+  // Fetch Supabase-powered Percy memory on open
   useEffect(() => {
     if (!routerResult) return;
 
@@ -155,51 +156,72 @@ function PercyWidget() {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn't find an agent for "${intent}".` }]);
       return;
     }
-    const auth = getAuth();
-    const user = auth.currentUser as any;
+    
+    const user = await getCurrentUser();
     if (!user) {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Please sign in to use Percy workflows.` }]);
       return;
     }
+    
+    // Check if user has premium role
+    const { data: userData, error: userError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('userId', user.id)
+      .maybeSingle();
+      
     // PREMIUM CHECK: Show upsell if agent is premium and user is not premium
-    if (agent.premium && user.stripeRole !== 'premium') {
+    if (agent.premium && (!userData || userData.role !== 'premium')) {
       setPendingAgent(agent);
       setShowUpsellModal(true);
       return;
     }
+    
     setRunning(true);
     setMessages((prev) => [...prev, { role: 'assistant', text: `Running ${agent.name} agent for you...` }]);
     const payload = { projectName: 'SKRBL AI' };
     const result = await runAgentWorkflow(agent.id, payload);
-    await addDoc(collection(db, 'workflowLogs'), {
-      userId: user.uid,
-      agentId: agent.id,
-      result: result.result,
-      status: result.status,
-      timestamp: new Date()
-    });
+    
+    // Log workflow in Supabase
+    await supabase
+      .from('workflowLogs')
+      .insert({
+        userId: user.id,
+        agentId: agent.id,
+        result: result.result,
+        status: result.status,
+        timestamp: new Date().toISOString()
+      });
+      
     await sendWorkflowResultEmail({ email: user.email, agentId: agent.id, result: result.result });
-    await savePercyMemory(agent.intent ?? '');
+    await saveChatMemory(agent.intent ?? '', 'Agent execution');
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
-    // Track agent usage in Firestore
+    
+    // Track agent usage in Supabase
     try {
-      const { getAuth } = await import('firebase/auth');
-      const { db, doc, setDoc, getDoc, serverTimestamp } = await import('@/utils/firebase');
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (user) {
-        if (typeof agent.intent === 'string' && agent.intent.length > 0) {
-          const usageRef = doc(db, 'users', user.uid, 'memory', agent.intent);
-          const usageSnap = await getDoc(usageRef);
-          const prevCount = usageSnap.exists() ? usageSnap.data().count || 0 : 0;
-          await setDoc(usageRef, {
+      if (user && typeof agent.intent === 'string' && agent.intent.length > 0) {
+        // Get existing usage count
+        const { data: usageData, error: usageError } = await supabase
+          .from('agent_usage')
+          .select('count')
+          .eq('userId', user.id)
+          .eq('intent', agent.intent)
+          .maybeSingle();
+          
+        const prevCount = (!usageError && usageData) ? usageData.count || 0 : 0;
+        
+        // Upsert usage data
+        await supabase
+          .from('agent_usage')
+          .upsert({
+            userId: user.id,
             intent: agent.intent,
             count: prevCount + 1,
-            updatedAt: serverTimestamp(),
-          });
-        }
+            updatedAt: new Date().toISOString()
+          }, { onConflict: 'userId,intent' });
       }
     } catch (e) {/* ignore */}
+    
     setMessages((prev) => [
       ...prev,
       { role: 'assistant', text: `✅ ${agent.name} completed! Result: ${result.result}` }

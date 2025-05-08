@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
-import { db, auth } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,8 +34,8 @@ interface TaskData {
   id: string;
   type?: string;
   status?: 'queued' | 'in_progress' | 'complete' | 'failed';
-  createdAt: Timestamp | Date | { seconds: number; nanoseconds: number };
-  updatedAt?: Timestamp | Date | { seconds: number; nanoseconds: number };
+  createdAt: string;
+  updatedAt?: string;
   userId: string;
   [key: string]: any; // For other properties that might exist
 }
@@ -59,7 +58,8 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        const user = auth.currentUser;
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         // Calculate date range based on timeRange
@@ -79,19 +79,17 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
             startDate.setFullYear(startDate.getFullYear() - 2);
         }
 
-        // Query for user's tasks
-        const tasksQuery = query(
-          collection(db, 'agent_jobs'),
-          where('userId', '==', user.uid),
-          where('createdAt', '>=', startDate),
-          orderBy('createdAt', 'desc')
-        );
+        // Query for user's tasks from Supabase
+        const { data: tasksData, error } = await supabase
+          .from('agent_jobs')
+          .select('*')
+          .eq('userId', user.id)
+          .gte('createdAt', startDate.toISOString())
+          .order('createdAt', { ascending: false });
 
-        const querySnapshot = await getDocs(tasksQuery);
-        const tasks = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as TaskData[];
+        if (error) throw error;
+        
+        const tasks = tasksData as TaskData[];
 
         // Process tasks by type
         const typeCount: Record<string, number> = {};
@@ -123,30 +121,9 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
             
             // Calculate completion time if available
             if (task.updatedAt && task.createdAt) {
-              // Parse createdAt to a Date
-              let createdAtDate: Date;
-              if (task.createdAt instanceof Timestamp) {
-                createdAtDate = task.createdAt.toDate();
-              } else if (task.createdAt instanceof Date) {
-                createdAtDate = task.createdAt;
-              } else if (typeof task.createdAt === 'object' && 'seconds' in task.createdAt) {
-                createdAtDate = new Date(task.createdAt.seconds * 1000);
-              } else {
-                createdAtDate = new Date();
-              }
-
-              // Parse updatedAt to a Date
-              let updatedAtDate: Date;
-              if (task.updatedAt instanceof Timestamp) {
-                updatedAtDate = task.updatedAt.toDate();
-              } else if (task.updatedAt instanceof Date) {
-                updatedAtDate = task.updatedAt;
-              } else if (typeof task.updatedAt === 'object' && 'seconds' in task.updatedAt) {
-                updatedAtDate = new Date(task.updatedAt.seconds * 1000);
-              } else {
-                updatedAtDate = new Date();
-              }
-                
+              const createdAtDate = new Date(task.createdAt);
+              const updatedAtDate = new Date(task.updatedAt);
+              
               const completionTimeMinutes = (updatedAtDate.getTime() - createdAtDate.getTime()) / (1000 * 60);
               if (completionTimeMinutes > 0) {
                 times.push(completionTimeMinutes);
@@ -155,19 +132,7 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
           }
           
           // Daily tasks count
-          let createdAtDate: Date;
-          if (task.createdAt instanceof Timestamp) {
-            createdAtDate = task.createdAt.toDate();
-          } else if (task.createdAt instanceof Date) {
-            createdAtDate = task.createdAt;
-          } else if (typeof task.createdAt === 'object' && 'seconds' in task.createdAt) {
-            // Handle Firebase timestamp object format
-            createdAtDate = new Date(task.createdAt.seconds * 1000);
-          } else {
-            // Fallback
-            createdAtDate = new Date();
-          }
-            
+          const createdAtDate = new Date(task.createdAt);
           const dateStr = createdAtDate.toISOString().split('T')[0];
           dailyTasks[dateStr] = (dailyTasks[dateStr] || 0) + 1;
         });
@@ -257,14 +222,14 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
     labels: dailyTasksData.labels,
     datasets: [
       {
-        label: 'Daily Tasks',
+        label: 'Tasks Created',
         data: dailyTasksData.data,
-        fill: false,
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        tension: 0.4,
-      },
-    ],
+        borderColor: 'rgba(54, 162, 235, 1)',
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        fill: true,
+        tension: 0.4
+      }
+    ]
   };
 
   const chartOptions = {
@@ -272,142 +237,143 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: 'top' as const,
         labels: {
-          color: 'rgb(200, 200, 200)',
-          font: {
-            size: 12
-          }
+          color: 'rgba(255, 255, 255, 0.7)'
         }
       },
+      title: {
+        display: false
+      },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: 'white',
-        bodyColor: 'white',
-        bodyFont: {
-          size: 13
-        },
+        backgroundColor: 'rgba(20, 25, 39, 0.9)',
+        titleColor: 'rgba(255, 255, 255, 0.9)',
+        bodyColor: 'rgba(255, 255, 255, 0.7)',
+        borderColor: 'rgba(54, 162, 235, 0.5)',
+        borderWidth: 1,
         padding: 10,
-        cornerRadius: 5,
-        displayColors: true
+        titleFont: {
+          size: 14
+        },
+        bodyFont: {
+          size: 12
+        }
       }
     },
     scales: {
       x: {
-        ticks: {
-          color: 'rgb(150, 150, 150)',
-        },
         grid: {
-          color: 'rgba(50, 50, 50, 0.3)',
+          color: 'rgba(255, 255, 255, 0.1)'
+        },
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.7)'
         }
       },
       y: {
-        ticks: {
-          color: 'rgb(150, 150, 150)',
-        },
         grid: {
-          color: 'rgba(50, 50, 50, 0.3)',
+          color: 'rgba(255, 255, 255, 0.1)'
         },
-        beginAtZero: true
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.7)'
+        }
       }
     }
   };
 
-  if (loading) {
-    return (
-      <div className="h-64 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-electric-blue border-t-transparent animate-spin"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-8">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-gray-400 text-sm mb-2">Total Tasks</h3>
-          <p className="text-3xl font-bold text-white">
-            {Object.values(tasksByType).reduce((sum, count) => sum + count, 0)}
-          </p>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-gray-400 text-sm mb-2">Completion Rate</h3>
-          <p className="text-3xl font-bold text-white">{completionRate.toFixed(1)}%</p>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-gray-400 text-sm mb-2">Avg. Completion Time</h3>
-          <p className="text-3xl font-bold text-white">
-            {getAverageCompletionTime().toFixed(1)} min
-          </p>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-gray-400 text-sm mb-2">Completed Tasks</h3>
-          <p className="text-3xl font-bold text-white">{tasksByStatus.complete || 0}</p>
-        </motion.div>
-      </div>
+    <div className="bg-gray-900/50 rounded-xl backdrop-blur-md p-6 border border-gray-800">
+      <h2 className="text-xl font-semibold text-white mb-6">Analytics Dashboard</h2>
       
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-lg font-semibold text-white mb-4">Tasks by Type</h3>
-          <div className="h-80">
-            <Bar data={taskTypeChartData} options={chartOptions} />
-          </div>
-        </motion.div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className="bg-gray-800 rounded-xl p-6"
-        >
-          <h3 className="text-lg font-semibold text-white mb-4">Tasks by Status</h3>
-          <div className="h-80">
-            <Pie data={taskStatusChartData} options={chartOptions} />
-          </div>
-        </motion.div>
-      </div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.7 }}
-        className="bg-gray-800 rounded-xl p-6"
-      >
-        <h3 className="text-lg font-semibold text-white mb-4">Task Activity Over Time</h3>
-        <div className="h-80">
-          <Line data={dailyTasksChartData} options={chartOptions} />
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-8 h-8 border-2 border-electric-blue rounded-full border-t-transparent"
+          />
         </div>
-      </motion.div>
+      ) : (
+        <>
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-gray-800/50 p-4 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Total Tasks</h3>
+              <p className="text-2xl font-bold text-white">
+                {Object.values(tasksByType).reduce((a, b) => a + b, 0)}
+              </p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-gray-800/50 p-4 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Completion Rate</h3>
+              <p className="text-2xl font-bold text-white">
+                {completionRate.toFixed(1)}%
+              </p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-gray-800/50 p-4 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Avg. Completion Time</h3>
+              <p className="text-2xl font-bold text-white">
+                {getAverageCompletionTime().toFixed(1)} min
+              </p>
+            </motion.div>
+          </div>
+          
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="bg-gray-800/30 p-4 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Task Types</h3>
+              <div className="h-64">
+                <Pie data={taskTypeChartData} options={chartOptions} />
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+              className="bg-gray-800/30 p-4 rounded-lg border border-gray-700"
+            >
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Task Status</h3>
+              <div className="h-64">
+                <Pie data={taskStatusChartData} options={chartOptions} />
+              </div>
+            </motion.div>
+          </div>
+          
+          {/* Activity Over Time */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-gray-800/30 p-4 rounded-lg border border-gray-700"
+          >
+            <h3 className="text-sm font-medium text-gray-400 mb-3">Activity Over Time</h3>
+            <div className="h-72">
+              <Line data={dailyTasksChartData} options={chartOptions} />
+            </div>
+          </motion.div>
+        </>
+      )}
     </div>
   );
 }

@@ -1,5 +1,4 @@
-import { doc, updateDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { supabase } from './supabase';
 
 // Job status options
 export type JobStatus = 'queued' | 'in_progress' | 'complete' | 'failed';
@@ -22,10 +21,13 @@ export interface JobUpdate {
 export const updateJobStatus = async (jobId: string, update: JobUpdate) => {
   try {
     // First check if the job exists
-    const jobRef = doc(db, 'agent_jobs', jobId);
-    const jobSnap = await getDoc(jobRef);
+    const { data: job, error: fetchError } = await supabase
+      .from('agent_jobs')
+      .select('*')
+      .eq('id', jobId)
+      .single();
     
-    if (!jobSnap.exists()) {
+    if (fetchError || !job) {
       console.error(`Job ${jobId} not found`);
       return { success: false, message: `Job ${jobId} not found` };
     }
@@ -33,11 +35,16 @@ export const updateJobStatus = async (jobId: string, update: JobUpdate) => {
     // Prepare update data
     const updateData = {
       ...update,
-      updatedAt: serverTimestamp()
+      updatedAt: new Date().toISOString()
     };
     
     // Update the job
-    await updateDoc(jobRef, updateData);
+    const { error: updateError } = await supabase
+      .from('agent_jobs')
+      .update(updateData)
+      .eq('id', jobId);
+    
+    if (updateError) throw updateError;
     
     console.log(`Job ${jobId} updated with status: ${update.status || 'unchanged'}`);
     return { success: true, message: `Job ${jobId} updated successfully` };

@@ -6,11 +6,10 @@ import { useState, useEffect } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import UpsellModal from '@/components/percy/UpsellModal';
-import { db } from '@/lib/firebase';
-import { collection, query, where, orderBy, getDocs, limit, addDoc } from 'firebase/firestore';
+import { supabase } from '@/utils/supabase';
 
 import { motion } from 'framer-motion';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { auth, getCurrentUser } from '@/utils/supabase-auth';
 
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -54,17 +53,25 @@ export default function Dashboard() {
 
   // Stripe Role Gating: restrict premium dashboard sections
   useEffect(() => {
-    const auth = getAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         // User is authenticated, continue
-        // Fetch recent agents from Firestore Percy memory
+        // Fetch recent agents from Supabase Percy memory
         const mem = await getRecentPercyMemory();
         setRecentAgents(mem);
-        // Fetch workflow logs
-        const q = query(collection(db, 'workflowLogs'), where('userId', '==', user.uid), orderBy('timestamp', 'desc'), limit(10));
-        const logsSnap = await getDocs(q);
-        setWorkflowLogs(logsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        
+        // Fetch workflow logs from Supabase
+        const { data: logs, error } = await supabase
+          .from('workflowLogs')
+          .select('*')
+          .eq('userId', user.id)
+          .order('timestamp', { ascending: false })
+          .limit(10);
+          
+        if (!error && logs) {
+          setWorkflowLogs(logs.map(log => ({ id: log.id, ...log })));
+        }
+        
         // Set onboarding goal and recommended
         const onboardingGoal = localStorage.getItem('userGoal');
         if (onboardingGoal) {
@@ -74,7 +81,7 @@ export default function Dashboard() {
         const role = await checkUserRole();
         setUserRole(role);
 
-        // Simulate fetching last used agents from localStorage or Firestore
+        // Simulate fetching last used agents from localStorage or Supabase
         let used: any[] = [];
         if (typeof window !== 'undefined') {
           const last = localStorage.getItem('lastUsedAgent');
@@ -95,7 +102,7 @@ export default function Dashboard() {
           }
         }
         setLastUsed(used.slice(0, 5));
-        // Simulate activity timeline (replace with Firestore in prod)
+        // Simulate activity timeline (replace with Supabase in prod)
         setActivity(used.map((a, i) => ({
           name: a.name,
           intent: a.intent,
@@ -116,13 +123,17 @@ export default function Dashboard() {
   // Workflow handler with Resend email confirmation
   const handleRunWorkflow = async (agentId: string, payload: any, user: any) => {
     const result = await runAgentWorkflow(agentId, payload);
-    await addDoc(collection(db, 'workflowLogs'), {
-      userId: user.uid,
-      agentId,
-      result: result.result,
-      status: result.status,
-      timestamp: new Date()
-    });
+    
+    const { error } = await supabase
+      .from('workflowLogs')
+      .insert({
+        userId: user.id,
+        agentId,
+        result: result.result,
+        status: result.status,
+        timestamp: new Date().toISOString()
+      });
+      
     if (user.email) {
       await sendWorkflowResultEmail({
         email: user.email,
@@ -248,54 +259,40 @@ export default function Dashboard() {
                       const agent = agentRegistry.find((a: any) => a.id === log.agentId || a.intent === log.agentId);
                       return (
                         <tr key={log.id} className="border-b border-white/10 hover:bg-white/10">
+                          <td className="py-2 px-4">{agent?.name || log.agentId}</td>
+                          <td className="py-2 px-4">{new Date(log.timestamp).toLocaleString()}</td>
                           <td className="py-2 px-4">
-                            {agent ? (
-                              <a href={agent.route || ('/services/' + agent.id)} className="text-teal-300 hover:underline">{agent.name}</a>
-                            ) : (
-                              <span className="text-gray-400">{log.agentId}</span>
-                            )}
+                            <span className={`rounded-full px-2 py-0.5 text-xs ${log.status === 'success' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                              {log.status}
+                            </span>
                           </td>
-                          <td className="py-2 px-4">{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString() : new Date(log.timestamp).toLocaleString()}</td>
-                          <td className="py-2 px-4">
-                            {log.status === 'success' ? <span className="text-green-400">✔️</span> : <span className="text-red-400">❌</span>}
-                          </td>
-                          <td className="py-2 px-4 max-w-xs truncate" title={log.result}>{log.result?.slice(0, 60) || ''}{log.result?.length > 60 ? '…' : ''}</td>
+                          <td className="py-2 px-4 truncate max-w-xs">{log.result ? log.result.substring(0, 50) + '...' : 'No result'}</td>
                         </tr>
                       );
                     })}
+                    {workflowLogs.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="py-4 px-4 text-center text-gray-400">No workflow logs found</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
-            {/* Premium Modules Gating Example */}
-            {userRole === 'premium' ? (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-2 text-yellow-400">Premium Modules</h2>
-                <div className="flex gap-4">
-                  <div className="glass-card p-4 rounded-xl border border-yellow-400 text-yellow-200">Advanced Analytics</div>
-                  <div className="glass-card p-4 rounded-xl border border-yellow-400 text-yellow-200">Video Content Queue</div>
-                </div>
-              </div>
-            ) : (
-              <div className="mb-8">
-                <button
-                  className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-yellow-400 to-pink-400 text-white font-bold shadow-glow hover:scale-105 transition-all"
-                  onClick={() => setShowUpsell(true)}
-                >
-                  Upgrade to Premium for More Features
-                </button>
-              </div>
-            )}
+
+            {/* Current Section */}
             {renderSection()}
           </motion.div>
         </main>
       </div>
+
       {/* Upsell Modal */}
-      {showUpsell && upsellAgent && (
-        <UpsellModal agent={upsellAgent} onClose={() => setShowUpsell(false)} />
-      )}
-      {showUpsell && !upsellAgent && (
-        <UpsellModal agent={{ name: 'SKRBL Premium', description: 'Unlock all advanced agents, analytics, and priority support.' }} onClose={() => setShowUpsell(false)} />
+      {showUpsell && (
+        <UpsellModal 
+          isOpen={showUpsell}
+          onClose={() => setShowUpsell(false)}
+          agent={upsellAgent}
+        />
       )}
     </div>
   );

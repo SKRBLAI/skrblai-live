@@ -9,8 +9,7 @@ import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 import { useEffect, useState } from 'react';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { app } from '@/utils/firebase';
+import { auth } from '@/utils/supabase-auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -19,8 +18,7 @@ export default function MarketingDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const auth = getAuth(app);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         router.push('/login');
       }

@@ -1,3 +1,5 @@
+// DEPRECATED: Firebase configuration - to be removed after Supabase migration is complete
+/* 
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -19,3 +21,7 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 export { app, auth, db, storage };
+*/
+
+// New Supabase client export
+export { supabase } from '@/utils/supabase';

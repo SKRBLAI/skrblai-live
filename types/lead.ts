@@ -1,4 +1,4 @@
-import type { FirestoreTimestamp } from '@/utils/firebase';
+import type { SupabaseTimestamp } from './supabase';
 
 export interface Lead {
   name: string;
@@ -13,5 +13,5 @@ export interface Lead {
   userLink?: string;
   userFileUrl?: string;
   userFileName?: string;
-  timestamp?: FirestoreTimestamp;
+  timestamp?: SupabaseTimestamp;
 }

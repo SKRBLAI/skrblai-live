@@ -1,5 +1,4 @@
-import { db } from '@/utils/firebase';
-import { collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -107,31 +106,38 @@ const runAnalytics = async (input: AnalyticsInput) =>  {
       }
     };
 
-    // Log the analytics generation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'analyticsAgent',
-      input,
-      dataSource: input.dataSource,
-      timeframe: input.timeframe,
-      timestamp: new Date().toISOString()
-    });
+    // Log the analytics generation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'analyticsAgent',
+        input,
+        dataSource: input.dataSource,
+        timeframe: input.timeframe,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated analytics to Firestore
-    const analyticsRef = await addDoc(collection(db, 'analytics-reports'), {
-      userId: input.userId,
-      dataSource: input.dataSource,
-      timeframe: input.timeframe,
-      results: analyticsResults,
-      params: analyticsParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated analytics to Supabase
+    const { data: analyticsData, error: analyticsError } = await supabase
+      .from('analytics-reports')
+      .insert({
+        userId: input.userId,
+        dataSource: input.dataSource,
+        timeframe: input.timeframe,
+        results: analyticsResults,
+        params: analyticsParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (analyticsError) throw analyticsError;
 
     return {
       success: true,
       message: `Analytics report generated successfully for ${input.dataSource} data over the ${input.timeframe} timeframe`,
       data: {
-        analyticsReportId: analyticsRef.id,
+        analyticsReportId: analyticsData[0].id,
         results: analyticsResults
       }
     };

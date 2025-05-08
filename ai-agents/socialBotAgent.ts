@@ -1,4 +1,4 @@
-import { db, collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -111,35 +111,42 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       await updateJobProgress(input.jobId, 50);
     }
     
-    // Log the social content generation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'socialBotAgent',
-      input,
-      businessName: input.businessName,
-      platforms: input.platforms,
-      timestamp: new Date().toISOString()
-    });
+    // Log the social content generation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'socialBotAgent',
+        input,
+        businessName: input.businessName,
+        platforms: input.platforms,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
     // Update progress to 80%
     if (input.jobId) {
       await updateJobProgress(input.jobId, 80);
     }
     
-    // Save the generated social content to Firestore
-    const socialRef = await addDoc(collection(db, 'social-content'), {
-      userId: input.userId,
-      businessName: input.businessName,
-      industry: input.industry,
-      content: socialContent,
-      params: socialParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated social content to Supabase
+    const { data: socialData, error: socialError } = await supabase
+      .from('social-content')
+      .insert({
+        userId: input.userId,
+        businessName: input.businessName,
+        industry: input.industry,
+        content: socialContent,
+        params: socialParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (socialError) throw socialError;
 
     // Mark job as complete if jobId is provided
     if (input.jobId) {
       await markJobComplete(input.jobId, {
-        socialContentId: socialRef.id,
+        socialContentId: socialData[0].id,
         platformCount: input.platforms.length,
         postCount: socialParams.postCount
       });
@@ -149,7 +156,7 @@ const runSocialBot = async (input: SocialBotInput) =>  {
       success: true,
       message: `Social media content generated successfully for ${input.businessName} on ${input.platforms.join(', ')}`,
       data: {
-        socialContentId: socialRef.id,
+        socialContentId: socialData[0].id,
         content: socialContent,
         metadata: {
           businessName: input.businessName,

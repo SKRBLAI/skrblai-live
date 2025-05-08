@@ -3,8 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { app } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 import PercyAvatar from '@/components/home/PercyAvatar';
 import type { BookPublishingState, FileUploadStatus, BookPublishingResponse } from '@/types/book-publishing';
 import classNames from 'classnames';
@@ -39,18 +38,62 @@ export default function PublishingAssistantPanel({ className = '' }: { className
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
+    
     setState(prev => ({ ...prev, uploadedFile: file, uploadedFileName: file.name }));
-    const storage = getStorage(app);
-    const storageRef = ref(storage, `public-manuscripts/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on('state_changed',
-      (snapshot) => setUploadStatus(prev => ({ ...prev, progress: (snapshot.bytesTransferred / snapshot.totalBytes) * 100 })),
-      (error) => setUploadStatus(prev => ({ ...prev, error: error.message })),
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        setState(prev => ({ ...prev, uploadedFileUrl: url }));
-        setUploadStatus(prev => ({ ...prev, success: true }));
+    
+    // Generate a unique file name
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+    
+    try {
+      // Create a FormData object to track upload progress
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Use XHR to track progress
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          setUploadStatus(prev => ({ ...prev, progress }));
+        }
       });
+      
+      xhr.addEventListener('load', async () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          // Upload to Supabase storage
+          const { data, error } = await supabase.storage
+            .from('public-manuscripts')
+            .upload(fileName, file);
+            
+          if (error) throw error;
+          
+          // Get public URL
+          const { data: urlData } = supabase.storage
+            .from('public-manuscripts')
+            .getPublicUrl(fileName);
+            
+          setState(prev => ({
+            ...prev,
+            uploadedFileUrl: urlData.publicUrl
+          }));
+          setUploadStatus(prev => ({ ...prev, success: true }));
+        } else {
+          throw new Error('Upload failed');
+        }
+      });
+      
+      xhr.addEventListener('error', () => {
+        setUploadStatus(prev => ({ ...prev, error: 'Upload failed' }));
+      });
+      
+      // Simulate upload with XHR (this is just for progress tracking)
+      xhr.open('POST', '/api/dummy-upload');
+      xhr.send(formData);
+      
+    } catch (error: any) {
+      setUploadStatus(prev => ({ ...prev, error: error.message }));
+    }
   }, []);
 
   const removeFile = useCallback(() => {
@@ -87,7 +130,7 @@ export default function PublishingAssistantPanel({ className = '' }: { className
             { title: 'Content Editing', description: 'Enhance clarity and style', timeline: '3-5 days' },
             { title: 'Publishing Prep', description: 'Final formatting and export', timeline: '2-3 days' }
           ],
-          recommendations: ['Add more depth to Chapter 1', 'Clarify your protagonist’s journey'],
+          recommendations: ['Add more depth to Chapter 1', 'Clarify your protagonist's journey'],
           nextSteps: ['Review edits', 'Upload final draft'],
           estimatedCompletion: '7-10 days'
         }

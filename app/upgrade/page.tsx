@@ -1,9 +1,8 @@
 'use client';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { getAuth } from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from '@/lib/firebase';
+import { supabase } from "@/utils/supabase";
+import { getCurrentUser } from "@/utils/supabase-auth";
 import { useRouter } from "next/navigation";
 
 const pricingTiers = [
@@ -48,15 +47,21 @@ export default function UpgradePage() {
   const [success, setSuccess] = useState(false);
   const router = useRouter();
 
-  // Simulate Stripe checkout and Firestore role update
+  // Simulate Stripe checkout and Supabase role update
   const handleUpgrade = async () => {
     setIsUpgrading(true);
     // Simulate Stripe checkout...
     setTimeout(async () => {
-      const auth = getAuth();
-      const user = auth.currentUser;
+      const user = await getCurrentUser();
       if (user) {
-        await updateDoc(doc(db, "users", user.uid), { stripeRole: "premium" });
+        // Update role in Supabase
+        await supabase
+          .from("user_roles")
+          .upsert({ 
+            userId: user.id, 
+            role: "premium",
+            updatedAt: new Date().toISOString() 
+          }, { onConflict: 'userId' });
       }
       setSuccess(true);
       setIsUpgrading(false);
@@ -141,7 +146,7 @@ export default function UpgradePage() {
             {testimonials.map(t => (
               <div key={t.name} className="bg-white/10 border border-white/10 rounded-xl p-6 text-gray-200">
                 <div className="mb-2 font-bold">{t.name}</div>
-                <div className="italic">“{t.quote}”</div>
+                <div className="italic">"{t.quote}"</div>
               </div>
             ))}
           </div>

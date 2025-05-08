@@ -1,4 +1,4 @@
-import { db, collection, addDoc } from '@/utils/firebase';
+import { supabase } from '@/utils/supabase';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -50,31 +50,38 @@ const runAdCreative = async (input: AdCreativeInput) => {
       adParams
     );
 
-    // Log the ad creation to Firestore
-    await addDoc(collection(db, 'agent-logs'), {
-      agent: 'adCreativeAgent',
-      input,
-      productName: input.productName,
-      platform: input.platform,
-      timestamp: new Date().toISOString()
-    });
+    // Log the ad creation to Supabase
+    const { error: logError } = await supabase
+      .from('agent-logs')
+      .insert({
+        agent: 'adCreativeAgent',
+        input,
+        productName: input.productName,
+        platform: input.platform,
+        timestamp: new Date().toISOString()
+      });
+    if (logError) throw logError;
 
-    // Save the generated ad creative to Firestore
-    const adRef = await addDoc(collection(db, 'ad-creatives'), {
-      userId: input.userId,
-      productName: input.productName,
-      platform: input.platform,
-      adCreative,
-      params: adParams,
-      createdAt: new Date().toISOString(),
-      status: 'completed'
-    });
+    // Save the generated ad creative to Supabase
+    const { data: adData, error: adError } = await supabase
+      .from('ad-creatives')
+      .insert({
+        userId: input.userId,
+        productName: input.productName,
+        platform: input.platform,
+        adCreative,
+        params: adParams,
+        createdAt: new Date().toISOString(),
+        status: 'completed'
+      })
+      .select();
+    if (adError) throw adError;
 
     return {
       success: true,
       message: `Ad creative generated successfully for ${input.productName} on ${input.platform}`,
       data: {
-        adCreativeId: adRef.id,
+        adCreativeId: adData[0].id,
         adCreative,
         metadata: {
           productName: input.productName,
