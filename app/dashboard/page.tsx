@@ -1,6 +1,8 @@
 'use client';
 
+// Configure dynamic rendering and revalidation at the page level
 export const dynamic = 'force-dynamic';
+export const revalidate = 0; // Disable static page generation
 
 import { useState, useEffect } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
@@ -31,9 +33,6 @@ import PercyAvatar from "@/components/home/PercyAvatar";
 
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
-
-
-export const revalidate = 0;
 
 export default function Dashboard() {
   const [recentAgents, setRecentAgents] = useState<any[]>([]);
@@ -289,7 +288,6 @@ export default function Dashboard() {
       {/* Upsell Modal */}
       {showUpsell && (
         <UpsellModal 
-          isOpen={showUpsell}
           onClose={() => setShowUpsell(false)}
           agent={upsellAgent}
         />

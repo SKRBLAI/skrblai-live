@@ -3,6 +3,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import PercyAvatar from "@/components/home/PercyAvatar";
+import PercyProvider from 'components/assistant/PercyProvider';
+import PageLayout from '@/components/layout/PageLayout';
 
 // Enhanced Academy Missions
 const MISSIONS = [
@@ -34,11 +36,6 @@ const MISSIONS = [
 
 type MissionState = Record<string, boolean>;
 
-
-import PercyProvider from 'components/assistant/PercyProvider';
-import PageLayout from '@/components/layout/PageLayout';
-
-export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 export default function PercyAcademyPage() {

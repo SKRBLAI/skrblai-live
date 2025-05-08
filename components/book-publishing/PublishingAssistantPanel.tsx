@@ -94,7 +94,7 @@ export default function PublishingAssistantPanel({ className = '' }: { className
     } catch (error: any) {
       setUploadStatus(prev => ({ ...prev, error: error.message }));
     }
-  }, [setState, setUploadStatus, supabase.storage]);
+  }, [setState, setUploadStatus]);
 
   const removeFile = useCallback(() => {
     setState(prev => ({ ...prev, uploadedFile: null, uploadedFileName: '', uploadedFileUrl: '' }));

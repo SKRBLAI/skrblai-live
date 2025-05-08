@@ -40,27 +40,36 @@ export default function SignupPage() {
       if (result.success) {
         router.push('/dashboard');
       } else {
-        // Map Firebase error codes to user-friendly messages
+        // Handle Supabase error object
         let message = 'Failed to create account.';
         if (result.error) {
-          if (result.error.includes('auth/email-already-in-use')) {
+          // Check if result.error is an object with message property
+          const errorMessage = typeof result.error === 'string' 
+            ? result.error 
+            : (result.error as any)?.message || 'Failed to create account.';
+          
+          if (errorMessage.includes('already registered')) {
             message = 'This email is already registered. Please log in or use a different email.';
-          } else if (result.error.includes('auth/invalid-email')) {
+          } else if (errorMessage.includes('invalid email')) {
             message = 'Invalid email address. Please enter a valid email.';
-          } else if (result.error.includes('auth/weak-password')) {
+          } else if (errorMessage.includes('password')) {
             message = 'Password is too weak. Please choose a stronger password.';
-          } else if (result.error.includes('auth/operation-not-allowed')) {
+          } else if (errorMessage.includes('not allowed')) {
             message = 'Signups are currently unavailable. Please contact support or try again later.';
           } else {
-            message = result.error;
+            message = errorMessage;
           }
         }
         setError(message);
       }
     } catch (err: any) {
       // Handle unexpected errors
-      let message = err.message || 'An unexpected error occurred.';
-      if (message.includes('auth/operation-not-allowed')) {
+      const errorMessage = typeof err.message === 'string' 
+        ? err.message 
+        : 'An unexpected error occurred.';
+      
+      let message = errorMessage;
+      if (errorMessage.includes('not allowed')) {
         message = 'Signups are currently unavailable. Please contact support or try again later.';
       }
       setError(message);

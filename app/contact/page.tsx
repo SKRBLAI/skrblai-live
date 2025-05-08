@@ -6,8 +6,6 @@ import Link from 'next/link';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 
-
-export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
 export default function ContactPage() {

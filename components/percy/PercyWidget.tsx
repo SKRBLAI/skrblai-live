@@ -193,7 +193,9 @@ function PercyWidget() {
         timestamp: new Date().toISOString()
       });
       
-    await sendWorkflowResultEmail({ email: user.email, agentId: agent.id, result: result.result });
+    if (user.email) {
+      await sendWorkflowResultEmail({ email: user.email, agentId: agent.id, result: result.result });
+    }
     await saveChatMemory(agent.intent ?? '', 'Agent execution');
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
     

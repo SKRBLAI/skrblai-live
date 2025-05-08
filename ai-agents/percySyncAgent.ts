@@ -90,7 +90,16 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     }
 
     const { agent, message, priority } = INTENT_MAPPING[input.intent];
-    const agentHandler = AGENT_HANDLERS[agent as AgentName];
+    
+    // Validate agent name exists in AGENT_HANDLERS
+    if (!(agent in AGENT_HANDLERS)) {
+      throw new Error(`Agent handler not found: ${agent}`);
+    }
+    
+    // Get the agent handler using a checked agent name
+    // Using type casting to tell TypeScript that we've validated the agent name
+    const agentName = agent as AgentName;
+    const agentHandler = AGENT_HANDLERS[agentName];
 
     // Create Firestore job document
     const jobId = `${input.userId}-${Date.now()}`;
@@ -115,16 +124,20 @@ export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentRe
     // Log agent activity
     await agentDb.logActivity(agent, 'job_created', { jobId, userId: input.userId });
     
-    // Initiate agent processing
-    agentHandler.runAgent({
-      userId: input.userId,
-      goal: input.intent,
-      jobId, // Pass jobId directly as parameter
-      metadata: {
-        jobId, // Also include in metadata for backward compatibility
-        ...input.customParams
-      }
-    });
+    // Safely call runAgent with a definite check
+    if (typeof agentHandler.runAgent === 'function') {
+      agentHandler.runAgent({
+        userId: input.userId,
+        goal: input.intent,
+        jobId, // Pass jobId directly as parameter
+        metadata: {
+          jobId, // Also include in metadata for backward compatibility
+          ...input.customParams
+        }
+      });
+    } else {
+      throw new Error(`Agent ${agent} does not have a runAgent method`);
+    }
 
     return {
       success: true,
@@ -172,7 +185,12 @@ type DashboardPaths = typeof intentToDashboardMap[IntentDashboardKeys];
 const _typeCheck: Record<IntentMappingKeys, string> = intentToDashboardMap as Record<IntentMappingKeys, string>;
 
 // Add the percySyncAgent export
-const percySyncAgent = {
+const percySyncAgent: Agent = {
+  id: 'percy-sync',
+  name: 'Percy Sync',
+  category: 'System',
+  description: 'Handles synchronization and routing of Percy chat interactions',
+  visible: false,
   // Handle user onboarding from Percy chat
   async handleOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
     try {

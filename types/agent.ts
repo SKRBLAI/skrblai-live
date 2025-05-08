@@ -37,6 +37,7 @@ export interface Agent {
     capabilities?: string[];
   };
   runAgent?: (input: any, context?: any) => Promise<any>;
+  handleOnboarding?: (lead: any) => Promise<{success: boolean; message: string; redirectPath?: string}>;
   promptTemplate?: string;
   params?: Record<string, any>;
   examples?: Array<{

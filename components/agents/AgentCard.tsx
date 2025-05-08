@@ -6,8 +6,8 @@ export interface Agent {
   name: string;
   category: string;
   description: string;
-  route: string;
-  intent: string;
+  route?: string | null;
+  intent?: string | null;
   visible: boolean;
   premium?: boolean;
   icon?: React.ReactNode;

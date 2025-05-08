@@ -2,13 +2,14 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import AgentCard, { Agent } from './AgentCard';
+import AgentCard, { Agent as AgentCardType } from './AgentCard';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import AgentInputModal from './AgentInputModal';
+import { Agent } from '@/types/agent';
 
-const getCategories = (agents: Agent[]) => {
-  const cats = Array.from(new Set(agents.map(agent => agent.category)));
-  return ['All', ...cats];
+const getCategories = (agents: Agent[]): string[] => {
+  const categories = agents.map(agent => agent.category);
+  return ['All', ...Array.from(new Set(categories))];
 };
 
 const sortOptions = [
@@ -60,6 +61,13 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
     if (!selectedAgent) return;
 
     try {
+      // Use optional chaining to safely access runAgent
+      if (typeof selectedAgent?.runAgent !== 'function') {
+        console.error('Agent does not have a runAgent method');
+        return;
+      }
+
+      // TypeScript will allow this now since we've checked if it's a function
       const result = await selectedAgent.runAgent({
         userId: 'demo', // TODO: Get actual userId
         input,
@@ -106,7 +114,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
       {recommendedAgents && recommendedAgents.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} className="mb-8 flex flex-wrap gap-4 justify-center">
           {recommendedAgents.slice(0, 3).map(agent => (
-            <AgentCard key={agent.id} agent={agent} onClick={handleAgentClick} isPremiumLocked={agent.premium && userRole === 'free'} />
+            <AgentCard key={agent.id} agent={agent as AgentCardType} onClick={handleAgentClick} isPremiumLocked={agent.premium && userRole === 'free'} />
           ))}
         </motion.div>
       )}
