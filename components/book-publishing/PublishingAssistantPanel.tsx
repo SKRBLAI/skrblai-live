@@ -94,7 +94,7 @@ export default function PublishingAssistantPanel({ className = '' }: { className
     } catch (error: any) {
       setUploadStatus(prev => ({ ...prev, error: error.message }));
     }
-  }, []);
+  }, [setState, setUploadStatus, supabase.storage]);
 
   const removeFile = useCallback(() => {
     setState(prev => ({ ...prev, uploadedFile: null, uploadedFileName: '', uploadedFileUrl: '' }));
@@ -130,7 +130,7 @@ export default function PublishingAssistantPanel({ className = '' }: { className
             { title: 'Content Editing', description: 'Enhance clarity and style', timeline: '3-5 days' },
             { title: 'Publishing Prep', description: 'Final formatting and export', timeline: '2-3 days' }
           ],
-          recommendations: ['Add more depth to Chapter 1', 'Clarify your protagonist's journey'],
+          recommendations: ['Add more depth to Chapter 1', 'Clarify your protagonist\'s journey'],
           nextSteps: ['Review edits', 'Upload final draft'],
           estimatedCompletion: '7-10 days'
         }
