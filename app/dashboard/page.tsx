@@ -1,8 +1,7 @@
 'use client';
 
 // Configure dynamic rendering and revalidation at the page level
-export const dynamic = 'force-dynamic';
-export const revalidate = 0; // Disable static page generation
+export const dynamic = 'force-dynamic'; // Disable static page generation
 
 import { useState, useEffect } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
