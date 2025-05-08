@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Dummy endpoint for file uploads used only for progress tracking
- * This endpoint doesn't actually save files but just returns a success response
- * The actual file uploads are handled directly by Supabase Storage
+ * Dummy API endpoint that simulates handling file uploads
+ * but doesn't actually save any files (used only for progress tracking).
+ * 
+ * Actual file uploads are handled by Supabase Storage.
  */
 export async function POST() {
-  // Simulate a short delay
-  await new Promise(resolve => setTimeout(resolve, 100));
+  // Simulate upload processing delay (500ms)
+  await new Promise(resolve => setTimeout(resolve, 500));
   
-  return NextResponse.json({ success: true }, { status: 200 });
+  // Return success response
+  return NextResponse.json({
+    success: true,
+    message: 'File upload simulation successful',
+  });
 }
 
+// Force dynamic to prevent caching
 export const dynamic = 'force-dynamic'; 

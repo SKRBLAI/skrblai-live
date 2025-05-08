@@ -11,7 +11,6 @@
     "rebuild": "npm run clean && npm install && npm run build"
   },
   "dependencies": {
-    "@firebase/storage-compat": "^0.3.17",
     "@fontsource/inter": "^5.2.5",
     "@stripe/stripe-js": "^2.2.0",
     "@supabase/supabase-js": "^2.49.4",
@@ -20,7 +19,6 @@
     "chart.js": "^4.4.8",
     "classnames": "^2.5.1",
     "critters": "^0.0.23",
-    "firebase-admin": "^13.2.0",
     "framer-motion": "^12.6.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
@@ -36,7 +34,6 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/firebase": "^2.4.32",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -44,7 +41,6 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.3",
-    "firebase": "^11.6.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"

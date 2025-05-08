@@ -4,10 +4,9 @@ const nextConfig = {
 
   images: {
     domains: [
-      'firebasestorage.googleapis.com',
       'lh3.googleusercontent.com',
-      'vercel.com',
-      'skrbl-ai.firebaseapp.com'
+      'railway.app',
+      'zpqavydsinrtaxhowmnb.supabase.co'
     ],
     unoptimized: false,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -19,13 +18,7 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
-    NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV
+    NEXT_PUBLIC_RAILWAY_ENV: process.env.NEXT_PUBLIC_RAILWAY_ENV
   },
   compiler: {
     styledComponents: true,
@@ -37,7 +30,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false
   },
-  transpilePackages: ['@stripe/stripe-js', 'firebase', 'framer-motion'],
+  transpilePackages: ['@stripe/stripe-js', 'framer-motion'],
   trailingSlash: false,
   output: 'standalone',
   distDir: '.next',

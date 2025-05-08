@@ -1,3 +1,0 @@
-git add .env.local
-git commit -m "✅ Added final environment configuration for production — all services wired. Mamba Mentality locked 🐍"
-git push origin master 
