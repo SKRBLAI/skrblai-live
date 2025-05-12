@@ -2,11 +2,13 @@
 import { motion } from "framer-motion";
 import PercyAvatar from "./PercyAvatar";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { UniversalPromptBar } from "@/components/ui";
 
 export default function PercyHero() {
   const router = useRouter();
   const featuresRef = useRef<null | HTMLElement>(null);
+  const [showIntake, setShowIntake] = useState(false);
 
   // Handler for Explore Features
   const handleExplore = () => {
@@ -71,12 +73,42 @@ export default function PercyHero() {
           <motion.button
             whileHover={{ scale: 1.08, boxShadow: "0 0 24px #14ffe9, 0 0 12px #a259ff" }}
             whileTap={{ scale: 0.97 }}
-            onClick={() => router.push("/features")}
+            onClick={() => setShowIntake(true)}
             className="flex-1 px-8 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all glass-card animate-pulse"
             style={{ minWidth: 180 }}
           >
             Let's Get Started
           </motion.button>
+          {showIntake && (
+            <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="relative bg-white rounded-xl shadow-2xl p-0 max-w-lg w-full">
+                <button
+                  className="absolute top-2 right-2 text-gray-500 hover:text-teal-500 text-2xl font-bold z-10"
+                  onClick={() => setShowIntake(false)}
+                  aria-label="Close"
+                >
+                  &times;
+                </button>
+                <UniversalPromptBar 
+                  title="Get Started with SKRBL AI"
+                  description="Tell us what you need or upload a file to get started."
+                  showPrompt={true}
+                  promptLabel="What would you like to accomplish?"
+                  placeholder="e.g., Create a content strategy for my website, Generate social media posts..."
+                  acceptedFileTypes=".pdf,.doc,.docx,.txt,.jpg,.png"
+                  fileCategory="input"
+                  intentType="starter"
+                  buttonText="Submit"
+                  theme="light"
+                  className="p-6"
+                  onComplete={(data) => {
+                    console.log('Completed with data:', data);
+                    setTimeout(() => setShowIntake(false), 3000);
+                  }}
+                />
+              </div>
+            </div>
+          )}
           <motion.button
             whileHover={{ scale: 1.06, boxShadow: "0 0 16px #14ffe9, 0 0 8px #a259ff" }}
             whileTap={{ scale: 0.97 }}

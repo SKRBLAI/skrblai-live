@@ -6,7 +6,7 @@ interface ChatBubbleProps {
   isLoading?: boolean;
 }
 
-export function ChatBubble({ message, type, isLoading }: ChatBubbleProps) {
+export default function ChatBubble({ message, type, isLoading }: ChatBubbleProps) {
   const bubbleVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.8 },
     visible: { 

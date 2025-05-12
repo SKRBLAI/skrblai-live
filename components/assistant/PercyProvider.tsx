@@ -34,6 +34,18 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const [percyIntent, setPercyIntent] = useState('');
   const router = useRouter();
 
+  // Debug agents on mount
+  useEffect(() => {
+    // Check if agent registry is loaded
+    console.log('PercyProvider mounted, agent count:', agentRegistry.length);
+    
+    if (agentRegistry.length === 0) {
+      console.error('WARNING: Agent registry is empty in PercyProvider!');
+    } else {
+      console.log('First few agents:', agentRegistry.slice(0, 3).map(a => a.name));
+    }
+  }, []);
+
   // Load from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -71,10 +83,13 @@ export function PercyProvider({ children }: { children: ReactNode }) {
 
   const routeToAgent = useCallback((intent: string) => {
     setPercyIntent(intent);
+    console.log(`Routing to agent with intent: ${intent}`);
     const agent = agentRegistry.find(agent => agent.intent === intent);
     if (agent?.route) {
+      console.log(`Found agent route: ${agent.route}`);
       router.push(agent.route);
     } else {
+      console.warn(`No route found for agent intent: ${intent}`);
       router.push('/ask-percy?error=not-found');
     }
   }, [router]);
@@ -108,7 +123,13 @@ export function usePercyContext(): PercyContextType {
 }
 
 export function usePercyRouter() {
-  const { routeToAgent } = usePercyContext();
+  const context = usePercyContext();
+  if (!context) {
+    console.error("usePercyRouter called outside of PercyProvider");
+    // Return a fallback object to prevent crashes
+    return { routeToAgent: () => console.warn("routeToAgent called outside PercyProvider") };
+  }
+  const { routeToAgent } = context;
   return { routeToAgent };
 }
 

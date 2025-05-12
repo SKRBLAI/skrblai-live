@@ -157,6 +157,15 @@ const AgentGrid = () => {
                   <p className="text-gray-300 leading-relaxed">
                     {agent.description}
                   </p>
+                  <button
+                    className="mt-4 px-6 py-2 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold shadow-lg hover:scale-105 hover:bg-teal-500 transition-all"
+                    onClick={() => {
+                      localStorage.setItem('lastUsedAgent', agent.name);
+                      window.dispatchEvent(new CustomEvent('open-percy-agent', { detail: { agent: agent.name } }));
+                    }}
+                  >
+                    Try Now
+                  </button>
                 </div>
               </div>
             </motion.div>
