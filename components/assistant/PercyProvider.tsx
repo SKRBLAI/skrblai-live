@@ -1,5 +1,7 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { useRouter } from 'next/navigation';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 // --- Types ---
 type WorkflowSessionType = string[]; // Can be changed to agent objects later
@@ -11,9 +13,16 @@ interface PercyContextType {
   setCurrentAgent: (agent: string | null) => void;
   workflowSession: WorkflowSessionType;
   setWorkflowSession: (session: WorkflowSessionType) => void;
+  isOpen: boolean;
+  percyIntent: string;
+  openPercy: () => void;
+  closePercy: () => void;
+  setPercyIntent: (intent: string) => void;
+  routeToAgent: (intent: string) => void;
+  agentRegistry: typeof agentRegistry;
 }
 
-const PercyContext = createContext<PercyContextType | undefined>(undefined);
+export const PercyContext = createContext<PercyContextType | undefined>(undefined);
 
 // --- Provider ---
 export function PercyProvider({ children }: { children: ReactNode }) {
@@ -21,6 +30,9 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const [onboardingComplete, setOnboardingCompleteState] = useState<boolean>(false);
   const [currentAgent, setCurrentAgentState] = useState<string | null>(null);
   const [workflowSession, setWorkflowSession] = useState<WorkflowSessionType>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [percyIntent, setPercyIntent] = useState('');
+  const router = useRouter();
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -54,6 +66,19 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const setOnboardingComplete = (value: boolean) => setOnboardingCompleteState(value);
   const setCurrentAgent = (agent: string | null) => setCurrentAgentState(agent);
 
+  const openPercy = useCallback(() => setIsOpen(true), []);
+  const closePercy = useCallback(() => setIsOpen(false), []);
+
+  const routeToAgent = useCallback((intent: string) => {
+    setPercyIntent(intent);
+    const agent = agentRegistry.find(agent => agent.intent === intent);
+    if (agent?.route) {
+      router.push(agent.route);
+    } else {
+      router.push('/ask-percy?error=not-found');
+    }
+  }, [router]);
+
   const value: PercyContextType = {
     onboardingComplete,
     setOnboardingComplete,
@@ -61,6 +86,13 @@ export function PercyProvider({ children }: { children: ReactNode }) {
     setCurrentAgent,
     workflowSession,
     setWorkflowSession,
+    isOpen,
+    percyIntent,
+    openPercy,
+    closePercy,
+    setPercyIntent,
+    routeToAgent,
+    agentRegistry
   };
 
   return <PercyContext.Provider value={value}>{children}</PercyContext.Provider>;
@@ -73,6 +105,11 @@ export function usePercyContext(): PercyContextType {
     throw new Error("usePercyContext must be used within a PercyProvider");
   }
   return context;
+}
+
+export function usePercyRouter() {
+  const { routeToAgent } = usePercyContext();
+  return { routeToAgent };
 }
 
 // Default export for compatibility
