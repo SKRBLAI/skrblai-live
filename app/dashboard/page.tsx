@@ -30,10 +30,18 @@ import { useRouter } from 'next/navigation';
 import FloatingParticles from "@/components/ui/FloatingParticles";
 import PercyAvatar from "@/components/home/PercyAvatar";
 
-import PercyProvider from 'components/assistant/PercyProvider';
+import PercyProvider from '@/components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 
 export default function Dashboard() {
+  return (
+    <PercyProvider>
+      <DashboardContent />
+    </PercyProvider>
+  );
+}
+
+function DashboardContent() {
   const [recentAgents, setRecentAgents] = useState<any[]>([]);
   const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const [recommended, setRecommended] = useState<any[]>([]);

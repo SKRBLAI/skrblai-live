@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import { PercyContext } from '@/components/assistant/PercyProvider';
 
 interface PercyContextType {
   isOpen: boolean;
