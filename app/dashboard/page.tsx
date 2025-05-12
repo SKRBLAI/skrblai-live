@@ -134,9 +134,9 @@ export default function Dashboard() {
       
     if (user.email) {
       await sendWorkflowResultEmail({
-        email: user.email,
+        recipientEmail: user.email,
         agentId,
-        result: result.result
+        agentResult: result.result
       });
     }
     return result;
