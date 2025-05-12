@@ -23,7 +23,7 @@ import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import Notifications from '@/components/dashboard/Notifications';
 import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
 import { checkUserRole } from '@/lib/auth/checkUserRole';
-import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
+import { sendEmailAction } from '@/actions/sendEmail';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
 
 import { useRouter } from 'next/navigation';
@@ -133,11 +133,7 @@ export default function Dashboard() {
       });
       
     if (user.email) {
-      await sendWorkflowResultEmail({
-        recipientEmail: user.email,
-        agentId,
-        agentResult: result.result
-      });
+      await sendEmailAction(user.email, agentId, result.result);
     }
     return result;
   };

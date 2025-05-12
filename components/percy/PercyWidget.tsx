@@ -4,9 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { sendWorkflowResultEmail } from '@/lib/email/sendWorkflowResult';
 import { getCurrentUser } from '@/utils/supabase-auth';
-import { supabase } from '@/utils/supabase';
+import { sendEmailAction } from '@/actions/sendEmail';
 import { saveChatMemory } from '@/lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
 import PercyOnboarding from './PercyOnboarding';
@@ -194,7 +193,7 @@ function PercyWidget() {
       });
       
     if (user.email) {
-      await sendWorkflowResultEmail({ email: user.email, agentId: agent.id, result: result.result });
+      await sendEmailAction(user.email, agent.id, result.result);
     }
     await saveChatMemory(agent.intent ?? '', 'Agent execution');
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
