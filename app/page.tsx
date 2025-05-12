@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
 import PercyHeroSection from "@/components/home/PercyHeroSection";
-import TestimonialSection from "@/components/__archive__/TestimonialSection";
 import FloatingParticles from "@/components/ui/FloatingParticles";
 
 
@@ -20,7 +19,7 @@ export default function HomePage() {
             {/* Hero section with animated Percy, CTA, and floating particles */}
             <PercyHeroSection />
             {/* Animated testimonials section */}
-            <TestimonialSection />
+            
           </div>
         </motion.div>
       </PageLayout>
