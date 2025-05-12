@@ -3,18 +3,19 @@ import { Resend } from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendWorkflowResultEmail({
-  email,
+  recipientEmail,
   agentId,
-  result
+  agentResult
 }: {
-  email: string;
+  recipientEmail: string;
   agentId: string;
-  result: string;
+  agentResult: string;
 }) {
-  await resend.emails.send({
+  const email = await resend.emails.send({
     from: 'SKRBL AI <no-reply@skrblai.io>',
-    to: email,
+    to: recipientEmail,
     subject: `✅ Your ${agentId.toUpperCase()} agent completed!`,
-    html: `<p><strong>${agentId.toUpperCase()}</strong> result:</p><pre>${result}</pre><br/><p>Thanks for using SKRBL AI ✨</p>`
+    html: `<p><strong>${agentId.toUpperCase()}</strong> result:</p><pre>${agentResult}</pre><br/><p>Thanks for using SKRBL AI ✨</p>`
   });
+  return email;
 }

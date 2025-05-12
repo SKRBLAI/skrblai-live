@@ -1,12 +1,12 @@
+'use client';
 import { motion } from 'framer-motion';
-import PercyProvider from 'components/assistant/PercyProvider';
+import dynamic from 'next/dynamic';
+
+const PercyProvider = dynamic(() => import('@/components/assistant/PercyProvider'), { ssr: false });
+
 import PageLayout from '@/components/layout/PageLayout';
-import PercyHeroSection from "@/components/home/PercyHeroSection";
-import FloatingParticles from "@/components/ui/FloatingParticles";
-
-
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
+import PercyHeroSection from '@/components/home/PercyHeroSection';
+import FloatingParticles from '@/components/ui/FloatingParticles';
 
 export default function HomePage() {
   return (
