@@ -19,7 +19,6 @@ export default function HomePage() {
             {/* Hero section with animated Percy, CTA, and floating particles */}
             <PercyHeroSection />
             {/* Animated testimonials section */}
-            
           </div>
         </motion.div>
       </PageLayout>
