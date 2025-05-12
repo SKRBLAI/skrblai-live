@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import { supabase } from '@/utils/supabase';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
 import { getCurrentUser } from '@/utils/supabase-auth';
