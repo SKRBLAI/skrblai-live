@@ -1,11 +1,17 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  
+  useEffect(() => {
+    router.prefetch('/features');
+    router.prefetch('/pricing');
+  }, [router]);
 
   const isActive = (path: string) => pathname === path;
 

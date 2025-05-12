@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from 'next';
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Sign Up | SKRBL AI',
-  description: 'Create your SKRBL AI account and start automating your content creation, marketing, and social media management today.',
+  description: 'Create your SKRBL AI account and unlock powerful tools.',
 };
 
-export const viewport: Viewport = {
+export const viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-}; 
+};
+
+export const themeColor = '#0d1117'; 
