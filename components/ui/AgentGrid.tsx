@@ -1,7 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer } from '@/utils/animations';
+
+// Animation variants
+const fadeInUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } }
+};
+
+const staggerContainer = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.08
+    }
+  }
+};
 import AgentCard from './AgentCard';
 import { usePercyContext } from '../assistant/PercyProvider';
 import { Agent } from '@/types/agent';
@@ -30,11 +45,10 @@ export default function AgentGrid({ agents = agentRegistry }: AgentGridProps) {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6"
     >
-      {agents.map((agent, index) => (
+      {agents.map((agent) => (
         <motion.div
           key={agent.id}
           variants={fadeInUp}
-          transition={{ delay: index * 0.1 }}
         >
           <AgentCard
             agent={agent}

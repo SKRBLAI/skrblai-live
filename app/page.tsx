@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
+import WaitlistPopup from '@/components/ui/WaitlistPopup';
 
 export default function HomePage() {
   const { setPercyIntent, closePercy } = usePercyContext();
@@ -18,6 +19,7 @@ export default function HomePage() {
 
   return (
     <PageLayout>
+      <WaitlistPopup />
       <div className="min-h-screen relative bg-gradient-to-b from-[#0d1117] to-[#161b22] text-white">
         {/* Navigation Bar - Placed at the top */}
         <Navbar />

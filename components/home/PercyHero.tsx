@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from "./PercyAvatar";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { UniversalPromptBar } from "@/components/ui";
+import { UniversalPromptBar, PercyTimeline, AgentStatsPanel } from "@/components/ui";
+import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";
 
 export default function PercyHero() {
   const router = useRouter();
@@ -17,6 +18,8 @@ export default function PercyHero() {
       router.push("/features");
     }
   };
+
+  const [timeline, refreshTimeline] = usePercyTimeline();
 
   return (
     <section className="relative flex flex-col items-center justify-center min-h-[80vh] py-8 px-4 z-10">
@@ -120,6 +123,22 @@ export default function PercyHero() {
                 >
                   Let's Get Started
                 </motion.button>
+                {/* PercyTimeline & Stats (DEV only) */}
+                {process.env.NODE_ENV === 'development' && (
+                  <>
+                    <PercyTimeline timeline={timeline} />
+                    <button
+                      className="mt-4 px-4 py-1 bg-gray-800 text-white rounded hover:animate-spin transition-all duration-300"
+                      onClick={refreshTimeline}
+                      title="Refresh Percy Memory"
+                    >
+                      🔄 Refresh Percy Memory
+                    </button>
+                    <div className="mt-8">
+                      <AgentStatsPanel />
+                    </div>
+                  </>
+                )}
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

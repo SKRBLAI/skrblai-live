@@ -19,6 +19,7 @@
     "chart.js": "^4.4.8",
     "classnames": "^2.5.1",
     "critters": "^0.0.23",
+    "dayjs": "^1.11.13",
     "framer-motion": "^12.6.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",

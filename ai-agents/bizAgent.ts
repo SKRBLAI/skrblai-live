@@ -260,14 +260,15 @@ function logAgentActivity(agentName: string, userId: string, activity: Record<st
 
 const bizAgent: Agent = {
   id: 'biz-agent',
-  name: 'Business Advisor',
+  name: 'Business Agent',
   category: 'Business',
-  description: 'AI-powered business analysis and strategic planning',
+  description: 'Helps with business strategy and operations.',
   visible: true,
+  agentCategory: ['business', 'strategy', 'operations'],
   config: {
-    name: 'Business Advisor',
-    description: 'AI-powered business analysis and strategic planning',
-    capabilities: ['Market Analysis', 'Competitor Analysis', 'Strategic Planning', 'Business Recommendations']
+    name: 'Business Strategy',
+    description: 'AI-powered business planning and analysis',
+    capabilities: ['strategy', 'planning', 'analysis']
   },
   runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to biz agent input with required fields
@@ -285,6 +286,8 @@ const bizAgent: Agent = {
     return runBizAgent(bizInput);
   }
 };
+
+console.log('[AgentAudit] Registered:', bizAgent.name, bizAgent.agentCategory);
 
 export { bizAgent };
 export default bizAgent;

@@ -597,12 +597,13 @@ const adCreativeAgent: Agent = {
   id: 'ad-creative-agent',
   name: 'Ad Creative Agent',
   category: 'Marketing',
-  description: 'Generates creative ad copy and visuals for your campaigns.',
+  description: 'Helps generate engaging ad copy and visuals.',
   visible: true,
+  agentCategory: ['marketing', 'ads', 'creative'],
   config: {
     name: 'Ad Creative',
-    description: 'AI-powered advertising creative generation',
-    capabilities: ['Multi-Platform Ads', 'Creative Generation', 'Audience Targeting', 'Campaign Optimization']
+    description: 'Boosts your brand with AI-generated ad content',
+    capabilities: ['copywriting', 'imagery', 'brand voice'],
   },
   runAgent: async (input: BaseAgentInput) => {
     // Cast the base input to ad creative input with required fields

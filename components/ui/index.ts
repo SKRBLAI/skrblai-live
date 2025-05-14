@@ -8,3 +8,5 @@ export { default as HeroSection } from './HeroSection';
 export { default as PercyAssistant } from './PercyAssistant';
 export { default as UniversalPromptBar } from './UniversalPromptBar';
 export { default as WorkflowLaunchpadModal } from './WorkflowLaunchpadModal';
+export { default as PercyTimeline } from './PercyTimeline';
+export { default as AgentStatsPanel } from './AgentStatsPanel';
