@@ -47,6 +47,20 @@ if (allAgents.some(a => a === undefined || a === null)) {
   console.error('Problem agents at indices:', problemAgents);
 }
 
+// Ensure all agents have category and add roleRequired where needed
+// Example: If an agent should be gated, add roleRequired: 'pro' or 'admin' in its definition file
+// (No code change needed here if all agent files are correct, but add a runtime check for missing category)
+
+allAgents.forEach(agent => {
+  if (!agent.category) {
+    console.error(`Agent missing category: ${agent.name || agent.id}`);
+  }
+  if (!agent.agentCategory || !Array.isArray(agent.agentCategory)) {
+    console.warn(`Agent missing agentCategory array: ${agent.name || agent.id}. Defaulting to [category].`);
+    agent.agentCategory = agent.category ? [agent.category.toLowerCase()] : [];
+  }
+});
+
 // Create the visible registry (only show visible agents)
 const agentRegistry: Agent[] = allAgents.filter(agent => agent && agent.visible !== false);
 console.log(`Visible agents: ${agentRegistry.length}`);

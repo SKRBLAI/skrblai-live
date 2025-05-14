@@ -2,6 +2,8 @@
 import React, { ReactNode } from 'react';
 import Navbar from './Navbar';
 import dynamic from "next/dynamic";
+import { usePathname } from 'next/navigation';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const PercyWidget = dynamic(() => import('@/components/percy/PercyWidget'), { ssr: false });
 const FloatingParticles = dynamic(() => import('@/components/ui/FloatingParticles'), { ssr: false });
@@ -12,6 +14,7 @@ type PageLayoutProps = {
 };
 
 export default function ClientPageLayout({ children, title }: PageLayoutProps) {
+  const pathname = usePathname();
   return (
     <div className="relative min-h-screen bg-deep-navy overflow-hidden">
       {/* Floating Particles Background */}
@@ -28,9 +31,18 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
               {title}
             </h1>
           )}
-          <div className="glass-card p-6">
-            {children}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={pathname}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+              className="glass-card p-6"
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Global Percy Floating Widget */}

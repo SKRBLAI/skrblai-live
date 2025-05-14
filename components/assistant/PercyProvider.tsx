@@ -78,18 +78,29 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const setOnboardingComplete = (value: boolean) => setOnboardingCompleteState(value);
   const setCurrentAgent = (agent: string | null) => setCurrentAgentState(agent);
 
-  const openPercy = useCallback(() => setIsOpen(true), []);
-  const closePercy = useCallback(() => setIsOpen(false), []);
+  const openPercy = useCallback(() => {
+    setIsOpen(true);
+    console.log('[Percy] isOpen set to true (openPercy)');
+  }, []);
+  const closePercy = useCallback(() => {
+    setIsOpen(false);
+    console.log('[Percy] isOpen set to false (closePercy)');
+  }, []);
+
+  const setPercyIntentWithLog = (intent: string) => {
+    setPercyIntent(intent);
+    console.log(`[Percy] percyIntent set to: '${intent}'`);
+  };
 
   const routeToAgent = useCallback((intent: string) => {
-    setPercyIntent(intent);
-    console.log(`Routing to agent with intent: ${intent}`);
+    setPercyIntentWithLog(intent);
+    console.log(`[Percy] Routing to agent with intent: ${intent}`);
     const agent = agentRegistry.find(agent => agent.intent === intent);
     if (agent?.route) {
-      console.log(`Found agent route: ${agent.route}`);
+      console.log(`[Percy] Found agent route: ${agent.route}`);
       router.push(agent.route);
     } else {
-      console.warn(`No route found for agent intent: ${intent}`);
+      console.warn(`[Percy] No route found for agent intent: ${intent}`);
       router.push('/ask-percy?error=not-found');
     }
   }, [router]);
@@ -105,7 +116,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
     percyIntent,
     openPercy,
     closePercy,
-    setPercyIntent,
+    setPercyIntent: setPercyIntentWithLog,
     routeToAgent,
     agentRegistry
   };

@@ -5,8 +5,17 @@ import FloatingParticles from '@/components/ui/FloatingParticles';
 import Navbar from '@/components/layout/Navbar';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { usePercyContext } from '@/components/assistant/PercyProvider';
 
 export default function HomePage() {
+  const { setPercyIntent, closePercy } = usePercyContext();
+  useEffect(() => {
+    closePercy();
+    setPercyIntent('');
+    console.log('[Percy] Reset on HomePage mount: isOpen=false, percyIntent=\'\'');
+  }, [closePercy, setPercyIntent]);
+
   return (
     <PageLayout>
       <div className="min-h-screen relative bg-gradient-to-b from-[#0d1117] to-[#161b22] text-white">

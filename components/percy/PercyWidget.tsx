@@ -13,29 +13,47 @@ import PercyOnboarding from './PercyOnboarding';
 import UpsellModal from './UpsellModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import PercyAvatar from '@/components/home/PercyAvatar';
+import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { getAgentsByRole } from '@/utils/getAgentsByRole';
+import { usePathname } from 'next/navigation';
+import { saveIntentMemory, clearPercyMemory } from '@/utils/memory';
+import { logPercyMessage, getPercyMessageHistory } from '@/utils/percy/logPercyMessage';
+
+// Example: get user role (replace with real role logic as needed)
+const userRole = typeof window !== 'undefined' ? (localStorage.getItem('userRole') || 'user') : 'user';
+console.log('[Percy] Current user role:', userRole);
 
 // Score and get best matching agents based on user goal/platform
 function getBestAgents(goal: string, platform: string) {
+  const agentList = getAgentsByRole(userRole);
+  console.log('[Percy] Available Agents for Role:', agentList);
   // Log agent registry to diagnose issues
   console.log('Agent Registry loaded with:', agentRegistry.length, 'agents');
   if (agentRegistry.length === 0) {
     console.error('Agent Registry is empty - check imports');
   }
   
-  // Score agents by goal/platform match
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  // Score agents by goal/platform match and by current path/category
   const lowerGoal = goal.toLowerCase();
   const lowerPlatform = platform.toLowerCase();
-  let matches = agentRegistry.filter(a => a.visible && (
+  const lowerPath = pathname.replace(/^\//, '').toLowerCase();
+  let matches = agentList.filter(a => a.visible && (
     (a.category && lowerGoal && a.category.toLowerCase().includes(lowerGoal)) ||
     (a.name && lowerGoal && a.name.toLowerCase().includes(lowerGoal)) ||
     (a.intent && lowerGoal && a.intent.toLowerCase().includes(lowerGoal)) ||
     (a.category && lowerPlatform && a.category.toLowerCase().includes(lowerPlatform)) ||
     (a.name && lowerPlatform && a.name.toLowerCase().includes(lowerPlatform)) ||
-    (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform))
+    (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform)) ||
+    (Array.isArray(a.agentCategory) && a.agentCategory.some(cat => lowerPath.includes(cat)))
   ));
+  if (matches.length > 0) {
+    console.log('[Percy] Matched agent categories for path:', lowerPath, matches.map(a => a.agentCategory));
+  }
   // Fallback: top 2 visible agents
   if (matches.length === 0) {
-    matches = agentRegistry.filter(a => a.visible).slice(0, 2);
+    matches = agentList.filter(a => a.visible).slice(0, 2);
+    console.log('[Percy] Fallback to top visible agents for path:', lowerPath);
   } else {
     matches = matches.slice(0, 2);
   }
@@ -47,6 +65,8 @@ function PercyWidget() {
   const routerResult = usePercyRouter();
   const [open, setOpen] = useState(false);
   const [lastUsedIntent, setLastUsedIntent] = useState<string>('');
+  const { setPercyIntent, closePercy } = usePercyContext();
+  const pathname = usePathname();
 
   // Listen for agent selection events from AgentGrid
   useEffect(() => {
@@ -173,6 +193,27 @@ function PercyWidget() {
     fetchMemory();
   }, [open, routerResult]);
 
+  // Prefill intent from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const lastIntent = localStorage.getItem('lastUsedAgent');
+      if (lastIntent) {
+        setPercyIntent(lastIntent);
+        console.log('[Percy] Prefilled percyIntent from localStorage:', lastIntent);
+      }
+    }
+  }, [setPercyIntent]);
+
+  // Reset percyIntent on route change
+  useEffect(() => {
+    setPercyIntent('');
+    console.log('[Percy] percyIntent reset on route change:', pathname);
+  }, [pathname, setPercyIntent]);
+
+  useEffect(() => {
+    console.log('[Percy] Message history:', getPercyMessageHistory());
+  }, []);
+
   if (!routerResult) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('PercyWidget: PercyProvider not found, skipping render.');
@@ -181,6 +222,28 @@ function PercyWidget() {
   }
 
   const { routeToAgent } = routerResult;
+
+  // Update routing logic to save percyIntent and handle fallback
+  const safeRouteToAgent = (intent: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('lastUsedAgent', intent);
+    }
+    console.log('[Percy] Routing to agent. Intent:', intent);
+    const agent = agentRegistry.find(agent => agent.intent === intent);
+    if (agent && agent.route) {
+      console.log('[Percy] Found agent route:', agent.route);
+      saveIntentMemory(intent);
+      routerResult.routeToAgent(intent);
+    } else {
+      console.warn('[Percy] No route found for agent intent:', intent);
+      if (routerResult && routerResult.routeToAgent) {
+        routerResult.routeToAgent(''); // fallback to error route
+      }
+      if (typeof window !== 'undefined') {
+        window.location.href = '/ask-percy?error=not-found';
+      }
+    }
+  };
 
   // Process user input to determine intent and route to appropriate agent
   const processUserInput = (input: string) => {
@@ -201,7 +264,7 @@ function PercyWidget() {
         setMessages(prev => [...prev, 
           { role: 'assistant', text: 'Great! Our Social Bot agent can help you with social media marketing. Let me connect you.' }
         ]);
-        setTimeout(() => routeToAgent('social_media'), 1500);
+        setTimeout(() => safeRouteToAgent('social_media'), 1500);
         localStorage.setItem('intakeComplete', 'true');
         setIntakeComplete(true);
         return;
@@ -211,7 +274,7 @@ function PercyWidget() {
         setMessages(prev => [...prev, 
           { role: 'assistant', text: 'Perfect! Our Content Creator agent specializes in blog posts and articles. I\'ll connect you right away.' }
         ]);
-        setTimeout(() => routeToAgent('content_creation'), 1500);
+        setTimeout(() => safeRouteToAgent('content_creation'), 1500);
         localStorage.setItem('intakeComplete', 'true');
         setIntakeComplete(true);
         return;
@@ -221,7 +284,7 @@ function PercyWidget() {
         setMessages(prev => [...prev, 
           { role: 'assistant', text: 'I understand you need branding help! Our Branding agent can assist with your brand identity. Let me take you there.' }
         ]);
-        setTimeout(() => routeToAgent('branding'), 1500);
+        setTimeout(() => safeRouteToAgent('branding'), 1500);
         localStorage.setItem('intakeComplete', 'true');
         setIntakeComplete(true);
         return;
@@ -231,7 +294,7 @@ function PercyWidget() {
         setMessages(prev => [...prev, 
           { role: 'assistant', text: 'Sounds like you need website help! Our SiteGen agent is perfect for this. Connecting you now.' }
         ]);
-        setTimeout(() => routeToAgent('website'), 1500);
+        setTimeout(() => safeRouteToAgent('website'), 1500);
         localStorage.setItem('intakeComplete', 'true');
         setIntakeComplete(true);
         return;
@@ -282,7 +345,7 @@ function PercyWidget() {
     setRunning(true);
     setMessages((prev) => [...prev, { role: 'assistant', text: `Running ${agent.name} agent for you...` }]);
     const payload = { projectName: 'SKRBL AI' };
-    const result = await runAgentWorkflow(agent.id, payload);
+    const agentResult = await runAgentWorkflow(agent.id, payload);
     
     // Log workflow in Supabase
     await supabase
@@ -290,13 +353,13 @@ function PercyWidget() {
       .insert({
         userId: user.id,
         agentId: agent.id,
-        result: result.result,
-        status: result.status,
+        result: agentResult.result,
+        status: agentResult.status,
         timestamp: new Date().toISOString()
       });
       
     if (user.email) {
-      await sendEmailAction(user.email, agent.id, result.result);
+      await sendEmailAction(user.email, agent.id, agentResult.result);
     }
     await saveChatMemory(agent.intent ?? '', 'Agent execution');
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
@@ -326,9 +389,16 @@ function PercyWidget() {
       }
     } catch (e) {/* ignore */}
     
+    // Log Percy message after agentResult
+    logPercyMessage({
+      intent,
+      message: agentResult.result,
+      agentId: agent.id,
+    });
+    
     setMessages((prev) => [
       ...prev,
-      { role: 'assistant', text: `✅ ${agent.name} completed! Result: ${result.result}` }
+      { role: 'assistant', text: `✅ ${agent.name} completed! Result: ${agentResult.result}` }
     ]);
     setRunning(false);
     // Refresh memory chips after run
@@ -357,7 +427,17 @@ function PercyWidget() {
       { role: 'assistant', text: `Great choice! I'm connecting you with ${agent.name} now...` }
     ]);
     // Route to PercyChat with personalized welcome
-    setTimeout(() => routeToAgent(agent.intent), 1000);
+    setTimeout(() => safeRouteToAgent(agent.intent), 1000);
+  };
+
+  // Add Back to Start logic
+  const handleBackToStart = () => {
+    closePercy();
+    setPercyIntent('');
+    console.log('[Percy] Back to Start: isOpen=false, percyIntent=\'\'');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   return (
@@ -471,9 +551,20 @@ function PercyWidget() {
                 Press Enter ↵
               </div>
             </div>
+            
+            {/* Logic-only Back to Start button (no UI change) */}
+            <button style={{ display: 'none' }} onClick={handleBackToStart} aria-label="Back to Start" />
           </div>
         )}
       </div>
+      {process.env.NODE_ENV === 'development' && (
+        <button
+          onClick={clearPercyMemory}
+          className="text-xs mt-2 text-red-500 hover:underline"
+        >
+          Clear Percy Memory
+        </button>
+      )}
     </>
   );
 }

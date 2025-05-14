@@ -11,6 +11,7 @@ export default function Navbar() {
   useEffect(() => {
     router.prefetch('/features');
     router.prefetch('/pricing');
+    router.prefetch('/dashboard');
   }, [router]);
 
   const isActive = (path: string) => pathname === path;
@@ -61,14 +62,21 @@ export default function Navbar() {
 }
 
 function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  const router = useRouter();
+  
   return (
-    <Link href={href}>
-      <motion.span
-        className={`text-lg font-medium ${active ? 'text-teal-400 glow-teal' : 'text-gray-300'} hover:text-teal-400 transition-colors`}
-        whileHover={{ scale: 1.05 }}
-      >
-        {children}
-      </motion.span>
+    <Link 
+      href={href} 
+      prefetch
+      onClick={(e) => {
+        e.preventDefault();
+        router.push(href);
+      }}
+      className={`text-sm font-medium transition-colors hover:text-white ${
+        active ? 'text-white' : 'text-gray-300'
+      }`}
+    >
+      {children}
     </Link>
   );
 }

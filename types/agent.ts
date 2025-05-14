@@ -26,11 +26,13 @@ export interface Agent {
   id: string;
   name: string;
   category: string;
+  agentCategory: string[];
   description: string;
   route?: string | null;
   intent?: string | null;
   visible: boolean;
   premium?: boolean;
+  roleRequired?: string;
   config?: {
     name: string;
     description: string;
