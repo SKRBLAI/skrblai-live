@@ -192,71 +192,72 @@ const percySyncAgent: Agent = {
   description: 'Handles synchronization and routing of Percy chat interactions',
   visible: false,
   agentCategory: ['system'],
-  // Handle user onboarding from Percy chat
-  async handleOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
-    try {
-      // Validate intent
-      if (!lead.intent || !Object.keys(intentToDashboardMap).includes(lead.intent)) {
-        return {
-          success: false,
-          message: 'Invalid intent selected. Please choose a valid option.'
-        };
-      }
-      
-      // Get the intent configuration
-      const intentConfig = INTENT_MAPPING[lead.intent as IntentKey];
-      if (!intentConfig) {
-        return {
-          success: false,
-          message: 'Intent configuration not found'
-        };
-      }
-      
-      // Generate a userId from email for consistency
-      const userId = lead.email.replace('@', '-at-').replace(/\./g, '-');
-      
-      // Log activity
-      await agentDb.logActivity('percySyncAgent', 'intent_routing', {
-        intent: lead.intent,
-        userId,
-        timestamp: Date.now()
-      });
-      
-      // Create agent job
-      const jobResponse = await routeToAgentFromIntent({
-        userId,
-        intent: lead.intent as IntentKey,
-        customParams: {
-          name: lead.name,
-          email: lead.email,
-          selectedPlan: lead.selectedPlan,
-          businessGoal: lead.businessGoal
-        }
-      });
-      
-      if (!jobResponse.success) {
-        return {
-          success: false,
-          message: jobResponse.message || 'Failed to create agent job'
-        };
-      }
+};
 
-      // Return success with redirect path
-      return {
-        success: true,
-        message: intentConfig.message,
-        redirectPath: intentToDashboardMap[lead.intent as keyof typeof intentToDashboardMap]
-      };
-      
-    } catch (error) {
-      console.error('Error in Percy onboarding:', error);
+// Handle user onboarding from Percy chat
+export async function handlePercyOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
+  try {
+    // Validate intent
+    if (!lead.intent || !Object.keys(intentToDashboardMap).includes(lead.intent)) {
       return {
         success: false,
-        message: 'An unexpected error occurred during onboarding.'
+        message: 'Invalid intent selected. Please choose a valid option.'
       };
     }
+    
+    // Get the intent configuration
+    const intentConfig = INTENT_MAPPING[lead.intent as IntentKey];
+    if (!intentConfig) {
+      return {
+        success: false,
+        message: 'Intent configuration not found'
+      };
+    }
+    
+    // Generate a userId from email for consistency
+    const userId = lead.email.replace('@', '-at-').replace(/\./g, '-');
+    
+    // Log activity
+    await agentDb.logActivity('percySyncAgent', 'intent_routing', {
+      intent: lead.intent,
+      userId,
+      timestamp: Date.now()
+    });
+    
+    // Create agent job
+    const jobResponse = await routeToAgentFromIntent({
+      userId,
+      intent: lead.intent as IntentKey,
+      customParams: {
+        name: lead.name,
+        email: lead.email,
+        selectedPlan: lead.selectedPlan,
+        businessGoal: lead.businessGoal
+      }
+    });
+    
+    if (!jobResponse.success) {
+      return {
+        success: false,
+        message: jobResponse.message || 'Failed to create agent job'
+      };
+    }
+
+    // Return success with redirect path
+    return {
+      success: true,
+      message: intentConfig.message,
+      redirectPath: intentToDashboardMap[lead.intent as keyof typeof intentToDashboardMap]
+    };
+    
+  } catch (error) {
+    console.error('Error in Percy onboarding:', error);
+    return {
+      success: false,
+      message: 'An unexpected error occurred during onboarding.'
+    };
   }
-};
+}
 
 export { percySyncAgent };
 export default percySyncAgent;

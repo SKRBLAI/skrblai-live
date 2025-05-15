@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import type { Lead } from '@/types/supabase';
 
 export interface AgentInput {
   userId: string;
@@ -41,7 +42,11 @@ export interface Agent {
   route?: string | null;
   intent?: string | null;
   visible: boolean;
-  runAgent?: (input: any) => Promise<any>;
+  premium?: boolean;
+  runAgent?: (input: any) => Promise<AgentResponse>;
+  handleOnboarding?: (
+    lead: Lead
+  ) => Promise<{ success: boolean; message: string; redirectPath?: string }>;
 }
 
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;

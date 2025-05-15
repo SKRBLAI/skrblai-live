@@ -20,7 +20,7 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, onClick, isPremiumLocked }
       aria-label={`View details for ${agent.name}`}
     >
       <div className="w-16 h-16 mb-3 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-700 to-purple-700 text-white text-3xl shadow-lg">
-        {agent.icon ? agent.icon : agent.name.charAt(0)}
+        {agent.emoji ? agent.emoji : agent.name.charAt(0)}
       </div>
       <h2 className="text-lg font-semibold text-white mb-1 text-center">{agent.name}</h2>
       <p className="text-sm text-slate-300 text-center mb-2 line-clamp-2">{agent.description}</p>

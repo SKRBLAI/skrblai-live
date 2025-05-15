@@ -83,7 +83,8 @@ const runPublishing = async (input: PublishingAgentInput) => {
 
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to publish book'
+        message: `Failed to publish book: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
 };

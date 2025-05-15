@@ -757,14 +757,13 @@ const analyticsAgent: Agent = {
   category: 'Marketing',
   description: 'AI-powered marketing analytics and optimization',
   visible: true,
-  agentCategory: ['analytics'],
+  agentCategory: ['analytics', 'marketing'],
   config: {
     name: 'Analytics',
     description: 'AI-powered marketing analytics and optimization',
     capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to analytics input with required fields
     const analyticsInput: AnalyticsInput = {
       ...input,
       dataSource: (input as any).dataSource || 'website',

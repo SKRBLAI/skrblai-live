@@ -55,7 +55,6 @@ const runPercyAgent = async (input: PercyAgentInput): Promise<AgentResponse> => 
     return {
       success: false,
       message: `Percy agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      agentName: 'percy',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

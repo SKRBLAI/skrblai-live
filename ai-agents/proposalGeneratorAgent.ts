@@ -81,7 +81,6 @@ const proposalGeneratorAgent: Agent = {
       return {
         success: true,
         message: 'Proposal generated successfully',
-        agentName: 'proposalGenerator',
         data: proposal
       };
 
@@ -99,7 +98,7 @@ const proposalGeneratorAgent: Agent = {
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Failed to generate proposal',
-        agentName: 'proposalGenerator'
+        error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
   }

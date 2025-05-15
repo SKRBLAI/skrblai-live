@@ -111,19 +111,16 @@ const runVideoAgent = async (input: VideoAgentInput): Promise<AgentResponse> => 
     return {
       success: true,
       message: `Video content generated successfully for "${input.title}"`,
-      agentName: 'videoContent',
       data: {
         videoId: videoData[0].id,
         content: videoContent
-      },
-      error: undefined
+      }
     };
   } catch (error) {
     console.error('Video content agent failed:', error);
     return {
       success: false,
       message: `Video content agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      agentName: 'videoContent',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

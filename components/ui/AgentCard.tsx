@@ -54,7 +54,7 @@ interface AgentCardProps {
   onClick: () => void;
 }
 
-export { getAgentEmoji };
+export { getAgentEmoji, AgentCard as default };
 export default function AgentCard({ agent, onClick }: AgentCardProps) {
   // Modal state (could be lifted to parent for full control)
   const [modalOpen, setModalOpen] = useState(false);

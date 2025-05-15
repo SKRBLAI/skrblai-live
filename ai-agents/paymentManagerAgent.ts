@@ -241,7 +241,6 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
     return {
       success: false,
       message: `Payment manager agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      agentName: 'paymentManager',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

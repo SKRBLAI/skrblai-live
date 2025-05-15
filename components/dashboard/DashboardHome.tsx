@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useAgentStats } from "@/hooks/useAgentStats";
 import { useUser } from "@/hooks/useUser";
-import { Agent } from "@/types/agent";
+import { Agent, AgentStats } from "@/types/agent";
 import Link from "next/link";
 
 const fadeInUp = {
@@ -107,7 +107,7 @@ export default function DashboardHome() {
         >
           <h2 className="text-2xl font-semibold text-white mb-6">Your Top Agents</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topAgents.slice(0, 3).map((agent: Agent, index: number) => (
+            {topAgents.slice(0, 3).map((agent: AgentStats, index: number) => (
               <motion.div
                 key={agent.id}
                 variants={fadeInUp}
