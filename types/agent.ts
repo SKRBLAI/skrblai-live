@@ -34,12 +34,14 @@ export interface Agent {
   name: string;
   description: string;
   category: string;
+  agentCategory?: string[];
   emoji?: string;
   usageCount?: number;
   config?: AgentConfig;
   route?: string | null;
   intent?: string | null;
   visible: boolean;
+  runAgent?: (input: any) => Promise<any>;
 }
 
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;
