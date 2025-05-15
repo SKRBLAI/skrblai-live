@@ -48,9 +48,7 @@ const runPercyAgent = async (input: PercyAgentInput): Promise<AgentResponse> => 
     return {
       success: true,
       message: 'Percy agent completed successfully',
-      agentName: 'percy',
-      data: result,
-      error: undefined
+      data: result
     };
   } catch (error) {
     console.error('Percy agent failed:', error);

@@ -766,7 +766,6 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
     return {
       success: true,
       message: `Support ticket created successfully for "${input.subject}"`,
-      agentName: 'clientSuccess',
       data: {
         ticketId: ticketData[0].id,
         response: initialResponse,
@@ -778,15 +777,13 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
           category: ticketParams.category,
           status: 'open'
         }
-      },
-      error: undefined
+      }
     };
   } catch (error) {
     console.error('Client success agent failed:', error);
     return {
       success: false,
       message: `Client success agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      agentName: 'clientSuccess',
       error: error instanceof Error ? error.message : 'Unknown error'
     };
   }

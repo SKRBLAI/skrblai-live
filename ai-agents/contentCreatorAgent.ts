@@ -77,7 +77,6 @@ const runContentAgent = async (input: ContentAgentInput): Promise<AgentResponse>
     return {
       success: true,
       message: `${capitalizeFirstLetter(input.contentType)} content created successfully`,
-      agentName: 'contentCreator',
       data: {
         contentId: contentData[0].id,
         content: generatedContent,
@@ -94,7 +93,7 @@ const runContentAgent = async (input: ContentAgentInput): Promise<AgentResponse>
     return {
       success: false,
       message: `Content creator agent failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      agentName: 'contentCreator'
+
     };
   }
 }

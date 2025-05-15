@@ -229,14 +229,12 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
     return {
       success: true,
       message: `Payment ${paymentResult.status} for ${paymentParams.currency} ${input.amount}`,
-      agentName: 'paymentManager',
       data: {
         paymentId: paymentData[0].id,
         transactionId: paymentResult.transactionId,
         status: paymentResult.status,
-        receipt,
-      },
-      error: undefined
+        receipt
+      }
     };
   } catch (error) {
     console.error('Payment manager agent failed:', error);
