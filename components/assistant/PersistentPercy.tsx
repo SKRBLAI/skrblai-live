@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { auth } from '@/utils/supabase-auth';
-import { ChatBubble } from '@/components/ui/ChatBubble';
+import { ChatBubble } from '@/components/ui';
 
 interface PercyContextType {
   isOpen: boolean;

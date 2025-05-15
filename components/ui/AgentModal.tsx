@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import getAgentEmoji from './AgentCard'; // Import the emoji helper
+import { getAgentEmoji } from './AgentCard'; // Import the emoji helper
 import { Agent } from '@/types/agent';
 import React from "react";
 
@@ -57,7 +57,7 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
               </div>
               <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">{agent.name}</h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">{agent.description}</p>
-              {(agent.capabilities || agent.config?.capabilities) && (
+              {agent.config?.capabilities && (
   <motion.ul
     className="text-left mb-4 space-y-2"
     initial="hidden"
@@ -67,7 +67,7 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
       hidden: {}
     }}
   >
-    {(agent.capabilities || agent.config?.capabilities)?.map((cap: string, i: number) => (
+    {agent.config.capabilities.map((cap: string, i: number) => (
       <motion.li
         key={i}
         className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300"

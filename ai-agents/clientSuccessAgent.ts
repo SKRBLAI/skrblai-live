@@ -798,6 +798,7 @@ const clientSuccessAgent: Agent = {
   category: 'Support',
   description: 'Handles client support requests and ticket management',
   visible: true,
+  agentCategory: ['support'],
   config: {
     name: 'Client Success',
     description: 'Handles client support requests and ticket management',

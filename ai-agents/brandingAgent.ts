@@ -576,6 +576,7 @@ const brandingAgent: Agent = {
   category: 'Branding',
   description: 'AI-powered brand identity and guidelines generation',
   visible: true,
+  agentCategory: ['branding'],
   config: {
     name: 'Branding',
     description: 'AI-powered brand identity and guidelines generation',

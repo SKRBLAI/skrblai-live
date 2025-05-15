@@ -232,6 +232,7 @@ const percyAgent: Agent = {
   category: 'Assistant',
   description: 'AI assistant that handles user inquiries and form intake',
   visible: true,
+  agentCategory: ['assistant'],
   config: {
     name: 'Percy',
     description: 'AI assistant that handles user inquiries and form intake',

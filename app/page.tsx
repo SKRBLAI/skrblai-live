@@ -1,6 +1,6 @@
 'use client';
 import PageLayout from '@/components/layout/PageLayout';
-import PercyHeroSection from '@/components/home/PercyHeroSection';
+import HomepageFlow from '@/components/home/HomepageFlow';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import Navbar from '@/components/layout/Navbar';
 import { motion } from 'framer-motion';
@@ -19,7 +19,7 @@ export default function HomePage() {
 
   return (
     <PageLayout>
-      <WaitlistPopup />
+      <HomepageFlow />
       <div className="min-h-screen relative bg-gradient-to-b from-[#0d1117] to-[#161b22] text-white">
         {/* Navigation Bar - Placed at the top */}
         <Navbar />
@@ -41,7 +41,7 @@ export default function HomePage() {
           </motion.div>
           
           <FloatingParticles />
-          <PercyHeroSection />
+          {/* HomepageFlow now handles PercyHero, OnboardingSection, WaitlistPopup */}
           
           {/* Call-to-action section */}
           <motion.div 

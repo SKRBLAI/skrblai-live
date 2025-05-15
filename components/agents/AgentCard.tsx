@@ -1,17 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
-export interface Agent {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  route?: string | null;
-  intent?: string | null;
-  visible: boolean;
-  premium?: boolean;
-  icon?: React.ReactNode;
-}
+import type { Agent } from '@/types/agent';
 
 interface AgentCardProps {
   agent: Agent;

@@ -757,6 +757,7 @@ const analyticsAgent: Agent = {
   category: 'Marketing',
   description: 'AI-powered marketing analytics and optimization',
   visible: true,
+  agentCategory: ['analytics'],
   config: {
     name: 'Analytics',
     description: 'AI-powered marketing analytics and optimization',

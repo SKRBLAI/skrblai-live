@@ -94,6 +94,7 @@ const publishingAgent: Agent = {
   category: 'Publishing',
   description: 'AI-powered book publishing and content distribution',
   visible: true,
+  agentCategory: ['publishing'],
   config: {
     name: 'Publishing Agent',
     description: 'AI-powered book publishing and content distribution',

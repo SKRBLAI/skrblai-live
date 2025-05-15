@@ -71,3 +71,47 @@ export const getUserData = async (userId: string) => {
     return { success: false, error: error.message };
   }
 };
+
+// --- AUTH STUBS FOR ONBOARDING/ACCESS GATING ---
+
+/**
+ * Placeholder signup logic for onboarding and access gating
+ * Accepts email, password, and optional role (default: 'user')
+ */
+export const signupWithRole = async (email: string, password: string, role: string = 'user') => {
+  // TODO: Integrate with real signup logic and role assignment
+  // For now, just call createUser and log the role
+  console.log('[AUTH STUB] Signup:', { email, role });
+  const result = await createUser(email, password, { displayName: email.split('@')[0] });
+  // Simulate role assignment (to be replaced with DB logic)
+  return { ...result, assignedRole: role };
+};
+
+/**
+ * Placeholder login logic
+ */
+export const loginWithEmail = async (email: string, password: string) => {
+  // TODO: Integrate with real login logic
+  console.log('[AUTH STUB] Login:', { email });
+  return loginUser(email, password);
+};
+
+/**
+ * Placeholder for email capture (lead collection)
+ */
+export const captureEmailForAccess = async (email: string) => {
+  // TODO: Store email in a leads table or CRM
+  console.log('[AUTH STUB] Captured email for access gating:', email);
+  // Simulate success
+  return { success: true };
+};
+
+/**
+ * Placeholder for role assignment (upgrade/downgrade)
+ */
+export const assignUserRole = async (userId: string, role: string) => {
+  // TODO: Update user role in DB
+  console.log('[AUTH STUB] Assign role:', { userId, role });
+  // Simulate success
+  return { success: true, userId, newRole: role };
+};

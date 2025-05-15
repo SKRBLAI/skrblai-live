@@ -515,6 +515,7 @@ const socialBotAgent: Agent = {
   category: 'Marketing',
   description: 'AI-powered social media content generation and management',
   visible: true,
+  agentCategory: ['social', 'marketing'],
   config: {
     name: 'Social Bot',
     description: 'AI-powered social media content generation and management',

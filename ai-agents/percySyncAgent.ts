@@ -191,6 +191,7 @@ const percySyncAgent: Agent = {
   category: 'System',
   description: 'Handles synchronization and routing of Percy chat interactions',
   visible: false,
+  agentCategory: ['system'],
   // Handle user onboarding from Percy chat
   async handleOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
     try {

@@ -28,6 +28,7 @@ const proposalGeneratorAgent: Agent = {
   category: 'Business',
   description: 'AI-powered business proposal generation',
   visible: true,
+  agentCategory: ['business', 'proposal'],
   config: {
     name: 'Proposal Generator',
     description: 'AI-powered business proposal generation',

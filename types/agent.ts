@@ -46,4 +46,5 @@ export interface Agent {
     input: string;
     output: string;
   }>;
+  icon?: React.ReactNode;
 }

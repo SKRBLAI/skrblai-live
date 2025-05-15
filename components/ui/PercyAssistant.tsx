@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
-import { ChatBubble } from './ChatBubble';
+import { ChatBubble } from '@/components/ui';
 import { routeToAgentFromIntent } from '@/ai-agents/percySyncAgent';
 
 const INTENT_MAPPING = {
