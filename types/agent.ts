@@ -1,50 +1,45 @@
+import { ReactNode } from 'react';
+
 export interface AgentInput {
   userId: string;
   goal: string;
-  jobId?: string; // Job ID for tracking status in dashboard
-  additionalNotes?: string;
-  metadata?: Record<string, any>;
+  content?: string;
+  context?: string;
+  options?: Record<string, any>;
 }
 
 export interface AgentResponse {
   success: boolean;
   message: string;
-  agentName: string;
-  data?: Record<string, any>;
+  data?: any;
   error?: string;
 }
 
-export interface AgentConfig {
+export interface AgentStats {
+  id: string;
   name: string;
-  description: string;
-  capabilities: string[];
+  emoji: string;
+  usageCount: number;
 }
 
-export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;
+export interface AgentConfig {
+  name?: string;
+  description?: string;
+  capabilities: string[];
+  workflows?: string[];
+}
 
 export interface Agent {
   id: string;
   name: string;
-  category: string;
-  agentCategory: string[];
   description: string;
+  category: string;
+  emoji?: string;
+  usageCount?: number;
+  config?: AgentConfig;
   route?: string | null;
   intent?: string | null;
   visible: boolean;
-  premium?: boolean;
-  roleRequired?: string;
-  config?: {
-    name: string;
-    description: string;
-    capabilities?: string[];
-  };
-  runAgent?: (input: any, context?: any) => Promise<any>;
-  handleOnboarding?: (lead: any) => Promise<{success: boolean; message: string; redirectPath?: string}>;
-  promptTemplate?: string;
-  params?: Record<string, any>;
-  examples?: Array<{
-    input: string;
-    output: string;
-  }>;
-  icon?: React.ReactNode;
 }
+
+export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;

@@ -1,5 +1,7 @@
 'use client';
 import './globals.css';
+import '../styles/components.css';
+import PageTransition from '@/components/ui/PageTransition';
 import PercyProvider from '@/components/assistant/PercyProvider';
 import PercyWidget from '@/components/percy/PercyWidget';
 import type { ReactNode } from "react";
@@ -32,11 +34,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-deep-navy min-h-screen antialiased font-sans">
+      <body className="bg-gradient-to-b from-[#0d1117] to-[#161b22] min-h-screen antialiased font-sans overflow-x-hidden">
         <PercyProvider>
-          {children}
+          <PageTransition>
+            {children}
+          </PageTransition>
           {mounted && (
-            <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000 }}>
+            <div className="percy-widget-container">
               {/* Percy Concierge Widget - always visible */}
               <PercyWidget />
             </div>

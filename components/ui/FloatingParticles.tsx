@@ -1,10 +1,16 @@
 "use client";
 import React, { useEffect, useRef } from 'react';
 
-const FloatingParticles = () => {
+interface ParticleProps {
+  fullScreen?: boolean;
+  particleCount?: number;
+}
+
+const FloatingParticles = ({ fullScreen = true, particleCount = 50 }: ParticleProps = {}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
+    if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -14,14 +20,19 @@ const FloatingParticles = () => {
     // Set canvas size
     const resizeCanvas = () => {
       if (!canvas) return;
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const container = canvas.parentElement;
+      if (!container) return;
+      
+      canvas.width = fullScreen ? window.innerWidth : container.offsetWidth;
+      canvas.height = fullScreen ? window.innerHeight : container.offsetHeight;
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
     // Particle class
     class Particle {
+      private glowIntensity: number = 0;
+      private glowDirection: number = 1;
       x: number = 0;
       y: number = 0;
       size: number = 1;
@@ -52,19 +63,28 @@ const FloatingParticles = () => {
 
       draw() {
         if (!ctx) return;
+        
+        // Update glow effect
+        this.glowIntensity += 0.02 * this.glowDirection;
+        if (this.glowIntensity > 1) {
+          this.glowDirection = -1;
+        } else if (this.glowIntensity < 0) {
+          this.glowDirection = 1;
+        }
+        
+        // Draw particle with glow
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `rgba(20, 255, 233, ${this.glowIntensity * 0.5})`;
+        ctx.fillStyle = `rgba(20, 255, 233, ${this.opacity * (0.7 + this.glowIntensity * 0.3)})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(30, 144, 255, ${this.opacity})`;
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
     }
 
     // Create particles
-    const particles: Particle[] = [];
-    const particleCount = 50;
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
+    const particles: Particle[] = Array(particleCount).fill(null).map(() => new Particle());
 
     // Animation loop
     const animate = () => {
@@ -84,12 +104,12 @@ const FloatingParticles = () => {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, []);
+  }, [fullScreen, particleCount]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full bg-transparent"
+    <canvas 
+      ref={canvasRef} 
+      className={`particles-canvas ${fullScreen ? 'particles-canvas-fullscreen' : ''}`}
     />
   );
 };

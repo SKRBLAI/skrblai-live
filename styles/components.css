@@ -1,0 +1,42 @@
+/* Floating Particles */
+.particles-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.particles-canvas-fullscreen {
+  position: fixed;
+  z-index: -1;
+}
+
+/* Percy Widget Container */
+.percy-widget-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+/* CTA Button Styles */
+.cta-button {
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 300ms ease;
+  background: linear-gradient(135deg, #0066FF, #00F5D4);
+  box-shadow: 0 0 20px rgba(0, 102, 255, 0.3);
+}
+
+.cta-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 30px rgba(0, 102, 255, 0.5);
+  filter: brightness(1.1);
+}
+
+.cta-button:active {
+  transform: translateY(1px) scale(0.98);
+}

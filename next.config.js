@@ -1,4 +1,19 @@
 /** @type {import('next').NextConfig} */
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+];
+
+if (process.env.NODE_ENV !== 'test') {
+  requiredEnvVars.forEach((envVar) => {
+    if (!process.env[envVar]) {
+      throw new Error(`Missing required environment variable: ${envVar}`);
+    }
+  });
+}
+
 const nextConfig = {
   reactStrictMode: true,
 
