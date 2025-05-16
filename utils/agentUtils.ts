@@ -36,3 +36,33 @@ export function formatAgentName(name: string): string {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
 }
+
+/**
+ * Safely validates and extracts specific fields from an input object
+ * Use this to handle extended fields from AgentInput that aren't in the base type
+ * 
+ * @param input - The input object to validate (usually from BaseAgentInput)
+ * @param fields - Array of field names to validate and extract
+ * @param typeChecks - Optional object with type validation functions for each field
+ * @param defaults - Optional object with default values for each field
+ * @returns Record with validated fields
+ */
+export function validateAgentInput<T extends string>(
+  input: Record<string, any>, 
+  fields: T[],
+  typeChecks?: Partial<Record<T, (val: any) => boolean>>,
+  defaults?: Partial<Record<T, any>>
+): Record<T, any> {
+  return fields.reduce((acc, field) => {
+    // Get the value, possibly undefined
+    const value = input?.[field];
+    
+    // Determine if valid using custom type check or just check if defined
+    const isValid = typeChecks?.[field] ? typeChecks[field]!(value) : value !== undefined;
+    
+    // Use the value if valid, or the default (which can be undefined)
+    acc[field] = isValid ? value : defaults?.[field];
+    
+    return acc;
+  }, {} as Record<T, any>);
+}

@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -452,18 +453,46 @@ const contentCreatorAgent: Agent = {
     capabilities: ['Blog Posts', 'Social Media', 'Email Content', 'Website Copy', 'Ad Copy', 'Product Descriptions', 'Video Scripts']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to content agent input with required fields
+    // Use the validateAgentInput helper for content fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const contentFields = validateAgentInput(
+      extendedInput,
+      ['contentType', 'topic', 'tone', 'keywords', 'targetAudience', 'wordCount', 'references', 'customInstructions'],
+      {
+        // Type validation functions
+        contentType: (val) => ['blog', 'social', 'email', 'website', 'ad', 'product', 'video', 'custom'].includes(val),
+        topic: (val) => typeof val === 'string',
+        tone: (val) => ['professional', 'casual', 'friendly', 'authoritative', 'humorous', 'technical'].includes(val),
+        keywords: (val) => Array.isArray(val),
+        targetAudience: (val) => typeof val === 'string',
+        wordCount: (val) => typeof val === 'number',
+        references: (val) => Array.isArray(val),
+        customInstructions: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        contentType: 'blog',
+        topic: '',
+        tone: undefined,
+        keywords: [],
+        targetAudience: undefined,
+        wordCount: undefined,
+        references: [],
+        customInstructions: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const contentInput: ContentAgentInput = {
-      ...input,
-      contentType: (input as any).contentType || 'blog',
-      topic: (input as any).topic || '',
-      tone: (input as any).tone,
-      keywords: (input as any).keywords || [],
-      targetAudience: (input as any).targetAudience,
-      wordCount: (input as any).wordCount,
-      references: (input as any).references || [],
-      customInstructions: (input as any).customInstructions
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...contentFields
     };
+    
     return runContentAgent(contentInput);
   }
 };

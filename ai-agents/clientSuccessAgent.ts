@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Client Success Agent
@@ -802,18 +803,45 @@ const clientSuccessAgent: Agent = {
     capabilities: ['Support Request Processing', 'Ticket Management', 'Client History Analysis', 'Resource Generation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to client success input
+    // Use the validateAgentInput helper for client success fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const clientFields = validateAgentInput(
+      extendedInput,
+      ['clientId', 'requestType', 'subject', 'description', 'priority', 'category', 'attachments', 'previousInteractions'],
+      {
+        // Type validation functions
+        clientId: (val) => typeof val === 'string',
+        requestType: (val) => typeof val === 'string',
+        subject: (val) => typeof val === 'string',
+        description: (val) => typeof val === 'string',
+        priority: (val) => ['high', 'medium', 'low'].includes(val),
+        category: (val) => typeof val === 'string',
+        attachments: (val) => Array.isArray(val),
+        previousInteractions: (val) => Array.isArray(val)
+      },
+      {
+        // Default values
+        clientId: '',
+        requestType: 'general',
+        subject: '',
+        description: '',
+        priority: undefined,
+        category: undefined,
+        attachments: undefined,
+        previousInteractions: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const clientInput: ClientSuccessInput = {
-      ...input,
-      clientId: (input as any).clientId || '',
-      requestType: (input as any).requestType || 'general',
-      subject: (input as any).subject || '',
-      description: (input as any).description || '',
-      priority: (input as any).priority,
-      category: (input as any).category,
-      attachments: (input as any).attachments,
-      previousInteractions: (input as any).previousInteractions
+      userId: input.userId,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...clientFields
     };
+    
     return runClientSuccessAgent(clientInput);
   }
 };

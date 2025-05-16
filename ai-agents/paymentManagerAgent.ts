@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
@@ -371,18 +372,45 @@ const paymentManagerAgent: Agent = {
     capabilities: ['Payment Processing', 'Subscription Management', 'Receipt Generation', 'Payment Validation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to payment agent input
+    // Use the validateAgentInput helper for payment fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const paymentFields = validateAgentInput(
+      extendedInput,
+      ['paymentType', 'amount', 'currency', 'paymentMethod', 'paymentDetails', 'billingAddress', 'invoiceId', 'subscriptionId'],
+      {
+        // Type validation functions
+        paymentType: (val) => ['one_time', 'subscription', 'refund'].includes(val),
+        amount: (val) => typeof val === 'number',
+        currency: (val) => typeof val === 'string',
+        paymentMethod: (val) => typeof val === 'string',
+        paymentDetails: (val) => typeof val === 'object',
+        billingAddress: (val) => typeof val === 'object',
+        invoiceId: (val) => typeof val === 'string',
+        subscriptionId: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        paymentType: 'one_time',
+        amount: 0,
+        currency: 'USD',
+        paymentMethod: undefined,
+        paymentDetails: undefined,
+        billingAddress: undefined,
+        invoiceId: undefined,
+        subscriptionId: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const paymentInput: PaymentAgentInput = {
-      ...input,
-      paymentType: (input as any).paymentType || 'one_time',
-      amount: (input as any).amount || 0,
-      currency: (input as any).currency || 'USD',
-      paymentMethod: (input as any).paymentMethod,
-      paymentDetails: (input as any).paymentDetails,
-      billingAddress: (input as any).billingAddress,
-      invoiceId: (input as any).invoiceId,
-      subscriptionId: (input as any).subscriptionId
+      userId: input.userId,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...paymentFields
     };
+    
     return runPaymentAgent(paymentInput);
   }
 };

@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -583,13 +584,45 @@ const brandingAgent: Agent = {
     capabilities: ['Brand Identity', 'Color Palette', 'Typography', 'Logo Design', 'Brand Voice']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to branding input with required fields
+    // Use the validator helper for cleaner, safer type handling
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    // Validate branding-specific fields
+    const brandingFields = validateAgentInput(
+      extendedInput,
+      ['businessName', 'industry', 'targetAudience', 'brandValues', 'competitorBrands', 'colorPreferences', 'stylePreferences'],
+      {
+        // Type validation functions
+        businessName: (val) => typeof val === 'string',
+        industry: (val) => typeof val === 'string',
+        targetAudience: (val) => typeof val === 'string',
+        brandValues: (val) => Array.isArray(val),
+        competitorBrands: (val) => Array.isArray(val),
+        colorPreferences: (val) => Array.isArray(val),
+        stylePreferences: (val) => Array.isArray(val)
+      },
+      {
+        // Default values
+        businessName: '',
+        industry: '',
+        targetAudience: '',
+        brandValues: [],
+        competitorBrands: [],
+        colorPreferences: [],
+        stylePreferences: []
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const brandingInput: BrandingInput = {
-      ...input,
-      businessName: (input as any).businessName || '',
-      industry: (input as any).industry || '',
-      targetAudience: (input as any).targetAudience || ''
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...brandingFields
     };
+    
     return runBranding(brandingInput);
   }
 };

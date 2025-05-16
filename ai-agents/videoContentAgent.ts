@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Video Content Agent
@@ -382,19 +383,50 @@ const videoContentAgent: Agent = {
     capabilities: ['Script Writing', 'Storyboard Creation', 'Video Planning', 'Duration Management']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to video agent input with required fields
+    // Use the validateAgentInput helper for video fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const videoFields = validateAgentInput(
+      extendedInput,
+      ['title', 'topic', 'videoType', 'duration', 'targetAudience', 'tone', 
+       'keyPoints', 'includeCallToAction', 'brandGuidelines', 'customInstructions'],
+      {
+        // Type validation functions
+        title: (val) => typeof val === 'string',
+        topic: (val) => typeof val === 'string',
+        videoType: (val) => ['explainer', 'tutorial', 'promotional', 'educational', 
+                            'storytelling', 'testimonial', 'product', 'custom'].includes(val),
+        duration: (val) => typeof val === 'number',
+        targetAudience: (val) => typeof val === 'string',
+        tone: (val) => ['professional', 'casual', 'friendly', 'authoritative', 'humorous', 'technical'].includes(val),
+        keyPoints: (val) => Array.isArray(val),
+        includeCallToAction: (val) => typeof val === 'boolean',
+        brandGuidelines: (val) => typeof val === 'object'
+      },
+      {
+        // Default values
+        title: '',
+        topic: '',
+        videoType: 'explainer',
+        duration: undefined,
+        targetAudience: undefined,
+        tone: undefined,
+        keyPoints: [],
+        includeCallToAction: true,
+        brandGuidelines: {},
+        customInstructions: ''
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const videoInput: VideoAgentInput = {
-      ...input,
-      title: (input as any).title || '',
-      topic: (input as any).topic || '',
-      videoType: (input as any).videoType || 'explainer',
-      duration: (input as any).duration,
-      targetAudience: (input as any).targetAudience,
-      tone: (input as any).tone,
-      keyPoints: (input as any).keyPoints || [],
-      includeCallToAction: (input as any).includeCallToAction || false,
-      brandGuidelines: (input as any).brandGuidelines || {}
+      userId: input.userId,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...videoFields
     };
+    
     return runVideoAgent(videoInput);
   }
 };

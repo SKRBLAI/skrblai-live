@@ -1,4 +1,5 @@
 import { agentDb } from '@/utils/db';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Import agent implementations
@@ -83,12 +84,27 @@ export interface AgentResponse {
 
 export async function routeToAgentFromIntent(input: PercySyncAgentInput): Promise<AgentResponse> {
   try {
+    // Use validateAgentInput to validate the intent and customParams
+    const percyFields = validateAgentInput<'intent' | 'projectId' | 'customParams'>(
+      input as unknown as Record<string, any>,
+      ['intent', 'projectId', 'customParams'],
+      {
+        intent: (val) => Object.keys(INTENT_MAPPING).includes(val),
+        projectId: (val) => typeof val === 'string',
+        customParams: (val) => typeof val === 'object'
+      },
+      {
+        projectId: undefined,
+        customParams: {}
+      }
+    );
+
     // Validate intent exists
-    if (!INTENT_MAPPING[input.intent]) {
-      throw new Error(`Invalid intent: ${input.intent}`);
+    if (!INTENT_MAPPING[percyFields.intent as IntentKey]) {
+      throw new Error(`Invalid intent: ${percyFields.intent}`);
     }
 
-    const { agent, message, priority } = INTENT_MAPPING[input.intent];
+    const { agent, message, priority } = INTENT_MAPPING[percyFields.intent as IntentKey];
     
     // Validate agent name exists in AGENT_HANDLERS
     if (!(agent in AGENT_HANDLERS)) {
@@ -107,12 +123,12 @@ export async function routeToAgentFromIntent(input: PercySyncAgentInput): Promis
       userId: input.userId,
       agentName: agent,
       status: 'queued',
-      intent: input.intent,
+      intent: percyFields.intent,
       priority,
       timestamp: Date.now(),
-      customParams: input.customParams || {},
-      title: `${input.intent.replace(/_/g, ' ')} task`,
-      type: input.intent.split('_')[0], // e.g., 'grow' from 'grow_social_media'
+      customParams: percyFields.customParams || {},
+      title: `${percyFields.intent.replace(/_/g, ' ')} task`,
+      type: percyFields.intent.split('_')[0], // e.g., 'grow' from 'grow_social_media'
       createdAt: new Date(),
       progress: 0
     };
@@ -127,11 +143,11 @@ export async function routeToAgentFromIntent(input: PercySyncAgentInput): Promis
     if (typeof agentHandler.runAgent === 'function') {
       agentHandler.runAgent({
         userId: input.userId,
-        goal: input.intent,
+        goal: percyFields.intent,
         jobId, // Pass jobId directly as parameter
         metadata: {
           jobId, // Also include in metadata for backward compatibility
-          ...input.customParams
+          ...percyFields.customParams
         }
       });
     } else {
@@ -226,6 +242,7 @@ export async function handlePercyOnboarding(lead: Lead): Promise<{success: boole
     // Create agent job
     const jobResponse = await routeToAgentFromIntent({
       userId,
+      goal: lead.intent as IntentKey,
       intent: lead.intent as IntentKey,
       customParams: {
         name: lead.name,

@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Site Generation Agent
@@ -187,13 +188,48 @@ const sitegenAgent: Agent = {
     capabilities: ['Page Structure', 'Content Generation', 'Design System', 'SEO Optimization']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to site gen input with required fields
+    // Use the validateAgentInput helper for site generator fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const siteFields = validateAgentInput(
+      extendedInput,
+      ['businessName', 'industry', 'pages', 'design', 'colorScheme', 'features', 'targetAudience', 'logoUrl', 'customInstructions'],
+      {
+        // Type validation functions
+        businessName: (val) => typeof val === 'string',
+        industry: (val) => typeof val === 'string',
+        pages: (val) => Array.isArray(val),
+        design: (val) => ['modern', 'classic', 'minimalist', 'bold', 'playful', 'luxury'].includes(val),
+        colorScheme: (val) => Array.isArray(val),
+        features: (val) => Array.isArray(val),
+        targetAudience: (val) => typeof val === 'string',
+        logoUrl: (val) => typeof val === 'string',
+        customInstructions: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        businessName: '',
+        industry: '',
+        pages: ['home', 'about', 'contact'],
+        design: undefined,
+        colorScheme: undefined,
+        features: undefined,
+        targetAudience: undefined,
+        logoUrl: undefined,
+        customInstructions: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const siteGenInput: SiteGenInput = {
-      ...input,
-      businessName: (input as any).businessName || '',
-      industry: (input as any).industry || '',
-      pages: (input as any).pages || ['home', 'about', 'contact']
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...siteFields
     };
+    
     return runSiteGen(siteGenInput);
   }
 };

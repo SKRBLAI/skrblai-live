@@ -1,5 +1,6 @@
 import { supabase } from '@/utils/supabase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Social Bot Agent
@@ -522,13 +523,56 @@ const socialBotAgent: Agent = {
     capabilities: ['Content Generation', 'Post Scheduling', 'Multi-Platform Support', 'Hashtag Generation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to social bot input with required fields
+    // Use the validateAgentInput helper for social bot fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const socialFields = validateAgentInput(
+      extendedInput,
+      ['businessName', 'industry', 'platforms', 'jobId', 'contentType', 'postCount', 'tone', 'topics', 'targetAudience', 'brandGuidelines', 'includeHashtags', 'schedulePosts', 'customInstructions'],
+      {
+        // Type validation functions
+        businessName: (val) => typeof val === 'string',
+        industry: (val) => typeof val === 'string',
+        platforms: (val) => Array.isArray(val),
+        jobId: (val) => typeof val === 'string',
+        contentType: (val) => ['image', 'video', 'carousel', 'text', 'mixed'].includes(val),
+        postCount: (val) => typeof val === 'number',
+        tone: (val) => ['professional', 'casual', 'friendly', 'authoritative', 'humorous', 'technical'].includes(val),
+        topics: (val) => Array.isArray(val),
+        targetAudience: (val) => typeof val === 'string',
+        brandGuidelines: (val) => typeof val === 'object',
+        includeHashtags: (val) => typeof val === 'boolean',
+        schedulePosts: (val) => typeof val === 'boolean',
+        customInstructions: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        businessName: '',
+        industry: '',
+        platforms: ['instagram', 'twitter', 'facebook'],
+        jobId: undefined,
+        contentType: undefined,
+        postCount: undefined,
+        tone: undefined,
+        topics: undefined,
+        targetAudience: undefined,
+        brandGuidelines: undefined,
+        includeHashtags: undefined,
+        schedulePosts: undefined,
+        customInstructions: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const socialBotInput: SocialBotInput = {
-      ...input,
-      businessName: (input as any).businessName || '',
-      industry: (input as any).industry || '',
-      platforms: (input as any).platforms || ['instagram', 'twitter', 'facebook']
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...socialFields
     };
+    
     return runSocialBot(socialBotInput);
   }
 };

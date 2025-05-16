@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 interface ProposalAgentInput extends BaseAgentInput {
@@ -35,16 +36,42 @@ const proposalGeneratorAgent: Agent = {
     capabilities: ['Executive Summary', 'Scope Definition', 'Timeline Planning', 'Budget Allocation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to proposal agent input with required fields
+    // Use the validateAgentInput helper for proposal fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const proposalFields = validateAgentInput(
+      extendedInput,
+      ['clientName', 'clientIndustry', 'projectScope', 'projectTimeline', 'budget', 'services', 'customRequirements'],
+      {
+        // Type validation functions
+        clientName: (val) => typeof val === 'string',
+        clientIndustry: (val) => typeof val === 'string',
+        projectScope: (val) => typeof val === 'string',
+        projectTimeline: (val) => typeof val === 'string',
+        budget: (val) => typeof val === 'string',
+        services: (val) => Array.isArray(val),
+        customRequirements: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        clientName: '',
+        clientIndustry: '',
+        projectScope: '',
+        projectTimeline: '',
+        budget: '',
+        services: [],
+        customRequirements: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const proposalInput: ProposalAgentInput = {
-      ...input,
-      clientName: (input as any).clientName || '',
-      clientIndustry: (input as any).clientIndustry || '',
-      projectScope: (input as any).projectScope || '',
-      projectTimeline: (input as any).projectTimeline || '',
-      budget: (input as any).budget || '',
-      services: (input as any).services || [],
-      customRequirements: (input as any).customRequirements
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...proposalFields
     };
 
     try {

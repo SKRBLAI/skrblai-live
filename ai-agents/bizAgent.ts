@@ -1,3 +1,4 @@
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Business Agent Types
@@ -271,18 +272,46 @@ const bizAgent: Agent = {
     capabilities: ['strategy', 'planning', 'analysis']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to biz agent input with required fields
+    // Use the validateAgentInput helper for business fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const bizFields = validateAgentInput(
+      extendedInput,
+      ['businessName', 'industry', 'businessGoals', 'timeframe', 'annualRevenue', 'companySize', 'challenges', 'location'],
+      {
+        // Type validation functions
+        businessName: (val) => typeof val === 'string',
+        industry: (val) => typeof val === 'string',
+        businessGoals: (val) => Array.isArray(val),
+        timeframe: (val) => typeof val === 'string',
+        annualRevenue: (val) => typeof val === 'number',
+        companySize: (val) => typeof val === 'string',
+        challenges: (val) => Array.isArray(val),
+        location: (val) => typeof val === 'string'
+      },
+      {
+        // Default values
+        businessName: '',
+        industry: '',
+        businessGoals: [],
+        timeframe: '1 year',
+        annualRevenue: 0,
+        companySize: 'small',
+        challenges: [],
+        location: ''
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const bizInput: BizAgentInput = {
-      ...input,
-      businessName: typeof input.businessName === 'string' ? input.businessName : '',
-      industry: typeof input.industry === 'string' ? input.industry : '',
-      businessGoals: Array.isArray(input.businessGoals) ? input.businessGoals : [],
-      timeframe: typeof input.timeframe === 'string' ? input.timeframe : '1 year',
-      annualRevenue: typeof input.annualRevenue === 'number' ? input.annualRevenue : 0,
-      companySize: typeof input.companySize === 'string' ? input.companySize : 'small',
-      challenges: Array.isArray(input.challenges) ? input.challenges : [],
-      location: typeof input.location === 'string' ? input.location : ''
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...bizFields
     };
+    
     return runBizAgent(bizInput);
   }
 };

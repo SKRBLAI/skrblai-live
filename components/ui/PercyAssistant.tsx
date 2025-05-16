@@ -94,6 +94,7 @@ export default function PercyAssistant() {
       const response = await routeToAgentFromIntent({
         userId: 'current-user-id', // Replace with actual user ID
         intent: goal.intent,
+        goal: goal.intent,
         customParams: {
           initiatedFrom: 'percy-assistant',
           timestamp: new Date().toISOString()

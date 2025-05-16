@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Percy Agent
@@ -236,12 +237,33 @@ const percyAgent: Agent = {
     capabilities: ['Text Processing', 'Form Processing', 'Intent Analysis', 'Response Generation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to percy agent input
+    // Use the validateAgentInput helper for percy fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const percyFields = validateAgentInput(
+      extendedInput,
+      ['type', 'data'],
+      {
+        // Type validation functions
+        type: (val) => val === 'text' || val === 'form',
+        data: (val) => typeof val === 'string' || val instanceof FormData
+      },
+      {
+        // Default values
+        type: 'text',
+        data: ''
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const percyInput: PercyAgentInput = {
-      ...input,
-      type: (input as any).type || 'text',
-      data: (input as any).data || ''
+      userId: input.userId,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...percyFields
     };
+    
     return runPercyAgent(percyInput);
   }
 };

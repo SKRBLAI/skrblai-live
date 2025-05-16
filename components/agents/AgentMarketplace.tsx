@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import AgentCard from './AgentCard';
+import AgentCard from '@/components/ui/AgentCard';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import AgentInputModal from './AgentInputModal';
 import { Agent } from '@/types/agent';
@@ -114,7 +114,13 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
       {recommendedAgents && recommendedAgents.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} className="mb-8 flex flex-wrap gap-4 justify-center">
           {recommendedAgents.slice(0, 3).map(agent => (
-            <AgentCard key={agent.id} agent={agent} onClick={handleAgentClick} isPremiumLocked={agent.premium && userRole === 'free'} />
+            <AgentCard 
+              key={agent.id} 
+              agent={agent} 
+              onClick={() => handleAgentClick(agent)} 
+              isPremiumUnlocked={!(agent.premium && userRole === 'free')}
+              className="w-full h-full"
+            />
           ))}
         </motion.div>
       )}

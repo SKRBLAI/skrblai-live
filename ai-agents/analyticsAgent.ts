@@ -1,4 +1,5 @@
 import { supabase } from '@/utils/supabase';
+import { validateAgentInput } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -764,11 +765,51 @@ const analyticsAgent: Agent = {
     capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
   },
   runAgent: async (input: BaseAgentInput) => {
+    // Use the validateAgentInput helper for analytics fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const analyticsFields = validateAgentInput(
+      extendedInput,
+      ['dataSource', 'timeframe', 'startDate', 'endDate', 'metrics', 'dimensions', 'filters', 
+       'comparisonTimeframe', 'segmentBy', 'includeRawData', 'customInstructions'],
+      {
+        // Type validation functions
+        dataSource: (val) => typeof val === 'string',
+        timeframe: (val) => typeof val === 'string',
+        startDate: (val) => typeof val === 'string',
+        endDate: (val) => typeof val === 'string',
+        metrics: (val) => Array.isArray(val),
+        dimensions: (val) => Array.isArray(val),
+        filters: (val) => Array.isArray(val),
+        comparisonTimeframe: (val) => typeof val === 'string',
+        segmentBy: (val) => Array.isArray(val),
+        includeRawData: (val) => typeof val === 'boolean'
+      },
+      {
+        // Default values
+        dataSource: 'website',
+        timeframe: 'month',
+        startDate: undefined,
+        endDate: undefined,
+        metrics: undefined,
+        dimensions: undefined,
+        filters: undefined,
+        comparisonTimeframe: undefined,
+        segmentBy: undefined,
+        includeRawData: undefined
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const analyticsInput: AnalyticsInput = {
-      ...input,
-      dataSource: (input as any).dataSource || 'website',
-      timeframe: (input as any).timeframe || 'month'
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...analyticsFields
     };
+    
     return runAnalytics(analyticsInput);
   }
 };

@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-
+import { validateAgentInput } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Ad Creative Agent
@@ -606,19 +606,48 @@ const adCreativeAgent: Agent = {
     capabilities: ['copywriting', 'imagery', 'brand voice'],
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to ad creative input with required fields
+    // Use the validateAgentInput helper for ad creative fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const adFields = validateAgentInput(
+      extendedInput,
+      ['productName', 'productDescription', 'targetAudience', 'platform', 'adType', 'budget', 'campaignGoal', 'keySellingPoints', 'brandGuidelines'],
+      {
+        // Type validation functions
+        productName: (val) => typeof val === 'string',
+        productDescription: (val) => typeof val === 'string',
+        targetAudience: (val) => typeof val === 'string',
+        platform: (val) => typeof val === 'string',
+        adType: (val) => ['image', 'video', 'carousel', 'text', 'mixed'].includes(val),
+        budget: (val) => typeof val === 'number',
+        campaignGoal: (val) => ['awareness', 'consideration', 'conversion'].includes(val),
+        keySellingPoints: (val) => Array.isArray(val),
+        brandGuidelines: (val) => typeof val === 'object'
+      },
+      {
+        // Default values
+        productName: '',
+        productDescription: '',
+        targetAudience: '',
+        platform: 'general',
+        adType: 'mixed',
+        budget: 1000,
+        campaignGoal: 'consideration',
+        keySellingPoints: [],
+        brandGuidelines: {}
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const adCreativeInput: AdCreativeInput = {
-      ...input,
-      productName: (input as any).productName || '',
-      productDescription: (input as any).productDescription || '',
-      targetAudience: (input as any).targetAudience || '',
-      platform: (input as any).platform || 'general',
-      adType: (input as any).adType || 'mixed',
-      budget: (input as any).budget || 1000,
-      campaignGoal: (input as any).campaignGoal || 'consideration',
-      keySellingPoints: (input as any).keySellingPoints || [],
-      brandGuidelines: (input as any).brandGuidelines || {}
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...adFields
     };
+    
     return runAdCreative(adCreativeInput);
   }
 };

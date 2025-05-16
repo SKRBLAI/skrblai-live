@@ -23,7 +23,7 @@ export function useAgentStats() {
 
         const { data, error } = await supabase
           .from('agent_usage_stats')
-          .select('agent_id, agent_name, agent_emoji, usage_count')
+          .select('agent_id, agent_name, agent_emoji, usage_count, updated_at')
           .order('usage_count', { ascending: false })
           .limit(3);
 

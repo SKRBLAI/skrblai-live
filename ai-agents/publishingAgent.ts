@@ -1,5 +1,6 @@
 import { supabase } from '@/utils/supabase';
-import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+import { validateAgentInput } from '@/utils/agentUtils';
+import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 interface PublishingAgentInput extends BaseAgentInput {
   manuscriptUrl: string;
@@ -23,8 +24,7 @@ const logAgentActivity = async (activityData: any) => {
   if (error) throw error;
 };
 
-const runPublishing = async (input: PublishingAgentInput) => {
-
+const runPublishing = async (input: PublishingAgentInput): Promise<AgentResponse> => {
     try {
       // Validate input
       if (!input.userId || !input.manuscriptUrl || !input.publishingPlatform ||
@@ -57,6 +57,7 @@ const runPublishing = async (input: PublishingAgentInput) => {
 
       return {
         success: true,
+        message: 'Book publishing initiated successfully',
         data: {
           platformSubmissionId: `PUB-${Date.now()}`,
           estimatedPublishTime: '48 hours',
@@ -102,18 +103,46 @@ const publishingAgent: Agent = {
     capabilities: ['Manuscript Validation', 'Platform Integration', 'Metadata Management', 'Publishing Automation']
   },
   runAgent: async (input: BaseAgentInput) => {
-    // Cast the base input to publishing input with required fields
+    // Use the validateAgentInput helper for publishing fields
+    const extendedInput = input as unknown as Record<string, any>;
+    
+    const publishingFields = validateAgentInput(
+      extendedInput,
+      ['manuscriptUrl', 'publishingPlatform', 'genre', 'bookTitle', 'authorName', 'description', 'coverImageUrl', 'keywords'],
+      {
+        // Type validation functions
+        manuscriptUrl: (val) => typeof val === 'string',
+        publishingPlatform: (val) => typeof val === 'string',
+        genre: (val) => typeof val === 'string',
+        bookTitle: (val) => typeof val === 'string',
+        authorName: (val) => typeof val === 'string',
+        description: (val) => typeof val === 'string',
+        coverImageUrl: (val) => typeof val === 'string',
+        keywords: (val) => Array.isArray(val)
+      },
+      {
+        // Default values
+        manuscriptUrl: '',
+        publishingPlatform: 'Amazon',
+        genre: '',
+        bookTitle: '',
+        authorName: '',
+        description: '',
+        coverImageUrl: '',
+        keywords: []
+      }
+    );
+    
+    // Create the final input with both base and extended fields
     const publishingInput: PublishingAgentInput = {
-      ...input,
-      manuscriptUrl: (input as any).manuscriptUrl || '',
-      publishingPlatform: (input as any).publishingPlatform || 'Amazon',
-      genre: (input as any).genre || '',
-      bookTitle: (input as any).bookTitle || '',
-      authorName: (input as any).authorName || '',
-      description: (input as any).description || '',
-      coverImageUrl: (input as any).coverImageUrl || '',
-      keywords: (input as any).keywords || []
+      userId: input.userId,
+      goal: input.goal,
+      content: input.content,
+      context: input.context,
+      options: input.options,
+      ...publishingFields
     };
+    
     return runPublishing(publishingInput);
   }
 };
