@@ -45,7 +45,7 @@ export default function AgentGrid({ agents = agentRegistry }: AgentGridProps) {
       animate="show"
       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6"
     >
-      {agents.map((agent) => (
+      {agents.map((agent, idx) => (
         <motion.div
           key={agent.id}
           variants={fadeInUp}
@@ -53,6 +53,8 @@ export default function AgentGrid({ agents = agentRegistry }: AgentGridProps) {
           <AgentCard
             agent={agent}
             onClick={() => agent.intent && routeToAgent(agent.intent)}
+            index={idx}
+            isPremiumUnlocked={agent.premium ? agent.unlocked : true}
           />
         </motion.div>
       ))}

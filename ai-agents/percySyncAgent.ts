@@ -50,8 +50,7 @@ const INTENT_MAPPING = {
 
 type IntentKey = keyof typeof INTENT_MAPPING;
 
-export interface AgentInput {
-  userId: string;
+interface PercySyncAgentInput extends BaseAgentInput {
   projectId?: string;
   intent: IntentKey;
   customParams?: Record<string, any>;
@@ -82,7 +81,7 @@ export interface AgentResponse {
   };
 }
 
-export async function routeToAgentFromIntent(input: AgentInput): Promise<AgentResponse> {
+export async function routeToAgentFromIntent(input: PercySyncAgentInput): Promise<AgentResponse> {
   try {
     // Validate intent exists
     if (!INTENT_MAPPING[input.intent]) {

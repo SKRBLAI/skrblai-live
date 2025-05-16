@@ -274,14 +274,14 @@ const bizAgent: Agent = {
     // Cast the base input to biz agent input with required fields
     const bizInput: BizAgentInput = {
       ...input,
-      businessName: (input as any).businessName || '',
-      industry: (input as any).industry || '',
-      businessGoals: (input as any).businessGoals || [],
-      timeframe: (input as any).timeframe || '1 year',
-      annualRevenue: (input as any).annualRevenue || 0,
-      companySize: (input as any).companySize || 'small',
-      challenges: (input as any).challenges || [],
-      location: (input as any).location || ''
+      businessName: typeof input.businessName === 'string' ? input.businessName : '',
+      industry: typeof input.industry === 'string' ? input.industry : '',
+      businessGoals: Array.isArray(input.businessGoals) ? input.businessGoals : [],
+      timeframe: typeof input.timeframe === 'string' ? input.timeframe : '1 year',
+      annualRevenue: typeof input.annualRevenue === 'number' ? input.annualRevenue : 0,
+      companySize: typeof input.companySize === 'string' ? input.companySize : 'small',
+      challenges: Array.isArray(input.challenges) ? input.challenges : [],
+      location: typeof input.location === 'string' ? input.location : ''
     };
     return runBizAgent(bizInput);
   }

@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAgentEmoji } from './AgentCard';
+import { getAgentEmoji } from '@/utils/agentUtils';
 import { Agent } from '@/types/agent';
 import React, { useState, useCallback } from "react";
 import { submitPercyFeedback } from "@/utils/feedback";

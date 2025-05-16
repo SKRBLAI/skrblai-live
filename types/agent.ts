@@ -43,6 +43,8 @@ export interface Agent {
   intent?: string | null;
   visible: boolean;
   premium?: boolean;
+  icon?: string;
+  unlocked?: boolean;
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead
