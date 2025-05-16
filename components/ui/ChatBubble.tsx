@@ -56,9 +56,9 @@ function ChatBubble({ message, type, isLoading }: ChatBubbleProps) {
         >
           {isLoading ? (
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce [animation-delay:0ms]" />
+              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce [animation-delay:150ms]" />
+              <div className="w-2 h-2 bg-electric-blue rounded-full animate-bounce [animation-delay:300ms]" />
             </div>
           ) : (
             message
