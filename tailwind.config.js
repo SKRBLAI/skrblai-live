@@ -16,6 +16,11 @@ module.exports = {
         'deep-navy': '#0B132B',
         'teal': '#30D5C8',
         'soft-gray': '#F7F7F7',
+        dark: {
+          900: 'var(--color-dark-900)',
+          800: 'var(--color-dark-800)',
+          700: 'var(--color-dark-700)',
+        },
       },
       animation: {
         'gradient-x': 'gradient-x 15s ease infinite',

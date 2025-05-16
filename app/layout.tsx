@@ -28,13 +28,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className={`${inter.variable} dark`}>
+    <html lang="en" className={`${inter.variable} dark bg-gradient-to-b from-[var(--color-dark-900)] to-[var(--color-dark-800)]`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-gradient-to-b from-[#0d1117] to-[#161b22] min-h-screen antialiased font-sans overflow-x-hidden">
+      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
         <PercyProvider>
           <PageTransition>
             {children}

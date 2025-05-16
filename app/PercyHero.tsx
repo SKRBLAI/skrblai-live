@@ -9,7 +9,7 @@ export default function PercyHero() {
   const [showChat, setShowChat] = useState(false);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden">
+    <div className="relative h-screen w-full overflow-hidden bg-transparent">
       <AnimatedBackground />
       
       <motion.div 
@@ -23,9 +23,9 @@ export default function PercyHero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-teal-400 bg-clip-text text-transparent"
+            className="text-4xl md:text-5xl font-bold mb-4"
           >
-            Hi, I'm Percy
+            SKRBL AI: Unleash the Power of Automated Intelligence
           </motion.h1>
           
           <motion.p 
@@ -34,7 +34,7 @@ export default function PercyHero() {
             transition={{ delay: 0.5, duration: 0.5 }}
             className="text-xl text-gray-300 mb-8"
           >
-            Your AI assistant for content creation
+            Your next-gen platform for creative automation, smart business workflows, and effortless productivity—powered by AI, crafted for visionaries.
           </motion.p>
           
           <motion.div
