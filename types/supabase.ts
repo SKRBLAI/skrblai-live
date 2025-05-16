@@ -30,6 +30,7 @@ export interface Proposal {
   projectName: string;
   clientName: string;
   amount: number;
+  budget?: number;
   status: 'draft' | 'sent' | 'accepted' | 'rejected';
   createdAt: string;
   pdfUrl?: string;

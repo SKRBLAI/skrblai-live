@@ -1,5 +1,6 @@
 import { saveProposal } from '@/utils/supabase-helpers';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { v4 as uuidv4 } from 'uuid';
 
 export const config = {
   runtime: 'nodejs', // Force Node.js runtime
@@ -15,7 +16,7 @@ export default async function handler(
 
   try {
     // Destructure and allow notes to be optional
-    const { projectName, notes, budget, pdfUrl } = req.body;
+    const { projectName, notes, budget, pdfUrl, clientName } = req.body;
 
     // Validate required fields
     if (!projectName || !budget || !pdfUrl) {
@@ -24,9 +25,13 @@ export default async function handler(
 
     // Ensure notes is a string (or empty string by default)
     const result = await saveProposal({
+      id: uuidv4(),
       projectName,
+      clientName: clientName || 'Unknown Client',
+      amount: budget,
+      status: 'draft',
+      createdAt: new Date().toISOString(),
       notes: typeof notes === 'string' ? notes : '',
-      budget,
       pdfUrl
     });
 
