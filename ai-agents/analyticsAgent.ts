@@ -811,7 +811,8 @@ const analyticsAgent: Agent = {
     };
     
     return runAnalytics(analyticsInput);
-  }
+  },
+  roleRequired: "any",
 };
 
 export { analyticsAgent };

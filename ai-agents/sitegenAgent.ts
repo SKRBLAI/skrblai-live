@@ -231,7 +231,8 @@ const sitegenAgent: Agent = {
     };
     
     return runSiteGen(siteGenInput);
-  }
+  },
+  roleRequired: "any",
 };
 
 export { sitegenAgent };

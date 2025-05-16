@@ -522,6 +522,7 @@ const socialBotAgent: Agent = {
     description: 'AI-powered social media content generation and management',
     capabilities: ['Content Generation', 'Post Scheduling', 'Multi-Platform Support', 'Hashtag Generation']
   },
+  roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for social bot fields
     const extendedInput = input as unknown as Record<string, any>;

@@ -265,7 +265,8 @@ const percyAgent: Agent = {
     };
     
     return runPercyAgent(percyInput);
-  }
+  },
+  roleRequired: 'any'
 };
 
 export { percyAgent };

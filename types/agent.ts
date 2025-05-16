@@ -49,6 +49,7 @@ export interface Agent {
   handleOnboarding?: (
     lead: Lead
   ) => Promise<{ success: boolean; message: string; redirectPath?: string }>;
+  roleRequired?: string;
 }
 
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;

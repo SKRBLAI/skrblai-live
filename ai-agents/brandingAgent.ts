@@ -624,7 +624,8 @@ const brandingAgent: Agent = {
     };
     
     return runBranding(brandingInput);
-  }
+  },
+  roleRequired: "any",
 };
 
 export { brandingAgent };

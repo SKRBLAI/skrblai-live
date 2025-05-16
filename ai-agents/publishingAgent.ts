@@ -102,6 +102,7 @@ const publishingAgent: Agent = {
     description: 'AI-powered book publishing and content distribution',
     capabilities: ['Manuscript Validation', 'Platform Integration', 'Metadata Management', 'Publishing Automation']
   },
+  roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for publishing fields
     const extendedInput = input as unknown as Record<string, any>;

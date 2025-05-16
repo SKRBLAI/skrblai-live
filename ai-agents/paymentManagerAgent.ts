@@ -412,7 +412,8 @@ const paymentManagerAgent: Agent = {
     };
     
     return runPaymentAgent(paymentInput);
-  }
+  },
+  roleRequired: "any",
 };
 
 export { paymentManagerAgent };

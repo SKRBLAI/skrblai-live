@@ -494,7 +494,8 @@ const contentCreatorAgent: Agent = {
     };
     
     return runContentAgent(contentInput);
-  }
+  },
+  roleRequired: "any",
 };
 
 export { contentCreatorAgent };

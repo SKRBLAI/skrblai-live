@@ -24,6 +24,25 @@ export interface Lead {
   timestamp?: SupabaseTimestamp;
 }
 
+export interface Proposal {
+  id: string;
+  projectName: string;
+  clientName: string;
+  amount: number;
+  status: 'draft' | 'sent' | 'accepted' | 'rejected';
+  createdAt: string;
+  pdfUrl?: string;
+}
+
+export interface ScheduledPost {
+  id: string;
+  platform: string;
+  content: string;
+  scheduledTime: string;
+  status: 'pending' | 'posted' | 'failed';
+  userId: string;
+}
+
 export interface Database {
   public: {
     Tables: {

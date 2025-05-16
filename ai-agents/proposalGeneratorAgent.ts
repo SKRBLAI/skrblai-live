@@ -35,6 +35,7 @@ const proposalGeneratorAgent: Agent = {
     description: 'AI-powered business proposal generation',
     capabilities: ['Executive Summary', 'Scope Definition', 'Timeline Planning', 'Budget Allocation']
   },
+  roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for proposal fields
     const extendedInput = input as unknown as Record<string, any>;

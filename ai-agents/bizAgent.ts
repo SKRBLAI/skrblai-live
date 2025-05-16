@@ -313,7 +313,8 @@ const bizAgent: Agent = {
     };
     
     return runBizAgent(bizInput);
-  }
+  },
+  roleRequired: "any"
 };
 
 console.log('[AgentAudit] Registered:', bizAgent.name, bizAgent.agentCategory);

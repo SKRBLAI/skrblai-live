@@ -207,6 +207,7 @@ const percySyncAgent: Agent = {
   description: 'Handles synchronization and routing of Percy chat interactions',
   visible: false,
   agentCategory: ['system'],
+  roleRequired: 'any',
 };
 
 // Handle user onboarding from Percy chat
