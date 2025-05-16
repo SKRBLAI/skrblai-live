@@ -4,7 +4,7 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type SupabaseTimestamp = string;
 
@@ -24,6 +24,7 @@ export interface Lead {
   timestamp?: SupabaseTimestamp;
 }
 
+// UPDATED Proposal interface:
 export interface Proposal {
   id: string;
   projectName: string;
@@ -32,15 +33,16 @@ export interface Proposal {
   status: 'draft' | 'sent' | 'accepted' | 'rejected';
   createdAt: string;
   pdfUrl?: string;
+  notes?: string;   // <-- now included and optional
 }
 
 export interface ScheduledPost {
-  id: string;
+  id?: string;
   platform: string;
   content: string;
   scheduledTime: string;
   status: 'pending' | 'posted' | 'failed';
-  userId: string;
+  userId?: string;
 }
 
 export interface Database {
@@ -48,47 +50,47 @@ export interface Database {
     Tables: {
       agent_usage_stats: {
         Row: {
-          agent_id: string
-          agent_name: string
-          agent_emoji: string
-          usage_count: number
-          updated_at: string
-        }
+          agent_id: string;
+          agent_name: string;
+          agent_emoji: string;
+          usage_count: number;
+          updated_at: string;
+        };
         Insert: {
-          agent_id: string
-          agent_name: string
-          agent_emoji: string
-          usage_count?: number
-          updated_at?: string
-        }
+          agent_id: string;
+          agent_name: string;
+          agent_emoji: string;
+          usage_count?: number;
+          updated_at?: string;
+        };
         Update: {
-          agent_id?: string
-          agent_name?: string
-          agent_emoji?: string
-          usage_count?: number
-          updated_at?: string
-        }
-      }
+          agent_id?: string;
+          agent_name?: string;
+          agent_emoji?: string;
+          usage_count?: number;
+          updated_at?: string;
+        };
+      };
       percy_feedback: {
         Row: {
-          id: string
-          agent_id: string
-          message: string
-          created_at: string
-        }
+          id: string;
+          agent_id: string;
+          message: string;
+          created_at: string;
+        };
         Insert: {
-          id?: string
-          agent_id: string
-          message: string
-          created_at?: string
-        }
+          id?: string;
+          agent_id: string;
+          message: string;
+          created_at?: string;
+        };
         Update: {
-          id?: string
-          agent_id?: string
-          message?: string
-          created_at?: string
-        }
-      }
-    }
-  }
+          id?: string;
+          agent_id?: string;
+          message?: string;
+          created_at?: string;
+        };
+      };
+    };
+  };
 }

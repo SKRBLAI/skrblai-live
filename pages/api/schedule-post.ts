@@ -14,16 +14,16 @@ export default async function handler(
   }
 
   try {
-    const { platform, postDate, description } = req.body;
+    const { platform, scheduledTime, content } = req.body;
 
-    if (!platform || !postDate || !description) {
+    if (!platform || !scheduledTime || !content) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
     const result = await saveScheduledPost({
       platform,
-      postDate,
-      description,
+      scheduledTime,
+      content,
       status: 'pending'
     });
 
@@ -36,4 +36,4 @@ export default async function handler(
     console.error('Error in schedule-post:', error);
     return res.status(500).json({ message: 'Internal server error', error: String(error) });
   }
-} 
+}

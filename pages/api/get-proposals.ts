@@ -20,4 +20,4 @@ export default async function handler(
     console.error('Error fetching proposals:', error);
     return res.status(500).json({ message: 'Internal server error', error: String(error) });
   }
-} 
+}

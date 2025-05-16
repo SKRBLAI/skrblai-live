@@ -18,6 +18,7 @@ import { getAgentsByRole } from '@/utils/getAgentsByRole';
 import { usePathname } from 'next/navigation';
 import { saveIntentMemory, clearPercyMemory } from '@/utils/memory';
 import { logPercyMessage, getPercyMessageHistory } from '@/utils/percy/logPercyMessage';
+import styles from '@/styles/PercyWidget.module.css';
 
 // Example: get user role (replace with real role logic as needed)
 const userRole = typeof window !== 'undefined' ? (localStorage.getItem('userRole') || 'user') : 'user';
@@ -553,7 +554,7 @@ function PercyWidget() {
             </div>
             
             {/* Logic-only Back to Start button (no UI change) */}
-            <button style={{ display: 'none' }} onClick={handleBackToStart} aria-label="Back to Start" />
+            <button type="button" className={styles.hiddenButton} onClick={handleBackToStart} aria-label="Back to Start" />
           </div>
         )}
       </div>

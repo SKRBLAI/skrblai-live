@@ -14,15 +14,18 @@ export default async function handler(
   }
 
   try {
+    // Destructure and allow notes to be optional
     const { projectName, notes, budget, pdfUrl } = req.body;
 
+    // Validate required fields
     if (!projectName || !budget || !pdfUrl) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // Ensure notes is a string (or empty string by default)
     const result = await saveProposal({
       projectName,
-      notes: notes || '',
+      notes: typeof notes === 'string' ? notes : '',
       budget,
       pdfUrl
     });
@@ -36,4 +39,4 @@ export default async function handler(
     console.error('Error in generate-proposal:', error);
     return res.status(500).json({ message: 'Internal server error', error: String(error) });
   }
-} 
+}
