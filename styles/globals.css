@@ -20,12 +20,23 @@
 
 @layer components {
   .glow-teal {
-    text-shadow: 0 0 10px #14ffe9, 0 0 20px #14ffe9, 0 0 30px rgba(20, 255, 233, 0.5);
+    text-shadow: 0 0 15px rgba(20, 255, 233, 0.8),
+                0 0 30px rgba(20, 255, 233, 0.6),
+                0 0 45px rgba(20, 255, 233, 0.4);
   }
 
   .text-skbl {
     @apply text-[#14ffe9];
-    text-shadow: 0 0 10px #d0a8ff, 0 0 8px #14ffe9;
+    text-shadow: 0 0 15px #d0a8ff,
+                0 0 30px rgba(20, 255, 233, 0.8);
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-teal-400 via-electric-blue to-purple-500 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-blue {
+    @apply bg-gradient-to-r from-electric-blue via-blue-400 to-teal-400 bg-clip-text text-transparent;
   }
 }
 

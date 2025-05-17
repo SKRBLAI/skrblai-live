@@ -18,9 +18,9 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-opacity-90 bg-deep-navy backdrop-blur-md border-b border-sky-500/10">
+    <nav className="fixed top-0 w-full z-50 bg-opacity-80 bg-deep-navy/80 backdrop-blur-lg border-b border-white/10 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
             {/* Logo */}
             <Link href="/" className="flex items-center">
@@ -42,13 +42,22 @@ export default function Navbar() {
             <NavLink href="/about" active={isActive('/about')}>
               About
             </NavLink>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20"
-            >
-              <Link href="/auth">Sign In</Link>
-            </motion.button>
+            <div className="flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg border border-teal-400/30 text-teal-400 font-semibold hover:bg-teal-400/10 transition-colors duration-200"
+              >
+                <Link href="/auth">Sign In</Link>
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-4 py-2 rounded-lg bg-electric-blue text-white font-semibold shadow-glow hover:shadow-electric-blue/50 transition-all duration-300"
+              >
+                <Link href="/auth?signup=true">Get Started</Link>
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>
@@ -57,21 +66,13 @@ export default function Navbar() {
 }
 
 function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
-  const router = useRouter();
-  
   return (
-    <Link 
-      href={href} 
-      prefetch
-      onClick={(e) => {
-        e.preventDefault();
-        router.push(href);
-      }}
-      className={`text-sm font-medium transition-colors hover:text-white ${
-        active ? 'text-white' : 'text-gray-300'
-      }`}
+    <Link
+      href={href}
+      className={`${active ? 'text-white font-semibold' : 'text-gray-300'} hover:text-teal-400 transition-colors duration-200 relative group`}
     >
       {children}
+      <span className={`absolute -bottom-1 left-0 w-0 h-0.5 bg-teal-400 transition-all duration-300 group-hover:w-full ${active ? 'w-full' : ''}`} />
     </Link>
   );
 }

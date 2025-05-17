@@ -13,8 +13,8 @@ export default function BrandLogo({ className = '', animate = true }: BrandLogoP
       className={`font-cursive ${className}`}
       {...(animate ? { whileHover: { scale: 1.05 } } : {})}
     >
-      <span className="text-teal-400 glow-teal">SKRBL</span>
-      <span className="text-white ml-1">AI</span>
+      <span className="bg-gradient-to-r from-teal-400 to-electric-blue bg-clip-text text-transparent glow-teal font-bold tracking-tight">SKRBL</span>
+      <span className="text-white ml-1 font-bold tracking-tight">AI</span>
     </MotionWrapper>
   );
 }
