@@ -23,12 +23,21 @@ module.exports = {
         },
       },
       animation: {
+        'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite',
         'gradient-x': 'gradient-x 15s ease infinite',
         'gradient-y': 'gradient-y 15s ease infinite',
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'slide-up': 'slideUp 0.5s ease-out forwards',
       },
       keyframes: {
+        'pulse-subtle': {
+          '0%, 100%': {
+            opacity: 1
+          },
+          '50%': {
+            opacity: 0.8
+          }
+        },
         'gradient-x': {
           '0%, 100%': { 'background-position': '0% 50%' },
           '50%': { 'background-position': '100% 50%' },

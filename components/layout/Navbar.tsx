@@ -18,45 +18,52 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-[#0d1117]/95 backdrop-blur-sm border-b border-gray-800">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/80 backdrop-blur-sm border-b border-white/10 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex items-center">
-            {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <BrandLogo className="text-2xl" />
-            </Link>
-          </div>
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <BrandLogo />
+            </motion.div>
+          </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <NavLink href="/features" active={isActive('/features')}>
+            <Link href="/features" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
               Features
-            </NavLink>
-            <NavLink href="/services" active={isActive('/services')}>
+            </Link>
+            <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
               Meet the Agents
-            </NavLink>
-            <NavLink href="/pricing" active={isActive('/pricing')}>
+            </Link>
+            <Link href="/pricing" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
               Pricing
-            </NavLink>
-            <NavLink href="/about" active={isActive('/about')}>
+            </Link>
+            <Link href="/about" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
               About
-            </NavLink>
+            </Link>
             <div className="flex items-center space-x-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 font-medium hover:text-white hover:border-gray-600 transition-colors duration-200"
-              >
-                <Link href="/auth">Sign In</Link>
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-lg bg-electric-blue text-white font-medium hover:bg-electric-blue/90 transition-colors duration-200"
-              >
-                <Link href="/auth?signup=true">Get Started</Link>
-              </motion.button>
+              <Link href="/sign-in">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-white hover:text-teal-400 transition-all duration-300"
+                >
+                  Sign In
+                </motion.button>
+              </Link>
+              <Link href="/get-started">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="bg-electric-blue text-white px-6 py-2 rounded-lg shadow-glow hover:shadow-electric-blue/50 transition-all duration-300"
+                >
+                  Get Started
+                </motion.button>
+              </Link>
             </div>
           </div>
         </div>
