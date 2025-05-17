@@ -19,6 +19,10 @@
 }
 
 @layer components {
+  .glow-teal {
+    text-shadow: 0 0 10px #14ffe9, 0 0 20px #14ffe9, 0 0 30px rgba(20, 255, 233, 0.5);
+  }
+
   .text-skbl {
     @apply text-[#14ffe9];
     text-shadow: 0 0 10px #d0a8ff, 0 0 8px #14ffe9;
@@ -26,6 +30,15 @@
 }
 
 @layer utilities {
+  .hover\:underline-glow:hover {
+    text-decoration: underline;
+    text-decoration-color: #14ffe9;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    text-shadow: 0 0 8px #14ffe9;
+    transition: all 0.3s ease;
+  }
+
   .glass-card {
     @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
   }

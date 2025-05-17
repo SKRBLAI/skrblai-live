@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import BrandLogo from '@/components/ui/BrandLogo';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -23,13 +24,7 @@ export default function Navbar() {
           <div className="flex items-center">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <motion.span 
-                className="text-2xl font-cursive text-white"
-                whileHover={{ scale: 1.05 }}
-              >
-                SKRBL
-                <span className="text-teal-400 ml-1 glow-teal">AI</span>
-              </motion.span>
+              <BrandLogo className="text-2xl" />
             </Link>
           </div>
 

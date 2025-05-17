@@ -2,7 +2,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
-import PercyProvider from '../../components/assistant/PercyProvider';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import Link from 'next/link';
 
@@ -59,7 +58,7 @@ const plans = [
 
 export default function PricingPage() {
   return (
-    <PercyProvider>
+    
       <PageLayout>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           <div className="relative min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-hidden">
@@ -132,6 +131,7 @@ export default function PricingPage() {
           </div>
         </motion.div>
       </PageLayout>
-    </PercyProvider>
+    
   );
 }
+

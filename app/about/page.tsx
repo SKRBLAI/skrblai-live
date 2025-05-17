@@ -27,7 +27,7 @@ const sections = [
 
 export default function AboutPage(): JSX.Element {
   return (
-    <PercyProvider>
+    
       <PageLayout>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-x-hidden">
@@ -112,6 +112,6 @@ export default function AboutPage(): JSX.Element {
           </div>
         </motion.div>
       </PageLayout>
-    </PercyProvider>
+    
   );
 } 
