@@ -18,7 +18,7 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-opacity-80 bg-deep-navy/80 backdrop-blur-lg border-b border-white/10 shadow-lg">
+    <nav className="fixed top-0 w-full z-50 bg-[#0d1117]/95 backdrop-blur-sm border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
@@ -46,14 +46,14 @@ export default function Navbar() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-lg border border-teal-400/30 text-teal-400 font-semibold hover:bg-teal-400/10 transition-colors duration-200"
+                className="px-4 py-2 rounded-lg border border-gray-700 text-gray-300 font-medium hover:text-white hover:border-gray-600 transition-colors duration-200"
               >
                 <Link href="/auth">Sign In</Link>
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 rounded-lg bg-electric-blue text-white font-semibold shadow-glow hover:shadow-electric-blue/50 transition-all duration-300"
+                className="px-4 py-2 rounded-lg bg-electric-blue text-white font-medium hover:bg-electric-blue/90 transition-colors duration-200"
               >
                 <Link href="/auth?signup=true">Get Started</Link>
               </motion.button>
