@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Site Generation Agent
@@ -130,19 +130,43 @@ function generatePageSections(pageName: string, businessName: string, industry: 
   const pageNameLower = pageName.toLowerCase();
   
   if (pageNameLower === 'home' || pageNameLower === 'homepage') {
-    return [
-      { type: 'hero', title: `Welcome to ${businessName}`, subtitle: `Your trusted partner in ${industry}` },
-      { type: 'features', title: 'Our Services' },
-      { type: 'testimonials', title: 'What Our Clients Say' },
-      { type: 'cta', title: 'Ready to Get Started?', buttonText: 'Contact Us' }
-    ];
+    try {
+      const prompt = `Write a homepage hero section for a ${industry} business called ${businessName}. Include a headline and subtitle.`;
+      const aiHero = callOpenAI(prompt, { maxTokens: 200 });
+      return [
+        { type: 'hero', title: `Welcome to ${businessName}`, subtitle: aiHero },
+        { type: 'features', title: 'Our Services' },
+        { type: 'testimonials', title: 'What Our Clients Say' },
+        { type: 'cta', title: 'Ready to Get Started?', buttonText: 'Contact Us' }
+      ];
+    } catch (err) {
+      // Fallback to static logic
+      return [
+        { type: 'hero', title: `Welcome to ${businessName}`, subtitle: `Your trusted partner in ${industry}` },
+        { type: 'features', title: 'Our Services' },
+        { type: 'testimonials', title: 'What Our Clients Say' },
+        { type: 'cta', title: 'Ready to Get Started?', buttonText: 'Contact Us' }
+      ];
+    }
   } else if (pageNameLower === 'about' || pageNameLower === 'about us') {
-    return [
-      { type: 'header', title: 'About Us' },
-      { type: 'text', title: 'Our Story' },
-      { type: 'team', title: 'Meet Our Team' },
-      { type: 'values', title: 'Our Values' }
-    ];
+    try {
+      const prompt = `Write an about section for a ${industry} business called ${businessName}.`;
+      const aiAbout = callOpenAI(prompt, { maxTokens: 200 });
+      return [
+        { type: 'header', title: 'About Us' },
+        { type: 'text', title: aiAbout },
+        { type: 'team', title: 'Meet Our Team' },
+        { type: 'values', title: 'Our Values' }
+      ];
+    } catch (err) {
+      // Fallback to static logic
+      return [
+        { type: 'header', title: 'About Us' },
+        { type: 'text', title: 'Our Story' },
+        { type: 'team', title: 'Meet Our Team' },
+        { type: 'values', title: 'Our Values' }
+      ];
+    }
   } else if (pageNameLower === 'services' || pageNameLower === 'products') {
     return [
       { type: 'header', title: pageNameLower === 'services' ? 'Our Services' : 'Our Products' },

@@ -1,5 +1,5 @@
 import { agentDb } from '@/utils/db';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Import agent implementations
@@ -154,9 +154,16 @@ export async function routeToAgentFromIntent(input: PercySyncAgentInput): Promis
       throw new Error(`Agent ${agent} does not have a runAgent method`);
     }
 
+    // Try OpenAI for routing explanation
+    let routingMessage = message;
+    try {
+      const prompt = `Explain to a user why they are being routed to the ${agent} agent for the intent '${percyFields.intent}'.`;
+      routingMessage = await callOpenAI(prompt, { maxTokens: 120 });
+    } catch (err) {/* fallback to default message */}
+
     return {
       success: true,
-      message,
+      message: routingMessage,
       data: {
         jobId,
         agent,

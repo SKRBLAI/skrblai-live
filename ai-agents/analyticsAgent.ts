@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -242,31 +242,42 @@ function getDefaultDimensions(dataSource: string): string[] {
  * @param params - Additional analytics parameters
  * @returns Generated summary
  */
-function generateSummary(
+async function generateSummary(
   dataSource: string,
   timeframe: string,
   params: any
-): any {
-  // In a real implementation, this would analyze actual data
-  // For now, we'll generate placeholder summary data
-  
-  const metrics = params.metrics.reduce((acc: any, metric: string) => {
-    acc[metric] = {
-      value: generateRandomMetricValue(metric),
-      change: generateRandomPercentageChange(),
-      trend: generateRandomTrend()
+): Promise<any> {
+  try {
+    const prompt = `Summarize the following analytics metrics for a business user:\n${JSON.stringify(params.metrics)}`;
+    const summary = await callOpenAI(prompt, { maxTokens: 300 });
+    return {
+      headline: `${dataSource.charAt(0).toUpperCase() + dataSource.slice(1)} performance summary for the ${timeframe}`,
+      summary,
+      topPerformers: generateTopPerformers(dataSource, params.dimensions[0]),
+      comparisonSummary: params.comparisonTimeframe !== 'none' ? 
+        `Performance compared to ${params.comparisonTimeframe.replace('_', ' ')}: ${generateRandomPerformanceComparison()}` : 
+        null
     };
-    return acc;
-  }, {});
-  
-  return {
-    headline: `${dataSource.charAt(0).toUpperCase() + dataSource.slice(1)} performance summary for the ${timeframe}`,
-    metrics,
-    topPerformers: generateTopPerformers(dataSource, params.dimensions[0]),
-    comparisonSummary: params.comparisonTimeframe !== 'none' ? 
-      `Performance compared to ${params.comparisonTimeframe.replace('_', ' ')}: ${generateRandomPerformanceComparison()}` : 
-      null
-  };
+  } catch (err) {
+    // Fallback to static logic
+    const metrics = params.metrics.reduce((acc: any, metric: string) => {
+      acc[metric] = {
+        value: generateRandomMetricValue(metric),
+        change: generateRandomPercentageChange(),
+        trend: generateRandomTrend()
+      };
+      return acc;
+    }, {});
+    
+    return {
+      headline: `${dataSource.charAt(0).toUpperCase() + dataSource.slice(1)} performance summary for the ${timeframe}`,
+      metrics,
+      topPerformers: generateTopPerformers(dataSource, params.dimensions[0]),
+      comparisonSummary: params.comparisonTimeframe !== 'none' ? 
+        `Performance compared to ${params.comparisonTimeframe.replace('_', ' ')}: ${generateRandomPerformanceComparison()}` : 
+        null
+    };
+  }
 }
 
 /**

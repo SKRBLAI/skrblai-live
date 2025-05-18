@@ -70,6 +70,126 @@ function getBestAgents(goal: string, platform: string) {
   return matches;
 }
 
+// Enhanced agent matching for Percy onboarding and smart suggestions
+export function getSmartAgentSuggestions({
+  prompt = '',
+  file = null,
+  dropdown = '',
+  userRole = typeof window !== 'undefined' ? (localStorage.getItem('userRole') || 'user') : 'user',
+  routerResult
+}: {
+  prompt?: string;
+  file?: File | { name?: string; type?: string; category?: string } | null;
+  dropdown?: string;
+  userRole?: string;
+  routerResult?: any;
+}) {
+  const agentList = getAgentsByRole(userRole);
+  const lowerPrompt = (prompt || '').toLowerCase();
+  const dropdownValue = (dropdown || '').toLowerCase();
+  const fileType = file && (file.type || (file.name && file.name.split('.').pop())) || '';
+  const fileName = file && file.name ? file.name.toLowerCase() : '';
+  const fileCategory = file && typeof file === 'object' && 'category' in file ? (file as any).category : '';
+  const matches: any[] = [];
+  const logs: string[] = [];
+
+  // File upload logic
+  if (file) {
+    if (fileType.includes('pdf') || fileType.includes('doc') || fileType.includes('book') || fileCategory === 'book') {
+      logs.push('Matched file upload as Book Publishing');
+      const agent = agentList.find(a => a.name.toLowerCase().includes('publishing'));
+      if (agent) matches.push({
+        name: agent.name,
+        description: agent.description,
+        why: 'File upload detected as book/document',
+        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
+      });
+    } else if (fileType.includes('txt') || fileType.includes('content') || fileCategory === 'content') {
+      logs.push('Matched file upload as Content Automation');
+      const agent = agentList.find(a => a.name.toLowerCase().includes('content'));
+      if (agent) matches.push({
+        name: agent.name,
+        description: agent.description,
+        why: 'File upload detected as content',
+        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
+      });
+    }
+  }
+
+  // Prompt/Dropdown logic
+  const keywordMap = [
+    { key: 'brand', agent: 'branding', why: 'Branding keyword detected' },
+    { key: 'logo', agent: 'branding', why: 'Logo/branding keyword detected' },
+    { key: 'content', agent: 'content', why: 'Content keyword detected' },
+    { key: 'blog', agent: 'content', why: 'Blog/content keyword detected' },
+    { key: 'publish', agent: 'publishing', why: 'Publishing keyword detected' },
+    { key: 'book', agent: 'publishing', why: 'Book/publishing keyword detected' },
+    { key: 'website', agent: 'site', why: 'Website keyword detected' },
+    { key: 'web', agent: 'site', why: 'Web/website keyword detected' },
+    { key: 'social', agent: 'social', why: 'Social media keyword detected' },
+    { key: 'automation', agent: 'content', why: 'Automation/content keyword detected' },
+    { key: 'video', agent: 'video', why: 'Video keyword detected' },
+    { key: 'payment', agent: 'payment', why: 'Payment/finance keyword detected' },
+    { key: 'proposal', agent: 'proposal', why: 'Proposal/business keyword detected' },
+    { key: 'client', agent: 'client', why: 'Client/support keyword detected' },
+    { key: 'analytics', agent: 'analytics', why: 'Analytics/marketing keyword detected' },
+    { key: 'ad', agent: 'ad', why: 'Ad/marketing keyword detected' },
+    { key: 'sync', agent: 'sync', why: 'Sync/system keyword detected' },
+  ];
+  for (const { key, agent, why } of keywordMap) {
+    if ((lowerPrompt && lowerPrompt.includes(key)) || (dropdownValue && dropdownValue.includes(key))) {
+      const found = agentList.find(a => a.name.toLowerCase().includes(agent) || a.id.toLowerCase().includes(agent));
+      if (found && !matches.some(m => m.name === found.name)) {
+        logs.push(`Matched prompt/dropdown: ${key} → ${found.name}`);
+        matches.push({
+          name: found.name,
+          description: found.description,
+          why,
+          action: () => routerResult?.routeToAgent && routerResult.routeToAgent(found.intent || found.id)
+        });
+      }
+    }
+  }
+
+  // Fallback: top visible agents
+  if (matches.length === 0) {
+    logs.push('No strong match found, using fallback agents');
+    agentList.filter(a => a.visible).slice(0, 3).forEach(agent => {
+      matches.push({
+        name: agent.name,
+        description: agent.description,
+        why: 'Fallback: top visible agent',
+        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
+      });
+    });
+  }
+
+  // Limit to top 2–3
+  const result = matches.slice(0, 3);
+  // Log all routing decisions
+  console.log('[Percy SmartMatch] Input:', { prompt, file, dropdown });
+  logs.forEach(log => console.log('[Percy SmartMatch]', log));
+  console.log('[Percy SmartMatch] Suggestions:', result.map(r => r.name));
+  return result;
+}
+
+// Expose a test/mock function for onboarding scenarios
+export function testPercyAgentMatching(routerResult?: any) {
+  const cases = [
+    { prompt: 'I want to publish a book', file: null, dropdown: '', label: 'Book Publishing' },
+    { prompt: 'Help me with branding and logo', file: null, dropdown: '', label: 'Branding' },
+    { prompt: 'I need social media automation', file: null, dropdown: '', label: 'Social Media' },
+    { prompt: '', file: { name: 'mybook.pdf', type: 'application/pdf' }, dropdown: '', label: 'File Upload (Book)' },
+    { prompt: '', file: { name: 'content.txt', type: 'text/plain' }, dropdown: '', label: 'File Upload (Content)' },
+    { prompt: '', file: null, dropdown: 'video', label: 'Dropdown (Video)' },
+    { prompt: '', file: null, dropdown: '', label: 'Fallback' },
+  ];
+  return cases.map(test => ({
+    label: test.label,
+    suggestions: getSmartAgentSuggestions({ ...test, routerResult })
+  }));
+}
+
 function PercyWidget() {
   // Always call hooks at the top level
   const routerResult = usePercyRouter();

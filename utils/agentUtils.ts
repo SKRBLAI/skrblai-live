@@ -66,3 +66,19 @@ export function validateAgentInput<T extends string>(
     return acc;
   }, {} as Record<T, any>);
 }
+
+// Utility to call OpenAI API (shared by all agents)
+import OpenAI from 'openai';
+
+export async function callOpenAI(prompt: string, options?: { maxTokens?: number; temperature?: number; model?: string }): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY || (typeof window === 'undefined' && (global as any).process?.env?.OPENAI_API_KEY);
+  if (!apiKey) throw new Error('Missing OPENAI_API_KEY in environment variables');
+  const openai = new OpenAI({ apiKey });
+  const response = await openai.chat.completions.create({
+    model: options?.model || 'gpt-3.5-turbo',
+    messages: [{ role: 'user', content: prompt }],
+    max_tokens: options?.maxTokens || 512,
+    temperature: options?.temperature ?? 0.7,
+  });
+  return response.choices[0]?.message?.content?.trim() || '';
+}

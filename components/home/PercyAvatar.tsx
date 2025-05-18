@@ -6,9 +6,10 @@ import { motion } from 'framer-motion';
 interface PercyAvatarProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  animate?: boolean;
 }
 
-const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '' }) => {
+const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '', animate = true }) => {
   // Define size classes based on prop
   const sizeClasses = {
     sm: 'w-10 h-10',
@@ -51,7 +52,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '' }
   return (
     <motion.div
       variants={floatVariants}
-      animate="animate"
+      animate={animate ? "animate" : undefined}
       className={`relative ${sizeClasses[size]} bg-white/10 rounded-full p-2 backdrop-blur-sm border border-white/20 shadow-lg shadow-purple-500/20 ${className}`}
     >
       <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-[#0c1225] to-[#0a192f] flex items-center justify-center relative">

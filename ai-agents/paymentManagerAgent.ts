@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
@@ -66,82 +66,163 @@ function generateReceipt(
   params: any,
   paymentResult: any
 ): any {
-  // Generate a basic receipt structure
+  // Try OpenAI for payment summary
+  try {
+    const prompt = `Generate a payment receipt summary.\nType: ${paymentType}\nAmount: ${amount} ${params.currency}\nMethod: ${params.paymentMethod}`;
+    const aiSummary = callOpenAI(prompt, { maxTokens: 200 });
 
-  const receiptId = `rcpt_${Date.now()}`;
-  const issueDate = new Date().toISOString();
+    const receiptId = `rcpt_${Date.now()}`;
+    const issueDate = new Date().toISOString();
 
-  const receipt: any = {
-    receiptId,
-    transactionId: paymentResult.transactionId,
-    issueDate,
-    paymentType,
-    paymentMethod: params.paymentMethod,
-    amount,
-    currency: params.currency,
-    status: paymentResult.status,
-    items: [] as ReceiptItem[], // Ensure items is typed as ReceiptItem[]
-  };
+    const receipt: any = {
+      receiptId,
+      transactionId: paymentResult.transactionId,
+      issueDate,
+      paymentType,
+      paymentMethod: params.paymentMethod,
+      amount,
+      currency: params.currency,
+      status: paymentResult.status,
+      items: [] as ReceiptItem[], // Ensure items is typed as ReceiptItem[]
+      summary: aiSummary,
+    };
 
-  // Add receipt items based on payment type
-  switch (paymentType) {
-    case 'subscription': {
-      const items: ReceiptItem[] = [
-        {
-          description: 'Monthly Subscription',
-          amount,
-          currency: params.currency,
-        },
-      ];
-      receipt.items = items;
-      receipt.subscriptionId = paymentResult.subscriptionId;
-      receipt.nextBillingDate = paymentResult.nextBillingDate;
-      break;
+    // Add receipt items based on payment type
+    switch (paymentType) {
+      case 'subscription': {
+        const items: ReceiptItem[] = [
+          {
+            description: 'Monthly Subscription',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.subscriptionId = paymentResult.subscriptionId;
+        receipt.nextBillingDate = paymentResult.nextBillingDate;
+        break;
+      }
+      case 'invoice': {
+        const items: ReceiptItem[] = [
+          {
+            description: `Invoice #${params.invoiceId || paymentResult.invoiceId}`,
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.invoiceId = params.invoiceId || paymentResult.invoiceId;
+        break;
+      }
+      case 'refund': {
+        const items: ReceiptItem[] = [
+          {
+            description: 'Refund',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.refundId = paymentResult.refundId;
+        receipt.originalTransactionId = paymentResult.originalTransactionId;
+        break;
+      }
+      case 'one_time':
+      default: {
+        const items: ReceiptItem[] = [
+          {
+            description: 'One-time Payment',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+      }
     }
-    case 'invoice': {
-      const items: ReceiptItem[] = [
-        {
-          description: `Invoice #${params.invoiceId || paymentResult.invoiceId}`,
-          amount,
-          currency: params.currency,
-        },
-      ];
-      receipt.items = items;
-      receipt.invoiceId = params.invoiceId || paymentResult.invoiceId;
-      break;
+
+    // Add billing address if available
+    if (params.billingAddress) {
+      receipt.billingAddress = params.billingAddress;
     }
-    case 'refund': {
-      const items: ReceiptItem[] = [
-        {
-          description: 'Refund',
-          amount,
-          currency: params.currency,
-        },
-      ];
-      receipt.items = items;
-      receipt.refundId = paymentResult.refundId;
-      receipt.originalTransactionId = paymentResult.originalTransactionId;
-      break;
+
+    return receipt;
+  } catch (err) {
+    // Fallback to static logic
+    const receiptId = `rcpt_${Date.now()}`;
+    const issueDate = new Date().toISOString();
+
+    const receipt: any = {
+      receiptId,
+      transactionId: paymentResult.transactionId,
+      issueDate,
+      paymentType,
+      paymentMethod: params.paymentMethod,
+      amount,
+      currency: params.currency,
+      status: paymentResult.status,
+      items: [] as ReceiptItem[], // Ensure items is typed as ReceiptItem[]
+    };
+
+    // Add receipt items based on payment type
+    switch (paymentType) {
+      case 'subscription': {
+        const items: ReceiptItem[] = [
+          {
+            description: 'Monthly Subscription',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.subscriptionId = paymentResult.subscriptionId;
+        receipt.nextBillingDate = paymentResult.nextBillingDate;
+        break;
+      }
+      case 'invoice': {
+        const items: ReceiptItem[] = [
+          {
+            description: `Invoice #${params.invoiceId || paymentResult.invoiceId}`,
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.invoiceId = params.invoiceId || paymentResult.invoiceId;
+        break;
+      }
+      case 'refund': {
+        const items: ReceiptItem[] = [
+          {
+            description: 'Refund',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+        receipt.refundId = paymentResult.refundId;
+        receipt.originalTransactionId = paymentResult.originalTransactionId;
+        break;
+      }
+      case 'one_time':
+      default: {
+        const items: ReceiptItem[] = [
+          {
+            description: 'One-time Payment',
+            amount,
+            currency: params.currency,
+          },
+        ];
+        receipt.items = items;
+      }
     }
-    case 'one_time':
-    default: {
-      const items: ReceiptItem[] = [
-        {
-          description: 'One-time Payment',
-          amount,
-          currency: params.currency,
-        },
-      ];
-      receipt.items = items;
+
+    // Add billing address if available
+    if (params.billingAddress) {
+      receipt.billingAddress = params.billingAddress;
     }
+
+    return receipt;
   }
-
-  // Add billing address if available
-  if (params.billingAddress) {
-    receipt.billingAddress = params.billingAddress;
-  }
-
-  return receipt;
 }
 
 /**

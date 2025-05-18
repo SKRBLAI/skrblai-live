@@ -1,4 +1,4 @@
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Business Agent Types
@@ -257,6 +257,16 @@ function generateInitiatives(goals: string[]): BusinessInitiative[] {
  */
 function logAgentActivity(agentName: string, userId: string, activity: Record<string, unknown>): void {
   console.log(`Agent ${agentName} activity for user ${userId}:`, activity);
+}
+
+async function generateBusinessPlanOpenAI(businessType: string, goals: string[]): Promise<string> {
+  try {
+    const prompt = `Write a business plan for a ${businessType} business with the following goals: ${goals.join(', ')}.`;
+    return await callOpenAI(prompt, { maxTokens: 600 });
+  } catch (err) {
+    // Fallback to static logic
+    return `Business plan for a ${businessType} business: ${goals.join(', ')}.`;
+  }
 }
 
 const bizAgent: Agent = {

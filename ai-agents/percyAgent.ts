@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Percy Agent
@@ -68,16 +68,23 @@ const runPercyAgent = async (input: PercyAgentInput): Promise<AgentResponse> => 
  */
 const processTextInput = async (text: string): Promise<any> => {
   // Analyze the user's query to determine intent and context
-  const intent = analyzeIntent(text);
-  
-  // Generate appropriate response based on intent
-  const response = {
-    intent,
-    response: generateResponse(text, intent),
-    suggestions: generateSuggestions(intent)
-  };
-  
-  return response;
+  try {
+    const prompt = `You are Percy, an AI assistant for a digital agency. Respond to the following user query in a helpful, friendly, and professional way:\n${text}`;
+    const aiResponse = await callOpenAI(prompt, { maxTokens: 300 });
+    return {
+      intent: analyzeIntent(text),
+      response: aiResponse,
+      suggestions: generateSuggestions(analyzeIntent(text))
+    };
+  } catch (err) {
+    // Fallback to static logic
+    const intent = analyzeIntent(text);
+    return {
+      intent,
+      response: generateResponse(text, intent),
+      suggestions: generateSuggestions(intent)
+    };
+  }
 }
 
 /**

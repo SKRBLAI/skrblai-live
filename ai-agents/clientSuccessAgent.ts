@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Client Success Agent
@@ -245,44 +245,45 @@ const getCommonCategories = (tickets: any[]): string[] => {
  * @param category - Request category
  * @returns Generated initial response
  */
-const generateInitialResponse = (
+const generateInitialResponse = async (
   requestType: string,
   subject: string,
   description: string,
   priority: string,
   category: string
-): string => {
-  // In a real implementation, this would generate a tailored response
-  // For now, we'll generate a placeholder response based on request type
-  
-  const greeting = 'Thank you for reaching out to our support team.';
-  let mainResponse = '';
-  let closing = 'Please let us know if you have any further questions or concerns.';
-  
-  switch (requestType) {
-    case 'question':
-      mainResponse = `We've received your question about "${subject}". Our team is reviewing your inquiry and will provide a detailed answer as soon as possible. In the meantime, you might find some helpful information in the resources we've included below.`;
-      break;
-    case 'issue':
-      mainResponse = `We're sorry to hear you're experiencing an issue with "${subject}". Our technical team has been notified and is working to resolve this problem. We'll keep you updated on our progress and will follow up with a solution as quickly as possible.`;
-      if (priority === 'urgent' || priority === 'high') {
-        mainResponse += ' We understand this is a high-priority issue and are treating it accordingly.';
-      }
-      break;
-    case 'feedback':
-      mainResponse = `Thank you for sharing your feedback about "${subject}". We greatly value your input as it helps us improve our products and services. Your comments have been forwarded to our product team for consideration.`;
-      break;
-    case 'feature_request':
-      mainResponse = `We appreciate your suggestion regarding "${subject}". Our product team regularly reviews feature requests to help prioritize our development roadmap. We'll evaluate your request and keep you informed about any updates related to this functionality.`;
-      break;
-    case 'billing':
-      mainResponse = `We've received your billing inquiry about "${subject}". Our billing department will review your account and address your concerns. If we need any additional information, we'll reach out to you directly.`;
-      break;
-    default:
-      mainResponse = `We've received your message about "${subject}" and are working to address it. A member of our team will review the details and get back to you shortly.`;
+): Promise<string> => {
+  try {
+    const prompt = `Generate a customer support response.\nType: ${requestType}\nSubject: ${subject}\nDescription: ${description}\nPriority: ${priority}\nCategory: ${category}`;
+    return await callOpenAI(prompt, { maxTokens: 300 });
+  } catch (err) {
+    // Fallback to static logic
+    const greeting = 'Thank you for reaching out to our support team.';
+    let mainResponse = '';
+    let closing = 'Please let us know if you have any further questions or concerns.';
+    switch (requestType) {
+      case 'question':
+        mainResponse = `We've received your question about "${subject}". Our team is reviewing your inquiry and will provide a detailed answer as soon as possible. In the meantime, you might find some helpful information in the resources we've included below.`;
+        break;
+      case 'issue':
+        mainResponse = `We're sorry to hear you're experiencing an issue with "${subject}". Our technical team has been notified and is working to resolve this problem. We'll keep you updated on our progress and will follow up with a solution as quickly as possible.`;
+        if (priority === 'urgent' || priority === 'high') {
+          mainResponse += ' We understand this is a high-priority issue and are treating it accordingly.';
+        }
+        break;
+      case 'feedback':
+        mainResponse = `Thank you for sharing your feedback about "${subject}". We greatly value your input as it helps us improve our products and services. Your comments have been forwarded to our product team for consideration.`;
+        break;
+      case 'feature_request':
+        mainResponse = `We appreciate your suggestion regarding "${subject}". Our product team regularly reviews feature requests to help prioritize our development roadmap. We'll evaluate your request and keep you informed about any updates related to this functionality.`;
+        break;
+      case 'billing':
+        mainResponse = `We've received your billing inquiry about "${subject}". Our billing department will review your account and address your concerns. If we need any additional information, we'll reach out to you directly.`;
+        break;
+      default:
+        mainResponse = `We've received your message about "${subject}" and are working to address it. A member of our team will review the details and get back to you shortly.`;
+    }
+    return `${greeting}\n\n${mainResponse}\n\n${closing}\n\nBest regards,\nThe Support Team`;
   }
-  
-  return `${greeting}\n\n${mainResponse}\n\n${closing}\n\nBest regards,\nThe Support Team`;
 }
 
 /**
@@ -690,7 +691,7 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
     const clientHistory = await getClientHistory(input.clientId);
 
     // Generate response components
-    const initialResponse = generateInitialResponse(
+    const initialResponse = await generateInitialResponse(
       input.requestType,
       input.subject,
       input.description,

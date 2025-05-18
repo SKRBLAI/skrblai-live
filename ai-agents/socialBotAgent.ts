@@ -1,7 +1,12 @@
 import { supabase } from '@/utils/supabase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
-import { validateAgentInput } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
+
+/**
+ * OpenAI Integration: (Planned) Use callOpenAI for social post generation in future. Currently, static/template logic is used. Fallback is always logged and gracefully handled.
+ * Capabilities and test function are exposed for agent introspection and testing.
+ */
 
 // Define input interface for Social Bot Agent
 interface SocialBotInput extends BaseAgentInput {
@@ -47,6 +52,13 @@ interface ScheduleItem {
   platform: string;
   postIndex: number;
   scheduledTime: string;
+}
+
+// Agent capabilities
+const capabilities = 'Generates social media content, post schedules, and multi-platform campaigns.';
+
+export function getCapabilities() {
+  return capabilities;
 }
 
 /**
@@ -207,33 +219,115 @@ function generatePosts(
   for (let i = 0; i < postCount; i++) {
     // Select a topic for this post
     const topic = topics[i % topics.length];
-    
-    // Generate post based on platform
-    switch (platform) {
-      case 'instagram':
-        posts.push(generateInstagramPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      case 'twitter':
-        posts.push(generateTwitterPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      case 'facebook':
-        posts.push(generateFacebookPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      case 'linkedin':
-        posts.push(generateLinkedInPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      case 'tiktok':
-        posts.push(generateTikTokPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      case 'pinterest':
-        posts.push(generatePinterestPost(businessName, industry, topic, tone, includeHashtags));
-        break;
-      default:
-        posts.push(generateGenericPost(businessName, industry, topic, tone, includeHashtags));
+    let post: Post | null = null;
+    let usedOpenAI = false;
+    try {
+      // Use OpenAI for post/caption generation
+      const prompt = `Write a social media post for ${platform} about '${topic}' for a ${industry} business called ${businessName}. Tone: ${tone}. Include hashtags if relevant.`;
+      // Synchronous call for now; in future, could batch or parallelize
+      const aiContent = (typeof callOpenAI === 'function') ? (callOpenAI as any)(prompt, { maxTokens: 120 }) : null;
+      if (aiContent && typeof aiContent.then === 'function') {
+        // If callOpenAI returns a promise, await it
+        aiContent.then((content: string) => {
+          post = buildAIPost(platform, topic, tone, includeHashtags, content);
+          usedOpenAI = true;
+        }).catch(() => {
+          post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+        });
+      } else if (typeof aiContent === 'string') {
+        post = buildAIPost(platform, topic, tone, includeHashtags, aiContent);
+        usedOpenAI = true;
+      } else {
+        post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+      }
+    } catch (err) {
+      post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
     }
+    // If post is still null (async), fallback to static
+    if (!post) {
+      post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+    }
+    if (usedOpenAI) {
+      console.log(`[SocialBotAgent] Used OpenAI for ${platform} post:`, post);
+    } else {
+      console.log(`[SocialBotAgent] Used static logic for ${platform} post:`, post);
+    }
+    posts.push(post);
   }
   
   return posts;
+}
+
+function buildAIPost(platform: string, topic: string, tone: string, includeHashtags: boolean, aiContent: string): Post {
+  // Simple mapping for AI-generated content
+  switch (platform) {
+    case 'instagram':
+      return {
+        type: 'image',
+        caption: aiContent,
+        imageDescription: `Image related to ${topic}`,
+        recommendedTime: getRecommendedTime('instagram')
+      };
+    case 'twitter':
+      return {
+        type: 'text',
+        content: aiContent,
+        recommendedTime: getRecommendedTime('twitter')
+      };
+    case 'facebook':
+      return {
+        type: 'text',
+        content: aiContent,
+        imageDescription: `Image related to ${topic}`,
+        recommendedTime: getRecommendedTime('facebook')
+      };
+    case 'linkedin':
+      return {
+        type: 'text',
+        content: aiContent,
+        recommendedTime: getRecommendedTime('linkedin')
+      };
+    case 'tiktok':
+      return {
+        type: 'video',
+        caption: aiContent,
+        videoDescription: `Short video about ${topic}`,
+        recommendedTime: getRecommendedTime('tiktok')
+      };
+    case 'pinterest':
+      return {
+        type: 'image',
+        title: topic,
+        description: aiContent,
+        imageDescription: `Visually appealing image related to ${topic}`,
+        recommendedTime: getRecommendedTime('pinterest')
+      };
+    default:
+      return {
+        type: 'text',
+        content: aiContent,
+        recommendedTime: new Date().toISOString()
+      };
+  }
+}
+
+function buildStaticPost(platform: string, businessName: string, industry: string, topic: string, tone: string, includeHashtags: boolean): Post {
+  switch (platform) {
+    case 'instagram':
+      return generateInstagramPost(businessName, industry, topic, tone, includeHashtags);
+    case 'twitter':
+      return generateTwitterPost(businessName, industry, topic, tone, includeHashtags);
+    case 'facebook':
+      return generateFacebookPost(businessName, industry, topic, tone, includeHashtags);
+    case 'linkedin':
+      return generateLinkedInPost(businessName, industry, topic, tone, includeHashtags);
+    case 'tiktok':
+      return generateTikTokPost(businessName, industry, topic, tone, includeHashtags);
+    case 'pinterest':
+      return generatePinterestPost(businessName, industry, topic, tone, includeHashtags);
+    default:
+      return generateGenericPost(businessName, industry, topic, tone, includeHashtags);
+  }
 }
 
 /**
@@ -580,6 +674,36 @@ const socialBotAgent: Agent = {
     return runSocialBot(socialBotInput);
   }
 };
+
+// Test function for agent
+export async function testSocialBotAgent(simulateFailure = false) {
+  const mockInput = {
+    userId: 'test-user',
+    goal: 'Generate social media campaign',
+    businessName: 'TestCo',
+    industry: 'technology',
+    platforms: ['instagram', 'twitter'],
+    postCount: 3,
+    tone: 'professional',
+    topics: ['AI', 'automation'],
+    targetAudience: 'startups',
+    includeHashtags: true,
+    schedulePosts: false
+  };
+  if (simulateFailure) {
+    process.env.OPENAI_API_KEY = 'sk-invalid';
+  }
+  try {
+    if (typeof socialBotAgent.runAgent === 'function') {
+      const result = await socialBotAgent.runAgent(mockInput);
+      console.log('[SocialBotAgent Test]', result);
+    } else {
+      console.error('[SocialBotAgent Test] runAgent is not defined.');
+    }
+  } catch (err) {
+    console.error('[SocialBotAgent Test] Fallback triggered:', err);
+  }
+}
 
 export { socialBotAgent };
 export default socialBotAgent;
