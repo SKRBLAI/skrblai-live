@@ -49,12 +49,23 @@ export type Agent = {
   lastUsed?: string;
 };
 
+type Activity = {
+  id: string;
+  description: string;
+  timestamp: string;
+};
 
+type WorkflowLog = {
+  id: string;
+  description: string;
+  created_at: string;
+};
 
+type PercyMemory = {
+  agents?: string[];
+};
 
-
-
-
+// Agent registry
 const agentRegistry: { [key: string]: Agent } = {
   agent1: {
     id: 'agent1',
@@ -361,5 +372,5 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-  </div>
+  );
 }
