@@ -180,10 +180,6 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  // --- Remove all duplicate type/interface declarations below this line ---
-
-
-  // Loading state
   if (isLoading) {
     return (
       <PageLayout title="Loading...">
@@ -215,7 +211,43 @@ export default function Dashboard() {
             <motion.div variants={itemVariants}>
               <DashboardHeader />
             </motion.div>
-            
+
+            {/* Agent List/Panel */}
+            <motion.div
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {Object.values(agentRegistry).map((agent, idx) => (
+                <motion.div
+                  key={agent.id}
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.03, boxShadow: '0 0 16px #2dd4bf' }}
+                  className="rounded-xl bg-white/10 backdrop-blur-md border border-teal-400 shadow-glow p-6 flex flex-col gap-2 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400"
+                  tabIndex={0}
+                  aria-label={`Agent: ${agent.name}`}
+                  onClick={() => {
+                    setUpsellAgent(agent);
+                    setShowUpsell(true);
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setUpsellAgent(agent);
+                      setShowUpsell(true);
+                    }
+                  }}
+                >
+                  <h3 className="text-lg font-bold text-teal-300 mb-1 gradient-text-sk">{agent.name}</h3>
+                  <p className="text-gray-300 mb-2 text-sm">{agent.description}</p>
+                  <div className="flex items-center text-xs text-gray-400 mt-auto">
+                    <span className="mr-2">Last Run:</span>
+                    <span className="font-semibold text-white">—</span>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
             <motion.div variants={itemVariants} className="grid grid-cols-1 gap-8">
               {/* Overview Section */}
               {activeSection === 'overview' && (
