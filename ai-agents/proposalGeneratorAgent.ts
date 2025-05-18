@@ -132,5 +132,9 @@ const proposalGeneratorAgent: Agent = {
   }
 };
 
+proposalGeneratorAgent.usageCount = undefined;
+proposalGeneratorAgent.lastRun = undefined;
+proposalGeneratorAgent.performanceScore = undefined;
+
 export { proposalGeneratorAgent };
 export default proposalGeneratorAgent;

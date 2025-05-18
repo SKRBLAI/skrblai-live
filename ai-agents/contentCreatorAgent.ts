@@ -498,5 +498,9 @@ const contentCreatorAgent: Agent = {
   roleRequired: "any",
 };
 
+contentCreatorAgent.usageCount = undefined;
+contentCreatorAgent.lastRun = undefined;
+contentCreatorAgent.performanceScore = undefined;
+
 export { contentCreatorAgent };
 export default contentCreatorAgent;

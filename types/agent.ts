@@ -38,6 +38,8 @@ export interface Agent {
   agentCategory?: string[];
   emoji?: string;
   usageCount?: number;
+  lastRun?: string;
+  performanceScore?: number;
   config?: AgentConfig;
   route?: string | null;
   intent?: string | null;

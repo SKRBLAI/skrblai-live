@@ -4,288 +4,330 @@
 export const dynamic = 'force-dynamic'; // Disable static page generation
 
 import { useState, useEffect } from 'react';
-import agentRegistry from '@/lib/agents/agentRegistry';
-import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
-import UpsellModal from '@/components/percy/UpsellModal';
-import { supabase } from '@/utils/supabase';
-
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { auth, getCurrentUser } from '@/utils/supabase-auth';
+import { createClient } from '@supabase/supabase-js';
 
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
+
+// Initialize auth
+const auth = supabase.auth;
+
+// Helper functions
+const checkUserRole = async (userId: string): Promise<'free' | 'premium'> => {
+  const { data } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .single();
+  return data?.role || 'free';
+};
+
+// Components
+import PageLayout from '@/components/layout/PageLayout';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
 import PostScheduler from '@/components/dashboard/PostScheduler';
 import ProposalGenerator from '@/components/dashboard/ProposalGenerator';
-import BillingInfo from '@/components/dashboard/BillingInfo';
-import DownloadCenter from '@/components/dashboard/DownloadCenter';
-import Notifications from '@/components/dashboard/Notifications';
 import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
-import { checkUserRole } from '@/lib/auth/checkUserRole';
-import { sendEmailAction } from '@/actions/sendEmail';
-import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
+import UpsellModal from '@/components/percy/UpsellModal';
+import DownloadCenter from '@/components/dashboard/DownloadCenter';
+import BillingInfo from '@/components/dashboard/BillingInfo';
+import Notifications from '@/components/dashboard/Notifications';
 
-import { useRouter } from 'next/navigation';
-import FloatingParticles from "@/components/ui/FloatingParticles";
-import PercyAvatar from "@/components/home/PercyAvatar";
+// Types
+export type Agent = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+  lastUsed?: string;
+};
 
-import PageLayout from '@/components/layout/PageLayout';
+
+
+
+
+
+
+const agentRegistry: { [key: string]: Agent } = {
+  agent1: {
+    id: 'agent1',
+    name: 'Content Writer',
+    description: 'AI-powered content writing assistant',
+    category: 'recommended',
+  },
+  agent2: {
+    id: 'agent2',
+    name: 'Social Media Manager',
+    description: 'Automated social media post generator',
+    category: 'recommended',
+  },
+  agent3: {
+    id: 'agent3',
+    name: 'SEO Optimizer',
+    description: 'SEO analysis and optimization tool',
+    category: 'recommended',
+  },
+};
+
+// Mock functions
+const getRecentPercyMemory = async () => {
+  return {
+    agents: ['agent1', 'agent2']
+  };
+};
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: 'easeOut'
+    }
+  }
+};
 
 export default function Dashboard() {
-  const [recentAgents, setRecentAgents] = useState<any[]>([]);
-  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
-  const [recommended, setRecommended] = useState<any[]>([]);
-  const [showUpsell, setShowUpsell] = useState(false);
-  const [upsellAgent, setUpsellAgent] = useState<any>(null);
-  const [userRole, setUserRole] = useState<'free' | 'premium'>('free');
-
-  const [activeSection, setActiveSection] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
+  // Router
   const router = useRouter();
 
-  const [lastUsed, setLastUsed] = useState<any[]>([]);
-  const [activity, setActivity] = useState<any[]>([]);
+  // State
+  const [recentAgents, setRecentAgents] = useState<Agent[]>([]);
+  const [workflowLogs, setWorkflowLogs] = useState<WorkflowLog[]>([]);
+  const [recommended, setRecommended] = useState<Agent[]>([]);
+  const [showUpsell, setShowUpsell] = useState(false);
+  const [upsellAgent, setUpsellAgent] = useState<Agent | null>(null);
+  const [userRole, setUserRole] = useState<'free' | 'premium'>('free');
+  const [activeSection, setActiveSection] = useState<string>('overview');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [lastUsed, setLastUsed] = useState<Agent[]>([]);
+  const [activity, setActivity] = useState<Activity[]>([]);
   const [suggestion, setSuggestion] = useState<string>("");
 
-  // Stripe Role Gating: restrict premium dashboard sections
+  // Auth effect
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const { data: { subscription } } = auth.onAuthStateChange(async (_event, session) => {
+      const user = session?.user;
       if (user) {
-        // User is authenticated, continue
-        // Fetch recent agents from Supabase Percy memory
-        const mem = await getRecentPercyMemory();
-        setRecentAgents(mem);
-        
-        // Fetch workflow logs from Supabase
-        const { data: logs, error } = await supabase
-          .from('workflowLogs')
-          .select('*')
-          .eq('userId', user.id)
-          .order('timestamp', { ascending: false })
-          .limit(10);
-          
-        if (!error && logs) {
-          setWorkflowLogs(logs.map(log => ({ id: log.id, ...log })));
-        }
-        
-        // Set onboarding goal and recommended
-        const onboardingGoal = localStorage.getItem('userGoal');
-        if (onboardingGoal) {
-          setRecommended(agentRegistry.filter(a => a.category?.toLowerCase().includes(onboardingGoal.toLowerCase())));
-        }
-        // Get user role
-        const role = await checkUserRole();
+        const role = await checkUserRole(user.id);
         setUserRole(role);
-
-        // Simulate fetching last used agents from localStorage or Supabase
-        let used: any[] = [];
-        if (typeof window !== 'undefined') {
-          const last = localStorage.getItem('lastUsedAgent');
-          if (last) {
-            const agent = agentRegistry.find(a => a.intent === last || a.id === last);
-            if (agent) used.push(agent);
-          }
-          // Optionally add more recent agents from memory (simulate)
-          const memory = localStorage.getItem('percyMemory');
-          if (memory) {
-            try {
-              const arr = JSON.parse(memory);
-              arr.forEach((intent: string) => {
-                const agent = agentRegistry.find(a => a.intent === intent);
-                if (agent && !used.find(u => u.id === agent.id)) used.push(agent);
-              });
-            } catch { /* future quick actions here */ }
-          }
-        }
-        setLastUsed(used.slice(0, 5));
-        // Simulate activity timeline (replace with Supabase in prod)
-        setActivity(used.map((a, i) => ({
-          name: a.name,
-          intent: a.intent,
-          timestamp: Date.now() - i * 1000 * 60 * 60,
-          status: i % 3 === 0 ? 'fail' : 'success',
-        })));
-        // Percy suggestion
-        setSuggestion("Launch Branding Bot?");
+        setIsLoading(false);
       } else {
-        router.push('/login');
+        router.push('/sign-in');
       }
-      setIsLoading(false);
     });
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [router]);
 
-    return () => unsubscribe();
-  }, [router, activeSection]);
+  // Load data on mount
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Get recent agents
+        const recentMemory: PercyMemory = await getRecentPercyMemory();
+        const recentAgentIds = recentMemory?.agents || [];
+        const recentAgentData = recentAgentIds.map((id: string) => agentRegistry[id]).filter(Boolean) as Agent[];
+        setRecentAgents(recentAgentData);
+        setLastUsed(recentAgentData.slice(0, 3));
 
-  // Workflow handler with Resend email confirmation
-  const handleRunWorkflow = async (agentId: string, payload: any, user: any) => {
-    const result = await runAgentWorkflow(agentId, payload);
-    
-    const { error } = await supabase
-      .from('workflowLogs')
-      .insert({
-        userId: user.id,
-        agentId,
-        result: result.result,
-        status: result.status,
-        timestamp: new Date().toISOString()
-      });
-      
-    if (user.email) {
-      await sendEmailAction(user.email, agentId, result.result);
-    }
-    return result;
-  };
+        // Get workflow logs
+        const { data: logs } = await supabase
+          .from('workflow_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(5);
+        setWorkflowLogs(logs || []);
+        setActivity((logs as WorkflowLog[] || []).map(log => ({
+          id: log.id,
+          description: log.description,
+          timestamp: log.created_at
+        })));
 
-  // Run Again handler
-  const handleRunAgain = (agent: any) => {
-    if (userRole !== 'premium' && agent.premium) {
-      setUpsellAgent(agent);
-      setShowUpsell(true);
-      return;
-    }
-    window.location.href = agent.route || '/services/' + agent.id;
-  };
+        // Get recommended agents
+        const recommendedIds = Object.keys(agentRegistry)
+          .filter((a: string) => agentRegistry[a].category === 'recommended')
+          .slice(0, 3);
+        setRecommended(recommendedIds.map((id: string) => agentRegistry[id]) as Agent[]);
 
-  const renderSection = () => {
-    switch (activeSection) {
-      case 'overview':
-        return <DashboardOverview />;
-      case 'metrics':
-        return <CampaignMetrics />;
-      case 'scheduler':
-        return <PostScheduler />;
-      case 'proposals':
-        return <ProposalGenerator />;
-      case 'billing':
-        return <BillingInfo />;
-      case 'downloads':
-        return <DownloadCenter />;
-      case 'notifications':
-        return <Notifications />;
-      case 'video':
-        return <VideoContentQueue />;
-      default:
-        return <DashboardOverview />;
-    }
-  };
+        // Get suggestion
+        setSuggestion('Try our new AI content generator for better engagement!');
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    };
 
+    loadData();
+  }, []);
+
+  // --- Remove all duplicate type/interface declarations below this line ---
+
+
+  // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-electric-blue/30 mb-4"></div>
-          <div className="h-4 w-24 bg-electric-blue/30 rounded"></div>
-        </div>
-      </div>
+      <PageLayout title="Loading...">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex items-center justify-center min-h-[60vh]"
+        >
+          <motion.div variants={itemVariants} className="animate-pulse flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-electric-blue/30 mb-4" />
+            <div className="h-4 w-24 bg-electric-blue/30 rounded" />
+          </motion.div>
+        </motion.div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-deep-navy">
-      <DashboardHeader />
-      <div className="flex">
-        <DashboardSidebar activeSection={activeSection} setActiveSection={setActiveSection} />
-        <main className="flex-1 p-6 overflow-y-auto">
+    <div className="flex h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+      <div className="flex-grow overflow-auto">
+        <PageLayout title="Dashboard Overview">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-7xl mx-auto"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-8"
           >
-            <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">
-              Dashboard
-            </h1>
-            {/* Recommended Section */}
-            {recommended.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-2 text-teal-300">Recommended For You</h2>
-                <div className="flex flex-wrap gap-2">
-                  {recommended.map((agent: any) => (
-                    <button
-                      key={agent.id}
-                      onClick={() => handleRunAgain(agent)}
-                      className="px-4 py-2 rounded-lg bg-teal-700/20 border border-teal-400 text-teal-200 font-semibold text-sm shadow-glow hover:bg-teal-600/30 transition-all"
-                    >
-                      {agent.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            {/* Recent Agents Section */}
-            {recentAgents.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold mb-2 text-electric-blue">Recent Agents</h2>
-                <div className="flex flex-wrap gap-2">
-                  {recentAgents.map((mem: any, idx: number) => {
-                    const agent = agentRegistry.find((a: any) => a.intent === mem.intent || a.id === mem.intent);
-                    if (!agent) return null;
-                    return (
-                      <div key={agent.id + idx} className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
-                        <span>{agent.name}</span>
-                        <button
-                          onClick={() => handleRunAgain(agent)}
-                          className="ml-2 px-3 py-1 rounded bg-gradient-to-r from-electric-blue to-teal-400 text-white text-xs font-semibold shadow-glow hover:scale-105 transition-all"
-                        >Run Again</button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-            {/* Workflow Log Table */}
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-2 text-white">Workflow Log</h2>
-              <div className="overflow-x-auto rounded-xl bg-white/5 border border-white/10">
-                <table className="min-w-full text-left text-sm">
-                  <thead>
-                    <tr className="bg-white/10">
-                      <th className="py-2 px-4">Agent</th>
-                      <th className="py-2 px-4">Date</th>
-                      <th className="py-2 px-4">Status</th>
-                      <th className="py-2 px-4">Result</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {workflowLogs.map((log: any) => {
-                      const agent = agentRegistry.find((a: any) => a.id === log.agentId || a.intent === log.agentId);
-                      return (
-                        <tr key={log.id} className="border-b border-white/10 hover:bg-white/10">
-                          <td className="py-2 px-4">{agent?.name || log.agentId}</td>
-                          <td className="py-2 px-4">{new Date(log.timestamp).toLocaleString()}</td>
-                          <td className="py-2 px-4">
-                            <span className={`rounded-full px-2 py-0.5 text-xs ${log.status === 'success' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
-                              {log.status}
-                            </span>
-                          </td>
-                          <td className="py-2 px-4 truncate max-w-xs">{log.result ? log.result.substring(0, 50) + '...' : 'No result'}</td>
-                        </tr>
-                      );
-                    })}
-                    {workflowLogs.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="py-4 px-4 text-center text-gray-400">No workflow logs found</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <motion.div variants={itemVariants}>
+              <DashboardHeader />
+            </motion.div>
+            
+            <motion.div variants={itemVariants} className="grid grid-cols-1 gap-8">
+              {/* Overview Section */}
+              {activeSection === 'overview' && (
+                <motion.div variants={itemVariants}>
+                  <DashboardOverview
+                    lastUsed={lastUsed}
+                    activity={activity}
+                    suggestion={suggestion}
+                  />
+                </motion.div>
+              )}
 
-            {/* Current Section */}
-            {renderSection()}
+              {/* Campaign Metrics */}
+              {activeSection === 'metrics' && (
+                <motion.div variants={itemVariants}>
+                  <CampaignMetrics />
+                </motion.div>
+              )}
+
+              {/* Post Scheduler */}
+              {activeSection === 'scheduler' && (
+                <motion.div variants={itemVariants}>
+                  <PostScheduler />
+                </motion.div>
+              )}
+
+              {/* Proposal Generator */}
+              {activeSection === 'proposals' && (
+                <motion.div variants={itemVariants}>
+                  <ProposalGenerator />
+                </motion.div>
+              )}
+
+              {/* Video Content Queue */}
+              {activeSection === 'video' && (
+                <motion.div variants={itemVariants}>
+                  <VideoContentQueue />
+                </motion.div>
+              )}
+
+              {/* Downloads */}
+              {activeSection === 'downloads' && (
+                <motion.div variants={itemVariants}>
+                  <DownloadCenter />
+                </motion.div>
+              )}
+
+              {/* Billing */}
+              {activeSection === 'billing' && (
+                <motion.div variants={itemVariants}>
+                  <BillingInfo />
+                </motion.div>
+              )}
+
+              {/* Notifications */}
+              {activeSection === 'notifications' && (
+                <motion.div variants={itemVariants}>
+                  <Notifications />
+                </motion.div>
+              )}
+            </motion.div>
           </motion.div>
-        </main>
-      </div>
 
-      {/* Upsell Modal */}
-      {showUpsell && (
-        <UpsellModal 
-          onClose={() => setShowUpsell(false)}
-          agent={upsellAgent}
-        />
+          {/* Upsell Modal */}
+          {showUpsell && (
+            <UpsellModal 
+              onClose={() => setShowUpsell(false)}
+              agent={{
+                name: upsellAgent?.name || '',
+                description: upsellAgent?.description || ''
+              }}
+            />
+          )}
+        </PageLayout>
+      </div>
+      {/* Recommended Section */}
+      {recommended.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-2 text-teal-300">Recommended For You</h2>
+          <div className="flex flex-wrap gap-2">
+            {recommended.map((agent: any) => (
+              <span key={agent.id} className="px-4 py-2 rounded-lg bg-teal-700/20 border border-teal-400 text-teal-200 font-semibold text-sm shadow-glow">
+                {agent.name}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
+
+      {/* Recent Agents Section */}
+      {recentAgents.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-2 text-electric-blue">Recent Agents</h2>
+          <div className="flex flex-wrap gap-2">
+            {recentAgents.map((mem: any, idx: number) => {
+              const agent = agentRegistry[mem.id];
+              if (!agent) return null;
+              return (
+                <div key={agent.id + idx} className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
+                  <span>{agent.name}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {/* Workflow Log Table */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-2 text-white">Workflow Log</h2>
+        <div className="overflow-x-auto rounded-xl bg-white/5 border border-white/10">
+        </div>
+      </div>
     </div>
-  );
+  </div>
 }

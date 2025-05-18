@@ -383,6 +383,9 @@ const videoContentAgent: Agent = {
     capabilities: ['Script Writing', 'Storyboard Creation', 'Video Planning', 'Duration Management']
   },
   roleRequired: 'any',
+  usageCount: undefined,
+  lastRun: undefined,
+  performanceScore: undefined,
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for video fields
     const extendedInput = input as unknown as Record<string, any>;

@@ -2,6 +2,7 @@
 import React, { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
+import FloatingParticles from '@/components/ui/FloatingParticles';
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -11,27 +12,47 @@ type PageLayoutProps = {
 export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   const pathname = usePathname();
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden bg-[#0d1117]">
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        <FloatingParticles />
+      </div>
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
+
       {/* Main Content */}
-      <main className="flex-grow pt-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full backdrop-blur-lg bg-white/5 rounded-lg shadow-xl border border-white/10 mt-4">
-          {title && (
-            <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
-              {title}
-            </h1>
-          )}
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={pathname}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.35, ease: 'easeInOut' }}
-              className="glass-card p-6"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </main>
+      <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="backdrop-blur-lg bg-white/5 rounded-2xl shadow-xl border border-white/10 overflow-hidden"
+        >
+          <div className="p-6 md:p-8 lg:p-10">
+            {title && (
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-3xl md:text-4xl font-bold mb-8 bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent"
+              >
+                {title}
+              </motion.h1>
+            )}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={pathname}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                className="relative z-10"
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </main>
     </div>
   );
 }

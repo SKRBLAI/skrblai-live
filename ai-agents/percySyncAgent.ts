@@ -276,5 +276,9 @@ export async function handlePercyOnboarding(lead: Lead): Promise<{success: boole
   }
 }
 
+percySyncAgent.usageCount = undefined;
+percySyncAgent.lastRun = undefined;
+percySyncAgent.performanceScore = undefined;
+
 export { percySyncAgent };
 export default percySyncAgent;

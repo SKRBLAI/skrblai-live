@@ -416,5 +416,9 @@ const paymentManagerAgent: Agent = {
   roleRequired: "any",
 };
 
+paymentManagerAgent.usageCount = undefined;
+paymentManagerAgent.lastRun = undefined;
+paymentManagerAgent.performanceScore = undefined;
+
 export { paymentManagerAgent };
 export default paymentManagerAgent;

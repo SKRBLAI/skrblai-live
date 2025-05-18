@@ -269,5 +269,9 @@ const percyAgent: Agent = {
   roleRequired: 'any'
 };
 
+percyAgent.usageCount = undefined;
+percyAgent.lastRun = undefined;
+percyAgent.performanceScore = undefined;
+
 export { percyAgent };
 export default percyAgent;

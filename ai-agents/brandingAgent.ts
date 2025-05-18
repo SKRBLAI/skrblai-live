@@ -628,5 +628,9 @@ const brandingAgent: Agent = {
   roleRequired: "any",
 };
 
+brandingAgent.usageCount = undefined;
+brandingAgent.lastRun = undefined;
+brandingAgent.performanceScore = undefined;
+
 export { brandingAgent };
 export default brandingAgent;

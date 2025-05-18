@@ -46,17 +46,26 @@ function getBestAgents(goal: string, platform: string) {
     (a.category && lowerPlatform && a.category.toLowerCase().includes(lowerPlatform)) ||
     (a.name && lowerPlatform && a.name.toLowerCase().includes(lowerPlatform)) ||
     (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform)) ||
-    (Array.isArray(a.agentCategory) && a.agentCategory.some(cat => lowerPath.includes(cat)))
+    (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some(cat => lowerPath.includes(cat)))
   ));
   if (matches.length > 0) {
     console.log('[Percy] Matched agent categories for path:', lowerPath, matches.map(a => a.agentCategory));
   }
-  // Fallback: top 2 visible agents
+  // Fallback: top 3 visible agents
   if (matches.length === 0) {
-    matches = agentList.filter(a => a.visible).slice(0, 2);
-    console.log('[Percy] Fallback to top visible agents for path:', lowerPath);
+    matches = agentList.filter(a => a.visible).slice(0, 3);
+    if (matches.length === 0) {
+      console.warn('[Percy] No visible agents found for fallback.');
+    } else {
+      console.warn('[Percy] Fallback to top visible agents for path:', lowerPath, matches.map(a => a.name));
+    }
   } else {
-    matches = matches.slice(0, 2);
+    matches = matches.slice(0, 3);
+  }
+  if (matches.length === 0) {
+    console.warn('[Percy] No agent match found for goal/platform/path:', { goal, platform, path: lowerPath });
+  } else {
+    console.log('[Percy] Selected agents:', matches.map(a => a.name));
   }
   return matches;
 }

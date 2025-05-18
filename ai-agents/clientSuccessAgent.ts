@@ -847,5 +847,9 @@ const clientSuccessAgent: Agent = {
   }
 };
 
+clientSuccessAgent.usageCount = undefined;
+clientSuccessAgent.lastRun = undefined;
+clientSuccessAgent.performanceScore = undefined;
+
 export { clientSuccessAgent };
 export default clientSuccessAgent;

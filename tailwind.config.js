@@ -23,11 +23,14 @@ module.exports = {
         },
       },
       animation: {
-        'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite',
+        'pulse-subtle': 'pulse-subtle 3s ease-in-out infinite',
         'gradient-x': 'gradient-x 15s ease infinite',
         'gradient-y': 'gradient-y 15s ease infinite',
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'slide-up': 'slideUp 0.5s ease-out forwards',
+      },
+      boxShadow: {
+        'glow': '0 0 10px rgba(45, 212, 191, 0.5), 0 0 20px rgba(45, 212, 191, 0.3), 0 0 30px rgba(45, 212, 191, 0.1)',
       },
       keyframes: {
         'pulse-subtle': {

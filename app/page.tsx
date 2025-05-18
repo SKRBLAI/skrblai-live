@@ -18,7 +18,7 @@ export default function HomePage() {
   }, [closePercy, setPercyIntent]);
 
   return (
-    <main className="min-h-screen relative text-white bg-[#0d1117] pt-24 overflow-hidden">
+    <main className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
       {/* Hero Background */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles />
@@ -27,7 +27,7 @@ export default function HomePage() {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
 
       {/* Main Content */}
-      <div className="relative z-10 pt-32 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="relative z-10 pt-24 px-4 md:px-8 max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -51,7 +51,7 @@ export default function HomePage() {
               </span>
             </h1>
           </div>
-          <p className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-light bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg shadow-lg">
             Your next-gen platform for creative automation, smart business workflows, and effortless productivity—powered by AI, crafted for visionaries.
           </p>
         </motion.div>
@@ -61,10 +61,10 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.3 }}
-          className="mt-24 text-center"
+          className="mt-16 text-center"
         >
           <Link href="/services" className="inline-block group">
-            <h2 className="text-2xl md:text-3xl font-light mb-8 text-gradient-blue group-hover:scale-105 transition-transform duration-300">
+            <h2 className="text-2xl md:text-3xl font-light mb-8 text-gradient-blue group-hover:scale-105 transition-transform duration-300 bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg inline-block">
               Meet Our League of Digital Superheroes
             </h2>
             <div className="flex justify-center gap-4 overflow-hidden py-8">
@@ -73,7 +73,7 @@ export default function HomePage() {
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div 
                     key={i}
-                    className="w-16 h-16 rounded-full bg-gradient-to-b from-teal-500/20 to-electric-blue/20 border border-white/10 transform hover:scale-110 transition-all duration-300"
+                    className="w-16 h-16 rounded-full bg-gradient-to-b from-teal-500/20 to-electric-blue/20 border border-white/10 transform hover:scale-110 transition-all duration-300 shadow-glow"
                   />
                 ))}
               </div>
@@ -86,8 +86,11 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-16 text-center"
+          className="mt-16 mb-24 text-center"
         >
+          <p className="text-lg mb-8 text-teal-300 max-w-2xl mx-auto bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg">
+            Ready to experience creative freedom? Explore our features or chat with Percy—your personal AI concierge—right now.
+          </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/features">
               <motion.button 
@@ -109,29 +112,6 @@ export default function HomePage() {
             </Link>
           </div>
         </motion.div>
-      </div>
-      <div className="mt-10">
-        <p className="text-lg mb-4 text-teal-300">Ready to experience creative freedom? Explore our features or chat with Percy—your personal AI concierge—right now.</p>
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Link href="/features">
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 bg-electric-blue text-white font-semibold rounded-lg shadow-glow hover:shadow-electric-blue/50 transition-all duration-300"
-            >
-              Get 7-Day Free Trial
-            </motion.button>
-          </Link>
-          <Link href="/services">
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 bg-white/5 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
-            >
-              See Features
-            </motion.button>
-          </Link>
-        </div>
       </div>
     </main>
   );

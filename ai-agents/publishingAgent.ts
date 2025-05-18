@@ -148,5 +148,9 @@ const publishingAgent: Agent = {
   }
 };
 
+publishingAgent.usageCount = undefined;
+publishingAgent.lastRun = undefined;
+publishingAgent.performanceScore = undefined;
+
 export { publishingAgent };
 export default publishingAgent;
