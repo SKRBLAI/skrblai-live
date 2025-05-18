@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Payment Manager Agent
@@ -66,10 +66,15 @@ function generateReceipt(
   params: any,
   paymentResult: any
 ): any {
-  // Try OpenAI for payment summary
+  // Generate receipt using OpenAI with fallback
+  const prompt = `Generate a payment receipt summary.\nType: ${paymentType}\nAmount: ${amount} ${params.currency}\nMethod: ${params.paymentMethod}`;
+  
   try {
-    const prompt = `Generate a payment receipt summary.\nType: ${paymentType}\nAmount: ${amount} ${params.currency}\nMethod: ${params.paymentMethod}`;
-    const aiSummary = callOpenAI(prompt, { maxTokens: 200 });
+    const aiSummary = callOpenAIWithFallback<string>(
+      prompt, 
+      { maxTokens: 200 },
+      () => `Payment received for ${paymentType} service. Amount: ${amount} ${params.currency}. Thank you for your business!`
+    );
 
     const receiptId = `rcpt_${Date.now()}`;
     const issueDate = new Date().toISOString();
@@ -147,7 +152,9 @@ function generateReceipt(
 
     return receipt;
   } catch (err) {
-    // Fallback to static logic
+    console.error('Error generating receipt with AI:', err);
+    
+    // Fallback to static receipt if everything fails
     const receiptId = `rcpt_${Date.now()}`;
     const issueDate = new Date().toISOString();
 
@@ -160,10 +167,10 @@ function generateReceipt(
       amount,
       currency: params.currency,
       status: paymentResult.status,
-      items: [] as ReceiptItem[], // Ensure items is typed as ReceiptItem[]
+      items: [] as ReceiptItem[]
     };
 
-    // Add receipt items based on payment type
+    // Add receipt items based on payment type (same as above)
     switch (paymentType) {
       case 'subscription': {
         const items: ReceiptItem[] = [

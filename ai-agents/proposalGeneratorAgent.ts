@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 interface ProposalAgentInput extends BaseAgentInput {
@@ -89,45 +89,33 @@ const proposalGeneratorAgent: Agent = {
         throw new Error('Missing required fields');
       }
 
-      // Try OpenAI for executive summary and scope
-      try {
-        const prompt = `Write an executive summary and scope of work for a proposal.\nClient: ${proposalInput.clientName}\nIndustry: ${proposalInput.clientIndustry}\nScope: ${proposalInput.projectScope}\nServices: ${proposalInput.services.join(', ')}\nBudget: ${proposalInput.budget}`;
-        const aiProposal = await callOpenAI(prompt, { maxTokens: 600 });
-        return {
-          success: true,
-          message: 'Proposal generated successfully (OpenAI)',
-          data: { executiveSummary: aiProposal, scopeOfWork: aiProposal }
-        };
-      } catch (err) {
-        // Fallback to static logic
-        // Generate proposal sections
-        const proposal = {
-          executiveSummary: `Strategic proposal for ${proposalInput.clientName} in the ${proposalInput.clientIndustry} industry.`,
-          scopeOfWork: `Project scope includes: ${proposalInput.projectScope}\nServices: ${proposalInput.services.join(', ')}`,
+      // Generate executive summary and scope using OpenAI with fallback
+      const prompt = `Write an executive summary and scope of work for a proposal.\nClient: ${proposalInput.clientName}\nIndustry: ${proposalInput.clientIndustry}\nScope: ${proposalInput.projectScope}\nServices: ${proposalInput.services.join(', ')}\nBudget: ${proposalInput.budget}`;
+      
+      const aiProposal = await callOpenAIWithFallback<string>(
+        prompt, 
+        { maxTokens: 600 },
+        () => {
+          // Fallback to static content
+          return `Strategic proposal for ${proposalInput.clientName} in the ${proposalInput.clientIndustry} industry.\n\n` +
+                 `Project scope includes: ${proposalInput.projectScope}\n` +
+                 `Services: ${proposalInput.services.join(', ')}\n\n` +
+                 `Timeline: ${proposalInput.projectTimeline}\n` +
+                 `Budget: ${proposalInput.budget}`;
+        }
+      );
+      
+      return {
+        success: true,
+        message: 'Proposal generated successfully',
+        data: { 
+          executiveSummary: aiProposal, 
+          scopeOfWork: aiProposal,
           timeline: `Project Timeline: ${proposalInput.projectTimeline}`,
           pricing: `Budget Allocation: ${proposalInput.budget}`,
           termsAndConditions: 'Standard terms and conditions apply.'
-        };
-
-        // Log to Supabase
-        await logAgentActivity({
-          agentName: 'proposalGenerator',
-          userId: proposalInput.userId,
-          action: 'generate_proposal',
-          status: 'success',
-          timestamp: new Date().toISOString(),
-          details: {
-            clientName: proposalInput.clientName,
-            services: proposalInput.services
-          }
-        });
-
-        return {
-          success: true,
-          message: 'Proposal generated successfully',
-          data: proposal
-        };
-      }
+        }
+      };
 
     } catch (error) {
       // Log error to Supabase
@@ -164,6 +152,7 @@ export function getCapabilities() {
 export async function testProposalGeneratorAgent(simulateFailure = false) {
   const mockInput = {
     userId: 'test-user',
+    goal: 'Generate Proposal',
     clientName: 'Acme Corp',
     clientIndustry: 'technology',
     projectScope: 'Develop a new SaaS platform',
@@ -175,8 +164,13 @@ export async function testProposalGeneratorAgent(simulateFailure = false) {
     process.env.OPENAI_API_KEY = 'sk-invalid';
   }
   try {
-    const result = await proposalGeneratorAgent.runAgent(mockInput);
-    console.log('[ProposalGeneratorAgent Test]', result);
+    // Add a check to ensure runAgent exists before calling it
+    if (typeof proposalGeneratorAgent.runAgent === 'function') {
+      const result = await proposalGeneratorAgent.runAgent(mockInput);
+      console.log('[ProposalGeneratorAgent Test]', result);
+    } else {
+      console.error('[ProposalGeneratorAgent Test] runAgent is not defined.');
+    }
   } catch (err) {
     console.error('[ProposalGeneratorAgent Test] Fallback triggered:', err);
   }

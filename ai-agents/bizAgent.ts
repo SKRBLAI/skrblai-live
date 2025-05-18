@@ -1,4 +1,4 @@
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Business Agent Types
@@ -260,13 +260,42 @@ function logAgentActivity(agentName: string, userId: string, activity: Record<st
 }
 
 async function generateBusinessPlanOpenAI(businessType: string, goals: string[]): Promise<string> {
-  try {
-    const prompt = `Write a business plan for a ${businessType} business with the following goals: ${goals.join(', ')}.`;
-    return await callOpenAI(prompt, { maxTokens: 600 });
-  } catch (err) {
-    // Fallback to static logic
-    return `Business plan for a ${businessType} business: ${goals.join(', ')}.`;
-  }
+  const prompt = `Generate a strategic business plan for a ${businessType} business with the following goals: ${goals.join(', ')}`;
+  
+  return await callOpenAIWithFallback<string>(
+    prompt, 
+    { maxTokens: 600 },
+    () => {
+      // Fallback to a static business plan if OpenAI fails
+      return `
+# Strategic Business Plan for ${businessType}
+
+## Executive Summary
+This plan outlines the strategic initiatives for achieving the following goals: ${goals.join(', ')}.
+
+## Market Analysis
+The ${businessType} market is experiencing steady growth with increasing demand for innovative solutions.
+
+## Strategic Initiatives
+1. Focus on customer acquisition through targeted marketing campaigns
+2. Develop new product offerings to expand market reach
+3. Optimize operational efficiency to reduce costs
+4. Build strategic partnerships to enhance distribution channels
+
+## Implementation Timeline
+- Q1: Research and planning
+- Q2: Initial rollout of strategic initiatives
+- Q3: Evaluate performance and adjust strategies
+- Q4: Scale successful initiatives
+
+## Key Performance Indicators
+- Revenue growth: 15%
+- Customer acquisition: 20%
+- Operational cost reduction: 10%
+- Market share increase: 5%
+      `;
+    }
+  );
 }
 
 const bizAgent: Agent = {

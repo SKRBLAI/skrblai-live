@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -134,36 +134,42 @@ async function generateBrandIdentity(
     customInstructions: string;
   }
 ): Promise<any> {
-  // Try OpenAI first
+  // Generate brand identity with OpenAI and proper fallback
+  const prompt = `Generate a brand identity for a business.\nBusiness Name: ${businessName}\nIndustry: ${industry}\nTarget Audience: ${targetAudience}\nBrand Values: ${params.brandValues.join(', ')}\nColor Preferences: ${params.colorPreferences.join(', ')}\nStyle: ${params.stylePreferences}\nMood: ${params.moodKeywords.join(', ')}\nInstructions: ${params.customInstructions}`;
+  
+  const colorPalette = generateColorPalette(industry, params.stylePreferences, params.colorPreferences);
+  const typography = generateTypography(params.stylePreferences);
+  const logoDescription = generateLogoDescription(businessName, industry, params.stylePreferences);
+  const brandVoice = generateBrandVoice(targetAudience, params.brandValues);
+  const brandGuidelines = generateBrandGuidelines(businessName, colorPalette, typography, params.brandValues);
+    
   try {
-    const prompt = `Generate a brand identity for a business.\nBusiness Name: ${businessName}\nIndustry: ${industry}\nTarget Audience: ${targetAudience}\nBrand Values: ${params.brandValues.join(', ')}\nColor Preferences: ${params.colorPreferences.join(', ')}\nStyle: ${params.stylePreferences}\nMood: ${params.moodKeywords.join(', ')}\nInstructions: ${params.customInstructions}`;
-    const aiBrandIdentity = await callOpenAI(prompt, { maxTokens: 800 });
+    const aiBrandIdentity = await callOpenAIWithFallback<string>(
+      prompt,
+      { maxTokens: 800 },
+      () => {
+        // Return a fallback string representing a brand identity summary
+        return `${businessName} is a ${params.stylePreferences} brand in the ${industry} industry targeting ${targetAudience}. The brand embodies the values of ${params.brandValues.join(', ')} with a color palette based on ${params.colorPreferences.join(', ')}. The typography is clean and ${params.stylePreferences}, and the logo represents the essence of ${industry} business.`;
+      }
+    );
+    
     return {
       businessName,
       industry,
       targetAudience,
       aiBrandIdentity,
-      // Optionally, parse or structure aiBrandIdentity if needed
-      colorPalette: generateColorPalette(industry, params.stylePreferences, params.colorPreferences),
-      typography: generateTypography(params.stylePreferences),
-      logoDescription: generateLogoDescription(businessName, industry, params.stylePreferences),
-      brandVoice: generateBrandVoice(targetAudience, params.brandValues),
-      brandGuidelines: generateBrandGuidelines(businessName, generateColorPalette(industry, params.stylePreferences, params.colorPreferences), generateTypography(params.stylePreferences), params.brandValues),
+      colorPalette,
+      typography,
+      logoDescription,
+      brandVoice,
+      brandGuidelines,
       stylePreferences: params.stylePreferences,
       brandValues: params.brandValues
     };
   } catch (err) {
-    // Fallback to static logic
-    // Simulate AI processing time
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    console.error('Error generating brand identity with AI:', err);
     
-    // Generate brand identity components
-    const colorPalette = generateColorPalette(industry, params.stylePreferences, params.colorPreferences);
-    const typography = generateTypography(params.stylePreferences);
-    const logoDescription = generateLogoDescription(businessName, industry, params.stylePreferences);
-    const brandVoice = generateBrandVoice(targetAudience, params.brandValues);
-    const brandGuidelines = generateBrandGuidelines(businessName, colorPalette, typography, params.brandValues);
-    
+    // Fallback to completely static logic if even the wrapper fails
     return {
       businessName,
       industry,
@@ -622,7 +628,7 @@ const brandingAgent: Agent = {
         brandValues: (val) => Array.isArray(val),
         competitorBrands: (val) => Array.isArray(val),
         colorPreferences: (val) => Array.isArray(val),
-        stylePreferences: (val) => Array.isArray(val)
+        stylePreferences: (val) => typeof val === 'string'
       },
       {
         // Default values
@@ -632,7 +638,7 @@ const brandingAgent: Agent = {
         brandValues: [],
         competitorBrands: [],
         colorPreferences: [],
-        stylePreferences: []
+        stylePreferences: 'modern'
       }
     );
     
@@ -666,12 +672,13 @@ export function getCapabilities() {
 export async function testBrandingAgent(simulateFailure = false) {
   const mockInput = {
     userId: 'test-user',
+    goal: 'Branding',
     businessName: 'TestCo',
     industry: 'technology',
     targetAudience: 'startups',
     brandValues: ['innovative', 'trustworthy'],
     colorPreferences: ['#0078D7'],
-    stylePreferences: 'modern',
+    stylePreferences: 'modern' as 'modern',
     moodKeywords: ['energetic'],
     customInstructions: 'Make it bold and modern.'
   };

@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -123,22 +123,29 @@ async function generateContent(
   }
 ): Promise<any> {
   if (contentType === 'blog') {
-    // Use OpenAI for blog content
+    // Use OpenAI for blog content with fallback
     const prompt = `Write a detailed blog post about "${topic}" for a ${params.targetAudience} audience. Tone: ${params.tone}. Keywords: ${params.keywords.join(', ')}. Length: ${params.wordCount} words. ${params.customInstructions}`;
-    try {
-      const aiContent = await callOpenAI(prompt, { maxTokens: Math.max(512, params.wordCount * 2) });
-      return {
-        title: `The Ultimate Guide to ${topic}`,
-        body: aiContent,
-        callToAction: `Ready to dive deeper into ${topic}? Contact our team of experts today!`
-      };
-    } catch (err) {
-      // Fallback to static content if OpenAI fails
-      return generateBlogPost(topic, params);
-    }
+    
+    const aiContent = await callOpenAIWithFallback<string>(
+      prompt, 
+      { maxTokens: Math.max(512, params.wordCount * 2) },
+      () => {
+        // Return a fallback string for the blog post content
+        const fallbackPost = generateBlogPost(topic, params);
+        return `# ${fallbackPost.title}\n\n${fallbackPost.introduction}\n\n` + 
+               fallbackPost.sections.map((section: { heading: string; content: string }) => 
+                 `## ${section.heading}\n${section.content}`
+               ).join('\n\n') +
+               `\n\n${fallbackPost.conclusion}\n\n${fallbackPost.callToAction}`;
+      }
+    );
+    
+    return {
+      title: `The Ultimate Guide to ${topic}`,
+      body: aiContent,
+      callToAction: `Ready to dive deeper into ${topic}? Contact our team of experts today!`
+    };
   }
-  // In a real implementation, this would call an AI service like OpenAI or Claude
-  // For now, we'll generate placeholder content based on the content type
   
   // Simulate AI processing time
   await new Promise(resolve => setTimeout(resolve, 1000));

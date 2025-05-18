@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 interface PublishingAgentInput extends BaseAgentInput {
@@ -38,65 +38,38 @@ const runPublishing = async (input: PublishingAgentInput): Promise<AgentResponse
         throw new Error('Missing required fields');
       }
 
-      // Try OpenAI for publishing steps
-      try {
-        const prompt = `List the publishing steps and generate metadata for a book.\nTitle: ${input.bookTitle}\nAuthor: ${input.authorName}\nGenre: ${input.genre}\nPlatform: ${input.publishingPlatform}`;
-        const aiSteps = await callOpenAI(prompt, { maxTokens: 400 });
-        return {
-          success: true,
-          message: 'Book publishing initiated successfully (OpenAI)',
-          data: {
-            platformSubmissionId: `PUB-${Date.now()}`,
-            estimatedPublishTime: '48 hours',
-            publishingSteps: aiSteps,
-            metadata: {
-              platform: input.publishingPlatform,
-              title: input.bookTitle,
-              author: input.authorName,
-              genre: input.genre
-            }
-          }
-        };
-      } catch (err) {
-        // Fallback to static logic
-        // Simulate publishing steps
-        const publishingSteps = [
-          'Validating manuscript format',
-          'Preparing metadata',
-          `Submitting to ${input.publishingPlatform}`,
-          'Initiating publishing process'
-        ];
-
-        // Log to Supabase
-        await logAgentActivity({
-          agentName: 'publishing',
-          userId: input.userId,
-          action: 'publish_book',
-          status: 'success',
-          timestamp: new Date().toISOString(),
-          details: {
+      // Generate publishing steps with fallback to static content
+      const prompt = `List the publishing steps and generate metadata for a book.\nTitle: ${input.bookTitle}\nAuthor: ${input.authorName}\nGenre: ${input.genre}\nPlatform: ${input.publishingPlatform}`;
+      
+      const aiSteps = await callOpenAIWithFallback<string>(
+        prompt, 
+        { maxTokens: 400 },
+        () => {
+          // Fallback to static logic
+          return [
+            'Validating manuscript format',
+            'Preparing metadata',
+            `Submitting to ${input.publishingPlatform}`,
+            'Initiating publishing process'
+          ].join('\n\n');
+        }
+      );
+      
+      return {
+        success: true,
+        message: 'Book publishing initiated successfully',
+        data: {
+          platformSubmissionId: `PUB-${Date.now()}`,
+          estimatedPublishTime: '48 hours',
+          publishingSteps: aiSteps,
+          metadata: {
             platform: input.publishingPlatform,
             title: input.bookTitle,
-            author: input.authorName
+            author: input.authorName,
+            genre: input.genre
           }
-        });
-
-        return {
-          success: true,
-          message: 'Book publishing initiated successfully',
-          data: {
-            platformSubmissionId: `PUB-${Date.now()}`,
-            estimatedPublishTime: '48 hours',
-            publishingSteps,
-            metadata: {
-              platform: input.publishingPlatform,
-              title: input.bookTitle,
-              author: input.authorName,
-              genre: input.genre
-            }
-          }
-        };
-      }
+        }
+      };
 
     } catch (error) {
       // Log error to Supabase
@@ -190,6 +163,7 @@ export function getCapabilities() {
 export async function testPublishingAgent(simulateFailure = false) {
   const mockInput = {
     userId: 'test-user',
+    goal: 'Publish Book',
     manuscriptUrl: 'https://example.com/mybook.pdf',
     publishingPlatform: 'Amazon',
     genre: 'Fiction',
@@ -203,8 +177,13 @@ export async function testPublishingAgent(simulateFailure = false) {
     process.env.OPENAI_API_KEY = 'sk-invalid';
   }
   try {
-    const result = await publishingAgent.runAgent(mockInput);
-    console.log('[PublishingAgent Test]', result);
+    // Add a check to ensure runAgent exists before calling it
+    if (typeof publishingAgent.runAgent === 'function') {
+      const result = await publishingAgent.runAgent(mockInput);
+      console.log('[PublishingAgent Test]', result);
+    } else {
+      console.error('[PublishingAgent Test] runAgent is not defined.');
+    }
   } catch (err) {
     console.error('[PublishingAgent Test] Fallback triggered:', err);
   }

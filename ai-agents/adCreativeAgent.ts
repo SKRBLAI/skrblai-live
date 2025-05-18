@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Ad Creative Agent
@@ -594,13 +594,15 @@ function recommendPlatformsForAudience(targetAudience: string): string[] {
 }
 
 async function generateAdCopyOpenAI(product: string, audience: string, tone: string, platform: string): Promise<string> {
-  try {
-    const prompt = `Write a compelling ad copy for ${product} targeting ${audience} on ${platform}. Tone: ${tone}.`;
-    return await callOpenAI(prompt, { maxTokens: 200 });
-  } catch (err) {
-    // Fallback to static logic
-    return `Discover the power of ${product} for ${audience}! Try it now on ${platform}.`;
-  }
+  const prompt = `Write a compelling ad for ${product} targeted at ${audience} with a ${tone} tone for ${platform} platform.`;
+  return await callOpenAIWithFallback<string>(
+    prompt, 
+    { maxTokens: 200 },
+    () => {
+      // Fallback to static ad copy if OpenAI fails
+      return `Introducing ${product}! The perfect solution for ${audience}. Try it today and see the difference for yourself.`;
+    }
+  );
 }
 
 const adCreativeAgent: Agent = {

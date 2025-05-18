@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -247,35 +247,46 @@ async function generateSummary(
   timeframe: string,
   params: any
 ): Promise<any> {
+  const topMetrics = params.metrics.length > 3 ? params.metrics.slice(0, 3) : params.metrics;
+  const selectedDimensions = params.dimensions.length > 2 ? params.dimensions.slice(0, 2) : params.dimensions;
+  
+  const prompt = `Generate a summary of analytics data for ${dataSource} over the ${timeframe} period, focusing on ${topMetrics.join(', ')} broken down by ${selectedDimensions.join(', ')}.`;
+  
   try {
-    const prompt = `Summarize the following analytics metrics for a business user:\n${JSON.stringify(params.metrics)}`;
-    const summary = await callOpenAI(prompt, { maxTokens: 300 });
-    return {
-      headline: `${dataSource.charAt(0).toUpperCase() + dataSource.slice(1)} performance summary for the ${timeframe}`,
-      summary,
-      topPerformers: generateTopPerformers(dataSource, params.dimensions[0]),
-      comparisonSummary: params.comparisonTimeframe !== 'none' ? 
-        `Performance compared to ${params.comparisonTimeframe.replace('_', ' ')}: ${generateRandomPerformanceComparison()}` : 
-        null
-    };
-  } catch (err) {
-    // Fallback to static logic
-    const metrics = params.metrics.reduce((acc: any, metric: string) => {
-      acc[metric] = {
-        value: generateRandomMetricValue(metric),
-        change: generateRandomPercentageChange(),
-        trend: generateRandomTrend()
-      };
-      return acc;
-    }, {});
+    const summary = await callOpenAIWithFallback<string>(
+      prompt, 
+      { maxTokens: 300 },
+      () => {
+        // Fallback to static analytics summary
+        return `During the ${timeframe} period, ${dataSource} performance showed ${generateRandomTrend()} trend. The key metric ${topMetrics[0]} ${generateRandomPerformanceComparison()}, while ${topMetrics[1] || 'secondary metrics'} ${generateRandomPercentageChange()}. Analysis by ${selectedDimensions[0] || 'dimensions'} revealed interesting patterns.`;
+      }
+    );
     
     return {
-      headline: `${dataSource.charAt(0).toUpperCase() + dataSource.slice(1)} performance summary for the ${timeframe}`,
-      metrics,
-      topPerformers: generateTopPerformers(dataSource, params.dimensions[0]),
-      comparisonSummary: params.comparisonTimeframe !== 'none' ? 
-        `Performance compared to ${params.comparisonTimeframe.replace('_', ' ')}: ${generateRandomPerformanceComparison()}` : 
-        null
+      headline: summary.split('.')[0] + '.',
+      text: summary,
+      metrics: params.metrics.reduce((acc: any, metric: string) => {
+        acc[metric] = {
+          value: generateRandomMetricValue(metric),
+          change: generateRandomPercentageChange()
+        };
+        return acc;
+      }, {})
+    };
+  } catch (err) {
+    console.error('Error generating analytics summary:', err);
+    
+    // Final fallback if everything else fails
+    return {
+      headline: `${dataSource} Summary for ${timeframe}`,
+      text: `This is an overview of your ${dataSource} performance over the ${timeframe} period.`,
+      metrics: params.metrics.reduce((acc: any, metric: string) => {
+        acc[metric] = {
+          value: generateRandomMetricValue(metric),
+          change: generateRandomPercentageChange()
+        };
+        return acc;
+      }, {})
     };
   }
 }

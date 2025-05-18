@@ -82,3 +82,79 @@ export async function callOpenAI(prompt: string, options?: { maxTokens?: number;
   });
   return response.choices[0]?.message?.content?.trim() || '';
 }
+
+/**
+ * Enhanced OpenAI API call utility with retry logic, error handling, and fallback support
+ * @param prompt - The prompt to send to OpenAI
+ * @param options - Configuration options for the API call
+ * @param fallback - Optional fallback function or value if OpenAI call fails
+ * @returns Promise resolving to either the OpenAI response or fallback value
+ */
+export async function callOpenAIWithFallback<T = string>(
+  prompt: string, 
+  options: { 
+    maxTokens?: number; 
+    temperature?: number; 
+    model?: string;
+    retries?: number;
+    retryDelay?: number;
+  } = {},
+  fallback?: (() => Promise<T> | T) | T
+): Promise<T> {
+  const {
+    maxTokens = 512,
+    temperature = 0.7,
+    model = 'gpt-3.5-turbo',
+    retries = 3,
+    retryDelay = 1000
+  } = options;
+
+  let lastError: Error | null = null;
+
+  // Attempt OpenAI call with retries
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`OpenAI attempt ${attempt}/${retries} for prompt: ${prompt.substring(0, 50)}...`);
+      
+      const response = await callOpenAI(prompt, { 
+        maxTokens, 
+        temperature, 
+        model
+      });
+      
+      // Validate response
+      if (typeof response !== 'string' || response.trim().length === 0) {
+        throw new Error('Invalid or empty response from OpenAI');
+      }
+      
+      return response as unknown as T;
+    } catch (error) {
+      lastError = error as Error;
+      console.warn(`OpenAI attempt ${attempt} failed:`, error);
+      
+      if (attempt < retries) {
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, retryDelay));
+      }
+    }
+  }
+
+  // All retries failed, use fallback if provided
+  if (fallback !== undefined) {
+    console.log('Using fallback for OpenAI call');
+    try {
+      if (typeof fallback === 'function') {
+        return await (fallback as () => Promise<T> | T)();
+      } else {
+        return fallback as T;
+      }
+    } catch (fallbackError) {
+      console.error('Fallback function also failed:', fallbackError);
+      throw lastError || new Error('OpenAI call failed and fallback also failed');
+    }
+  }
+
+  // No fallback provided
+  console.error('OpenAI call failed and no fallback provided');
+  throw lastError || new Error('OpenAI call failed');
+}

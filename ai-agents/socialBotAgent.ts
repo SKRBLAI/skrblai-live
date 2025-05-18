@@ -1,6 +1,6 @@
 import { supabase } from '@/utils/supabase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
-import { validateAgentInput, callOpenAI } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 /**
@@ -219,40 +219,50 @@ function generatePosts(
   for (let i = 0; i < postCount; i++) {
     // Select a topic for this post
     const topic = topics[i % topics.length];
-    let post: Post | null = null;
-    let usedOpenAI = false;
+    
     try {
-      // Use OpenAI for post/caption generation
+      // Use callOpenAIWithFallback for post/caption generation with proper fallback
       const prompt = `Write a social media post for ${platform} about '${topic}' for a ${industry} business called ${businessName}. Tone: ${tone}. Include hashtags if relevant.`;
-      // Synchronous call for now; in future, could batch or parallelize
-      const aiContent = (typeof callOpenAI === 'function') ? (callOpenAI as any)(prompt, { maxTokens: 120 }) : null;
-      if (aiContent && typeof aiContent.then === 'function') {
-        // If callOpenAI returns a promise, await it
-        aiContent.then((content: string) => {
-          post = buildAIPost(platform, topic, tone, includeHashtags, content);
-          usedOpenAI = true;
-        }).catch(() => {
-          post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
-        });
-      } else if (typeof aiContent === 'string') {
-        post = buildAIPost(platform, topic, tone, includeHashtags, aiContent);
-        usedOpenAI = true;
-      } else {
-        post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
-      }
+      
+      // Using async/await immediately in a non-async function can cause issues,
+      // so we'll handle this with a promise that resolves to a post
+      const postPromise = callOpenAIWithFallback<string>(
+        prompt, 
+        { maxTokens: 120 },
+        () => {
+          // Return a string that will be used to build the AI post
+          const staticPost = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+          return staticPost.type === 'text' ? 
+            staticPost.content || `Post about ${topic}` : 
+            staticPost.caption || `Caption about ${topic}`;
+        }
+      )
+      .then(aiContent => {
+        console.log(`Generated OpenAI content for ${platform} post on ${topic}`);
+        return buildAIPost(platform, topic, tone, includeHashtags, aiContent);
+      })
+      .catch(err => {
+        console.warn(`Failed to generate post with OpenAI, using fallback: ${err.message}`);
+        return buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+      });
+
+      // Since we can't await here directly, we'll use a static fallback
+      // and replace it with the promise result once available
+      const staticPost = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+      posts.push(staticPost);
+      
+      // Update the post once we have the AI result
+      postPromise.then(aiPost => {
+        const index = posts.indexOf(staticPost);
+        if (index !== -1) {
+          posts[index] = aiPost;
+        }
+      });
     } catch (err) {
-      post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+      // Final fallback in case of synchronous errors
+      const post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
+      posts.push(post);
     }
-    // If post is still null (async), fallback to static
-    if (!post) {
-      post = buildStaticPost(platform, businessName, industry, topic, tone, includeHashtags);
-    }
-    if (usedOpenAI) {
-      console.log(`[SocialBotAgent] Used OpenAI for ${platform} post:`, post);
-    } else {
-      console.log(`[SocialBotAgent] Used static logic for ${platform} post:`, post);
-    }
-    posts.push(post);
   }
   
   return posts;
