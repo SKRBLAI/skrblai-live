@@ -58,6 +58,7 @@ export default function AgentsGrid() {
               name={agent.name}
               isPercy={agent.isPercy}
               gender={getGender(index)}
+              role={agent.role}
             />
           </motion.div>
         ))}

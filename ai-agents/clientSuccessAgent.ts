@@ -808,6 +808,18 @@ const clientSuccessAgent: Agent = {
     description: 'Handles client support requests and ticket management',
     capabilities: ['Support Request Processing', 'Ticket Management', 'Client History Analysis', 'Resource Generation']
   },
+  capabilities: [
+    'client support',
+    'support tickets',
+    'ticket management',
+    'client history analysis',
+    'resource generation',
+    'customer service',
+    'issue resolution',
+    'feature requests',
+    'billing support',
+    'feedback management'
+  ],
   roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for client success fields

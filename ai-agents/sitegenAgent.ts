@@ -226,6 +226,18 @@ const sitegenAgent: Agent = {
     description: 'AI-powered website structure and content generation',
     capabilities: ['Page Structure', 'Content Generation', 'Design System', 'SEO Optimization']
   },
+  capabilities: [
+    'website structure',
+    'website content',
+    'page structure',
+    'SEO optimization',
+    'design system',
+    'navigation generation',
+    'web page generation',
+    'site planning',
+    'web copy',
+    'landing pages'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for site generator fields
     const extendedInput = input as unknown as Record<string, any>;

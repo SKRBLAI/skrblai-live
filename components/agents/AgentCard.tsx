@@ -1,4 +1,5 @@
 'use client';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -6,10 +7,33 @@ interface AgentCardProps {
   name: string;
   isPercy?: boolean;
   gender: 'male' | 'female';
+  role?: string;
 }
 
-export default function AgentCard({ name, isPercy = false, gender }: AgentCardProps) {
+export default function AgentCard({ name, isPercy = false, gender, role }: AgentCardProps) {
+  // Map agent name to slug for PNG avatar
+  const slugMap: Record<string, string> = {
+    Percy: 'percy',
+    BrandingAgent: 'branding',
+    ContentCreatorAgent: 'content',
+    AnalyticsAgent: 'analytics',
+    PublishingAgent: 'publishing',
+    SocialBotAgent: 'social',
+    AdCreativeAgent: 'ad',
+    ProposalGeneratorAgent: 'proposal',
+    PaymentManagerAgent: 'payment',
+    ClientSuccessAgent: 'client',
+    SiteGenAgent: 'sitegen',
+    BizAgent: 'biz',
+    VideoContentAgent: 'video',
+    PercyAgent: 'percy',
+    PercySyncAgent: 'sync',
+  };
+  const slug = slugMap[name] || name.toLowerCase();
+  const avatarPath = `/images/agents-${slug}-skrblai.png`;
   const silhouettePath = `/images/agents/${gender}-silhouette.png`;
+  // State for fallback
+  const [imgSrc, setImgSrc] = useState(avatarPath);
   
   return (
     <motion.div
@@ -34,10 +58,11 @@ export default function AgentCard({ name, isPercy = false, gender }: AgentCardPr
           ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}
         `}>
           <Image
-            src={silhouettePath}
-            alt={`${name} silhouette`}
+            src={imgSrc}
+            alt={`${name} avatar`}
             fill
             className="object-contain"
+            onError={() => setImgSrc(silhouettePath)}
           />
         </div>
 
@@ -48,11 +73,17 @@ export default function AgentCard({ name, isPercy = false, gender }: AgentCardPr
         `}>
           {name}
         </h3>
+        {/* Agent Role/Title as microtext or tooltip */}
+        {role && (
+          <span
+            className="text-teal-300 text-xs mb-2 block"
+            title={role}
+            aria-label={role}
+          >
+            {role}
+          </span>
+        )}
 
-        {/* Coming Soon Text */}
-        <p className="text-gray-400 text-sm mb-4 text-center">
-          Role and abilities coming soon...
-        </p>
 
         {/* Summon Button */}
         <motion.button

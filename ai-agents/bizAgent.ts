@@ -310,6 +310,18 @@ const bizAgent: Agent = {
     description: 'AI-powered business planning and analysis',
     capabilities: ['strategy', 'planning', 'analysis']
   },
+  capabilities: [
+    'business strategy',
+    'business planning',
+    'market analysis',
+    'competitor analysis',
+    'business recommendations',
+    'business plans',
+    'goal setting',
+    'initiative planning',
+    'KPI analysis',
+    'resource allocation'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for business fields
     const extendedInput = input as unknown as Record<string, any>;

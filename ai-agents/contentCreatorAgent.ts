@@ -476,6 +476,18 @@ const contentCreatorAgent: Agent = {
     description: 'AI-powered content generation for various platforms',
     capabilities: ['Blog Posts', 'Social Media', 'Email Content', 'Website Copy', 'Ad Copy', 'Product Descriptions', 'Video Scripts']
   },
+  capabilities: [
+    'blog posts',
+    'social media content',
+    'email content',
+    'website copy',
+    'ad copy',
+    'product descriptions',
+    'video scripts',
+    'custom content',
+    'content marketing',
+    'SEO content'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for content fields
     const extendedInput = input as unknown as Record<string, any>;
@@ -535,12 +547,22 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testContentCreatorAgent(simulateFailure = false) {
-  const mockInput = {
+  // ✅ Type-safe mockInput block for testing
+  const mockInput: {
+    userId: string;
+    goal: string;
+    contentType: 'blog';
+    topic: string;
+    tone: 'professional';
+    keywords: string[];
+    targetAudience: string;
+    wordCount: number;
+  } = {
     userId: 'test-user',
     goal: 'Generate blog content',
-    contentType: 'blog' as 'blog',
+    contentType: 'blog', // valid literal
     topic: 'AI in Marketing',
-    tone: 'professional' as 'professional',
+    tone: 'professional', // valid literal
     keywords: ['AI', 'automation', 'marketing'],
     targetAudience: 'marketers',
     wordCount: 500

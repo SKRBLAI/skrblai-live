@@ -786,6 +786,18 @@ const analyticsAgent: Agent = {
     description: 'AI-powered marketing analytics and optimization',
     capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
   },
+  capabilities: [
+    'marketing analytics',
+    'performance tracking',
+    'audience analysis',
+    'ROI optimization',
+    'data insights',
+    'campaign analysis',
+    'conversion tracking',
+    'report generation',
+    'visualizations',
+    'trend analysis'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for analytics fields
     const extendedInput = input as unknown as Record<string, any>;

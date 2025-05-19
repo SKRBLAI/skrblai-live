@@ -158,3 +158,53 @@ export async function callOpenAIWithFallback<T = string>(
   console.error('OpenAI call failed and no fallback provided');
   throw lastError || new Error('OpenAI call failed');
 }
+
+// Percy Smart Agent Matching: Capability-based agent suggestion
+import agentRegistry from '@/lib/agents/agentRegistry';
+
+/**
+ * Returns the best matching agents for a given prompt or intent, using capability-based matching.
+ * @param prompt - User's prompt or intent
+ * @returns Top 2–3 most relevant agents
+ */
+export function getBestAgents(prompt: string): any[] {
+  if (!prompt || typeof prompt !== 'string') return [];
+  const lowerPrompt = prompt.toLowerCase();
+  const promptWords = lowerPrompt.split(/\W+/).filter(Boolean);
+
+  // Score each agent by number of capability matches
+  const scored = agentRegistry.map(agent => {
+    let score = 0;
+    let matchedCapabilities: string[] = [];
+    if (Array.isArray(agent.capabilities)) {
+      for (const cap of agent.capabilities) {
+        const capLower = cap.toLowerCase();
+        for (const word of promptWords) {
+          if (capLower.includes(word)) {
+            score++;
+            matchedCapabilities.push(cap);
+          }
+        }
+      }
+    }
+    if (score > 0) {
+      console.debug(`[PercyMatch] Matched agent '${agent.name}' with capabilities: [${matchedCapabilities.join(', ')}] for prompt: '${prompt}'`);
+    }
+    return { agent, score, matchedCapabilities };
+  });
+
+  // Sort by score descending, then by agent name
+  scored.sort((a, b) => b.score - a.score || a.agent.name.localeCompare(b.agent.name));
+  const top = scored.filter(s => s.score > 0).slice(0, 3).map(s => s.agent);
+  return top;
+}
+
+// --- Percy Smart Agent Matching Test Block ---
+if (process.env.NODE_ENV === 'development') {
+  const testPrompt = "I need help with publishing my children's ebook";
+  const best = getBestAgents(testPrompt);
+  console.debug('[PercyMatch][Test] For prompt:', testPrompt);
+  best.forEach(agent => {
+    console.debug(`[PercyMatch][Test] Suggested agent: ${agent.name} (Capabilities: ${agent.capabilities.join(', ')})`);
+  });
+}

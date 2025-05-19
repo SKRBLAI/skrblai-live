@@ -459,6 +459,17 @@ const paymentManagerAgent: Agent = {
     description: 'Handles payment processing and management',
     capabilities: ['Payment Processing', 'Subscription Management', 'Receipt Generation', 'Payment Validation']
   },
+  capabilities: [
+    'payment processing',
+    'subscription management',
+    'receipt generation',
+    'payment validation',
+    'invoicing',
+    'refunds',
+    'billing',
+    'transaction management',
+    'finance automation'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for payment fields
     const extendedInput = input as unknown as Record<string, any>;

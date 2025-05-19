@@ -41,6 +41,7 @@ export interface Agent {
   lastRun?: string;
   performanceScore?: number;
   config?: AgentConfig;
+  capabilities: string[];
   route?: string | null;
   intent?: string | null;
   visible: boolean;

@@ -40,6 +40,16 @@ const proposalGeneratorAgent: Agent = {
     description: 'AI-powered business proposal generation',
     capabilities: ['Executive Summary', 'Scope Definition', 'Timeline Planning', 'Budget Allocation']
   },
+  capabilities: [
+    'business proposals',
+    'executive summaries',
+    'scope of work',
+    'timeline planning',
+    'budget allocation',
+    'pitch decks',
+    'project proposals',
+    'proposal writing'
+  ],
   roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for proposal fields
@@ -150,6 +160,7 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testProposalGeneratorAgent(simulateFailure = false) {
+  // ✅ Type-safe mockInput block for testing
   const mockInput = {
     userId: 'test-user',
     goal: 'Generate Proposal',

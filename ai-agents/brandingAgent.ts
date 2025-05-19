@@ -612,6 +612,17 @@ const brandingAgent: Agent = {
     description: 'AI-powered brand identity and guidelines generation',
     capabilities: ['Brand Identity', 'Color Palette', 'Typography', 'Logo Design', 'Brand Voice']
   },
+  capabilities: [
+    'brand identity',
+    'logo design',
+    'color palette',
+    'typography',
+    'brand guidelines',
+    'brand voice',
+    'brand strategy',
+    'visual branding',
+    'brand assets'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validator helper for cleaner, safer type handling
     const extendedInput = input as unknown as Record<string, any>;
@@ -670,7 +681,19 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testBrandingAgent(simulateFailure = false) {
-  const mockInput = {
+  // ✅ Type-safe mockInput block for testing
+  const mockInput: {
+    userId: string;
+    goal: string;
+    businessName: string;
+    industry: string;
+    targetAudience: string;
+    brandValues: string[];
+    colorPreferences: string[];
+    stylePreferences: 'modern';
+    moodKeywords: string[];
+    customInstructions: string;
+  } = {
     userId: 'test-user',
     goal: 'Branding',
     businessName: 'TestCo',
@@ -678,7 +701,7 @@ export async function testBrandingAgent(simulateFailure = false) {
     targetAudience: 'startups',
     brandValues: ['innovative', 'trustworthy'],
     colorPreferences: ['#0078D7'],
-    stylePreferences: 'modern' as 'modern',
+    stylePreferences: 'modern', // valid literal
     moodKeywords: ['energetic'],
     customInstructions: 'Make it bold and modern.'
   };

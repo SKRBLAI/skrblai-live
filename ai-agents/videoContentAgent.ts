@@ -445,6 +445,19 @@ const videoContentAgent: Agent = {
     description: 'AI-powered video script and storyboard generation',
     capabilities: ['Script Writing', 'Storyboard Creation', 'Video Planning', 'Duration Management']
   },
+  capabilities: [
+    'video scripts',
+    'explainer videos',
+    'storyboards',
+    'YouTube automation',
+    'tutorial scripts',
+    'promotional video scripts',
+    'educational video scripts',
+    'storytelling video scripts',
+    'testimonial video scripts',
+    'product video scripts',
+    'custom video scripts'
+  ],
   roleRequired: 'any',
   usageCount: undefined,
   lastRun: undefined,
@@ -507,15 +520,16 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testVideoContentAgent(simulateFailure = false) {
+  // ✅ Type-safe mockInput block for testing
   const mockInput = {
     userId: 'test-user',
     goal: 'Video Content',
     title: 'How to Use SKRBL AI',
     topic: 'AI-powered productivity',
-    videoType: 'explainer',
+    videoType: 'explainer', // valid literal
     duration: 120,
     targetAudience: 'entrepreneurs',
-    tone: 'professional',
+    tone: 'professional', // valid literal
     keyPoints: ['automation', 'efficiency'],
     includeCallToAction: true
   };

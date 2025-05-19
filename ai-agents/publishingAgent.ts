@@ -102,6 +102,17 @@ const publishingAgent: Agent = {
     description: 'AI-powered book publishing and content distribution',
     capabilities: ['Manuscript Validation', 'Platform Integration', 'Metadata Management', 'Publishing Automation']
   },
+  capabilities: [
+    'book publishing',
+    'ebook publishing',
+    'manuscript validation',
+    'metadata generation',
+    'Amazon publishing',
+    'Apple Books publishing',
+    'Google Play Books publishing',
+    'content distribution',
+    'publishing automation'
+  ],
   roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for publishing fields
@@ -161,11 +172,12 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testPublishingAgent(simulateFailure = false) {
+  // ✅ Type-safe mockInput block for testing
   const mockInput = {
     userId: 'test-user',
     goal: 'Publish Book',
     manuscriptUrl: 'https://example.com/mybook.pdf',
-    publishingPlatform: 'Amazon',
+    publishingPlatform: 'Amazon', // valid literal
     genre: 'Fiction',
     bookTitle: 'The AI Revolution',
     authorName: 'Jane Doe',

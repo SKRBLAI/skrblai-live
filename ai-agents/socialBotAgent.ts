@@ -626,6 +626,19 @@ const socialBotAgent: Agent = {
     description: 'AI-powered social media content generation and management',
     capabilities: ['Content Generation', 'Post Scheduling', 'Multi-Platform Support', 'Hashtag Generation']
   },
+  capabilities: [
+    'social media posts',
+    'Instagram content',
+    'Twitter content',
+    'Facebook content',
+    'LinkedIn content',
+    'TikTok content',
+    'Pinterest content',
+    'post scheduling',
+    'multi-platform campaigns',
+    'hashtag generation',
+    'social media automation'
+  ],
   roleRequired: "any",
   usageCount: undefined,
   lastRun: undefined,
@@ -687,14 +700,15 @@ const socialBotAgent: Agent = {
 
 // Test function for agent
 export async function testSocialBotAgent(simulateFailure = false) {
+  // ✅ Type-safe mockInput block for testing
   const mockInput = {
     userId: 'test-user',
     goal: 'Generate social media campaign',
     businessName: 'TestCo',
     industry: 'technology',
-    platforms: ['instagram', 'twitter'],
+    platforms: ['instagram', 'twitter'], // valid literals
     postCount: 3,
-    tone: 'professional',
+    tone: 'professional', // valid literal
     topics: ['AI', 'automation'],
     targetAudience: 'startups',
     includeHashtags: true,

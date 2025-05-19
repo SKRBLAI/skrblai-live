@@ -241,6 +241,17 @@ const percyAgent: Agent = {
     description: 'AI assistant that handles user inquiries and form intake',
     capabilities: ['Text Processing', 'Form Processing', 'Intent Analysis', 'Response Generation']
   },
+  capabilities: [
+    'text processing',
+    'form processing',
+    'intent analysis',
+    'response generation',
+    'user inquiry handling',
+    'form intake',
+    'AI chat',
+    'assistant tasks',
+    'general Q&A'
+  ],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for percy fields
     const extendedInput = input as unknown as Record<string, any>;

@@ -27,34 +27,37 @@ export default function HomePage() {
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
 
       {/* Main Content */}
-      <div className="relative z-10 pt-24 px-4 md:px-8 max-w-7xl mx-auto">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-12"
-        >
-          <div className="flex flex-col items-center gap-6 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <SatisfactionBadge />
-            </motion.div>
-            
-            <h1 className="text-4xl md:text-7xl font-bold space-y-6">
-              <BrandLogo className="text-4xl md:text-7xl block mb-6" animate={false} />
-              <span className="block bg-gradient-to-r from-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(45,212,191,0.5)] font-light">
-                Unleash the Power of <br className="hidden md:block" />
-                Automated Intelligence
-              </span>
-            </h1>
+      <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
+        {/* PercyHero: Futuristic hero with animated Percy, tagline, and cosmic glassmorphism */}
+        <section className="mb-8">
+          {/* PercyHero is fully accessible, mobile-first, and cosmic-themed */}
+          <div className="mb-2">
+            {/* Tagline block */}
+            <p className="text-center text-teal-300 text-lg md:text-xl font-semibold mb-2 bg-white/5 rounded-xl shadow-glow px-4 py-2 inline-block mx-auto backdrop-blur-sm">
+              SKRBL — pronounced like <span className="italic text-white">scribble</span>, just without the vowels.
+            </p>
           </div>
-          <p className="mt-8 text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed font-light bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg shadow-lg">
-            Your next-gen platform for creative automation, smart business workflows, and effortless productivity—powered by AI, crafted for visionaries.
-          </p>
-        </motion.div>
+          <div className="flex flex-col items-center justify-center">
+            {/* PercyHero component (animated Percy, dropdown, onboarding, etc.) */}
+            {/* @ts-expect-error Server Component import allowed for UI agent */}
+            {require('@/components/home/PercyHero').default()}
+          </div>
+        </section>
+        {/* UniversalPromptBar: Directly below PercyHero, sticky/floating on mobile if needed */}
+        <section className="w-full max-w-2xl mx-auto mb-12">
+          {/* @ts-expect-error Server Component import allowed for UI agent */}
+          {require('@/components/ui/UniversalPromptBar').default({
+            title: 'Percy is listening…',
+            description: 'Ask Percy anything or upload a file to get started.',
+            promptLabel: 'What would you like to accomplish?',
+            showPrompt: true,
+            placeholder: 'e.g., Create a content strategy, Generate social media posts... ',
+            theme: 'light',
+            acceptedFileTypes: '.pdf,.doc,.docx,.txt,.jpg,.png',
+            className: 'glass-card shadow-glow bg-white/10 backdrop-blur-lg',
+          })}
+        </section>
+
 
         {/* Agent Preview Section */}
         <motion.div 
