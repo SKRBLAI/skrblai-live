@@ -201,7 +201,7 @@ export default function PercyHero() {
                     {agentDashboardList.find(a => a.id === selectedAgentId)?.description}
                   </span>
                   <button
-                    className="mt-1 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
+                    className="mt-1 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
                     onClick={() => window.open(`/services/${selectedAgentId}`, '_blank')}
                     tabIndex={0}
                     aria-label={`Launch ${agentDashboardList.find(a => a.id === selectedAgentId)?.name}`}
@@ -255,7 +255,7 @@ export default function PercyHero() {
                             const agentRoute = (agent as any).route || `/dashboard/${agent.id}`;
                             router.push(agentRoute);
                           }}
-                          className="px-3 py-1 bg-electric-blue text-white font-semibold rounded hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                          className="px-3 py-1 bg-electric-blue text-white font-semibold rounded shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
                           aria-label={`Launch ${agent.name}`}
                         >
                           Launch
@@ -309,7 +309,7 @@ export default function PercyHero() {
                     <span className="text-gray-200 text-sm mb-1">{agent.description}</span>
                     <span className="text-xs text-teal-300">{agent.performanceScore ? `Performance: ${agent.performanceScore}` : ''}</span>
                     <button
-                      className="mt-2 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
+                      className="mt-2 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
                       onClick={async () => {
                         await logPercyEvent('agent_selected', agent.id, { agent });
                         // Type assertion to handle missing route property

@@ -87,14 +87,15 @@ export default function AgentCard({ name, isPercy = false, gender, role }: Agent
 
         {/* Summon Button */}
         <motion.button
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.09 }}
           whileTap={{ scale: 0.95 }}
           className={`
-            px-6 py-2 rounded-lg font-medium transition-all duration-300
+            px-6 py-2 rounded-lg font-medium transition-all duration-200
             ${isPercy 
-              ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow' 
-              : 'bg-white/10 text-white hover:bg-white/20'}
+              ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105' 
+              : 'bg-white/10 text-white hover:bg-white/20 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'}
           `}
+          aria-label="Summon Agent"
         >
           Summon Agent
         </motion.button>

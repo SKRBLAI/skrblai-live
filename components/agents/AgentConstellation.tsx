@@ -234,13 +234,14 @@ export default function AgentConstellation() {
                   
                   {/* Launch button */}
                   <motion.button
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => router.push(getAgentRoute(selectedAgent.name))}
-                    className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-electric-blue/50 transition-all duration-300 mt-2"
-                  >
-                    Launch {selectedAgent.name.replace('Agent', '')}
-                  </motion.button>
+            whileHover={{ scale: 1.07 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => router.push(getAgentRoute(selectedAgent.name))}
+            className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 mt-2"
+            aria-label={`Launch ${selectedAgent.name}`}
+          >
+            Launch {selectedAgent.name.replace('Agent', '')}
+          </motion.button>
                 </div>
               </div>
             </motion.div>
