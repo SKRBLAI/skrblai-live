@@ -45,7 +45,6 @@ export default function HomePage() {
         </section>
         {/* UniversalPromptBar: Directly below PercyHero, sticky/floating on mobile if needed */}
         <section className="w-full max-w-2xl mx-auto mb-12">
-          
                     {require('@/components/ui/UniversalPromptBar').default({
             title: 'Percy is listening…',
             description: 'Ask Percy anything or upload a file to get started.',
