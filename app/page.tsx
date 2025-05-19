@@ -39,14 +39,14 @@ export default function HomePage() {
           </div>
           <div className="flex flex-col items-center justify-center">
             {/* PercyHero component (animated Percy, dropdown, onboarding, etc.) */}
-            {/* @ts-expect-error Server Component import allowed for UI agent */}
+            
             {require('@/components/home/PercyHero').default()}
           </div>
         </section>
         {/* UniversalPromptBar: Directly below PercyHero, sticky/floating on mobile if needed */}
         <section className="w-full max-w-2xl mx-auto mb-12">
-          {/* @ts-expect-error Server Component import allowed for UI agent */}
-          {require('@/components/ui/UniversalPromptBar').default({
+          
+                    {require('@/components/ui/UniversalPromptBar').default({
             title: 'Percy is listening…',
             description: 'Ask Percy anything or upload a file to get started.',
             promptLabel: 'What would you like to accomplish?',
