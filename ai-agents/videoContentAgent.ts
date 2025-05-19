@@ -520,10 +520,9 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testVideoContentAgent(simulateFailure = false) {
-  // ✅ Type-safe mockInput block for testing
-  const mockInput = {
+  // ✅ Fields match defined AgentInput type
+  const mockInput: VideoAgentInput = {
     userId: 'test-user',
-    goal: 'Video Content',
     title: 'How to Use SKRBL AI',
     topic: 'AI-powered productivity',
     videoType: 'explainer', // valid literal

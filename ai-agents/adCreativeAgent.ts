@@ -617,6 +617,7 @@ const adCreativeAgent: Agent = {
     description: 'Boosts your brand with AI-generated ad content',
     capabilities: ['copywriting', 'imagery', 'brand voice'],
   },
+  capabilities: ['copywriting', 'imagery', 'brand voice'],
   roleRequired: "any",
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for ad creative fields

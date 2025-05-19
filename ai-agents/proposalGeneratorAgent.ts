@@ -160,8 +160,8 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testProposalGeneratorAgent(simulateFailure = false) {
-  // ✅ Type-safe mockInput block for testing
-  const mockInput = {
+  // ✅ Fields match AgentInput with required goal
+  const mockInput: ProposalAgentInput = {
     userId: 'test-user',
     goal: 'Generate Proposal',
     clientName: 'Acme Corp',

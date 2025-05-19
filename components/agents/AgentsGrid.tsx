@@ -44,24 +44,71 @@ export default function AgentsGrid() {
         </p>
       </motion.div>
 
-      {/* Agents Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {agents.map((agent, index) => (
-          <motion.div
-            key={agent.name}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className={agent.isPercy ? 'md:col-span-2 lg:col-span-2' : ''}
+      {/* Orbiting Agents Constellation */}
+      <div className="relative w-full flex flex-col items-center justify-center min-h-[600px] py-16">
+        {/* Cosmic background particles */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          {require('@/components/ui/FloatingParticles').default({ fullScreen: false, particleCount: 30 })}
+        </div>
+        {/* Orbit Container */}
+        <motion.div
+          className="relative mx-auto"
+          style={{ width: '430px', height: '430px', maxWidth: '90vw', maxHeight: '90vw' }}
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 48, ease: 'linear' }}
+        >
+          {/* Percy in the center */}
+          <div
+            className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"
           >
+            {require('../home/PercyAvatar').default({ size: 'lg', animate: true })}
+            <div className="text-center mt-2">
+              <span className="block text-2xl font-bold text-gradient-blue">Percy</span>
+              <span className="block text-teal-300 text-xs">The Concierge</span>
+            </div>
+          </div>
+          {/* Orbiting Agents */}
+          {agents.filter(a => !a.isPercy).map((agent, i, arr) => {
+            const angle = (360 / arr.length) * i;
+            const rad = (angle * Math.PI) / 180;
+            const orbitRadius = 180;
+            const x = Math.cos(rad) * orbitRadius;
+            const y = Math.sin(rad) * orbitRadius;
+            return (
+              <motion.div
+                key={agent.name}
+                tabIndex={0}
+                aria-label={agent.role || agent.name}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7, delay: i * 0.09 }}
+                whileHover={{ scale: 1.12, boxShadow: '0 0 32px 8px #2dd4bf' }}
+                whileFocus={{ scale: 1.12, boxShadow: '0 0 32px 8px #2dd4bf' }}
+                className="absolute z-10 focus:outline-none"
+                style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%, -50%)' }}
+              >
+                <AgentCard
+                  name={agent.name}
+                  isPercy={false}
+                  gender={getGender(i)}
+                  role={agent.role}
+                />
+              </motion.div>
+            );
+          })}
+        </motion.div>
+        {/* Mobile fallback: stack agents below Percy */}
+        <div className="md:hidden mt-12 flex flex-wrap justify-center gap-4 z-10">
+          {agents.filter(a => !a.isPercy).map((agent, i) => (
             <AgentCard
+              key={agent.name}
               name={agent.name}
-              isPercy={agent.isPercy}
-              gender={getGender(index)}
+              isPercy={false}
+              gender={getGender(i)}
               role={agent.role}
             />
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

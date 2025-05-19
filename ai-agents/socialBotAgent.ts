@@ -700,8 +700,8 @@ const socialBotAgent: Agent = {
 
 // Test function for agent
 export async function testSocialBotAgent(simulateFailure = false) {
-  // ✅ Type-safe mockInput block for testing
-  const mockInput = {
+  // ✅ Fields match defined AgentInput type
+  const mockInput: SocialBotInput = {
     userId: 'test-user',
     goal: 'Generate social media campaign',
     businessName: 'TestCo',

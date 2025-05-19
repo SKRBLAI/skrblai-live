@@ -172,8 +172,8 @@ export function getCapabilities() {
 
 // Test function for agent
 export async function testPublishingAgent(simulateFailure = false) {
-  // ✅ Type-safe mockInput block for testing
-  const mockInput = {
+  // ✅ Fields match AgentInput with required goal
+  const mockInput: PublishingAgentInput = {
     userId: 'test-user',
     goal: 'Publish Book',
     manuscriptUrl: 'https://example.com/mybook.pdf',
