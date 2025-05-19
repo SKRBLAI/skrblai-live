@@ -50,6 +50,12 @@ export interface Agent {
   unlocked?: boolean;
   imageSlug?: string;
   hasImage?: boolean;
+  orbit?: {
+    radius?: number;
+    speed?: number;
+    angle?: number;
+  };
+  hoverSummary?: string;
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead

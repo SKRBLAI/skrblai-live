@@ -245,3 +245,14 @@ if (process.env.NODE_ENV === 'development') {
     console.warn(`⚠️ ${agentsWithoutCapabilities.length} agents have no capabilities defined:`, agentsWithoutCapabilities);
   }
 }
+
+export function getDefaultOrbitParams(index: number): { radius: number; speed: number; angle: number } {
+  // Example: spread agents in a circle, vary speed slightly
+  const baseRadius = 200;
+  const baseSpeed = 0.02;
+  return {
+    radius: baseRadius + (index * 30),
+    speed: baseSpeed + (index * 0.002),
+    angle: (index * (360 / 12)) % 360
+  };
+}

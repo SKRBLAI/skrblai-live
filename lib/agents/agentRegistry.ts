@@ -1,4 +1,5 @@
 import { Agent } from '@/types/agent';
+import { getDefaultOrbitParams, getAgentImageSlug } from '@/utils/agentUtils';
 
 // Import all agents
 import adCreativeAgent from '@/ai-agents/adCreativeAgent';
@@ -35,7 +36,18 @@ const allAgents: Agent[] = [
   sitegenAgent,
   socialBotAgent,
   videoContentAgent
-];
+].map((agent, idx) => {
+  const imageSlug = agent.imageSlug || getAgentImageSlug(agent);
+  const hoverSummary = agent.hoverSummary || agent.description || '';
+  const route = agent.route || `/dashboard/${agent.id}`;
+  return {
+    ...agent,
+    orbit: agent.orbit || getDefaultOrbitParams(idx),
+    hoverSummary,
+    imageSlug,
+    route,
+  };
+});
 
 // Log out the agents for debugging
 console.log(`All agents loaded: ${allAgents.length}`);
