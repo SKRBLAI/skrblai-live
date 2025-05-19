@@ -87,12 +87,23 @@ export default function AgentsGrid() {
                 className="absolute z-10 focus:outline-none"
                 style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%, -50%)' }}
               >
-                <AgentCard
-                  name={agent.name}
-                  isPercy={false}
-                  gender={getGender(i)}
-                  role={agent.role}
-                />
+                <div className="flex flex-col items-center group" tabIndex={0} aria-label={`${agent.name} - ${agent.role || ''}`}>
+                  <AgentCard
+                    name={agent.name}
+                    isPercy={false}
+                    gender={getGender(i)}
+                    role={agent.role}
+                  />
+                  <span className="mt-2 text-xs text-teal-300 font-semibold" aria-label={agent.role}>{agent.role}</span>
+                  <button
+                    type="button"
+                    tabIndex={0}
+                    className="mt-1 px-3 py-1 rounded-full bg-gradient-to-r from-electric-blue to-teal-400 text-white text-xs font-bold shadow-glow opacity-80 group-hover:opacity-100 transition focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                    aria-label={`Summon ${agent.name}`}
+                  >
+                    Summon
+                  </button>
+                </div>
               </motion.div>
             );
           })}

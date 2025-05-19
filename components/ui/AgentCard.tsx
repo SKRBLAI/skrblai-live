@@ -177,6 +177,24 @@ const AgentCard: React.FC<AgentCardProps> = ({
       setIsDark(document.documentElement.classList.contains('dark'));
     }
   }, []);
+
+  // Avatar PNG fallback logic
+  // WINDSURF: Avatar slug logic per spec
+  const slug = agent.id
+    ? agent.id.replace(/Agent$/, '').toLowerCase()
+    : agent.name.toLowerCase().replace(/\s+/g, '-');
+  // Fallback always uses male silhouette (no gender on Agent type)
+  // To support gender-based fallback, add a gender field to Agent in the future
+  const fallbackImg = `/images/male-silhouette.png`;
+  const avatarSrc = `/images/agents-${slug}-skrblai.png`;
+  const [imgSrc, setImgSrc] = useState(avatarSrc);
+  // Track if fallback was triggered for alt/tooltip
+  const [usedFallback, setUsedFallback] = useState(false);
+  useEffect(() => {
+    setImgSrc(avatarSrc);
+    setUsedFallback(false);
+  }, [avatarSrc]);
+
   // Only apply tilt on desktop
   const handlePointerMove = (e: React.PointerEvent) => {
     const rect = cardRef.current?.getBoundingClientRect();
@@ -201,12 +219,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
   };
   const emoji = agent?.icon ?? getAgentEmoji(agent.category) ?? '🤖';
   const isLocked = agent.premium && !isPremiumUnlocked;
-  
+
   // Initialize variants with index
   const cardVariants = getCardVariants(index);
   const avatarVariants = getAvatarVariants(index);
   const contentVariants = getContentVariants(index);
   const ctaVariants = getCtaVariants(index);
+
   return (
     <>
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
@@ -235,10 +254,27 @@ const AgentCard: React.FC<AgentCardProps> = ({
         >
           <div className="relative group/avatar">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 via-white/70 to-blue-400 shadow-lg flex items-center justify-center border-4 border-white/30 relative z-10 overflow-hidden">
-              <span className="text-4xl drop-shadow-xl transform transition-transform duration-300 group-hover/avatar:scale-110">
-                {emoji}
-              </span>
+            {/* PNG Avatar with fallback */}
+            <div className="w-28 h-28 rounded-full object-contain bg-white/10 shadow-md border border-teal-500 flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
+              {imgSrc && (
+                <img
+                  src={imgSrc}
+                  alt={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
+                  aria-label={agent.name}
+                  title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
+                  className="object-contain w-28 h-28 rounded-full mx-auto mb-2"
+                  onError={() => {
+                    if (imgSrc !== fallbackImg) {
+                      setImgSrc(fallbackImg);
+                      setUsedFallback(true);
+                      if (process.env.NODE_ENV === 'development') {
+                        // eslint-disable-next-line no-console
+                        console.warn(`AgentCard: PNG not found for ${agent.name} (${avatarSrc}), falling back to ${fallbackImg}`);
+                      }
+                    }
+                  }}
+                /> // WINDSURF: Avatar audit - slug, fallback, alt, aria, tooltip, size
+              )}
               {isLocked && (
                 <motion.span 
                   className="absolute bottom-1.5 right-1.5 bg-white/90 rounded-full p-1 shadow-md"
@@ -257,105 +293,95 @@ const AgentCard: React.FC<AgentCardProps> = ({
             </div>
           </div>
         </motion.div>
-        {/* Card Body */}
-        <section className="relative flex flex-col items-center justify-between p-6 pt-16 h-full rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-sm overflow-hidden shadow-glow transition-all duration-300 ease-out group/card">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-[rad-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-teal-500/5 via-transparent to-blue-500/5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500" />
-          {/* Category Tag */}
-          <motion.div 
-            className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-2 bg-teal-500/20 text-teal-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
-              delay: 0.25 + (index || 0) * 0.03,
-              type: 'spring',
-              stiffness: 300,
-              damping: 15
-            }}
-          >
-            {agent.category}
-          </motion.div>
-          {/* Agent Name */}
-          <motion.h3 
-            className="text-lg font-bold mb-1 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-200"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ 
-              delay: 0.3 + (index || 0) * 0.02,
-              ease: 'easeOut'
-            }}
-          >
-            {agent.name}
-          </motion.h3>
-          {/* Description */}
-          <motion.div 
-            variants={contentVariants}
-            className="mt-2 text-gray-300/90 text-sm text-center min-h-[48px] leading-relaxed px-1"
-            initial="initial"
-            animate="animate"
-            whileHover="hover"
-          >
-            {agent.description}
-          </motion.div>
-          {/* CTA Button */}
-          <motion.div
+        <motion.div 
+          className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-2 bg-teal-500/20 text-teal-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ 
+            type: 'spring',
+            stiffness: 300,
+            damping: 15
+          }}
+        >
+          {agent.category}
+        </motion.div>
+        {/* Agent Name */}
+        <motion.h3 
+          className="text-lg font-bold mb-1 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-200"
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            delay: 0.3 + (index || 0) * 0.02,
+            ease: 'easeOut'
+          }}
+        >
+          {agent.name}
+        </motion.h3>
+        {/* Description */}
+        <motion.div 
+          variants={contentVariants}
+          className="mt-2 text-gray-300/90 text-sm text-center min-h-[48px] leading-relaxed px-1"
+          initial="initial"
+          animate="animate"
+          whileHover="hover"
+        >
+          {agent.description}
+        </motion.div>
+        {/* CTA Button */}
+        <motion.div
+          variants={ctaVariants}
+          className="mt-5 flex justify-center w-full"
+        >
+          <motion.button
+            className={`px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400/50 ${
+              isLocked 
+                ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-electric-blue to-teal-500 hover:shadow-xl hover:shadow-teal-500/20 hover:brightness-110'
+            }`}
+            onClick={handleCtaClick}
+            disabled={isLocked}
+            tabIndex={0}
+            aria-label={isLocked ? 'Premium locked' : `Launch ${agent.name}`}
             variants={ctaVariants}
-            className="mt-5 flex justify-center w-full"
+            type="button"
           >
-            <motion.button
-              className={`px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400/50 ${
-                isLocked 
-                  ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' 
-                  : 'bg-gradient-to-r from-electric-blue to-teal-500 hover:shadow-xl hover:shadow-teal-500/20 hover:brightness-110'
-              }`}
-              onClick={handleCtaClick}
-              disabled={isLocked}
-              tabIndex={0}
-              aria-label={isLocked ? 'Premium locked' : `Launch ${agent.name}`}
-              variants={ctaVariants}
-              initial="initial"
-              animate="animate"
-              whileHover={!isLocked ? 'hover' : undefined}
-              whileTap={!isLocked ? 'tap' : undefined}
-            >
-              {isLocked ? (
+            {isLocked ? (
+              <motion.span 
+                className="flex items-center gap-2 justify-center"
+                animate={{
+                  x: [0, -2, 2, -1, 1, 0],
+                }}
+                transition={{
+                  duration: 0.6,
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                }}
+              >
+                <Lock size={16} className="flex-shrink-0" /> Unlock Premium
+              </motion.span>
+            ) : (
+              <motion.span 
+                className="flex items-center justify-center gap-2"
+                whileHover={{ gap: '0.5rem' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+              >
+                Launch Agent 
                 <motion.span 
-                  className="flex items-center gap-2 justify-center"
-                  animate={{
-                    x: [0, -2, 2, -1, 1, 0],
-                  }}
+                  animate={{ x: [0, 4, 0] }}
                   transition={{
-                    duration: 0.6,
+                    duration: 1.5,
                     repeat: Infinity,
                     repeatType: 'loop',
+                    ease: 'easeInOut'
                   }}
+                  aria-hidden
                 >
-                  <Lock size={16} className="flex-shrink-0" /> Unlock Premium
+                  🚀
                 </motion.span>
-              ) : (
-                <motion.span 
-                  className="flex items-center justify-center gap-2"
-                  whileHover={{ gap: '0.5rem' }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-                >
-                  Launch Agent 
-                  <motion.span 
-                    animate={{ x: [0, 4, 0] }}
-                    transition={{
-                      duration: 1.5,
-                      repeat: Infinity,
-                      repeatType: 'loop',
-                      ease: 'easeInOut'
-                    }}
-                    aria-hidden
-                  >
-                    🚀
-                  </motion.span>
-                </motion.span>
-              )}
-            </motion.button>
-          </motion.div>
-        </section>
+              </motion.span>
+            )}
+          </motion.button>
+        </motion.div>
         {/* Glass overlay for extra polish */}
         <motion.div 
           className="absolute inset-0 rounded-2xl pointer-events-none bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm z-10"

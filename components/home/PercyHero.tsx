@@ -1,11 +1,12 @@
 "use client";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from "./PercyAvatar";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
 import { UniversalPromptBar, PercyTimeline, AgentStatsPanel } from "@/components/ui";
 import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";
 import { agentDashboardList } from '@/lib/agents/agentRegistry';
+import { getBestAgents } from '@/utils/agentUtils';
 
 
 export default function PercyHero() {
@@ -14,6 +15,9 @@ export default function PercyHero() {
   const [showAgentsModal, setShowAgentsModal] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLSelectElement>(null);
+  const [inputValue, setInputValue] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [suggestedAgents, setSuggestedAgents] = useState<any[]>([]);
 
   const handleExplore = () => {
     const el = document.getElementById("features");
@@ -26,35 +30,87 @@ export default function PercyHero() {
 
   const [timeline, refreshTimeline] = usePercyTimeline();
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (file) {
+      // Auto-route to PublishingAgent for file uploads
+      router.push('/dashboard/book-publishing');
+      return;
+    }
+
+    if (inputValue.trim()) {
+      // Get best matching agents for the prompt
+      const agents = getBestAgents(inputValue);
+      setSuggestedAgents(agents);
+      console.log('Suggested agents:', agents);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    }
+  };
+
   return (
-    <section className="relative flex flex-col items-center justify-center min-h-[80vh] py-8 px-4 z-10 bg-transparent">
+    <section id="percy-hero" className="relative flex flex-col items-center justify-center min-h-[80vh] py-8 px-4 z-10 bg-transparent">
+      {/* Pronunciation badge next to logo (top-left, small, animated in) */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.4, duration: 0.7 }}
+        className="absolute left-2 top-2 z-30"
+      >
+        <div className="scale-75 origin-left">
+          {require('@/components/ui/SatisfactionBadge').default()}
+        </div>
+      </motion.div>
+      {/* Main Card with teal-glow, glassmorphism, float/hover effect */}
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
-        className="glass-card max-w-xl w-full mx-auto p-10 rounded-2xl shadow-2xl border border-teal-400/40 backdrop-blur-lg bg-white/10 flex flex-col items-center gap-6 relative z-10"
+        whileHover={{ y: -6, boxShadow: "0 0 36px 8px #2dd4bf" }}
+        transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
+        className="glass-card max-w-xl w-full mx-auto p-10 rounded-2xl shadow-glow border border-teal-400/60 backdrop-blur-lg bg-white/10 flex flex-col items-center gap-6 relative z-10"
       >
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.7 }}
-          className="text-4xl md:text-5xl font-extrabold text-center mb-2"
-        >
-          SKRBL AI: Unleash the Power of Automated Intelligence
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
+        {/* Header Branding */}
+        <div className="flex flex-col items-center gap-1 mb-2">
+          <span className="text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_16px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mb-1">
+            SKRBL AI
+          </span>
+          <span className="block text-xl md:text-2xl font-light text-center text-gradient-blue mb-1">
+            Unleash the Power of Automated Intelligence
+          </span>
+        </div>
+        {/* Percy avatar + greeting */}
+        <motion.div
+          className="flex flex-row items-center gap-4 mb-4"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.6 }}
-          className="text-lg md:text-xl text-gray-200 text-center mb-6"
+          transition={{ delay: 0.6, duration: 0.8 }}
         >
-          Your next-gen platform for creative automation, smart business workflows, and effortless productivity—powered by AI, crafted for visionaries.
-        </motion.p>
-        <div className="flex flex-col md:flex-row gap-4 w-full justify-center mt-4">
+          <motion.div
+            animate={{ y: [0, -8, 0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+            className="drop-shadow-[0_0_16px_#2dd4bf]"
+          >
+            <PercyAvatar size="md" animate />
+          </motion.div>
+          <span className="text-lg md:text-xl text-white font-semibold bg-gradient-to-r from-teal-400/20 to-electric-blue/10 px-4 py-2 rounded-xl shadow-glow backdrop-blur-sm">
+            Hi, I'm Percy. How can I assist you today?
+          </span>
+        </motion.div>
+        {/* CTA Buttons */}
+        <div className="flex flex-col md:flex-row gap-4 w-full justify-center mt-2">
           <motion.button
             whileHover={{ scale: 1.07, boxShadow: "0 0 24px 8px #2dd4bf" }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowIntake(true)}
+            onClick={() => {
+              const el = document.getElementById('percy-hero');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              setShowIntake(true);
+            }}
             className="px-8 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow focus:outline-none focus:ring-4 focus:ring-teal-400/60"
             aria-label="Start onboarding with Percy"
           >
@@ -131,19 +187,55 @@ export default function PercyHero() {
                 </button>
               </div>
             )}
-            <UniversalPromptBar
-              title="Get Started with SKRBL AI"
-              description="Tell us what you need or upload a file to get started."
-              showPrompt={true}
-              promptLabel="What would you like to accomplish?"
-              placeholder="e.g., Create a content strategy, Generate social media posts..."
-              theme="light"
-              acceptedFileTypes=".pdf,.doc,.docx,.txt,.jpg,.png"
-              onComplete={(data) => {
-                console.log('Completed:', data);
-                setTimeout(() => setShowIntake(false), 2000);
-              }}
-            />
+            <form onSubmit={handleSubmit}>
+              <label htmlFor="percy-prompt" className="sr-only">Ask Percy anything</label>
+              <input
+                id="percy-prompt"
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Ask Percy anything..."
+                aria-label="Ask Percy anything"
+                className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-electric-blue focus:border-transparent"
+              />
+              <label htmlFor="file-upload" className="sr-only">Upload a file</label>
+              <input
+                id="file-upload"
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.txt"
+                aria-label="Upload a file"
+                className="w-full mt-2 p-3 rounded-lg border border-gray-300"
+              />
+              <button
+                type="submit"
+                className="w-full mt-2 py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold shadow-glow hover:bg-teal-400/90 focus:outline-none focus:ring-4 focus:ring-electric-blue/40"
+              >
+                Submit
+              </button>
+            </form>
+            {suggestedAgents.length > 0 && (
+              <div className="w-full mt-4">
+                <h3 className="text-white font-semibold mb-2">Recommended Agents:</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {suggestedAgents.map(agent => (
+                    <div key={agent.id} className="bg-gradient-to-br from-gray-900/80 to-teal-900/60 border border-teal-400 rounded-xl p-4 flex justify-between items-center">
+                      <div>
+                        <span className="text-white font-bold">{agent.name}</span>
+                        {agent.description && <p className="text-gray-200 text-sm">{agent.description}</p>}
+                      </div>
+                      <button
+                        onClick={() => router.push(agent.route || `/services/${agent.id}`)}
+                        className="px-3 py-1 bg-electric-blue text-white font-semibold rounded hover:bg-teal-400 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                        aria-label={`Launch ${agent.name}`}
+                      >
+                        Launch
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <button
               className="w-full mt-2 py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold shadow-glow hover:bg-teal-400/90 focus:outline-none focus:ring-4 focus:ring-electric-blue/40"
               onClick={() => setShowAgentsModal(true)}

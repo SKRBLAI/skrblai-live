@@ -1,3 +1,8 @@
+import path from 'path';
+import fs from 'fs';
+import agentRegistry from '@/lib/agents/agentRegistry';
+import type { Agent } from '@/types/agent';
+
 // Helper function to get emoji based on agent category
 export function getAgentEmoji(category: string): string {
   const categoryEmojis: Record<string, string> = {
@@ -160,7 +165,6 @@ export async function callOpenAIWithFallback<T = string>(
 }
 
 // Percy Smart Agent Matching: Capability-based agent suggestion
-import agentRegistry from '@/lib/agents/agentRegistry';
 
 /**
  * Returns the best matching agents for a given prompt or intent, using capability-based matching.
@@ -207,4 +211,37 @@ if (process.env.NODE_ENV === 'development') {
   best.forEach(agent => {
     console.debug(`[PercyMatch][Test] Suggested agent: ${agent.name} (Capabilities: ${agent.capabilities.join(', ')})`);
   });
+}
+
+export function getAgentImageSlug(agent: Agent): string {
+  return agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
+}
+
+if (process.env.NODE_ENV === 'development') {
+  const missingImages: string[] = [];
+  const agentsWithoutCapabilities: string[] = [];
+
+  agentRegistry.forEach(agent => {
+    const slug = getAgentImageSlug(agent);
+    const imagePath = path.join(process.cwd(), 'public', 'images', `agents-${slug}-skrblai.png`);
+
+    if (!fs.existsSync(imagePath)) {
+      console.warn(`❌ Missing avatar image for agent: ${agent.name} → slug: ${slug}`);
+      missingImages.push(agent.name);
+    }
+
+    if (!agent.capabilities || agent.capabilities.length === 0) {
+      agentsWithoutCapabilities.push(agent.name);
+    }
+  });
+
+  if (missingImages.length > 0) {
+    console.log(`🟡 Missing avatars for ${missingImages.length} agents:`, missingImages);
+  } else {
+    console.log('✅ All agent avatars are correctly named and located');
+  }
+
+  if (agentsWithoutCapabilities.length > 0) {
+    console.warn(`⚠️ ${agentsWithoutCapabilities.length} agents have no capabilities defined:`, agentsWithoutCapabilities);
+  }
 }

@@ -48,6 +48,8 @@ export interface Agent {
   premium?: boolean;
   icon?: string;
   unlocked?: boolean;
+  imageSlug?: string;
+  hasImage?: boolean;
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead
