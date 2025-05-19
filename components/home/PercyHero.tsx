@@ -179,7 +179,7 @@ export default function PercyHero() {
                 {agentDashboardList.filter(a => a.visible !== false).map(agent => (
                   <div key={agent.id} className="bg-gradient-to-br from-gray-900/80 to-teal-900/60 border border-teal-400 rounded-xl p-5 flex flex-col gap-2 shadow-xl">
                     <div className="flex items-center gap-3 mb-1">
-                      <span className="text-2xl" aria-hidden="true">{agent.emoji ?? '🤖'}</span>
+                      <span className="text-2xl" aria-hidden="true">{'emoji' in agent && typeof agent.emoji === 'string' ? agent.emoji : '🤖'}</span>
                       <span className="font-bold text-lg text-white">{agent.name}</span>
                     </div>
                     <span className="text-gray-200 text-sm mb-1">{agent.description}</span>
