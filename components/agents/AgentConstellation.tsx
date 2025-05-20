@@ -11,16 +11,19 @@ type AgentCategory = 'creative' | 'analytics' | 'publishing' | 'business' | 'dev
 type OrbitTier = 'inner' | 'mid' | 'outer';
 
 interface AgentData {
+  id: string;
   name: string;
   role: string;
-  capabilities?: string[];
   gender: 'male' | 'female' | 'neutral';
-  description?: string; // Added for fallback
-  hoverSummary?: string; // Added for tooltip
-  imageSlug?: string; // For logging consistency and potential future use
-  category: AgentCategory;
+  imageSlug: string;
+  avatarVariant: 'waistUp' | 'full';
+  displayInOrbit: boolean;
+  orbit?: { radius?: number; speed?: number; angle?: number };
+  moodColor?: string;
   tier: OrbitTier;
-  moodColor: string;
+  // Optionals for UI
+  description?: string;
+  hoverSummary?: string;
 }
 
 const TIER_RADII = {
@@ -47,7 +50,14 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const allAgents: AgentData[] = await response.json();
+        const data = await response.json();
+        const allAgents: AgentData[] = data.agents;
+        // Runtime check for required props
+        allAgents.forEach(agent => {
+          if (!agent.imageSlug || !agent.avatarVariant || typeof agent.displayInOrbit !== 'boolean') {
+            console.warn(`[AgentConstellation] Agent missing required orbit props:`, agent);
+          }
+        });
         const agentsToDisplay = allAgents.filter(agent => agent.displayInOrbit === true);
         setOrbitingAgents(agentsToDisplay);
       } catch (error) {
