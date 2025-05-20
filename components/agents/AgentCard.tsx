@@ -6,7 +6,7 @@ import Image from 'next/image';
 interface AgentCardProps {
   name: string;
   isPercy?: boolean;
-  gender: 'male' | 'female';
+  gender: 'male' | 'female' | 'neutral'; // Updated to include 'neutral'
   role?: string;
 }
 
@@ -31,7 +31,9 @@ export default function AgentCard({ name, isPercy = false, gender, role }: Agent
   };
   const slug = slugMap[name] || name.toLowerCase();
   const avatarPath = `/images/agents-${slug}-skrblai.png`;
-  const silhouettePath = `/images/agents/${gender}-silhouette.png`;
+  // Adjust silhouette path for neutral gender
+  const silhouetteGender = (gender === 'neutral') ? 'male' : gender; // Fallback neutral to male silhouette for now
+  const silhouettePath = `/images/agents/${silhouetteGender}-silhouette.png`;
   // State for fallback
   const [imgSrc, setImgSrc] = useState(avatarPath);
   

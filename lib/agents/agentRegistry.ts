@@ -20,6 +20,10 @@ import videoContentAgent from '@/ai-agents/videoContentAgent';
 // Debug log on import (this executes during module initialization)
 console.log('AgentRegistry module initializing...');
 
+const genderMap = [
+  'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'male', 'male'
+];
+
 // Create array of all available agents (including hidden ones)
 const allAgents: Agent[] = [
   adCreativeAgent,
@@ -40,12 +44,25 @@ const allAgents: Agent[] = [
   const imageSlug = agent.imageSlug || getAgentImageSlug(agent);
   const hoverSummary = agent.hoverSummary || agent.description || '';
   const route = agent.route || `/dashboard/${agent.id}`;
+  const orbit = agent.orbit || getDefaultOrbitParams(idx);
+  const gender = agent.gender || genderMap[idx % genderMap.length];
+  // Audit for missing metadata
+  const missing = [];
+  if (!gender) missing.push('gender');
+  if (!imageSlug) missing.push('imageSlug');
+  if (!route) missing.push('route');
+  if (!hoverSummary) missing.push('hoverSummary');
+  if (!orbit) missing.push('orbit');
+  if (missing.length > 0) {
+    console.warn(`[AgentRegistry] Agent ${agent.name || agent.id} missing metadata:`, missing);
+  }
   return {
     ...agent,
-    orbit: agent.orbit || getDefaultOrbitParams(idx),
+    orbit,
     hoverSummary,
     imageSlug,
     route,
+    gender,
   };
 });
 

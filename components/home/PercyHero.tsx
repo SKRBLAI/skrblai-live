@@ -31,12 +31,55 @@ export default function PercyHero() {
 
   const [timeline, refreshTimeline] = usePercyTimeline();
 
+  const getSessionId = () => {
+    let sessionId = sessionStorage.getItem('percy_session_id');
+    if (!sessionId) {
+      sessionId = Math.random().toString(36).slice(2) + Date.now();
+      sessionStorage.setItem('percy_session_id', sessionId);
+    }
+    return sessionId;
+  };
+
   const logPercyEvent = async (type: string, value: any, meta: any = {}) => {
+    // Try to extract agentId, agentSlug, gender, route from meta or value
+    let agentId = meta.agentId;
+    let agentSlug = meta.agentSlug;
+    let gender = meta.gender;
+    let route = meta.route;
+    let fallbackTriggered = meta.fallbackTriggered;
+    if (typeof value === 'object' && value !== null) {
+      agentId = agentId || value.id;
+      agentSlug = agentSlug || value.imageSlug || value.slug;
+      gender = gender || value.gender;
+      route = route || value.route;
+    }
+    // If agentId is an array (agent_matches), use first
+    if (Array.isArray(agentId)) agentId = agentId[0];
+    // Validate required metadata
+    const sessionId = getSessionId();
+    const timestamp = new Date().toISOString();
+    const missing = [];
+    if (type !== 'prompt' && !agentId) missing.push('agentId');
+    if (!route && type !== 'prompt') missing.push('route');
+    if (!agentSlug && type !== 'prompt') missing.push('agentSlug');
+    if (!gender && type !== 'prompt') missing.push('gender');
+    if (!sessionId) missing.push('sessionId');
+    if (missing.length > 0) {
+      console.warn(`[PercyLog] Missing metadata for event '${type}':`, missing, { value, meta });
+    }
     const log = {
       type,
       value,
-      meta,
-      timestamp: new Date().toISOString(),
+      meta: {
+        ...meta,
+        agentId,
+        agentSlug,
+        gender,
+        route,
+        sessionId,
+        fallbackTriggered,
+      },
+      timestamp,
     };
     try {
       await saveToSupabase('percy_logs', log);
@@ -46,9 +89,7 @@ export default function PercyHero() {
         const logs = JSON.parse(sessionStorage.getItem('percy_logs') || '[]');
         logs.push(log);
         sessionStorage.setItem('percy_logs', JSON.stringify(logs));
-      } catch (storageErr) {
-        // If even session fails, just warn
-      }
+      } catch (storageErr) {}
       console.warn('[Percy Memory] Failed to log to Supabase:', err, log);
     }
   };
@@ -99,8 +140,8 @@ export default function PercyHero() {
 
       {/* Cosmic Constellation + Percy Hero Integration */}
       <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-4">
-        {/* Constellation behind Percy, visually centered */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full flex items-center justify-center pointer-events-none select-none">
+        {/* Constellation behind Percy, visually centered - hidden on xs screens */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full hidden sm:flex items-center justify-center pointer-events-none select-none">
           <AgentConstellation />
         </div>
 
@@ -111,11 +152,13 @@ export default function PercyHero() {
           animate={{ opacity: 1, scale: 1, filter: "drop-shadow(0 0 60px #2dd4bf) drop-shadow(0 0 36px #38bdf8)" }}
           transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
         >
-          <PercyFigure size="lg" animate showGlow />
+          {/* Responsive PercyFigure size */}
+          <div className="block sm:hidden"><PercyFigure size="md" animate showGlow /></div>
+          <div className="hidden sm:block"><PercyFigure size="lg" animate showGlow /></div>
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
           </span>
-          <span className="block text-xl md:text-2xl font-light text-center text-gradient-blue mb-1">
+          <span className="block text-lg sm:text-xl md:text-2xl font-light text-center text-gradient-blue mb-1">
             Meet Our League of Digital Superheroes
           </span>
         </motion.div>
