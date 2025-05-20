@@ -9,6 +9,7 @@ import FloatingParticles from '@/components/ui/FloatingParticles';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { useState, useEffect } from 'react';
+import { validateHomepageUI } from '@/utils/agentUtils';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -26,6 +27,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       console.log(`[Root Layout] Agent Registry size: ${agentRegistry.length}`);
     } catch (err) {
       console.error('[Root Layout] Failed to load agent registry:', err);
+    }
+
+    if (typeof window !== 'undefined') {
+      validateHomepageUI();
     }
   }, []);
 

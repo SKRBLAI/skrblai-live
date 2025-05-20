@@ -282,3 +282,42 @@ export function validateAgents(agents: Agent[]): void {
   });
   console.log('✅ Agent validation completed.');
 }
+
+// Validator for duplicate taglines or prompt bars in production
+export function validateHomepageUI() {
+  if (typeof window === 'undefined') return;
+  if (process.env.NODE_ENV !== 'production') return;
+  // Check for multiple taglines
+  const taglineEls = document.querySelectorAll('[data-testid="skrbl-tagline"]');
+  if (taglineEls.length > 1) {
+    console.warn(`⚠️ Multiple taglines detected: ${taglineEls.length}`);
+  }
+  // Check for multiple prompt bars
+  const promptBarEls = document.querySelectorAll('[data-testid="universal-prompt-bar"]');
+  if (promptBarEls.length > 1) {
+    console.warn(`⚠️ Multiple UniversalPromptBar components detected: ${promptBarEls.length}`);
+  }
+}
+
+// Validate that all agents with displayInOrbit: true have avatarVariant: 'waistUp'
+export function validateOrbitAgentAvatars(agents: Agent[]): void {
+  agents.forEach(agent => {
+    if (agent.displayInOrbit && agent.visible !== false) {
+      if (agent.avatarVariant !== 'waistUp') {
+        console.warn(`⚠️ Agent [${agent.name}] is set to displayInOrbit but does not have avatarVariant: 'waistUp'`);
+      }
+    }
+  });
+}
+
+// Helper to get normalized agent image path for a given variant
+export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
+  const slug = agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
+  const v = variant || agent.avatarVariant || 'waistUp';
+  // Standard naming: /agents/{slug}-{variant}.png
+  const path = `/agents/${slug}-${v}.png`;
+  // Fallback if not found (UI should handle onError)
+  if (v === 'waistUp') return path || '/agents/fallback-waist-up.png';
+  if (v === 'full') return path || '/agents/fallback-full.png';
+  return path;
+}

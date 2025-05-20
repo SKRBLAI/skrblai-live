@@ -1,5 +1,5 @@
 import { Agent } from '@/types/agent';
-import { getDefaultOrbitParams, getAgentImageSlug, validateAgents } from '@/utils/agentUtils';
+import { getDefaultOrbitParams, getAgentImageSlug, validateAgents, validateOrbitAgentAvatars } from '@/utils/agentUtils';
 
 // Import all agents
 import adCreativeAgent from '@/ai-agents/adCreativeAgent';
@@ -80,12 +80,15 @@ const allAgents: Agent[] = [
     imageSlug,
     route,
     gender,
+    avatarVariant: agent.avatarVariant || (agent.id === 'percy-agent' ? 'waistUp' : 'full'),
+    displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
   };
 });
 
 // Development-only metadata validation
 if (process.env.NODE_ENV === 'development') {
   validateAgents(allAgents);
+  validateOrbitAgentAvatars(allAgents);
 }
 
 // Log out the agents for debugging

@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import PercyAvatar from "./PercyAvatar";
-import PercyFigure from "./PercyFigure";
+import Image from "next/image";
 import AgentConstellation from "../agents/AgentConstellation";
 import { useRouter } from "next/navigation";
 import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";
@@ -140,9 +139,9 @@ export default function PercyHero() {
 
       {/* Cosmic Constellation + Percy Hero Integration */}
       <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-4">
-        {/* Constellation behind Percy, visually centered - hidden on xs screens */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full hidden sm:flex items-center justify-center pointer-events-none select-none">
-          <AgentConstellation />
+        {/* Constellation behind Percy, visually centered */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full flex items-center justify-center pointer-events-none select-none">
+          <AgentConstellation selectedAgent={selectedAgentId} setSelectedAgent={setSelectedAgentId} />
         </div>
 
         {/* Percy Avatar with cosmic glow and floating */}
@@ -153,14 +152,25 @@ export default function PercyHero() {
           transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
         >
           {/* Responsive PercyFigure size */}
-          <div className="block sm:hidden"><PercyFigure size="md" animate showGlow /></div>
-          <div className="hidden sm:block"><PercyFigure size="lg" animate showGlow /></div>
+          <div className="relative w-36 h-36 sm:w-48 sm:h-48 animate-float">
+            <Image
+              src="/agents/percy-waist-up.png"
+              alt="Percy"
+              fill
+              className="object-cover rounded-full shadow-glow"
+              sizes="(max-width: 640px) 144px, 192px"
+            />
+            <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
+          </div>
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
           </span>
           <span className="block text-lg sm:text-xl md:text-2xl font-light text-center text-gradient-blue mb-1">
-            Meet Our League of Digital Superheroes
+            Unleash the Power of Automated Intelligence
           </span>
+          <p className="text-sm sm:text-base text-center text-gray-300 mb-4">
+            Your next-gen platform for creative automation...
+          </p>
         </motion.div>
       </div>
 
@@ -178,7 +188,14 @@ export default function PercyHero() {
           aria-label="Start onboarding with Percy"
         >
           <span className="inline-flex items-center gap-2">
-            <PercyAvatar size="sm" animate /> Let's Get Started
+            <Image
+              src="/agents/percy-waist-up.png"
+              alt="Percy"
+              width={24}
+              height={24}
+              className="object-cover rounded-full shadow-glow"
+            />
+            Let's Get Started
           </span>
         </motion.button>
         <motion.button
@@ -209,7 +226,16 @@ export default function PercyHero() {
               >
                 ×
               </button>
-              <PercyAvatar size="lg" animate className="mx-auto mb-2 drop-shadow-glow" />
+              <div className="relative w-24 h-24 mx-auto mb-2">
+                <Image
+                  src="/agents/percy-waist-up.png"
+                  alt="Percy"
+                  fill
+                  className="object-cover rounded-full shadow-glow"
+                  sizes="96px"
+                />
+                <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
+              </div>
               <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome! What do you want to accomplish today?</h2>
               <select
                 ref={dropdownRef}
@@ -298,7 +324,7 @@ export default function PercyHero() {
                             const agentRoute = (agent as any).route || `/dashboard/${agent.id}`;
                             router.push(agentRoute);
                           }}
-                          className="px-3 py-1 bg-electric-blue text-white font-semibold rounded shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                          className="px-3 py-1 bg-electric-blue text-white font-semibold rounded shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
                           aria-label={`Launch ${agent.name}`}
                         >
                           Launch

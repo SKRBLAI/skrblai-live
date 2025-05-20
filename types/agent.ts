@@ -50,6 +50,8 @@ export interface Agent {
   unlocked?: boolean;
   imageSlug?: string;
   hasImage?: boolean;
+  avatarVariant?: 'full' | 'waistUp';
+  displayInOrbit?: boolean;
   orbit?: {
     radius?: number;
     speed?: number;

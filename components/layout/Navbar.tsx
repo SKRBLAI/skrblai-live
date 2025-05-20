@@ -35,6 +35,9 @@ export default function Navbar() {
             <span className="text-xs md:text-sm font-semibold text-teal-300 bg-teal-900/60 rounded px-2 py-0.5 ml-1 shadow-glow animate-pulse-subtle" aria-label="pronounced like scribble">
               — pronounced like scribble —
             </span>
+            <span data-testid="skrbl-tagline" className="ml-2 text-teal-300 text-xs md:text-sm font-semibold align-middle">
+              pronounced like <span className="italic text-white">scribble</span>, just without the vowels.
+            </span>
           </div>
 
           {/* Navigation Links */}

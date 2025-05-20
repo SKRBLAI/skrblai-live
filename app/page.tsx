@@ -31,32 +31,12 @@ export default function HomePage() {
         {/* PercyHero: Futuristic hero with animated Percy, tagline, and cosmic glassmorphism */}
         <section className="mb-8">
           {/* PercyHero is fully accessible, mobile-first, and cosmic-themed */}
-          <div className="mb-2">
-            {/* Tagline block */}
-            <p className="text-center text-teal-300 text-lg md:text-xl font-semibold mb-2 bg-white/5 rounded-xl shadow-glow px-4 py-2 inline-block mx-auto backdrop-blur-sm">
-              SKRBL — pronounced like <span className="italic text-white">scribble</span>, just without the vowels.
-            </p>
-          </div>
           <div className="flex flex-col items-center justify-center">
             {/* PercyHero component (animated Percy, dropdown, onboarding, etc.) */}
             
             {require('@/components/home/PercyHero').default()}
           </div>
         </section>
-        {/* UniversalPromptBar: Directly below PercyHero, sticky/floating on mobile if needed */}
-        <section className="w-full max-w-2xl mx-auto mb-12">
-                    {require('@/components/ui/UniversalPromptBar').default({
-            title: 'Percy is listening…',
-            description: 'Ask Percy anything or upload a file to get started.',
-            promptLabel: 'What would you like to accomplish?',
-            showPrompt: true,
-            placeholder: 'e.g., Create a content strategy, Generate social media posts... ',
-            theme: 'light',
-            acceptedFileTypes: '.pdf,.doc,.docx,.txt,.jpg,.png',
-            className: 'glass-card shadow-glow bg-white/10 backdrop-blur-lg',
-          })}
-        </section>
-
 
         {/* Agent Preview Section */}
         <motion.div 
