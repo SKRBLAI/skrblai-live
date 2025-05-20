@@ -45,7 +45,23 @@ const allAgents: Agent[] = [
   const hoverSummary = agent.hoverSummary || agent.description || '';
   const route = agent.route || `/dashboard/${agent.id}`;
   const orbit = agent.orbit || getDefaultOrbitParams(idx);
-  const gender = agent.gender || genderMap[idx % genderMap.length];
+  // Normalize gender to 'male' | 'female' | 'neutral', fallback to genderMap for invalid or missing values
+  let gender: 'male' | 'female' | 'neutral';
+  switch (agent.gender) {
+    case 'male':
+    case 'female':
+    case 'neutral':
+      gender = agent.gender;
+      break;
+    case 'masculine':
+      gender = 'male';
+      break;
+    case 'feminine':
+      gender = 'female';
+      break;
+    default:
+      gender = genderMap[idx % genderMap.length];
+  }
   // Audit for missing metadata
   const missing = [];
   if (!gender) missing.push('gender');
