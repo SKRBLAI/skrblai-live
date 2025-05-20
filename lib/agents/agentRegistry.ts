@@ -1,5 +1,5 @@
 import { Agent } from '@/types/agent';
-import { getDefaultOrbitParams, getAgentImageSlug } from '@/utils/agentUtils';
+import { getDefaultOrbitParams, getAgentImageSlug, validateAgents } from '@/utils/agentUtils';
 
 // Import all agents
 import adCreativeAgent from '@/ai-agents/adCreativeAgent';
@@ -22,7 +22,7 @@ console.log('AgentRegistry module initializing...');
 
 const genderMap = [
   'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'female', 'male', 'male', 'male'
-];
+] as const;
 
 // Create array of all available agents (including hidden ones)
 const allAgents: Agent[] = [
@@ -46,12 +46,13 @@ const allAgents: Agent[] = [
   const route = agent.route || `/dashboard/${agent.id}`;
   const orbit = agent.orbit || getDefaultOrbitParams(idx);
   // Normalize gender to 'male' | 'female' | 'neutral', fallback to genderMap for invalid or missing values
+  const rawGender = (agent as any).gender as string | undefined;
   let gender: 'male' | 'female' | 'neutral';
-  switch (agent.gender) {
+  switch (rawGender) {
     case 'male':
     case 'female':
     case 'neutral':
-      gender = agent.gender;
+      gender = rawGender;
       break;
     case 'masculine':
       gender = 'male';
@@ -81,6 +82,11 @@ const allAgents: Agent[] = [
     gender,
   };
 });
+
+// Development-only metadata validation
+if (process.env.NODE_ENV === 'development') {
+  validateAgents(allAgents);
+}
 
 // Log out the agents for debugging
 console.log(`All agents loaded: ${allAgents.length}`);

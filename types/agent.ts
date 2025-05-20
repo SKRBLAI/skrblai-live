@@ -56,6 +56,7 @@ export interface Agent {
     angle?: number;
   };
   hoverSummary?: string;
+  gender?: 'male' | 'female' | 'neutral';
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead

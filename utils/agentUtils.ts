@@ -256,3 +256,29 @@ export function getDefaultOrbitParams(index: number): { radius: number; speed: n
     angle: (index * (360 / 12)) % 360
   };
 }
+
+// New: Validate agents metadata in development
+export function validateAgents(agents: Agent[]): void {
+  agents.forEach(agent => {
+    const issues: string[] = [];
+    if (!agent.id) issues.push('missing id');
+    if (!agent.name) issues.push('missing name');
+    if (!agent.description) issues.push('missing description');
+    if (!agent.category) issues.push('missing category');
+    if (!['male', 'female', 'neutral'].includes(agent.gender || '')) {
+      issues.push(`invalid gender: ${agent.gender}`);
+    }
+    if (!agent.capabilities || agent.capabilities.length === 0) {
+      issues.push('no capabilities');
+    }
+    if (!agent.imageSlug) issues.push('missing imageSlug');
+    if (!agent.route) issues.push('missing route');
+    if (!agent.orbit) issues.push('missing orbit config');
+    if (!agent.hoverSummary) issues.push('missing hoverSummary');
+
+    if (issues.length > 0) {
+      console.warn(`⚠️ Agent [${agent.name || agent.id}] has issues:`, issues);
+    }
+  });
+  console.log('✅ Agent validation completed.');
+}
