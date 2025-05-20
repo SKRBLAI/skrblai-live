@@ -89,7 +89,7 @@ export default function PercyHero() {
         const logs = JSON.parse(sessionStorage.getItem('percy_logs') || '[]');
         logs.push(log);
         sessionStorage.setItem('percy_logs', JSON.stringify(logs));
-      } catch (storageErr) {}
+      } catch (storageErr) { /* intentionally left blank (sessionStorage fallback is non-critical) */ }
       console.warn('[Percy Memory] Failed to log to Supabase:', err, log);
     }
   };
