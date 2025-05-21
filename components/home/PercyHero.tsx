@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import AgentConstellation from "../agents/AgentConstellation";
+import type { Agent } from '@/types/agent';
 import { useRouter } from "next/navigation";
 import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";
 import { agentDashboardList } from '@/lib/agents/agentRegistry';
@@ -13,7 +14,7 @@ export default function PercyHero() {
   const router = useRouter();
   const [showIntake, setShowIntake] = useState(false);
   const [showAgentsModal, setShowAgentsModal] = useState(false);
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const dropdownRef = useRef<HTMLSelectElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -141,7 +142,7 @@ export default function PercyHero() {
       <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-4">
         {/* Constellation behind Percy, visually centered */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full flex items-center justify-center pointer-events-none select-none">
-          <AgentConstellation selectedAgent={selectedAgentId} setSelectedAgent={setSelectedAgentId} />
+          <AgentConstellation selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} />
         </div>
 
         {/* Percy Avatar with cosmic glow and floating */}
@@ -243,15 +244,32 @@ export default function PercyHero() {
                 aria-label="Quick actions"
                 defaultValue=""
                 onChange={e => {
-                  setSelectedAgentId(e.target.value);
-                  if (e.target.value) {
-                    dropdownRef.current?.classList.add('ring-4', 'ring-electric-blue');
-                    setTimeout(() => {
-                      dropdownRef.current?.classList.remove('ring-4', 'ring-electric-blue');
-                      setShowIntake(false);
-                    }, 900);
-                  }
-                }}
+  const agent = agentDashboardList.find(a => a.id === e.target.value);
+  if (agent) {
+    setSelectedAgent({
+      id: agent.id,
+      name: agent.name,
+      description: agent.description,
+      visible: typeof agent.visible === 'boolean' ? agent.visible : true,
+      category: 'assistant',
+      capabilities: [],
+      tier: 'outer',
+      role: '',
+      imageSlug: '',
+      avatarVariant: 'waistUp',
+      displayInOrbit: false,
+    });
+  } else {
+    setSelectedAgent(null);
+  }
+  if (e.target.value) {
+    dropdownRef.current?.classList.add('ring-4', 'ring-electric-blue');
+    setTimeout(() => {
+      dropdownRef.current?.classList.remove('ring-4', 'ring-electric-blue');
+      setShowIntake(false);
+    }, 900);
+  }
+}}
               >
                 <option value="" disabled>Choose a quick action...</option>
                 {agentDashboardList.filter(a => a.visible !== false).map(agent => (
@@ -261,19 +279,19 @@ export default function PercyHero() {
                 ))}
               </select>
               
-              {selectedAgentId && (
+              {selectedAgent && (
                 <div className="w-full bg-teal-900/80 border border-teal-400 rounded-lg p-3 mb-2 animate-bounce-in text-white flex flex-col items-center" aria-live="polite">
                   <span className="font-bold text-lg">
-                    {agentDashboardList.find(a => a.id === selectedAgentId)?.name}
+                    {agentDashboardList.find(a => a.id === selectedAgent?.id)?.name}
                   </span>
                   <span className="text-sm mb-2">
-                    {agentDashboardList.find(a => a.id === selectedAgentId)?.description}
+                    {agentDashboardList.find(a => a.id === selectedAgent?.id)?.description}
                   </span>
                   <button
                     className="mt-1 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
-                    onClick={() => window.open(`/services/${selectedAgentId}`, '_blank')}
+                    onClick={() => window.open(`/services/${selectedAgent?.id}`, '_blank')}
                     tabIndex={0}
-                    aria-label={`Launch ${agentDashboardList.find(a => a.id === selectedAgentId)?.name}`}
+                    aria-label={`Launch ${agentDashboardList.find(a => a.id === selectedAgent?.id)?.name}`}
                   >
                     Launch Agent
                   </button>

@@ -298,7 +298,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               </div>
               <div className="flex flex-col items-center">
                 <h2 className="text-2xl font-bold text-center text-white mb-1">{selectedAgent.name}</h2>
-                <p className="text-teal-300 text-sm text-center mb-2">{selectedAgent.role}</p>
+                <p className="text-teal-300 text-sm text-center mb-2">{(selectedAgent as OrbitAgent).role}</p>
                 <div className="flex flex-col items-center">
                   <p className="text-sm text-gray-300 mb-3 leading-snug text-center">
                     This AI-powered assistant can help you create professional {selectedAgent.capabilities?.[0]?.toLowerCase()} content and strategies tailored to your specific needs.
