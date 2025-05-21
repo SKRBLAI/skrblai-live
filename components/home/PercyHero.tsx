@@ -253,8 +253,6 @@ export default function PercyHero() {
       visible: typeof agent.visible === 'boolean' ? agent.visible : true,
       category: 'assistant',
       capabilities: [],
-      tier: 'outer',
-      role: '',
       imageSlug: '',
       avatarVariant: 'waistUp',
       displayInOrbit: false,

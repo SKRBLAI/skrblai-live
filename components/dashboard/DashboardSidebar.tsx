@@ -35,17 +35,26 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     >
       <div className="p-6">
         {navItems.map(item => (
-          <div
+          <button
             key={item.id}
+            type="button"
+            role="menuitem"
+            tabIndex={0}
+            aria-current={activeSection === item.id}
             onClick={() => setActiveSection(item.id)}
-            className={`p-3 mb-2 rounded-lg cursor-pointer ${
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setActiveSection(item.id);
+              }
+            }}
+            className={`w-full text-left p-3 mb-2 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-electric-blue transition-all duration-150 ${
               activeSection === item.id 
                 ? 'bg-electric-blue/10 text-electric-blue' 
                 : 'text-gray-300 hover:bg-deep-navy/80'
             }`}
           >
             {item.label}
-          </div>
+          </button>
         ))}
       </div>
     </motion.div>

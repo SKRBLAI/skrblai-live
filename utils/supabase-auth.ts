@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { saveUser } from './supabase-helpers';
+import { systemLog } from './systemLog';
 
 /**
  * Sign up with email and password
@@ -23,6 +24,43 @@ export const signUp = async (email: string, password: string, name: string) => {
     // Save user data to users table
     if (data.user) {
       await saveUser(data.user.id, name, email);
+      // Trigger onboarding automation
+      try {
+        const onboardingRes = await fetch('/api/agents/automation', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // No auth header needed, user just signed up
+          },
+          body: JSON.stringify({
+            agentId: 'onboarding-agent',
+            task: 'onboard',
+            payload: { userId: data.user?.id ?? '', email: email ?? '' }
+          })
+        });
+        const onboardingResult = await onboardingRes.json();
+        await systemLog({
+          type: onboardingResult && onboardingResult.success ? 'info' : 'error',
+          message: 'Onboarding automation triggered',
+          meta: {
+            userId: data.user?.id ?? '',
+            email: email ?? '',
+            onboardingResult,
+            timestamp: new Date().toISOString(),
+          },
+        });
+      } catch (onboardErr: any) {
+        await systemLog({
+          type: 'error',
+          message: 'Onboarding automation error',
+          meta: {
+            userId: data.user?.id ?? '',
+            email: email ?? '',
+            error: onboardErr?.message || onboardErr || '',
+            timestamp: new Date().toISOString(),
+          },
+        });
+      }
     }
 
     return { success: true, user: data.user };

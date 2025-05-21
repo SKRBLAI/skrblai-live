@@ -156,17 +156,20 @@ export default function SignupPage() {
           </div>
 
           {error && (
-            <div className="text-red-500 text-sm text-center">{error}</div>
+            <div className="text-red-500 text-sm text-center" role="alert">{error}</div>
           )}
 
           <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {loading ? 'Creating account...' : 'Sign up'}
-            </button>
+            <motion.button
+               type="submit"
+               aria-label="Sign up"
+               disabled={loading}
+               whileHover={{ scale: 1.04, boxShadow: '0 0 16px #00ffe7' }}
+               whileTap={{ scale: 0.97 }}
+               className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue transition-all duration-150 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+             >
+               {loading ? 'Creating account...' : 'Sign up'}
+             </motion.button>
           </div>
         </form>
       </motion.div>
