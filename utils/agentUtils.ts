@@ -314,10 +314,16 @@ export function validateOrbitAgentAvatars(agents: Agent[]): void {
 export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
   const slug = agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
   const v = variant || agent.avatarVariant || 'waistUp';
-  // Standard naming: /agents/{slug}-{variant}.png
-  const path = `/agents/${slug}-${v}.png`;
-  // Fallback if not found (UI should handle onError)
-  if (v === 'waistUp') return path || '/agents/fallback-waist-up.png';
-  if (v === 'full') return path || '/agents/fallback-full.png';
-  return path;
+  // Try waist-up first
+  if (v === 'waistUp') {
+    const waistUpPath = `/agents/${slug}-waist-up.png`;
+    const fullBodyPath = `/agents/${slug}-skrblai.png`;
+    // In browser, we can't check file existence, so return waistUpPath; UI should handle onError to try fullBodyPath, then fallback
+    return waistUpPath;
+  }
+  if (v === 'full') {
+    return `/agents/${slug}-skrblai.png`;
+  }
+  // Final fallback
+  return '/agents/fallback-waist-up.png';
 }

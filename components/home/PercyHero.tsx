@@ -152,15 +152,15 @@ export default function PercyHero() {
           transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
         >
           {/* Responsive PercyFigure size */}
-          <div className="relative w-36 h-36 sm:w-48 sm:h-48 animate-float">
+          <div className="relative w-44 h-64 sm:w-56 sm:h-80 animate-float flex items-end justify-center">
             <Image
-              src="/agents/percy-waist-up.png"
-              alt="Percy"
-              fill
-              className="object-cover rounded-full shadow-glow"
-              sizes="(max-width: 640px) 144px, 192px"
-            />
-            <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
+  src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+  alt="Percy full body"
+  fill
+  className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
+  priority
+  sizes="(max-width: 640px) 176px, 224px"
+/>
           </div>
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
@@ -189,11 +189,11 @@ export default function PercyHero() {
         >
           <span className="inline-flex items-center gap-2">
             <Image
-              src="/agents/percy-waist-up.png"
-              alt="Percy"
-              width={24}
-              height={24}
-              className="object-cover rounded-full shadow-glow"
+              src="/images/agents-percy-skrblai.png"
+              alt="Percy full body"
+              width={28}
+              height={28}
+              className="object-contain drop-shadow-[0_0_16px_#2dd4bf]"
             />
             Let's Get Started
           </span>
@@ -228,7 +228,7 @@ export default function PercyHero() {
               </button>
               <div className="relative w-24 h-24 mx-auto mb-2">
                 <Image
-                  src="/agents/percy-waist-up.png"
+                  src="/images/agents-percy-skrblai.png"
                   alt="Percy"
                   fill
                   className="object-cover rounded-full shadow-glow"

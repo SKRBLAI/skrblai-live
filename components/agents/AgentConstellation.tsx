@@ -1,10 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import type { Agent } from '@/types/agent';
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import AgentCard from "./AgentCard";
-import PercyAvatar from "../home/PercyAvatar";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { getAgentImagePath } from '@/utils/agentUtils';
 
 // Define AgentData interface
 type AgentCategory = 'creative' | 'analytics' | 'publishing' | 'business' | 'development' | 'assistant' | 'finance' | 'support';
@@ -38,33 +40,43 @@ interface AgentConstellationProps {
 }
 
 const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, setSelectedAgent }) => {
-  const [orbitingAgents, setOrbitingAgents] = useState<AgentData[]>([]);
+  const [orbitingAgents, setOrbitingAgents] = useState<Agent[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
 
   useEffect(() => {
     const fetchAgents = async () => {
-      try {
-        const response = await fetch("/api/agents/featured");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const allAgents: AgentData[] = data.agents;
-        // Runtime check for required props
-        allAgents.forEach(agent => {
-          if (!agent.imageSlug || !agent.avatarVariant || typeof agent.displayInOrbit !== 'boolean') {
-            console.warn(`[AgentConstellation] Agent missing required orbit props:`, agent);
-          }
-        });
-        const agentsToDisplay = allAgents.filter(agent => agent.displayInOrbit === true);
-        setOrbitingAgents(agentsToDisplay);
-      } catch (error) {
-        console.error("Failed to fetch agents:", error);
-        setOrbitingAgents([]); // Fallback to empty array on error
+  try {
+    const response = await fetch("/api/agents/featured");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    const allAgents: Agent[] = data.agents.map((agent: any) => ({
+  // Spread all existing fields
+  ...agent,
+  // Fallbacks for required Agent fields
+  category: agent.category ?? 'assistant',
+  capabilities: agent.capabilities ?? [],
+  visible: typeof agent.visible === 'boolean' ? agent.visible : true,
+  // Fallbacks for legacy AgentData fields
+  tier: agent.tier ?? 'outer',
+  role: agent.role ?? '',
+}));
+    // Runtime check for required props
+    allAgents.forEach(agent => {
+      if (!agent.imageSlug || !agent.avatarVariant || typeof agent.displayInOrbit !== 'boolean') {
+        console.warn(`[AgentConstellation] Agent missing required orbit props:`, agent);
       }
-    };
+    });
+    const agentsToDisplay = allAgents.filter(agent => agent.displayInOrbit === true);
+    setOrbitingAgents(agentsToDisplay);
+  } catch (error) {
+    console.error("Failed to fetch agents:", error);
+    setOrbitingAgents([]); // Fallback to empty array on error
+  }
+};
     fetchAgents();
   }, []);
 
@@ -119,15 +131,16 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         animate={{ scale: 1, opacity: 1, filter: "drop-shadow(0 0 32px #2dd4bf)" }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.2 }}
       >
-        <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800/90 to-black/90 border border-teal-500/30 overflow-hidden shadow-glow">
-          <Image
-            src="/agents/percy-waist-up.png"
-            alt="Percy"
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 96px, 128px"
-          />
-        </div>
+        <div className="relative w-36 h-52 md:w-48 md:h-64 flex items-end justify-center animate-float">
+  <Image
+    src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+    alt="Percy full body"
+    fill
+    className="object-contain drop-shadow-[0_0_40px_#2dd4bf]"
+    priority
+    sizes="(max-width: 768px) 144px, 192px"
+  />
+</div>
         <motion.div
           className="text-center mt-2"
           initial={{ opacity: 0 }}
@@ -173,11 +186,15 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   style={{ width: size, height: size }}
                 >
                   <Image
-                    src={agent.waistUpImage || `/agents/${agent.imageSlug}-waist-up.png`}
+                    src={getAgentImagePath(agent, 'waistUp')}
                     alt={agent.role || agent.name}
                     fill
                     className="object-cover rounded-full"
                     sizes={`${size}px`}
+                    onError={(e) => {
+                      // Optionally, you could set a state to try the full-body image or fallback here
+                      (e.currentTarget as HTMLImageElement).src = `/agents/${agent.imageSlug}-skrblai.png`;
+                    }}
                   />
                 </div>
                 <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
@@ -207,11 +224,15 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 style={{ width: size, height: size }}
               >
                 <Image
-                  src={agent.waistUpImage || `/agents/${agent.imageSlug}-waist-up.png`}
+                  src={getAgentImagePath(agent, 'waistUp')}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full"
                   sizes={`${size}px`}
+                  onError={(e) => {
+                    // Optionally, you could set a state to try the full-body image or fallback here
+                    (e.currentTarget as HTMLImageElement).src = `/agents/${agent.imageSlug}-skrblai.png`;
+                  }}
                 />
               </div>
               <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
@@ -246,7 +267,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               </button>
               <div className="relative w-24 h-24 mx-auto">
                 <Image
-                  src={`/agents/${selectedAgent.imageSlug}-waist-up.png`}
+                  src={selectedAgent.imageSlug === 'percy-agent' ? '/images/agents-percy-skrblai.png' : `/agents/${selectedAgent.imageSlug}-waist-up.png`}
                   alt={selectedAgent.name}
                   fill
                   className="object-cover rounded-full shadow-glow"
