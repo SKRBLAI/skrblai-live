@@ -45,16 +45,10 @@ export default function AgentCard({
 }: AgentCardProps) {
   const silhouettePath = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
 
-  // Use passed imageSlug, otherwise build Agent for fallback path
+  // Use passed imageSlug directly for image path without calling getAgentImagePath
   const imagePath = imageSlug
     ? `/images/agents-${imageSlug}-skrblai.png`
-    : getAgentImagePath(
-        getDefaultAgent(
-          name.toLowerCase().replace(/\s+/g, '-'),
-          imageSlug,
-          name
-        )
-      );
+    : `/images/agents-${name.toLowerCase().replace(/\s+/g, '-')}-skrblai.png`;
 
   const [imgSrc, setImgSrc] = useState(imagePath);
 
