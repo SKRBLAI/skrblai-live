@@ -5,11 +5,13 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getAgentImagePath } from '@/utils/agentUtils';
+import FocusTrap from 'focus-trap-react';
 
+// Adjusted radii so agents fit fully inside rings (agent size/2 + margin < radius)
 const TIER_RADII = {
-  inner: 70,
-  mid: 140,
-  outer: 210,
+  inner: 90,  // for 64px agent size, 90px keeps it inside
+  mid: 165,  // for 80px agent size, 165px keeps it inside
+  outer: 240 // for 96px agent size, 240px keeps it inside
 } as const;
 
 type OrbitTier = keyof typeof TIER_RADII;
@@ -168,7 +170,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   if (e.key === 'Enter' || e.key === ' ') setSelectedAgent(agent);
                 }}
               >
-                <div className="relative rounded-full border-4 border-fuchsia-400 group-hover:border-teal-300 transition-all duration-200 shadow-glow bg-gradient-to-br from-fuchsia-800/80 to-teal-900/80 overflow-hidden animate__animated animate__pulse"
+                <div className="relative rounded-full border-4 border-fuchsia-400 group-hover:border-teal-300 transition-all duration-200 shadow-glow bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 overflow-visible animate__animated animate__pulse"
                   style={{ width: size, height: size }}
                 >
                   <Image
@@ -242,7 +244,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               onClick={() => setSelectedAgent(agent)}
               style={{ width: size + 12 }}
             >
-              <div className="relative rounded-full border-2 border-teal-500/60 group-hover:border-teal-300 transition-all duration-200 shadow-md group-hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] bg-gray-800/50 overflow-hidden mb-1"
+              <div className="relative rounded-full border-2 border-fuchsia-400 group-hover:border-teal-300 transition-all duration-200 shadow-glow group-hover:shadow-[0_0_16px_#38bdf8] bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 overflow-visible mb-1"
                 style={{ width: size, height: size }}
               >
                 <Image
@@ -268,7 +270,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
       <AnimatePresence>
         {selectedAgent && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -276,17 +278,22 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
             onClick={() => setSelectedAgent(null)}
             aria-label="Agent Details Modal"
           >
-            <motion.div
-              className="relative bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-6 max-w-md w-full flex flex-col items-center gap-4 animate__animated animate__fadeInDown"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-teal-400 text-2xl focus:outline-none focus:ring-2 focus:ring-teal-400/40 rounded"
-                onClick={() => setSelectedAgent(null)}
-                aria-label="Close agent details"
+            {/* Focus trap for accessibility */}
+            <FocusTrap active={!!selectedAgent}>
+              <motion.div
+                className="relative bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 backdrop-blur-xl rounded-2xl shadow-2xl p-6 max-w-md w-full flex flex-col items-center gap-4 animate__animated animate__fadeInDown border-2 border-fuchsia-400"
+                onClick={(e) => e.stopPropagation()}
+                tabIndex={-1}
+                role="dialog"
+                aria-modal="true"
               >
-                ×
-              </button>
+                <button
+                  className="absolute top-2 right-2 text-gray-200 hover:text-teal-400 text-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 rounded-full bg-black/10 px-2 py-1"
+                  onClick={() => setSelectedAgent(null)}
+                  aria-label="Close agent details"
+                >
+                  ×
+                </button>
               <div className="relative w-24 h-24 mx-auto">
                 <Image
                   src={selectedAgent.imageSlug ? `/images/agents/${selectedAgent.imageSlug}.png` : '/images/agents/agents-percy-fullbody-nobg-skrblai.png'}
@@ -319,6 +326,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 </div>
               </div>
             </motion.div>
+            </FocusTrap>
           </motion.div>
         )}
       </AnimatePresence>

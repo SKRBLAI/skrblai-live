@@ -21,9 +21,9 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/80 backdrop-blur-sm border-b border-white/10 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo + Pronunciation + Tagline */}
+          {/* Logo + Tagline */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center group" aria-label="SKRBL AI Home">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -31,55 +31,51 @@ export default function Navbar() {
                 <BrandLogo />
               </motion.div>
             </Link>
-            {/* Pronunciation badge */}
-            <span className="text-xs md:text-sm font-semibold text-teal-300 bg-teal-900/60 rounded px-2 py-0.5 ml-1 shadow-glow animate-pulse-subtle" aria-label="pronounced like scribble">
-              — pronounced like scribble —
-            </span>
-            <span data-testid="skrbl-tagline" className="ml-2 text-teal-300 text-xs md:text-sm font-semibold align-middle">
-              pronounced like <span className="italic text-white">scribble</span>, just without the vowels.
+            {/* Tagline badge - consolidated, styled, accessible */}
+            <span
+              data-testid="skrbl-tagline"
+              className="ml-2 text-xs md:text-sm font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1 shadow-glow border border-teal-400/60 whitespace-nowrap"
+              aria-label="pronounced like scribble, just without the vowels."
+              tabIndex={-1}
+            >
+              pronounced like <span className="italic">scribble</span>, just without the vowels.
             </span>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex flex-col items-center flex-1">
-            <div className="flex items-center space-x-8">
-              <Link href="/features" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
+          <div className="hidden md:flex flex-1 justify-end items-center">
+            <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
+              <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
+                Agents
+              </Link>
+              <Link href="/features" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
                 Features
               </Link>
-              <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
-                Meet the Agents
-              </Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
+              <Link href="/pricing" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
                 Pricing
               </Link>
-              <Link href="/about" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105">
+              <Link href="/about" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
                 About
               </Link>
-              <div className="flex items-center space-x-4">
-                <Link href="/sign-in">
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="text-white hover:text-teal-400 transition-all duration-300"
-                  >
-                    Sign In
-                  </motion.button>
-                </Link>
-                <Link href="/get-started">
-                  <motion.button 
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="text-white bg-teal-500 hover:bg-teal-400 px-4 py-2 rounded-lg font-bold shadow-glow transition-all duration-300"
-                  >
-                    Get Started
-                  </motion.button>
-                </Link>
-              </div>
+              <Link href="/sign-in">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-white hover:text-teal-400 transition-all duration-300 whitespace-nowrap"
+                >
+                  Sign In
+                </motion.button>
+              </Link>
+              <Link href="/get-started">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-white bg-teal-500 hover:bg-teal-400 px-4 py-2 rounded-lg font-bold shadow-glow transition-all duration-300 whitespace-nowrap"
+                >
+                  Get Started
+                </motion.button>
+              </Link>
             </div>
-            {/* Removed conditional hero tagline from Navbar for deduplication */}
-            {process.env.NODE_ENV === 'development' && (
-              <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] Navbar tagline deduplication complete.')" }} />
-            )}
           </div>
         </div>
       </div>

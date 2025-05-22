@@ -8,6 +8,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import AgentConstellation from "../agents/AgentConstellation";
+import AgentCarousel from "../agents/AgentCarousel";
 import type { Agent } from '@/types/agent';
 import { useRouter } from "next/navigation";
 import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";
@@ -171,6 +172,13 @@ export default function PercyHero() {
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
           </span>
+          {/* Premium headline/subtitle restored */}
+          <h2 className="text-xl md:text-2xl font-semibold text-center text-teal-200 mt-2 mb-1 drop-shadow-[0_0_8px_#2dd4bf]">
+            The Ultimate AI Platform for Content, Branding, and Automation
+          </h2>
+          <p className="text-base md:text-lg text-center text-white/80 mb-2 max-w-xl mx-auto">
+            Unlock creative superpowers, automate your workflow, and grow your brand with the world's most advanced digital agents.
+          </p>
           {process.env.NODE_ENV === 'development' && (
             <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] PercyHero tagline/subtitle removal complete.')" }} />
           )}
@@ -241,61 +249,16 @@ export default function PercyHero() {
                 <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
               </div>
               <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome to SKRBL AI, What do you want to accomplish today?</h2>
-              <div className="w-full overflow-x-auto pb-2">
+              <div className="w-full overflow-x-visible pb-2">
                 {filteredVisibleAgents.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-2" role="listbox" aria-label="Choose your starter agent">
-                    {filteredVisibleAgents.map((agent: Agent) => {
-                      const fullAgent = {
-                        ...agent,
-                        category: agent.category || 'assistant',
-                        capabilities: agent.capabilities || [],
-                        imageSlug: agent.imageSlug || (agent.id ? agent.id.replace(/-agent$/, '') : ''),
-                      };
-                      return (
-                        <motion.button
-                          key={agent.id}
-                          type="button"
-                          role="option"
-                          aria-selected={selectedAgent?.id === agent.id}
-                          tabIndex={0}
-                          className={`relative focus:outline-none rounded-xl shadow-glow transition-all duration-200 border-2 bg-gradient-to-br from-fuchsia-800/70 to-teal-900/70 border-teal-400 flex flex-col items-center p-3 cursor-pointer hover:scale-105 hover:shadow-[0_0_24px_#f472b6] ${selectedAgent?.id === agent.id ? 'ring-4 ring-fuchsia-400 scale-105' : ''}`}
-                          onClick={() => {
-                            setSelectedAgent(fullAgent);
-                            setTimeout(() => setShowIntake(false), 900);
-                          }}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              setSelectedAgent(fullAgent);
-                              setTimeout(() => setShowIntake(false), 900);
-                            }
-                          }}
-                          aria-label={`Select ${agent.name}`}
-                          title={`Select ${agent.name}: ${agent.description}`}
-                        >
-                          <img
-                            src={fullAgent.imageSlug ? `/images/agents/${fullAgent.imageSlug}.png` : '/images/agents/agents-percy-fullbody-nobg-skrblai.png'}
-                            alt={agent.name}
-                            className="w-14 h-14 rounded-full mb-2 object-cover border-2 border-fuchsia-300 shadow-glow"
-                            aria-hidden="true"
-                          />
-                          <span className="font-bold text-white text-base mb-1 text-center drop-shadow-[0_0_8px_#f472b6]">{agent.name}</span>
-                          <span className="text-xs text-fuchsia-200 text-center">{agent.description}</span>
-                          {selectedAgent?.id === agent.id && (
-                            <motion.div
-                              initial={{ scale: 0, opacity: 0 }}
-                              animate={{ scale: 1.4, opacity: 1 }}
-                              exit={{ scale: 0, opacity: 0 }}
-                              transition={{ type: 'spring', stiffness: 500, damping: 16 }}
-                              className="absolute top-2 right-2 text-2xl text-fuchsia-400 animate-bounce-in"
-                              aria-hidden="true"
-                            >
-                              ✨
-                            </motion.div>
-                          )}
-                        </motion.button>
-                      );
-                    })}
-                  </div>
+                  <AgentCarousel
+                    agents={filteredVisibleAgents}
+                    onLaunch={(agent) => {
+                      setSelectedAgent(agent);
+                      setTimeout(() => setShowIntake(false), 900);
+                    }}
+                    selectedAgentId={selectedAgent?.id}
+                  />
                 ) : (
                   <p className="text-center text-white/80 py-4">No starter agents available at the moment.</p>
                 )}

@@ -43,8 +43,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
         <PercyProvider>
+          {/* Global Percy Background */}
+          <div className="percy-bg-global" aria-hidden="true" />
+
           {/* Global Background */}
-          <div className="fixed inset-0 z-0">
+          <div className="fixed inset-0 z-0 pointer-events-none">
             <FloatingParticles />
           </div>
 

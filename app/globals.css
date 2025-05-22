@@ -356,4 +356,42 @@
   .pseudo-3d-hover:hover {
     transform: perspective(600px) rotateX(0deg) rotateY(0deg) scale(1.05);
   }
+}
+
+/* Global Percy Background - Cosmic Layout Captain */
+.percy-bg-global {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+}
+.percy-bg-global::before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(600px, 80vw);
+  height: min(600px, 80vw);
+  max-width: 90vw;
+  max-height: 90vh;
+  transform: translate(-50%, -50%);
+  background: url('/images/agents/agents-percy-fullbody-nobg-skrblai.png') no-repeat center center / contain;
+  opacity: 0.88;
+  filter: drop-shadow(0 0 60px #30d5c8cc) drop-shadow(0 0 120px #1e90ff99);
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .percy-bg-global::before {
+    width: 90vw;
+    height: 60vw;
+    max-width: 95vw;
+    max-height: 60vh;
+  }
 } 
