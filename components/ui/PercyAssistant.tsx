@@ -130,7 +130,7 @@ export default function PercyAssistant() {
           transition={{ duration: 2, repeat: Infinity }}
         >
           <Image
-            src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+            src="/images/agents-percy-fullbody-nobg-skrblai.png"
             alt="Percy AI Assistant"
             fill
             className="object-contain"

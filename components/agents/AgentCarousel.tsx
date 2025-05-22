@@ -3,6 +3,7 @@ import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { Agent } from '@/types/agent';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface AgentCarouselProps {
   agents: Agent[];
@@ -44,12 +45,16 @@ const AgentCarousel: React.FC<AgentCarouselProps> = ({ agents, onLaunch, selecte
               className={`group relative flex flex-col items-center justify-between w-64 p-6 rounded-2xl shadow-glow bg-gradient-to-br from-electric-blue/80 via-fuchsia-500/60 to-teal-400/80 border-2 border-teal-400 hover:from-fuchsia-600/90 hover:to-teal-500/90 transition-all duration-300 focus-within:ring-4 focus-within:ring-fuchsia-400 ${selectedAgentId === agent.id ? 'ring-4 ring-fuchsia-300 scale-105' : ''}`}
             >
               <div className="flex flex-col items-center mb-2">
-                <img
-                  src={`/images/agents/${agent.imageSlug}.png`}
-                  alt={agent.name}
-                  className="w-20 h-20 rounded-full object-cover shadow-glow bg-gradient-to-tr from-teal-400/60 to-fuchsia-500/60 border-4 border-white mb-2"
-                  draggable={false}
-                />
+                <div className="relative w-20 h-20 rounded-full shadow-glow bg-gradient-to-tr from-teal-400/60 to-fuchsia-500/60 border-4 border-white mb-2">
+                  <Image
+                    src={`/images/agents-${agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase()}-skrblai.png`}
+                    alt={agent.name}
+                    fill
+                    className="object-cover rounded-full"
+                    sizes="80px"
+                    draggable={false}
+                  />
+                </div>
                 <span className="block font-bold text-lg text-white drop-shadow-[0_0_8px_#38bdf8] text-center">
                   {agent.name}
                 </span>

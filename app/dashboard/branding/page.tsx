@@ -13,12 +13,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import type { User } from '@supabase/supabase-js';
 
 export default function BrandingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [brandingProjects, setBrandingProjects] = useState([]);
-  const [workflowLogs, setWorkflowLogs] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [brandingProjects, setBrandingProjects] = useState<any[]>([]);
+  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {

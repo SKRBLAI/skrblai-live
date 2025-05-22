@@ -1,7 +1,7 @@
 // Agent Image Conventions:
-// - Use agent.imageSlug for dynamic image paths: `/images/agents/${agent.imageSlug}.png`
-// - Percy uses `/images/agents/agents-percy-fullbody-nobg-skrblai.png` everywhere for consistency
-// - On mobile or missing images, fallback to `/images/agents/{gender}-silhouette.png`
+// - Use agent.imageSlug for dynamic image paths: `/images/${agent.imageSlug}.png`
+// - Percy uses `/images/agents-percy-fullbody-nobg-skrblai.png` everywhere for consistency
+// - On mobile or missing images, fallback to `/images/{gender}-silhouette.png`
 
 "use client";
 import React, { useState, useRef } from "react";
@@ -161,7 +161,7 @@ export default function PercyHero() {
         >
           <div className="relative w-40 h-56 sm:w-56 sm:h-80 md:w-72 md:h-96 animate-float flex items-end justify-center mx-auto">
             <Image
-              src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+              src="/images/agents-percy-fullbody-nobg-skrblai.png"
               alt="Percy full body"
               fill
               className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
@@ -239,7 +239,7 @@ export default function PercyHero() {
               </button>
               <div className="relative w-24 h-24 mx-auto mb-2">
                 <Image
-                  src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+                  src="/images/agents-percy-fullbody-nobg-skrblai.png"
                   alt="Percy full body"
                   fill
                   className="object-contain rounded-full shadow-glow animate-float"

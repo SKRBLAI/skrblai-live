@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/utils/supabase';
+import { getCurrentUser } from '@/utils/supabase-auth';
 
 interface AgentStats {
   count: number;
@@ -34,13 +36,123 @@ const MOCK_ANALYTICS: PercyAnalytics = {
 };
 
 export function usePercyAnalytics(): PercyAnalytics {
-  const [analytics, setAnalytics] = useState<PercyAnalytics>(MOCK_ANALYTICS);
+  const [analytics, setAnalytics] = useState<PercyAnalytics>({});
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // In a real implementation, this would fetch from an API
+  // Get current user
   useEffect(() => {
-    // This would be replaced with actual API call
-    // Example: fetchAnalytics().then(data => setAnalytics(data));
+    const fetchUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setUserId(user.id);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    fetchUser();
   }, []);
+
+  // Fetch analytics data and subscribe to updates
+  useEffect(() => {
+    if (!userId) return;
+    
+    let analyticsSubscription: any = null;
+    
+    const fetchAnalyticsData = async () => {
+      try {
+        // Get agent usage data from Supabase
+        const { data, error } = await supabase
+          .from('agent_usage')
+          .select('intent, count, updatedAt')
+          .eq('userId', userId)
+          .order('count', { ascending: false });
+          
+        if (error) throw error;
+        
+        // Transform data into the expected format
+        const analyticsData: PercyAnalytics = {};
+        
+        if (data && Array.isArray(data)) {
+          data.forEach(item => {
+            if (item.intent) {
+              analyticsData[item.intent] = {
+                count: item.count || 0,
+                lastUsed: item.updatedAt || new Date().toISOString()
+              };
+            }
+          });
+        }
+        
+        // Fallback to workflowLogs if no agent_usage data is available
+        if (Object.keys(analyticsData).length === 0) {
+          const { data: logsData, error: logsError } = await supabase
+            .from('workflowLogs')
+            .select('agentId, created_at')
+            .eq('userId', userId)
+            .order('created_at', { ascending: false });
+            
+          if (!logsError && logsData) {
+            // Count agent usage from logs
+            logsData.forEach(log => {
+              if (!log.agentId) return;
+              
+              if (!analyticsData[log.agentId]) {
+                analyticsData[log.agentId] = {
+                  count: 1,
+                  lastUsed: log.created_at
+                };
+              } else {
+                analyticsData[log.agentId].count++;
+                
+                // Update lastUsed if this log is more recent
+                const currentDate = new Date(analyticsData[log.agentId].lastUsed);
+                const logDate = new Date(log.created_at);
+                if (logDate > currentDate) {
+                  analyticsData[log.agentId].lastUsed = log.created_at;
+                }
+              }
+            });
+          }
+        }
+        
+        setAnalytics(analyticsData);
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+      }
+    };
+
+    fetchAnalyticsData();
+    
+    // Subscribe to agent_usage changes
+    analyticsSubscription = supabase
+      .channel('agent-usage-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'agent_usage', filter: `userId=eq.${userId}` }, 
+        () => {
+          fetchAnalyticsData();
+        }
+      )
+      .subscribe();
+      
+    // Subscribe to workflowLogs changes as well
+    const logsSubscription = supabase
+      .channel('workflow-logs-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${userId}` }, 
+        () => {
+          fetchAnalyticsData();
+        }
+      )
+      .subscribe();
+
+    // Cleanup
+    return () => {
+      if (analyticsSubscription) supabase.removeChannel(analyticsSubscription);
+      if (logsSubscription) supabase.removeChannel(logsSubscription);
+    };
+  }, [userId]);
 
   return analytics;
 }

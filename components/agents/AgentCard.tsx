@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { getAgentImagePath } from "@/utils/agentUtils";
 
 interface AgentCardProps {
   name: string;
@@ -12,13 +13,9 @@ interface AgentCardProps {
 }
 
 export default function AgentCard({ name, imageSlug, isPercy = false, gender, role }: AgentCardProps) {
-  // Dynamic avatar path using imageSlug
-  const avatarPath = `/images/agents/${imageSlug}.png`;
-  // Adjust silhouette path for neutral gender
-  const silhouetteGender = (gender === 'neutral') ? 'male' : gender;
-  const silhouettePath = `/images/agents/${silhouetteGender}-silhouette.png`;
-  // State for fallback
-  const [imgSrc, setImgSrc] = useState(avatarPath);
+  const silhouettePath = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
+  const imagePath = imageSlug ? `/images/agents-${imageSlug}-skrblai.png` : getAgentImagePath({ id: name.toLowerCase().replace(/\s+/g, '-'), imageSlug });
+  const [imgSrc, setImgSrc] = useState(imagePath);
   
   return (
     <motion.div

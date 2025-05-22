@@ -11,12 +11,14 @@ import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/utils/supabase-auth';
 import { supabase } from '@/utils/supabase';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import Link from 'next/link';
+import type { User } from '@supabase/supabase-js';
 
 export default function GettingStartedDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [onboardingStatus, setOnboardingStatus] = useState<any>(null);
-  const [workflowLogs, setWorkflowLogs] = useState([]);
+  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {

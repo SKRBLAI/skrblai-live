@@ -13,12 +13,13 @@ import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/utils/supabase-auth';
 import { supabase } from '@/utils/supabase';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import type { User } from '@supabase/supabase-js';
 
 export default function WebsiteDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [websiteProjects, setWebsiteProjects] = useState([]);
-  const [workflowLogs, setWorkflowLogs] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [websiteProjects, setWebsiteProjects] = useState<any[]>([]);
+  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {

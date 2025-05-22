@@ -178,17 +178,11 @@ const AgentCard: React.FC<AgentCardProps> = ({
     }
   }, []);
 
-  // Avatar PNG fallback logic
-  // WINDSURF: Avatar slug logic per spec
-  const slug = agent.id
-    ? agent.id.replace(/Agent$/, '').toLowerCase()
-    : agent.name.toLowerCase().replace(/\s+/g, '-');
-  // Fallback always uses male silhouette (no gender on Agent type)
-  // To support gender-based fallback, add a gender field to Agent in the future
-  const fallbackImg = `/images/male-silhouette.png`;
-  const avatarSrc = `/images/agents-${slug}-skrblai.png`;
+  // Image source
+  const { imageSlug, id = "", gender = 'neutral', name } = agent;
+  const avatarSrc = imageSlug ? `/images/agents-${imageSlug}-skrblai.png` : `/images/agents-${id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase()}-skrblai.png`;
+  const fallbackImg = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
   const [imgSrc, setImgSrc] = useState(avatarSrc);
-  // Track if fallback was triggered for alt/tooltip
   const [usedFallback, setUsedFallback] = useState(false);
   useEffect(() => {
     setImgSrc(avatarSrc);

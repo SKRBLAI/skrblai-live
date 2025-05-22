@@ -9,18 +9,18 @@ import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 import { useEffect, useState } from 'react';
-import { auth } from '@/utils/supabase-auth';
+import { auth, getCurrentUser } from '@/utils/supabase-auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser } from '@/utils/supabase-auth';
 import { supabase } from '@/utils/supabase';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import type { User } from '@supabase/supabase-js';
 
 export default function MarketingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [userCampaigns, setUserCampaigns] = useState([]);
-  const [workflowLogs, setWorkflowLogs] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [userCampaigns, setUserCampaigns] = useState<any[]>([]);
+  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {

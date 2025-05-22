@@ -18,12 +18,13 @@ import { useDropzone } from 'react-dropzone';
 import '@/styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
 import agentRegistry from '@/lib/agents/agentRegistry';
+import type { User } from '@supabase/supabase-js';
 
 export default function BookPublishingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [publishingProjects, setPublishingProjects] = useState([]);
-  const [workflowLogs, setWorkflowLogs] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [publishingProjects, setPublishingProjects] = useState<any[]>([]);
+  const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const [state, setState] = useState<BookPublishingState>({
     prompt: '',
     uploadedFile: null,

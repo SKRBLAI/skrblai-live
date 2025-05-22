@@ -299,31 +299,22 @@ export function validateHomepageUI() {
   }
 }
 
-// Validate that all agents with displayInOrbit: true have avatarVariant: 'waistUp'
+// Validate agents displayed in orbit
 export function validateOrbitAgentAvatars(agents: Agent[]): void {
+  // Just perform a basic check that displayInOrbit agents are properly configured
   agents.forEach(agent => {
     if (agent.displayInOrbit && agent.visible !== false) {
-      if (agent.avatarVariant !== 'waistUp') {
-        console.warn(`⚠️ Agent [${agent.name}] is set to displayInOrbit but does not have avatarVariant: 'waistUp'`);
+      // Ensure the agent has an imageSlug or id that can be used for the image
+      if (!agent.imageSlug && !agent.id) {
+        console.warn(`⚠️ Agent [${agent.name}] is set to displayInOrbit but has no imageSlug or id`);
       }
     }
   });
 }
 
-// Helper to get normalized agent image path for a given variant
+// Helper to get normalized agent image path
 export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
   const slug = agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
-  const v = variant || agent.avatarVariant || 'waistUp';
-  // Try waist-up first
-  if (v === 'waistUp') {
-    const waistUpPath = `/agents/${slug}-waist-up.png`;
-    const fullBodyPath = `/agents/${slug}-skrblai.png`;
-    // In browser, we can't check file existence, so return waistUpPath; UI should handle onError to try fullBodyPath, then fallback
-    return waistUpPath;
-  }
-  if (v === 'full') {
-    return `/agents/${slug}-skrblai.png`;
-  }
-  // Final fallback
-  return '/agents/fallback-waist-up.png';
+  // Always use the same format regardless of variant parameter
+  return `/images/agents-${slug}-skrblai.png`;
 }

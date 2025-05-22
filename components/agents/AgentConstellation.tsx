@@ -109,7 +109,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
       >
         <div className="relative w-36 h-52 md:w-48 md:h-64 flex items-end justify-center animate-float">
           <Image
-            src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+            src="/images/agents-percy-fullbody-nobg-skrblai.png"
             alt="Percy full body"
             fill
             className="object-contain drop-shadow-[0_0_40px_#2dd4bf]"
@@ -174,13 +174,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   style={{ width: size, height: size }}
                 >
                   <Image
-                    src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
+                    src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
                     alt={agent.role || agent.name}
                     fill
                     className="object-cover rounded-full"
                     sizes={`${size}px`}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
+                      (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                     }}
                   />
                   {/* Cosmic animated ring */}
@@ -211,13 +211,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 title="Missing or unknown tier"
               >
                 <Image
-                  src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
+                  src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full opacity-70"
                   sizes="72px"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
+                    (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                   }}
                 />
               </div>
@@ -248,13 +248,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 style={{ width: size, height: size }}
               >
                 <Image
-                  src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
+                  src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full"
                   sizes={`${size}px`}
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
+                    (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                   }}
                 />
               </div>
@@ -296,13 +296,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 </button>
               <div className="relative w-24 h-24 mx-auto">
                 <Image
-                  src={selectedAgent.imageSlug ? `/images/agents/${selectedAgent.imageSlug}.png` : '/images/agents/agents-percy-fullbody-nobg-skrblai.png'}
+                  src={selectedAgent.imageSlug ? `/images/agents-${selectedAgent.imageSlug}-skrblai.png` : getAgentImagePath(selectedAgent)}
                   alt={selectedAgent.name}
                   fill
                   className="object-cover rounded-full shadow-glow"
                   sizes="96px"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
+                    (e.currentTarget as HTMLImageElement).src = `/images/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
                   }}
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />

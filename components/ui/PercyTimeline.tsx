@@ -19,8 +19,8 @@ export default function PercyTimeline({ timeline }: PercyTimelineProps) {
   return (
     <div className="flex flex-col gap-4 mt-8">
       {timeline.map((item, idx) => {
-        const avatarSrc = `/agent-icons/${item.agentId}.png`;
-        const fallbackAvatar = '/agent-icons/default.png';
+        const avatarSrc = `/images/agents-${item.agentId}-skrblai.png`;
+        const fallbackAvatar = '/images/male-silhouette.png';
         return (
           <motion.div
             key={item.timestamp + item.agentId + idx}

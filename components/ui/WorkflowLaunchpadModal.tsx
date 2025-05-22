@@ -20,9 +20,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Social Media Growth Machine",
     description: "Rapidly scale your social channels with coordinated AI agents for content, branding, and automation.",
     agents: [
-      { name: "SocialBot", avatar: "/avatars/social-bot.png" },
-      { name: "BrandingAgent", avatar: "/avatars/branding-agent.png" },
-      { name: "ContentAgent", avatar: "/avatars/content-agent.png" }
+      { name: "SocialBot", avatar: "/images/agents-social-bot-skrblai.png" },
+      { name: "BrandingAgent", avatar: "/images/agents-branding-agent-skrblai.png" },
+      { name: "ContentAgent", avatar: "/images/agents-content-agent-skrblai.png" }
     ]
   },
   {
@@ -30,9 +30,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Automated Content Factory",
     description: "Produce, schedule, and publish high-quality content with zero manual effort.",
     agents: [
-      { name: "ContentAgent", avatar: "/avatars/content-agent.png" },
-      { name: "VideoContentAgent", avatar: "/avatars/video-content-agent.png" },
-      { name: "SocialBot", avatar: "/avatars/social-bot.png" }
+      { name: "ContentAgent", avatar: "/images/agents-content-agent-skrblai.png" },
+      { name: "VideoContentAgent", avatar: "/images/agents-video-content-agent-skrblai.png" },
+      { name: "SocialBot", avatar: "/images/agents-social-bot-skrblai.png" }
     ]
   },
   {
@@ -40,9 +40,9 @@ const WORKFLOWS: Workflow[] = [
     title: "AI Brand Launch Strategy",
     description: "Launch your brand with a unified AI-powered strategy across all platforms.",
     agents: [
-      { name: "BrandingAgent", avatar: "/avatars/branding-agent.png" },
-      { name: "AnalyticsAgent", avatar: "/avatars/analytics-agent.png" },
-      { name: "SitegenAgent", avatar: "/avatars/sitegen-agent.png" }
+      { name: "BrandingAgent", avatar: "/images/agents-branding-agent-skrblai.png" },
+      { name: "AnalyticsAgent", avatar: "/images/agents-analytics-agent-skrblai.png" },
+      { name: "SitegenAgent", avatar: "/images/agents-sitegen-agent-skrblai.png" }
     ]
   }
 ];

@@ -80,7 +80,6 @@ const allAgents: Agent[] = [
     imageSlug,
     route,
     gender,
-    avatarVariant: agent.avatarVariant || (agent.id === 'percy-agent' ? 'waistUp' : 'full'),
     displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
   };
 });

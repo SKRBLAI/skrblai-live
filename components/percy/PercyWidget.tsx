@@ -626,67 +626,187 @@ function PercyWidget() {
           </motion.div>
         )}
       </AnimatePresence>
+
       <div className="fixed bottom-6 right-6 z-50">
-        {/* Toggle Button */}
-        <button
+        {/* Toggle Button with Enhanced Percy Animation */}
+        <motion.button
           onClick={() => setOpen(!open)}
-          className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2"
+          className={`relative shadow-lg flex items-center gap-2 transition-all duration-300 ${
+            open 
+            ? "bg-white/10 backdrop-blur-md border border-white/30 text-white px-4 py-3 rounded-full" 
+            : "bg-gradient-to-r from-electric-blue to-teal-400 text-white px-4 py-3 rounded-full"
+          }`}
+          whileHover={{ 
+            scale: 1.05,
+            boxShadow: '0 0 20px rgba(56, 189, 248, 0.7), 0 0 10px rgba(244, 114, 182, 0.5)'
+          }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            boxShadow: open 
+              ? '0 4px 20px rgba(45, 212, 191, 0.3)' 
+              : [
+                  '0 4px 15px rgba(56, 189, 248, 0.4)', 
+                  '0 4px 25px rgba(244, 114, 182, 0.5)', 
+                  '0 4px 15px rgba(56, 189, 248, 0.4)'
+                ],
+            transition: {
+              boxShadow: {
+                repeat: Infinity,
+                duration: 3,
+                ease: 'easeInOut'
+              }
+            }
+          }}
         >
           {open ? (
             <>✖️ Close Percy</>
           ) : (
             <>
-              <PercyAvatar size="sm" />
+              <motion.div
+                className="relative"
+                animate={{
+                  y: [0, -3, 0],
+                  rotate: [0, 0, 0],
+                  filter: [
+                    'drop-shadow(0 0 1px rgba(45, 212, 191, 0.7))',
+                    'drop-shadow(0 0 3px rgba(56, 189, 248, 0.9))',
+                    'drop-shadow(0 0 1px rgba(45, 212, 191, 0.7))'
+                  ]
+                }}
+                transition={{
+                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
+                  filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+                }}
+              >
+                <img 
+                  src="/images/agents-percy-fullbody-nobg-skrblai.png" 
+                  alt="Percy" 
+                  className="w-8 h-8 object-contain"
+                />
+              </motion.div>
               <span>Ask Percy</span>
             </>
           )}
-        </button>
+        </motion.button>
 
-        {/* Chat Bubble */}
-        {open && (
-          <div className="mt-4 w-80 bg-white/10 backdrop-blur border border-white/20 rounded-xl p-4 shadow-2xl text-white">
-            {/* Percy Chat History */}
-            <div className="mb-3 max-h-60 overflow-y-auto">
-              {messages.map((msg, idx) => (
-                <div key={idx} className={msg.role === 'assistant' ? 'text-teal-200 text-sm mb-2' : 'text-white text-sm mb-2 text-right'}>
-                  {msg.text}
-                </div>
-              ))}
-            </div>
-            
-            {/* Recently Used Agent - Only show if user has used agents before */}
-            {lastUsedAgentObj && (
-              <div className="mb-3">
-                <p className="text-xs text-gray-400 mb-1">Recently Used</p>
-                <button
-                  onClick={() => handleIntent(lastUsedAgentObj.intent as string)}
-                  className="px-3 py-1 text-xs bg-white/20 hover:bg-teal-500 rounded-full"
+        {/* Enhanced Chat Bubble */}
+        <AnimatePresence>
+          {open && (
+            <motion.div 
+              className="mt-4 w-80 bg-white/10 backdrop-blur-lg border border-electric-blue/30 rounded-xl shadow-2xl text-white overflow-hidden"
+              initial={{ opacity: 0, y: 20, height: 0 }}
+              animate={{ opacity: 1, y: 0, height: 'auto' }}
+              exit={{ opacity: 0, y: 20, height: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            >
+              {/* Percy Avatar Header */}
+              <div className="bg-gradient-to-r from-electric-blue/30 via-fuchsia-500/20 to-teal-400/30 p-3 flex items-center gap-3 border-b border-white/10">
+                <motion.div
+                  animate={{
+                    y: [0, -2, 0],
+                    filter: [
+                      'drop-shadow(0 0 5px rgba(45, 212, 191, 0.7))',
+                      'drop-shadow(0 0 10px rgba(56, 189, 248, 0.9))',
+                      'drop-shadow(0 0 5px rgba(45, 212, 191, 0.7))'
+                    ]
+                  }}
+                  transition={{
+                    y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
+                    filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+                  }}
                 >
-                  {lastUsedAgentObj.name}
-                </button>
+                  <img 
+                    src="/images/agents-percy-fullbody-nobg-skrblai.png" 
+                    alt="Percy" 
+                    className="w-10 h-10 object-contain"
+                  />
+                </motion.div>
+                <div>
+                  <h3 className="font-medium">Percy</h3>
+                  <p className="text-xs text-teal-200">Your AI Concierge</p>
+                </div>
+                {running && (
+                  <div className="ml-auto">
+                    <motion.div 
+                      className="h-3 w-3 bg-teal-400 rounded-full"
+                      animate={{ 
+                        scale: [1, 1.5, 1],
+                        opacity: [0.7, 1, 0.7]
+                      }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: 'easeInOut'
+                      }}
+                    />
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Manual Input */}
-            <div className="relative">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder={running ? "Percy is working..." : "How can I help you today?"}
-                disabled={running}
-                onKeyDown={handleUserInput}
-                className="w-full p-2 text-sm rounded-md bg-white/10 border border-white/30 text-white placeholder-gray-300"
-              />
-              <div className="absolute right-2 bottom-1 text-xs text-gray-400">
-                Press Enter ↵
+              
+              <div className="p-4">
+                {/* Percy Chat History with Improved Styling */}
+                <div className="mb-3 max-h-60 overflow-y-auto pr-1 space-y-3">
+                  {messages.map((msg, idx) => (
+                    <motion.div 
+                      key={idx} 
+                      className={`${
+                        msg.role === 'assistant' 
+                          ? 'bg-white/10 text-teal-200 rounded-tl-xl rounded-tr-xl rounded-br-xl p-2 max-w-[85%]' 
+                          : 'bg-electric-blue/30 text-white rounded-tl-xl rounded-tr-xl rounded-bl-xl p-2 max-w-[85%] ml-auto'
+                      }`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.1 }}
+                    >
+                      {msg.text}
+                    </motion.div>
+                  ))}
+                </div>
+                
+                {/* Recently Used Agent Badge */}
+                {lastUsedAgentObj && (
+                  <div className="mb-3">
+                    <p className="text-xs text-gray-400 mb-1">Recently Used</p>
+                    <motion.button
+                      onClick={() => handleIntent(lastUsedAgentObj.intent as string)}
+                      className="px-3 py-1 text-xs bg-white/20 hover:bg-teal-500 rounded-full flex items-center gap-1"
+                      whileHover={{ scale: 1.05, backgroundColor: 'rgba(20, 184, 166, 0.5)' }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <span className="text-xs">⚡</span>
+                      {lastUsedAgentObj.name}
+                    </motion.button>
+                  </div>
+                )}
+                
+                {/* Enhanced Input Field */}
+                <div className="relative">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder={running ? "Percy is working..." : "How can I help you today?"}
+                    disabled={running}
+                    onKeyDown={handleUserInput}
+                    className="w-full p-3 text-sm rounded-lg bg-white/10 border border-electric-blue/30 text-white placeholder-gray-300 focus:outline-none focus:border-electric-blue focus:ring-1 focus:ring-electric-blue transition-all duration-200"
+                  />
+                  <motion.div 
+                    className="absolute right-3 bottom-3 text-xs text-gray-400 flex items-center"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <span className="mr-1">Press</span>
+                    <span className="bg-white/20 rounded px-1">Enter ↵</span>
+                  </motion.div>
+                </div>
+                
+                {/* Logic-only Back to Start button (no UI change) */}
+                <button type="button" className={styles.hiddenButton} onClick={handleBackToStart} aria-label="Back to Start" />
               </div>
-            </div>
-            
-            {/* Logic-only Back to Start button (no UI change) */}
-            <button type="button" className={styles.hiddenButton} onClick={handleBackToStart} aria-label="Back to Start" />
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
       {process.env.NODE_ENV === 'development' && (
         <button
           onClick={clearPercyMemory}

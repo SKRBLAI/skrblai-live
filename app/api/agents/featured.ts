@@ -10,7 +10,6 @@ const ORBIT_TIERS = ['inner', 'mid', 'outer'] as const;
 type OrbitAgent = {
   id: string;
   name: string;
-  avatarVariant: 'waistUp' | 'full';
   orbit: { radius: number; speed: number; angle: number };
   imageSlug: string;
   moodColor?: string;
@@ -22,13 +21,12 @@ function selfHealAgent(agent: Agent): OrbitAgent {
   // Default/fix all required fields
   const id = agent.id || 'unknown-agent';
   const name = agent.name || 'Unknown';
-  const avatarVariant = agent.avatarVariant === 'waistUp' ? 'waistUp' : 'full';
   const orbit = {
     radius: agent.orbit?.radius ?? 100,
     speed: agent.orbit?.speed ?? 1,
     angle: agent.orbit?.angle ?? 0,
   };
-  const imageSlug = getAgentImagePath(agent, 'waistUp');
+  const imageSlug = getAgentImagePath(agent);
   const gender = ['male', 'female', 'neutral'].includes(agent.gender || '') ? agent.gender as 'male' | 'female' | 'neutral' : 'neutral';
   const moodColor = (agent as any).moodColor;
   let tier = (agent as any).tier;
@@ -42,7 +40,7 @@ function selfHealAgent(agent: Agent): OrbitAgent {
   if (!agent.id || !agent.name || !agent.orbit || !agent.imageSlug) {
     console.warn(`[API/featured] Agent missing required fields:`, { id, name, orbit, imageSlug });
   }
-  return { id, name, avatarVariant, orbit, imageSlug, moodColor, gender, tier };
+  return { id, name, orbit, imageSlug, moodColor, gender, tier };
 }
 
 export async function GET(req: Request) {

@@ -8,31 +8,24 @@ import Navbar from '@/components/layout/Navbar';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { validateHomepageUI } from '@/utils/agentUtils';
+import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // Track client-side mounting to prevent hydration errors
+  // Core state for app
   const [mounted, setMounted] = useState(false);
   
-  // Use effect to handle client side mounting
+  // Set mounted on client-side
   useEffect(() => {
     setMounted(true);
-    
-    // Check if agentRegistry is properly loaded on the client
-    try {
-      const { agentRegistry } = require('@/lib/agents/agentRegistry');
-      console.log(`[Root Layout] Agent Registry size: ${agentRegistry.length}`);
-    } catch (err) {
-      console.error('[Root Layout] Failed to load agent registry:', err);
-    }
-
-    if (typeof window !== 'undefined') {
-      validateHomepageUI();
-    }
   }, []);
+
+  // Handle client-side only rendering
+  if (!mounted) return null;
 
   return (
     <html lang="en" className={`${inter.variable} dark bg-[#0d1117]`}>
@@ -62,11 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
 
           {/* Percy Widget */}
-          {mounted && (
-            <div className="percy-widget-container fixed bottom-4 right-4 z-50">
-              <PercyWidget />
-            </div>
-          )}
+          <PercyWidget />
         </PercyProvider>
       </body>
     </html>
