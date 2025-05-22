@@ -7,9 +7,10 @@ interface PercyButtonProps {
   onClick: () => void;
   disabled?: boolean;
   secondary?: boolean;
+  className?: string;
 }
 
-export default function PercyButton({ label, onClick, disabled = false, secondary = false }: PercyButtonProps) {
+export default function PercyButton({ label, onClick, disabled = false, secondary = false, className = '' }: PercyButtonProps) {
   return (
     <motion.button
       whileHover={{ scale: disabled ? 1 : 1.03 }}
@@ -22,9 +23,9 @@ export default function PercyButton({ label, onClick, disabled = false, secondar
           : secondary
             ? 'bg-white/10 text-white hover:bg-white/20' 
             : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'
-      }`}
+      } ${className}`.trim()}
     >
       {label}
     </motion.button>
   );
-} 
+}
