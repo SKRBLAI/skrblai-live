@@ -120,8 +120,6 @@ export default function HomePage() {
               {filteredAgents.map(agent => {
                 let badge = null;
                 if (agent.roleRequired === 'pro') badge = 'Pro';
-                else if (agent.isBeta) badge = 'Beta';
-                else if (agent.isNew) badge = 'New';
                 if (agent.id === 'paymentManagerAgent') badge = 'Pro';
                 if (agent.id === 'percySyncAgent') badge = 'Beta';
                 if (agent.id === 'videoContentAgent') badge = 'New';
