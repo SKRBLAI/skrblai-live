@@ -8,6 +8,7 @@ import PercyAvatar from '@/components/home/PercyAvatar';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { systemLog } from '@/utils/systemLog';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 export default function AuthPage() {
   const handleGoogleAuth = async () => {
@@ -26,7 +27,7 @@ export default function AuthPage() {
       if (process.env.NODE_ENV === 'development') {
         console.warn('[SKRBL AUTH] Google OAuth failed, falling back to email/password.', err);
       }
-      await systemLog({ type: 'warning', message: 'Google OAuth failed, fallback to email/password', meta: { error: err?.message || err, ts: new Date().toISOString() } });
+      await systemLog({ type: 'warning', message: 'Google OAuth failed, fallback to email/password', meta: { error: getErrorMessage(err), ts: new Date().toISOString() } });
       // Optionally, show a UI message or fallback to email/password
       // (No modal for now, fallback is just available below)
     }

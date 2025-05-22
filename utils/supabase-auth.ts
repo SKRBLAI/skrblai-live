@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { saveUser } from './supabase-helpers';
 import { systemLog } from './systemLog';
+import { getErrorMessage } from './errorUtils';
 
 /**
  * Sign up with email and password
@@ -56,7 +57,7 @@ export const signUp = async (email: string, password: string, name: string) => {
           meta: {
             userId: data.user?.id ?? '',
             email: email ?? '',
-            error: onboardErr?.message || onboardErr || '',
+            error: getErrorMessage(onboardErr),
             timestamp: new Date().toISOString(),
           },
         });

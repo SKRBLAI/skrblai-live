@@ -24,6 +24,15 @@ const PLATFORMS = [
   { value: 'none', label: 'None' },
 ];
 
+// Intent to dashboard path mapping (sync with percySyncAgent)
+const intentToDashboardMap: Record<string, string> = {
+  branding: '/dashboard/branding',
+  social: '/dashboard/social-media',
+  content: '/dashboard/marketing', // fallback for content/marketing
+  publishing: '/dashboard/book-publishing',
+  web: '/dashboard/website',
+};
+
 export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState('');
@@ -36,6 +45,11 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
     localStorage.setItem('userGoal', goal);
     localStorage.setItem('userPlatform', platform);
     let userId = null;
+    let redirectPath = '/dashboard/client';
+    // Map goal to dashboard path
+    if (goal && intentToDashboardMap[goal]) {
+      redirectPath = intentToDashboardMap[goal];
+    }
     try {
       const user = await getCurrentUser();
       if (user) {
@@ -53,10 +67,10 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
       await systemLog({
         type: 'info',
         message: 'User onboarding completed',
-        meta: { userId, goal, platform, ts: new Date().toISOString() }
+        meta: { userId, goal, platform, redirectPath, ts: new Date().toISOString() }
       });
       if (process.env.NODE_ENV === 'development') {
-        console.log('[SKRBL ONBOARDING] Onboarding completion logged to Supabase and systemLog.', { userId, goal, platform });
+        console.log('[SKRBL ONBOARDING] Onboarding completion logged to Supabase and systemLog.', { userId, goal, platform, redirectPath });
       }
     } catch (e) {
       if (process.env.NODE_ENV === 'development') {
@@ -65,7 +79,7 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
       // Fallback: already set localStorage above
     }
     // Redirect to personalized dashboard
-    router.push('/dashboard/client');
+    router.push(redirectPath);
   };
 
   const handleSubmit = async () => {

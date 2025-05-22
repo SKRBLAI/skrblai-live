@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getErrorMessage } from '@/utils/errorUtils';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -46,7 +47,7 @@ export default function SignupPage() {
           // Check if result.error is an object with message property
           const errorMessage = typeof result.error === 'string' 
             ? result.error 
-            : (result.error as any)?.message || 'Failed to create account.';
+            : getErrorMessage(result.error);
           
           if (errorMessage.includes('already registered')) {
             message = 'This email is already registered. Please log in or use a different email.';
