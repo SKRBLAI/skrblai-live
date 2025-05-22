@@ -1,3 +1,8 @@
+// Agent Image Conventions:
+// - Use agent.imageSlug for dynamic image paths: `/images/agents/${agent.imageSlug}.png`
+// - Percy uses `/images/agents/agents-percy-fullbody-nobg-skrblai.png` everywhere for consistency
+// - On mobile or missing images, fallback to `/images/agents/{gender}-silhouette.png`
+
 "use client";
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,7 +23,8 @@ export default function PercyHero() {
   const dropdownRef = useRef<HTMLSelectElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [file, setFile] = useState<File | null>(null);
-  const [suggestedAgents, setSuggestedAgents] = useState<any[]>([]);
+  const filteredVisibleAgents = agentDashboardList.filter(a => a.visible !== false && a.id && a.name);
+  const [suggestedAgents, setSuggestedAgents] = useState<Agent[]>([]);
 
   const handleExplore = () => {
     const el = document.getElementById("features");
@@ -139,39 +145,35 @@ export default function PercyHero() {
       </motion.div>
 
       {/* Cosmic Constellation + Percy Hero Integration */}
-      <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-4">
-        {/* Constellation behind Percy, visually centered */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 w-full flex items-center justify-center pointer-events-none select-none">
+      <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-6">
+        {/* Cosmic Constellation always behind Percy, visually centered and responsive */}
+        <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none select-none">
           <AgentConstellation selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} />
         </div>
 
-        {/* Percy Avatar with cosmic glow and floating */}
+        {/* Percy Avatar with premium cosmic glow and floating, always centered */}
         <motion.div
-          className="relative z-10 flex flex-col items-center justify-center"
+          className="relative z-10 flex flex-col items-center justify-center w-full"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1, filter: "drop-shadow(0 0 60px #2dd4bf) drop-shadow(0 0 36px #38bdf8)" }}
           transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
         >
-          {/* Responsive PercyFigure size */}
-          <div className="relative w-44 h-64 sm:w-56 sm:h-80 animate-float flex items-end justify-center">
+          <div className="relative w-40 h-56 sm:w-56 sm:h-80 md:w-72 md:h-96 animate-float flex items-end justify-center mx-auto">
             <Image
-  src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
-  alt="Percy full body"
-  fill
-  className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
-  priority
-  sizes="(max-width: 640px) 176px, 224px"
-/>
+              src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+              alt="Percy full body"
+              fill
+              className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
+              priority
+              sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, 288px"
+            />
           </div>
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
           </span>
-          <span className="block text-lg sm:text-xl md:text-2xl font-light text-center text-gradient-blue mb-1">
-            Unleash the Power of Automated Intelligence
-          </span>
-          <p className="text-sm sm:text-base text-center text-gray-300 mb-4">
-            Your next-gen platform for creative automation...
-          </p>
+          {process.env.NODE_ENV === 'development' && (
+            <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] PercyHero tagline/subtitle removal complete.')" }} />
+          )}
         </motion.div>
       </div>
 
@@ -229,53 +231,75 @@ export default function PercyHero() {
               </button>
               <div className="relative w-24 h-24 mx-auto mb-2">
                 <Image
-                  src="/images/agents-percy-skrblai.png"
-                  alt="Percy"
+                  src="/images/agents/agents-percy-fullbody-nobg-skrblai.png"
+                  alt="Percy full body"
                   fill
-                  className="object-cover rounded-full shadow-glow"
+                  className="object-contain rounded-full shadow-glow animate-float"
                   sizes="96px"
+                  priority
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
               </div>
-              <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome! What do you want to accomplish today?</h2>
-              <select
-                ref={dropdownRef}
-                className="w-full p-3 rounded-lg bg-gray-800/50 border border-teal-400 text-white mb-2 focus:outline-none focus:ring-2 focus:ring-teal-400/40 transition-all duration-150"
-                aria-label="Quick actions"
-                defaultValue=""
-                onChange={e => {
-  const agent = agentDashboardList.find(a => a.id === e.target.value);
-  if (agent) {
-    setSelectedAgent({
-      id: agent.id,
-      name: agent.name,
-      description: agent.description,
-      visible: typeof agent.visible === 'boolean' ? agent.visible : true,
-      category: 'assistant',
-      capabilities: [],
-      imageSlug: '',
-      avatarVariant: 'waistUp',
-      displayInOrbit: false,
-    });
-  } else {
-    setSelectedAgent(null);
-  }
-  if (e.target.value) {
-    dropdownRef.current?.classList.add('ring-4', 'ring-electric-blue');
-    setTimeout(() => {
-      dropdownRef.current?.classList.remove('ring-4', 'ring-electric-blue');
-      setShowIntake(false);
-    }, 900);
-  }
-}}
-              >
-                <option value="" disabled>Choose a quick action...</option>
-                {agentDashboardList.filter(a => a.visible !== false).map(agent => (
-                  <option key={agent.id} value={agent.id}>
-                    {agent.name} — {agent.description}
-                  </option>
-                ))}
-              </select>
+              <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome to SKRBL AI, What do you want to accomplish today?</h2>
+              <div className="w-full overflow-x-auto pb-2">
+                {filteredVisibleAgents.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-2" role="listbox" aria-label="Choose your starter agent">
+                    {filteredVisibleAgents.map((agent: Agent) => {
+                      const fullAgent = {
+                        ...agent,
+                        category: agent.category || 'assistant',
+                        capabilities: agent.capabilities || [],
+                        imageSlug: agent.imageSlug || (agent.id ? agent.id.replace(/-agent$/, '') : ''),
+                      };
+                      return (
+                        <motion.button
+                          key={agent.id}
+                          type="button"
+                          role="option"
+                          aria-selected={selectedAgent?.id === agent.id}
+                          tabIndex={0}
+                          className={`relative focus:outline-none rounded-xl shadow-glow transition-all duration-200 border-2 bg-gradient-to-br from-fuchsia-800/70 to-teal-900/70 border-teal-400 flex flex-col items-center p-3 cursor-pointer hover:scale-105 hover:shadow-[0_0_24px_#f472b6] ${selectedAgent?.id === agent.id ? 'ring-4 ring-fuchsia-400 scale-105' : ''}`}
+                          onClick={() => {
+                            setSelectedAgent(fullAgent);
+                            setTimeout(() => setShowIntake(false), 900);
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              setSelectedAgent(fullAgent);
+                              setTimeout(() => setShowIntake(false), 900);
+                            }
+                          }}
+                          aria-label={`Select ${agent.name}`}
+                          title={`Select ${agent.name}: ${agent.description}`}
+                        >
+                          <img
+                            src={fullAgent.imageSlug ? `/images/agents/${fullAgent.imageSlug}.png` : '/images/agents/agents-percy-fullbody-nobg-skrblai.png'}
+                            alt={agent.name}
+                            className="w-14 h-14 rounded-full mb-2 object-cover border-2 border-fuchsia-300 shadow-glow"
+                            aria-hidden="true"
+                          />
+                          <span className="font-bold text-white text-base mb-1 text-center drop-shadow-[0_0_8px_#f472b6]">{agent.name}</span>
+                          <span className="text-xs text-fuchsia-200 text-center">{agent.description}</span>
+                          {selectedAgent?.id === agent.id && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1.4, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{ type: 'spring', stiffness: 500, damping: 16 }}
+                              className="absolute top-2 right-2 text-2xl text-fuchsia-400 animate-bounce-in"
+                              aria-hidden="true"
+                            >
+                              ✨
+                            </motion.div>
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-center text-white/80 py-4">No starter agents available at the moment.</p>
+                )}
+              </div>
               
               {selectedAgent && (
                 <div className="w-full bg-teal-900/80 border border-teal-400 rounded-lg p-3 mb-2 animate-bounce-in text-white flex flex-col items-center" aria-live="polite">

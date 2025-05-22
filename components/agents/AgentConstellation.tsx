@@ -137,40 +137,55 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
             const x = Math.cos(rad) * radius;
             const y = Math.sin(rad) * radius;
             const size = tierName === 'inner' ? 64 : tierName === 'mid' ? 80 : 96;
+            const orbitStyle = {
+              left: `calc(50% + ${x}px)`,
+              top: `calc(50% + ${y}px)`,
+              transform: 'translate(-50%, -50%)',
+              width: size,
+              height: size,
+            };
             return (
               <motion.div
                 key={`desktop-${agent.id}`}
                 tabIndex={0}
                 aria-label={`Activate ${agent.name}`}
-                className="absolute z-10 group cursor-pointer flex flex-col items-center"
-                style={{
-                  left: `calc(50% + ${x}px)`,
-                  top: `calc(50% + ${y}px)`,
-                  transform: 'translate(-50%, -50%)',
-                  width: size,
-                  height: size,
-                }}
+                className="absolute z-20 group cursor-pointer flex flex-col items-center focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400"
+                style={orbitStyle}
                 animate={{
                   y: [0, -8, 0, 8, 0].map(v => v + (Math.random() * 2 - 1)),
                 }}
-                whileHover={{ scale: 1.13, zIndex: 30, filter: "drop-shadow(0 0 12px rgba(0,255,255,0.6))" }}
-                onClick={() => setSelectedAgent(agent)}
+                whileHover={{ scale: 1.13, zIndex: 30, filter: "drop-shadow(0 0 18px #f472b6)" }}
+                onClick={() => {
+                  setSelectedAgent(agent);
+                  // Confetti pop effect
+                  const confetti = document.createElement('div');
+                  confetti.className = 'absolute inset-0 pointer-events-none animate-confetti-burst';
+                  confetti.innerHTML = `<svg viewBox='0 0 100 100' class='w-full h-full'><circle cx='50' cy='50' r='30' fill='#38bdf8' opacity='0.18'/><circle cx='50' cy='50' r='20' fill='#f472b6' opacity='0.14'/><circle cx='50' cy='50' r='10' fill='#2dd4bf' opacity='0.16'/></svg>`;
+                  (event?.currentTarget as HTMLElement).appendChild(confetti);
+                  setTimeout(() => confetti.remove(), 900);
+                }}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') setSelectedAgent(agent);
+                }}
               >
-                <div className="relative rounded-full border-2 border-teal-500/60 group-hover:border-teal-300 transition-all duration-200 shadow-md group-hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] bg-gray-800/50 overflow-hidden"
+                <div className="relative rounded-full border-4 border-fuchsia-400 group-hover:border-teal-300 transition-all duration-200 shadow-glow bg-gradient-to-br from-fuchsia-800/80 to-teal-900/80 overflow-hidden animate__animated animate__pulse"
                   style={{ width: size, height: size }}
                 >
                   <Image
-                    src={getAgentImagePath(agent, 'waistUp')}
+                    src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
                     alt={agent.role || agent.name}
                     fill
                     className="object-cover rounded-full"
                     sizes={`${size}px`}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = `/agents/${agent.imageSlug}-skrblai.png`;
+                      (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                     }}
                   />
+                  {/* Cosmic animated ring */}
+                  <span className="absolute inset-0 rounded-full ring-2 ring-fuchsia-400 animate-pulse pointer-events-none"></span>
                 </div>
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
+                {/* Tooltip for accessibility */}
+                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-gradient-to-r from-fuchsia-700/90 to-teal-800/90 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-50">
                   {agent.name.replace('Agent', '')}
                 </div>
               </motion.div>
@@ -187,30 +202,20 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               key={`fallback-${agent.id}`}
               tabIndex={0}
               aria-label={`Activate ${agent.name}`}
-              className="absolute z-10 group cursor-pointer flex flex-col items-center"
-              style={{
-                left: `calc(50% + 0px)`,
-                top: `calc(50% + 0px)`,
-                width: 72,
-                height: 72,
-                filter: 'brightness(0.7) grayscale(0.5) drop-shadow(0 0 8px #38bdf8cc)',
-                border: '2px dashed #38bdf8cc',
-                zIndex: 5,
-              }}
+              className="absolute group cursor-pointer flex flex-col items-center left-1/2 top-1/2 w-[72px] h-[72px] z-[5] border-2 border-dashed border-blue-500/80 filter brightness-75 grayscale-[.5] drop-shadow-[0_0_8px_#38bdf8cc] -translate-x-1/2 -translate-y-1/2"
               onClick={() => setSelectedAgent(agent)}
             >
-              <div className="relative rounded-full border-2 border-gray-500/40 bg-gray-700/50 overflow-hidden"
-                style={{ width: 72, height: 72 }}
+              <div className="relative rounded-full border-2 border-gray-500/40 bg-gray-700/50 overflow-hidden w-[72px] h-[72px]"
                 title="Missing or unknown tier"
               >
                 <Image
-                  src={getAgentImagePath(agent, 'waistUp')}
+                  src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full opacity-70"
                   sizes="72px"
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/agents/${agent.imageSlug}-skrblai.png`;
+                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                   }}
                 />
               </div>
@@ -241,13 +246,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 style={{ width: size, height: size }}
               >
                 <Image
-                  src={getAgentImagePath(agent, 'waistUp')}
+                  src={agent.imageSlug ? `/images/agents/${agent.imageSlug}.png` : getAgentImagePath(agent, 'waistUp')}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full"
                   sizes={`${size}px`}
                   onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/agents/${agent.imageSlug}-skrblai.png`;
+                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                   }}
                 />
               </div>
@@ -284,15 +289,14 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               </button>
               <div className="relative w-24 h-24 mx-auto">
                 <Image
-                  src={
-                    selectedAgent.imageSlug === 'percy-agent'
-                      ? '/images/agents/agents-percy-fullbody-nobg-skrblai.png'
-                      : `/agents/${selectedAgent.imageSlug}-waist-up.png`
-                  }
+                  src={selectedAgent.imageSlug ? `/images/agents/${selectedAgent.imageSlug}.png` : '/images/agents/agents-percy-fullbody-nobg-skrblai.png'}
                   alt={selectedAgent.name}
                   fill
                   className="object-cover rounded-full shadow-glow"
                   sizes="96px"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = `/images/agents/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
+                  }}
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
               </div>

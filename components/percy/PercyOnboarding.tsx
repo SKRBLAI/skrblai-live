@@ -4,6 +4,8 @@ import { useState } from 'react';
 import PercyAvatar from '@/components/home/PercyAvatar';
 import { supabase } from '@/utils/supabase';
 import { getCurrentUser } from '@/utils/supabase-auth';
+import { useRouter } from 'next/navigation';
+import { systemLog } from '@/utils/systemLog';
 
 interface PercyOnboardingProps {
   onComplete: (data: { goal: string; platform: string }) => void;
@@ -26,15 +28,18 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState('');
   const [platform, setPlatform] = useState('');
+  const router = useRouter();
 
-  const handleSubmit = async () => {
+  // Centralized onboarding completion logic
+  const completeOnboarding = async (goal: string, platform: string) => {
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('userGoal', goal);
     localStorage.setItem('userPlatform', platform);
-    // Supabase sync
+    let userId = null;
     try {
       const user = await getCurrentUser();
       if (user) {
+        userId = user.id;
         await supabase
           .from('user_settings')
           .upsert({
@@ -45,9 +50,26 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
             updatedAt: new Date().toISOString()
           }, { onConflict: 'userId' });
       }
+      await systemLog({
+        type: 'info',
+        message: 'User onboarding completed',
+        meta: { userId, goal, platform, ts: new Date().toISOString() }
+      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[SKRBL ONBOARDING] Onboarding completion logged to Supabase and systemLog.', { userId, goal, platform });
+      }
     } catch (e) {
-      // fail silently, fallback to localStorage
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[SKRBL ONBOARDING] Onboarding logging failed, falling back to localStorage.', e);
+      }
+      // Fallback: already set localStorage above
     }
+    // Redirect to personalized dashboard
+    router.push('/dashboard/client');
+  };
+
+  const handleSubmit = async () => {
+    await completeOnboarding(goal, platform);
     onComplete({ goal, platform });
   };
 

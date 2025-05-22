@@ -6,8 +6,32 @@ import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import PercyAvatar from '@/components/home/PercyAvatar';
 import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
+import { systemLog } from '@/utils/systemLog';
 
 export default function AuthPage() {
+  const handleGoogleAuth = async () => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SKRBL AUTH] Google OAuth button clicked');
+    }
+    try {
+      await systemLog({ type: 'info', message: 'Google OAuth initiated', meta: { ts: new Date().toISOString() } });
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      if (error) throw error;
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[SKRBL AUTH] Google OAuth success');
+      }
+      await systemLog({ type: 'info', message: 'Google OAuth success', meta: { ts: new Date().toISOString() } });
+    } catch (err) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[SKRBL AUTH] Google OAuth failed, falling back to email/password.', err);
+      }
+      await systemLog({ type: 'warning', message: 'Google OAuth failed, fallback to email/password', meta: { error: err?.message || err, ts: new Date().toISOString() } });
+      // Optionally, show a UI message or fallback to email/password
+      // (No modal for now, fallback is just available below)
+    }
+  };
+
   return (
     
       <PageLayout>
@@ -41,6 +65,7 @@ export default function AuthPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20 flex items-center justify-center"
+                    onClick={handleGoogleAuth}
                   >
                     <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12c6.627 0 12-5.373 12-12S18.627 0 12 0zm.14 19.018c-3.868 0-7-3.14-7-7.018c0-3.878 3.132-7.018 7-7.018c1.89 0 3.47.697 4.682 1.829l-1.974 1.978c-.532-.511-1.467-1.102-2.708-1.102c-2.31 0-4.187 1.956-4.187 4.313c0 2.357 1.877 4.313 4.187 4.313c2.689 0 3.696-1.933 3.85-2.928H12.14v-2.602h6.79c.07.36.13.72.13 1.194c0 4.118-2.758 7.041-6.92 7.041z"/>

@@ -5,77 +5,63 @@ import Image from 'next/image';
 
 interface AgentCardProps {
   name: string;
+  imageSlug: string;
   isPercy?: boolean;
-  gender: 'male' | 'female' | 'neutral'; // Updated to include 'neutral'
+  gender: 'male' | 'female' | 'neutral';
   role?: string;
 }
 
-export default function AgentCard({ name, isPercy = false, gender, role }: AgentCardProps) {
-  // Map agent name to slug for PNG avatar
-  const slugMap: Record<string, string> = {
-    Percy: 'percy',
-    BrandingAgent: 'branding',
-    ContentCreatorAgent: 'content',
-    AnalyticsAgent: 'analytics',
-    PublishingAgent: 'publishing',
-    SocialBotAgent: 'social',
-    AdCreativeAgent: 'ad',
-    ProposalGeneratorAgent: 'proposal',
-    PaymentManagerAgent: 'payment',
-    ClientSuccessAgent: 'client',
-    SiteGenAgent: 'sitegen',
-    BizAgent: 'biz',
-    VideoContentAgent: 'video',
-    PercyAgent: 'percy',
-    PercySyncAgent: 'sync',
-  };
-  const slug = slugMap[name] || name.toLowerCase();
-  const avatarPath = `/images/agents-${slug}-skrblai.png`;
+export default function AgentCard({ name, imageSlug, isPercy = false, gender, role }: AgentCardProps) {
+  // Dynamic avatar path using imageSlug
+  const avatarPath = `/images/agents/${imageSlug}.png`;
   // Adjust silhouette path for neutral gender
-  const silhouetteGender = (gender === 'neutral') ? 'male' : gender; // Fallback neutral to male silhouette for now
+  const silhouetteGender = (gender === 'neutral') ? 'male' : gender;
   const silhouettePath = `/images/agents/${silhouetteGender}-silhouette.png`;
   // State for fallback
   const [imgSrc, setImgSrc] = useState(avatarPath);
   
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.98 }}
       className={`
-        relative overflow-hidden rounded-xl border border-white/10 backdrop-blur-sm
-        ${isPercy ? 'col-span-2 row-span-2 md:col-span-3' : ''}
+        relative overflow-hidden rounded-xl border-2
+        ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
         ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : 'bg-white/5'}
-        transition-all duration-300 group
+        shadow-glow group transition-all duration-300
       `}
     >
-      {/* Glow Effect */}
-      <div className={`
-        absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-        ${isPercy ? 'bg-gradient-to-r from-electric-blue/20 via-teal-500/20 to-electric-blue/20' : 'bg-white/5'}
-      `} />
-
-      <div className="relative p-6 flex flex-col items-center">
-        {/* Agent Silhouette */}
-        <div className={`
-          relative w-48 h-48 mb-4
-          ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}
-        `}>
+      {/* Animated Glow Border */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none rounded-xl"
+        initial={{ boxShadow: '0 0 0px #2dd4bf' }}
+        animate={{ boxShadow: isPercy ? '0 0 32px 8px #2dd4bf' : '0 0 20px 4px #38bdf8' }}
+        transition={{ duration: 1.2, repeat: Infinity, repeatType: 'mirror' }}
+        style={{ zIndex: 1 }}
+      />
+      <div className="relative p-6 flex flex-col items-center z-10">
+        {/* Agent Image */}
+        <div className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}`}
+          tabIndex={0}
+          aria-label={name}
+        >
           <Image
             src={imgSrc}
             alt={`${name} avatar`}
             fill
-            className="object-contain"
+            className="object-contain rounded-full shadow-glow"
             onError={() => setImgSrc(silhouettePath)}
+            sizes={isPercy ? '256px' : '192px'}
+            priority={isPercy}
           />
+          {/* Tooltip for agent name/role */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
+            {name} {role ? <span className="text-teal-400">({role})</span> : ''}
+          </div>
         </div>
-
         {/* Agent Name */}
-        <h3 className={`
-          text-xl font-bold mb-2 text-center
-          ${isPercy ? 'text-2xl text-gradient-blue' : 'text-white'}
-        `}>
-          {name}
-        </h3>
-        {/* Agent Role/Title as microtext or tooltip */}
+        <h3 className={`text-xl font-bold mb-2 text-center ${isPercy ? 'text-2xl text-gradient-blue' : 'text-white'}`}>{name}</h3>
+        {/* Agent Role/Title as microtext */}
         {role && (
           <span
             className="text-teal-300 text-xs mb-2 block"
@@ -85,8 +71,6 @@ export default function AgentCard({ name, isPercy = false, gender, role }: Agent
             {role}
           </span>
         )}
-
-
         {/* Summon Button */}
         <motion.button
           whileHover={{ scale: 1.09 }}

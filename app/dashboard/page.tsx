@@ -143,7 +143,10 @@ export default function Dashboard() {
         setUserRole(role);
         setIsLoading(false);
       } else {
-        router.push('/sign-in');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        }
+        router.push('/auth');
       }
     });
     return () => {

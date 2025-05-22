@@ -30,11 +30,16 @@ export default function HomePage() {
       <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
         {/* PercyHero: Futuristic hero with animated Percy, tagline, and cosmic glassmorphism */}
         <section className="mb-8">
-          {/* PercyHero is fully accessible, mobile-first, and cosmic-themed */}
           <div className="flex flex-col items-center justify-center">
             {/* PercyHero component (animated Percy, dropdown, onboarding, etc.) */}
-            
             {require('@/components/home/PercyHero').default()}
+            {/* Single source for hero tagline, only here */}
+            <h1 className="mt-6 text-2xl md:text-4xl font-bold text-teal-300 text-center drop-shadow-[0_0_12px_#2dd4bf] animate-pulse-subtle shadow-glow" aria-label="Meet Our League of Digital Superheroes">
+              Meet Our League of Digital Superheroes
+            </h1>
+            {process.env.NODE_ENV === 'development' && (
+              <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] Homepage hero tagline deduplication complete.')" }} />
+            )}
           </div>
         </section>
 
@@ -46,9 +51,6 @@ export default function HomePage() {
           className="mt-16 text-center"
         >
           <Link href="/services" className="inline-block group">
-            <h2 className="text-2xl md:text-3xl font-light mb-8 text-gradient-blue group-hover:scale-105 transition-transform duration-300 bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg inline-block">
-              Meet Our League of Digital Superheroes
-            </h2>
             <div className="flex justify-center gap-4 overflow-hidden py-8">
               {/* Agent Silhouettes Preview */}
               <div className="flex space-x-[-30px] hover:space-x-2 transition-all duration-500">

@@ -124,15 +124,7 @@ export const agentDashboardList = Array.from(
   new Map(
     allAgents
       .filter(agent => agent && agent.id && agent.name)
-      .map(agent => [agent.id, {
-        id: agent.id,
-        name: agent.name,
-        description: agent.description,
-        visible: agent.visible,
-        usageCount: agent.usageCount,
-        lastRun: agent.lastRun,
-        performanceScore: agent.performanceScore
-      }])
+      .map(agent => [agent.id, agent])
   ).values()
 );
 

@@ -76,11 +76,9 @@ export default function Navbar() {
                 </Link>
               </div>
             </div>
-            {/* Homepage Hero Tagline */}
-            {typeof window !== 'undefined' && window.location.pathname === '/' && (
-              <span className="block mt-2 text-xl font-bold text-teal-300 text-center drop-shadow-[0_0_12px_#2dd4bf] animate-pulse-subtle shadow-glow" aria-label="Meet Our League of Digital Superheroes">
-                Meet Our League of Digital Superheroes
-              </span>
+            {/* Removed conditional hero tagline from Navbar for deduplication */}
+            {process.env.NODE_ENV === 'development' && (
+              <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] Navbar tagline deduplication complete.')" }} />
             )}
           </div>
         </div>

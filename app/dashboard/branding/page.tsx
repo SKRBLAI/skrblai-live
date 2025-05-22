@@ -19,7 +19,10 @@ export default function BrandingDashboard() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
-        router.push('/login');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        }
+        router.push('/auth');
       }
       setIsLoading(false);
     });
