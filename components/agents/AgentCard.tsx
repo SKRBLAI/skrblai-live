@@ -4,6 +4,17 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { getAgentImagePath } from "@/utils/agentUtils";
 
+// Agent interface, matching your type in agentUtils
+interface Agent {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  capabilities: string[];
+  visible: boolean;
+  imageSlug?: string;
+}
+
 interface AgentCardProps {
   name: string;
   imageSlug: string;
@@ -12,11 +23,41 @@ interface AgentCardProps {
   role?: string;
 }
 
-export default function AgentCard({ name, imageSlug, isPercy = false, gender, role }: AgentCardProps) {
+// Utility: Provide a default/fake Agent for image fallback
+function getDefaultAgent(id: string, imageSlug: string, name: string): Agent {
+  return {
+    id,
+    name,
+    description: `${name} agent`,
+    category: 'misc',
+    capabilities: [],
+    visible: true,
+    imageSlug,
+  };
+}
+
+export default function AgentCard({
+  name,
+  imageSlug,
+  isPercy = false,
+  gender,
+  role,
+}: AgentCardProps) {
   const silhouettePath = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
-  const imagePath = imageSlug ? `/images/agents-${imageSlug}-skrblai.png` : getAgentImagePath({ id: name.toLowerCase().replace(/\s+/g, '-'), imageSlug });
+
+  // Use passed imageSlug, otherwise build Agent for fallback path
+  const imagePath = imageSlug
+    ? `/images/agents-${imageSlug}-skrblai.png`
+    : getAgentImagePath(
+        getDefaultAgent(
+          name.toLowerCase().replace(/\s+/g, '-'),
+          imageSlug,
+          name
+        )
+      );
+
   const [imgSrc, setImgSrc] = useState(imagePath);
-  
+
   return (
     <motion.div
       whileHover={{ scale: 1.04 }}
@@ -32,13 +73,22 @@ export default function AgentCard({ name, imageSlug, isPercy = false, gender, ro
       <motion.div
         className="absolute inset-0 pointer-events-none rounded-xl"
         initial={{ boxShadow: '0 0 0px #2dd4bf' }}
-        animate={{ boxShadow: isPercy ? '0 0 32px 8px #2dd4bf' : '0 0 20px 4px #38bdf8' }}
-        transition={{ duration: 1.2, repeat: Infinity, repeatType: 'mirror' }}
+        animate={{
+          boxShadow: isPercy
+            ? '0 0 32px 8px #2dd4bf'
+            : '0 0 20px 4px #38bdf8',
+        }}
+        transition={{
+          duration: 1.2,
+          repeat: Infinity,
+          repeatType: 'mirror',
+        }}
         style={{ zIndex: 1 }}
       />
       <div className="relative p-6 flex flex-col items-center z-10">
         {/* Agent Image */}
-        <div className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}`}
+        <div
+          className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}`}
           tabIndex={0}
           aria-label={name}
         >
@@ -57,7 +107,9 @@ export default function AgentCard({ name, imageSlug, isPercy = false, gender, ro
           </div>
         </div>
         {/* Agent Name */}
-        <h3 className={`text-xl font-bold mb-2 text-center ${isPercy ? 'text-2xl text-gradient-blue' : 'text-white'}`}>{name}</h3>
+        <h3 className={`text-xl font-bold mb-2 text-center ${isPercy ? 'text-2xl text-gradient-blue' : 'text-white'}`}>
+          {name}
+        </h3>
         {/* Agent Role/Title as microtext */}
         {role && (
           <span
@@ -74,8 +126,8 @@ export default function AgentCard({ name, imageSlug, isPercy = false, gender, ro
           whileTap={{ scale: 0.95 }}
           className={`
             px-6 py-2 rounded-lg font-medium transition-all duration-200
-            ${isPercy 
-              ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105' 
+            ${isPercy
+              ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'
               : 'bg-white/10 text-white hover:bg-white/20 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'}
           `}
           aria-label="Summon Agent"
