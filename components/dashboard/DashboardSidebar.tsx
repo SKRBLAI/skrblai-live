@@ -33,6 +33,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   // Check if current path matches this item's href
   const isActive = (href: string) => {
+    if (!pathname) return false;
     if (href === '/dashboard' && pathname === '/dashboard') {
       return true;
     }
