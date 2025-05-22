@@ -10,16 +10,20 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import { useCallback, useEffect, useState, CSSProperties } from 'react';
-import { auth } from '@/utils/supabase-auth';
+import { auth, getCurrentUser } from '@/utils/supabase-auth';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
 import { useDropzone } from 'react-dropzone';
 import '@/styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 export default function BookPublishingDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [publishingProjects, setPublishingProjects] = useState([]);
+  const [workflowLogs, setWorkflowLogs] = useState([]);
   const [state, setState] = useState<BookPublishingState>({
     prompt: '',
     uploadedFile: null,
@@ -166,17 +170,62 @@ export default function BookPublishingDashboard() {
   };
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
       if (!user) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[SKRBL AUTH] Dashboard route protection standardized.');
         }
         router.push('/auth');
+        return;
       }
+      setUser(user);
       setIsLoading(false);
-    });
-    return () => unsubscribe();
+    };
+    fetchUser();
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch user-specific publishing projects
+    const fetchPublishing = async () => {
+      const { data, error } = await supabase
+        .from('publishing')
+        .select('*')
+        .eq('userId', user.id)
+        .order('createdAt', { ascending: false });
+      if (!error) setPublishingProjects(data || []);
+    };
+    // Fetch workflow logs for this user
+    const fetchLogs = async () => {
+      const { data, error } = await supabase
+        .from('workflowLogs')
+        .select('*')
+        .eq('userId', user.id)
+        .order('timestamp', { ascending: false });
+      if (!error) setWorkflowLogs(data || []);
+    };
+    fetchPublishing();
+    fetchLogs();
+    // Real-time subscription for workflow logs
+    const logsSub = supabase
+      .channel('workflowLogs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+        fetchLogs();
+      })
+      .subscribe();
+    // Real-time subscription for publishing
+    const publishingSub = supabase
+      .channel('publishing')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'publishing', filter: `userId=eq.${user.id}` }, payload => {
+        fetchPublishing();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(logsSub);
+      supabase.removeChannel(publishingSub);
+    };
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -188,6 +237,9 @@ export default function BookPublishingDashboard() {
       </div>
     );
   }
+
+  // Use agentRegistry for dynamic agent logic if needed
+  // All publishingProjects and workflowLogs are now user-specific and real-time
 
   return (
     <div className="min-h-screen bg-deep-navy">
@@ -467,6 +519,37 @@ export default function BookPublishingDashboard() {
               </Link>
             </motion.div>
           </motion.div>
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-2">Your Publishing Projects</h2>
+            {publishingProjects.length === 0 ? (
+              <p className="text-gray-400">No publishing projects yet. Upload a manuscript or start a project to get started.</p>
+            ) : (
+              <ul className="space-y-2">
+                {publishingProjects.map((item: any) => (
+                  <li key={item.id} className="bg-white/10 p-3 rounded text-white">
+                    <div className="font-semibold">{item.bookTitle || 'Untitled Project'}</div>
+                    <div className="text-xs text-gray-300">{item.createdAt || item.created_at}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
+            {workflowLogs.length === 0 ? (
+              <p className="text-gray-400">No recent activity.</p>
+            ) : (
+              <ul className="space-y-2">
+                {workflowLogs.map((log: any) => (
+                  <li key={log.id} className="bg-white/10 p-3 rounded text-white">
+                    <div className="font-semibold">{log.agentId || 'Agent'}</div>
+                    <div className="text-xs text-gray-300">{log.result || log.status}</div>
+                    <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </main>
       </div>
     </div>

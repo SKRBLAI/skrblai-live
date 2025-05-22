@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@supabase/supabase-js';
+import { getCurrentUser } from '@/utils/supabase-auth';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -65,35 +67,6 @@ type PercyMemory = {
   agents?: string[];
 };
 
-// Agent registry
-const agentRegistry: { [key: string]: Agent } = {
-  agent1: {
-    id: 'agent1',
-    name: 'Content Writer',
-    description: 'AI-powered content writing assistant',
-    category: 'recommended',
-  },
-  agent2: {
-    id: 'agent2',
-    name: 'Social Media Manager',
-    description: 'Automated social media post generator',
-    category: 'recommended',
-  },
-  agent3: {
-    id: 'agent3',
-    name: 'SEO Optimizer',
-    description: 'SEO analysis and optimization tool',
-    category: 'recommended',
-  },
-};
-
-// Mock functions
-const getRecentPercyMemory = async () => {
-  return {
-    agents: ['agent1', 'agent2']
-  };
-};
-
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -118,10 +91,7 @@ const itemVariants = {
 };
 
 export default function Dashboard() {
-  // Router
   const router = useRouter();
-
-  // State
   const [recentAgents, setRecentAgents] = useState<Agent[]>([]);
   const [workflowLogs, setWorkflowLogs] = useState<WorkflowLog[]>([]);
   const [recommended, setRecommended] = useState<Agent[]>([]);
@@ -133,12 +103,14 @@ export default function Dashboard() {
   const [lastUsed, setLastUsed] = useState<Agent[]>([]);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [suggestion, setSuggestion] = useState<string>("");
+  const [userId, setUserId] = useState<string | null>(null);
 
   // Auth effect
   useEffect(() => {
     const { data: { subscription } } = auth.onAuthStateChange(async (_event, session) => {
       const user = session?.user;
       if (user) {
+        setUserId(user.id);
         const role = await checkUserRole(user.id);
         setUserRole(role);
         setIsLoading(false);
@@ -154,21 +126,43 @@ export default function Dashboard() {
     };
   }, [router]);
 
-  // Load data on mount
+  // Load data on mount and when userId changes
   useEffect(() => {
+    if (!userId) return;
+    let logsSubscription: any = null;
     const loadData = async () => {
       try {
-        // Get recent agents
-        const recentMemory: PercyMemory = await getRecentPercyMemory();
-        const recentAgentIds = recentMemory?.agents || [];
-        const recentAgentData = recentAgentIds.map((id: string) => agentRegistry[id]).filter(Boolean) as Agent[];
+        // Fetch recent agents for this user from Supabase memory/content logs
+        const { data: memory } = await supabase
+          .from('user_settings')
+          .select('recentAgents')
+          .eq('userId', userId)
+          .maybeSingle();
+        let recentAgentIds: string[] = [];
+        if (memory && memory.recentAgents && Array.isArray(memory.recentAgents)) {
+          recentAgentIds = memory.recentAgents;
+        }
+        // Fallback: use agent usage logs
+        if (recentAgentIds.length === 0) {
+          const { data: usage } = await supabase
+            .from('agent_usage')
+            .select('intent')
+            .eq('userId', userId)
+            .order('updatedAt', { ascending: false })
+            .limit(3);
+          recentAgentIds = (usage || []).map((u: any) => u.intent).filter(Boolean);
+        }
+        const recentAgentData = recentAgentIds
+          .map((id: string) => agentRegistry.find(a => a.id === id || a.intent === id))
+          .filter(Boolean) as Agent[];
         setRecentAgents(recentAgentData);
         setLastUsed(recentAgentData.slice(0, 3));
 
-        // Get workflow logs
+        // Fetch workflow logs for this user
         const { data: logs } = await supabase
-          .from('workflow_logs')
+          .from('workflowLogs')
           .select('*')
+          .eq('userId', userId)
           .order('created_at', { ascending: false })
           .limit(5);
         setWorkflowLogs(logs || []);
@@ -178,21 +172,28 @@ export default function Dashboard() {
           timestamp: log.created_at
         })));
 
-        // Get recommended agents
-        const recommendedIds = Object.keys(agentRegistry)
-          .filter((a: string) => agentRegistry[a].category === 'recommended')
-          .slice(0, 3);
-        setRecommended(recommendedIds.map((id: string) => agentRegistry[id]) as Agent[]);
+        // Recommended agents: top 3 visible agents
+        setRecommended(agentRegistry.filter(a => a.visible).slice(0, 3));
 
-        // Get suggestion
+        // Suggestion: personalize based on usage
         setSuggestion('Try our new AI content generator for better engagement!');
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       }
     };
-
     loadData();
-  }, []);
+
+    // Real-time subscription for workflow logs
+    logsSubscription = supabase
+      .channel('public:workflowLogs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${userId}` }, (payload: any) => {
+        loadData();
+      })
+      .subscribe();
+    return () => {
+      if (logsSubscription) supabase.removeChannel(logsSubscription);
+    };
+  }, [userId]);
 
   if (isLoading) {
     return (

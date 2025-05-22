@@ -7,25 +7,75 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 import { useEffect, useState } from 'react';
-import { auth } from '@/utils/supabase-auth';
 import { useRouter } from 'next/navigation';
+import { getCurrentUser } from '@/utils/supabase-auth';
+import { supabase } from '@/utils/supabase';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 export default function GettingStartedDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [onboardingStatus, setOnboardingStatus] = useState<any>(null);
+  const [workflowLogs, setWorkflowLogs] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
       if (!user) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[SKRBL AUTH] Dashboard route protection standardized.');
         }
         router.push('/auth');
+        return;
       }
+      setUser(user);
       setIsLoading(false);
-    });
-    return () => unsubscribe();
+    };
+    fetchUser();
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch onboarding status for this user
+    const fetchOnboarding = async () => {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('onboardingComplete, onboardingStep, onboardingGoal')
+        .eq('userId', user.id)
+        .maybeSingle();
+      if (!error) setOnboardingStatus(data || null);
+    };
+    // Fetch workflow logs for this user
+    const fetchLogs = async () => {
+      const { data, error } = await supabase
+        .from('workflowLogs')
+        .select('*')
+        .eq('userId', user.id)
+        .order('timestamp', { ascending: false });
+      if (!error) setWorkflowLogs(data || []);
+    };
+    fetchOnboarding();
+    fetchLogs();
+    // Real-time subscription for workflow logs
+    const logsSub = supabase
+      .channel('workflowLogs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+        fetchLogs();
+      })
+      .subscribe();
+    // Real-time subscription for onboarding status
+    const onboardingSub = supabase
+      .channel('user_settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings', filter: `userId=eq.${user.id}` }, payload => {
+        fetchOnboarding();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(logsSub);
+      supabase.removeChannel(onboardingSub);
+    };
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -37,6 +87,9 @@ export default function GettingStartedDashboard() {
       </div>
     );
   }
+
+  // Use agentRegistry for dynamic agent logic if needed
+  // All onboardingStatus and workflowLogs are now user-specific and real-time
 
   return (
     <div className="min-h-screen bg-deep-navy">
@@ -58,7 +111,6 @@ export default function GettingStartedDashboard() {
             >
               Welcome to Your 7-Day Free Trial
             </motion.h1>
-            
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -69,7 +121,6 @@ export default function GettingStartedDashboard() {
               <p className="text-gray-300 mb-6">
                 Welcome to SKRBL AI! Your 7-day free trial gives you access to all our premium features. Here's how to make the most of it:
               </p>
-              
               <div className="space-y-4">
                 <div className="flex items-start">
                   <div className="flex-shrink-0 w-8 h-8 bg-electric-blue rounded-full flex items-center justify-center mr-4">
@@ -77,10 +128,9 @@ export default function GettingStartedDashboard() {
                   </div>
                   <div>
                     <h3 className="text-white font-medium">Define Your Goals</h3>
-                    <p className="text-gray-400">Select what you want to accomplish with SKRBL AI</p>
+                    <p className="text-gray-400">{onboardingStatus?.onboardingGoal ? `Your goal: ${onboardingStatus.onboardingGoal}` : 'Select what you want to accomplish with SKRBL AI'}</p>
                   </div>
                 </div>
-                
                 <div className="flex items-start">
                   <div className="flex-shrink-0 w-8 h-8 bg-electric-blue rounded-full flex items-center justify-center mr-4">
                     <span className="font-bold text-white">2</span>
@@ -90,7 +140,6 @@ export default function GettingStartedDashboard() {
                     <p className="text-gray-400">Try our AI-powered content generation tools</p>
                   </div>
                 </div>
-                
                 <div className="flex items-start">
                   <div className="flex-shrink-0 w-8 h-8 bg-electric-blue rounded-full flex items-center justify-center mr-4">
                     <span className="font-bold text-white">3</span>
@@ -102,7 +151,6 @@ export default function GettingStartedDashboard() {
                 </div>
               </div>
             </motion.div>
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -135,7 +183,6 @@ export default function GettingStartedDashboard() {
                   </motion.button>
                 </div>
               </motion.div>
-              
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -153,7 +200,6 @@ export default function GettingStartedDashboard() {
                     <span className="text-xs text-gray-400">Day 7</span>
                   </div>
                 </div>
-                
                 <div className="mb-6">
                   <p className="text-white mb-1">Features Included:</p>
                   <ul className="text-gray-400 space-y-1">
@@ -183,7 +229,6 @@ export default function GettingStartedDashboard() {
                     </li>
                   </ul>
                 </div>
-                
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -193,6 +238,23 @@ export default function GettingStartedDashboard() {
                 </motion.button>
               </motion.div>
             </div>
+            {/* User-specific workflow logs */}
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
+              {workflowLogs.length === 0 ? (
+                <p className="text-gray-400">No recent activity.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {workflowLogs.map((log: any) => (
+                    <li key={log.id} className="bg-white/10 p-3 rounded text-white">
+                      <div className="font-semibold">{log.agentId || 'Agent'}</div>
+                      <div className="text-xs text-gray-300">{log.result || log.status}</div>
+                      <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </motion.div>
         </main>
       </div>

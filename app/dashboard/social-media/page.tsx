@@ -10,26 +10,76 @@ import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 import { useEffect, useState } from 'react';
-import { auth } from '@/utils/supabase-auth';
+import { auth, getCurrentUser } from '@/utils/supabase-auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabase } from '@/utils/supabase';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 export default function SocialMediaDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [userContent, setUserContent] = useState([]);
+  const [workflowLogs, setWorkflowLogs] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
       if (!user) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[SKRBL AUTH] Dashboard route protection standardized.');
         }
         router.push('/auth');
+        return;
       }
+      setUser(user);
       setIsLoading(false);
-    });
-    return () => unsubscribe();
+    };
+    fetchUser();
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch user-specific content
+    const fetchContent = async () => {
+      const { data, error } = await supabase
+        .from('social-content')
+        .select('*')
+        .eq('userId', user.id)
+        .order('createdAt', { ascending: false });
+      if (!error) setUserContent(data || []);
+    };
+    // Fetch workflow logs for this user
+    const fetchLogs = async () => {
+      const { data, error } = await supabase
+        .from('workflowLogs')
+        .select('*')
+        .eq('userId', user.id)
+        .order('timestamp', { ascending: false });
+      if (!error) setWorkflowLogs(data || []);
+    };
+    fetchContent();
+    fetchLogs();
+    // Real-time subscription for workflow logs
+    const logsSub = supabase
+      .channel('workflowLogs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+        fetchLogs();
+      })
+      .subscribe();
+    // Real-time subscription for social-content
+    const contentSub = supabase
+      .channel('social-content')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'social-content', filter: `userId=eq.${user.id}` }, payload => {
+        fetchContent();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(logsSub);
+      supabase.removeChannel(contentSub);
+    };
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -41,6 +91,9 @@ export default function SocialMediaDashboard() {
       </div>
     );
   }
+
+  // Use agentRegistry for dynamic agent logic if needed
+  // All userContent and workflowLogs are now user-specific and real-time
 
   return (
     <div className="min-h-screen bg-deep-navy">
@@ -171,6 +224,39 @@ export default function SocialMediaDashboard() {
                 </motion.button>
               </Link>
             </motion.div>
+
+            {/* Example: Render user-specific content and logs */}
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-white mb-2">Your Social Content</h2>
+              {userContent.length === 0 ? (
+                <p className="text-gray-400">No content yet. Upload assets or generate content to get started.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {userContent.map((item: any) => (
+                    <li key={item.id} className="bg-white/10 p-3 rounded text-white">
+                      <div className="font-semibold">{item.content?.businessName || 'Untitled Campaign'}</div>
+                      <div className="text-xs text-gray-300">{item.createdAt || item.created_at}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
+              {workflowLogs.length === 0 ? (
+                <p className="text-gray-400">No recent activity.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {workflowLogs.map((log: any) => (
+                    <li key={log.id} className="bg-white/10 p-3 rounded text-white">
+                      <div className="font-semibold">{log.agentId || 'Agent'}</div>
+                      <div className="text-xs text-gray-300">{log.result || log.status}</div>
+                      <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </motion.div>
         </main>
       </div>

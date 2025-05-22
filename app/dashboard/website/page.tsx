@@ -9,25 +9,75 @@ import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
-import { auth } from '@/utils/supabase-auth';
 import { useRouter } from 'next/navigation';
+import { getCurrentUser } from '@/utils/supabase-auth';
+import { supabase } from '@/utils/supabase';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 export default function WebsiteDashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [websiteProjects, setWebsiteProjects] = useState([]);
+  const [workflowLogs, setWorkflowLogs] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const fetchUser = async () => {
+      const user = await getCurrentUser();
       if (!user) {
         if (process.env.NODE_ENV === 'development') {
           console.log('[SKRBL AUTH] Dashboard route protection standardized.');
         }
         router.push('/auth');
+        return;
       }
+      setUser(user);
       setIsLoading(false);
-    });
-    return () => unsubscribe();
+    };
+    fetchUser();
   }, [router]);
+
+  useEffect(() => {
+    if (!user) return;
+    // Fetch user-specific website projects
+    const fetchWebsites = async () => {
+      const { data, error } = await supabase
+        .from('websites')
+        .select('*')
+        .eq('userId', user.id)
+        .order('createdAt', { ascending: false });
+      if (!error) setWebsiteProjects(data || []);
+    };
+    // Fetch workflow logs for this user
+    const fetchLogs = async () => {
+      const { data, error } = await supabase
+        .from('workflowLogs')
+        .select('*')
+        .eq('userId', user.id)
+        .order('timestamp', { ascending: false });
+      if (!error) setWorkflowLogs(data || []);
+    };
+    fetchWebsites();
+    fetchLogs();
+    // Real-time subscription for workflow logs
+    const logsSub = supabase
+      .channel('workflowLogs')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+        fetchLogs();
+      })
+      .subscribe();
+    // Real-time subscription for websites
+    const websitesSub = supabase
+      .channel('websites')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'websites', filter: `userId=eq.${user.id}` }, payload => {
+        fetchWebsites();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(logsSub);
+      supabase.removeChannel(websitesSub);
+    };
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -39,6 +89,9 @@ export default function WebsiteDashboard() {
       </div>
     );
   }
+
+  // Use agentRegistry for dynamic agent logic if needed
+  // All websiteProjects and workflowLogs are now user-specific and real-time
 
   return (
     <div className="min-h-screen bg-deep-navy">
@@ -324,6 +377,37 @@ export default function WebsiteDashboard() {
               </Link>
             </motion.div>
           </motion.div>
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-2">Your Website Projects</h2>
+            {websiteProjects.length === 0 ? (
+              <p className="text-gray-400">No website projects yet. Upload assets or start a project to get started.</p>
+            ) : (
+              <ul className="space-y-2">
+                {websiteProjects.map((item: any) => (
+                  <li key={item.id} className="bg-white/10 p-3 rounded text-white">
+                    <div className="font-semibold">{item.businessName || 'Untitled Website'}</div>
+                    <div className="text-xs text-gray-300">{item.createdAt || item.created_at}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className="mb-8">
+            <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
+            {workflowLogs.length === 0 ? (
+              <p className="text-gray-400">No recent activity.</p>
+            ) : (
+              <ul className="space-y-2">
+                {workflowLogs.map((log: any) => (
+                  <li key={log.id} className="bg-white/10 p-3 rounded text-white">
+                    <div className="font-semibold">{log.agentId || 'Agent'}</div>
+                    <div className="text-xs text-gray-300">{log.result || log.status}</div>
+                    <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </main>
       </div>
     </div>
