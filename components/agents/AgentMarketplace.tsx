@@ -3,9 +3,10 @@ import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentCard from '@/components/ui/AgentCard';
-import agentRegistry from '@/lib/agents/agentRegistry';
 import AgentInputModal from './AgentInputModal';
 import { Agent } from '@/types/agent';
+
+// Remove agentRegistry import and static usage
 
 const getCategories = (agents: Agent[]): string[] => {
   const categories = agents.map(agent => agent.category);
@@ -29,13 +30,35 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
   const [sort, setSort] = useState<string>('popular');
   const router = useRouter();
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Only show visible agents, using prop if provided
-  const agents = useMemo(() => (agentsProp ? agentsProp : agentRegistry.filter(a => a.visible !== false)), [agentsProp]);
-  const categories = useMemo(() => getCategories(agents), [agents]);
+  // Fetch agents from API on mount
+  React.useEffect(() => {
+    const fetchAgents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('/api/agents');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        const fetchedAgents = Array.isArray(data.agents) ? data.agents : [];
+        setAgents(fetchedAgents.filter((a: Agent) => a.visible !== false));
+      } catch (err) {
+        setError('Failed to load agents. Please try again later.');
+        setAgents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
+  }, []);
+
+  const categories = React.useMemo(() => getCategories(agents), [agents]);
 
   // Filtered/sorted agents
-  const filteredAgents = useMemo(() => {
+  const filteredAgents = React.useMemo(() => {
     let list = agents;
     if (selectedCategory !== 'All') {
       list = list.filter(a => a.category === selectedCategory);
@@ -138,30 +161,43 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
         }}
       >
         <AnimatePresence>
-          {filteredAgents.length > 0 ? (
-            filteredAgents.map(agent => (
-              <motion.div
-                key={agent.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => handleAgentClick(agent)}
-                className="glass-card p-6 rounded-xl backdrop-blur-lg border border-sky-500/10 cursor-pointer"
-              >
-                <h3 className="text-xl font-semibold text-white mb-2">{agent.name}</h3>
-                <p className="text-gray-300 text-sm mb-4">{agent.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-teal-400 text-sm">{agent.category}</span>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20"
-                  >
-                    Use Agent
-                  </motion.button>
-                </div>
-              </motion.div>
-            ))
+          {loading ? (
+            <motion.div className="col-span-full text-center text-slate-400 py-12">Loading agents...</motion.div>
+          ) : error ? (
+            <motion.div className="col-span-full text-center text-red-400 py-12">{error}</motion.div>
+          ) : filteredAgents.length > 0 ? (
+            filteredAgents.map(agent => {
+              const isLocked = !!(agent.locked || agent.unlocked === false);
+              return (
+                <motion.div
+                  key={agent.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={!isLocked ? { scale: 1.02 } : undefined}
+                  onClick={() => !isLocked && handleAgentClick(agent)}
+                  className={`glass-card p-6 rounded-xl backdrop-blur-lg border border-sky-500/10 cursor-pointer relative transition-all duration-200 ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}
+                  tabIndex={isLocked ? -1 : 0}
+                  aria-disabled={isLocked ? 'true' : 'false'}
+                >
+                  <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
+                    {agent.name}
+                    {isLocked && <span title="Locked agent" className="ml-1 text-lg">🔒</span>}
+                  </h3>
+                  <p className="text-gray-300 text-sm mb-4">{agent.description}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-teal-400 text-sm">{agent.category}</span>
+                    <motion.button
+                      whileHover={!isLocked ? { scale: 1.05 } : undefined}
+                      whileTap={!isLocked ? { scale: 0.95 } : undefined}
+                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20 disabled:opacity-60"
+                      disabled={isLocked}
+                    >
+                      {isLocked ? 'Locked' : 'Use Agent'}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })
           ) : (
             <motion.div className="col-span-full text-center text-slate-400 py-12">No agents found for this category.</motion.div>
           )}

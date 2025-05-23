@@ -6,31 +6,44 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import { agentDashboardList } from '@/lib/agents/agentRegistry';
 import Image from 'next/image';
 
 export default function HomePage() {
   const { setPercyIntent, closePercy } = usePercyContext();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [demoAgent, setDemoAgent] = useState<any>(null);
-
-  const allCategories = Array.from(
-    new Set(agentDashboardList.flatMap(agent => agent.agentCategory || []))
-  );
-  const filteredAgents =
-    selectedCategory === 'all'
-      ? agentDashboardList
-      : agentDashboardList.filter(agent =>
-          (agent.agentCategory || []).includes(selectedCategory)
-        );
+  const [agents, setAgents] = useState<any[]>([]);
+  const [allCategories, setAllCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     closePercy();
     setPercyIntent('');
-    console.log(
-      "[Percy] Reset on HomePage mount: isOpen=false, percyIntent=''"
-    );
+    // Fetch agents from secure API
+    const fetchAgents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/agents', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to fetch agents');
+        const data = await res.json();
+        setAgents(data.agents || []);
+        // Extract unique categories
+        const cats = Array.from(new Set((data.agents || []).flatMap((a: any) => a.agentCategory || [])));
+        setAllCategories(cats);
+      } catch (err) {
+        setAgents([]);
+        setAllCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
   }, [closePercy, setPercyIntent]);
+
+  const filteredAgents =
+    selectedCategory === 'all'
+      ? agents
+      : agents.filter(agent => (agent.agentCategory || []).includes(selectedCategory));
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
@@ -56,7 +69,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Agent Highlights Section with Filter & Demo Modal */}
+        {/* Explore Agents CTA + Animated Agent Constellation */}
         <div className="relative mt-16">
           {/* Cosmic Background Layer */}
           <div className="absolute inset-0 z-0 pointer-events-none">

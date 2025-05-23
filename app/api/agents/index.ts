@@ -1,6 +1,6 @@
 import agentRegistry from '@/lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentImagePath, getAgentSets } from '@/utils/agentUtils';
 import type { Agent } from '@/types/agent';
 import { createClient } from '@supabase/supabase-js';
 import { systemLog } from '@/utils/systemLog';
@@ -38,9 +38,29 @@ export async function GET(req: Request) {
       await systemLog({ type: 'warning', message: 'Unauthorized /api/agents access attempt', meta });
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-    const allAgents = agentRegistry.map(selfHealAgent);
-    await systemLog({ type: 'info', message: 'Agents list accessed', meta: { ...meta, userId: user.id, email: user.email } });
-    return NextResponse.json({ agents: allAgents });
+    // Fetch user role
+    const { data: userRoleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('userId', user.id)
+      .maybeSingle();
+    const userRole = userRoleData?.role || 'client';
+    // Filter agents by role gating
+    const visibleAgents = agentRegistry.filter(a => {
+      if (!a.roleRequired) return true;
+      return userRole === a.roleRequired;
+    });
+    // Group if requested
+    const url = new URL(req.url);
+    const grouped = url.searchParams.get('grouped');
+    let result;
+    if (grouped) {
+      result = getAgentSets(visibleAgents, 3);
+    } else {
+      result = visibleAgents;
+    }
+    await systemLog({ type: 'info', message: 'Agents list accessed', meta: { ...meta, userId: user.id, email: user.email, grouped: !!grouped } });
+    return NextResponse.json({ agents: result });
   } catch (error: any) {
     await systemLog({ type: 'error', message: 'Agent list fetch error', meta: { ...meta, error: error.message } });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });

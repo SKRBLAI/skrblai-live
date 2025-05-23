@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import agentRegistry from '@/lib/agents/agentRegistry';
 import { supabase } from '@/utils/supabase';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
@@ -24,22 +23,38 @@ import styles from '@/styles/PercyWidget.module.css';
 const userRole = typeof window !== 'undefined' ? (localStorage.getItem('userRole') || 'user') : 'user';
 console.log('[Percy] Current user role:', userRole);
 
-// Score and get best matching agents based on user goal/platform
-function getBestAgents(goal: string, platform: string) {
-  const agentList = getAgentsByRole(userRole);
-  console.log('[Percy] Available Agents for Role:', agentList);
-  // Log agent registry to diagnose issues
-  console.log('Agent Registry loaded with:', agentRegistry.length, 'agents');
-  if (agentRegistry.length === 0) {
-    console.error('Agent Registry is empty - check imports');
-  }
-  
+// --- AGENT FETCHING HOOK ---
+function useApiAgents() {
+  const [agents, setAgents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchAgents = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/agents', { credentials: 'include' });
+        if (!res.ok) throw new Error('Failed to fetch agents');
+        const data = await res.json();
+        setAgents(data.agents || []);
+      } catch (err) {
+        setAgents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
+  }, []);
+  return { agents, loading };
+}
+
+// --- RECOMMENDATION LOGIC (API-BASED) ---
+function getBestAgents(goal: string, platform: string, agents: any[]) {
+  // Defensive: always work with array
+  if (!Array.isArray(agents)) return [];
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
-  // Score agents by goal/platform match and by current path/category
-  const lowerGoal = goal.toLowerCase();
-  const lowerPlatform = platform.toLowerCase();
-  const lowerPath = pathname.replace(/^\//, '').toLowerCase();
-  let matches = agentList.filter(a => a.visible && (
+  const lowerGoal = (goal || '').toLowerCase();
+  const lowerPlatform = (platform || '').toLowerCase();
+  const lowerPath = pathname.replace(/^\/|\/$/g, '').toLowerCase();
+  let matches = agents.filter(a => a.visible && (
     (a.category && lowerGoal && a.category.toLowerCase().includes(lowerGoal)) ||
     (a.name && lowerGoal && a.name.toLowerCase().includes(lowerGoal)) ||
     (a.intent && lowerGoal && a.intent.toLowerCase().includes(lowerGoal)) ||
@@ -48,74 +63,31 @@ function getBestAgents(goal: string, platform: string) {
     (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform)) ||
     (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some(cat => lowerPath.includes(cat)))
   ));
-  if (matches.length > 0) {
-    console.log('[Percy] Matched agent categories for path:', lowerPath, matches.map(a => a.agentCategory));
-  }
-  // Fallback: top 3 visible agents
   if (matches.length === 0) {
-    matches = agentList.filter(a => a.visible).slice(0, 3);
-    if (matches.length === 0) {
-      console.warn('[Percy] No visible agents found for fallback.');
-    } else {
-      console.warn('[Percy] Fallback to top visible agents for path:', lowerPath, matches.map(a => a.name));
-    }
+    matches = agents.filter(a => a.visible).slice(0, 3);
   } else {
     matches = matches.slice(0, 3);
-  }
-  if (matches.length === 0) {
-    console.warn('[Percy] No agent match found for goal/platform/path:', { goal, platform, path: lowerPath });
-  } else {
-    console.log('[Percy] Selected agents:', matches.map(a => a.name));
   }
   return matches;
 }
 
-// Enhanced agent matching for Percy onboarding and smart suggestions
-export function getSmartAgentSuggestions({
-  prompt = '',
-  file = null,
-  dropdown = '',
-  userRole = typeof window !== 'undefined' ? (localStorage.getItem('userRole') || 'user') : 'user',
-  routerResult
-}: {
-  prompt?: string;
-  file?: File | { name?: string; type?: string; category?: string } | null;
-  dropdown?: string;
-  userRole?: string;
-  routerResult?: any;
-}) {
-  const agentList = getAgentsByRole(userRole);
+function getSmartAgentSuggestions({ prompt = '', file = null, dropdown = '', agents = [], routerResult }: { prompt?: string; file?: any; dropdown?: string; agents: any[]; routerResult?: any; }) {
   const lowerPrompt = (prompt || '').toLowerCase();
   const dropdownValue = (dropdown || '').toLowerCase();
   const fileType = file && (file.type || (file.name && file.name.split('.').pop())) || '';
   const fileName = file && file.name ? file.name.toLowerCase() : '';
   const fileCategory = file && typeof file === 'object' && 'category' in file ? (file as any).category : '';
   const matches: any[] = [];
-  const logs: string[] = [];
-
   // File upload logic
   if (file) {
     if (fileType.includes('pdf') || fileType.includes('doc') || fileType.includes('book') || fileCategory === 'book') {
-      logs.push('Matched file upload as Book Publishing');
-      const agent = agentList.find(a => a.name.toLowerCase().includes('publishing'));
-      if (agent) matches.push({
-        name: agent.name,
-        description: agent.description,
-        why: 'File upload detected as book/document',
-        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
-      });
+      const agent = agents.find(a => a.name.toLowerCase().includes('publishing'));
+      if (agent) matches.push({ name: agent.name, description: agent.description, why: 'File upload detected as book/document', action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id) });
     } else if (fileType.includes('txt') || fileType.includes('content') || fileCategory === 'content') {
-      logs.push('Matched file upload as Content Automation');
-      const agent = agentList.find(a => a.name.toLowerCase().includes('content'));
-      if (agent) matches.push({
-        name: agent.name,
-        description: agent.description,
-        why: 'File upload detected as content',
-        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
-      });
+      const agent = agents.find(a => a.name.toLowerCase().includes('content'));
+      if (agent) matches.push({ name: agent.name, description: agent.description, why: 'File upload detected as content', action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id) });
     }
   }
-
   // Prompt/Dropdown logic
   const keywordMap = [
     { key: 'brand', agent: 'branding', why: 'Branding keyword detected' },
@@ -138,43 +110,23 @@ export function getSmartAgentSuggestions({
   ];
   for (const { key, agent, why } of keywordMap) {
     if ((lowerPrompt && lowerPrompt.includes(key)) || (dropdownValue && dropdownValue.includes(key))) {
-      const found = agentList.find(a => a.name.toLowerCase().includes(agent) || a.id.toLowerCase().includes(agent));
+      const found = agents.find(a => a.name.toLowerCase().includes(agent) || a.id.toLowerCase().includes(agent));
       if (found && !matches.some(m => m.name === found.name)) {
-        logs.push(`Matched prompt/dropdown: ${key} → ${found.name}`);
-        matches.push({
-          name: found.name,
-          description: found.description,
-          why,
-          action: () => routerResult?.routeToAgent && routerResult.routeToAgent(found.intent || found.id)
-        });
+        matches.push({ name: found.name, description: found.description, why, action: () => routerResult?.routeToAgent && routerResult.routeToAgent(found.intent || found.id) });
       }
     }
   }
-
   // Fallback: top visible agents
   if (matches.length === 0) {
-    logs.push('No strong match found, using fallback agents');
-    agentList.filter(a => a.visible).slice(0, 3).forEach(agent => {
-      matches.push({
-        name: agent.name,
-        description: agent.description,
-        why: 'Fallback: top visible agent',
-        action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id)
-      });
+    agents.filter(a => a.visible).slice(0, 3).forEach(agent => {
+      matches.push({ name: agent.name, description: agent.description, why: 'Fallback: top visible agent', action: () => routerResult?.routeToAgent && routerResult.routeToAgent(agent.intent || agent.id) });
     });
   }
-
-  // Limit to top 2–3
-  const result = matches.slice(0, 3);
-  // Log all routing decisions
-  console.log('[Percy SmartMatch] Input:', { prompt, file, dropdown });
-  logs.forEach(log => console.log('[Percy SmartMatch]', log));
-  console.log('[Percy SmartMatch] Suggestions:', result.map(r => r.name));
-  return result;
+  return matches.slice(0, 3);
 }
 
 // Expose a test/mock function for onboarding scenarios
-export function testPercyAgentMatching(routerResult?: any) {
+export function testPercyAgentMatching(routerResult?: any, agents: any[] = []) {
   const cases = [
     { prompt: 'I want to publish a book', file: null, dropdown: '', label: 'Book Publishing' },
     { prompt: 'Help me with branding and logo', file: null, dropdown: '', label: 'Branding' },
@@ -186,7 +138,7 @@ export function testPercyAgentMatching(routerResult?: any) {
   ];
   return cases.map(test => ({
     label: test.label,
-    suggestions: getSmartAgentSuggestions({ ...test, routerResult })
+    suggestions: getSmartAgentSuggestions({ ...test, routerResult, agents })
   }));
 }
 
@@ -197,6 +149,7 @@ function PercyWidget() {
   const [lastUsedIntent, setLastUsedIntent] = useState<string>('');
   const { setPercyIntent, closePercy } = usePercyContext();
   const pathname = usePathname();
+  const { agents, loading: agentsLoading } = useApiAgents();
 
   // Listen for agent selection events from AgentGrid
   useEffect(() => {
@@ -233,7 +186,7 @@ function PercyWidget() {
   const [agentTooltip, setAgentTooltip] = useState<string | null>(null);
   const [lastUsedAgent, setLastUsedAgent] = useState<string | null>(null);
   const [intakeComplete, setIntakeComplete] = useState(false);
-  const lastUsedAgentObj = lastUsedAgent ? agentRegistry.find(a => a.intent === lastUsedAgent || a.id === lastUsedAgent) : null;
+  const lastUsedAgentObj = lastUsedAgent ? agents.find(a => a.intent === lastUsedAgent || a.id === lastUsedAgent) : null;
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -274,11 +227,11 @@ function PercyWidget() {
         const platform = localStorage.getItem('userPlatform') || '';
         setUserProfile({ goal, platform });
         // Load but don't display agent matches
-        setSuggestedAgents(getBestAgents(goal, platform));
+        setSuggestedAgents(getBestAgents(goal, platform, agents));
       }
     }
     checkOnboarding();
-  }, []);
+  }, [agents]);
 
   // Fetch Supabase-powered Percy memory on open
   useEffect(() => {
@@ -359,7 +312,7 @@ function PercyWidget() {
       localStorage.setItem('lastUsedAgent', intent);
     }
     console.log('[Percy] Routing to agent. Intent:', intent);
-    const agent = agentRegistry.find(agent => agent.intent === intent);
+    const agent = agents.find(agent => agent.intent === intent);
     if (agent && agent.route) {
       console.log('[Percy] Found agent route:', agent.route);
       saveIntentMemory(intent);
@@ -446,7 +399,7 @@ function PercyWidget() {
 
   // Percy-initiated workflow handler with upsell modal
   const handleIntent = async (intent: string) => {
-    const agent = agentRegistry.find((a) => a.intent === intent);
+    const agent = agents.find((a) => a.intent === intent);
     if (!agent) {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn't find an agent for "${intent}".` }]);
       return;
@@ -577,7 +530,7 @@ function PercyWidget() {
           onComplete={({ goal, platform }) => {
             setShowOnboarding(false);
             setUserProfile({ goal, platform });
-            setSuggestedAgents(getBestAgents(goal, platform));
+            setSuggestedAgents(getBestAgents(goal, platform, agents));
             // Don't automatically show agent suggestions after onboarding
             // Let Percy guide the conversation first
           }}

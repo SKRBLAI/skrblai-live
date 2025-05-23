@@ -33,14 +33,32 @@ const intentToDashboardMap: Record<string, string> = {
   web: '/dashboard/website',
 };
 
+const AGENT_OPTIONS = [
+  { value: 'brandingAgent', label: 'Branding Agent' },
+  { value: 'contentCreatorAgent', label: 'Content Creator Agent' },
+  { value: 'analyticsAgent', label: 'Analytics Agent' },
+  { value: 'publishingAgent', label: 'Publishing Agent' },
+  { value: 'socialBotAgent', label: 'Social Bot Agent' },
+  { value: 'adCreativeAgent', label: 'Ad Creative Agent' },
+  { value: 'proposalGeneratorAgent', label: 'Proposal Generator Agent' },
+  { value: 'paymentManagerAgent', label: 'Payment Manager Agent' },
+  { value: 'clientSuccessAgent', label: 'Client Success Agent' },
+  { value: 'siteGenAgent', label: 'Site Generator Agent' },
+  { value: 'bizAgent', label: 'Business Agent' },
+  { value: 'videoContentAgent', label: 'Video Content Agent' },
+  { value: 'percyAgent', label: 'Percy (Concierge)' },
+  { value: 'percySyncAgent', label: 'Percy Sync Agent' },
+];
+
 export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [step, setStep] = useState(1);
   const [goal, setGoal] = useState('');
   const [platform, setPlatform] = useState('');
+  const [selectedAgent, setSelectedAgent] = useState('');
   const router = useRouter();
 
   // Centralized onboarding completion logic
-  const completeOnboarding = async (goal: string, platform: string) => {
+  const completeOnboarding = async (goal: string, platform: string, agent: string) => {
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('userGoal', goal);
     localStorage.setItem('userPlatform', platform);
@@ -83,7 +101,7 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   };
 
   const handleSubmit = async () => {
-    await completeOnboarding(goal, platform);
+    await completeOnboarding(goal, platform, selectedAgent);
     onComplete({ goal, platform });
   };
 
@@ -127,6 +145,30 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
         </div>
       )}
       {step === 3 && (
+        <div className="w-full">
+          <h3 className="text-lg font-semibold mb-4 text-center">Choose your starting agent</h3>
+          <select
+            className="w-full py-3 px-4 rounded-lg bg-white/10 border border-white/20 text-white font-medium mb-6 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            value={selectedAgent}
+            onChange={e => setSelectedAgent(e.target.value)}
+            aria-label="Choose your starting agent"
+          >
+            <option value="" disabled>Pick an agent...</option>
+            {AGENT_OPTIONS.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          <button
+            disabled={!selectedAgent}
+            onClick={() => setStep(4)}
+            className={`w-full py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all ${!selectedAgent ? 'opacity-50 cursor-not-allowed' : ''}`}
+            aria-disabled={!selectedAgent ? 'true' : 'false'}
+          >
+            Next
+          </button>
+        </div>
+      )}
+      {step === 4 && (
         <div className="w-full flex flex-col items-center">
           <h3 className="text-lg font-semibold mb-4 text-center">Ready to get started?</h3>
           <button

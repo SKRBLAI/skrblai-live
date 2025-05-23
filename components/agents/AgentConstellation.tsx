@@ -23,8 +23,17 @@ interface AgentConstellationProps {
   setSelectedAgent: (agent: Agent | null) => void;
 }
 
+const AGENTS_PER_GROUP = 3;
+
 const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, setSelectedAgent }) => {
   const [orbitingAgents, setOrbitingAgents] = useState<OrbitAgent[]>([]);
+  const [currentGroup, setCurrentGroup] = useState(0);
+  const groupCount = Math.ceil(orbitingAgents.length / AGENTS_PER_GROUP);
+
+  // Calculate agents to display in current group
+  const startIdx = currentGroup * AGENTS_PER_GROUP;
+  const endIdx = startIdx + AGENTS_PER_GROUP;
+  const visibleAgents = orbitingAgents.slice(startIdx, endIdx);
   const [isMobile, setIsMobile] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
@@ -33,10 +42,17 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch("/api/agents/featured");
+        const response = await fetch("/api/agents?grouped=1");
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        const agents: OrbitAgent[] = (data.agents as Agent[]).map((agent) => {
+        // Defensive: data may be grouped or flat, so flatten if needed
+        let agents: Agent[] = [];
+        if (Array.isArray(data.agents)) {
+          agents = data.agents;
+        } else if (data.groups) {
+          agents = Object.values(data.groups).flat();
+        }
+        const orbitAgents: OrbitAgent[] = (agents as Agent[]).map((agent) => {
           let tier: OrbitTier = ['inner', 'mid', 'outer'].includes((agent as any).tier as string)
             ? (agent as any).tier as OrbitTier
             : 'outer';
@@ -50,9 +66,10 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
             category: agent.category ?? 'assistant',
             capabilities: agent.capabilities ?? [],
             visible: typeof agent.visible === "boolean" ? agent.visible : true,
+            locked: typeof agent.locked === "boolean" ? agent.locked : false,
           };
         });
-        const agentsToDisplay = agents.filter(agent => agent.displayInOrbit === true);
+        const agentsToDisplay = orbitAgents.filter(agent => agent.visible !== false);
         setOrbitingAgents(agentsToDisplay);
       } catch (error) {
         console.error("Failed to fetch agents:", error);
@@ -128,51 +145,45 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         </motion.div>
       </motion.div>
 
-      {/* Orbiting Agents */}
+      {/* Orbiting Agents - Show only 3 at a time in a circle around Percy */}
       <div className="hidden md:block">
-        {Object.entries(TIER_RADII).flatMap(([tierName, radius]) => {
-          // Only agents with a valid tier for this ring
-          const tierAgentsInCurrentTier = orbitingAgents.filter(agent => agent.tier === tierName);
-          return tierAgentsInCurrentTier.map((agent, i, arr) => {
-            const angle = arr.length > 0 ? (360 / arr.length) * i : 0;
-            const rad = (angle * Math.PI) / 180;
-            const x = Math.cos(rad) * radius;
-            const y = Math.sin(rad) * radius;
-            const size = tierName === 'inner' ? 64 : tierName === 'mid' ? 80 : 96;
-            const orbitStyle = {
-              left: `calc(50% + ${x}px)`,
-              top: `calc(50% + ${y}px)`,
-              transform: 'translate(-50%, -50%)',
-              width: size,
-              height: size,
-            };
+        <AnimatePresence mode="wait">
+          {visibleAgents.map((agent, i) => {
+            // Arrange 3 agents evenly in a circle
+            const angle = (360 / AGENTS_PER_GROUP) * i - 90; // -90 to start at top
+            const radius = TIER_RADII[agent.tier || 'outer'];
+            const x = Math.cos((angle * Math.PI) / 180) * radius;
+            const y = Math.sin((angle * Math.PI) / 180) * radius;
+            const size = agent.tier === 'inner' ? 64 : agent.tier === 'mid' ? 80 : 96;
+            const isLocked = !!(agent.locked || agent.unlocked === false);
             return (
               <motion.div
-                key={`desktop-${agent.id}`}
-                tabIndex={0}
-                aria-label={`Activate ${agent.name}`}
-                className="absolute z-20 group cursor-pointer flex flex-col items-center focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400"
-                style={orbitStyle}
-                animate={{
-                  y: [0, -8, 0, 8, 0].map(v => v + (Math.random() * 2 - 1)),
+                key={agent.id}
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.7 }}
+                transition={{ delay: i * 0.08, type: shouldReduceMotion ? 'tween' : 'spring' }}
+                style={{
+                  position: 'absolute',
+                  left: `calc(50% + ${x}px)`,
+                  top: `calc(50% + ${y}px)`,
+                  width: size,
+                  height: size,
+                  zIndex: isLocked ? 10 : 20,
+                  filter: isLocked ? 'grayscale(1) brightness(0.7)' : '',
+                  pointerEvents: isLocked ? 'none' : 'auto',
                 }}
-                whileHover={{ scale: 1.13, zIndex: 30, filter: "drop-shadow(0 0 18px #f472b6)" }}
-                onClick={() => {
-                  setSelectedAgent(agent);
-                  // Confetti pop effect
-                  const confetti = document.createElement('div');
-                  confetti.className = 'absolute inset-0 pointer-events-none animate-confetti-burst';
-                  confetti.innerHTML = `<svg viewBox='0 0 100 100' class='w-full h-full'><circle cx='50' cy='50' r='30' fill='#38bdf8' opacity='0.18'/><circle cx='50' cy='50' r='20' fill='#f472b6' opacity='0.14'/><circle cx='50' cy='50' r='10' fill='#2dd4bf' opacity='0.16'/></svg>`;
-                  (event?.currentTarget as HTMLElement).appendChild(confetti);
-                  setTimeout(() => confetti.remove(), 900);
+                className={`group cursor-pointer ${isLocked ? 'opacity-50' : ''}`}
+                tabIndex={isLocked ? -1 : 0}
+                aria-disabled={isLocked ? 'true' : 'false'}
+                onClick={() => !isLocked && setSelectedAgent(agent)}
+                onKeyDown={(e) => {
+                  if (!isLocked && (e.key === 'Enter' || e.key === ' ')) setSelectedAgent(agent);
                 }}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') setSelectedAgent(agent);
-                }}
+                whileHover={!isLocked ? { scale: 1.1 } : undefined}
+                whileTap={!isLocked ? { scale: 0.97 } : undefined}
               >
-                <div className="relative rounded-full border-4 border-fuchsia-400 group-hover:border-teal-300 transition-all duration-200 shadow-glow bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 overflow-visible animate__animated animate__pulse"
-                  style={{ width: size, height: size }}
-                >
+                <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-teal-400 shadow-glow bg-deep-navy">
                   <Image
                     src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
                     alt={agent.role || agent.name}
@@ -183,55 +194,27 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                       (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                     }}
                   />
-                  {/* Cosmic animated ring */}
-                  <span className="absolute inset-0 rounded-full ring-2 ring-fuchsia-400 animate-pulse pointer-events-none"></span>
+                  {agent.locked && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full">
+                      <span className="text-white text-2xl" title="Locked agent">🔒</span>
+                    </div>
+                  )}
                 </div>
-                {/* Tooltip for accessibility */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-gradient-to-r from-fuchsia-700/90 to-teal-800/90 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-50">
+                <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
                   {agent.name.replace('Agent', '')}
                 </div>
               </motion.div>
             );
-          });
-        })}
-        {/* Fallback: Agents with missing/invalid tier */}
-        {orbitingAgents.filter(agent => !Object.keys(TIER_RADII).includes(agent.tier)).map((agent, i) => {
-          if (process.env.NODE_ENV === "development") {
-            console.warn(`[AgentConstellation] Agent missing or unknown tier:`, agent);
-          }
-          return (
-            <motion.div
-              key={`fallback-${agent.id}`}
-              tabIndex={0}
-              aria-label={`Activate ${agent.name}`}
-              className="absolute group cursor-pointer flex flex-col items-center left-1/2 top-1/2 w-[72px] h-[72px] z-[5] border-2 border-dashed border-blue-500/80 filter brightness-75 grayscale-[.5] drop-shadow-[0_0_8px_#38bdf8cc] -translate-x-1/2 -translate-y-1/2"
-              onClick={() => setSelectedAgent(agent)}
-            >
-              <div className="relative rounded-full border-2 border-gray-500/40 bg-gray-700/50 overflow-hidden w-[72px] h-[72px]"
-                title="Missing or unknown tier"
-              >
-                <Image
-                  src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
-                  alt={agent.role || agent.name}
-                  fill
-                  className="object-cover rounded-full opacity-70"
-                  sizes="72px"
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
-                  }}
-                />
-              </div>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
-                {agent.name.replace('Agent', '')}
-              </div>
-            </motion.div>
-          );
-        })}
+          })}
+        </AnimatePresence>
+        {orbitingAgents.length === 0 && (
+          <div className="w-full text-center text-gray-400 py-12 text-lg font-semibold">No agents available at this time.</div>
+        )}
       </div>
 
-      {/* Mobile: stacked orbit agents */}
+      {/* Mobile: Only show 3 agents in current group */}
       <div className="md:hidden flex flex-wrap justify-center items-center gap-3 p-4">
-        {orbitingAgents.map((agent) => {
+        {visibleAgents.map((agent) => {
           const size = agent.tier === 'inner' ? 56 : agent.tier === 'mid' ? 68 : 80;
           return (
             <motion.div
@@ -266,68 +249,96 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         })}
       </div>
 
-      {/* Agent Details Modal */}
+      {/* Hero-select floating avatar animation when agent is selected */}
       <AnimatePresence>
         {selectedAgent && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ pointerEvents: 'auto' }}
-            onClick={() => setSelectedAgent(null)}
-            aria-label="Agent Details Modal"
-          >
-            {/* Focus trap for accessibility */}
-            <FocusTrap active={!!selectedAgent}>
-              <motion.div
-                className="relative bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 backdrop-blur-xl rounded-2xl shadow-2xl p-6 max-w-md w-full flex flex-col items-center gap-4 animate__animated animate__fadeInDown border-2 border-fuchsia-400"
-                onClick={(e) => e.stopPropagation()}
-                tabIndex={-1}
-                role="dialog"
-                aria-modal="true"
-              >
-                <button
-                  className="absolute top-2 right-2 text-gray-200 hover:text-teal-400 text-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 rounded-full bg-black/10 px-2 py-1"
-                  onClick={() => setSelectedAgent(null)}
-                  aria-label="Close agent details"
-                >
-                  ×
-                </button>
-              <div className="relative w-24 h-24 mx-auto">
+          <>
+            {/* Animated avatar centered above Percy with scale/halo effect */}
+            <motion.div
+              className="fixed left-1/2 top-1/2 z-[60] flex flex-col items-center justify-center pointer-events-none"
+              initial={{ opacity: 0, scale: 0.7, zIndex: 60 }}
+              animate={{ opacity: 1, scale: 1.22, filter: 'drop-shadow(0 0 32px #38bdf8) drop-shadow(0 0 64px #f472b6)' }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 16 }}
+              style={{ transform: 'translate(-50%, -50%)' }}
+            >
+              <div className="relative w-40 h-40 md:w-52 md:h-52">
                 <Image
                   src={selectedAgent.imageSlug ? `/images/agents-${selectedAgent.imageSlug}-skrblai.png` : getAgentImagePath(selectedAgent)}
                   alt={selectedAgent.name}
                   fill
-                  className="object-cover rounded-full shadow-glow"
-                  sizes="96px"
+                  className="object-cover rounded-full border-4 border-teal-400 shadow-glow"
+                  sizes="208px"
+                  style={{ zIndex: 61 }}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = `/images/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
                   }}
                 />
-                <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
-              </div>
-              <div className="flex flex-col items-center">
-                <h2 className="text-2xl font-bold text-center text-white mb-1">{selectedAgent.name}</h2>
-                <p className="text-teal-300 text-sm text-center mb-2">{(selectedAgent as OrbitAgent).role}</p>
-                <div className="flex flex-col items-center">
-                  <p className="text-sm text-gray-300 mb-3 leading-snug text-center">
-                    This AI-powered assistant can help you create professional {selectedAgent.capabilities?.[0]?.toLowerCase()} content and strategies tailored to your specific needs.
-                  </p>
-                  <motion.button
-                    whileHover={{ scale: 1.07 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => router.push(getAgentRoute(selectedAgent.name))}
-                    className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 mt-2"
-                    aria-label={`Launch ${selectedAgent.name}`}
-                  >
-                    Launch {selectedAgent.name.replace('Agent', '')}
-                  </motion.button>
-                </div>
+                <motion.div className="absolute inset-0 rounded-full bg-teal-400/10 animate-pulse-slow" />
               </div>
             </motion.div>
-            </FocusTrap>
-          </motion.div>
+
+            {/* Floating Agent Details Modal */}
+            <motion.div
+              className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              style={{ pointerEvents: 'auto' }}
+              onClick={() => setSelectedAgent(null)}
+              aria-label="Agent Details Modal"
+            >
+              {/* Focus trap for accessibility */}
+              <FocusTrap active={!!selectedAgent}>
+                <motion.div
+                  className="relative bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 backdrop-blur-xl rounded-2xl shadow-2xl p-6 max-w-md w-full flex flex-col items-center gap-4 animate__animated animate__fadeInDown border-2 border-fuchsia-400"
+                  onClick={(e) => e.stopPropagation()}
+                  tabIndex={-1}
+                  role="dialog"
+                  aria-modal="true"
+                >
+                  <button
+                    className="absolute top-2 right-2 text-gray-200 hover:text-teal-400 text-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 rounded-full bg-black/10 px-2 py-1"
+                    onClick={() => setSelectedAgent(null)}
+                    aria-label="Close agent details"
+                  >
+                    ×
+                  </button>
+                  <div className="relative w-24 h-24 mx-auto -mt-12 mb-2">
+                    <Image
+                      src={selectedAgent.imageSlug ? `/images/agents-${selectedAgent.imageSlug}-skrblai.png` : getAgentImagePath(selectedAgent)}
+                      alt={selectedAgent.name}
+                      fill
+                      className="object-cover rounded-full shadow-glow border-2 border-teal-400"
+                      sizes="96px"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = `/images/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
+                      }}
+                    />
+                    <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <h2 className="text-2xl font-bold text-center text-white mb-1">{selectedAgent.name}</h2>
+                    <p className="text-teal-300 text-sm text-center mb-2">{(selectedAgent as OrbitAgent).role}</p>
+                    <div className="flex flex-col items-center">
+                      <p className="text-sm text-gray-300 mb-3 leading-snug text-center">
+                        This AI-powered assistant can help you create professional {selectedAgent.capabilities?.[0]?.toLowerCase()} content and strategies tailored to your specific needs.
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.07 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => router.push(getAgentRoute(selectedAgent.name))}
+                        className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 mt-2"
+                        aria-label={`Launch ${selectedAgent.name}`}
+                      >
+                        Launch {selectedAgent.name.replace('Agent', '')}
+                      </motion.button>
+                    </div>
+                  </div>
+                </motion.div>
+              </FocusTrap>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>

@@ -3,6 +3,7 @@ import { getWorkflowIdForAgentTask } from '@/utils/agentAutomation';
 import { triggerN8nWorkflow } from '@/lib/n8nClient';
 import { systemLog } from '@/utils/systemLog';
 import { createClient } from '@supabase/supabase-js';
+import agentRegistry from '@/lib/agents/agentRegistry';
 
 // Simple in-memory rate limit (per IP, 10/min)
 const rateLimitMap = new Map<string, { count: number; last: number }>();
@@ -37,6 +38,21 @@ export async function POST(req: NextRequest) {
     if (!user) {
       await systemLog({ type: 'warning', message: 'Unauthorized automation attempt', meta: { agentId, task, ip } });
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    // --- Role-based gating ---
+    const agent = agentRegistry.find(a => a.id === agentId || a.intent === agentId);
+    if (agent && agent.roleRequired) {
+      // Fetch user role from Supabase (assume user_roles table: userId, role)
+      const { data: userRoleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('userId', user.id)
+        .maybeSingle();
+      const userRole = userRoleData?.role || 'client';
+      if (userRole !== agent.roleRequired) {
+        await systemLog({ type: 'warning', message: 'Forbidden: insufficient role for agent', meta: { agentId, task, userId: user.id, userRole, required: agent.roleRequired } });
+        return NextResponse.json({ success: false, error: `Forbidden: This agent requires role '${agent.roleRequired}'` }, { status: 403 });
+      }
     }
     // Map agent+task to workflow
     const workflowId = getWorkflowIdForAgentTask(agentId, task);
