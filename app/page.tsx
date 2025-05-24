@@ -29,7 +29,7 @@ export default function HomePage() {
         setAgents(data.agents || []);
         // Extract unique categories
         const cats = Array.from(new Set((data.agents || []).flatMap((a: any) => a.agentCategory || [])));
-        setAllCategories(cats);
+        setAllCategories(cats as string[]);
       } catch (err) {
         setAgents([]);
         setAllCategories([]);
