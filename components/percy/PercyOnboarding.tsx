@@ -55,6 +55,9 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
   const [goal, setGoal] = useState('');
   const [platform, setPlatform] = useState('');
   const [selectedAgent, setSelectedAgent] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [inviteStatus, setInviteStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [inviteMessage, setInviteMessage] = useState('');
   const router = useRouter();
 
   // Centralized onboarding completion logic
@@ -145,6 +148,68 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
         </div>
       )}
       {step === 3 && (
+        <div className="w-full flex flex-col items-center">
+          <h3 className="text-lg font-semibold mb-4 text-center">Have an invite code? (Optional)</h3>
+          <input
+            type="text"
+            className="w-full py-3 px-4 rounded-lg bg-white/10 border border-white/20 text-white font-medium mb-3 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            placeholder="Enter invite code (optional)"
+            value={inviteCode}
+            onChange={e => setInviteCode(e.target.value)}
+            disabled={inviteStatus === 'loading' || inviteStatus === 'success'}
+            aria-label="Invite code"
+          />
+          {inviteStatus === 'error' && (
+            <div className="text-red-400 text-sm mb-2">{inviteMessage}</div>
+          )}
+          {inviteStatus === 'success' && (
+            <div className="text-green-400 text-sm mb-2">{inviteMessage}</div>
+          )}
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={async () => {
+                if (!inviteCode) {
+                  setStep(4); // skip if empty
+                  return;
+                }
+                setInviteStatus('loading');
+                setInviteMessage('');
+                try {
+                  const res = await fetch('/api/invite/redeem', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: inviteCode })
+                  });
+                  const data = await res.json();
+                  if (res.ok && data.success) {
+                    setInviteStatus('success');
+                    setInviteMessage('Invite code accepted! Bonus unlocked.');
+                    setTimeout(() => setStep(4), 1200);
+                  } else {
+                    setInviteStatus('error');
+                    setInviteMessage(data.message || 'Invalid invite code.');
+                  }
+                } catch (e) {
+                  setInviteStatus('error');
+                  setInviteMessage('Network error. Please try again.');
+                }
+              }}
+              className={`flex-1 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all ${inviteStatus === 'loading' ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={inviteStatus === 'loading' || !inviteCode}
+            >
+              Redeem
+            </button>
+            <button
+              onClick={() => setStep(4)}
+              className="flex-1 py-3 rounded-lg bg-white/10 border border-white/20 text-white font-medium text-lg hover:bg-teal-500/20 transition-all"
+              disabled={inviteStatus === 'loading'}
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      )}
+      {step === 4 && (
         <div className="w-full">
           <h3 className="text-lg font-semibold mb-4 text-center">Choose your starting agent</h3>
           <select
@@ -160,15 +225,14 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
           </select>
           <button
             disabled={!selectedAgent}
-            onClick={() => setStep(4)}
+            onClick={() => setStep(5)}
             className={`w-full py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow border-2 border-teal-400/60 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 transition-all ${!selectedAgent ? 'opacity-50 cursor-not-allowed' : ''}`}
-            aria-disabled={!selectedAgent ? 'true' : 'false'}
           >
             Next
           </button>
         </div>
       )}
-      {step === 4 && (
+      {step === 5 && (
         <div className="w-full flex flex-col items-center">
           <h3 className="text-lg font-semibold mb-4 text-center">Ready to get started?</h3>
           <button
@@ -177,6 +241,22 @@ export default function PercyOnboarding({ onComplete }: PercyOnboardingProps) {
           >
             Finish Onboarding
           </button>
+          <div className="w-full flex flex-col gap-3 mt-6">
+            <button
+              onClick={() => {/* TODO: Integrate with Stripe upgrade flow */ alert('Upgrade flow (Stripe) coming soon!'); }}
+              className="w-full max-w-xs mx-auto px-6 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 text-lg"
+              aria-label="Upgrade and unlock agents"
+            >
+              Upgrade Now
+            </button>
+            <button
+              onClick={() => {/* TODO: Integrate referral/bonus flow */ alert('Invite a friend & get bonus (coming soon!)'); }}
+              className="w-full max-w-xs mx-auto px-6 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-sky-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 text-base"
+              aria-label="Invite a friend and get bonus"
+            >
+              Invite a Friend (Get Bonus)
+            </button>
+          </div>
         </div>
       )}
     </div>

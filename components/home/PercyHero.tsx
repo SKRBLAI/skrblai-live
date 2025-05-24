@@ -220,6 +220,62 @@ export default function PercyHero() {
         </motion.button>
       </div>
 
+      {/* See What SKRBL AI Can Do Demo CTA */}
+      <div className="flex w-full justify-center mt-4 mb-2">
+        <motion.button
+          whileHover={{ scale: 1.06, boxShadow: "0 0 32px 8px #38bdf8" }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+            // TODO: Open demo modal with AgentCarousel or best agents demo
+            setShowAgentsModal(true);
+          }}
+          className="px-8 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold text-lg shadow-glow focus:outline-none focus:ring-4 focus:ring-electric-blue/60 animate-pulse-subtle"
+          aria-label="See What SKRBL AI Can Do"
+        >
+          <span className="inline-flex items-center gap-2">
+            <svg className="w-6 h-6 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v4m0 8v4m8-8h-4m-8 0H4m15.07-7.07l-2.83 2.83M6.34 17.66l-2.83 2.83m0-16.97l2.83 2.83m10.6 10.6l2.83 2.83" /></svg>
+            See What SKRBL AI Can Do
+          </span>
+        </motion.button>
+      </div>
+      {/* Demo Modal (placeholder, implement AgentCarousel or best agents demo here) */}
+      <AnimatePresence>
+        {showAgentsModal && (
+          <motion.div
+            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAgentsModal(false)}
+            aria-modal="true"
+            role="dialog"
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 220, damping: 22 }}
+              className="bg-white/10 backdrop-blur-xl rounded-2xl p-6 shadow-2xl max-w-2xl w-full relative"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                className="absolute top-3 right-3 text-white text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-full w-10 h-10 flex items-center justify-center bg-black/20"
+                aria-label="Close demo modal"
+                onClick={() => setShowAgentsModal(false)}
+                tabIndex={0}
+              >
+                ×
+              </button>
+              <h3 className="text-2xl font-bold mb-4 text-center text-white">Top SKRBL AI Agents</h3>
+              {/* TODO: Replace with real best agents demo, for now show AgentCarousel with top agents */}
+              <AgentCarousel agents={filteredVisibleAgents.slice(0, 8)} onLaunch={setSelectedAgent} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* TODO: Add animated glow to AgentConstellation and quick tooltips for each agent (see AgentConstellation.tsx) */}
+      {/* TODO: Add rotating testimonial or "Recently Unlocked" agents for social proof here */}
+
       {/* Intake Modal */}
       <AnimatePresence>
         {showIntake && (

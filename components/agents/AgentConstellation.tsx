@@ -183,6 +183,15 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 whileHover={!isLocked ? { scale: 1.1 } : undefined}
                 whileTap={!isLocked ? { scale: 0.97 } : undefined}
               >
+                {/* Animated glowing ring behind agent */}
+                <motion.div
+                  className="absolute inset-0 z-0 rounded-full pointer-events-none"
+                  initial={{ boxShadow: '0 0 0px 0px #38bdf8' }}
+                  animate={{ boxShadow: '0 0 24px 8px #38bdf8, 0 0 48px 16px #2dd4bf55' }}
+                  transition={{ duration: 2, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+                  style={{ filter: isLocked ? 'grayscale(1) brightness(0.7)' : '', width: '100%', height: '100%' }}
+                  aria-hidden="true"
+                />
                 <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-teal-400 shadow-glow bg-deep-navy">
                   <Image
                     src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
@@ -200,9 +209,23 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                     </div>
                   )}
                 </div>
-                <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
-                  {agent.name.replace('Agent', '')}
-                </div>
+                {/* Accessible tooltip on hover/focus */}
+                <AnimatePresence>
+                  {(document.activeElement === null || document.activeElement === undefined || document.activeElement === document.body || document.activeElement === undefined || typeof window === 'undefined' ? false : document.activeElement === document.getElementById(`agent-orbit-${agent.id}`)) || undefined ? null : null}
+                  {/* Tooltip logic for accessibility handled below */}
+                </AnimatePresence>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.18 }}
+                  className="absolute left-1/2 -translate-x-1/2 -top-8 md:-top-10 px-3 py-1 rounded-md bg-black/80 text-white text-xs font-semibold pointer-events-none shadow-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity duration-150 z-30 whitespace-nowrap"
+                  role="tooltip"
+                  aria-label={agent.name.replace('Agent', '') + (agent.locked ? ' (Locked)' : '')}
+                  style={{ pointerEvents: 'none' }}
+                >
+                  {agent.name.replace('Agent', '')} {agent.locked ? <span className="ml-1 text-fuchsia-400">(Locked)</span> : null}
+                </motion.div>
               </motion.div>
             );
           })}

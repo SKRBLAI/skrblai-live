@@ -72,6 +72,24 @@ export default function DashboardHome() {
         <p className="text-gray-400 mt-2">Let's create something amazing today</p>
       </motion.div>
 
+      {/* Upgrade & Invite CTAs */}
+      <div className="w-full flex flex-col md:flex-row gap-3 md:gap-6 mb-10 items-center justify-center">
+        <button
+          onClick={() => {/* TODO: Integrate with Stripe upgrade flow */ alert('Upgrade flow (Stripe) coming soon!'); }}
+          className="w-full md:w-auto max-w-xs px-6 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 text-lg"
+          aria-label="Upgrade and unlock agents"
+        >
+          Upgrade Now
+        </button>
+        <button
+          onClick={() => {/* TODO: Integrate referral/bonus flow */ alert('Invite a friend & get bonus (coming soon!)'); }}
+          className="w-full md:w-auto max-w-xs px-6 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-sky-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 text-base"
+          aria-label="Invite a friend and get bonus"
+        >
+          Invite a Friend (Get Bonus)
+        </button>
+      </div>
+
       {/* Next Steps Section */}
       <motion.div
         variants={staggerContainer}

@@ -41,7 +41,7 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
 
   if (!agent) return null;
   const isLocked = agent.unlocked === false;
-  const emoji = {
+  const emojiMap: Record<string, string> = {
     "Brand Development": "🎨",
     "Ebook Creation": "📚",
     "Paid Marketing": "💸",
@@ -57,7 +57,11 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
     "Back Office": "💼",
     "Concierge": "🤖",
     "Orchestration": "🔗",
-  }[agent.category] || "🤖";
+  };
+  function getEmoji(category: string): string {
+    return emojiMap[category] || "🤖";
+  }
+  const emoji = getEmoji(agent.category);
 
   const handleDemo = async () => {
     setDemoLoading(true);
@@ -110,9 +114,31 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
             </div>
             <p className="text-gray-300 mb-6">{agent.description}</p>
             {isLocked && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/70 rounded-2xl flex flex-col items-center justify-center z-20">
-                <span className="text-4xl mb-2">🔒</span>
-                <span className="text-white font-bold text-lg">This agent is locked</span>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-black/80 rounded-2xl flex flex-col items-center justify-center z-20 p-6"
+                role="region"
+                aria-label="Agent locked upgrade prompt"
+              >
+                <span className="text-5xl mb-4 select-none" aria-hidden="true">🔒</span>
+                <span className="text-white font-bold text-xl md:text-2xl mb-4 text-center drop-shadow-lg">
+                  Unlock more AI agents—<span className="text-gradient bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent">Upgrade now!</span>
+                </span>
+                <button
+                  onClick={() => {/* TODO: Integrate with Stripe upgrade flow */ alert('Upgrade flow (Stripe) coming soon!'); }}
+                  className="w-full max-w-xs mb-3 px-6 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 text-lg"
+                  aria-label="Upgrade and unlock agents"
+                >
+                  Upgrade Now
+                </button>
+                <button
+                  onClick={() => {/* TODO: Integrate referral/bonus flow */ alert('Invite a friend & get bonus (coming soon!)'); }}
+                  className="w-full max-w-xs px-6 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-sky-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 text-base"
+                  aria-label="Invite a friend and get bonus"
+                >
+                  Invite a Friend (Get Bonus)
+                </button>
               </motion.div>
             )}
             <div className="flex flex-col gap-3">
@@ -120,7 +146,7 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
                 className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 disabled:opacity-60"
                 onClick={() => onTry(agent.intent || agent.id)}
                 disabled={isLocked}
-                aria-disabled={isLocked}
+                aria-disabled={isLocked ? "true" : "false"}
               >
                 Try Now
               </button>
@@ -128,7 +154,7 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
                 className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200 disabled:opacity-60"
                 onClick={handleDemo}
                 disabled={isLocked || demoLoading}
-                aria-disabled={isLocked || demoLoading}
+                aria-disabled={(isLocked || demoLoading) ? "true" : "false"}
               >
                 {demoLoading ? (
                   <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="inline-flex items-center gap-2">
