@@ -61,7 +61,7 @@ function getBestAgents(goal: string, platform: string, agents: any[]) {
     (a.category && lowerPlatform && a.category.toLowerCase().includes(lowerPlatform)) ||
     (a.name && lowerPlatform && a.name.toLowerCase().includes(lowerPlatform)) ||
     (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform)) ||
-    (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some(cat => lowerPath.includes(cat)))
+    (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some((cat: string) => lowerPath.includes(cat)))
   ));
   if (matches.length === 0) {
     matches = agents.filter(a => a.visible).slice(0, 3);

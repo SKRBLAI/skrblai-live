@@ -50,7 +50,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         if (Array.isArray(data.agents)) {
           agents = data.agents;
         } else if (data.groups) {
-          agents = Object.values(data.groups).flat();
+          agents = Object.values(data.groups).flat() as Agent[];
         }
         const orbitAgents: OrbitAgent[] = (agents as Agent[]).map((agent) => {
           let tier: OrbitTier = ['inner', 'mid', 'outer'].includes((agent as any).tier as string)
@@ -66,7 +66,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
             category: agent.category ?? 'assistant',
             capabilities: agent.capabilities ?? [],
             visible: typeof agent.visible === "boolean" ? agent.visible : true,
-            locked: typeof agent.locked === "boolean" ? agent.locked : false,
+            unlocked: typeof agent.unlocked === "boolean" ? agent.unlocked : false, // Default to false (locked) if undefined
           };
         });
         const agentsToDisplay = orbitAgents.filter(agent => agent.visible !== false);
@@ -155,7 +155,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
             const x = Math.cos((angle * Math.PI) / 180) * radius;
             const y = Math.sin((angle * Math.PI) / 180) * radius;
             const size = agent.tier === 'inner' ? 64 : agent.tier === 'mid' ? 80 : 96;
-            const isLocked = !!(agent.locked || agent.unlocked === false);
+            const isLocked = agent.unlocked === false; // Explicitly false means locked
             return (
               <motion.div
                 key={agent.id}
@@ -203,7 +203,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                       (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
                     }}
                   />
-                  {agent.locked && (
+                  {agent.unlocked === false && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full">
                       <span className="text-white text-2xl" title="Locked agent">🔒</span>
                     </div>
@@ -221,10 +221,10 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   transition={{ duration: 0.18 }}
                   className="absolute left-1/2 -translate-x-1/2 -top-8 md:-top-10 px-3 py-1 rounded-md bg-black/80 text-white text-xs font-semibold pointer-events-none shadow-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity duration-150 z-30 whitespace-nowrap"
                   role="tooltip"
-                  aria-label={agent.name.replace('Agent', '') + (agent.locked ? ' (Locked)' : '')}
+                  aria-label={agent.name.replace('Agent', '') + (agent.unlocked === false ? ' (Locked)' : '')}
                   style={{ pointerEvents: 'none' }}
                 >
-                  {agent.name.replace('Agent', '')} {agent.locked ? <span className="ml-1 text-fuchsia-400">(Locked)</span> : null}
+                  {agent.name.replace('Agent', '')} {agent.unlocked === false ? <span className="ml-1 text-fuchsia-400">(Locked)</span> : null}
                 </motion.div>
               </motion.div>
             );
