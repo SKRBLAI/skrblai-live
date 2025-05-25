@@ -1,3 +1,4 @@
+SKRBL AI is currently in active development. Last updated: May 25, 2025.
 # SKRBL AI Platform
 
 ## Project Overview
