@@ -167,7 +167,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
             <motion.div className="col-span-full text-center text-red-400 py-12">{error}</motion.div>
           ) : filteredAgents.length > 0 ? (
             filteredAgents.map(agent => {
-              const isLocked = !!(agent.locked || agent.unlocked === false);
+              const isLocked = agent.unlocked === false;
               return (
                 <motion.div
                   key={agent.id}

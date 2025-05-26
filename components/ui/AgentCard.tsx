@@ -212,7 +212,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
     onClick();
   };
   const emoji = agent?.icon ?? getAgentEmoji(agent.category) ?? '🤖';
-  const isLocked = agent.premium && !isPremiumUnlocked;
+  const isLocked = agent.premium && !isPremiumUnlocked; // [lock-migration: premium lock only]
 
   // Initialize variants with index
   const cardVariants = getCardVariants(index);
