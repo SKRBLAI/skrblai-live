@@ -92,7 +92,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Log out the agents for debugging
 console.log(`All agents loaded: ${allAgents.length}`);
-if (allAgents.some(a => a === undefined || a === null)) {
+if (allAgents.some((a: any) => a === undefined || a === null)) {
   console.error('Some agents failed to load properly');
   const problemAgents = allAgents
     .map((agent, index) => agent ? null : index)

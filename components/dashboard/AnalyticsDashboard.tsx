@@ -105,7 +105,7 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
         let totalTasks = 0;
         let completedTasks = 0;
 
-        tasks.forEach(task => {
+        tasks.forEach((task: TaskData) => {
           totalTasks++;
           
           // Count by type
@@ -139,11 +139,11 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
         
         // Sort dates for daily tasks chart
         const sortedDates = Object.keys(dailyTasks).sort();
-        const dailyTasksLabels = sortedDates.map(date => {
+        const dailyTasksLabels = sortedDates.map((date: string) => {
           const d = new Date(date);
           return `${d.getMonth() + 1}/${d.getDate()}`;
         });
-        const dailyTasksValues = sortedDates.map(date => dailyTasks[date]);
+        const dailyTasksValues = sortedDates.map((date: string) => dailyTasks[date]);
         
         // Update state with processed data
         setTasksByType(typeCount);
@@ -171,7 +171,7 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
   };
 
   const taskTypeChartData = {
-    labels: Object.keys(tasksByType).map(t => t.charAt(0).toUpperCase() + t.slice(1)),
+    labels: Object.keys(tasksByType).map((t: string) => t.charAt(0).toUpperCase() + t.slice(1)),
     datasets: [
       {
         label: 'Tasks by Type',
@@ -196,7 +196,7 @@ export default function AnalyticsDashboard({ timeRange = 'month' }: AnalyticsPro
   };
 
   const taskStatusChartData = {
-    labels: Object.keys(tasksByStatus).map(s => s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')),
+    labels: Object.keys(tasksByStatus).map((s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace('_', ' ')),
     datasets: [
       {
         label: 'Tasks by Status',

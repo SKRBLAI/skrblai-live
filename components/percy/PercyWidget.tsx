@@ -61,7 +61,7 @@ function getBestAgents(goal: string, platform: string, agents: any[]) {
     (a.category && lowerPlatform && a.category.toLowerCase().includes(lowerPlatform)) ||
     (a.name && lowerPlatform && a.name.toLowerCase().includes(lowerPlatform)) ||
     (a.intent && lowerPlatform && a.intent.toLowerCase().includes(lowerPlatform)) ||
-    (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some(cat => lowerPath.includes(cat)))
+    (Array.isArray(a.agentCategory) && a.agentCategory.length > 0 && a.agentCategory.some((cat: string) => lowerPath.includes(cat)))
   ));
   if (matches.length === 0) {
     matches = agents.filter(a => a.visible).slice(0, 3);
@@ -111,7 +111,7 @@ function getSmartAgentSuggestions({ prompt = '', file = null, dropdown = '', age
   for (const { key, agent, why } of keywordMap) {
     if ((lowerPrompt && lowerPrompt.includes(key)) || (dropdownValue && dropdownValue.includes(key))) {
       const found = agents.find(a => a.name.toLowerCase().includes(agent) || a.id.toLowerCase().includes(agent));
-      if (found && !matches.some(m => m.name === found.name)) {
+      if (found && !matches.some((m: any) => m.name === found.name)) {
         matches.push({ name: found.name, description: found.description, why, action: () => routerResult?.routeToAgent && routerResult.routeToAgent(found.intent || found.id) });
       }
     }

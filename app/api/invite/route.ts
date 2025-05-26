@@ -1,3 +1,6 @@
+/*
+BACKUP OF ORIGINAL /api/invite LOGIC (restore when ready):
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { randomBytes } from 'crypto';
@@ -71,4 +74,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
   return NextResponse.json({ success: true, code, invite });
-} 
+}
+*/
+
+// Placeholder handler for all HTTP methods
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(req: NextRequest) {
+  return NextResponse.json({ message: 'Invite API coming soon.' });
+}
+
+export async function POST(req: NextRequest) {
+  return NextResponse.json({ message: 'Invite API coming soon.' });
+}
+
+export async function PUT(req: NextRequest) {
+  return NextResponse.json({ message: 'Invite API coming soon.' });
+}
+
+export async function DELETE(req: NextRequest) {
+  return NextResponse.json({ message: 'Invite API coming soon.' });
+}
+
+export async function PATCH(req: NextRequest) {
+  return NextResponse.json({ message: 'Invite API coming soon.' });
+}

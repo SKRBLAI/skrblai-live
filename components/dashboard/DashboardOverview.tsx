@@ -67,7 +67,7 @@ export default function DashboardOverview({ lastUsed, activity, suggestion }: Da
         <div className="bg-deep-navy/80 p-6 rounded-xl border border-electric-blue/20">
           <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
           <div className="space-y-4">
-            {activity.map((item, index) => (
+            {activity.map((item: any, index: number) => (
               <motion.div 
                 key={index}
                 initial={{ opacity: 0, x: -20 }}
@@ -88,7 +88,7 @@ export default function DashboardOverview({ lastUsed, activity, suggestion }: Da
         <div className="bg-deep-navy/80 p-6 rounded-xl border border-electric-blue/20">
           <h3 className="text-lg font-semibold mb-4">Recently Used Agents</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {lastUsed.map((agent, index) => (
+            {lastUsed.map((agent: any, index: number) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}

@@ -35,7 +35,7 @@ export default function DownloadCenter() {
       <div>
         <h2 className="text-2xl font-bold mb-6">Download Center</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {downloads.map((item, index) => (
+          {downloads.map((item: { title: string; description: string; url: string }, index: number) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}

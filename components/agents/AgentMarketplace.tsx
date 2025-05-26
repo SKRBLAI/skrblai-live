@@ -67,7 +67,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
     if (sort === 'popular') return list;
     if (sort === 'newest') return [...list].reverse();
     if (sort === 'recommended' && recommendedAgents?.length) {
-      return recommendedAgents.concat(list.filter(a => !recommendedAgents.some(r => r.id === a.id)));
+      return recommendedAgents.concat(list.filter(a => !recommendedAgents.some((r: any) => r.id === a.id)));
     }
     return list;
   }, [agents, selectedCategory, sort, recommendedAgents]);

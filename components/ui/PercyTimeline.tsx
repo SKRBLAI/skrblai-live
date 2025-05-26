@@ -18,7 +18,7 @@ export interface PercyTimelineProps {
 export default function PercyTimeline({ timeline }: PercyTimelineProps) {
   return (
     <div className="flex flex-col gap-4 mt-8">
-      {timeline.map((item, idx) => {
+      {timeline.map((item: PercyTimelineItem, idx: number) => {
         const avatarSrc = `/images/agents-${item.agentId}-skrblai.png`;
         const fallbackAvatar = '/images/male-silhouette.png';
         return (
