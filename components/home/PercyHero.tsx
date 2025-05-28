@@ -1,8 +1,3 @@
-// Agent Image Conventions:
-// - Use agent.imageSlug for dynamic image paths: `/images/${agent.imageSlug}.png`
-// - Percy uses `/images/agents-percy-fullbody-nobg-skrblai.png` everywhere for consistency
-// - On mobile or missing images, fallback to `/images/{gender}-silhouette.png`
-
 "use client";
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -38,6 +33,7 @@ export default function PercyHero() {
 
   const [timeline, refreshTimeline] = usePercyTimeline();
 
+  // Session + analytics logic (unchanged)
   const getSessionId = () => {
     let sessionId = sessionStorage.getItem('percy_session_id');
     if (!sessionId) {
@@ -48,7 +44,6 @@ export default function PercyHero() {
   };
 
   const logPercyEvent = async (type: string, value: any, meta: any = {}) => {
-    // Try to extract agentId, agentSlug, gender, route from meta or value
     let agentId = meta.agentId;
     let agentSlug = meta.agentSlug;
     let gender = meta.gender;
@@ -60,9 +55,7 @@ export default function PercyHero() {
       gender = gender || value.gender;
       route = route || value.route;
     }
-    // If agentId is an array (agent_matches), use first
     if (Array.isArray(agentId)) agentId = agentId[0];
-    // Validate required metadata
     const sessionId = getSessionId();
     const timestamp = new Date().toISOString();
     const missing = [];
@@ -91,12 +84,11 @@ export default function PercyHero() {
     try {
       await saveToSupabase('percy_logs', log);
     } catch (err) {
-      // Fallback: store in sessionStorage and warn
       try {
         const logs = JSON.parse(sessionStorage.getItem('percy_logs') || '[]');
         logs.push(log);
         sessionStorage.setItem('percy_logs', JSON.stringify(logs));
-      } catch (storageErr) { /* intentionally left blank (sessionStorage fallback is non-critical) */ }
+      } catch (storageErr) { }
       console.warn('[Percy Memory] Failed to log to Supabase:', err, log);
     }
   };
@@ -107,21 +99,17 @@ export default function PercyHero() {
       if (file) {
         const route = '/dashboard/publishing-agent';
         await logPercyEvent('file_upload', file.name, { fileType: file.type, fileSize: file.size });
-        console.log("Routing to: ", route);
         router.push(route);
         return;
       }
       if (inputValue.trim()) {
         await logPercyEvent('prompt', inputValue);
-        // Get best matching agents for the prompt
         const agents = getBestAgents(inputValue);
         setSuggestedAgents(agents);
         await logPercyEvent('agent_matches', agents.map(a => a.id), { agents });
-        console.log('Suggested agents:', agents);
       }
     } catch (err) {
       console.warn('PercyHero routing error:', err);
-      // Optionally show a toast or message here
     }
   };
 
@@ -131,6 +119,7 @@ export default function PercyHero() {
     }
   };
 
+  // ----------- RENDER STARTS HERE --------------
   return (
     <div id="percy-hero" className="relative flex flex-col items-center justify-center min-h-[80vh] py-8 px-4 z-10 bg-transparent">
       {/* Pronunciation badge next to logo (top-left, small, animated in) */}
@@ -147,12 +136,11 @@ export default function PercyHero() {
 
       {/* Cosmic Constellation + Percy Hero Integration */}
       <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-6">
-        {/* Cosmic Constellation always behind Percy, visually centered and responsive */}
         <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none select-none">
           <AgentConstellation selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} />
         </div>
 
-        {/* Percy Avatar with premium cosmic glow and floating, always centered */}
+        {/* -- SINGLE Percy Avatar (no extra Percy anywhere else!) -- */}
         <motion.div
           className="relative z-10 flex flex-col items-center justify-center w-full"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -167,21 +155,18 @@ export default function PercyHero() {
               className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
               priority
               sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, 288px"
+              draggable={false}
             />
           </div>
           <span className="block text-4xl md:text-5xl font-black text-white text-center drop-shadow-[0_0_24px_#2dd4bf] tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1">
             SKRBL AI
           </span>
-          {/* Premium headline/subtitle restored */}
           <h2 className="text-xl md:text-2xl font-semibold text-center text-teal-200 mt-2 mb-1 drop-shadow-[0_0_8px_#2dd4bf]">
             The Ultimate AI Platform for Content, Branding, and Automation
           </h2>
           <p className="text-base md:text-lg text-center text-white/80 mb-2 max-w-xl mx-auto">
             Unlock creative superpowers, automate your workflow, and grow your brand with the world's most advanced digital agents.
           </p>
-          {process.env.NODE_ENV === 'development' && (
-            <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] PercyHero tagline/subtitle removal complete.')" }} />
-          )}
         </motion.div>
       </div>
 
@@ -190,22 +175,22 @@ export default function PercyHero() {
         <motion.button
           whileHover={{ scale: 1.07, boxShadow: "0 0 24px 8px #2dd4bf" }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            const el = document.getElementById('percy-hero');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-            setShowIntake(true);
-          }}
+          onClick={() => setShowIntake(true)}
           className="px-8 py-3 rounded-lg bg-gradient-to-r from-teal-400 to-purple-500 text-white font-bold text-lg shadow-glow focus:outline-none focus:ring-4 focus:ring-teal-400/60"
           aria-label="Start onboarding with Percy"
         >
           <span className="inline-flex items-center gap-2">
-            <Image
-              src="/images/agents-percy-skrblai.png"
-              alt="Percy full body"
-              width={28}
-              height={28}
-              className="object-contain drop-shadow-[0_0_16px_#2dd4bf]"
-            />
+            {/* Percy mini logo (not a second Percy!) */}
+            <span className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-black/20">
+              <Image
+                src="/images/agents-percy-skrblai.png"
+                alt="Percy mini logo"
+                width={28}
+                height={28}
+                className="object-contain"
+                draggable={false}
+              />
+            </span>
             Let's Get Started
           </span>
         </motion.button>
@@ -225,10 +210,7 @@ export default function PercyHero() {
         <motion.button
           whileHover={{ scale: 1.06, boxShadow: "0 0 32px 8px #38bdf8" }}
           whileTap={{ scale: 0.97 }}
-          onClick={() => {
-            // TODO: Open demo modal with AgentCarousel or best agents demo
-            setShowAgentsModal(true);
-          }}
+          onClick={() => setShowAgentsModal(true)}
           className="px-8 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold text-lg shadow-glow focus:outline-none focus:ring-4 focus:ring-electric-blue/60 animate-pulse-subtle"
           aria-label="See What SKRBL AI Can Do"
         >
@@ -238,7 +220,8 @@ export default function PercyHero() {
           </span>
         </motion.button>
       </div>
-      {/* Demo Modal (placeholder, implement AgentCarousel or best agents demo here) */}
+
+      {/* Agents Modal */}
       <AnimatePresence>
         {showAgentsModal && (
           <motion.div
@@ -267,14 +250,11 @@ export default function PercyHero() {
                 ×
               </button>
               <h3 className="text-2xl font-bold mb-4 text-center text-white">Top SKRBL AI Agents</h3>
-              {/* TODO: Replace with real best agents demo, for now show AgentCarousel with top agents */}
               <AgentCarousel agents={filteredVisibleAgents.slice(0, 8)} onLaunch={setSelectedAgent} />
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-      {/* TODO: Add animated glow to AgentConstellation and quick tooltips for each agent (see AgentConstellation.tsx) */}
-      {/* TODO: Add rotating testimonial or "Recently Unlocked" agents for social proof here */}
 
       {/* Intake Modal */}
       <AnimatePresence>
@@ -293,17 +273,6 @@ export default function PercyHero() {
               >
                 ×
               </button>
-              <div className="relative w-24 h-24 mx-auto mb-2">
-                <Image
-                  src="/images/agents-percy-fullbody-nobg-skrblai.png"
-                  alt="Percy full body"
-                  fill
-                  className="object-contain rounded-full shadow-glow animate-float"
-                  sizes="96px"
-                  priority
-                />
-                <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
-              </div>
               <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome to SKRBL AI, What do you want to accomplish today?</h2>
               <div className="w-full overflow-x-visible pb-2">
                 {filteredVisibleAgents.length > 0 ? (
@@ -319,7 +288,6 @@ export default function PercyHero() {
                   <p className="text-center text-white/80 py-4">No starter agents available at the moment.</p>
                 )}
               </div>
-              
               {selectedAgent && (
                 <div className="w-full bg-teal-900/80 border border-teal-400 rounded-lg p-3 mb-2 animate-bounce-in text-white flex flex-col items-center" aria-live="polite">
                   <span className="font-bold text-lg">
@@ -338,7 +306,6 @@ export default function PercyHero() {
                   </button>
                 </div>
               )}
-              
               <form onSubmit={handleSubmit}>
                 <label htmlFor="percy-prompt" className="sr-only">Ask Percy anything</label>
                 <input
@@ -366,7 +333,6 @@ export default function PercyHero() {
                   Submit
                 </button>
               </form>
-              
               {suggestedAgents.length > 0 && (
                 <div className="w-full mt-4">
                   <h3 className="text-white font-semibold mb-2">Recommended Agents:</h3>
@@ -393,7 +359,6 @@ export default function PercyHero() {
                   </div>
                 </div>
               )}
-              
               <button
                 className="w-full mt-2 py-3 px-4 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold shadow-glow hover:bg-teal-400/90 focus:outline-none focus:ring-4 focus:ring-electric-blue/40"
                 onClick={() => setShowAgentsModal(true)}
@@ -402,56 +367,6 @@ export default function PercyHero() {
               >
                 Not sure? Show me what Percy can do
               </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Agents Modal */}
-      <AnimatePresence>
-        {showAgentsModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
-            aria-modal="true"
-            role="dialog"
-          >
-            <div className="relative bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-2xl w-full animate__animated animate__fadeInDown">
-              <button
-                className="absolute top-2 right-2 text-gray-500 hover:text-teal-400 text-2xl focus:outline-none focus:ring-2 focus:ring-teal-400/40 rounded"
-                onClick={() => setShowAgentsModal(false)}
-                aria-label="Close agent abilities modal"
-              >
-                ×
-              </button>
-              <h2 className="text-2xl font-bold text-center text-white mb-6">Percy Powers: All Available Agents</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {agentDashboardList.filter(a => a.visible !== false).map(agent => (
-                  <div key={agent.id} className="bg-gradient-to-br from-gray-900/80 to-teal-900/60 border border-teal-400 rounded-xl p-5 flex flex-col gap-2 shadow-xl">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="text-2xl" aria-hidden="true">{'emoji' in agent && typeof agent.emoji === 'string' ? agent.emoji : '🤖'}</span>
-                      <span className="font-bold text-lg text-white">{agent.name}</span>
-                    </div>
-                    <span className="text-gray-200 text-sm mb-1">{agent.description}</span>
-                    <span className="text-xs text-teal-300">{agent.performanceScore ? `Performance: ${agent.performanceScore}` : ''}</span>
-                    <button
-                      className="mt-2 px-4 py-2 rounded bg-electric-blue text-white font-semibold shadow-glow hover:bg-teal-400 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-teal-400/60"
-                      onClick={async () => {
-                        await logPercyEvent('agent_selected', agent.id, { agent });
-                        // Type assertion to handle missing route property
-                        const agentRoute = (agent as any).route || `/dashboard/${agent.id}`;
-                        router.push(agentRoute);
-                      }}
-                      tabIndex={0}
-                      aria-label={`Launch ${agent.name}`}
-                    >
-                      Launch Agent
-                    </button>
-                  </div>
-                ))}
-              </div>
             </div>
           </motion.div>
         )}

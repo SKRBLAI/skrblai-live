@@ -30,6 +30,9 @@ export default function HomePage() {
         // Extract unique categories
         const cats = Array.from(new Set((data.agents || []).flatMap((a: any) => a.agentCategory || [])));
         setAllCategories(cats as string[]);
+        // TEMP LOGGING: Validate agent data and categories
+        console.log('[Homepage] Agents from API:', data.agents);
+        console.log('[Homepage] Categories from API:', cats);
       } catch (err) {
         setAgents([]);
         setAllCategories([]);
