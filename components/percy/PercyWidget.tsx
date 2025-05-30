@@ -114,7 +114,9 @@ function PercyWidget() {
             .maybeSingle();
           if (!error && data) complete = data.onboardingComplete;
         }
-      } catch { }
+      } catch {
+        // intentionally left blank (non-critical)
+      }
       setShowOnboarding(!complete);
       if (complete && typeof window !== 'undefined') {
         const goal = localStorage.getItem('userGoal') || '';
@@ -276,7 +278,9 @@ function PercyWidget() {
             updatedAt: new Date().toISOString()
           }, { onConflict: 'userId,intent' });
       }
-    } catch { }
+    } catch {
+      // intentionally left blank (non-critical)
+    }
 
     logPercyMessage({
       intent,
@@ -306,12 +310,12 @@ function PercyWidget() {
 
   const handleAgentClick = (agent: Agent) => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('lastSelectedAgent', agent.intent);
+      localStorage.setItem('lastSelectedAgent', agent.intent || '');
     }
     setMessages((prev) => [...prev,
       { role: 'assistant', text: `Great choice! I'm connecting you with ${agent.name} now...` }
     ]);
-    setTimeout(() => safeRouteToAgent(agent.intent), 1000);
+    setTimeout(() => safeRouteToAgent(agent.intent || ''), 1000);
   };
 
   const handleBackToStart = () => {

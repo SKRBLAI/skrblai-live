@@ -84,12 +84,7 @@ export default function PercyHero() {
     try {
       await saveToSupabase('percy_logs', log);
     } catch (err) {
-      try {
-        const logs = JSON.parse(sessionStorage.getItem('percy_logs') || '[]');
-        logs.push(log);
-        sessionStorage.setItem('percy_logs', JSON.stringify(logs));
-      } catch (storageErr) { }
-      console.warn('[Percy Memory] Failed to log to Supabase:', err, log);
+      // intentionally left blank (non-critical)
     }
   };
 
