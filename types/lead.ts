@@ -14,4 +14,6 @@ export interface Lead {
   userFileUrl?: string;
   userFileName?: string;
   timestamp?: SupabaseTimestamp;
+  businessName?: string;
+  brandVision?: string;
 }

@@ -1,5 +1,7 @@
 import { supabase } from '@/utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { Lead } from '@/types/supabase';
+import { createClient } from '@supabase/supabase-js';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -718,3 +720,40 @@ export async function testBrandingAgent(simulateFailure = false) {
 
 export { brandingAgent };
 export default brandingAgent;
+
+/**
+ * BrandingAgent onboarding handler
+ * @param lead {Lead} - user onboarding data
+ * @returns {Promise<{success: boolean; message: string; redirectPath?: string}>}
+ */
+export async function handleBrandingOnboarding(lead: Lead): Promise<{success: boolean; message: string; redirectPath?: string}> {
+  try {
+    if (!lead || !lead.userId) {
+      return { success: false, message: 'Missing userId for onboarding.' };
+    }
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+
+    // Defensive: safely access properties that may not exist on Lead
+    const onboarding = {
+      complete: true,
+      goal: lead.businessGoal || '',
+      businessName: (lead as any).businessName || '',
+      brandVision: (lead as any).brandVision || '',
+      timestamp: new Date().toISOString()
+    };
+
+    // Use new /api/onboarding logic
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/onboarding`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: lead.userId, agentId: 'brandingAgent', onboarding })
+    });
+    return {
+      success: true,
+      message: 'Branding onboarding complete!',
+      redirectPath: '/dashboard/branding'
+    };
+  } catch (error: any) {
+    return { success: false, message: error.message || 'Branding onboarding failed.' };
+  }
+}

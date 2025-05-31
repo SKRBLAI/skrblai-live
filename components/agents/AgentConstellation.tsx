@@ -7,78 +7,65 @@ import { useRouter } from "next/navigation";
 import { getAgentImagePath } from '@/utils/agentUtils';
 import FocusTrap from 'focus-trap-react';
 
-// Adjusted radii so agents fit fully inside rings (agent size/2 + margin < radius)
-const TIER_RADII = {
-  inner: 90,  // for 64px agent size, 90px keeps it inside
-  mid: 165,  // for 80px agent size, 165px keeps it inside
-  outer: 240 // for 96px agent size, 240px keeps it inside
-} as const;
-
+// Radii for agent orbits
+const TIER_RADII = { inner: 90, mid: 165, outer: 240 } as const;
 type OrbitTier = keyof typeof TIER_RADII;
-
 type OrbitAgent = Agent & { tier: OrbitTier; role: string };
 
 interface AgentConstellationProps {
+  agents?: Agent[];
   selectedAgent: Agent | null;
   setSelectedAgent: (agent: Agent | null) => void;
 }
 
 const AGENTS_PER_GROUP = 3;
 
-const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, setSelectedAgent }) => {
-  const [orbitingAgents, setOrbitingAgents] = useState<OrbitAgent[]>([]);
-  const [currentGroup, setCurrentGroup] = useState(0);
-  const groupCount = Math.ceil(orbitingAgents.length / AGENTS_PER_GROUP);
+// All Percy-related ids/names for filtering
+const PERCY_IDS = [
+  'PercyAgent', 'PercySyncAgent', 'percy', 'percy-agent',
+  'percySync', 'percy-sync'
+];
+const PERCY_NAMES = ['percy', 'Percy'];
 
-  // Calculate agents to display in current group
-  const startIdx = currentGroup * AGENTS_PER_GROUP;
-  const endIdx = startIdx + AGENTS_PER_GROUP;
-  const visibleAgents = orbitingAgents.slice(startIdx, endIdx);
+const AgentConstellation: React.FC<AgentConstellationProps> = ({
+  agents,
+  selectedAgent,
+  setSelectedAgent,
+}) => {
+  const [orbitingAgents, setOrbitingAgents] = useState<OrbitAgent[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
 
-  // Fetch agents from API, patching tier and role if needed
+  // Deduplicate Percy and build orbiting agent array
   useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        const response = await fetch("/api/agents?grouped=1");
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        // Defensive: data may be grouped or flat, so flatten if needed
-        let agents: Agent[] = [];
-        if (Array.isArray(data.agents)) {
-          agents = data.agents;
-        } else if (data.groups) {
-          agents = Object.values(data.groups).flat() as Agent[]; // type assertion for type safety
-        }
-        const orbitAgents: OrbitAgent[] = (agents as Agent[]).map((agent) => {
-          let tier: OrbitTier = ['inner', 'mid', 'outer'].includes((agent as any).tier as string)
-            ? (agent as any).tier as OrbitTier
-            : 'outer';
-          if ((agent as any).tier !== tier && process.env.NODE_ENV === "development") {
-            console.warn(`[AgentConstellation] Agent missing/invalid tier, defaulting to 'outer':`, agent);
-          }
-          return {
-            ...agent,
-            tier,
-            role: (agent as any).role ?? '',
-            category: agent.category ?? 'assistant',
-            capabilities: agent.capabilities ?? [],
-            visible: typeof agent.visible === "boolean" ? agent.visible : true,
-            unlocked: agent.unlocked === false, // treat as unlocked if explicitly not locked
-          };
-        });
-        const agentsToDisplay = orbitAgents.filter(agent => agent.visible !== false);
-        setOrbitingAgents(agentsToDisplay);
-      } catch (error) {
-        console.error("Failed to fetch agents:", error);
-        setOrbitingAgents([]);
-      }
-    };
-    fetchAgents();
-  }, []);
+    let sourceAgents: Agent[] = Array.isArray(agents) ? agents : [];
+    if (!sourceAgents.length) return setOrbitingAgents([]);
 
+    // Deduplicate Percy (id or name)
+    const agentsToDisplay: OrbitAgent[] = sourceAgents
+      .filter(agent =>
+        agent.visible !== false &&
+        !PERCY_IDS.includes((agent.id || '').toLowerCase()) &&
+        !PERCY_NAMES.includes((agent.name || '').toLowerCase())
+      )
+      .map(agent => ({
+        ...agent,
+        tier:
+          ['inner', 'mid', 'outer'].includes((agent as any).tier)
+            ? ((agent as any).tier as OrbitTier)
+            : 'outer',
+        role: (agent as any).role ?? '',
+        category: agent.category ?? 'assistant',
+        capabilities: agent.capabilities ?? [],
+        visible: typeof agent.visible === "boolean" ? agent.visible : true,
+        unlocked: agent.unlocked !== false, // true if not locked
+      }));
+
+    setOrbitingAgents(agentsToDisplay);
+  }, [agents]);
+
+  // Responsive: detect mobile
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -86,6 +73,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Escape closes selected agent modal
   useEffect(() => {
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && selectedAgent) setSelectedAgent(null);
@@ -94,7 +82,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
     return () => window.removeEventListener("keydown", handleEscapeKey);
   }, [selectedAgent, setSelectedAgent]);
 
-  // Map agent name to route
+  // Agent name to dashboard route
   const getAgentRoute = (agentName: string) => {
     const routeMap: Record<string, string> = {
       BrandingAgent: "/dashboard/branding",
@@ -109,14 +97,16 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
       SiteGenAgent: "/dashboard/sites",
       BizAgent: "/dashboard/business",
       VideoContentAgent: "/dashboard/video",
-      PercyAgent: "/dashboard/percy",
-      PercySyncAgent: "/dashboard/sync",
     };
     return routeMap[agentName] || "/dashboard";
   };
 
+  // Arrange orbit agents in a circle (desktop only)
+  const visibleAgents = orbitingAgents.slice(0, AGENTS_PER_GROUP);
+
   return (
     <div className="relative mx-auto w-[430px] h-[430px] max-w-[90vw] max-h-[90vw] md:w-[600px] md:h-[600px]">
+
       {/* Percy in the center */}
       <motion.div
         className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
@@ -145,17 +135,16 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         </motion.div>
       </motion.div>
 
-      {/* Orbiting Agents - Show only 3 at a time in a circle around Percy */}
+      {/* Orbiting Agents - Desktop (3 at a time) */}
       <div className="hidden md:block">
         <AnimatePresence mode="wait">
           {visibleAgents.map((agent, i) => {
-            // Arrange 3 agents evenly in a circle
-            const angle = (360 / AGENTS_PER_GROUP) * i - 90; // -90 to start at top
+            const angle = (360 / AGENTS_PER_GROUP) * i - 90;
             const radius = TIER_RADII[agent.tier || 'outer'];
             const x = Math.cos((angle * Math.PI) / 180) * radius;
             const y = Math.sin((angle * Math.PI) / 180) * radius;
             const size = agent.tier === 'inner' ? 64 : agent.tier === 'mid' ? 80 : 96;
-            const isLocked = agent.unlocked === false;
+            const isLocked = !agent.unlocked;
             return (
               <motion.div
                 key={agent.id}
@@ -183,7 +172,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                 whileHover={!isLocked ? { scale: 1.1 } : undefined}
                 whileTap={!isLocked ? { scale: 0.97 } : undefined}
               >
-                {/* Animated glowing ring behind agent */}
                 <motion.div
                   className="absolute inset-0 z-0 rounded-full pointer-events-none"
                   initial={{ boxShadow: '0 0 0px 0px #38bdf8' }}
@@ -199,9 +187,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                     fill
                     className="object-cover rounded-full"
                     sizes={`${size}px`}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
-                    }}
                   />
                   {isLocked && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-full">
@@ -209,11 +194,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                     </div>
                   )}
                 </div>
-                {/* Accessible tooltip on hover/focus */}
-                <AnimatePresence>
-                  {(document.activeElement === null || document.activeElement === undefined || document.activeElement === document.body || document.activeElement === undefined || typeof window === 'undefined' ? false : document.activeElement === document.getElementById(`agent-orbit-${agent.id}`)) || undefined ? null : null}
-                  {/* Tooltip logic for accessibility handled below */}
-                </AnimatePresence>
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -231,13 +211,16 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
           })}
         </AnimatePresence>
         {orbitingAgents.length === 0 && (
-          <div className="w-full text-center text-gray-400 py-12 text-lg font-semibold">No agents available at this time.</div>
+          <div className="w-full text-center text-gray-400 py-12 text-lg font-semibold">
+            {/* No agents available (Percy does NOT count as an agent here) */}
+            No agents available at this time.
+          </div>
         )}
       </div>
 
-      {/* Mobile: Only show 3 agents in current group */}
+      {/* Mobile: Show all available agents in a scrollable group */}
       <div className="md:hidden flex flex-wrap justify-center items-center gap-3 p-4">
-        {visibleAgents.map((agent) => {
+        {orbitingAgents.map((agent) => {
           const size = agent.tier === 'inner' ? 56 : agent.tier === 'mid' ? 68 : 80;
           return (
             <motion.div
@@ -259,9 +242,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   fill
                   className="object-cover rounded-full"
                   sizes={`${size}px`}
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/${agent.gender === 'neutral' ? 'male' : agent.gender}-silhouette.png`;
-                  }}
                 />
               </div>
               <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
@@ -272,11 +252,11 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
         })}
       </div>
 
-      {/* Hero-select floating avatar animation when agent is selected */}
+      {/* Agent Details Modal */}
       <AnimatePresence>
         {selectedAgent && (
           <>
-            {/* Animated avatar centered above Percy with scale/halo effect */}
+            {/* Floating Avatar Animation */}
             <motion.div
               className="fixed left-1/2 top-1/2 z-[60] flex flex-col items-center justify-center pointer-events-none"
               initial={{ opacity: 0, scale: 0.7, zIndex: 60 }}
@@ -292,16 +272,12 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                   fill
                   className="object-cover rounded-full border-4 border-teal-400 shadow-glow"
                   sizes="208px"
-                  style={{ zIndex: 61 }}
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).src = `/images/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
-                  }}
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-400/10 animate-pulse-slow" />
               </div>
             </motion.div>
 
-            {/* Floating Agent Details Modal */}
+            {/* Details Modal */}
             <motion.div
               className="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 backdrop-blur-lg"
               initial={{ opacity: 0 }}
@@ -311,7 +287,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
               onClick={() => setSelectedAgent(null)}
               aria-label="Agent Details Modal"
             >
-              {/* Focus trap for accessibility */}
               <FocusTrap active={!!selectedAgent}>
                 <motion.div
                   className="relative bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 backdrop-blur-xl rounded-2xl shadow-2xl p-6 max-w-md w-full flex flex-col items-center gap-4 animate__animated animate__fadeInDown border-2 border-fuchsia-400"
@@ -334,9 +309,6 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({ selectedAgent, 
                       fill
                       className="object-cover rounded-full shadow-glow border-2 border-teal-400"
                       sizes="96px"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = `/images/${selectedAgent.gender === 'neutral' ? 'male' : selectedAgent.gender}-silhouette.png`;
-                      }}
                     />
                     <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
                   </div>

@@ -45,7 +45,12 @@ export default function Navbar() {
           {/* Navigation Links */}
           <div className="hidden md:flex flex-1 justify-end items-center">
             <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
-              <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
+              {/* WINDSURF: Route 'Agents' to '/agents' and add ARIA improvements */}
+              <Link href="/agents" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap"
+                aria-label="Browse all agents"
+                tabIndex={0}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/agents'; } }}
+              >
                 Agents
               </Link>
               <Link href="/features" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">

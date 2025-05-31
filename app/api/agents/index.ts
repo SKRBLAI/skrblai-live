@@ -7,6 +7,26 @@ import { systemLog } from '@/utils/systemLog';
 
 const ORBIT_TIERS = ['inner', 'mid', 'outer'] as const;
 
+// --- Simple in-memory rate limiter (per IP) ---
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_LIMIT_MAX = 30;
+const rateLimitMap = new Map<string, { count: number; reset: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  let entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.reset) {
+    entry = { count: 1, reset: now + RATE_LIMIT_WINDOW_MS };
+    rateLimitMap.set(ip, entry);
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return true;
+  }
+  entry.count++;
+  return false;
+}
+
 function selfHealAgent(agent: Agent) {
   const id = agent.id || 'unknown-agent';
   const name = agent.name || 'Unknown';
@@ -28,6 +48,11 @@ function selfHealAgent(agent: Agent) {
 }
 
 export async function GET(req: Request) {
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  if (checkRateLimit(ip)) {
+    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/agents', meta: { ip } });
+    return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
+  }
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   const meta: any = { ip: req.headers.get('x-forwarded-for') || 'unknown', timestamp: new Date().toISOString() };

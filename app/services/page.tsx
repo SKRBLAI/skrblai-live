@@ -6,9 +6,18 @@ import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
 import AgentsGrid from '@/components/agents/AgentsGrid';
+import AgentFilterBar from '@/components/agents/AgentFilterBar';
 import agentRegistry from 'lib/agents/agentRegistry';
 
 export default function ServicesPage(): JSX.Element {
+  const [selectedCategory, setSelectedCategory] = React.useState<string>('All');
+  // Filter agents by category
+  const agents = React.useMemo(() => {
+    if (!agentRegistry || !Array.isArray(agentRegistry)) return [];
+    if (selectedCategory === 'All') return agentRegistry;
+    return agentRegistry.filter(agent => agent.category === selectedCategory);
+  }, [selectedCategory]);
+
   return (
     <PageLayout>
       <motion.div 
@@ -25,7 +34,11 @@ export default function ServicesPage(): JSX.Element {
 
         {/* Content */}
         <div className="relative z-10 pt-24">
-          <AgentsGrid />
+          {/* Heading */}
+          <h1 className="text-3xl md:text-4xl font-bold text-center text-white mb-2 drop-shadow-glow">Meet Our League of Digital Superheroes</h1>
+          {/* Cosmic/Glass Filter Bar */}
+          <AgentFilterBar selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+          <AgentsGrid agents={agents} />
         </div>
       </motion.div>
     </PageLayout>

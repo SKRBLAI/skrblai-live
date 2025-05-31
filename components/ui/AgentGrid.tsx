@@ -65,12 +65,8 @@ export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
   }
 
   if (!agents || agents.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">No Agents Available</h2>
-        <p className="text-gray-500">Please check back later.</p>
-      </div>
-    );
+    // Minimal placeholder or nothing for empty state (no agents)
+    return null;
   }
 
   return (

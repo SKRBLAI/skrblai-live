@@ -24,9 +24,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Handle client-side only rendering
-  if (!mounted) return null;
-
   return (
     <html lang="en" className={`${inter.variable} dark bg-[#0d1117]`}>
       <head>
@@ -50,7 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {/* Main Content */}
           <div className="relative z-10">
             <PageTransition>
-              {children}
+              {mounted ? children : null}
             </PageTransition>
           </div>
 
