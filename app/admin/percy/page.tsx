@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { getPercyFunnelMetrics } from '@/lib/analytics/percyAnalytics';
 import { downloadLeadsCSV } from '@/lib/utils/leadExport';
 
 export default function PercyAdminDashboard() {
@@ -10,8 +9,10 @@ export default function PercyAdminDashboard() {
   useEffect(() => {
     async function loadMetrics() {
       try {
-        const data = await getPercyFunnelMetrics(7); // Last 7 days
-        setMetrics(data);
+        // Use API route instead of direct Supabase access
+        const response = await fetch('/api/analytics/percy?days=7');
+        const data = await response.json();
+        setMetrics(data.metrics);
       } catch (error) {
         console.error('Failed to load metrics:', error);
       } finally {
@@ -26,7 +27,7 @@ export default function PercyAdminDashboard() {
     try {
       await downloadLeadsCSV({
         startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-        minScore: 50 // Only leads with score 50+
+        minScore: 50
       });
     } catch (error) {
       console.error('Export failed:', error);
@@ -63,17 +64,17 @@ export default function PercyAdminDashboard() {
           
           <div className="bg-slate-800 p-6 rounded-xl border border-cyan-400/20">
             <h3 className="text-gray-400 text-sm uppercase tracking-wide mb-2">Lead Conversion</h3>
-            <p className="text-3xl font-bold text-cyan-400">{metrics?.leadConversionRate.toFixed(1) || 0}%</p>
+            <p className="text-3xl font-bold text-cyan-400">{metrics?.leadConversionRate?.toFixed(1) || 0}%</p>
           </div>
           
           <div className="bg-slate-800 p-6 rounded-xl border border-cyan-400/20">
             <h3 className="text-gray-400 text-sm uppercase tracking-wide mb-2">Step 1 Completion</h3>
-            <p className="text-3xl font-bold text-green-400">{metrics?.step1ConversionRate.toFixed(1) || 0}%</p>
+            <p className="text-3xl font-bold text-green-400">{metrics?.step1ConversionRate?.toFixed(1) || 0}%</p>
           </div>
           
           <div className="bg-slate-800 p-6 rounded-xl border border-cyan-400/20">
             <h3 className="text-gray-400 text-sm uppercase tracking-wide mb-2">Step 3 Completion</h3>
-            <p className="text-3xl font-bold text-purple-400">{metrics?.step3ConversionRate.toFixed(1) || 0}%</p>
+            <p className="text-3xl font-bold text-purple-400">{metrics?.step3ConversionRate?.toFixed(1) || 0}%</p>
           </div>
         </div>
 
@@ -143,10 +144,10 @@ export default function PercyAdminDashboard() {
             <div>
               <h3 className="text-lg font-semibold text-cyan-400 mb-4">💡 Optimization Opportunities</h3>
               <div className="space-y-2 text-gray-300 text-sm">
-                <p>• {metrics?.step1ConversionRate < 70 ? 'Consider simplifying Step 1 options' : 'Step 1 performing well'}</p>
-                <p>• {metrics?.step2ConversionRate < 60 ? 'Industry options may be too complex' : 'Industry selection working'}</p>
-                <p>• {metrics?.leadConversionRate < 25 ? 'Lead form needs optimization' : 'Lead conversion is healthy'}</p>
-                <p>• {metrics?.totalConversations < 10 ? 'Need more traffic to Percy' : 'Good conversation volume'}</p>
+                <p>• {(metrics?.step1ConversionRate || 0) < 70 ? 'Consider simplifying Step 1 options' : 'Step 1 performing well'}</p>
+                <p>• {(metrics?.step2ConversionRate || 0) < 60 ? 'Industry options may be too complex' : 'Industry selection working'}</p>
+                <p>• {(metrics?.leadConversionRate || 0) < 25 ? 'Lead form needs optimization' : 'Lead conversion is healthy'}</p>
+                <p>• {(metrics?.totalConversations || 0) < 10 ? 'Need more traffic to Percy' : 'Good conversation volume'}</p>
               </div>
             </div>
           </div>

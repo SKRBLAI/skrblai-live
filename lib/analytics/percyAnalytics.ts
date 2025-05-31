@@ -1,9 +1,9 @@
-// Create Percy-specific analytics to track conversion funnel
+// Client-safe Percy analytics - NO SERVICE KEY
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 export interface PercyConversationEvent {
@@ -20,11 +20,12 @@ export interface PercyConversationEvent {
 
 export async function trackPercyEvent(event: PercyConversationEvent) {
   try {
-    // Save to database for analytics
-    await supabase.from('percy_analytics').insert([{
-      ...event,
-      created_at: new Date().toISOString()
-    }]);
+    // Use API route for server-side operations
+    await fetch('/api/analytics/percy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(event)
+    });
     
     console.log('📊 Percy Analytics:', event.event_type, event);
   } catch (error) {
@@ -32,36 +33,7 @@ export async function trackPercyEvent(event: PercyConversationEvent) {
   }
 }
 
-// Get Percy funnel metrics
+// This function can only be called server-side
 export async function getPercyFunnelMetrics(days: number = 7) {
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
-  
-  const { data, error } = await supabase
-    .from('percy_analytics')
-    .select('*')
-    .gte('created_at', startDate.toISOString());
-    
-  if (error) throw error;
-  
-  // Calculate funnel metrics with proper string indexing
-  const totalStarts = data.filter(e => e.event_type === 'conversation_start').length;
-  const step1Completed = data.filter(e => e.event_type === 'step_completed' && e.step_number === 1).length;
-  const step2Completed = data.filter(e => e.event_type === 'step_completed' && e.step_number === 2).length;
-  const step3Completed = data.filter(e => e.event_type === 'step_completed' && e.step_number === 3).length;
-  const leadsCaptured = data.filter(e => e.event_type === 'lead_captured').length;
-  
-  return {
-    totalConversations: totalStarts,
-    step1ConversionRate: totalStarts > 0 ? (step1Completed / totalStarts) * 100 : 0,
-    step2ConversionRate: step1Completed > 0 ? (step2Completed / step1Completed) * 100 : 0,
-    step3ConversionRate: step2Completed > 0 ? (step3Completed / step2Completed) * 100 : 0,
-    leadConversionRate: totalStarts > 0 ? (leadsCaptured / totalStarts) * 100 : 0,
-    dropOffPoints: {
-      step1: totalStarts - step1Completed,
-      step2: step1Completed - step2Completed, 
-      step3: step2Completed - step3Completed,
-      leadForm: step3Completed - leadsCaptured
-    }
-  };
+  throw new Error('getPercyFunnelMetrics must be called from server-side API routes only');
 } 

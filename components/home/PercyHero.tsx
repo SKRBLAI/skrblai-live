@@ -262,7 +262,7 @@ export default function PercyHero() {
     return recommended.slice(0, 3);
   };
 
-  // Handle lead submission (ENHANCED)
+  // Handle lead submission (FIXED - REMOVE SERVICE KEY)
   const handleLeadSubmit = async (contactData: any) => {
     const fullLeadData = { ...leadData, ...contactData, qualificationScore };
     
@@ -278,15 +278,13 @@ export default function PercyHero() {
         referrer: document.referrer
       });
 
-      // Save lead to database
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      );
-
-      const { error: leadError } = await supabase
-        .from('leads')
-        .insert([{
+      // FIXED: Use API route instead of direct Supabase access
+      const response = await fetch('/api/leads/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: fullLeadData.email,
           phone: fullLeadData.phone || null,
           company_size: fullLeadData.companySize || null,
@@ -295,19 +293,29 @@ export default function PercyHero() {
           timeline: fullLeadData.timeline,
           qualification_score: qualificationScore,
           session_id: sessionId
-        }]);
+        })
+      });
 
-      if (leadError) {
-        console.error('Failed to save lead:', leadError);
+      if (!response.ok) {
+        throw new Error('Failed to submit lead');
       }
 
       // Send to email automation system
       if (fullLeadData.email) {
-        await emailAutomation.sendWelcomeEmail(fullLeadData.email, 'there');
+        await fetch('/api/email/trigger', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            triggerType: 'welcome-sequence',
+            userId: user?.id,
+            userEmail: fullLeadData.email,
+            userRole: 'client',
+            metadata: { userName: 'there' }
+          })
+        });
         
         // High-value leads get immediate notification
         if (qualificationScore >= 75) {
-          // TODO: Send high-priority notification to sales team
           console.log('🚨 High-value lead captured:', fullLeadData.email, 'Score:', qualificationScore);
         }
       }
