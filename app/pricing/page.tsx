@@ -83,13 +83,13 @@ export default function PricingPage() {
                 </motion.p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+              <div className="flex flex-col md:flex-row gap-12 md:gap-16 justify-center items-stretch mt-16">
                 <PricingCard
                   title="Free"
                   price="$0"
                   features={["Access to 3 AI Agents", "Limited Publishing", "Community Support", "Basic Analytics"]}
-                  ctaText="Start Free"
-                  ctaHref="/auth/signup"
+                  ctaText="Explore Agents"
+                  ctaHref="/services/agents"
                   badge="Starter"
                   description="Explore basic features and try out a few AI agents."
                 />
@@ -97,8 +97,8 @@ export default function PricingPage() {
                   title="Pro"
                   price="$19/mo"
                   features={["All AI Agents", "Unlimited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows"]}
-                  ctaText="Upgrade Now"
-                  ctaHref="/auth/signup?plan=pro"
+                  ctaText="Upgrade & Explore"
+                  ctaHref="/services/agents"
                   highlight
                   badge="Best Value"
                   description="Perfect for creators and solopreneurs ready to scale."

@@ -1,98 +1,153 @@
-import React from 'react';
-import { useKeenSlider } from 'keen-slider/react';
-import 'keen-slider/keen-slider.min.css';
-import { Agent } from '@/types/agent';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+"use client";
+import React from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import type { Agent } from '@/types/agent';
+import { getAgentImagePath } from '@/utils/agentUtils';
 
 interface AgentCarouselProps {
   agents: Agent[];
-  onLaunch: (agent: Agent) => void;
+  onLaunch?: (agent: Agent) => void;
   selectedAgentId?: string;
+  showPremiumBadges?: boolean;
+  showDetailedCards?: boolean;
 }
 
-const AgentCarousel: React.FC<AgentCarouselProps> = ({ agents, onLaunch, selectedAgentId }) => {
-  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
-    loop: true,
-    slides: { perView: 3, spacing: 24 },
-    breakpoints: {
-      '(max-width: 640px)': {
-        slides: { perView: 1.2, spacing: 16 },
-      },
-      '(max-width: 1024px)': {
-        slides: { perView: 2, spacing: 20 },
-      },
-    },
-  });
+export default function AgentCarousel({ 
+  agents, 
+  onLaunch, 
+  selectedAgentId,
+  showPremiumBadges = false,
+  showDetailedCards = false 
+}: AgentCarouselProps) {
+  
+  const handleAgentClick = (agent: Agent) => {
+    if (onLaunch) {
+      onLaunch(agent);
+    }
+  };
 
   return (
-    <div className="relative w-full">
-      <div ref={sliderRef} className="keen-slider px-2">
-        {agents.map((agent, idx) => (
-          <motion.div
-            key={agent.id}
-            className="keen-slider__slide flex justify-center items-center"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -24 }}
-            transition={{ duration: 0.5, delay: idx * 0.04 }}
-            tabIndex={0}
-            aria-label={`Agent ${agent.name}: ${agent.description}`}
-            role="option"
-            aria-selected={selectedAgentId === agent.id}
-          >
-            <div
-              className={`group relative flex flex-col items-center justify-between w-64 p-6 rounded-2xl shadow-glow bg-gradient-to-br from-electric-blue/80 via-fuchsia-500/60 to-teal-400/80 border-2 border-teal-400 hover:from-fuchsia-600/90 hover:to-teal-500/90 transition-all duration-300 focus-within:ring-4 focus-within:ring-fuchsia-400 ${selectedAgentId === agent.id ? 'ring-4 ring-fuchsia-300 scale-105' : ''}`}
+    <div className="w-full overflow-x-auto pb-4">
+      <div className="flex gap-4 sm:gap-6 px-4 min-w-max">
+        {agents.map((agent, index) => {
+          const isPremium = !!agent.premium;
+          const isSelected = selectedAgentId === agent.id;
+          
+          return (
+            <motion.div
+              key={agent.id || index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              className={`min-w-[200px] sm:min-w-[240px] max-w-xs flex-1 ${
+                showDetailedCards ? 'min-w-[280px]' : ''
+              }`}
             >
-              <div className="flex flex-col items-center mb-2">
-                <div className="relative w-20 h-20 rounded-full shadow-glow bg-gradient-to-tr from-teal-400/60 to-fuchsia-500/60 border-4 border-white mb-2">
-                  <Image
-                    src={`/images/agents-${agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase()}-skrblai.png`}
-                    alt={agent.name}
-                    fill
-                    className="object-cover rounded-full"
-                    sizes="80px"
-                    draggable={false}
-                  />
-                </div>
-                <span className="block font-bold text-lg text-white drop-shadow-[0_0_8px_#38bdf8] text-center">
-                  {agent.name}
-                </span>
-                <span className="block text-sm text-gray-200 text-center opacity-80">
-                  {agent.description || ''}
-                </span>
-              </div>
-              <button
-                className="mt-2 px-4 py-2 rounded-lg bg-gradient-to-r from-electric-blue via-fuchsia-500 to-teal-400 text-white font-bold shadow-glow hover:scale-105 focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 transition-all"
-                onClick={() => onLaunch(agent)}
-                tabIndex={0}
-                aria-label={`Launch Agent ${agent.name}`}
+              <motion.div
+                className={`
+                  relative bg-slate-800/70 backdrop-blur-lg border rounded-xl p-4 shadow-lg
+                  hover:bg-slate-700/70 transition-all duration-300 cursor-pointer group
+                  focus:outline-none focus:ring-2 focus:ring-cyan-400/60
+                  ${isSelected ? 'border-cyan-400 shadow-cyan-400/25' : 'border-slate-600/50'}
+                  ${isPremium ? 'hover:border-purple-400/60' : 'hover:border-cyan-400/60'}
+                  ${showDetailedCards ? 'p-6' : 'p-4'}
+                `}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleAgentClick(agent)}
               >
-                Launch Agent
-              </button>
-            </div>
-          </motion.div>
-        ))}
+                {/* Premium Badge */}
+                {showPremiumBadges && isPremium && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <span className="px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                      Premium
+                    </span>
+                  </div>
+                )}
+
+                {/* Agent Image */}
+                <div className={`relative mx-auto mb-4 ${showDetailedCards ? 'w-20 h-20' : 'w-16 h-16'} rounded-full overflow-hidden bg-gradient-to-br from-cyan-400 to-blue-600 p-1`}>
+                  <div className="w-full h-full rounded-full bg-slate-900 overflow-hidden">
+                    <Image
+                      src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
+                      alt={agent.name}
+                      fill
+                      className="object-cover"
+                      sizes={showDetailedCards ? "80px" : "64px"}
+                    />
+                  </div>
+                  
+                  {/* Animated ring for premium agents */}
+                  {isPremium && (
+                    <div className="absolute inset-0 rounded-full border-2 border-purple-400/30 animate-pulse"></div>
+                  )}
+                </div>
+
+                {/* Agent Info */}
+                <div className="text-center">
+                  <h3 className={`font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors duration-200 ${
+                    showDetailedCards ? 'text-lg' : 'text-sm sm:text-base'
+                  }`}>
+                    {agent.name.replace('Agent', '')}
+                  </h3>
+                  
+                  {showDetailedCards && (
+                    <>
+                      <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                        {agent.description || 'AI-powered automation assistant'}
+                      </p>
+                      
+                      {/* Capabilities */}
+                      <div className="flex flex-wrap gap-1 justify-center mb-3">
+                        {agent.capabilities?.slice(0, 2).map((capability, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-1 bg-slate-700/50 text-cyan-400 text-xs rounded-full"
+                          >
+                            {capability}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  
+                  {/* Launch Button */}
+                  <button
+                    className={`
+                      w-full py-2 rounded-lg font-medium transition-all duration-200
+                      ${isPremium 
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white' 
+                        : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white'
+                      }
+                      ${showDetailedCards ? 'py-3 text-sm' : 'py-2 text-xs sm:text-sm'}
+                    `}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAgentClick(agent);
+                    }}
+                  >
+                    {isPremium ? '👑 Launch Premium' : '🚀 Launch Agent'}
+                  </button>
+                </div>
+
+                {/* Premium Lock Overlay */}
+                {isPremium && !agent.unlocked && (
+                  <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-xl flex flex-col items-center justify-center">
+                    <div className="text-3xl mb-2">🔒</div>
+                    <p className="text-white font-medium text-sm text-center px-2">
+                      Premium Feature
+                    </p>
+                    <p className="text-gray-300 text-xs text-center px-2 mt-1">
+                      Upgrade to unlock
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          );
+        })}
       </div>
-      {/* Carousel navigation arrows */}
-      <button
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-gradient-to-br from-fuchsia-700/80 to-teal-700/80 rounded-full shadow-glow focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400"
-        onClick={() => instanceRef.current?.prev()}
-        aria-label="Previous Agents"
-        tabIndex={0}
-      >
-        <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <button
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-gradient-to-br from-fuchsia-700/80 to-teal-700/80 rounded-full shadow-glow focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400"
-        onClick={() => instanceRef.current?.next()}
-        aria-label="Next Agents"
-        tabIndex={0}
-      >
-        <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-      </button>
     </div>
   );
-};
-
-export default AgentCarousel;
+}

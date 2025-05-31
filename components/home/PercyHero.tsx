@@ -12,6 +12,10 @@ import { getBestAgents } from '@/utils/agentUtils';
 import { saveToSupabase } from '@/utils/supabase';
 import { trackPercyInteraction } from '@/lib/analytics/userJourney';
 import { createClient } from '@supabase/supabase-js';
+import { emailAutomation } from '@/lib/email/simpleAutomation';
+import { trackPercyEvent } from '@/lib/analytics/percyAnalytics';
+import PercyTestimonials from '@/components/percy/PercyTestimonials';
+import { downloadLeadsCSV } from '@/lib/utils/leadExport';
 
 // Only include agents that are not Percy for all agent grid/carousel logic
 const visibleAgents = agentDashboardList.filter(
@@ -21,13 +25,29 @@ const visibleAgents = agentDashboardList.filter(
 export default function PercyHero() {
   const router = useRouter();
   const [showIntake, setShowIntake] = useState(false);
-  const [showAgentsModal, setShowAgentsModal] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [suggestedAgents, setSuggestedAgents] = useState<Agent[]>([]);
   const [timeline] = usePercyTimeline();
   const [user, setUser] = useState<any>(null);
+  const [isPercyThinking, setIsPercyThinking] = useState(false);
+  const [conversationStep, setConversationStep] = useState(0);
+  const [percyMessage, setPercyMessage] = useState('');
+  const [leadData, setLeadData] = useState({
+    problem: '',
+    industry: '',
+    timeline: '',
+    budget: '',
+    email: '',
+    phone: '',
+    companySize: ''
+  });
+  const [showLeadForm, setShowLeadForm] = useState(false);
+  const [qualificationScore, setQualificationScore] = useState(0);
+
+  // Generate session ID for tracking
+  const [sessionId] = useState(() => `percy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
   useEffect(() => {
     const supabase = createClient(
@@ -40,300 +60,631 @@ export default function PercyHero() {
     });
   }, []);
 
+  // Enhanced conversation flow with Percy's calm, knowledgeable personality
+  const conversationSteps = [
+    {
+      greeting: "Hello! I'm Percy, your AI business concierge. 👋",
+      question: "I'm here to help you find the perfect AI solution for your unique needs. Don't worry - there are no wrong answers here. Let's start simple:",
+      subtext: "What's the main challenge you'd like AI to help you solve?",
+      options: [
+        { text: "Generate more leads & customers", emoji: "🎯", category: "marketing" },
+        { text: "Create better content faster", emoji: "✍️", category: "content" },
+        { text: "Write and publish a book", emoji: "📚", category: "publishing" },
+        { text: "Automate repetitive tasks", emoji: "⚡", category: "automation" },
+        { text: "Build my personal brand", emoji: "🌟", category: "branding" },
+        { text: "I'm not sure yet...", emoji: "🤔", category: "exploration" }
+      ],
+      percyResponse: "Excellent choice! I work with many businesses facing similar challenges. Let me learn a bit more about your situation..."
+    },
+    {
+      greeting: "Perfect! Now I understand your primary goal.",
+      question: "To recommend the most effective AI agents for you, I'd like to understand your business context better:",
+      subtext: "What industry or business type best describes you?",
+      options: [
+        { text: "Marketing/Advertising Agency", emoji: "📈", category: "agency" },
+        { text: "Consultant or Coach", emoji: "🎯", category: "consulting" },
+        { text: "E-commerce/Online Store", emoji: "🛒", category: "ecommerce" },
+        { text: "Content Creator/Influencer", emoji: "📱", category: "creator" },
+        { text: "Small Business Owner", emoji: "🏪", category: "smb" },
+        { text: "Corporate/Enterprise", emoji: "🏢", category: "enterprise" },
+        { text: "Freelancer/Solopreneur", emoji: "💼", category: "freelancer" },
+        { text: "Other/Multiple", emoji: "🌐", category: "other" }
+      ],
+      percyResponse: "Great! I've helped many businesses in your industry achieve amazing results with AI. This context helps me recommend the most relevant solutions..."
+    },
+    {
+      greeting: "Wonderful! I'm getting a clear picture of your needs.",
+      question: "Time is always a factor in business decisions. Understanding your timeline helps me prioritize the right solutions:",
+      subtext: "What's your ideal timeline for implementing an AI solution?",
+      options: [
+        { text: "I need results this week! 🚀", emoji: "⚡", urgency: "urgent" },
+        { text: "Within the next month", emoji: "📅", urgency: "soon" },
+        { text: "Next 2-3 months", emoji: "⏰", urgency: "planned" },
+        { text: "Just exploring possibilities", emoji: "🔍", urgency: "research" }
+      ],
+      percyResponse: "Perfect! Based on your timeline, I can recommend solutions that fit your schedule and deliver results when you need them..."
+    }
+  ];
+
+  // Percy's personalized responses based on user choices (FIXED)
+  const getPercyPersonalizedMessage = (step: number, choice: string) => {
+    const personalizedResponses: Record<string, Record<string, string>> = {
+      "0": {
+        "marketing": "Excellent! Lead generation is where AI really shines. I've helped businesses increase their leads by 300% using the right AI agents. Let me find the perfect solution for you...",
+        "content": "Smart choice! Content creation AI can save you hours every day. I work with creators who now produce a week's worth of content in just one afternoon...",
+        "publishing": "Fantastic! Book publishing with AI is revolutionary. I've guided authors who published bestsellers in record time using our specialized agents...",
+        "automation": "Perfect! Business automation is my specialty. I help businesses eliminate 80% of their repetitive tasks. You're going to love what's possible...",
+        "branding": "Brilliant! Personal branding with AI creates incredible results. I've seen individuals become industry leaders using the right AI strategies...",
+        "exploration": "No worries at all! That's exactly why I'm here. Let me ask a few simple questions to discover what AI can do for your specific situation..."
+      },
+      "1": {
+        "agency": "Agencies love our AI solutions! You'll be able to deliver better results for clients while increasing your profit margins. Many agencies see 40% efficiency gains...",
+        "consulting": "Consultants are perfect for AI automation! You can focus on high-value strategy while AI handles research, content, and administrative tasks...",
+        "ecommerce": "E-commerce and AI are a perfect match! From product descriptions to customer service, AI can transform every aspect of your online business...",
+        "creator": "Content creators see incredible results with AI! You can multiply your content output while maintaining your unique voice and style...",
+        "smb": "Small businesses get the biggest impact from AI! You can compete with much larger companies by leveraging AI automation strategically...",
+        "enterprise": "Enterprise clients need sophisticated AI solutions. Our premium agents are designed for complex workflows and enterprise-scale operations...",
+        "freelancer": "Freelancers love AI for scaling their business! You can take on more clients while delivering higher quality work in less time..."
+      },
+      "2": {
+        "urgent": "I love the urgency! For immediate results, I'll recommend our most powerful agents that can start delivering value today. You'll see results within hours...",
+        "soon": "Perfect timeline! A month gives us time to implement the right solution properly. You'll have everything optimized and running smoothly...",
+        "planned": "Great planning approach! This timeline allows us to build a comprehensive AI strategy that transforms your entire workflow...",
+        "research": "Smart to explore first! I'll show you exactly what's possible so you can make an informed decision when you're ready..."
+      }
+    };
+    
+    return personalizedResponses[String(step)]?.[choice] ?? "Thanks for that information! Let me find the perfect AI solution for your specific needs...";
+  }
+
+  // Calculate lead qualification score with Percy's intelligence
+  const calculateLeadScore = (data: any) => {
+    let score = 0;
+    
+    // Timeline scoring
+    if (data.timeline?.includes('urgent') || data.timeline?.includes('week')) score += 30;
+    else if (data.timeline?.includes('month')) score += 20;
+    else if (data.timeline?.includes('2-3')) score += 15;
+    
+    // Industry scoring  
+    if (data.industry?.includes('Agency') || data.industry?.includes('Enterprise')) score += 25;
+    else if (data.industry?.includes('Consultant') || data.industry?.includes('Business')) score += 20;
+    
+    // Problem complexity scoring
+    if (data.problem?.includes('leads') || data.problem?.includes('automate')) score += 25;
+    else if (data.problem?.includes('content') || data.problem?.includes('branding')) score += 20;
+    
+    return score;
+  };
+
+  // Enhanced Percy response with personality
+  const handlePercyResponse = async (option: any) => {
+    setIsPercyThinking(true);
+    
+    // Track step completion
+    await trackPercyEvent({
+      event_type: 'step_completed',
+      step_number: conversationStep + 1,
+      user_choice: option.text || option,
+      session_id: sessionId,
+      user_id: user?.id,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      referrer: document.referrer
+    });
+    
+    // Update lead data
+    const newLeadData = { ...leadData };
+    switch(conversationStep) {
+      case 0:
+        newLeadData.problem = option.text || option;
+        break;
+      case 1:
+        newLeadData.industry = option.text || option;
+        break;
+      case 2:
+        newLeadData.timeline = option.text || option;
+        break;
+    }
+    setLeadData(newLeadData);
+    
+    // Get Percy's personalized response
+    const personalizedMessage = getPercyPersonalizedMessage(
+      conversationStep, 
+      option.category || option.urgency || 'default'
+    );
+    
+    // Simulate Percy thinking and responding
+    setTimeout(() => {
+      setPercyMessage(personalizedMessage);
+      setIsPercyThinking(false);
+      
+      // Progress conversation
+      if (conversationStep < conversationSteps.length - 1) {
+        setTimeout(() => {
+          setConversationStep(conversationStep + 1);
+          setPercyMessage('');
+        }, 3000);
+      } else {
+        // End of conversation - show recommendations
+        setTimeout(() => {
+          const score = calculateLeadScore(newLeadData);
+          setQualificationScore(score);
+          showPercyRecommendations(newLeadData, score);
+        }, 3000);
+      }
+    }, 2000);
+    
+    // Track interaction
+    await trackPercyInteraction('conversation_step', {
+      step: conversationStep,
+      choice: option.text || option,
+      leadData: newLeadData
+    });
+  };
+
+  // Percy's smart recommendations
+  const showPercyRecommendations = (data: any, score: number) => {
+    const recommendations = getSmartRecommendations(data);
+    setSuggestedAgents(recommendations);
+    
+    if (score >= 50) {
+      setShowLeadForm(true);
+    } else {
+      setShowIntake(true);
+    }
+  };
+
+  // Smart agent recommendations based on user data
+  const getSmartRecommendations = (data: any) => {
+    let recommended = [];
+    
+    if (data.problem?.includes('leads') || data.problem?.includes('marketing')) {
+      recommended = visibleAgents.filter(a => 
+        a.name.includes('Marketing') || a.name.includes('Social') || a.name.includes('Lead')
+      );
+    } else if (data.problem?.includes('content')) {
+      recommended = visibleAgents.filter(a => 
+        a.name.includes('Content') || a.name.includes('Writing') || a.name.includes('Blog')
+      );
+    } else if (data.problem?.includes('book')) {
+      recommended = visibleAgents.filter(a => 
+        a.name.includes('Book') || a.name.includes('Publishing') || a.name.includes('Writing')
+      );
+    } else if (data.problem?.includes('branding')) {
+      recommended = visibleAgents.filter(a => 
+        a.name.includes('Brand') || a.name.includes('Design') || a.name.includes('Logo')
+      );
+    } else {
+      recommended = visibleAgents.slice(0, 3);
+    }
+    
+    return recommended.slice(0, 3);
+  };
+
+  // Handle lead submission (ENHANCED)
+  const handleLeadSubmit = async (contactData: any) => {
+    const fullLeadData = { ...leadData, ...contactData, qualificationScore };
+    
+    try {
+      // Track lead capture event
+      await trackPercyEvent({
+        event_type: 'lead_captured',
+        session_id: sessionId,
+        user_id: user?.id,
+        qualification_score: qualificationScore,
+        timestamp: new Date().toISOString(),
+        user_agent: navigator.userAgent,
+        referrer: document.referrer
+      });
+
+      // Save lead to database
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+
+      const { error: leadError } = await supabase
+        .from('leads')
+        .insert([{
+          email: fullLeadData.email,
+          phone: fullLeadData.phone || null,
+          company_size: fullLeadData.companySize || null,
+          problem: fullLeadData.problem,
+          industry: fullLeadData.industry,
+          timeline: fullLeadData.timeline,
+          qualification_score: qualificationScore,
+          session_id: sessionId
+        }]);
+
+      if (leadError) {
+        console.error('Failed to save lead:', leadError);
+      }
+
+      // Send to email automation system
+      if (fullLeadData.email) {
+        await emailAutomation.sendWelcomeEmail(fullLeadData.email, 'there');
+        
+        // High-value leads get immediate notification
+        if (qualificationScore >= 75) {
+          // TODO: Send high-priority notification to sales team
+          console.log('🚨 High-value lead captured:', fullLeadData.email, 'Score:', qualificationScore);
+        }
+      }
+
+      // Show success and recommended agents
+      const recommendations = getSmartRecommendations(fullLeadData);
+      setSuggestedAgents(recommendations);
+      setShowLeadForm(false);
+      
+    } catch (error) {
+      console.error('Lead submission failed:', error);
+    }
+  };
+
+  // Track conversation start
+  const handleGetStarted = () => {
+    trackPercyEvent({
+      event_type: 'conversation_start',
+      session_id: sessionId,
+      user_id: user?.id,
+      timestamp: new Date().toISOString(),
+      user_agent: navigator.userAgent,
+      referrer: document.referrer
+    });
+    
+    setConversationStep(0);
+    setShowIntake(true);
+  };
+
   const handleExploreFeatures = () => {
-    handlePercyInteraction('button_click', { action: 'explore_features' });
     router.push("/features");
   };
 
   const handleSeeFeatures = () => {
-    handlePercyInteraction('button_click', { action: 'see_features' });
     router.push("/features");
   };
 
-  // Logging/analytics logic (unchanged)
-  const getSessionId = () => {
-    let sessionId = sessionStorage.getItem('percy_session_id');
-    if (!sessionId) {
-      sessionId = Math.random().toString(36).slice(2) + Date.now();
-      sessionStorage.setItem('percy_session_id', sessionId);
-    }
-    return sessionId;
-  };
-
-  const logPercyEvent = async (type: string, value: any, meta: any = {}) => {
-    // ... same as before
-    const sessionId = getSessionId();
-    const timestamp = new Date().toISOString();
-    const log = {
-      type,
-      value,
-      meta: { ...meta, sessionId },
-      timestamp,
-    };
-    try {
-      await saveToSupabase('percy_logs', log);
-    } catch (err) {/* non-critical */}
-  };
-
-  const handlePercyInteraction = (interactionType: string, data: any) => {
-    const userRole = localStorage.getItem('userRole') || 'client';
-    trackPercyInteraction(interactionType, data, user?.id, userRole);
-    
-    // Existing interaction logic...
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      if (file) {
-        handlePercyInteraction('file_upload', { fileName: file.name, fileType: file.type });
-        const route = '/dashboard/publishing-agent';
-        await logPercyEvent('file_upload', file.name, { fileType: file.type, fileSize: file.size });
-        router.push(route);
-        return;
-      }
-      if (inputValue.trim()) {
-        handlePercyInteraction('prompt_submit', { prompt: inputValue });
-        await logPercyEvent('prompt', inputValue);
-        const agents = getBestAgents(inputValue);
-        setSuggestedAgents(agents);
-        await logPercyEvent('agent_matches', agents.map(a => a.id), { agents });
-      }
-    } catch (err) {
-      console.warn('PercyHero routing error:', err);
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  // ----------- RENDER --------------
   return (
-    <div id="percy-hero" className="relative flex flex-col items-center justify-center min-h-[80vh] py-6 px-2 sm:px-4 md:py-10 z-10 bg-transparent">
-      {/* Pronunciation badge or satisfaction badge */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.7 }}
-        className="absolute left-2 top-2 z-30"
-      >
-        <div className="scale-75 origin-left">
-          {require('@/components/ui/SatisfactionBadge').default()}
-        </div>
-      </motion.div>
-
-      {/* Cosmic Constellation + Percy Hero */}
-      <div className="relative flex flex-col items-center w-full max-w-3xl mx-auto mb-4 sm:mb-6">
-  {/* Percy Avatar, headline, and value prop */}
-  <motion.div
-    className="relative z-10 flex flex-col items-center justify-center w-full"
-    initial={{ opacity: 0, scale: 0.95 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ type: "spring", stiffness: 120, delay: 0.2 }}
-  >
-    <div className="relative w-40 h-56 sm:w-56 sm:h-80 md:w-72 md:h-96 animate-float flex items-end justify-center mx-auto">
-      <Image
-        src="/images/agents-percy-fullbody-nobg-skrblai.png"
-        alt="Percy, your AI Concierge"
-        fill
-        className="object-contain drop-shadow-[0_0_60px_#2dd4bf]"
-        priority
-        sizes="(max-width: 640px) 176px, (max-width: 1024px) 224px, 288px"
-        draggable={false}
-      />
-    </div>
-    <span className="block text-4xl md:text-5xl font-extrabold text-center tracking-tight animate-pulse-subtle shadow-glow mt-4 mb-1 bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_32px_#30D5C8]">
-      League of Digital Superheroes
-    </span>
-    <h2 className="text-xl md:text-2xl font-semibold text-center bg-gradient-to-r from-[#1E90FF] to-[#30D5C8] bg-clip-text text-transparent mt-2 mb-1 drop-shadow-[0_0_12px_#1E90FF]">
-      Percy, Your Premium AI Concierge
-    </h2>
-    <p className="text-base md:text-lg text-center text-white/90 mb-2 max-w-xl mx-auto">
-      Unlock creative superpowers, automate your workflow, and grow your brand with the world's most advanced digital agents.
-    </p>
-    <p className="text-sm text-center mb-2 max-w-lg mx-auto">
-      <span className="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-[#1E90FF]/70 to-[#30D5C8]/70 text-white font-bold shadow-[0_0_12px_#1E90FF] border border-[#30D5C8]/60 tracking-wide">AI Concierge</span>
-      <span className="text-white/80"> &mdash; Personalized, always-on help for your business and creative goals.</span>
-    </p>
-  </motion.div>
-  {/* Agent preview (3-4 cards, not constellation) */}
-  <div className="w-full flex flex-row justify-center gap-3 sm:gap-4 mt-4 sm:mt-6 mb-2 flex-wrap">
-    {visibleAgents.slice(0, 4).map((agent, idx) => (
-      <div key={agent.id} className="min-w-[160px] sm:min-w-[200px] max-w-xs flex-1">
-        <motion.div
-          className={
-            `bg-[#0B132B]/70 backdrop-blur-lg border border-[#30D5C8]/50 rounded-xl p-3 sm:p-4 shadow-[0_0_16px_#1E90FF40] transition-all duration-200 cursor-pointer group focus:outline-none focus:ring-2 focus:ring-[#1E90FF]/60 hover:bg-[#1E90FF]/10 hover:agent-card-glow-blue ${agent.premium ? 'relative' : ''}`
-          }
-          whileHover={{ scale: 1.07 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => router.push(agent.route || `/dashboard/${agent.id}`)}
-        >
-          {/* Premium badge for locked/premium agents */}
-          {agent.premium && (
-            <span className="absolute top-2 right-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#1E90FF] to-[#30D5C8] text-white text-xs font-bold shadow-[0_0_10px_#1E90FF80] select-none z-10">
-              Premium
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900">
+      {/* Enhanced Background Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent)]"></div>
+      
+      {/* Main Content Container */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+        
+        {/* Enhanced Hero Section */}
+        <div className="text-center mb-8 max-w-4xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-tight"
+          >
+            Meet{" "}
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+              Percy
             </span>
-          )}
-          <h3 className="text-white font-extrabold text-sm sm:text-base mb-1 tracking-tight bg-gradient-to-r from-[#1E90FF] to-[#30D5C8] bg-clip-text text-transparent drop-shadow-[0_0_8px_#1E90FF] group-hover:drop-shadow-[0_0_16px_#30D5C8]">
-            {agent.name.replace('Agent', '')}
+            , Your AI Concierge
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
+          >
+            I'm here to guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations from someone who knows AI inside and out.
+          </motion.p>
+
+          {/* Enhanced Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap justify-center gap-4 mb-12"
+          >
+            <button
+              onClick={handleGetStarted}
+              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25"
+            >
+              🤖 Talk to Percy
+            </button>
+            <button
+              onClick={handleExploreFeatures}
+              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
+            >
+              ✨ Explore Features
+            </button>
+            <button
+              onClick={handleSeeFeatures}
+              className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
+            >
+              🎯 See What SKRBL AI Can Do
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Enhanced Percy Avatar */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="relative mb-16"
+        >
+          <div className="relative">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1 shadow-2xl shadow-cyan-500/50">
+              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/images/percy-avatar.png"
+                  alt="Percy AI Concierge"
+                  width={192}
+                  height={192}
+                  className="w-full h-full object-cover rounded-full"
+                />
+              </div>
+            </div>
+            
+            {/* Calm, reassuring animations */}
+            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full border border-blue-500/10 animate-ping"></div>
+            
+            {/* Thinking indicator */}
+            {isPercyThinking && (
+              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
+                <div className="bg-slate-800/90 backdrop-blur-lg px-6 py-3 rounded-full border border-cyan-400/30">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                    <span className="text-cyan-400 text-sm font-medium ml-2">Percy is thinking...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Popular Agents Preview */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="w-full max-w-6xl mx-auto"
+        >
+          {/* Add testimonials here */}
+          <PercyTestimonials />
+          
+          <h3 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8 mt-12">
+            Popular AI Agents
           </h3>
-          <p className="text-gray-200 text-xs sm:text-sm font-medium group-hover:text-white transition-colors duration-150">
-            {agent.description || agent.hoverSummary}
-          </p>
+          
+          <div className="relative">
+            <AgentCarousel
+              agents={visibleAgents.slice(0, 6)}
+              onLaunch={(agent) => {
+                setSelectedAgent(agent);
+              }}
+              showPremiumBadges={true}
+            />
+          </div>
         </motion.div>
       </div>
-    ))}
-  </div>
-</div>
 
-      {/* CTA Buttons */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-center mt-2">
-  <motion.button
-    whileHover={{ scale: 1.09, boxShadow: '0 0 24px #1E90FF, 0 0 48px #30D5C8' }}
-    whileTap={{ scale: 0.97 }}
-    onClick={() => {
-      handlePercyInteraction('modal_open', { modal: 'intake' });
-      setShowIntake(true);
-    }}
-    className="w-full sm:w-auto px-6 py-3 rounded-lg bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] text-white font-extrabold text-base sm:text-lg shadow-[0_0_32px_#1E90FF] focus:outline-none focus:ring-4 focus:ring-[#30D5C8]/40 transition-all duration-200 hover:brightness-110 hover:shadow-xl border border-[#30D5C8]/60"
-    aria-label="Start onboarding with Percy"
-  >
-    <span className="inline-flex items-center gap-2">
-      <span className="w-7 h-7 inline-flex items-center justify-center rounded-full bg-[#0B132B]/80 border border-[#30D5C8]/60">
-        <Image
-          src="/images/agents-percy-skrblai.png"
-          alt="Percy mini logo"
-          width={28}
-          height={28}
-          className="object-contain"
-          draggable={false}
-        />
-      </span>
-      Join the League
-    </span>
-  </motion.button>
-  <motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={handleExploreFeatures}
-    className="w-full sm:w-auto px-6 py-3 rounded-lg bg-white/10 text-white font-semibold text-base sm:text-lg focus:outline-none focus:ring-2 focus:ring-[#30D5C8]/60 transition-all duration-200 hover:bg-white/20 hover:text-[#1E90FF]"
-    aria-label="Explore Features"
-  >
-    Explore Features
-  </motion.button>
-</div>
-
-      {/* See What SKRBL AI Can Do Demo CTA */}
-<div className="flex w-full justify-center mt-3 sm:mt-4 mb-2">
-  <motion.button
-    whileHover={{ scale: 1.06 }}
-    whileTap={{ scale: 0.97 }}
-    onClick={() => {
-      handlePercyInteraction('modal_open', { modal: 'agents_demo' });
-      setShowAgentsModal(true);
-    }}
-    className="w-full sm:w-auto px-6 py-3 rounded-lg bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] text-white font-bold text-base sm:text-lg shadow-[0_0_24px_#1E90FF] focus:outline-none focus:ring-4 focus:ring-[#30D5C8]/40 animate-pulse-subtle transition-all duration-200 hover:brightness-110 hover:shadow-xl border border-[#30D5C8]/60"
-    aria-label="See What SKRBL AI Can Do"
-  >
-    <span className="inline-flex items-center gap-2">
-      <svg className="w-6 h-6 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v4m0 8v4m8-8h-4m-8 0H4m15.07-7.07l-2.83 2.83M6.34 17.66l-2.83 2.83m0-16.97l2.83 2.83m10.6 10.6l2.83 2.83" /></svg>
-      See What SKRBL AI Can Do
-    </span>
-  </motion.button>
-</div>
-
-      {/* Agents Modal */}
+      {/* Percy's Consultation Modal */}
       <AnimatePresence>
-        {showAgentsModal && (
-          <motion.div
-            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center"
+        {showIntake && (
+          <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowAgentsModal(false)}
-            aria-modal="true"
-            role="dialog"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
           >
             <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
-              className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-2xl max-w-lg sm:max-w-2xl w-full relative"
-              onClick={e => e.stopPropagation()}
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-4xl w-full border border-cyan-400/20 max-h-[90vh] overflow-y-auto"
             >
               <button
-                className="absolute top-3 right-3 text-white text-2xl font-bold focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 rounded-full w-10 h-10 flex items-center justify-center bg-black/20"
-                aria-label="Close demo modal"
-                onClick={() => setShowAgentsModal(false)}
-                tabIndex={0}
+                className="absolute top-4 right-4 text-gray-400 hover:text-cyan-400 text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/40 rounded-lg p-1 transition-all duration-200"
+                onClick={() => setShowIntake(false)}
+                aria-label="Close consultation"
               >
                 ×
               </button>
-              <h3 className="text-2xl font-bold mb-4 text-center text-white">Top SKRBL AI Agents</h3>
-              <AgentCarousel 
-                agents={visibleAgents.slice(0, 8)} 
-                onLaunch={(agent) => {
-                  handlePercyInteraction('agent_select', { agentId: agent.id, agentName: agent.name, source: 'agents_modal' });
-                  setSelectedAgent(agent);
-                }} 
-              />
+              
+              {!showLeadForm ? (
+                <>
+                  {/* Percy's Message */}
+                  {percyMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mb-6 p-4 bg-cyan-500/10 border border-cyan-400/20 rounded-xl"
+                    >
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">P</span>
+                        </div>
+                        <p className="text-cyan-300 text-sm leading-relaxed">{percyMessage}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                  
+                  {/* Conversation Interface */}
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="mb-2">
+                        <span className="text-cyan-400 text-sm font-medium">
+                          {conversationSteps[conversationStep]?.greeting}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-white mb-2">
+                        {conversationSteps[conversationStep]?.question}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {conversationSteps[conversationStep]?.subtext}
+                      </p>
+                    </div>
+                    
+                    {/* Response Options */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {conversationSteps[conversationStep]?.options.map((option, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handlePercyResponse(option)}
+                          disabled={isPercyThinking}
+                          className="p-4 bg-slate-700/50 hover:bg-slate-600/70 text-white rounded-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-300 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{option.emoji}</span>
+                            <span className="group-hover:text-cyan-400 transition-colors">
+                              {option.text}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Progress Indicator */}
+                    <div className="flex justify-center mt-8">
+                      <div className="flex space-x-2">
+                        {conversationSteps.map((_, index) => (
+                          <div
+                            key={index}
+                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                              index <= conversationStep ? 'bg-cyan-400' : 'bg-slate-600'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="ml-4 text-gray-400 text-sm">
+                        Step {conversationStep + 1} of {conversationSteps.length}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <LeadCaptureForm 
+                  leadData={leadData}
+                  qualificationScore={qualificationScore}
+                  onSubmit={handleLeadSubmit}
+                />
+              )}
+              
+              {/* Show Recommendations */}
+              {suggestedAgents.length > 0 && !showLeadForm && (
+                <div className="mt-8">
+                  <h4 className="text-xl font-bold text-white text-center mb-6">
+                    🎯 Percy's Personalized Recommendations
+                  </h4>
+                  <AgentCarousel
+                    agents={suggestedAgents}
+                    onLaunch={(agent) => {
+                      setSelectedAgent(agent);
+                      setShowIntake(false);
+                    }}
+                    showDetailedCards={true}
+                    showPremiumBadges={true}
+                  />
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Intake Modal */}
-<AnimatePresence>
-  {showIntake && (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-    >
-      <div className="relative bg-white/20 backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-8 max-w-xs sm:max-w-lg w-full flex flex-col items-center gap-4 sm:gap-6 animate__animated animate__fadeInDown">
-        <button
-          className="absolute top-2 right-2 text-gray-500 hover:text-teal-400 text-2xl focus:outline-none focus:ring-2 focus:ring-teal-400/40 rounded"
-          onClick={() => setShowIntake(false)}
-          aria-label="Close onboarding modal"
-        >
-          ×
-        </button>
-        <h2 className="text-2xl font-bold text-center text-white mb-2">Welcome! What do you want to accomplish today?</h2>
-        <div className="w-full overflow-x-visible pb-2">
-          {visibleAgents.length > 0 ? (
-            <AgentCarousel
-              agents={visibleAgents}
-              onLaunch={(agent) => {
-                handlePercyInteraction('agent_select', { agentId: agent.id, agentName: agent.name, source: 'intake_modal' });
-                setSelectedAgent(agent);
-                setTimeout(() => setShowIntake(false), 900);
-              }}
-              selectedAgentId={selectedAgent?.id}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-center py-10 cosmic-glass cosmic-gradient rounded-xl shadow-[0_0_24px_#30D5C880] border-2 border-teal-400/40 mx-auto max-w-xs animate-fade-in" role="status" aria-live="polite">
-  <span className="text-4xl mb-3 animate-float">🪐</span>
-  <p className="text-lg font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow mb-2">No starter agents available</p>
-  <span className="text-teal-300 text-sm mb-4">Your cosmic journey awaits. Unlock premium agents to get started!</span>
-  <a
-    href="/pricing"
-    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#1E90FF] to-[#30D5C8] text-white font-bold shadow-glow hover:from-[#30D5C8] hover:to-[#1E90FF] transition mb-2"
-  >
-    <span className="text-lg">🚀</span> Explore Premium Agents
-  </a>
-  <span className="px-3 py-1 rounded-full bg-teal-600/80 text-xs text-white shadow-glow select-none mt-2">Premium Journey</span>
-</div>
-          )}
+      {/* Agent Constellation */}
+      <AgentConstellation
+        agents={visibleAgents}
+        selectedAgent={selectedAgent}
+        setSelectedAgent={setSelectedAgent}
+      />
+    </div>
+  );
+}
+
+// Enhanced Lead Capture Form with Percy's guidance
+function LeadCaptureForm({ leadData, qualificationScore, onSubmit }: any) {
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [companySize, setCompanySize] = useState('');
+
+  return (
+    <div className="text-center space-y-6">
+      <div className="mb-6">
+        <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <span className="text-white text-2xl">🎯</span>
         </div>
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Perfect! Percy has your personalized AI strategy ready
+        </h2>
+        <p className="text-gray-300 leading-relaxed">
+          Based on our conversation, I've identified exactly which AI agents will solve your challenges. 
+          Let me send you a custom implementation guide tailored to your specific situation.
+        </p>
       </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+
+      <div className="space-y-4">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Your business email"
+          className="w-full p-4 bg-slate-900/50 text-white placeholder-gray-400 border border-cyan-400/30 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
+        />
+        
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="Phone number (optional - for priority support)"
+          className="w-full p-4 bg-slate-900/50 text-white placeholder-gray-400 border border-cyan-400/30 rounded-xl focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all duration-300"
+        />
+
+        <select
+          value={companySize}
+          onChange={(e) => setCompanySize(e.target.value)}
+          className="w-full p-4 bg-slate-900/50 text-white border border-cyan-400/30 rounded-xl focus:outline-none focus:border-cyan-400 appearance-none"
+          aria-label="Select company size"
+        >
+          <option value="">Company size (helps Percy customize recommendations)</option>
+          <option value="1-10">1-10 employees (Startup/Small)</option>
+          <option value="11-50">11-50 employees (Growing Business)</option>
+          <option value="51-200">51-200 employees (Mid-size)</option>
+          <option value="200+">200+ employees (Enterprise)</option>
+        </select>
+      </div>
+
+      <button
+        onClick={() => onSubmit({ email, phone, companySize })}
+        disabled={!email}
+        className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+      >
+        🚀 Send Me Percy's Custom AI Strategy (Free)
+      </button>
+      
+      {qualificationScore >= 75 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="mt-6 p-6 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 rounded-xl"
+        >
+          <div className="text-3xl mb-2">⭐</div>
+          <p className="text-purple-300 font-medium mb-2">VIP Status Unlocked!</p>
+          <p className="text-purple-200 text-sm">
+            You qualify for a complimentary 30-minute strategy session with Percy's human AI experts. 
+            We'll create a custom implementation roadmap for your business.
+          </p>
+        </motion.div>
+      )}
+      
+      <p className="text-gray-500 text-xs">
+        Percy respects your privacy. Your information is secure and will only be used to provide personalized AI recommendations.
+      </p>
     </div>
   );
 }

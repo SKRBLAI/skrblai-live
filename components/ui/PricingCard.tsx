@@ -23,10 +23,12 @@ export default function PricingCard({
   description,
 }: PricingCardProps) {
   return (
-    <motion.div
-      whileHover={{ y: -8, boxShadow: '0 0 32px #1E90FF80' }}
-      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-      className={`relative cosmic-glass cosmic-gradient rounded-2xl p-8 border-2 ${highlight ? 'border-[#1E90FF] shadow-[0_0_32px_#1E90FF80]' : 'border-[#30D5C8] shadow-[0_0_12px_#30D5C880]'} flex flex-col items-center text-center min-w-[260px] max-w-xs mx-auto`}
+    <motion.a
+      href={ctaHref}
+      whileHover={{ y: -12, boxShadow: highlight ? '0 0 64px 8px #1E90FFCC' : '0 0 48px 4px #30D5C8CC', scale: 1.04 }}
+      whileFocus={{ boxShadow: highlight ? '0 0 80px 12px #1E90FFEE' : '0 0 64px 8px #30D5C8EE', scale: 1.03 }}
+      transition={{ type: 'spring', stiffness: 200, damping: 22 }}
+      className={`group relative bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient border-2 ${highlight ? 'border-[#1E90FF] shadow-[0_0_64px_8px_#1E90FF80]' : 'border-[#30D5C8] shadow-[0_0_32px_4px_#30D5C880]'} rounded-2xl p-8 flex flex-col items-center text-center min-w-[260px] max-w-xs mx-auto cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#1E90FF]/40 transition-all duration-300`}
       tabIndex={0}
       aria-label={badge ? `${badge} Plan` : `${title} Plan`}
     >
@@ -47,14 +49,13 @@ export default function PricingCard({
           </li>
         ))}
       </ul>
-      <a
-        href={ctaHref}
-        className={`cosmic-btn-primary px-6 py-3 rounded-xl font-bold w-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E90FF] focus:ring-offset-2 ${highlight ? '' : 'opacity-90 hover:opacity-100'}`}
-        tabIndex={0}
-        aria-label={ctaText}
+      <span
+        className={`cosmic-btn-primary px-6 py-3 rounded-xl font-bold w-full mt-4 transition-all duration-200 group-hover:scale-105 group-focus:scale-105 ${highlight ? '' : 'opacity-90 group-hover:opacity-100'}`}
+        tabIndex={-1}
+        aria-hidden="true"
       >
         {ctaText}
-      </a>
-    </motion.div>
+      </span>
+    </motion.a>
   );
 }
