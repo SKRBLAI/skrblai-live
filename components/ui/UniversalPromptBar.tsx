@@ -65,9 +65,9 @@ export default function UniversalPromptBar({
 
   const isListening = focused || prompt.length > 0 || uploading;
   const themeCls = {
-    container: theme === 'dark' ? 'glass-card' : 'bg-white shadow-lg',
+    container: theme === 'dark' ? 'cosmic-glass cosmic-gradient p-4 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20]' : 'bg-white shadow-lg',
     input: theme === 'dark' ? 'bg-white/5 border border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900',
-    button: theme === 'dark' ? 'bg-electric-blue text-white' : 'bg-blue-600 text-white',
+    button: theme === 'dark' ? 'cosmic-btn-primary' : 'bg-blue-600 text-white',
     text: theme === 'dark' ? 'text-white' : 'text-gray-900',
     second: theme === 'dark' ? 'text-gray-400' : 'text-gray-600',
     error: 'text-red-400',
@@ -113,20 +113,100 @@ export default function UniversalPromptBar({
 
   const render = () => (
     <>
-      {success && <div className="text-center"><div className={`${themeCls.successBg} p-3 rounded mb-4`}><p className={themeCls.successText}>Success!</p></div></div>}
+      <AnimatePresence>
+  {success && (
+    <motion.div
+      key="success-banner"
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.4 }}
+      role="status"
+      aria-live="polite"
+      className="text-center z-10"
+    >
+      <div className="cosmic-glass cosmic-gradient border-2 border-teal-400 shadow-[0_0_24px_#30D5C880] flex items-center justify-center gap-2 p-3 rounded-xl mb-4">
+        <span className="inline-block text-green-400 text-xl">🌟</span>
+        <p className="font-bold text-green-300 drop-shadow">Success!</p>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
       {!minimalUI && <div className="flex items-center mb-4"><div className="mr-3">{icon}</div><div><h2 className={`text-xl ${themeCls.text}`}>{title}</h2><p className={themeCls.second}>{description}</p></div></div>}
       {showPrompt && <div className="mb-4"><label htmlFor="uprompt" className={`block text-sm ${themeCls.text} mb-1`}>{promptLabel}</label><textarea id="uprompt" title={placeholder} placeholder={placeholder} value={prompt} onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)} onChange={e=>setPrompt(e.target.value)} className={`w-full ${themeCls.input} rounded p-2 h-24`} />{isListening && <p className="text-xs text-electric-blue animate-pulse">Percy is listening…</p>}</div>}
-      {file ? <div className="mb-4"><p className="truncate text-white">{file.name}</p><motion.button onClick={upload} disabled={uploading} whileHover={{scale:1.02}} className={`mt-2 ${uploading?'bg-gray-500':' '+themeCls.button} px-4 py-2 rounded ${uploading?'opacity-50 animate-pulse cursor-not-allowed':''}`} >{uploading?'Sending...':buttonText}</motion.button></div>
-        : <motion.button onClick={selectFile} whileHover={{scale:1.02}} className="w-full py-6 border-2 border-dashed border-white/20 rounded flex flex-col items-center"><p className={`text-sm ${themeCls.text}`}>Drop or browse file</p><input ref={fileRef} type="file" title={`Upload ${title} file`} aria-label={`Upload ${title} file`} accept={acceptedFileTypes} onChange={onFileChange} className="hidden" /></motion.button>}  
+      {file ? (
+  <div className="mb-4">
+    <p className="truncate text-white flex items-center gap-2"><span className="text-lg">📄</span>{file.name}</p>
+    <motion.button
+      onClick={upload}
+      disabled={uploading}
+      whileHover={{ scale: 1.02 }}
+      className={`mt-2 ${uploading ? 'bg-gray-500' : ' ' + themeCls.button} px-4 py-2 rounded ${uploading ? 'opacity-50 animate-pulse cursor-not-allowed' : ''}`}
+    >
+      {uploading ? 'Sending...' : buttonText}
+    </motion.button>
+  </div>
+) : (
+  <motion.button
+    onClick={selectFile}
+    whileHover={{ scale: 1.03 }}
+    className="w-full py-8 border-2 border-dashed border-teal-400/40 rounded-2xl flex flex-col items-center justify-center cosmic-glass cosmic-gradient shadow-[0_0_24px_#30D5C880] transition hover:shadow-[0_0_40px_#30D5C8] relative mb-4"
+    style={{ minHeight: 120 }}
+    type="button"
+    tabIndex={0}
+    aria-label="Select or drop a file to upload"
+  >
+    <span className="text-2xl mb-2 animate-bounce">🚀</span>
+    <p className={`text-base font-semibold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow`}>Drop or browse file</p>
+    <input
+      ref={fileRef}
+      type="file"
+      title={`Upload ${title} file`}
+      aria-label={`Upload ${title} file`}
+      accept={acceptedFileTypes}
+      onChange={onFileChange}
+      className="hidden"
+    />
+    <span className="absolute right-4 top-4 px-2 py-1 rounded-full bg-teal-600/80 text-xs text-white shadow-glow select-none">Premium Ready</span>
+  </motion.button>
+)}
       {prompt.trim() && !file && <motion.button onClick={submitPromptOnly} disabled={uploading} whileHover={{scale:1.02}} className={`w-full py-2 rounded mt-4 ${themeCls.button} ${uploading?'opacity-50 animate-pulse cursor-not-allowed':''}`}>{uploading?'Sending...':'Submit'}</motion.button>}
-      {error && <p className={`${themeCls.error} mt-2`}>{error}</p>}
-      {uploading && <div className="w-full bg-gray-700 rounded h-2 mt-4"><div className={`bg-gradient-to-r from-electric-blue to-teal-400 h-full rounded ${progress}%`}></div></div>}
+      <AnimatePresence>
+  {error && (
+    <motion.div
+      key="error-banner"
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      transition={{ duration: 0.4 }}
+      role="alert"
+      aria-live="assertive"
+      className="z-10"
+    >
+      <div className="cosmic-glass border-2 border-red-400 shadow-[0_0_16px_#FF4C4C80] flex items-center gap-2 p-3 rounded-xl mt-2">
+        <span className="inline-block text-red-400 text-xl">🚨</span>
+        <span className="font-semibold text-red-300 drop-shadow">{error}</span>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+      {uploading && (
+  <div className="w-full bg-gray-800/80 rounded h-2 mt-4 overflow-hidden relative">
+    <motion.div
+      initial={{ width: 0 }}
+      animate={{ width: `${progress}%` }}
+      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      className="absolute left-0 top-0 h-full bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue shadow-[0_0_12px_#30D5C8] animate-pulse"
+      style={{ borderRadius: 8 }}
+    />
+  </div>
+)}
     </>
   );
 
   return (
     <AnimatePresence>
-      <motion.div key={pathname} initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:0.95}} transition={{duration:0.3}} className={`${themeCls.container} p-6 rounded-xl ${className}`}> {render()} </motion.div>
+      <motion.div key={pathname} initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:0.95}} transition={{duration:0.3}} className={`${themeCls.container} ${className}`}> {render()} </motion.div>
     </AnimatePresence>
   );
 }

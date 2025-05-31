@@ -55,7 +55,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     const featuredAgents = agentRegistry
-      .filter(a => a.displayInOrbit === true)
+      .filter(a => {
+        // Exclude Percy from featured agents
+        if (a.id === 'percy-agent' || a.id === 'percy' || a.name === 'Percy') {
+          return false;
+        }
+        return a.displayInOrbit === true;
+      })
       .map(selfHealAgent);
     await systemLog({ type: 'info', message: 'Featured agents accessed', meta: { ...meta, userId: user.id, email: user.email } });
     return NextResponse.json({ agents: featuredAgents });

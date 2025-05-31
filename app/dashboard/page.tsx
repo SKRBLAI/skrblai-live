@@ -41,6 +41,7 @@ import UpsellModal from '@/components/percy/UpsellModal';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import BillingInfo from '@/components/dashboard/BillingInfo';
 import Notifications from '@/components/dashboard/Notifications';
+import UpgradeBanner from '@/components/ui/UpgradeBanner';
 
 // Types
 export type Agent = {
@@ -223,6 +224,12 @@ export default function Dashboard() {
             animate="visible"
             className="space-y-8"
           >
+            {/* Cosmic Upgrade Banner for Free Users */}
+            {userRole === 'free' && (
+              <motion.div variants={itemVariants}>
+                <UpgradeBanner />
+              </motion.div>
+            )}
             <motion.div variants={itemVariants}>
               <DashboardHeader />
             </motion.div>

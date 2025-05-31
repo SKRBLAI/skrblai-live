@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import UpgradeBanner from '@/components/ui/UpgradeBanner';
 
 const steps = [
   {
@@ -40,6 +41,14 @@ export default function OnboardingSection() {
             <p className="text-gray-300 text-center text-base">{step.desc}</p>
           </motion.div>
         ))}
+      </div>
+      <div className="mt-12">
+        <UpgradeBanner 
+          headline="Unlock All AI Agents & Features"
+          description="Upgrade now to access unlimited agents, advanced workflows, and priority support. Experience the full cosmic power of SKRBL AI!"
+          ctaText="Explore Premium"
+          ctaHref="/pricing"
+        />
       </div>
     </section>
   );

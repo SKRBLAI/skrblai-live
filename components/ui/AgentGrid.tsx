@@ -53,28 +53,80 @@ export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
   }, [agentsProp]);
 
   if (loading) {
-    return (
-      <div className="text-center py-12 text-slate-400">Loading agents...</div>
-    );
-  }
+  return (
+    <motion.div
+      key="loading-agents"
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center text-center py-16 cosmic-glass cosmic-gradient rounded-2xl shadow-[0_0_32px_#1E90FF40] border-2 border-teal-400/40 mx-auto max-w-lg"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="text-4xl mb-4 animate-spin-slow">🪐</span>
+      <p className="text-xl font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow mb-2">Loading agents...</p>
+      <span className="text-teal-300 text-sm animate-pulse">Please wait while we fetch your cosmic crew.</span>
+    </motion.div>
+  );
+}
 
   if (error) {
-    return (
-      <div className="text-center py-12 text-red-400">{error}</div>
-    );
-  }
+  return (
+    <motion.div
+      key="error-agents"
+      initial={{ opacity: 0, y: -16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center text-center py-14 cosmic-glass rounded-2xl shadow-[0_0_24px_#FF4C4C80] border-2 border-red-400/60 mx-auto max-w-lg"
+      role="alert"
+      aria-live="assertive"
+    >
+      <span className="text-4xl mb-3">🚨</span>
+      <p className="text-lg font-bold text-red-300 drop-shadow mb-1">{error}</p>
+      <button
+        onClick={() => window.location.reload()}
+        className="mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-orange-400 text-white font-semibold shadow hover:from-red-600 hover:to-orange-500 transition"
+      >
+        Retry
+      </button>
+    </motion.div>
+  );
+}
 
   if (!agents || agents.length === 0) {
-    // Minimal placeholder or nothing for empty state (no agents)
-    return null;
-  }
+  return (
+    <motion.div
+      key="empty-agents"
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.97 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center justify-center text-center py-16 cosmic-glass cosmic-gradient rounded-2xl shadow-[0_0_32px_#1E90FF40] border-2 border-teal-400/40 mx-auto max-w-lg"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="text-5xl mb-4 animate-float">✨</span>
+      <p className="text-xl font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow mb-2">No agents found</p>
+      <span className="text-teal-300 text-sm mb-4">Your cosmic grid is empty. Ready to unlock more?</span>
+      <a
+        href="/pricing"
+        className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-gradient-to-r from-[#1E90FF] to-[#30D5C8] text-white font-bold shadow-glow hover:from-[#30D5C8] hover:to-[#1E90FF] transition mb-2"
+      >
+        <span className="text-lg">🚀</span> Unlock Premium Agents
+      </a>
+      <span className="px-3 py-1 rounded-full bg-teal-600/80 text-xs text-white shadow-glow select-none mt-2">Premium Journey</span>
+    </motion.div>
+  );
+}
 
   return (
     <motion.div
       variants={staggerContainer}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6"
+      className="cosmic-glass cosmic-gradient grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-3 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20] max-w-7xl mx-auto w-full"
     >
       {agents.map((agent: Agent, idx: number) => {
         const isLocked = agent.unlocked === false;

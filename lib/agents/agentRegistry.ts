@@ -81,6 +81,9 @@ const allAgents: Agent[] = [
     route,
     gender,
     displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
+    premiumFeature: agent.roleRequired === 'pro' ? 'premium-agents' : undefined,
+    upgradeRequired: agent.roleRequired === 'pro' ? 'pro' : 
+                    agent.roleRequired === 'enterprise' ? 'enterprise' : null
   };
 });
 

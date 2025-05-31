@@ -227,7 +227,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
         ref={cardRef}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-        className={`relative group cursor-pointer select-none ${className}`}
+        className={`relative group cursor-pointer select-none cosmic-card ${className}`}
         variants={cardVariants}
         initial="initial"
         animate="animate"
@@ -249,7 +249,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           <div className="relative group/avatar">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
             {/* PNG Avatar with fallback */}
-            <div className="w-28 h-28 rounded-full object-contain bg-white/10 shadow-md border border-teal-500 flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
+            <div className="w-28 h-28 rounded-full object-contain cosmic-glass cosmic-glow border-2 border-[#30D5C8] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
               {imgSrc && (
                 <img
                   src={imgSrc}
@@ -301,7 +301,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
         </motion.div>
         {/* Agent Name */}
         <motion.h3 
-          className="text-lg font-bold mb-1 text-center text-white bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-200"
+          className="text-lg font-extrabold mb-1 text-center bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_#1E90FF]"
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ 
@@ -327,11 +327,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           className="mt-5 flex justify-center w-full"
         >
           <motion.button
-            className={`px-4 py-2.5 rounded-xl font-semibold text-white shadow-lg transition-all duration-300 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-teal-400/50 ${
-              isLocked 
-                ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-electric-blue to-teal-500 hover:shadow-xl hover:shadow-teal-500/20 hover:brightness-110'
-            }`}
+            className={`cosmic-btn-primary w-full max-w-xs ${isLocked ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' : ''}`}
             onClick={handleCtaClick}
             disabled={isLocked}
             tabIndex={0}

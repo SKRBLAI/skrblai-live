@@ -4,6 +4,7 @@ import { getAgentImagePath, getAgentSets } from '@/utils/agentUtils';
 import type { Agent } from '@/types/agent';
 import { createClient } from '@supabase/supabase-js';
 import { systemLog } from '@/utils/systemLog';
+import { checkPremiumAccess, getAvailableFeatures } from '@/lib/premiumGating';
 
 const ORBIT_TIERS = ['inner', 'mid', 'outer'] as const;
 
@@ -70,10 +71,24 @@ export async function GET(req: Request) {
       .eq('userId', user.id)
       .maybeSingle();
     const userRole = userRoleData?.role || 'client';
-    // Filter agents by role gating
+    // Filter agents by role gating AND exclude Percy AND premium gating
     const visibleAgents = agentRegistry.filter(a => {
-      if (!a.roleRequired) return true;
-      return userRole === a.roleRequired;
+      // Exclude Percy from all agent listings
+      if (a.id === 'percy-agent' || a.id === 'percy' || a.name === 'Percy') {
+        return false;
+      }
+      
+      // Check role-based access
+      if (a.roleRequired && userRole !== a.roleRequired) {
+        return false;
+      }
+      
+      // Check premium feature access for premium agents
+      if (a.premiumFeature && !checkPremiumAccess(userRole, a.premiumFeature)) {
+        return false;
+      }
+      
+      return true;
     });
     // Group if requested
     const url = new URL(req.url);
@@ -84,8 +99,15 @@ export async function GET(req: Request) {
     } else {
       result = visibleAgents;
     }
-    await systemLog({ type: 'info', message: 'Agents list accessed', meta: { ...meta, userId: user.id, email: user.email, grouped: !!grouped } });
-    return NextResponse.json({ agents: result });
+    // Add premium metadata to response
+    const availableFeatures = getAvailableFeatures(userRole);
+    await systemLog({ type: 'info', message: 'Agents list accessed', meta: { ...meta, userId: user.id, email: user.email, grouped: !!grouped, userRole } });
+    return NextResponse.json({ 
+      agents: result,
+      userRole,
+      availableFeatures: availableFeatures.map(f => f.id),
+      premiumFeatures: availableFeatures
+    });
   } catch (error: any) {
     await systemLog({ type: 'error', message: 'Agent list fetch error', meta: { ...meta, error: error.message } });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });

@@ -63,6 +63,8 @@ export interface Agent {
     lead: Lead
   ) => Promise<{ success: boolean; message: string; redirectPath?: string }>;
   roleRequired?: string;
+  premiumFeature?: string;
+  upgradeRequired?: string | null;
 }
 
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;
