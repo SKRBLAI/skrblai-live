@@ -159,25 +159,26 @@ export default function HomePage() {
                       whileHover={{ scale: 1.06, rotate: -2 }}
                       transition={{ type: 'spring', stiffness: 80 }}
                     >
-                      <Image
-                        src={`/images/agents-${agent.imageSlug || agent.id}-nobg-skrblai.png`}
-                        alt={agent.name}
-                        width={96}
-                        height={96}
-                        className="rounded-xl shadow-glow bg-gradient-to-br from-electric-blue/30 to-fuchsia-500/20"
-                        loading="lazy"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.onerror = null;
-                          target.src = '';
-                          target.alt = '🤖';
-                          target.style.background = '#222';
-                          target.style.display = 'flex';
-                          target.style.alignItems = 'center';
-                          target.style.justifyContent = 'center';
-                          target.style.fontSize = '2rem';
-                        }}
-                      />
+                      <div className="relative w-24 h-24 agent-image-container">
+                        <Image
+                          src={`/images/agents-${agent.imageSlug || agent.id}-nobg-skrblai.png`}
+                          alt={agent.name}
+                          fill
+                          className="agent-image"
+                          loading="lazy"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = '';
+                            target.alt = '🤖';
+                            target.style.background = '#222';
+                            target.style.display = 'flex';
+                            target.style.alignItems = 'center';
+                            target.style.justifyContent = 'center';
+                            target.style.fontSize = '2rem';
+                          }}
+                        />
+                      </div>
                     </motion.div>
                     <h3 className="text-xl font-bold mb-2 text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
                       {agent.name}
@@ -263,25 +264,26 @@ export default function HomePage() {
                   ×
                 </motion.button>
                 <div className="mb-4 flex flex-col items-center">
-                  <Image
-                    src={`/images/agents-${demoAgent.imageSlug || demoAgent.id}-nobg-skrblai.png`}
-                    alt={demoAgent.name}
-                    width={120}
-                    height={120}
-                    className="rounded-xl shadow-glow mb-2"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = '';
-                      target.alt = '🤖';
-                      target.style.background = '#222';
-                      target.style.display = 'flex';
-                      target.style.alignItems = 'center';
-                      target.style.justifyContent = 'center';
-                      target.style.fontSize = '2rem';
-                    }}
-                  />
+                  <div className="relative w-32 h-32 agent-image-container">
+                    <Image
+                      src={`/images/agents-${demoAgent.imageSlug || demoAgent.id}-nobg-skrblai.png`}
+                      alt={demoAgent.name}
+                      fill
+                      className="agent-image"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.onerror = null;
+                        target.src = '';
+                        target.alt = '🤖';
+                        target.style.background = '#222';
+                        target.style.display = 'flex';
+                        target.style.alignItems = 'center';
+                        target.style.justifyContent = 'center';
+                        target.style.fontSize = '2rem';
+                      }}
+                    />
+                  </div>
                   <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
                     {demoAgent.name}
                   </h3>

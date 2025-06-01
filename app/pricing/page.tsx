@@ -61,10 +61,10 @@ export default function PricingPage() {
     
       <PageLayout>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <div className="relative min-h-screen bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-hidden">
-            <FloatingParticles />
-            <div className="max-w-7xl mx-auto px-4 py-16 z-10 relative">
-              <div className="text-center mb-16">
+          <div className="relative min-h-screen overflow-hidden">
+  <FloatingParticles />
+  <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
+    <div className="text-center mb-16">
                 <motion.h1 
                   className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_18px_#1E90FF]"
                   initial={{ y: 20, opacity: 0 }}

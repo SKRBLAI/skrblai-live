@@ -71,6 +71,18 @@
   transition: box-shadow 0.3s ease;
 }
 
+/* Cosmic Float Card - Premium floating effect for main cards */
+.cosmic-float-card {
+  box-shadow:
+    0 8px 32px 0 rgba(30, 144, 255, 0.25),
+    0 1.5px 16px 0 rgba(48, 213, 200, 0.18),
+    0 0.5px 2px 0 rgba(0,0,0,0.12);
+  border: 2px solid rgba(30, 144, 255, 0.10);
+  background: rgba(13, 17, 23, 0.75);
+  backdrop-filter: blur(16px);
+}
+
+
 .cosmic-glow:hover, .cosmic-glow:focus {
   box-shadow: 0 0 30px rgba(30, 144, 255, 0.5);
 }

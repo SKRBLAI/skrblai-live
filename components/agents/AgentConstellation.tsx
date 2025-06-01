@@ -9,6 +9,7 @@ import FocusTrap from 'focus-trap-react';
 import { createClient } from '@supabase/supabase-js';
 import { triggerEmailFromAnalytics } from '@/lib/analytics/emailTriggers';
 import { emailAutomation } from '@/lib/email/simpleAutomation';
+import AgentBackstoryModal from './AgentBackstoryModal';
 
 // Radii for agent orbits
 const TIER_RADII = { inner: 90, mid: 165, outer: 240 } as const;
@@ -40,6 +41,8 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
   const shouldReduceMotion = useReducedMotion();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [showBackstoryModal, setShowBackstoryModal] = useState(false);
+  const [backstoryAgent, setBackstoryAgent] = useState<Agent | null>(null);
 
   // Deduplicate Percy and build orbiting agent array
   useEffect(() => {
@@ -292,7 +295,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                     src={getAgentImagePath(agent)}
                     alt={agent.role || agent.name}
                     fill
-                    className="object-cover rounded-full"
+                    className="agent-image"
                     sizes={`${size}px`}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
@@ -375,7 +378,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   src={getAgentImagePath(agent)}
                   alt={agent.role || agent.name}
                   fill
-                  className="object-cover rounded-full"
+                  className="agent-image"
                   sizes={`${size}px`}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
@@ -416,7 +419,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   src={getAgentImagePath(selectedAgent)}
                   alt={selectedAgent.name}
                   fill
-                  className="object-cover rounded-full border-4 border-teal-400 shadow-glow"
+                  className="agent-image"
                   sizes="208px"
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-400/10 animate-pulse-slow" />
@@ -453,7 +456,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                       src={getAgentImagePath(selectedAgent)}
                       alt={selectedAgent.name}
                       fill
-                      className="object-cover rounded-full shadow-glow border-2 border-teal-400"
+                      className="agent-image"
                       sizes="96px"
                     />
                     <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
@@ -465,15 +468,30 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                       <p className="text-sm text-gray-300 mb-3 leading-snug text-center">
                         This AI-powered assistant can help you create professional {selectedAgent.capabilities?.[0]?.toLowerCase()} content and strategies tailored to your specific needs.
                       </p>
-                      <motion.button
-                        whileHover={{ scale: 1.07 }}
-                        whileTap={{ scale: 0.97 }}
-                        onClick={() => handleAgentLaunch(selectedAgent)}
-                        className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200 mt-2"
-                        aria-label={`Launch ${selectedAgent.name}`}
-                      >
-                        Launch {selectedAgent.name.replace('Agent', '')}
-                      </motion.button>
+                      <div className="flex flex-col gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.07 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => handleAgentLaunch(selectedAgent)}
+                          className="w-full bg-gradient-to-r from-teal-500 to-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105 transition-all duration-200"
+                          aria-label={`Launch ${selectedAgent.name}`}
+                        >
+                          Launch {selectedAgent.name.replace('Agent', '')}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => {
+                            setBackstoryAgent(selectedAgent);
+                            setShowBackstoryModal(true);
+                            setSelectedAgent(null);
+                          }}
+                          className="w-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-purple-300 font-semibold py-2 px-4 rounded-lg border border-purple-500/30 hover:border-purple-400/50 transition-all duration-200"
+                          aria-label={`View ${selectedAgent.name} backstory`}
+                        >
+                          🦸 View Superhero Backstory
+                        </motion.button>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -482,6 +500,16 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
           </>
         )}
       </AnimatePresence>
+      
+      {/* Agent Backstory Modal */}
+      <AgentBackstoryModal
+        agent={backstoryAgent}
+        isOpen={showBackstoryModal}
+        onClose={() => {
+          setShowBackstoryModal(false);
+          setBackstoryAgent(null);
+        }}
+      />
     </div>
   );
 };

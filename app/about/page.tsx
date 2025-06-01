@@ -3,6 +3,7 @@ import React from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import PercyProvider from '../../components/assistant/PercyProvider';
+import BrandLogo from '@/components/ui/BrandLogo';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import PercyAvatar from '@/components/home/PercyAvatar';
@@ -27,39 +28,24 @@ const sections = [
 
 export default function AboutPage(): JSX.Element {
   return (
-    
-      <PageLayout>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <div className="relative min-h-screen w-full bg-gradient-to-b from-[#0d1117] to-[#161b22] overflow-x-hidden">
-            <FloatingParticles />
-            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <div className="text-center mb-16">
-                <motion.h1 
-                  className="text-4xl font-bold text-white mb-4"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  About SKRBL AI
-                </motion.h1>
-                <motion.p 
-                  className="text-lg text-gray-300"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Building the future of AI-powered automation
-                </motion.p>
+    <PageLayout>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <div className="relative min-h-screen w-full overflow-x-hidden">
+          <FloatingParticles />
+          <div className="flex justify-center items-center min-h-[80vh]">
+            <div className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient border-2 border-[#30D5C8] shadow-[0_0_32px_4px_#30D5C880] rounded-2xl p-8 md:p-16 max-w-4xl w-full mx-auto">
+              <div className="flex flex-col items-center mb-10">
+                <BrandLogo className="skrblai-heading text-center mb-2" />
+                <span className="text-lg text-[#30D5C8] mb-4">Building the future of AI-powered automation</span>
               </div>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {sections.map((section, index) => (
                   <motion.div
                     key={section.title}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 + 0.4 }}
-                    className="glass-card p-6 rounded-xl backdrop-blur-lg border border-sky-500/10"
+                    className="bg-white/10 rounded-xl p-6 border border-white/10 shadow-glow"
                   >
                     <div className="text-3xl mb-4">{section.icon}</div>
                     <h2 className="text-xl font-semibold text-white mb-4">{section.title}</h2>
@@ -67,51 +53,40 @@ export default function AboutPage(): JSX.Element {
                   </motion.div>
                 ))}
               </div>
-
-              {/* Percy Testimonial */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
-                className="glass-card p-8 rounded-xl backdrop-blur-lg border border-teal-400/20 max-w-3xl mx-auto"
+                className="bg-white/10 rounded-xl p-8 border border-teal-400/20 max-w-2xl mx-auto mb-12 shadow-glow"
               >
                 <div className="flex items-center justify-center mb-6">
                   <PercyAvatar size="lg" className="mx-auto" />
                 </div>
                 <blockquote className="text-center">
-                  <p className="text-lg text-gray-300 italic mb-4">
+                  <p className="text-xl italic text-white mb-4">
                     "SKRBL AI helped me bring my idea to life faster than I ever imagined. The combination of AI agents and human creativity is truly revolutionary."
                   </p>
-                  <footer className="text-teal-400 font-semibold">
-                    — A Visionary Creator
-                  </footer>
+                  <footer className="text-gray-400">—A Visionary Creator</footer>
                 </blockquote>
               </motion.div>
-
-              {/* Stats Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-                className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
-              >
+              <div className="flex flex-wrap justify-center gap-12 text-center mt-8">
                 <div>
-                  <div className="text-3xl font-bold text-white mb-2">10,000+</div>
+                  <div className="text-3xl font-bold text-electric-blue">10,000+</div>
                   <div className="text-gray-400">Creators Empowered</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white mb-2">1M+</div>
+                  <div className="text-3xl font-bold text-electric-blue">1M+</div>
                   <div className="text-gray-400">AI Tasks Completed</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-white mb-2">24/7</div>
+                  <div className="text-3xl font-bold text-electric-blue">24/7</div>
                   <div className="text-gray-400">AI Support</div>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
-        </motion.div>
-      </PageLayout>
-    
+        </div>
+      </motion.div>
+    </PageLayout>
   );
-} 
+}

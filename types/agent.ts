@@ -58,6 +58,16 @@ export interface Agent {
   };
   hoverSummary?: string;
   gender?: 'male' | 'female' | 'neutral';
+  
+  // Superhero backstory fields
+  superheroName?: string;
+  origin?: string;
+  powers?: string[];
+  weakness?: string;
+  catchphrase?: string;
+  nemesis?: string;
+  backstory?: string;
+  
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead

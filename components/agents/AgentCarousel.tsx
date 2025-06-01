@@ -72,7 +72,7 @@ export default function AgentCarousel({
                       src={getAgentImagePath(agent)}
                       alt={agent.name}
                       fill
-                      className="object-cover"
+                      className="carousel-agent-image"
                       sizes={showDetailedCards ? "80px" : "64px"}
                       onError={(e) => {
                         // Fallback to emoji if the primary image fails to load

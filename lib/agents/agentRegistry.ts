@@ -1,5 +1,6 @@
 import { Agent } from '@/types/agent';
 import { getDefaultOrbitParams, getAgentImageSlug, validateAgents, validateOrbitAgentAvatars } from '@/utils/agentUtils';
+import { agentBackstories } from './agentBackstories';
 
 // Import all agents
 import adCreativeAgent from '@/ai-agents/adCreativeAgent';
@@ -45,6 +46,10 @@ const allAgents: Agent[] = [
   const hoverSummary = agent.hoverSummary || agent.description || '';
   const route = agent.route || `/dashboard/${agent.id}`;
   const orbit = agent.orbit || getDefaultOrbitParams(idx);
+  
+  // Get backstory for this agent
+  const backstory = agentBackstories[agent.id] || agentBackstories[agent.id.replace('-agent', '')] || {};
+  
   // Normalize gender to 'male' | 'female' | 'neutral', fallback to genderMap for invalid or missing values
   const rawGender = (agent as any).gender as string | undefined;
   let gender: 'male' | 'female' | 'neutral';
@@ -80,6 +85,14 @@ const allAgents: Agent[] = [
     imageSlug,
     route,
     gender,
+    // Add superhero backstory fields
+    superheroName: backstory.superheroName || agent.name,
+    origin: backstory.origin,
+    powers: backstory.powers,
+    weakness: backstory.weakness,
+    catchphrase: backstory.catchphrase,
+    nemesis: backstory.nemesis,
+    backstory: backstory.backstory,
     displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
     premiumFeature: agent.roleRequired === 'pro' ? 'premium-agents' : undefined,
     upgradeRequired: agent.roleRequired === 'pro' ? 'pro' : 
