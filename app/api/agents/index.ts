@@ -1,6 +1,6 @@
 import agentRegistry from '@/lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
-import { getAgentImagePath, getAgentSets } from '@/utils/agentUtils';
+import { getAgentImagePath, getAgentSets, getAgentImageSlug } from '@/utils/agentUtils';
 import type { Agent } from '@/types/agent';
 import { createClient } from '@supabase/supabase-js';
 import { systemLog } from '@/utils/systemLog';
@@ -32,7 +32,7 @@ function selfHealAgent(agent: Agent) {
   const id = agent.id || 'unknown-agent';
   const name = agent.name || 'Unknown';
   const orbit = agent.orbit || { radius: 200, speed: 0.02, angle: 0 };
-  const imageSlug = getAgentImagePath(agent);
+  const imageSlug = agent.imageSlug || getAgentImageSlug(agent);
   const gender = ['male', 'female', 'neutral'].includes(agent.gender || '') ? agent.gender : 'neutral';
   const moodColor = (agent as any).moodColor;
   let tier = (agent as any).tier;

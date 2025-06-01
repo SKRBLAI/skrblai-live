@@ -16,6 +16,7 @@ import { emailAutomation } from '@/lib/email/simpleAutomation';
 import { trackPercyEvent } from '@/lib/analytics/percyAnalytics';
 import PercyTestimonials from '@/components/percy/PercyTestimonials';
 import { downloadLeadsCSV } from '@/lib/utils/leadExport';
+import FloatingParticles from '@/components/ui/FloatingParticles';
 
 // Only include agents that are not Percy for all agent grid/carousel logic
 const visibleAgents = agentDashboardList.filter(
@@ -354,9 +355,12 @@ export default function PercyHero() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-purple-900">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117]">
       {/* Enhanced Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]"></div>
+      <div className="absolute inset-0 opacity-40 pointer-events-none">
+        <FloatingParticles particleCount={32} />
+      </div>
       
       {/* Main Content Container */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
@@ -367,10 +371,10 @@ export default function PercyHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-tight"
+            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-tight text-glow"
           >
             Meet{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent text-glow-strong">
               Percy
             </span>
             , Your AI Concierge
@@ -394,19 +398,19 @@ export default function PercyHero() {
           >
             <button
               onClick={handleGetStarted}
-              className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-xl hover:from-cyan-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-cyan-500/25"
+              className="px-8 py-4 cosmic-btn-primary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
             >
               🤖 Talk to Percy
             </button>
             <button
               onClick={handleExploreFeatures}
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25"
+              className="px-8 py-4 cosmic-btn-primary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
             >
               ✨ Explore Features
             </button>
             <button
               onClick={handleSeeFeatures}
-              className="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
+              className="px-8 py-4 cosmic-btn-secondary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
             >
               🎯 See What SKRBL AI Can Do
             </button>
@@ -424,7 +428,7 @@ export default function PercyHero() {
             <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1 shadow-2xl shadow-cyan-500/50">
               <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
                 <Image
-                  src="/images/percy-avatar.png"
+                  src="/images/agents-percy-nobg-skrblai.png"
                   alt="Percy AI Concierge"
                   width={192}
                   height={192}
@@ -444,8 +448,8 @@ export default function PercyHero() {
                   <div className="flex items-center space-x-2">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce animation-delay-100"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce animation-delay-200"></div>
                     </div>
                     <span className="text-cyan-400 text-sm font-medium ml-2">Percy is thinking...</span>
                   </div>

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { ChatBubble } from '@/components/ui';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useRef, useState } from 'react';
 dayjs.extend(relativeTime);
 
 export interface PercyTimelineItem {
@@ -16,11 +17,13 @@ export interface PercyTimelineProps {
 }
 
 export default function PercyTimeline({ timeline }: PercyTimelineProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
   return (
     <div className="flex flex-col gap-4 mt-8">
       {timeline.map((item: PercyTimelineItem, idx: number) => {
-        const avatarSrc = `/images/agents-${item.agentId}-skrblai.png`;
-        const fallbackAvatar = '/images/male-silhouette.png';
+        const avatarSrc = `/images/agents-${item.agentId}-nobg-skrblai.png`;
         return (
           <motion.div
             key={item.timestamp + item.agentId + idx}
@@ -32,13 +35,17 @@ export default function PercyTimeline({ timeline }: PercyTimelineProps) {
               <img
                 src={avatarSrc}
                 alt={item.agentId}
-                className="w-8 h-8 rounded-full border shadow-sm bg-gray-700 object-cover"
-                title={item.agentId}
+                className="w-12 h-12 rounded-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  if (target.src !== window.location.origin + fallbackAvatar) {
-                    target.src = fallbackAvatar;
-                  }
+                  target.onerror = null;
+                  target.src = '';
+                  target.alt = '🤖';
+                  target.style.background = '#222';
+                  target.style.display = 'flex';
+                  target.style.alignItems = 'center';
+                  target.style.justifyContent = 'center';
+                  target.style.fontSize = '1.5rem';
                 }}
               />
               <div className="flex flex-col">

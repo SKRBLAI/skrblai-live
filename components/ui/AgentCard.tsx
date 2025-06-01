@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Agent } from '@/types/agent';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
-import { getAgentEmoji } from '@/utils/agentUtils';
+import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
 import AgentModal from './AgentModal';
 
 const GLOW_COLOR = '0 0 16px 2px rgba(0, 245, 212, 0.4), 0 0 40px 4px rgba(0, 102, 255, 0.2)';
@@ -180,8 +180,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
   // Image source
   const { imageSlug, id = "", gender = 'neutral', name } = agent;
-  const avatarSrc = imageSlug ? `/images/agents-${imageSlug}-skrblai.png` : `/images/agents-${id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase()}-skrblai.png`;
-  const fallbackImg = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
+  const avatarSrc = getAgentImagePath(agent);
   const [imgSrc, setImgSrc] = useState(avatarSrc);
   const [usedFallback, setUsedFallback] = useState(false);
   useEffect(() => {
@@ -258,16 +257,19 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
                   className="object-contain w-28 h-28 rounded-full mx-auto mb-2"
                   onError={() => {
-                    if (imgSrc !== fallbackImg) {
-                      setImgSrc(fallbackImg);
+                    if (imgSrc !== '') {
+                      setImgSrc('');
                       setUsedFallback(true);
                       if (process.env.NODE_ENV === 'development') {
                         // eslint-disable-next-line no-console
-                        console.warn(`AgentCard: PNG not found for ${agent.name} (${avatarSrc}), falling back to ${fallbackImg}`);
+                        console.warn(`AgentCard: PNG not found for ${agent.name} (${avatarSrc}), falling back to emoji`);
                       }
                     }
                   }}
-                /> // WINDSURF: Avatar audit - slug, fallback, alt, aria, tooltip, size
+                />
+              )}
+              {!imgSrc && (
+                <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontSize:'2rem',background:'#222'}}>🤖</div>
               )}
               {isLocked && (
                 <motion.span 

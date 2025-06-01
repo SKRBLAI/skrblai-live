@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAgentEmoji } from '@/utils/agentUtils';
+import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
 import { Agent } from '@/types/agent';
 import React, { useState, useCallback } from "react";
 import { submitPercyFeedback } from "@/utils/feedback";
@@ -109,16 +109,22 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             >
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-teal-400 via-white/80 to-blue-400 shadow-lg flex items-center justify-center border-4 border-white/40 overflow-hidden">
-                {('avatar' in agent && agent.avatar) || ('image' in agent && agent.image) ? (
-                  <img
-                    src={(agent as any).avatar || (agent as any).image}
-                    alt={agent.name}
-                    className="w-20 h-20 object-cover rounded-full"
-                    onError={e => (e.currentTarget.style.display = 'none')}
-                  />
-                ) : (
-                  <span className="text-4xl drop-shadow-xl">{getAgentEmoji(agent.category)}</span>
-                )}
+                <img
+                  src={getAgentImagePath(agent)}
+                  alt={agent.name}
+                  className="w-20 h-20 object-cover rounded-full"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '';
+                    target.style.display = 'none';
+                    // Show emoji fallback when image fails
+                    const emoji = document.createElement('span');
+                    emoji.className = 'text-4xl drop-shadow-xl';
+                    emoji.textContent = getAgentEmoji(agent.category);
+                    target.parentElement?.appendChild(emoji);
+                  }}
+                />
               </div>
             </motion.div>
 

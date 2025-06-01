@@ -289,11 +289,22 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                 />
                 <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-teal-400 shadow-glow bg-deep-navy">
                   <Image
-                    src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
+                    src={getAgentImagePath(agent)}
                     alt={agent.role || agent.name}
                     fill
                     className="object-cover rounded-full"
                     sizes={`${size}px`}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = '';
+                      target.alt = '🤖';
+                      target.style.background = '#222';
+                      target.style.display = 'flex';
+                      target.style.alignItems = 'center';
+                      target.style.justifyContent = 'center';
+                      target.style.fontSize = '2rem';
+                    }}
                   />
                   {isLocked && (
   <motion.div
@@ -361,11 +372,22 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                 style={{ width: size, height: size }}
               >
                 <Image
-                  src={agent.imageSlug ? `/images/agents-${agent.imageSlug}-skrblai.png` : getAgentImagePath(agent)}
+                  src={getAgentImagePath(agent)}
                   alt={agent.role || agent.name}
                   fill
                   className="object-cover rounded-full"
                   sizes={`${size}px`}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.onerror = null;
+                    target.src = '';
+                    target.alt = '🤖';
+                    target.style.background = '#222';
+                    target.style.display = 'flex';
+                    target.style.alignItems = 'center';
+                    target.style.justifyContent = 'center';
+                    target.style.fontSize = '2rem';
+                  }}
                 />
               </div>
               <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
@@ -391,7 +413,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
             >
               <div className="relative w-40 h-40 md:w-52 md:h-52">
                 <Image
-                  src={selectedAgent.imageSlug ? `/images/agents-${selectedAgent.imageSlug}-skrblai.png` : getAgentImagePath(selectedAgent)}
+                  src={getAgentImagePath(selectedAgent)}
                   alt={selectedAgent.name}
                   fill
                   className="object-cover rounded-full border-4 border-teal-400 shadow-glow"
@@ -428,7 +450,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   </button>
                   <div className="relative w-24 h-24 mx-auto -mt-12 mb-2">
                     <Image
-                      src={selectedAgent.imageSlug ? `/images/agents-${selectedAgent.imageSlug}-skrblai.png` : getAgentImagePath(selectedAgent)}
+                      src={getAgentImagePath(selectedAgent)}
                       alt={selectedAgent.name}
                       fill
                       className="object-cover rounded-full shadow-glow border-2 border-teal-400"

@@ -194,13 +194,19 @@ export function getAgentImageSlug(agent: Agent): string {
   return agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
 }
 
+export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
+  const slug = agent.imageSlug || getAgentImageSlug(agent);
+  // Use the new -nobg- image format
+  return `/images/agents-${slug}-nobg-skrblai.png`;
+}
+
 if (process.env.NODE_ENV === 'development') {
   const missingImages: string[] = [];
   const agentsWithoutCapabilities: string[] = [];
 
   agentRegistry.forEach(agent => {
     const slug = getAgentImageSlug(agent);
-    const imagePath = path.join(process.cwd(), 'public', 'images', `agents-${slug}-skrblai.png`);
+    const imagePath = path.join(process.cwd(), 'public', 'images', `agents-${slug}-nobg-skrblai.png`);
     if (!fs.existsSync(imagePath)) {
       console.warn(`❌ Missing avatar image for agent: ${agent.name} → slug: ${slug}`);
       missingImages.push(agent.name);
@@ -285,11 +291,4 @@ export function validateOrbitAgentAvatars(agents: Agent[]): void {
       }
     }
   });
-}
-
-// Helper to get normalized agent image path
-export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
-  const slug = agent.imageSlug || agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
-  // Always use the same format regardless of variant parameter
-  return `/images/agents-${slug}-skrblai.png`;
 }

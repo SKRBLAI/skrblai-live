@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import PercyHero from '@/components/home/PercyHero';
+import BrandLogo from '@/components/ui/BrandLogo';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
@@ -63,7 +64,7 @@ export default function HomePage() {
         <section className="mb-8">
           <div className="flex flex-col items-center justify-center">
             <PercyHero />
-            <h1 className="mt-6 text-2xl md:text-4xl font-bold text-teal-300 text-center drop-shadow-[0_0_12px_#2dd4bf] animate-pulse-subtle shadow-glow" aria-label="Meet Our League of Digital Superheroes">
+            <h1 className="mt-6 skrblai-heading text-center" aria-label="Meet Our League of Digital Superheroes">
               Meet Our League of Digital Superheroes
             </h1>
             {process.env.NODE_ENV === 'development' && (
@@ -81,8 +82,7 @@ export default function HomePage() {
             </div>
             {/* Animated gradient overlay */}
             <div
-              className="absolute inset-0 animate-cosmic-gradient bg-[radial-gradient(ellipse_at_60%_40%,rgba(56,189,248,0.16)_0%,rgba(244,114,182,0.09)_60%,transparent_100%)]"
-              style={{ mixBlendMode: 'screen' }}
+              className="absolute inset-0 animate-cosmic-gradient bg-[radial-gradient(ellipse_at_60%_40%,rgba(56,189,248,0.16)_0%,rgba(244,114,182,0.09)_60%,transparent_100%)] blend-mode-screen"
             />
           </div>
 
@@ -160,12 +160,23 @@ export default function HomePage() {
                       transition={{ type: 'spring', stiffness: 80 }}
                     >
                       <Image
-                        src={`/images/agents-${agent.imageSlug || agent.id}.png`}
+                        src={`/images/agents-${agent.imageSlug || agent.id}-nobg-skrblai.png`}
                         alt={agent.name}
                         width={96}
                         height={96}
                         className="rounded-xl shadow-glow bg-gradient-to-br from-electric-blue/30 to-fuchsia-500/20"
                         loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.onerror = null;
+                          target.src = '';
+                          target.alt = '🤖';
+                          target.style.background = '#222';
+                          target.style.display = 'flex';
+                          target.style.alignItems = 'center';
+                          target.style.justifyContent = 'center';
+                          target.style.fontSize = '2rem';
+                        }}
                       />
                     </motion.div>
                     <h3 className="text-xl font-bold mb-2 text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
@@ -253,12 +264,23 @@ export default function HomePage() {
                 </motion.button>
                 <div className="mb-4 flex flex-col items-center">
                   <Image
-                    src={`/images/agents-${demoAgent.imageSlug || demoAgent.id}.png`}
+                    src={`/images/agents-${demoAgent.imageSlug || demoAgent.id}-nobg-skrblai.png`}
                     alt={demoAgent.name}
                     width={120}
                     height={120}
                     className="rounded-xl shadow-glow mb-2"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = '';
+                      target.alt = '🤖';
+                      target.style.background = '#222';
+                      target.style.display = 'flex';
+                      target.style.alignItems = 'center';
+                      target.style.justifyContent = 'center';
+                      target.style.fontSize = '2rem';
+                    }}
                   />
                   <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
                     {demoAgent.name}
@@ -295,22 +317,22 @@ export default function HomePage() {
             Ready to experience creative freedom? Explore our features or chat with Percy—your personal AI concierge—right now.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/features">
+            <Link href="/services/agents">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-electric-blue text-white font-semibold rounded-lg shadow-glow hover:shadow-electric-blue/50 transition-all duration-300"
+                className="px-8 py-3 cosmic-btn-primary text-white font-semibold rounded-lg cosmic-glow transition-all duration-300"
               >
-                Get 7-Day Free Trial
+                <span className="text-glow">Get 7-Day Free Trial</span>
               </motion.button>
             </Link>
-            <Link href="/services">
+            <Link href="/features">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-3 bg-white/5 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
               >
-                See Features
+                <span className="text-glow">See Features</span>
               </motion.button>
             </Link>
           </div>

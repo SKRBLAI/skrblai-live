@@ -46,10 +46,7 @@ export default function AgentCard({
   const silhouettePath = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
 
   // Use passed imageSlug directly for image path without calling getAgentImagePath
-  const imagePath = imageSlug
-    ? `/images/agents-${imageSlug}-skrblai.png`
-    : `/images/agents-${name.toLowerCase().replace(/\s+/g, '-')}-skrblai.png`;
-
+  const imagePath = getAgentImagePath({ id: '', imageSlug, name } as Agent);
   const [imgSrc, setImgSrc] = useState(imagePath);
 
   return (
@@ -91,10 +88,13 @@ export default function AgentCard({
             alt={`${name} avatar`}
             fill
             className="object-contain rounded-full shadow-glow"
-            onError={() => setImgSrc(silhouettePath)}
+            onError={() => setImgSrc('')}
             sizes={isPercy ? '256px' : '192px'}
             priority={isPercy}
           />
+          {!imgSrc && (
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontSize:'2rem',background:'#222'}}>🤖</div>
+          )}
           {/* Tooltip for agent name/role */}
           <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
             {name} {role ? <span className="text-teal-400">({role})</span> : ''}

@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import BrandLogo from '@/components/ui/BrandLogo';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
 import AgentsGrid from '@/components/agents/AgentsGrid';
 import AgentFilterBar from '@/components/agents/AgentFilterBar';
@@ -35,7 +36,7 @@ export default function ServicesPage(): JSX.Element {
         {/* Content */}
         <div className="relative z-10 pt-24">
           {/* Heading */}
-          <h1 className="text-3xl md:text-4xl font-bold text-center text-white mb-2 drop-shadow-glow">Meet Our League of Digital Superheroes</h1>
+          <h1 className="skrblai-heading text-center mb-6">Meet Our League of Digital Superheroes</h1>
           {/* Cosmic/Glass Filter Bar */}
           <AgentFilterBar selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
           <AgentsGrid agents={agents} />

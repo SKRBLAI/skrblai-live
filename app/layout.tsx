@@ -1,6 +1,7 @@
 'use client';
 import './globals.css';
 import '../styles/components.css';
+import '../styles/cosmic-theme.css';
 import PageTransition from '@/components/ui/PageTransition';
 import PercyProvider from '@/components/assistant/PercyProvider';
 import PercyWidget from '@/components/percy/PercyWidget';

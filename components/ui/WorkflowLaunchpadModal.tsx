@@ -20,9 +20,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Social Media Growth Machine",
     description: "Rapidly scale your social channels with coordinated AI agents for content, branding, and automation.",
     agents: [
-      { name: "SocialBot", avatar: "/images/agents-social-bot-skrblai.png" },
-      { name: "BrandingAgent", avatar: "/images/agents-branding-agent-skrblai.png" },
-      { name: "ContentAgent", avatar: "/images/agents-content-agent-skrblai.png" }
+      { name: "SocialBot", avatar: "/images/agents-social-nobg-skrblai.png" },
+      { name: "BrandingAgent", avatar: "/images/agents-branding-nobg-skrblai.png" },
+      { name: "ContentAgent", avatar: "/images/agents-contentcreation-nobg-skrblai.png" }
     ]
   },
   {
@@ -30,9 +30,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Automated Content Factory",
     description: "Produce, schedule, and publish high-quality content with zero manual effort.",
     agents: [
-      { name: "ContentAgent", avatar: "/images/agents-content-agent-skrblai.png" },
-      { name: "VideoContentAgent", avatar: "/images/agents-video-content-agent-skrblai.png" },
-      { name: "SocialBot", avatar: "/images/agents-social-bot-skrblai.png" }
+      { name: "ContentAgent", avatar: "/images/agents-contentcreation-nobg-skrblai.png" },
+      { name: "VideoContentAgent", avatar: "/images/agents-videocontent-nobg-skrblai.png" },
+      { name: "SocialBot", avatar: "/images/agents-social-nobg-skrblai.png" }
     ]
   },
   {
@@ -40,9 +40,9 @@ const WORKFLOWS: Workflow[] = [
     title: "AI Brand Launch Strategy",
     description: "Launch your brand with a unified AI-powered strategy across all platforms.",
     agents: [
-      { name: "BrandingAgent", avatar: "/images/agents-branding-agent-skrblai.png" },
-      { name: "AnalyticsAgent", avatar: "/images/agents-analytics-agent-skrblai.png" },
-      { name: "SitegenAgent", avatar: "/images/agents-sitegen-agent-skrblai.png" }
+      { name: "BrandingAgent", avatar: "/images/agents-branding-nobg-skrblai.png" },
+      { name: "AnalyticsAgent", avatar: "/images/agents-analytics-nobg-skrblai.png" },
+      { name: "SitegenAgent", avatar: "/images/agents-site-nobg-skrblai.png" }
     ]
   }
 ];
