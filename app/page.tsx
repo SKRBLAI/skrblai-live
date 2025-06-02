@@ -44,9 +44,12 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center">
             {/* Only one fullbody Percy, glowing, cosmic */}
             <PercyHero />
-            <h1 className="mt-6 skrblai-heading text-center" aria-label="Meet Our League of Digital Superheroes">
-              Meet Our League of Digital Superheroes
+            <h1 className="mt-6 skrblai-heading text-center text-4xl md:text-6xl max-w-4xl mx-auto" aria-label="Welcome to SKRBL AI">
+              Welcome to SKRBL AI
             </h1>
+            <p className="mt-4 text-lg md:text-xl text-gray-300 text-center max-w-2xl mx-auto">
+              Your gateway to intelligent automation. Discover our suite of AI agents ready to transform your digital experience.
+            </p>
           </div>
         </section>
 

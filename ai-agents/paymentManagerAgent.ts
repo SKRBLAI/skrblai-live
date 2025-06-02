@@ -452,6 +452,7 @@ const paymentManagerAgent: Agent = {
   name: 'Payment Manager',
   category: 'Finance',
   description: 'Handles payment processing and management',
+  imageSlug: 'payment',
   visible: true,
   agentCategory: ['finance', 'payments'],
   config: {

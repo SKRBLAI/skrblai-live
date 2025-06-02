@@ -4,16 +4,95 @@ import React, { useEffect, useRef } from 'react';
 interface ParticleProps {
   fullScreen?: boolean;
   particleCount?: number;
+  speed?: number;
+  size?: number;
+  colors?: string[];
+  glowIntensity?: number;
 }
 
-const FloatingParticles = ({ fullScreen = true, particleCount = 50 }: ParticleProps = {}) => {
+type ParticleType = {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  opacity: number;
+  glowIntensity: number;
+  glowDirection: number;
+  color: string;
+  update: (canvas: HTMLCanvasElement) => void;
+  draw: (ctx: CanvasRenderingContext2D, globalGlowIntensity: number) => void;
+};
+
+class Particle implements ParticleType {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  opacity: number;
+  glowIntensity: number;
+  glowDirection: number;
+  color: string;
+
+  constructor(
+    canvas: HTMLCanvasElement,
+    size: number,
+    speed: number,
+    colors: string[]
+  ) {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * size + size/2;
+    this.speedX = (Math.random() * 2 - 1) * speed;
+    this.speedY = (Math.random() * 2 - 1) * speed;
+    this.opacity = Math.random() * 0.6 + 0.4;
+    this.glowIntensity = Math.random();
+    this.glowDirection = Math.random() > 0.5 ? 1 : -1;
+    this.color = colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  update(canvas: HTMLCanvasElement): void {
+    this.x += this.speedX;
+    this.y += this.speedY;
+
+    if (this.x > canvas.width) this.x = 0;
+    else if (this.x < 0) this.x = canvas.width;
+    if (this.y > canvas.height) this.y = 0;
+    else if (this.y < 0) this.y = canvas.height;
+
+    this.glowIntensity += 0.01 * this.glowDirection;
+    if (this.glowIntensity > 1) this.glowDirection = -1;
+    else if (this.glowIntensity < 0) this.glowDirection = 1;
+  }
+
+  draw(ctx: CanvasRenderingContext2D, globalGlowIntensity: number): void {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.fillStyle = this.color;
+    ctx.shadowColor = this.color;
+    ctx.shadowBlur = 15 * this.glowIntensity * globalGlowIntensity;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const FloatingParticles: React.FC<ParticleProps> = ({
+  fullScreen = true,
+  particleCount = 50,
+  speed = 0.5,
+  size = 2,
+  colors = ['#38bdf8', '#f472b6', '#0ea5e9', '#22d3ee'],
+  glowIntensity = 0.3
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
 
+    const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -29,87 +108,38 @@ const FloatingParticles = ({ fullScreen = true, particleCount = 50 }: ParticlePr
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Particle class
-    class Particle {
-      private glowIntensity: number = 0;
-      private glowDirection: number = 1;
-      x: number = 0;
-      y: number = 0;
-      size: number = 1;
-      speedX: number = 0;
-      speedY: number = 0;
-      opacity: number = 0.2;
-
-      constructor() {
-        if (!canvas) return;
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 3 + 1;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 2 - 1;
-        this.opacity = Math.random() * 0.5 + 0.2;
-      }
-
-      update() {
-        if (!canvas) return;
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        if (this.x > canvas.width) this.x = 0;
-        else if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        else if (this.y < 0) this.y = canvas.height;
-      }
-
-      draw() {
-        if (!ctx) return;
-        
-        // Update glow effect
-        this.glowIntensity += 0.02 * this.glowDirection;
-        if (this.glowIntensity > 1) {
-          this.glowDirection = -1;
-        } else if (this.glowIntensity < 0) {
-          this.glowDirection = 1;
-        }
-        
-        // Draw particle with glow
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = `rgba(20, 255, 233, ${this.glowIntensity * 0.5})`;
-        ctx.fillStyle = `rgba(20, 255, 233, ${this.opacity * (0.7 + this.glowIntensity * 0.3)})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-    }
-
     // Create particles
-    const particles: Particle[] = Array(particleCount).fill(null).map(() => new Particle());
+    const particles = Array.from({ length: particleCount }, () => new Particle(canvas, size, speed, colors));
 
     // Animation loop
+    let animationFrameId: number;
     const animate = () => {
-      if (!ctx) return;
+      if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
+      
+      particles.forEach(p => {
+        p.update(canvas);
+        p.draw(ctx, glowIntensity);
       });
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
+
     animate();
 
     // Cleanup
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, [fullScreen, particleCount]);
+  }, [fullScreen, particleCount, speed, size, colors, glowIntensity]);
 
   return (
     <canvas 
-      ref={canvasRef} 
-      className={`particles-canvas ${fullScreen ? 'particles-canvas-fullscreen' : ''}`}
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none opacity-60"
     />
   );
 };

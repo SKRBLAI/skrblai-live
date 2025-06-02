@@ -30,9 +30,15 @@ export default function ServicesPage(): JSX.Element {
         className="min-h-screen relative"
       >
         {/* Cosmic Background */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/95 to-[#0d1117]" />
-          <FloatingParticles />
+        <div className="absolute inset-0 z-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/95 to-[#161b22]" />
+          <FloatingParticles
+            particleCount={40}
+            speed={0.4}
+            size={2.5}
+            colors={['#38bdf8', '#f472b6', '#0ea5e9', '#22d3ee']}
+            glowIntensity={0.4}
+          />
         </div>
 
         {/* Content */}
@@ -40,8 +46,8 @@ export default function ServicesPage(): JSX.Element {
           {/* Hero Section */}
           <div className="w-full flex flex-col items-center mb-10">
             <BrandLogo className="skrblai-heading text-center mb-4" />
-            <h2 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow text-center mb-2 max-w-2xl mx-auto">
-              Unleash the Power of AI Superheroes for Your Business
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow text-center mb-4 max-w-3xl mx-auto">
+              Intelligent Automation for Your Business
             </h2>
             <p className="text-lg text-gray-300 text-center max-w-2xl mx-auto mb-4">
               SKRBL AI brings together a league of digital experts—ready to automate, create, and elevate your brand. Meet Percy, your friendly AI concierge, and discover what our agents can do for you.
@@ -69,7 +75,7 @@ export default function ServicesPage(): JSX.Element {
               </div>
             </div>
             <p className="text-base text-teal-300 text-center max-w-xl mx-auto mb-6">
-              Percy is your cosmic guide—always ready to help you explore, automate, and create with confidence.
+              Percy is your cosmic guide—always ready to help you explore, automate, and create at scale with confidence.
             </p>
           </div>
 
