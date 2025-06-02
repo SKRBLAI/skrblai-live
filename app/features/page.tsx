@@ -68,14 +68,14 @@ export default function FeaturesPage(): JSX.Element {
         
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
           {features.map((feature, index) => (
-            <Link href={feature.href} key={index}>
+            <Link href={feature.href} key={index} className="group">
               <motion.div 
-                whileHover={{ y: -5, scale: 1.02 }}
+                whileHover={{ y: -10, scale: 1.04, boxShadow: '0 0 48px 12px #38bdf8cc, 0 0 24px #f472b6cc' }}
                 whileTap={{ scale: 0.98 }}
-                className="cosmic-glass rounded-xl p-6 h-full cosmic-border flex flex-col justify-between"
+                className="cosmic-float-card shadow-glow rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 bg-white/5 backdrop-blur-xl bg-clip-padding border-2 border-white/10"
               >
                 <div>
-                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <div className="text-4xl mb-4 drop-shadow-glow">{feature.icon}</div>
                   <h3 className="skrblai-heading text-lg mb-3">{feature.title}</h3>
                   <p className="text-gray-300">{feature.description}</p>
                 </div>
@@ -96,7 +96,7 @@ export default function FeaturesPage(): JSX.Element {
               whileTap={{ scale: 0.95 }}
               className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold cosmic-glow"
             >
-              <span className="text-glow">Meet Our AI Agents</span>
+              <span>Meet Our AI Agents</span>
             </motion.button>
           </Link>
         </div>

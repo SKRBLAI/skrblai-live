@@ -438,6 +438,7 @@ const videoContentAgent: Agent = {
   name: 'Video Content',
   category: 'Content',
   description: 'AI-powered video script and storyboard generation',
+  imageSlug: 'videocontent',
   visible: true,
   agentCategory: ['video', 'content'],
   config: {

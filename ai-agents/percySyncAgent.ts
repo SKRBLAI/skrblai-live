@@ -214,6 +214,7 @@ const percySyncAgent: Agent = {
   name: 'Percy Sync',
   category: 'System',
   description: 'Handles synchronization and routing of Percy chat interactions',
+  imageSlug: 'sync',
   visible: false,
   agentCategory: ['system'],
   capabilities: ['AI agent', 'task automation', 'creative support'],

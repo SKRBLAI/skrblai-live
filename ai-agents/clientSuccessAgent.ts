@@ -801,6 +801,7 @@ const clientSuccessAgent: Agent = {
   name: 'Client Success',
   category: 'Support',
   description: 'Handles client support requests and ticket management',
+  imageSlug: 'clientsuccess',
   visible: true,
   agentCategory: ['support'],
   config: {

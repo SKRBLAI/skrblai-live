@@ -219,6 +219,7 @@ const sitegenAgent: Agent = {
   name: 'Site Generator',
   category: 'Web',
   description: 'AI-powered website structure and content generation',
+  imageSlug: 'site',
   visible: true,
   agentCategory: ['website'],
   config: {

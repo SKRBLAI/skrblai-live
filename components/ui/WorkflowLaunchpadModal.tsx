@@ -95,7 +95,23 @@ const WorkflowLaunchpadModal: React.FC<WorkflowLaunchpadModalProps> = ({ isOpen,
                     {wf.agents.map(agent => (
                       <div key={agent.name} className="flex flex-col items-center">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-electric-blue to-teal-400 flex items-center justify-center overflow-hidden border-2 border-electric-blue/40">
-                          <Image src={agent.avatar} alt={agent.name} width={40} height={40} />
+                          <Image 
+                            src={agent.avatar} 
+                            alt={agent.name} 
+                            width={40} 
+                            height={40} 
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.onerror = null;
+                              target.src = '';
+                              target.alt = '🤖';
+                              target.style.background = '#222';
+                              target.style.display = 'flex';
+                              target.style.alignItems = 'center';
+                              target.style.justifyContent = 'center';
+                              target.style.fontSize = '1.5rem';
+                            }}
+                          />
                         </div>
                         <span className="text-xs text-white mt-1">{agent.name}</span>
                       </div>

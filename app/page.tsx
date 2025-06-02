@@ -1,53 +1,32 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import PercyHero from '@/components/home/PercyHero';
-import BrandLogo from '@/components/ui/BrandLogo';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import Image from 'next/image';
+import { useState } from 'react';
+import type { Agent } from '@/types/agent';
 
 export default function HomePage() {
   const { setPercyIntent, closePercy } = usePercyContext();
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [demoAgent, setDemoAgent] = useState<any>(null);
-  const [agents, setAgents] = useState<any[]>([]);
-  const [allCategories, setAllCategories] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [demoAgent, setDemoAgent] = useState<Agent | null>(null);
+
+  // Fetch agents from API or registry (add useEffect if needed)
+  // For now, assume agents are fetched elsewhere or passed as props
+  // If you want to fetch here, uncomment and implement fetch logic
+  // useEffect(() => { ... }, []);
+
+  // Filtered agents (all agents for now, can add category logic)
+  const filteredAgents: Agent[] = agents;
 
   useEffect(() => {
     closePercy();
     setPercyIntent('');
-    // Fetch agents from secure API
-    const fetchAgents = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/agents', { credentials: 'include' });
-        if (!res.ok) throw new Error('Failed to fetch agents');
-        const data = await res.json();
-        setAgents(data.agents || []);
-        // Extract unique categories
-        const cats = Array.from(new Set((data.agents || []).flatMap((a: any) => a.agentCategory || [])));
-        setAllCategories(cats as string[]);
-        // TEMP LOGGING: Validate agent data and categories
-        console.log('[Homepage] Agents from API:', data.agents);
-        console.log('[Homepage] Categories from API:', cats);
-      } catch (err) {
-        setAgents([]);
-        setAllCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAgents();
   }, [closePercy, setPercyIntent]);
-
-  const filteredAgents =
-    selectedCategory === 'all'
-      ? agents
-      : agents.filter(agent => (agent.agentCategory || []).includes(selectedCategory));
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
@@ -60,79 +39,37 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
-        {/* PercyHero: Futuristic hero with animated Percy, tagline, and cosmic glassmorphism */}
+        {/* PercyHero: Includes agent constellation that pulls from registry and filters correctly */}
         <section className="mb-8">
           <div className="flex flex-col items-center justify-center">
+            {/* Only one fullbody Percy, glowing, cosmic */}
             <PercyHero />
             <h1 className="mt-6 skrblai-heading text-center" aria-label="Meet Our League of Digital Superheroes">
               Meet Our League of Digital Superheroes
             </h1>
-            {process.env.NODE_ENV === 'development' && (
-              <script dangerouslySetInnerHTML={{ __html: "console.log('[SKRBL DEDUPLICATION] Homepage hero tagline deduplication complete.')" }} />
-            )}
           </div>
         </section>
 
-        {/* Explore Agents CTA + Animated Agent Constellation */}
-        <div className="relative mt-16">
-          {/* Cosmic Background Layer */}
+        {/* Agent Constellation: Centered, floating, no sidebar/grid */}
+        <div className="relative mt-16 flex flex-col items-center justify-center">
           <div className="absolute inset-0 z-0 pointer-events-none">
             <div className="opacity-40">
               <FloatingParticles particleCount={32} />
             </div>
-            {/* Animated gradient overlay */}
             <div
               className="absolute inset-0 animate-cosmic-gradient bg-[radial-gradient(ellipse_at_60%_40%,rgba(56,189,248,0.16)_0%,rgba(244,114,182,0.09)_60%,transparent_100%)] blend-mode-screen"
             />
           </div>
-
-          {/* Main Content Layer (Filter, Grid, Modal) */}
-          <div className="relative z-10">
-            {/* --- Filter Bar --- */}
-            <button
-              className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 ${selectedCategory === 'all' ? 'bg-electric-blue text-white shadow-glow' : 'bg-white/10 text-teal-300 hover:bg-electric-blue/20'}`}
-              onClick={() => setSelectedCategory('all')}
+          {/* Centered constellation/cards, no filter bar or category grid */}
+          <div className="relative z-10 flex flex-col items-center w-full">
+            {/* AgentConstellation component or similar here (assumes it floats all agents/cards) */}
+            {/* If you have a dedicated AgentConstellation, use it here. Otherwise, float the cards as below. */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="mt-4 flex flex-wrap justify-center gap-8 w-full"
             >
-              <span role="img" aria-label="All" className="mr-1">✨</span>All
-            </button>
-            {allCategories.map(cat => {
-              const icon =
-                cat.toLowerCase().includes('brand') ? '🎨' :
-                cat.toLowerCase().includes('content') ? '📝' :
-                cat.toLowerCase().includes('video') ? '🎬' :
-                cat.toLowerCase().includes('analytics') ? '📊' :
-                cat.toLowerCase().includes('social') ? '🤖' :
-                cat.toLowerCase().includes('biz') ? '💼' :
-                cat.toLowerCase().includes('payment') ? '💳' :
-                cat.toLowerCase().includes('client') ? '🧑‍💼' :
-                cat.toLowerCase().includes('proposal') ? '📝' :
-                cat.toLowerCase().includes('site') ? '🌐' :
-                cat.toLowerCase().includes('publishing') ? '📢' :
-                cat.toLowerCase().includes('sync') ? '🔄' :
-                '✨';
-              return (
-                <motion.button
-                  key={cat}
-                  className={`px-5 py-2 rounded-full font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 flex items-center gap-1 ${selectedCategory === cat ? 'bg-electric-blue text-white shadow-glow' : 'bg-white/10 text-teal-300 hover:bg-electric-blue/20'}`}
-                  onClick={() => setSelectedCategory(cat)}
-                  whileTap={{ scale: 0.95 }}
-                  whileHover={{ scale: 1.08 }}
-                  animate={selectedCategory === cat ? { scale: 1.08 } : { scale: 1 }}
-                >
-                  <span role="img" aria-label={cat} className="mr-1">{icon}</span>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                </motion.button>
-              );
-            })}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-4"
-          >
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-center">
               {filteredAgents.map(agent => {
                 let badge = null;
                 if (agent.roleRequired === 'pro') badge = 'Pro';
@@ -142,8 +79,9 @@ export default function HomePage() {
                 return (
                   <motion.div
                     key={agent.id}
-                    whileHover={{ y: -8, scale: 1.03, boxShadow: '0 0 32px #38bdf8, 0 0 24px #f472b6' }}
-                    className="bg-gradient-to-br from-electric-blue/30 via-fuchsia-500/10 to-teal-400/20 rounded-2xl shadow-glow p-6 flex flex-col items-center border-2 border-fuchsia-400/30 hover:border-teal-400/80 transition-all duration-300 relative"
+                    whileHover={{ y: -8, scale: 1.06, boxShadow: '0 0 48px 8px #38bdf8cc, 0 0 24px #f472b6cc' }}
+                    whileTap={{ scale: 0.98 }}
+                    className="cosmic-float-card flex flex-col items-center p-6 transition-all duration-300 relative w-full max-w-xs mx-auto shadow-glow"
                   >
                     {/* Badge */}
                     {badge && (
@@ -156,7 +94,7 @@ export default function HomePage() {
                     )}
                     <motion.div
                       className="mb-4 flex items-center justify-center"
-                      whileHover={{ scale: 1.06, rotate: -2 }}
+                      whileHover={{ scale: 1.08, rotate: -2 }}
                       transition={{ type: 'spring', stiffness: 80 }}
                     >
                       <div className="relative w-24 h-24 agent-image-container">
@@ -164,7 +102,7 @@ export default function HomePage() {
                           src={`/images/agents-${agent.imageSlug || agent.id}-nobg-skrblai.png`}
                           alt={agent.name}
                           fill
-                          className="agent-image"
+                          className="agent-image object-contain"
                           loading="lazy"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
@@ -186,9 +124,9 @@ export default function HomePage() {
                     <p className="text-gray-300 text-sm mb-4 text-center min-h-[48px]">
                       {agent.hoverSummary || agent.description || 'AI Agent'}
                     </p>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 w-full">
                       <button
-                        className="inline-block px-5 py-2 rounded-lg font-semibold bg-gradient-to-r from-fuchsia-400 to-teal-400 text-white shadow-glow hover:shadow-electric-blue/50 hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 relative group"
+                        className="cosmic-btn-primary w-full px-5 py-2 rounded-lg font-semibold group"
                         onClick={() => setDemoAgent(agent)}
                         tabIndex={0}
                         aria-label={`Try a live demo of ${agent.name}`}
@@ -199,113 +137,14 @@ export default function HomePage() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 8 }}
                           transition={{ duration: 0.18 }}
-                          className="absolute left-1/2 -bottom-9 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 pointer-events-none bg-black/90 text-xs text-white px-3 py-1 rounded shadow-glow transition-opacity duration-200 z-30 whitespace-nowrap"
-                          aria-live="polite"
-                        >
-                          Try a live demo of {agent.name}
-                        </motion.span>
+                        />
                       </button>
-                      <Link href={agent.route || `/services/${agent.id}`} legacyBehavior>
-                        <a className="inline-block px-5 py-2 rounded-lg font-semibold bg-gradient-to-r from-electric-blue to-teal-400 text-white shadow-glow hover:shadow-electric-blue/50 hover:scale-105 transition-all duration-300 focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 relative group"
-                          tabIndex={0}
-                          aria-label={`Learn more about ${agent.name}`}
-                        >
-                          Learn More
-                          <motion.span
-                            initial={{ opacity: 0, y: 8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 8 }}
-                            transition={{ duration: 0.18 }}
-                            className="absolute left-1/2 -bottom-9 -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus:opacity-100 pointer-events-none bg-black/90 text-xs text-white px-3 py-1 rounded shadow-glow transition-opacity duration-200 z-30 whitespace-nowrap"
-                            aria-live="polite"
-                          >
-                            Learn more about {agent.name}
-                          </motion.span>
-                        </a>
-                      </Link>
                     </div>
                   </motion.div>
                 );
               })}
-            </div>
-          </motion.div>
-
-          {/* Demo Modal */}
-          {demoAgent && (
-            <motion.div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-lg"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.25, type: 'spring', stiffness: 120 }}
-              onClick={() => setDemoAgent(null)}
-              aria-label="Agent Demo Modal"
-              tabIndex={-1}
-              role="dialog"
-              aria-modal="true"
-            >
-              <motion.div
-                className="relative bg-gradient-to-br from-electric-blue/70 via-fuchsia-500/40 to-teal-400/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 max-w-md w-full flex flex-col items-center border-4 border-fuchsia-400/80"
-                onClick={e => e.stopPropagation()}
-                initial={{ scale: 0.98, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.96, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 120 }}
-                tabIndex={0}
-                aria-live="polite"
-              >
-                <motion.button
-                  className="absolute top-2 right-2 text-gray-200 hover:text-teal-400 text-2xl focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 rounded-full bg-black/10 px-2 py-1"
-                  onClick={() => setDemoAgent(null)}
-                  aria-label="Close Agent Demo"
-                  whileHover={{ rotate: 90, scale: 1.15 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
-                  ×
-                </motion.button>
-                <div className="mb-4 flex flex-col items-center">
-                  <div className="relative w-32 h-32 agent-image-container">
-                    <Image
-                      src={`/images/agents-${demoAgent.imageSlug || demoAgent.id}-nobg-skrblai.png`}
-                      alt={demoAgent.name}
-                      fill
-                      className="agent-image"
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src = '';
-                        target.alt = '🤖';
-                        target.style.background = '#222';
-                        target.style.display = 'flex';
-                        target.style.alignItems = 'center';
-                        target.style.justifyContent = 'center';
-                        target.style.fontSize = '2rem';
-                      }}
-                    />
-                  </div>
-                  <h3 className="text-2xl font-bold text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
-                    {demoAgent.name}
-                  </h3>
-                  <p className="text-gray-200 text-center mt-2 mb-4">
-                    {demoAgent.hoverSummary || demoAgent.description}
-                  </p>
-                </div>
-                {demoAgent.id === 'percy-agent' ? (
-                  <div className="w-full">
-                    <PercyHero />
-                  </div>
-                ) : (
-                  <div className="w-full bg-black/20 rounded-xl p-4 text-left text-white shadow-inner">
-                    <div className="font-semibold mb-2 text-teal-300">Sample Output:</div>
-                    <div className="text-sm text-gray-100">
-                      "{demoAgent.demoOutput || 'This agent can help you automate creative, branding, or business tasks. Contact us for a live demo!'}"
-                    </div>
-                  </div>
-                )}
-              </motion.div>
             </motion.div>
-          )}
+          </div>
         </div>
 
         {/* CTA Section */}

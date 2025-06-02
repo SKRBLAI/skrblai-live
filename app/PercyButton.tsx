@@ -76,7 +76,7 @@ export default function PercyButton({
               }}
             >
               <Image 
-                src="/images/agents-percy-fullbody-nobg-skrblai.png"
+                src="/images/agents-percy-nobg-skrblai.png"
                 alt="Percy"
                 width={percySize[size].width}
                 height={percySize[size].height}

@@ -56,6 +56,8 @@ const plans = [
   }
 ];
 
+import BrandLogo from '@/components/ui/BrandLogo';
+
 export default function PricingPage() {
   return (
     
@@ -65,14 +67,7 @@ export default function PricingPage() {
   <FloatingParticles />
   <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
     <div className="text-center mb-16">
-                <motion.h1 
-                  className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_18px_#1E90FF]"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  Choose Your Plan
-                </motion.h1>
+                <BrandLogo className="skrblai-heading text-center mb-8" />
                 <motion.p 
                   className="text-lg text-[#30D5C8]"
                   initial={{ y: 20, opacity: 0 }}

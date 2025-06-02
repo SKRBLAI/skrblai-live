@@ -610,6 +610,7 @@ const adCreativeAgent: Agent = {
   name: 'Ad Creative Agent',
   category: 'Marketing',
   description: 'Helps generate engaging ad copy and visuals.',
+  imageSlug: 'adcreative',
   visible: true,
   agentCategory: ['marketing', 'ads', 'creative'],
   config: {

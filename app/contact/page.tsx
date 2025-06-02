@@ -237,15 +237,15 @@ export default function ContactPage() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="text-lg font-medium text-white">What is SKRBL AI?</h4>
-                    <p className="text-gray-400">SKRBL AI is an all-in-one AI content platform that helps businesses automate content creation, branding, and marketing.</p>
+                    <p className="text-gray-400">SKRBL AI is an all-in-one interactive experience delivered by our team of AI superheroes specializing in content creation, branding, publishing, and marketing.</p>
                   </div>
                   <div>
                     <h4 className="text-lg font-medium text-white">How quickly can I get started?</h4>
-                    <p className="text-gray-400">You can sign up and start using SKRBL AI in minutes with our easy onboarding process.</p>
+                    <p className="text-gray-400">Simply tap or message Percy your "Interactive AI Concierge" to get started with SKRBL AI. You'll be up and running in minutes!</p>
                   </div>
                   <div>
                     <h4 className="text-lg font-medium text-white">Do you offer custom solutions?</h4>
-                    <p className="text-gray-400">Yes, our enterprise plan includes custom AI training and dedicated support. <Link href="/pricing" className="text-electric-blue hover:text-teal-400">Learn more</Link>.</p>
+                    <p className="text-gray-400">Absolutely, our enterprise plan includes custom AI solutions and dedicated support. <Link href="/pricing" className="text-electric-blue hover:text-teal-400">Learn more</Link>.</p>
                   </div>
                 </div>
               </div>

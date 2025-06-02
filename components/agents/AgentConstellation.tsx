@@ -226,7 +226,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
       >
         <div className="relative w-36 h-52 md:w-48 md:h-64 flex items-end justify-center animate-float">
           <Image
-            src="/images/agents-percy-fullbody-nobg-skrblai.png"
+            src="/images/agents-percy-nobg-skrblai.png"
             alt="Percy full body"
             fill
             className="object-contain drop-shadow-[0_0_40px_#2dd4bf]"

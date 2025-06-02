@@ -469,6 +469,7 @@ const contentCreatorAgent: Agent = {
   name: 'Content Creator',
   category: 'Content',
   description: 'AI-powered content generation for various platforms',
+  imageSlug: 'contentcreation',
   visible: true,
   agentCategory: ['content'],
   config: {

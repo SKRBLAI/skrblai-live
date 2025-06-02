@@ -28,7 +28,7 @@ export default function PercyHero() {
             className="mb-4"
           >
             <Image
-              src="/images/agents-percy-fullbody-nobg-skrblai.png"
+              src="/images/agents-percy-nobg-skrblai.png"
               alt="Percy the AI Concierge"
               width={180}
               height={260}
