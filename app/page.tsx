@@ -1,23 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
-import PercyHero from '@/components/home/PercyHero';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
-import FloatingParticles from '@/components/ui/FloatingParticles';
 import Image from 'next/image';
-import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { heroConfig } from '@/lib/config/heroConfig';
+import AgentCarousel from '@/components/agents/AgentCarousel';
+import FloatingParticles from '@/components/ui/FloatingParticles';
+import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
+import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import type { Agent } from '@/types/agent';
 
 export default function HomePage() {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [demoAgent, setDemoAgent] = useState<Agent | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [percyError, setPercyError] = useState<boolean>(false);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  // Always call hooks unconditionally
+  // Percy context for cleanup
   const percyContext = usePercyContext();
   const { setPercyIntent, closePercy } = percyContext;
 
@@ -26,15 +30,13 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
-  // Fetch agents from registry with error handling
+  // Fetch agents from registry
   useEffect(() => {
     try {
-      // Dynamically import to prevent server-side issues
       if (typeof window !== 'undefined') {
         import('@/lib/agents/agentRegistry')
           .then((module) => {
             const agentRegistry = module.default || [];
-            console.log('Loaded agents:', agentRegistry.length);
             setAgents(agentRegistry.filter(agent => agent && agent.visible !== false));
           })
           .catch((err) => {
@@ -48,6 +50,7 @@ export default function HomePage() {
     }
   }, []);
 
+  // Percy cleanup
   useEffect(() => {
     try {
       if (closePercy) closePercy();
@@ -57,7 +60,7 @@ export default function HomePage() {
     }
   }, [closePercy, setPercyIntent]);
 
-  // Don't render until mounted to prevent hydration issues
+  // Loading state
   if (!mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-white">
@@ -87,162 +90,217 @@ export default function HomePage() {
     );
   }
 
-  // Filtered agents (all agents for now, can add category logic)
-  const filteredAgents: Agent[] = agents;
-
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
-      {/* Hero Background */}
+      {/* Enhanced Background Effects */}
       <div className="absolute inset-0 z-0 opacity-40">
-        <FloatingParticles />
+        <FloatingParticles particleCount={48} />
       </div>
-      {/* Gradient Overlay */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
 
       {/* Main Content */}
       <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
-        {/* PercyHero: Includes agent constellation that pulls from registry and filters correctly */}
-        <section className="mb-8">
-          <div className="flex flex-col items-center justify-center">
-            {/* Only one fullbody Percy, glowing, cosmic */}
-            <PercyHero />
-            <h1 className="mt-6 skrblai-heading text-center text-4xl md:text-6xl max-w-4xl mx-auto" aria-label="Welcome to SKRBL AI">
-              Welcome to SKRBL AI
-            </h1>
-            <p className="mt-4 text-lg md:text-xl text-gray-300 text-center max-w-2xl mx-auto">
-              Your gateway to intelligent automation. Discover our suite of AI agents ready to transform your digital experience.
-            </p>
+        {/* Hero Section with single headline at top */}
+        <section className="min-h-[85vh] flex flex-col items-center">
+          <div className="flex flex-col items-center justify-center w-full">
+            {/* Single headline at the very top */}
+            <motion.h1 
+              initial={{ opacity: 0, y: -20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.6 }}
+              className="skrblai-heading text-center text-4xl md:text-5xl lg:text-6xl max-w-4xl mx-auto mb-8" 
+              aria-label="Meet Percy, Your AI Concierge"
+            >
+              Meet <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">Percy</span>, Your AI Concierge
+            </motion.h1>
+            
+            {/* Subheadline */}
+            <motion.p 
+              initial={{ opacity: 0, y: -10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mx-auto mb-10"
+            >
+              I'm here to guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations.
+            </motion.p>
+            
+            {/* Percy Image - Full body, centered and glowing */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.4, type: 'spring', stiffness: 100 }}
+              className="relative my-6 md:my-8 flex justify-center"
+            >
+              <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
+                <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
+                  <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                    {/* Use CloudinaryImage when agent data loaded, otherwise fallback to normal Image */}
+                    {agents.length > 0 && agents.find(a => a.id === 'percy') ? (
+                      <CloudinaryImage
+                        agent={agents.find(a => a.id === 'percy')!}
+                        alt="Percy AI Concierge"
+                        width={256}
+                        height={256}
+                        priority={true}
+                        className="w-full h-full object-cover"
+                        useCloudinary={true}
+                        quality={90}
+                        webp={true}
+                        cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                        fallbackToLocal={true}
+                        fallbackImagePath="/images/agents-percy-nobg-skrblai.png"
+                      />
+                    ) : (
+                      <Image
+                        src="/images/agents-percy-nobg-skrblai.png"
+                        alt="Percy AI Concierge"
+                        width={256}
+                        height={256}
+                        priority
+                        className="w-full h-full object-cover cosmic-img-glow"
+                      />
+                    )}
+                  </div>
+                </div>
+                
+                {/* Glow effects */}
+                <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
+                <div className="absolute inset-0 rounded-full border border-blue-500/10 animate-ping"></div>
+              </div>
+            </motion.div>
+            
+            {/* Floating glassmorphism onboarding card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="w-full max-w-xl mx-auto mt-8 md:mt-10 cosmic-glass p-6 md:p-8 rounded-2xl border border-white/10 shadow-[0_0_32px_rgba(30,144,255,0.2)]"
+            >
+              <div className="mb-4">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Start with Percy</h3>
+                <p className="text-gray-300 text-sm md:text-base">Tell me what you're looking for or upload a file to get started</p>
+              </div>
+              
+              {/* Universal Prompt Bar */}
+              <UniversalPromptBar
+                title="How can I help you today?"
+                description="Ask me anything or upload a file to get started"
+                placeholder="Enter your question or describe what you need..."
+                acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.jpg,.jpeg,.png"
+                promptLabel=""
+                buttonText={isUploading ? "Uploading..." : "Submit"}
+                theme="dark"
+                showPrompt={true}
+                minimalUI={false}
+                compact={false}
+                className="w-full"
+                fileCategory="upload"
+                intentType="ask"
+                onPromptSubmit={(prompt) => {
+                  console.log('Prompt submitted:', prompt);
+                  // Handle redirect or intent setting
+                  if (prompt.trim()) {
+                    router.push(`/dashboard?prompt=${encodeURIComponent(prompt)}`);
+                  }
+                }}
+                onFileUpload={(fileUrl, metadata) => {
+                  console.log('File uploaded:', fileUrl, metadata);
+                }}
+                onComplete={(data) => {
+                  console.log('Completed:', data);
+                  setIsUploading(false);
+                  if (data.prompt || data.fileUrl) {
+                    router.push('/dashboard');
+                  }
+                }}
+              />
+              
+              <div className="mt-6 text-center">
+                <Link href="/pricing" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors duration-200">
+                  Try Premium for unlimited AI interactions and advanced features
+                </Link>
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Agent Constellation: Centered, floating, no sidebar/grid */}
-        <div className="relative mt-16 flex flex-col items-center justify-center">
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <div className="opacity-40">
-              <FloatingParticles particleCount={32} />
-            </div>
-            <div
-              className="absolute inset-0 animate-cosmic-gradient bg-[radial-gradient(ellipse_at_60%_40%,rgba(56,189,248,0.16)_0%,rgba(244,114,182,0.09)_60%,transparent_100%)] blend-mode-screen"
+        {/* Agent Showcase - Below hero */}
+        <motion.section
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          className="py-16"
+        >
+          <div className="text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
+              Discover Our AI Agents
+            </h3>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Each agent is specialized for specific tasks, ready to transform your workflow and boost productivity.
+            </p>
+          </div>
+          
+          {/* Agent Carousel for better mobile experience */}
+          <div className="mb-16">
+            <AgentCarousel 
+              agents={agents.slice(0, 6)} 
+              showPremiumBadges={true}
+              onLaunch={(agent) => setSelectedAgent(agent)}
             />
           </div>
-          {/* Centered constellation/cards, no filter bar or category grid */}
-          <div className="relative z-10 flex flex-col items-center w-full">
-            {/* AgentConstellation component or similar here (assumes it floats all agents/cards) */}
-            {/* If you have a dedicated AgentConstellation, use it here. Otherwise, float the cards as below. */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              className="mt-4 flex flex-wrap justify-center gap-8 w-full"
+          
+          <div className="mt-8 mb-12 text-center">
+            <Link 
+              href="/agents" 
+              className="cosmic-btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-xl"
             >
-              {filteredAgents.map(agent => {
-                let badge = null;
-                if (agent.roleRequired === 'pro') badge = 'Pro';
-                if (agent.id === 'paymentManagerAgent') badge = 'Pro';
-                if (agent.id === 'percySyncAgent') badge = 'Beta';
-                if (agent.id === 'videoContentAgent') badge = 'New';
-                return (
-                  <motion.div
-                    key={agent.id}
-                    whileHover={{ y: -8, scale: 1.06, boxShadow: '0 0 48px 8px #38bdf8cc, 0 0 24px #f472b6cc' }}
-                    whileTap={{ scale: 0.98 }}
-                    className="cosmic-float-card flex flex-col items-center p-6 transition-all duration-300 relative w-full max-w-xs mx-auto shadow-glow"
-                  >
-                    {/* Badge */}
-                    {badge && (
-                      <motion.span
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35 }}
-                        className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-bold shadow-glow z-10 ${badge==='Pro' ? 'bg-gradient-to-r from-fuchsia-500 to-electric-blue text-white' : badge==='Beta' ? 'bg-gradient-to-r from-yellow-400 to-pink-400 text-white' : 'bg-gradient-to-r from-teal-400 to-fuchsia-400 text-white'}`}
-                      >{badge}</motion.span>
-                    )}
-                    <motion.div
-                      className="mb-4 flex items-center justify-center"
-                      whileHover={{ scale: 1.08, rotate: -2 }}
-                      transition={{ type: 'spring', stiffness: 80 }}
-                    >
-                      <div className="relative w-24 h-24 agent-image-container">
-                        <Image
-                          src={`/images/agents-${agent.imageSlug || agent.id}-nobg-skrblai.png`}
-                          alt={agent.name}
-                          fill
-                          className="agent-image object-contain"
-                          loading="lazy"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.onerror = null;
-                            target.src = '';
-                            target.alt = '🤖';
-                            target.style.background = '#222';
-                            target.style.display = 'flex';
-                            target.style.alignItems = 'center';
-                            target.style.justifyContent = 'center';
-                            target.style.fontSize = '2rem';
-                          }}
-                        />
-                      </div>
-                    </motion.div>
-                    <h3 className="text-xl font-bold mb-2 text-center bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow">
-                      {agent.name}
-                    </h3>
-                    <p className="text-gray-300 text-sm mb-4 text-center min-h-[48px]">
-                      {agent.hoverSummary || agent.description || 'AI Agent'}
-                    </p>
-                    <div className="flex gap-2 w-full">
-                      <button
-                        className="cosmic-btn-primary w-full px-5 py-2 rounded-lg font-semibold group"
-                        onClick={() => setDemoAgent(agent)}
-                        tabIndex={0}
-                        aria-label={`Try a live demo of ${agent.name}`}
-                      >
-                        Try Demo
-                        <motion.span
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 8 }}
-                          transition={{ duration: 0.18 }}
-                        />
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+              <span>View All Agents</span>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </Link>
           </div>
-        </div>
+        </motion.section>
 
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        {/* Bottom CTA Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4 }}
-          className="mt-16 mb-24 text-center"
+          transition={{ duration: 0.8, delay: 1.2 }}
+          className="text-center py-16 mb-24"
         >
-          <p className="text-lg mb-8 text-teal-300 max-w-2xl mx-auto bg-[#0d1117]/80 backdrop-blur-sm p-4 rounded-lg">
-            Ready to experience creative freedom? Explore our features or chat with Percy—your personal AI concierge—right now.
+          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">
+            Ready to Transform Your Business?
+          </h3>
+          <p className="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">
+            Join thousands of businesses already using SKRBL AI to automate workflows, 
+            generate content, and accelerate growth.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/services/agents">
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link href="/sign-up">
               <motion.button
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05, boxShadow: '0 0 32px rgba(56, 189, 248, 0.5)' }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 cosmic-btn-primary text-white font-semibold rounded-lg cosmic-glow transition-all duration-300"
+                className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
               >
-                <span className="text-glow">Get 7-Day Free Trial</span>
+                Start Free Trial
               </motion.button>
             </Link>
+            
             <Link href="/features">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-white/5 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-lg hover:bg-white/10 transition-all duration-300"
+                className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300"
               >
-                <span className="text-glow">See Features</span>
+                Learn More
               </motion.button>
             </Link>
           </div>
-        </motion.div>
+        </motion.section>
       </div>
     </div>
   );

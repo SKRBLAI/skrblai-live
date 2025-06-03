@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       case 'batch-process':
         result = await handleBatchProcessing(options);
         break;
-      case 'analyze':
+      case 'analyze': {
         // Handle both imageUrl and imagePath (convert local path to full URL)
         const urlToAnalyze = imageUrl || (localPath ? `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${localPath}` : '');
         if (!urlToAnalyze) {
@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
         }
         result = await handleImageAnalysis(urlToAnalyze);
         break;
+      }
       default:
         return NextResponse.json(
           { success: false, error: 'Invalid action specified' },

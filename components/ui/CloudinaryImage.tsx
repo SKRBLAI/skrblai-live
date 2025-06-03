@@ -79,8 +79,11 @@ const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
     }
   };
 
+  // We'll create a dynamic className with width and height added directly
+  const containerStyle = { width: `${width}px`, height: `${height}px` };
+  
   return (
-    <div className={`relative ${className}`} style={{ width, height }}>
+    <div className={`relative ${className}`} style={containerStyle}>
       {/* Loading state overlay */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30 backdrop-blur-sm rounded-lg animate-pulse">

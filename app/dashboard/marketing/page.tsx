@@ -28,9 +28,7 @@ export default function MarketingDashboard() {
       const user = await getCurrentUser();
       if (!user) {
         console.log('[SKRBL AUTH] Dashboard route protection standardized.');
-        if (!session?.user) {
-          router.push('/sign-in');
-        }
+        router.push('/sign-in');
         return;
       }
       setUser(user);
