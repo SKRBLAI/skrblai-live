@@ -71,7 +71,7 @@ export default function ServicesPage(): JSX.Element {
                 transition={{ delay: 0.3 }}>
                 <UniversalPromptBar
                   title="Ask Percy Anything"
-                  description="What challenge can SKRBL AI solve for you today? Type a prompt or upload a file—Percy will guide you!"
+                  description="How can SKRBL AI assist you today? Type a prompt or upload a file—Percy will guide you!"
                   icon={<Image src="/images/agents-percy-nobg-skrblai.png" alt="Percy" width={32} height={32} />}
                   acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
                   fileCategory="document"
@@ -86,7 +86,7 @@ export default function ServicesPage(): JSX.Element {
               </motion.div>
             </div>
             <p className="text-sm sm:text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
-              Percy is your cosmic guide—always ready to help you explore, automate, and create at scale with confidence.
+              Percy is your AI concierge—always ready to help you explore, automate, and create at scale with confidence.
             </p>
           </div>
 

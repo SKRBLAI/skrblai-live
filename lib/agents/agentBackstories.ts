@@ -187,7 +187,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'client-success-agent': {
-    superheroName: 'ClientCare the Satisfaction Sentinel',
+    superheroName: 'ClientCare Clara the Satisfaction Sentinel',
     origin: 'Born from the collective gratitude of a million happy customers',
     powers: [
       'Empathy Amplification',

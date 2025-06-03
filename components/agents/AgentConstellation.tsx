@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import type { Agent } from '@/types/agent';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getAgentImagePath } from '@/utils/agentUtils';
 import FocusTrap from 'focus-trap-react';
 import { createClient } from '@supabase/supabase-js';
 import { triggerEmailFromAnalytics } from '@/lib/analytics/emailTriggers';
 import { emailAutomation } from '@/lib/email/simpleAutomation';
 import AgentBackstoryModal from './AgentBackstoryModal';
+import CloudinaryImage from '@/components/ui/CloudinaryImage';
 
 // Constants
 const TIER_RADII = { inner: 90, mid: 165, outer: 240 } as const;
@@ -450,23 +451,18 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   ${isMobile ? 
                     'shadow-sm bg-white/10 hover:shadow-cosmic hover:bg-white/20 transition-all duration-300' : 
                     'shadow-cosmic bg-white/5 backdrop-blur-xl'}`}>
-                  <Image
-                    src={getAgentImagePath(agent)}
+                  <CloudinaryImage
+                    agent={agent}
                     alt={agent.role || agent.name}
-                    fill
-                    className="agent-image"
-                    sizes={`${size}px`}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = '';
-                      target.alt = '🤖';
-                      target.style.background = '#222';
-                      target.style.display = 'flex';
-                      target.style.alignItems = 'center';
-                      target.style.justifyContent = 'center';
-                      target.style.fontSize = '2rem';
-                    }}
+                    width={size}
+                    height={size}
+                    className="agent-image w-full h-full"
+                    useCloudinary={true}
+                    quality={90}
+                    webp={true}
+                    cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                    fallbackToLocal={true}
+                    fallbackImagePath={getAgentImagePath(agent)}
                   />
                   {isLocked && (
                     <motion.div
@@ -526,24 +522,18 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                 onClick={() => setSelectedAgent(agent)}
               >
                 <div className="relative w-12 h-12 rounded-full border border-teal-400/30 bg-gradient-to-br from-[#1E90FF40] to-[#30D5C840] overflow-hidden">
-                  <Image
-                    src={getAgentImagePath(agent)}
+                  <CloudinaryImage
+                    agent={agent}
                     alt={agent.role || agent.name}
-                    fill
-                    className="agent-image"
-                    sizes="48px"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = '';
-                      target.alt = '🤖';
-                      target.style.background = '#222';
-                      target.style.display = 'flex';
-                      target.style.alignItems = 'center';
-                      target.style.justifyContent = 'center';
-                      target.style.fontSize = '1.5rem';
-                    }}
+                    width={48}
+                    height={48}
+                    className="agent-image w-full h-full"
+                    useCloudinary={true}
+                    quality={85}
+                    webp={true}
+                    cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                    fallbackToLocal={true}
+                    fallbackImagePath={getAgentImagePath(agent)}
                   />
                 </div>
                 <div className="text-xs text-center text-white/70 mt-1 leading-tight">
@@ -579,24 +569,18 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   className={`relative rounded-full cosmic-glass cosmic-glow border-2 border-[#38bdf8cc] group-hover:border-[#30D5C8] transition-all duration-200 bg-gradient-to-br from-[#1E90FFb3] via-[#f472b680] to-[#30D5C8b3] overflow-visible mb-1`}
                   style={{ width: size, height: size }} // TODO: Replace with Tailwind/CSS if possible, but dynamic sizing may require inline style.
                 >
-                  <Image
-                    src={getAgentImagePath(agent)}
+                  <CloudinaryImage
+                    agent={agent}
                     alt={agent.role || agent.name}
-                    fill
-                    className="agent-image"
-                    sizes={`${size}px`}
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = '';
-                      target.alt = '🤖';
-                      target.style.background = '#222';
-                      target.style.display = 'flex';
-                      target.style.alignItems = 'center';
-                      target.style.justifyContent = 'center';
-                      target.style.fontSize = '2rem';
-                    }}
+                    width={size}
+                    height={size}
+                    className="agent-image w-full h-full"
+                    useCloudinary={true}
+                    quality={90}
+                    webp={true}
+                    cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                    fallbackToLocal={true}
+                    fallbackImagePath={getAgentImagePath(agent)}
                   />
                 </div>
                 <div className="text-center text-xs text-white opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200">
@@ -622,12 +606,18 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
               style={{ transform: 'translate(-50%, -50%)', willChange: 'transform, opacity' }}
             >
               <div className="relative w-40 h-40 md:w-52 md:h-52">
-                <Image
-                  src={getAgentImagePath(selectedAgent)}
+                <CloudinaryImage
+                  agent={selectedAgent}
                   alt={selectedAgent.name}
-                  fill
-                  className="agent-image"
-                  sizes="208px"
+                  width={208}
+                  height={208}
+                  className="agent-image w-full h-full"
+                  useCloudinary={true}
+                  quality={90}
+                  webp={true}
+                  cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                  fallbackToLocal={true}
+                  fallbackImagePath={getAgentImagePath(selectedAgent)}
                 />
                 <motion.div className="absolute inset-0 rounded-full bg-teal-400/10 animate-pulse-slow" />
               </div>
@@ -659,12 +649,18 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                     ×
                   </button>
                   <div className="relative w-24 h-24 mx-auto -mt-12 mb-2">
-                    <Image
-                      src={getAgentImagePath(selectedAgent)}
+                    <CloudinaryImage
+                      agent={selectedAgent}
                       alt={selectedAgent.name}
-                      fill
-                      className="agent-image"
-                      sizes="96px"
+                      width={96}
+                      height={96}
+                      className="agent-image w-full h-full"
+                      useCloudinary={true}
+                      quality={90}
+                      webp={true}
+                      cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                      fallbackToLocal={true}
+                      fallbackImagePath={getAgentImagePath(selectedAgent)}
                     />
                     <motion.div className="absolute inset-0 rounded-full bg-teal-500/20 animate-pulse-slow" />
                   </div>

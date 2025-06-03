@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
-import AgentCarousel from '@/components/agents/AgentCarousel';
+import AgentConstellation from '@/components/agents/AgentConstellation';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
@@ -101,35 +101,50 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
-        {/* Hero Section with single headline at top */}
+        {/* Hero Section with welcome headline at top */}
         <section className="min-h-[85vh] flex flex-col items-center">
           <div className="flex flex-col items-center justify-center w-full">
-            {/* Single headline at the very top */}
+            {/* Welcome headline at the very top */}
             <motion.h1 
               initial={{ opacity: 0, y: -20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6 }}
-              className="skrblai-heading text-center text-4xl md:text-5xl lg:text-6xl max-w-4xl mx-auto mb-8" 
-              aria-label="Meet Percy, Your AI Concierge"
+              className="skrblai-heading text-center text-4xl md:text-5xl lg:text-6xl max-w-4xl mx-auto mb-6" 
+              aria-label="Welcome to SKRBL AI"
             >
-              Meet <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">Percy</span>, Your AI Concierge
+              Welcome to <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">SKRBL AI</span>
             </motion.h1>
             
-            {/* Subheadline */}
+            {/* Engaging copy subheadline */}
             <motion.p 
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-gray-300 text-center max-w-2xl mx-auto mb-10"
+              className="text-lg md:text-xl text-gray-300 text-center max-w-3xl mx-auto mb-12"
             >
-              I'm here to guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations.
+              Your concierge of intelligent automation. Discover our team of Digital Superheroes ready to transform your digital experience and boost your productivity.
             </motion.p>
+            
+            {/* Percy Introduction Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-center mb-8"
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                Meet <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Percy</span>, Your AI Concierge
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                Let Percy guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations.
+              </p>
+            </motion.div>
             
             {/* Percy Image - Full body, centered and glowing */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.4, type: 'spring', stiffness: 100 }}
+              transition={{ duration: 0.8, delay: 0.6, type: 'spring', stiffness: 100 }}
               className="relative my-6 md:my-8 flex justify-center"
             >
               <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
@@ -175,7 +190,7 @@ export default function HomePage() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
               className="w-full max-w-xl mx-auto mt-8 md:mt-10 cosmic-glass p-6 md:p-8 rounded-2xl border border-white/10 shadow-[0_0_32px_rgba(30,144,255,0.2)]"
             >
               <div className="mb-4">
@@ -183,14 +198,14 @@ export default function HomePage() {
                 <p className="text-gray-300 text-sm md:text-base">Tell me what you're looking for or upload a file to get started</p>
               </div>
               
-              {/* Universal Prompt Bar */}
+              {/* Universal Prompt Bar - All onboarding flows route to Percy's AI chat */}
               <UniversalPromptBar
                 title="How can I help you today?"
                 description="Ask me anything or upload a file to get started"
                 placeholder="Enter your question or describe what you need..."
                 acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.jpg,.jpeg,.png"
                 promptLabel=""
-                buttonText={isUploading ? "Uploading..." : "Submit"}
+                buttonText={isUploading ? "Uploading..." : "Chat with Percy"}
                 theme="dark"
                 showPrompt={true}
                 minimalUI={false}
@@ -200,19 +215,20 @@ export default function HomePage() {
                 intentType="ask"
                 onPromptSubmit={(prompt) => {
                   console.log('Prompt submitted:', prompt);
-                  // Handle redirect or intent setting
+                  // Route to Percy's AI chat
                   if (prompt.trim()) {
                     router.push(`/dashboard?prompt=${encodeURIComponent(prompt)}`);
                   }
                 }}
                 onFileUpload={(fileUrl, metadata) => {
                   console.log('File uploaded:', fileUrl, metadata);
+                  // Route to Percy's AI chat with file context
                 }}
                 onComplete={(data) => {
                   console.log('Completed:', data);
                   setIsUploading(false);
                   if (data.prompt || data.fileUrl) {
-                    router.push('/dashboard');
+                    router.push('/dashboard'); // Percy's AI chat interface
                   }
                 }}
               />
@@ -242,18 +258,23 @@ export default function HomePage() {
             </p>
           </div>
           
-          {/* Agent Carousel for better mobile experience */}
-          <div className="mb-16">
-            <AgentCarousel 
-              agents={agents.slice(0, 6)} 
-              showPremiumBadges={true}
-              onLaunch={(agent) => setSelectedAgent(agent)}
-            />
+          {/* Agent Constellation with Backstory Support - Restored from previous version */}
+          <div className="mb-16 relative">
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
+              <FloatingParticles particleCount={20} />
+            </div>
+            <div className="relative z-10">
+              <AgentConstellation 
+                agents={agents} 
+                selectedAgent={selectedAgent} 
+                setSelectedAgent={setSelectedAgent}
+              />
+            </div>
           </div>
           
           <div className="mt-8 mb-12 text-center">
             <Link 
-              href="/agents" 
+              href="/services" 
               className="cosmic-btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-xl"
             >
               <span>View All Agents</span>

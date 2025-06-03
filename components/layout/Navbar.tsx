@@ -45,11 +45,11 @@ export default function Navbar() {
           {/* Navigation Links */}
           <div className="hidden md:flex flex-1 justify-end items-center">
             <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
-              {/* WINDSURF: Route 'Agents' to '/agents' and add ARIA improvements */}
-              <Link href="/agents" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap"
-                aria-label="Browse all agents"
+              {/* FIXED: Route 'Agents' to '/services' where agents are displayed */}
+              <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap"
+                aria-label="Browse all agents and services"
                 tabIndex={0}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/agents'; } }}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
               >
                 Agents
               </Link>
@@ -71,7 +71,7 @@ export default function Navbar() {
                   Sign In
                 </motion.button>
               </Link>
-              <Link href="/get-started">
+              <Link href="/sign-up">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
