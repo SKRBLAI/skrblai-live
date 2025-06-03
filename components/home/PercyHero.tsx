@@ -47,19 +47,42 @@ export default function PercyHero() {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [qualificationScore, setQualificationScore] = useState(0);
 
-  // Generate session ID for tracking
+  // Generate session ID for tracking (memoized to prevent re-generation)
   const [sessionId] = useState(() => `percy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
 
+  // Optimize Supabase initialization (single effect with early return)
   useEffect(() => {
+    let mounted = true;
+    
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     
     supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+      if (mounted) {
+        setUser(user);
+      }
     });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
+
+  // Mobile performance monitoring
+  useEffect(() => {
+    const isMobile = window.innerWidth < 768;
+    if (isMobile && typeof window !== 'undefined' && window.performance) {
+      console.log('[PercyHero] Mobile Performance Check:', {
+        isMobile,
+        memory: (performance as any).memory ? {
+          used: Math.round((performance as any).memory.usedJSHeapSize / 1024 / 1024) + 'MB'
+        } : 'Not available',
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, [showIntake, selectedAgent]); // Only re-run when key state changes
 
   // Enhanced conversation flow with Percy's calm, knowledgeable personality
   const conversationSteps = [

@@ -53,14 +53,16 @@ export const metadata: Metadata = {
 
 export default function FeaturesPage(): JSX.Element {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] relative overflow-hidden">
-      {/* Cosmic Background */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/95 to-[#0d1117]" />
+    <PageLayout>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative min-h-screen w-full overflow-x-hidden"
+      >
         <FloatingParticles />
-      </div>
       
-      <div className="container relative z-10 mx-auto px-4 py-16">
+        <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 py-16">
         <div className="flex flex-col items-center mb-8">
           <BrandLogo className="skrblai-heading text-center" />
           <span className="sr-only">Features</span>
@@ -70,9 +72,9 @@ export default function FeaturesPage(): JSX.Element {
           {features.map((feature, index) => (
             <Link href={feature.href} key={index} className="group">
               <motion.div 
-                whileHover={{ y: -10, scale: 1.04, boxShadow: '0 0 48px 12px #38bdf8cc, 0 0 24px #f472b6cc' }}
+                whileHover={{ y: -8, scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="cosmic-float-card shadow-glow rounded-2xl p-8 h-full flex flex-col justify-between transition-all duration-300 bg-white/5 backdrop-blur-xl bg-clip-padding border-2 border-white/10"
+                className="cosmic-float-card shadow-cosmic rounded-2xl p-6 sm:p-8 h-full flex flex-col justify-between transition-all duration-300 bg-white/5 backdrop-blur-xl bg-clip-padding border-2 border-teal-400/20"
               >
                 <div>
                   <div className="text-4xl mb-4 drop-shadow-glow">{feature.icon}</div>
@@ -90,17 +92,18 @@ export default function FeaturesPage(): JSX.Element {
         </div>
         
         <div className="mt-16 text-center">
-          <Link href="/services/agents">
+          <Link href="/services/agents" className="inline-block">
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold cosmic-glow"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="cosmic-btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold shadow-cosmic"
             >
-              <span>Meet Our AI Agents</span>
+              Meet Our AI Agents
             </motion.button>
           </Link>
         </div>
-      </div>
-    </div>
+        </div>
+      </motion.div>
+    </PageLayout>
   );
 } 

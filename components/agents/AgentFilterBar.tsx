@@ -27,43 +27,50 @@ const AgentFilterBar: React.FC<AgentFilterBarProps> = ({ selectedCategory, setSe
   return (
     <nav
       className="w-full flex flex-col items-center mb-6"
-      aria-label="Agent category filter bar"
+      aria-label="Agent categories"
+      role="navigation"
     >
       {/* Mobile toggle */}
-      <div className="md:hidden w-full flex justify-center mb-2">
-        <button
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-fuchsia-700/80 to-teal-700/80 text-white font-semibold shadow-glow focus:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-400 transition-all"
+      <div className="md:hidden w-full flex justify-center mb-4 px-4">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full max-w-xs px-4 py-2 rounded-xl cosmic-btn-primary shadow-cosmic font-medium text-white/90 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50 transition-all duration-300"
           aria-expanded={mobileOpen ? 'true' : 'false'}
           aria-controls="agent-filter-bar-categories"
           onClick={() => setMobileOpen(v => !v)}
         >
           {mobileOpen ? 'Hide Categories' : 'Show Categories'}
-        </button>
+        </motion.button>
       </div>
       <AnimatePresence>
         {(mobileOpen || typeof window === 'undefined' || window.innerWidth >= 768) && (
           <motion.div
             id="agent-filter-bar-categories"
-            className="flex flex-wrap justify-center gap-2 glass-card px-4 py-2 rounded-xl shadow-glow backdrop-blur border border-white/10"
+            className="flex flex-wrap justify-center gap-2 cosmic-float-card px-4 py-3 rounded-xl shadow-cosmic backdrop-blur-xl border-2 border-teal-400/20 mx-4"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.32 }}
-            role="tablist"
-            aria-label="Agent categories"
+            role="group"
+            aria-label="Filter by category"
           >
             {categories.map(category => (
               <button
                 key={category}
-                className={`px-4 py-1 rounded-full font-medium text-sm border border-white/10 transition glass-card text-white/80 hover:text-white hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400 ${selectedCategory === category ? 'bg-white/10 text-white font-bold shadow' : ''}`}
-                aria-selected={selectedCategory === category ? 'true' : 'false'}
+                className={`px-4 py-1.5 rounded-full font-medium text-sm transition-all duration-300 backdrop-blur-md
+                  ${selectedCategory === category 
+                    ? 'bg-teal-400/20 text-white border-2 border-teal-400/40 shadow-cosmic' 
+                    : 'border-2 border-white/10 text-white/80 hover:border-teal-400/20 hover:text-white hover:bg-white/5'}
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50`}
+                aria-pressed={selectedCategory === category ? 'true' : 'false'}
                 aria-label={`Filter agents by category: ${category}`}
                 tabIndex={0}
                 onClick={() => setSelectedCategory(category)}
                 onKeyDown={e => {
                   if (e.key === 'Enter' || e.key === ' ') setSelectedCategory(category);
                 }}
-                role="tab"
+                role="button"
               >
                 {category}
               </button>

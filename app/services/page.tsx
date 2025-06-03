@@ -29,35 +29,46 @@ export default function ServicesPage(): JSX.Element {
         transition={{ duration: 0.5 }}
         className="min-h-screen relative"
       >
-        {/* Cosmic Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/95 to-[#161b22]" />
-          <FloatingParticles
-            particleCount={40}
-            speed={0.4}
-            size={2.5}
-            colors={['#38bdf8', '#f472b6', '#0ea5e9', '#22d3ee']}
-            glowIntensity={0.4}
-          />
-        </div>
+        <FloatingParticles
+          particleCount={35}
+          speed={0.35}
+          size={2.5}
+          colors={['#38bdf8', '#f472b6', '#0ea5e9', '#22d3ee']}
+          glowIntensity={0.5}
+        />
 
         {/* Content */}
-        <div className="relative z-10 pt-24 flex flex-col items-center">
+        <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 flex flex-col items-center px-4 md:px-8 lg:px-12">
           {/* Hero Section */}
           <div className="w-full flex flex-col items-center mb-10">
             <BrandLogo className="skrblai-heading text-center mb-4" />
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-glow text-center mb-4 max-w-3xl mx-auto">
+            <h2 className="skrblai-heading text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 max-w-3xl mx-auto px-4">
               Intelligent Automation for Your Business
             </h2>
-            <p className="text-lg text-gray-300 text-center max-w-2xl mx-auto mb-4">
+            <p className="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto mb-4 px-4">
               SKRBL AI brings together a league of digital experts—ready to automate, create, and elevate your brand. Meet Percy, your friendly AI concierge, and discover what our agents can do for you.
             </p>
             {/* Interactive Percy Onboarding */}
-            <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4">
-              <div className="flex-shrink-0 flex items-center justify-center">
-                <Image src="/images/agents-percy-nobg-skrblai.png" alt="Percy the AI Concierge" width={72} height={72} className="rounded-full shadow-glow bg-[#0d1117]" />
-              </div>
-              <div className="flex-1 w-full">
+            <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4 px-4">
+              <motion.div 
+                className="w-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}>
+                <Image 
+                  src="/images/agents-percy-nobg-skrblai.png" 
+                  alt="Percy the AI Concierge" 
+                  width={96} 
+                  height={96} 
+                  className="rounded-full shadow-cosmic bg-[#0d1117] transform hover:scale-105 transition-transform duration-300" 
+                  priority
+                />
+              </motion.div>
+              <motion.div 
+                className="flex-1 w-full"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}>
                 <UniversalPromptBar
                   title="Ask Percy Anything"
                   description="What challenge can SKRBL AI solve for you today? Type a prompt or upload a file—Percy will guide you!"
@@ -72,18 +83,25 @@ export default function ServicesPage(): JSX.Element {
                   theme="dark"
                   compact
                 />
-              </div>
+              </motion.div>
             </div>
-            <p className="text-base text-teal-300 text-center max-w-xl mx-auto mb-6">
+            <p className="text-sm sm:text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
               Percy is your cosmic guide—always ready to help you explore, automate, and create at scale with confidence.
             </p>
           </div>
 
           {/* Filter Bar & Agents Grid (floating, glassy, no sidebar) */}
-          <div className="w-full flex flex-col items-center">
-            <AgentFilterBar selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
-            <AgentsGrid agents={agents} />
-          </div>
+          <motion.div 
+            className="w-full flex flex-col items-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="w-full max-w-7xl mx-auto">
+              <AgentFilterBar selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+              <AgentsGrid agents={agents} />
+            </div>
+          </motion.div>
         </div>
       </motion.div>
     </PageLayout>

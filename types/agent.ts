@@ -7,6 +7,13 @@ export interface AgentInput {
   content?: string;
   context?: string;
   options?: Record<string, any>;
+  contactMethod?: 'email' | 'sms' | 'voice' | 'chat';
+  contactInfo?: {
+    email?: string;
+    phone?: string;
+    preferredTime?: string;
+    timezone?: string;
+  };
 }
 
 export interface AgentResponse {
@@ -67,6 +74,16 @@ export interface Agent {
   catchphrase?: string;
   nemesis?: string;
   backstory?: string;
+  
+  // N8N Integration fields
+  n8nWorkflowId?: string;
+  primaryOutput?: string;
+  primaryCapability?: string;
+  n8nWebhookConfig?: {
+    webhookUrl?: string;
+    method?: 'POST' | 'GET';
+    headers?: Record<string, string>;
+  };
   
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (

@@ -50,6 +50,86 @@ const allAgents: Agent[] = [
   // Get backstory for this agent
   const backstory = agentBackstories[agent.id] || agentBackstories[agent.id.replace('-agent', '')] || {};
   
+  // N8N integration mapping - primary capabilities and outputs
+  const n8nMapping = {
+    'ad-creative-agent': {
+      primaryCapability: 'Ad Creative Generation',
+      primaryOutput: 'High-converting ad creatives and copy',
+      n8nWorkflowId: 'ad-creative-workflow'
+    },
+    'analytics-agent': {
+      primaryCapability: 'Data Analysis & Insights',
+      primaryOutput: 'Analytics reports and performance insights',
+      n8nWorkflowId: 'analytics-workflow'
+    },
+    'biz-agent': {
+      primaryCapability: 'Business Strategy Development',
+      primaryOutput: 'Strategic business plans and recommendations',
+      n8nWorkflowId: 'business-strategy-workflow'
+    },
+    'branding-agent': {
+      primaryCapability: 'Brand Identity Creation',
+      primaryOutput: 'Complete brand identity packages',
+      n8nWorkflowId: 'branding-workflow'
+    },
+    'client-success-agent': {
+      primaryCapability: 'Client Relationship Management',
+      primaryOutput: 'Client success strategies and communications',
+      n8nWorkflowId: 'client-success-workflow'
+    },
+    'content-creator-agent': {
+      primaryCapability: 'Content Creation & SEO',
+      primaryOutput: 'SEO-optimized content and articles',
+      n8nWorkflowId: 'content-creation-workflow'
+    },
+    'payment-manager-agent': {
+      primaryCapability: 'Payment Processing',
+      primaryOutput: 'Processed payments and receipts',
+      n8nWorkflowId: 'payment-workflow'
+    },
+    'percy-agent': {
+      primaryCapability: 'AI Concierge & Orchestration',
+      primaryOutput: 'Coordinated agent responses and workflows',
+      n8nWorkflowId: 'percy-orchestration-workflow'
+    },
+    'percy-sync-agent': {
+      primaryCapability: 'System Synchronization',
+      primaryOutput: 'Synchronized system states and data',
+      n8nWorkflowId: 'percy-sync-workflow'
+    },
+    'proposal-generator-agent': {
+      primaryCapability: 'Business Proposal Generation',
+      primaryOutput: 'Professional business proposals',
+      n8nWorkflowId: 'proposal-workflow'
+    },
+    'publishing-agent': {
+      primaryCapability: 'Content Publishing & Distribution',
+      primaryOutput: 'Published content across platforms',
+      n8nWorkflowId: 'publishing-workflow'
+    },
+    'sitegen-agent': {
+      primaryCapability: 'Website Generation',
+      primaryOutput: 'Complete website builds and deployments',
+      n8nWorkflowId: 'sitegen-workflow'
+    },
+    'social-bot-agent': {
+      primaryCapability: 'Social Media Management',
+      primaryOutput: 'Social media content and engagement',
+      n8nWorkflowId: 'social-media-workflow'
+    },
+    'video-content-agent': {
+      primaryCapability: 'Video Content Creation',
+      primaryOutput: 'Video content and multimedia assets',
+      n8nWorkflowId: 'video-content-workflow'
+    }
+  };
+  
+  const n8nConfig = n8nMapping[agent.id as keyof typeof n8nMapping] || {
+    primaryCapability: agent.capabilities[0] || 'General AI Assistance',
+    primaryOutput: 'AI-generated content and insights',
+    n8nWorkflowId: undefined
+  };
+  
   // Normalize gender to 'male' | 'female' | 'neutral', fallback to genderMap for invalid or missing values
   const rawGender = (agent as any).gender as string | undefined;
   let gender: 'male' | 'female' | 'neutral';
@@ -93,6 +173,10 @@ const allAgents: Agent[] = [
     catchphrase: backstory.catchphrase,
     nemesis: backstory.nemesis,
     backstory: backstory.backstory,
+    // Add N8N integration fields
+    primaryCapability: n8nConfig.primaryCapability,
+    primaryOutput: n8nConfig.primaryOutput,
+    n8nWorkflowId: n8nConfig.n8nWorkflowId,
     displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
     premiumFeature: agent.roleRequired === 'pro' ? 'premium-agents' : undefined,
     upgradeRequired: agent.roleRequired === 'pro' ? 'pro' : 

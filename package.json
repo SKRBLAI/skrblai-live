@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "clean": "rm -rf .next node_modules",
-    "rebuild": "npm run clean && npm install && npm run build"
+    "rebuild": "npm run clean && npm install && npm run build",
+    "optimize-images": "node scripts/convert-images-webp.js",
+    "image-audit": "node -e \"const fs=require('fs'),path=require('path'); fs.readdirSync('public/images').filter(f=>f.includes('agents-')).forEach(f=>{const stat=fs.statSync(path.join('public/images',f)); console.log(`${f}: ${(stat.size/1024/1024).toFixed(1)}MB`)})\"",
+    "image-performance": "node scripts/image-performance-monitor.js"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
@@ -38,6 +41,7 @@
     "react-hot-toast": "^2.5.2",
     "resend": "^2.0.0",
     "stripe": "^14.8.0",
+    "twilio": "^5.7.0",
     "undici": "^7.5.0",
     "uuid": "^9.0.1"
   },

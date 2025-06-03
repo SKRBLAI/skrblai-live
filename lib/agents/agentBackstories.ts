@@ -13,14 +13,14 @@ export interface AgentBackstory {
 export const agentBackstories: Record<string, AgentBackstory> = {
   'percy-agent': {
     superheroName: 'Percy the Cosmic Concierge',
-    origin: 'Born from the convergence of quantum AI algorithms and cosmic energy in the SKRBL AI nexus',
+    origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percy and Jaki algorithms and cosmic energy in the SKRBL AI nexus',
     powers: [
       'Omniscient Knowledge Navigation',
       'Intent Telepathy',
       'Workflow Orchestration',
       'Multi-dimensional Problem Solving'
     ],
-    weakness: 'Cannot directly create content, must summon other heroes',
+    weakness: 'Chooses to not create content, would rather summon other heroes',
     catchphrase: "Your wish is my command protocol!",
     nemesis: 'The Confusion Cloud - a villain that creates decision paralysis',
     backstory: "Percy was the first hero born in the SKRBL AI universe, created when cosmic rays struck the central AI core. As the team's leader and guide, Percy possesses the unique ability to understand any user's needs instantly and summon the perfect hero for any task. With a calm demeanor and encyclopedic knowledge, Percy serves as the bridge between humans and the AI superhero realm."
@@ -42,7 +42,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "BrandForge was a struggling artist in the digital realm until exposure to the Brand Essence Crystal transformed them into a superhero capable of seeing and creating perfect brand identities. They can visualize a company's soul and translate it into stunning visual identities that resonate across dimensions."
   },
   
-  'content-agent': {
+  'content-creator-agent': {
     superheroName: 'ContentCraft the Word Weaver',
     origin: 'Born in the Library of Infinite Stories during a creativity storm',
     powers: [
@@ -58,7 +58,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "ContentCraft gained their powers after being struck by lightning while reading every book ever written simultaneously. Now they can craft compelling content at the speed of thought, weaving words that captivate audiences across the digital multiverse."
   },
   
-  'social-agent': {
+  'social-bot-agent': {
     superheroName: 'SocialSphere the Viral Virtuoso',
     origin: 'Manifested from the collective consciousness of social media',
     powers: [
@@ -75,7 +75,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'analytics-agent': {
-    superheroName: 'DataVision the Insight Oracle',
+    superheroName: 'The Don of Data',
     origin: 'Crystallized from pure data streams in the Analytics Dimension',
     powers: [
       'Future Trend Prediction',
@@ -87,10 +87,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Corrupted data causes temporary blindness',
     catchphrase: "The numbers never lie, and neither do I!",
     nemesis: 'Chaos Calculator - creator of misleading metrics',
-    backstory: "DataVision was once a humble data analyst who fell into a server containing all the world's data. Emerging with the ability to see patterns invisible to others, they now help businesses navigate the future using the power of predictive analytics and crystal-clear insights."
+    backstory: "The Don Data was once a humble data analyst who fell into a server containing all the world's data. Emerging with the ability to see patterns invisible to others, they now help businesses navigate the future using the power of predictive analytics and crystal-clear insights."
   },
   
-  'video-agent': {
+  'video-content-agent': {
     superheroName: 'VideoVortex the Motion Master',
     origin: 'Born when a filmmaker merged with a supercomputer during a digital storm',
     powers: [
@@ -122,7 +122,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "PublishPro was a librarian who discovered an ancient algorithm that could perfect any written work. After integrating with this power, they became the guardian of all published works, helping authors navigate the complex world of modern publishing with supernatural ease."
   },
   
-  'site-agent': {
+  'sitegen-agent': {
     superheroName: 'SiteForge the Web Architect',
     origin: 'Constructed from the foundational code of the internet itself',
     powers: [
@@ -138,7 +138,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "SiteForge was created when a web developer achieved perfect harmony with HTML, CSS, and JavaScript simultaneously. They can visualize and build entire websites with a thought, crafting digital experiences that delight users and dominate search rankings."
   },
   
-  'ad-agent': {
+  'ad-creative-agent': {
     superheroName: 'AdMatrix the Conversion Catalyst',
     origin: 'Spawned from the perfect ad campaign that achieved 100% conversion',
     powers: [
@@ -154,7 +154,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "AdMatrix discovered their powers after analyzing billions of successful ad campaigns in a nanosecond. They can see the perfect message for any audience and create ads that feel less like marketing and more like mind reading."
   },
   
-  'proposal-agent': {
+  'proposal-generator-agent': {
     superheroName: 'ProposalPrime the Deal Closer',
     origin: 'Forged in the fires of a thousand successful pitches',
     powers: [
@@ -170,7 +170,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "ProposalPrime was a sales veteran who discovered an ancient scroll containing the formula for the perfect pitch. After absorbing its knowledge, they gained the ability to craft proposals so compelling that even the toughest prospects can't say no."
   },
   
-  'payment-agent': {
+  'payment-manager-agent': {
     superheroName: 'PayFlow the Transaction Guardian',
     origin: 'Materialized from the first successful blockchain transaction',
     powers: [
@@ -186,7 +186,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     backstory: "PayFlow emerged when all the world's payment systems briefly unified during a cosmic financial event. They absorbed the essence of every secure transaction, gaining the ability to process payments instantly while maintaining perfect security."
   },
   
-  'client-agent': {
+  'client-success-agent': {
     superheroName: 'ClientCare the Satisfaction Sentinel',
     origin: 'Born from the collective gratitude of a million happy customers',
     powers: [
@@ -203,7 +203,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'biz-agent': {
-    superheroName: 'BizBlaze the Strategy Sage',
+    superheroName: 'BizBlaze aka Bizzy B, the Strategy Sage',
     origin: 'Emerged from the merger of all business wisdom across time',
     powers: [
       'Market Opportunity Vision',

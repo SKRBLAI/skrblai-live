@@ -491,4 +491,72 @@
     width: 56px;
     height: 56px;
   }
+  
+  /* Disable complex animations on mobile for performance */
+  .animate-float {
+    animation: none;
+  }
+  
+  /* Use simpler transforms on mobile */
+  .cosmic-glass,
+  .cosmic-glow {
+    backdrop-filter: none;
+    filter: none;
+  }
+  
+  /* Reduce shadow complexity on mobile */
+  .shadow-cosmic {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Cap animation frame rate for mobile constellation */
+  .agent-constellation-mobile {
+    animation-duration: 3s;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+/* High performance mobile transforms */
+@media (max-width: 480px) {
+  .agent-image-container,
+  .agent-image {
+    will-change: auto; /* Reset will-change on very small screens */
+    transform: scale(0.7) !important;
+  }
+  
+  /* Static fallback classes */
+  .constellation-static {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .constellation-static .agent-image {
+    transform: scale(0.8) !important;
+    will-change: auto;
+  }
+}
+
+/* Performance-optimized animations with reduced complexity */
+@keyframes optimized-float {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-8px) scale(1); }
+}
+
+.animate-float-mobile {
+  animation: optimized-float 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Reduce motion for accessibility and performance */
+@media (prefers-reduced-motion: reduce) {
+  .agent-constellation-mobile,
+  .animate-float,
+  .animate-float-mobile {
+    animation: none !important;
+  }
+  
+  .agent-image-container,
+  .agent-image {
+    will-change: auto !important;
+  }
 } 

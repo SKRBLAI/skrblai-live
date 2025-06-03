@@ -194,10 +194,147 @@ export function getAgentImageSlug(agent: Agent): string {
   return agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
 }
 
-export function getAgentImagePath(agent: Agent, variant?: 'waistUp' | 'full'): string {
-  const slug = agent.imageSlug || getAgentImageSlug(agent);
-  // Use the new -nobg- image format
-  return `/images/agents-${slug}-nobg-skrblai.png`;
+/**
+ * Get the image path for an agent with CDN optimization
+ * @param agent - The agent object
+ * @param options - Image optimization options
+ */
+export function getAgentImagePath(agent: any, options: {
+  webp?: boolean;
+  quality?: number;
+  size?: string;
+  cdn?: boolean;
+} = {}): string {
+  const {
+    webp = false,
+    quality = 85,
+    size = 'original',
+    cdn = true
+  } = options;
+
+  // Use agent's imageSlug or generate from agent data
+  const imageSlug = agent?.imageSlug || getAgentImageSlug(agent);
+  
+  if (!imageSlug) {
+    console.warn(`No image slug found for agent:`, agent?.name || agent?.id);
+    return '/images/default-agent.png';
+  }
+
+  // Build base image path using existing format
+  let imagePath = `/images/agents-${imageSlug}-nobg-skrblai.png`;
+  
+  // Use WebP if supported and requested
+  if (webp) {
+    imagePath = `/images/agents-${imageSlug}-nobg-skrblai.webp`;
+  }
+
+  // Add CDN query parameters for optimization
+  if (cdn) {
+    const params = new URLSearchParams();
+    
+    // Quality optimization
+    if (quality < 100) {
+      params.append('q', quality.toString());
+    }
+    
+    // Size optimization
+    if (size !== 'original') {
+      params.append('w', getSizePixels(size).toString());
+    }
+    
+    // Format optimization
+    if (webp) {
+      params.append('fm', 'webp');
+    }
+    
+    // Auto-optimization
+    params.append('auto', 'compress,format');
+    
+    // Add cache busting for updates
+    params.append('v', '2.0');
+    
+    if (params.toString()) {
+      imagePath += `?${params.toString()}`;
+    }
+  }
+
+  return imagePath;
+}
+
+/**
+ * Convert size string to pixels
+ */
+function getSizePixels(size: string): number {
+  const sizeMap: Record<string, number> = {
+    'thumb': 64,
+    'small': 128,
+    'medium': 256,
+    'large': 512,
+    'xl': 1024
+  };
+  
+  return sizeMap[size] || 256;
+}
+
+/**
+ * Check if browser supports WebP
+ */
+export function supportsWebP(): boolean {
+  if (typeof window === 'undefined') return false;
+  
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  
+  return canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+}
+
+/**
+ * Get optimized image props for Next.js Image component
+ */
+export function getOptimizedImageProps(agent: any, context: string = 'default') {
+  const isWebPSupported = supportsWebP();
+  
+  // Context-specific optimizations
+  const contextSettings = {
+    constellation: { quality: 80, size: 'medium' },
+    carousel: { quality: 85, size: 'medium' },
+    card: { quality: 90, size: 'large' },
+    hero: { quality: 95, size: 'xl' },
+    mobile: { quality: 75, size: 'small' },
+    default: { quality: 85, size: 'medium' }
+  };
+  
+  const settings = contextSettings[context as keyof typeof contextSettings] || contextSettings.default;
+  
+  return {
+    src: getAgentImagePath(agent, {
+      webp: isWebPSupported,
+      quality: settings.quality,
+      size: settings.size
+    }),
+    alt: agent?.role || agent?.name || 'AI Agent',
+    loading: context === 'hero' ? 'eager' as const : 'lazy' as const,
+    priority: context === 'hero',
+    quality: settings.quality,
+    sizes: getResponsiveSizes(context)
+  };
+}
+
+/**
+ * Get responsive sizes for different contexts
+ */
+function getResponsiveSizes(context: string): string {
+  const sizesMap: Record<string, string> = {
+    constellation: '(max-width: 768px) 64px, 96px',
+    carousel: '(max-width: 768px) 128px, 256px',
+    card: '(max-width: 768px) 256px, 512px',
+    hero: '(max-width: 768px) 256px, 512px',
+    mobile: '64px',
+    default: '(max-width: 768px) 128px, 256px'
+  };
+  
+  return sizesMap[context] || sizesMap.default;
 }
 
 if (process.env.NODE_ENV === 'development') {
