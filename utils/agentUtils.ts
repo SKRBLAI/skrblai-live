@@ -1,7 +1,5 @@
-import path from 'path';
-import fs from 'fs';
-import agentRegistry from '@/lib/agents/agentRegistry';
 import type { Agent } from '@/types/agent';
+import OpenAI from 'openai';
 
 // Helper function to get emoji based on agent category
 export function getAgentEmoji(category: string): string {
@@ -62,8 +60,6 @@ export function validateAgentInput<T extends string>(
 }
 
 // Utility to call OpenAI API (shared by all agents)
-import OpenAI from 'openai';
-
 export async function callOpenAI(
   prompt: string, 
   options?: { maxTokens?: number; temperature?: number; model?: string }
@@ -152,11 +148,11 @@ export function getAgentSets<T = any>(agents: T[], groupSize: number): T[][] {
 }
 
 // Percy Smart Agent Matching: Capability-based agent suggestion
-export function getBestAgents(prompt: string): any[] {
-  if (!prompt || typeof prompt !== 'string') return [];
+export function getBestAgents(prompt: string, agents?: any[]): any[] {
+  if (!prompt || typeof prompt !== 'string' || !agents) return [];
   const lowerPrompt = prompt.toLowerCase();
   const promptWords = lowerPrompt.split(/\W+/).filter(Boolean);
-  const scored = agentRegistry.map(agent => {
+  const scored = agents.map(agent => {
     let score = 0;
     let matchedCapabilities: string[] = [];
     if (Array.isArray(agent.capabilities)) {
@@ -181,14 +177,7 @@ export function getBestAgents(prompt: string): any[] {
 }
 
 // --- Percy Smart Agent Matching Test Block ---
-if (process.env.NODE_ENV === 'development') {
-  const testPrompt = "I need help with publishing my children's ebook";
-  const best = getBestAgents(testPrompt);
-  console.debug('[PercyMatch][Test] For prompt:', testPrompt);
-  best.forEach(agent => {
-    console.debug(`[PercyMatch][Test] Suggested agent: ${agent.name} (Capabilities: ${agent.capabilities.join(', ')})`);
-  });
-}
+// Removed to prevent client-side crashes from agentRegistry import
 
 export function getAgentImageSlug(agent: Agent): string {
   return agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
@@ -337,32 +326,8 @@ function getResponsiveSizes(context: string): string {
   return sizesMap[context] || sizesMap.default;
 }
 
-if (process.env.NODE_ENV === 'development') {
-  const missingImages: string[] = [];
-  const agentsWithoutCapabilities: string[] = [];
-
-  agentRegistry.forEach(agent => {
-    const slug = getAgentImageSlug(agent);
-    const imagePath = path.join(process.cwd(), 'public', 'images', `agents-${slug}-nobg-skrblai.png`);
-    if (!fs.existsSync(imagePath)) {
-      console.warn(`❌ Missing avatar image for agent: ${agent.name} → slug: ${slug}`);
-      missingImages.push(agent.name);
-    }
-    if (!agent.capabilities || agent.capabilities.length === 0) {
-      agentsWithoutCapabilities.push(agent.name);
-    }
-  });
-
-  if (missingImages.length > 0) {
-    console.log(`🟡 Missing avatars for ${missingImages.length} agents:`, missingImages);
-  } else {
-    console.log('✅ All agent avatars are correctly named and located');
-  }
-
-  if (agentsWithoutCapabilities.length > 0) {
-    console.warn(`⚠️ ${agentsWithoutCapabilities.length} agents have no capabilities defined:`, agentsWithoutCapabilities);
-  }
-}
+// Development validation moved to server-side only to prevent client-side crashes
+// Original code used fs and path modules which are not available in browser
 
 export function getDefaultOrbitParams(index: number): { radius: number; speed: number; angle: number } {
   // Example: spread agents in a circle, vary speed slightly

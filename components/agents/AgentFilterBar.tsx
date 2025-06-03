@@ -63,7 +63,7 @@ const AgentFilterBar: React.FC<AgentFilterBarProps> = ({ selectedCategory, setSe
                     ? 'bg-teal-400/20 text-white border-2 border-teal-400/40 shadow-cosmic' 
                     : 'border-2 border-white/10 text-white/80 hover:border-teal-400/20 hover:text-white hover:bg-white/5'}
                   focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400/50`}
-                aria-pressed={selectedCategory === category ? 'true' : 'false'}
+                aria-pressed={selectedCategory === category}
                 aria-label={`Filter agents by category: ${category}`}
                 tabIndex={0}
                 onClick={() => setSelectedCategory(category)}

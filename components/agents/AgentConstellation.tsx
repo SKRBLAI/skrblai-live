@@ -336,7 +336,15 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
           whileTap={{ scale: 0.95 }}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          onClick={() => setSelectedAgent(null)}
+          aria-label="Ask Percy"
+          onClick={() => {
+            const percy = orbitingAgents.find(a =>
+              [a.id?.toLowerCase(), a.name?.toLowerCase()].some(val =>
+                val && (val.includes('percy') || val.includes('concierge'))
+              )
+            );
+            if (percy) setSelectedAgent(percy);
+          }}
         >
           <Image
             src="/images/agents-percy-nobg-skrblai.png"
@@ -389,7 +397,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
           ease: "linear",
         } : undefined}
       >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="sync">
           {visibleAgents.slice(0, isMobile ? 6 : AGENTS_PER_GROUP).map((agent, i) => {
             const totalAgents = isMobile ? 6 : AGENTS_PER_GROUP;
             const angle = (360 / totalAgents) * i - 90;
@@ -400,7 +408,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
             const isLocked = !agent.unlocked;
             return (
               <motion.div
-                key={agent.id}
+                key={agent.id || `${agent.name}-${i}`}
                 initial={{ opacity: 0, scale: 0.7 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.7 }}
@@ -569,7 +577,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
               >
                 <div
                   className={`relative rounded-full cosmic-glass cosmic-glow border-2 border-[#38bdf8cc] group-hover:border-[#30D5C8] transition-all duration-200 bg-gradient-to-br from-[#1E90FFb3] via-[#f472b680] to-[#30D5C8b3] overflow-visible mb-1`}
-                  style={{ width: size, height: size }}
+                  style={{ width: size, height: size }} // TODO: Replace with Tailwind/CSS if possible, but dynamic sizing may require inline style.
                 >
                   <Image
                     src={getAgentImagePath(agent)}

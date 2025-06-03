@@ -1,7 +1,16 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { useRouter } from 'next/navigation';
-import agentRegistry from '@/lib/agents/agentRegistry';
+
+// Safely import agentRegistry with fallback
+let agentRegistry: any[] = [];
+try {
+  const registryModule = require('@/lib/agents/agentRegistry');
+  agentRegistry = registryModule.default || registryModule.agentDashboardList || [];
+} catch (error) {
+  console.error('Failed to load agent registry in PercyProvider:', error);
+  agentRegistry = [];
+}
 
 // --- Types ---
 type WorkflowSessionType = string[]; // Can be changed to agent objects later

@@ -51,18 +51,17 @@ export default function AgentCard({
 
   return (
     <motion.div
-      whileHover={{ scale: 1.04 }}
+      whileHover={{ scale: 1.04, y: -8, boxShadow: '0 0 32px 4px #30D5C8CC' }}
       whileTap={{ scale: 0.98 }}
       className={`
-        relative overflow-hidden rounded-xl border-2
+        relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
         ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
-        ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : 'bg-white/5'}
-        shadow-glow group transition-all duration-300
+        ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : ''}
       `}
     >
       {/* Animated Glow Border */}
       <motion.div
-        className="absolute inset-0 pointer-events-none rounded-xl"
+        className="absolute inset-0 pointer-events-none rounded-2xl"
         initial={{ boxShadow: '0 0 0px #2dd4bf' }}
         animate={{
           boxShadow: isPercy
@@ -93,7 +92,7 @@ export default function AgentCard({
             priority={isPercy}
           />
           {!imgSrc && (
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontSize:'2rem',background:'#222'}}>🤖</div>
+            <div className="flex items-center justify-center h-full text-2xl bg-zinc-900">🤖</div>
           )}
           {/* Tooltip for agent name/role */}
           <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">

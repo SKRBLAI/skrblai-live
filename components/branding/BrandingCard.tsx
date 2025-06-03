@@ -26,12 +26,12 @@ export default function BrandingCard({ title, description, icon, intent, index }
   }, [intent, openPercy, setPercyIntent]);
 
   if (!isMounted) {
-    return <div className="glass-card p-6 rounded-2xl animate-pulse h-48" />;
+    return <div className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic rounded-2xl animate-pulse h-48" />;
   }
 
   return (
     <motion.div
-      className="glass-card p-6 cursor-pointer hover:bg-gray-800/60 transition-colors"
+      className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic rounded-2xl p-6 cursor-pointer transition-all duration-300 group hover:scale-105 hover:shadow-[0_0_48px_8px_#30D5C880] focus:scale-105 focus:shadow-[0_0_64px_12px_#1E90FF80]"
       onClick={handleCardClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}

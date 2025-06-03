@@ -11,22 +11,84 @@ import { useState } from 'react';
 import type { Agent } from '@/types/agent';
 
 export default function HomePage() {
-  const { setPercyIntent, closePercy } = usePercyContext();
+  const [mounted, setMounted] = useState(false);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [demoAgent, setDemoAgent] = useState<Agent | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [percyError, setPercyError] = useState<boolean>(false);
 
-  // Fetch agents from API or registry (add useEffect if needed)
-  // For now, assume agents are fetched elsewhere or passed as props
-  // If you want to fetch here, uncomment and implement fetch logic
-  // useEffect(() => { ... }, []);
+  // Always call hooks unconditionally
+  const percyContext = usePercyContext();
+  const { setPercyIntent, closePercy } = percyContext;
+
+  // Safe mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Fetch agents from registry with error handling
+  useEffect(() => {
+    try {
+      // Dynamically import to prevent server-side issues
+      if (typeof window !== 'undefined') {
+        import('@/lib/agents/agentRegistry')
+          .then((module) => {
+            const agentRegistry = module.default || [];
+            console.log('Loaded agents:', agentRegistry.length);
+            setAgents(agentRegistry.filter(agent => agent && agent.visible !== false));
+          })
+          .catch((err) => {
+            console.error('Failed to load agent registry:', err);
+            setError('Failed to load agents');
+          });
+      }
+    } catch (err) {
+      console.error('Error setting up agents:', err);
+      setError('Error setting up agents');
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (closePercy) closePercy();
+      if (setPercyIntent) setPercyIntent('');
+    } catch (err) {
+      console.error('Error in Percy cleanup:', err);
+    }
+  }, [closePercy, setPercyIntent]);
+
+  // Don't render until mounted to prevent hydration issues
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p>Loading SKRBL AI...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-white">
+        <div className="text-center">
+          <h1 className="text-2xl mb-4">⚠️ Loading Error</h1>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Filtered agents (all agents for now, can add category logic)
   const filteredAgents: Agent[] = agents;
-
-  useEffect(() => {
-    closePercy();
-    setPercyIntent('');
-  }, [closePercy, setPercyIntent]);
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">

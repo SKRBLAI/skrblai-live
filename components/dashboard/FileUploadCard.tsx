@@ -112,10 +112,10 @@ export default function FileUploadCard({
 
   return (
     <motion.div
+      className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic rounded-2xl p-6 transition-all duration-300 group hover:scale-105 hover:shadow-[0_0_48px_8px_#30D5C880] focus:scale-105 focus:shadow-[0_0_64px_12px_#1E90FF80]"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
-      className="glass-card p-6 rounded-xl"
     >
       <div className="flex items-center mb-4">
         <div className="w-10 h-10 rounded-full bg-electric-blue flex items-center justify-center mr-3">
