@@ -26,10 +26,10 @@ export default function BrandingDashboard() {
     const fetchUser = async () => {
       const user = await getCurrentUser();
       if (!user) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        if (!user) {
+          router.push('/sign-in');
         }
-        router.push('/auth');
         return;
       }
       setUser(user);

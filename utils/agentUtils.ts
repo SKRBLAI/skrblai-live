@@ -185,6 +185,7 @@ export function getAgentImageSlug(agent: Agent): string {
 
 /**
  * Get the image path for an agent with CDN optimization
+ * Supports both local images and Cloudinary-hosted images
  * @param agent - The agent object
  * @param options - Image optimization options
  */
@@ -193,12 +194,18 @@ export function getAgentImagePath(agent: any, options: {
   quality?: number;
   size?: string;
   cdn?: boolean;
+  useCloudinary?: boolean;
+  cloudinaryTransformation?: string;
+  fallbackToLocal?: boolean;
 } = {}): string {
   const {
     webp = false,
     quality = 85,
     size = 'original',
-    cdn = true
+    cdn = true,
+    useCloudinary = false,
+    cloudinaryTransformation = '',
+    fallbackToLocal = true
   } = options;
 
   // Use agent's imageSlug or generate from agent data
@@ -209,7 +216,70 @@ export function getAgentImagePath(agent: any, options: {
     return '/images/default-agent.png';
   }
 
-  // Build base image path using existing format
+  // Check if agent has a direct cloudinaryUrl property
+  if (useCloudinary && agent?.cloudinaryUrl) {
+    // Direct URL provided - use as is or with transformations
+    let cloudinaryUrl = agent.cloudinaryUrl;
+    
+    // Add transformations if not already present and requested
+    if (cloudinaryUrl && cloudinaryTransformation && !cloudinaryUrl.includes('/upload/')) {
+      // Extract the base URL up to /upload/ and add transformations
+      const baseUrlParts = cloudinaryUrl.match(/(.*\/upload\/)(.*)/);
+      if (baseUrlParts && baseUrlParts.length >= 3) {
+        cloudinaryUrl = `${baseUrlParts[1]}${cloudinaryTransformation}/${baseUrlParts[2]}`;
+      }
+    }
+    
+    return cloudinaryUrl;
+  }
+
+  // If Cloudinary is requested but no direct URL exists, construct a Cloudinary URL
+  if (useCloudinary) {
+    try {
+      // Get Cloudinary cloud name from env or use default
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'skrblai';
+      
+      // Format: https://res.cloudinary.com/cloudName/image/upload/transformations/folder/filename
+      let transformations = [];
+      
+      // Add size transformation if specified
+      if (size !== 'original') {
+        transformations.push(`w_${getSizePixels(size)}`);  
+      }
+      
+      // Add quality transformation if specified
+      if (quality < 100) {
+        transformations.push(`q_${quality}`);
+      }
+      
+      // Add format transformation if specified
+      if (webp) {
+        transformations.push('f_webp');
+      }
+      
+      // Add custom transformations if provided
+      if (cloudinaryTransformation) {
+        transformations.push(cloudinaryTransformation);
+      }
+      
+      // Construct the transformation string
+      const transformationString = transformations.length > 0 
+        ? transformations.join(',') + '/' 
+        : '';
+      
+      // Construct the Cloudinary URL
+      return `https://res.cloudinary.com/${cloudName}/image/upload/${transformationString}skrblai/agents/${imageSlug}-nobg.png`;
+    } catch (error) {
+      console.error('Error constructing Cloudinary URL:', error);
+      // Fall back to local image if specified
+      if (!fallbackToLocal) {
+        return '/images/default-agent.png';
+      }
+      // Otherwise continue to local image construction below
+    }
+  }
+
+  // Build base image path using existing format (local image)
   let imagePath = `/images/agents-${imageSlug}-nobg-skrblai.png`;
   
   // Use WebP if supported and requested

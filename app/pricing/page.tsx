@@ -12,14 +12,14 @@ const plans = [
     period: 'forever',
     description: 'Explore basic features and try out a few AI agents.',
     features: [
-      'Access to 3 AI Agents',
+      'Access to Basic Agents',
       'Limited Publishing',
       'Community Support',
       'Basic Analytics'
     ],
     gradient: 'from-sky-400 to-teal-300',
     cta: 'Start Free',
-    href: '/auth/signup'
+    href: '/sign-up'
   },
   {
     title: 'Pro',
@@ -27,15 +27,15 @@ const plans = [
     period: 'per month',
     description: 'Perfect for creators and solopreneurs ready to scale.',
     features: [
-      'All AI Agents',
+      'Access to 3 AI Agents',
       'Unlimited Publishing',
-      'Priority Percy Access',
-      'Advanced Analytics',
-      'Custom Workflows'
+      'Simple Percy Access',
+      'Basic Analytics',
+      'Basic Workflows'
     ],
     gradient: 'from-amber-500 to-orange-500',
     cta: 'Upgrade Now',
-    href: '/auth/signup?plan=pro',
+    href: '/sign-up?plan=pro',
     popular: true
   },
   {
@@ -82,7 +82,7 @@ export default function PricingPage() {
                 <PricingCard
                   title="Free"
                   price="$0"
-                  features={["Access to 3 AI Agents", "Limited Publishing", "Community Support", "Basic Analytics"]}
+                  features={["Access to Basic AI Agents", "Limited Publishing", "Community Support", "Basic Analytics"]}
                   ctaText="Explore Agents"
                   ctaHref="/services/agents"
                   badge="Starter"
@@ -91,7 +91,7 @@ export default function PricingPage() {
                 <PricingCard
                   title="Pro"
                   price="$19/mo"
-                  features={["All AI Agents", "Unlimited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows"]}
+                  features={["Access to 3 AI Agents", "Unlimited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows"]}
                   ctaText="Upgrade & Explore"
                   ctaHref="/services/agents"
                   highlight

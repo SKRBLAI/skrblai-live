@@ -78,7 +78,7 @@ export default function AnalyticsPage() {
         if (user) {
           setUserId(user.id);
         } else {
-          window.location.href = '/auth';
+          window.location.href = '/sign-in';
         }
       } catch (error) {
         console.error('Error fetching user:', error);

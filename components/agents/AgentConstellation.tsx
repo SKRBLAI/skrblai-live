@@ -223,7 +223,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
     }
 
     if (!user) {
-      router.push('/login');
+      router.push('/sign-in');
       return;
     }
 

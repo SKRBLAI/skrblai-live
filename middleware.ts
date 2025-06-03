@@ -18,7 +18,7 @@ export function middleware(request: NextRequest) {
   if (!authCookie && 
       (request.nextUrl.pathname.startsWith('/dashboard') || 
        request.nextUrl.pathname.startsWith('/user-dashboard'))) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    return NextResponse.redirect(new URL('/auth', request.url));
   }
 
   // Add security headers

@@ -116,10 +116,10 @@ export default function Dashboard() {
         setUserRole(role);
         setIsLoading(false);
       } else {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        console.log('[SKRBL AUTH] Dashboard route protection standardized.');
+        if (!session) {
+          router.push('/sign-in');
         }
-        router.push('/auth');
       }
     });
     return () => {

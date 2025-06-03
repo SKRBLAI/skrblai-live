@@ -174,10 +174,7 @@ export default function BookPublishingDashboard() {
     const fetchUser = async () => {
       const user = await getCurrentUser();
       if (!user) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[SKRBL AUTH] Dashboard route protection standardized.');
-        }
-        router.push('/auth');
+        router.push('/sign-in');
         return;
       }
       setUser(user);

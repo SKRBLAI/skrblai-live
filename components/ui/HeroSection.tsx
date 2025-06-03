@@ -34,7 +34,7 @@ const HeroSection = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <motion.div {...hoverScale}>
-              <Link href="/signup" className="block">
+              <Link href="/sign-up" className="block">
                 <button className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal hover:from-teal hover:to-electric-blue transition-all duration-300 rounded-lg text-lg font-semibold shadow-xl hover:shadow-2xl w-full sm:w-auto">
                   Try It Free
                 </button>

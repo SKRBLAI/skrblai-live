@@ -11,10 +11,10 @@ export default function LogoutPage() {
     const performLogout = async () => {
       try {
         await logoutUser();
-        router.push('/login');
+        router.push('/sign-in');
       } catch (error) {
         console.error('Logout error:', error);
-        router.push('/login');
+        router.push('/sign-in');
       }
     };
     

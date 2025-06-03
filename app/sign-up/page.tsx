@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { createUser } from '@/utils/auth';
 
-export default function SignupPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -176,4 +176,4 @@ export default function SignupPage() {
       </motion.div>
     </div>
   );
-}
+} 

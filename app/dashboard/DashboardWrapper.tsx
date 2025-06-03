@@ -17,9 +17,9 @@ export default function DashboardWrapper({
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (!user) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('[SKRBL AUTH] Unauthenticated user redirected from dashboard to /auth');
+          console.log('[SKRBL AUTH] Unauthenticated user redirected from dashboard to /sign-in');
         }
-        router.push('/auth?reason=session-expired');
+        router.push('/sign-in?reason=session-expired');
       }
     });
 

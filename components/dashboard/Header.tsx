@@ -17,7 +17,7 @@ export default function Header({ user }: HeaderProps) {
   const handleLogout = async () => {
     const result = await logoutUser();
     if (result.success) {
-      router.push('/login');
+      router.push('/sign-in');
     }
   };
 
