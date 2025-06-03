@@ -221,9 +221,9 @@ export async function POST(req: NextRequest) {
     // Enhanced message customization based on type and urgency
     let finalMessage = message;
     if (messageType === 'welcome') {
-      finalMessage = `${percyGreeting}\n\n${message || 'Welcome to SKRBL AI! I\'m here to help you navigate our superhero league of AI agents. What amazing project can we bring to life together?'}\n\n🚀 Ready to get started? Just reply and I\'ll guide you to the perfect AI solution!`;
+      finalMessage = `${percyGreeting}\n\n${message || "Welcome to SKRBL AI! I'm here to help you navigate our superhero league of AI agents. What amazing project can we bring to life together?"}\n\n🚀 Ready to get started? Just reply and I'll guide you to the perfect AI solution!`;
     } else if (messageType === 'onboarding') {
-      finalMessage = `${percyGreeting}\n\nI've prepared a personalized onboarding experience just for you! ${message || 'Let\'s unlock the full potential of our AI superhero team.'}\n\n✨ Your personalized dashboard is ready at https://skrbl.ai/dashboard`;
+      finalMessage = `${percyGreeting}\n\nI've prepared a personalized onboarding experience just for you! ${message || "Let's unlock the full potential of our AI superhero team."}\n\n✨ Your personalized dashboard is ready at https://skrbl.ai/dashboard`;
     } else if (messageType === 'followup') {
       finalMessage = `Hello from Percy! 🚀 ${message || 'Just checking in to see how your SKRBL AI experience is going. Need any assistance from our superhero team?'}\n\n💬 Hit reply if you need anything - I'm always here to help!`;
     }
@@ -282,7 +282,7 @@ export async function POST(req: NextRequest) {
         break;
       }
         
-      case 'voice':
+      case 'voice': {
         if (!contactInfo.phone) {
           return NextResponse.json(
             { success: false, error: 'Phone number required for voice contact' },
@@ -291,12 +291,13 @@ export async function POST(req: NextRequest) {
         }
         // Simplify message for voice (remove emojis and formatting)
         const voiceMessage = finalMessage
-          .replace(/[🌟🚀✨💬🚨💫]/g, '') // Remove emojis
+          .replace(/[\u2600-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '') // Remove emojis
           .replace(/\n+/g, ' ') // Replace line breaks with spaces
           .replace(/https?:\/\/[^\s]+/g, 'Visit our website') // Replace URLs
           .trim();
         contactResult = await sendTwilioVoice(contactInfo.phone, voiceMessage);
         break;
+      }
         
       case 'chat':
       default:
