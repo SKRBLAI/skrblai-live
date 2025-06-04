@@ -67,7 +67,7 @@ export default function PricingPage() {
   <FloatingParticles />
   <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
     <div className="text-center mb-16">
-                <BrandLogo className="skrblai-heading text-center mb-8" />
+                <BrandLogo className="skrblai-heading text-center mb-8" animate />
                 <motion.p 
                   className="text-lg text-[#30D5C8]"
                   initial={{ y: 20, opacity: 0 }}
@@ -84,7 +84,7 @@ export default function PricingPage() {
                   price="$0"
                   features={["Access to Basic AI Agents", "Limited Publishing", "Community Support", "Basic Analytics"]}
                   ctaText="Explore Agents"
-                  ctaHref="/services/agents"
+                  ctaHref="/services"
                   badge="Starter"
                   description="Explore basic features and try out a few AI agents."
                 />
@@ -93,7 +93,7 @@ export default function PricingPage() {
                   price="$19/mo"
                   features={["Access to 3 AI Agents", "Unlimited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows"]}
                   ctaText="Upgrade & Explore"
-                  ctaHref="/services/agents"
+                  ctaHref="/services"
                   highlight
                   badge="Best Value"
                   description="Perfect for creators and solopreneurs ready to scale."

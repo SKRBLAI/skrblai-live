@@ -28,7 +28,7 @@ export default function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <BrandLogo />
+                <BrandLogo animate />
               </motion.div>
             </Link>
             {/* Tagline badge - consolidated, styled, accessible */}
@@ -46,22 +46,30 @@ export default function Navbar() {
           <div className="hidden md:flex flex-1 justify-end items-center">
             <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
               {/* FIXED: Route 'Agents' to '/services' where agents are displayed */}
-              <Link href="/services" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap"
-                aria-label="Browse all agents and services"
-                tabIndex={0}
-                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
-              >
-                Agents
-              </Link>
-              <Link href="/features" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
-                Features
-              </Link>
-              <Link href="/pricing" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
-                Pricing
-              </Link>
-              <Link href="/about" className="text-gray-300 hover:text-teal-400 transition-all hover:scale-105 whitespace-nowrap">
-                About
-              </Link>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/services" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
+                  aria-label="Browse all agents and services"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
+                >
+                  Agents
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/features" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  Features
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/pricing" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/about" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  About
+                </Link>
+              </motion.div>
               <Link href="/sign-in">
                 <motion.button
                   whileHover={{ scale: 1.05 }}

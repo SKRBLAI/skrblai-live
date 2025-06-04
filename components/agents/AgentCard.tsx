@@ -19,6 +19,7 @@ interface AgentCardProps {
   name: string;
   imageSlug: string;
   isPercy?: boolean;
+  isRecommended?: boolean;
   gender: 'male' | 'female' | 'neutral';
   role?: string;
 }
@@ -40,6 +41,7 @@ export default function AgentCard({
   name,
   imageSlug,
   isPercy = false,
+  isRecommended = false,
   gender,
   role,
 }: AgentCardProps) {
@@ -51,13 +53,17 @@ export default function AgentCard({
 
   return (
     <motion.div
-      whileHover={{ scale: 1.04, y: -8, boxShadow: '0 0 32px 4px #30D5C8CC' }}
+      whileHover={{ scale: 1.04, y: -8, boxShadow: '0 0 36px 8px #30D5C8CC' }}
       whileTap={{ scale: 0.98 }}
       className={`
         relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
         ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
         ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : ''}
+        ${isRecommended ? 'border-fuchsia-400/80 shadow-[0_0_48px_12px_#e879f9aa] animate-pulse-slow' : ''}
       `}
+      tabIndex={0}
+      aria-label={`${name} agent card`}
+      role="button"
     >
       {/* Animated Glow Border */}
       <motion.div
@@ -66,10 +72,12 @@ export default function AgentCard({
         animate={{
           boxShadow: isPercy
             ? '0 0 32px 8px #2dd4bf'
-            : '0 0 20px 4px #38bdf8',
+            : isRecommended
+              ? '0 0 48px 16px #e879f9cc'
+              : '0 0 20px 4px #38bdf8',
         }}
         transition={{
-          duration: 1.2,
+          duration: isRecommended ? 1.5 : 1.2,
           repeat: Infinity,
           repeatType: 'mirror',
         }}
@@ -78,9 +86,13 @@ export default function AgentCard({
       <div className="relative p-6 flex flex-col items-center z-10">
         {/* Agent Image */}
         <div
-          className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'}`}
+          className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'} ${isRecommended ? 'ring-4 ring-fuchsia-400/60 ring-offset-2' : ''}`}
           tabIndex={0}
           aria-label={name}
+          style={{
+            transform: 'perspective(900px) rotateY(0deg)',
+            ...(typeof window !== 'undefined' && window.innerWidth < 640 ? { transform: 'none' } : {})
+          }}
         >
           <Image
             src={imgSrc}
@@ -92,10 +104,10 @@ export default function AgentCard({
             priority={isPercy}
           />
           {!imgSrc && (
-            <div className="flex items-center justify-center h-full text-2xl bg-zinc-900">🤖</div>
+            <div className="flex items-center justify-center h-full text-2xl bg-zinc-900" aria-hidden="true">🤖</div>
           )}
           {/* Tooltip for agent name/role */}
-          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg">
+          <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-3 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg" role="tooltip">
             {name} {role ? <span className="text-teal-400">({role})</span> : ''}
           </div>
         </div>

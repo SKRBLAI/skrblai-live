@@ -42,29 +42,28 @@ export default function ServicesPage(): JSX.Element {
           {/* Hero Section */}
           <div className="w-full flex flex-col items-center mb-10">
             <BrandLogo className="skrblai-heading text-center mb-4" />
-            <h2 className="skrblai-heading text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-4 max-w-3xl mx-auto px-4">
-              Intelligent Automation for Your Business
+            <h2 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-4xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
+              Discover Your Digital Superheroes
             </h2>
-            <p className="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto mb-4 px-4">
-              SKRBL AI brings together a league of digital experts—ready to automate, create, and elevate your brand. Meet Percy, your friendly AI concierge, and discover what our agents can do for you.
+            <p className="text-xl text-teal-300 text-center max-w-2xl mx-auto mb-4 px-4 font-semibold">
+              Meet Percy and the SKRBL AI constellation—ready to automate, create, and elevate your brand.
             </p>
-            {/* Interactive Percy Onboarding */}
             <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4 px-4">
-              <motion.div 
+              <motion.div
                 className="w-full"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}>
-                <Image 
-                  src="/images/agents-percy-nobg-skrblai.png" 
-                  alt="Percy the AI Concierge" 
-                  width={96} 
-                  height={96} 
-                  className="rounded-full shadow-cosmic bg-[#0d1117] transform hover:scale-105 transition-transform duration-300" 
+                <Image
+                  src="/images/agents-percy-nobg-skrblai.png"
+                  alt="Percy the AI Concierge"
+                  width={96}
+                  height={96}
+                  className="rounded-full shadow-cosmic bg-[#0d1117] transform hover:scale-105 transition-transform duration-300"
                   priority
                 />
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="flex-1 w-full"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -85,7 +84,7 @@ export default function ServicesPage(): JSX.Element {
                 />
               </motion.div>
             </div>
-            <p className="text-sm sm:text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
+            <p className="text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
               Percy is your AI concierge—always ready to help you explore, automate, and create at scale with confidence.
             </p>
           </div>

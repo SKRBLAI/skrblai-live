@@ -9,8 +9,8 @@ export default function AgentPage({ params }: { params: { agent: string } }) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0d1117]">
         <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="glass-card p-10 rounded-2xl text-center max-w-lg">
-          <h1 className="text-3xl font-bold mb-4 text-electric-blue">Percy can’t find this agent!</h1>
-          <p className="text-gray-300 mb-6">Looks like this agent doesn’t exist or isn’t available right now.</p>
+          <h1 className="text-3xl font-bold mb-4 text-electric-blue">Percy can't find this agent!</h1>
+          <p className="text-gray-300 mb-6">Looks like this agent doesn't exist or isn't available right now.</p>
           <Link href="/services" className="text-teal-400 hover:underline">Back to Services</Link>
         </motion.div>
       </div>

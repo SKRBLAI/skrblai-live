@@ -109,10 +109,10 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6 }}
-              className="skrblai-heading text-center text-4xl md:text-5xl lg:text-6xl max-w-4xl mx-auto mb-6" 
+              className="skrblai-heading text-center text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow"
               aria-label="Welcome to SKRBL AI"
             >
-              Welcome to <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">SKRBL AI</span>
+              Welcome to <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">SKRBL AI</span>
             </motion.h1>
             
             {/* Engaging copy subheadline */}
@@ -120,9 +120,10 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-gray-300 text-center max-w-3xl mx-auto mb-12"
+              className="text-xl md:text-2xl text-teal-300 text-center max-w-3xl mx-auto mb-8 font-semibold"
             >
-              Your concierge of intelligent automation. Discover our team of Digital Superheroes ready to transform your digital experience and boost your productivity.
+              Your gateway to intelligent automation.<br />
+              <span className="text-gray-300 font-normal">Meet Percy and the SKRBL AI constellation—digital superheroes ready to elevate your business and creativity.</span>
             </motion.p>
             
             {/* Percy Introduction Section */}
@@ -195,7 +196,7 @@ export default function HomePage() {
             >
               <div className="mb-4">
                 <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Start with Percy</h3>
-                <p className="text-gray-300 text-sm md:text-base">Tell me what you're looking for or upload a file to get started</p>
+                <p className="text-teal-300 text-sm md:text-base">Type your goal or upload a file—Percy will guide you to the perfect AI agent.</p>
               </div>
               
               {/* Universal Prompt Bar - All onboarding flows route to Percy's AI chat */}

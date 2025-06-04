@@ -44,7 +44,7 @@ const allAgents: Agent[] = [
 ].map((agent, idx) => {
   const imageSlug = agent.imageSlug || getAgentImageSlug(agent);
   const hoverSummary = agent.hoverSummary || agent.description || '';
-  const route = agent.route || `/dashboard/${agent.id}`;
+  const route = agent.route || `/services/${agent.id}`;
   const orbit = agent.orbit || getDefaultOrbitParams(idx);
   
   // Get backstory for this agent
@@ -165,6 +165,7 @@ const allAgents: Agent[] = [
     imageSlug,
     route,
     gender,
+    displayOrder: idx,
     // Add superhero backstory fields
     superheroName: backstory.superheroName || agent.name,
     origin: backstory.origin,

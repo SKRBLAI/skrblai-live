@@ -42,6 +42,7 @@ interface AgentConstellationProps {
   selectedAgent: Agent | null;
   setSelectedAgent: (agent: Agent | null) => void;
   handleAgentLaunch?: (agent: Agent) => void;
+  recommendedAgentIds?: string[];
 }
 
 // All Percy-related ids/names for filtering

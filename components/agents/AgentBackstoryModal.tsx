@@ -57,15 +57,15 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
               {/* Hero Info */}
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+                <h2 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent" aria-label="Agent Superhero Name">
                   {agent.superheroName || agent.name}
                 </h2>
-                <p className="text-xl text-gray-300 mb-4 italic">
-                  {agent.origin || `Mysterious origins in the SKRBL AI universe`}
+                <p className="text-xl text-gray-300 mb-4 italic" aria-label="Agent Origin Story">
+                  {agent.origin ? `Origin: ${agent.origin}` : `Forged in the cosmic cradle of the SKRBL AI universe, this hero's true beginnings are a swirling mystery!`}
                 </p>
                 {agent.catchphrase && (
-                  <div className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full border border-purple-400/30">
-                    <p className="text-lg font-bold text-purple-300">"{agent.catchphrase}"</p>
+                  <div className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full border border-purple-400/30" aria-label="Agent Catchphrase">
+                    <p className="text-lg font-bold text-purple-300">“{agent.catchphrase}” <span className="ml-2 text-fuchsia-300 animate-pulse">✨</span></p>
                   </div>
                 )}
               </div>
@@ -73,9 +73,10 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Powers Section */}
             {agent.powers && agent.powers.length > 0 && (
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <span className="text-3xl">⚡</span> Superpowers
+              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-fuchsia-400/30">
+                <h3 className="text-2xl font-bold text-fuchsia-300 mb-4 flex items-center gap-2" aria-label="Superpowers Section">
+                  <span className="text-3xl">⚡</span> <span className="uppercase tracking-wider">Superpowers</span>
+                  <span className="ml-2 px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-200 text-xs font-bold shadow-[0_0_10px_#e879f9]" title="Certified Cosmic Ability">COSMIC BADGE</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {agent.powers.map((power, index) => (
@@ -84,10 +85,10 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-3 p-3 bg-purple-900/20 rounded-lg border border-purple-500/20"
+                      className="flex items-center gap-3 p-3 bg-fuchsia-900/20 rounded-lg border border-fuchsia-500/20 shadow-[0_0_10px_#e879f9]"
                     >
-                      <span className="text-purple-400 text-xl">💫</span>
-                      <span className="text-gray-300">{power}</span>
+                      <span className="text-fuchsia-400 text-xl" aria-hidden="true">💫</span>
+                      <span className="text-gray-100 font-semibold" aria-label={`Superpower: ${power}`}>{power} <span className="ml-1 text-fuchsia-300">★</span></span>
                     </motion.div>
                   ))}
                 </div>
@@ -96,13 +97,13 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Backstory */}
             {agent.backstory && (
-              <div className="mb-8">
-                <h3 className="text-2xl font-bold text-purple-300 mb-4 flex items-center gap-2">
-                  <span className="text-3xl">📖</span> Origin Story
+              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-cyan-400/30">
+                <h3 className="text-2xl font-bold text-cyan-300 mb-4 flex items-center gap-2" aria-label="Origin Story Section">
+                  <span className="text-3xl">📖</span> <span className="uppercase tracking-wider">Origin Story</span>
                 </h3>
                 <div className="p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20">
-                  <p className="text-gray-300 leading-relaxed text-lg">
-                    {agent.backstory}
+                  <p className="text-gray-300 leading-relaxed text-lg" aria-label="Agent Backstory">
+                    {agent.backstory ? `${agent.backstory} 🌌` : 'Every hero has a story written in the stars. This one is still unfolding!'}
                   </p>
                 </div>
               </div>
@@ -112,8 +113,8 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             <div className="grid md:grid-cols-2 gap-6">
               {agent.weakness && (
                 <div className="p-4 bg-red-900/20 rounded-xl border border-red-500/20">
-                  <h4 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2">
-                    <span className="text-2xl">🔻</span> Weakness
+                  <h4 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2" aria-label="Weakness">
+                    <span className="text-2xl">🔻</span> Kryptonite
                   </h4>
                   <p className="text-gray-300">{agent.weakness}</p>
                 </div>
@@ -121,8 +122,8 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
               {agent.nemesis && (
                 <div className="p-4 bg-orange-900/20 rounded-xl border border-orange-500/20">
-                  <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2">
-                    <span className="text-2xl">👿</span> Nemesis
+                  <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2" aria-label="Nemesis">
+                    <span className="text-2xl">👿</span> Arch-Nemesis
                   </h4>
                   <p className="text-gray-300">{agent.nemesis}</p>
                 </div>
@@ -133,9 +134,10 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             <div className="mt-8 text-center">
               <button
                 onClick={onClose}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-fuchsia-400/40"
+                aria-label="Close and return to main agent grid"
               >
-                Return to Mission Control
+                🚀 Return to Mission Control
               </button>
             </div>
           </motion.div>
