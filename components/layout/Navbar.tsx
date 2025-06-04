@@ -52,7 +52,7 @@ export default function Navbar() {
                   tabIndex={0}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
                 >
-                  Agents
+                  Services Offered
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>

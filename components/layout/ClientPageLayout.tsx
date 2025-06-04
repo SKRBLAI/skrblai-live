@@ -3,6 +3,7 @@ import React, { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import TrialButton from '@/components/ui/TrialButton';
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -37,6 +38,12 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
               >
                 {title}
               </motion.h1>
+            )}
+            {/* 7-Day Trial Button — show on all pages except homepage */}
+            {pathname !== "/" && (
+              <div className="flex justify-center mb-8">
+                <TrialButton />
+              </div>
             )}
             <AnimatePresence mode="wait" initial={false}>
               <motion.div

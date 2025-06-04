@@ -5,6 +5,7 @@ import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
 import AgentModal from './AgentModal';
+import LockOverlay from '@/components/ui/LockOverlay';
 
 const GLOW_COLOR = '0 0 16px 2px rgba(0, 245, 212, 0.4), 0 0 40px 4px rgba(0, 102, 255, 0.2)';
 const HOVER_GLOW = '0 0 24px 4px rgba(0, 245, 212, 0.6), 0 0 60px 8px rgba(0, 102, 255, 0.3)';
@@ -222,37 +223,31 @@ const AgentCard: React.FC<AgentCardProps> = ({
   return (
     <>
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
-      <motion.article
-        ref={cardRef}
-        onPointerMove={handlePointerMove}
-        onPointerLeave={handlePointerLeave}
-        className={`relative group cursor-pointer select-none cosmic-card ${className}`}
-        variants={cardVariants}
+      <motion.div
+        className="absolute left-1/2 -top-12 -translate-x-1/2 z-20"
+        variants={avatarVariants}
         initial="initial"
         animate="animate"
         whileHover="hover"
-        whileTap="tap"
-        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-        tabIndex={0}
-        onClick={handleCardClick}
-        aria-label={agent.name}
       >
-        {/* Avatar Floating Above Card */}
-        <motion.div
-          className="absolute left-1/2 -top-12 -translate-x-1/2 z-20"
-          variants={avatarVariants}
-          initial="initial"
-          animate="animate"
-          whileHover="hover"
-        >
-          <div className="relative group/avatar">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-            {/* PNG Avatar with fallback */}
-            <div className="w-28 h-28 rounded-full object-contain cosmic-glass cosmic-glow border-2 border-[#30D5C8] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
-              {imgSrc && (
-                <img
-                  src={imgSrc}
-                  alt={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
+        <div className="relative group/avatar">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
+          {/* PNG Avatar with fallback */}
+          <div className="w-28 h-28 rounded-full object-contain cosmic-glass cosmic-glow border-2 border-[#30D5C8] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
+            {imgSrc && (
+              <img
+                src={imgSrc}
+                alt={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
+                aria-label={agent.name}
+                title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
+                className="object-contain w-28 h-28 rounded-full mx-auto mb-2"
+                onError={() => {
+                  if (imgSrc !== '') {
+                    setImgSrc('');
+                    setUsedFallback(true);
+                    if (process.env.NODE_ENV === 'development') {
+                      // eslint-disable-next-line no-console
+                      console.warn(`AgentCard: PNG not found for ${agent.name} (${avatarSrc}), falling back to emoji`);
                   aria-label={agent.name}
                   title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
                   className="object-contain w-28 h-28 rounded-full mx-auto mb-2"

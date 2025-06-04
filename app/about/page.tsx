@@ -30,14 +30,12 @@ export default function AboutPage(): JSX.Element {
   return (
     <PageLayout>
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-        <div className="relative min-h-screen w-full overflow-x-hidden">
-          <FloatingParticles />
-          <div className="flex flex-col items-center justify-center min-h-[80vh] w-full px-4 md:px-8 lg:px-12">
-            <div className="flex flex-col items-center mb-10">
-              <BrandLogo className="skrblai-heading text-center mb-2" />
-              <span className="text-lg text-[#30D5C8] mb-4">Building the future of AI-powered automation</span>
+        <section className="text-white py-24 px-6 relative overflow-hidden">
+          <div className="text-center mb-12">
+            <div className="flex flex-col items-center">
+              <BrandLogo className="skrblai-heading text-center mb-8 scale-125" animate />
+              <h2 className="text-2xl md:text-3xl font-bold text-cyan-300 mb-4">Building the future of AI-powered automation</h2>
             </div>
-            {/* Purpose, Vision, Why Percy — floating cards */}
             <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
               {sections.map((section, index) => (
                 <motion.div

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
+import PercyAvatar from '@/components/ui/PercyAvatar';
 import { ChatBubble } from '@/components/ui';
 import { routeToAgentFromIntent } from '@/ai-agents/percySyncAgent';
 
@@ -124,20 +125,20 @@ export default function PercyAssistant() {
       className="w-full max-w-4xl mx-auto px-4 py-8 relative"
     >
       <div className="text-center mb-8">
-        <motion.div
-          className="relative w-24 h-24 mx-auto mb-6"
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <Image
-            src="/images/agents-percy-nobg-skrblai.png"
-            alt="Percy AI Assistant"
-            fill
-            className="object-contain"
-            priority
-          />
-        </motion.div>
-      </div>
+        <div className="flex flex-col items-center mb-6">
+          <PercyAvatar isThinking={isLoading} />
+          {isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-electric-blue text-sm font-semibold mt-2 animate-pulse"
+              aria-live="polite"
+            >
+              Percy is typing...
+            </motion.div>
+          )}
+        </div>
 
       <div className="mb-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
         {messages.map((msg) => (

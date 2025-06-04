@@ -64,20 +64,18 @@ export default function PricingPage() {
       <PageLayout>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
           <div className="relative min-h-screen overflow-hidden">
-  <FloatingParticles />
-  <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
-    <div className="text-center mb-16">
-                <BrandLogo className="skrblai-heading text-center mb-8" animate />
-                <motion.p 
-                  className="text-lg text-[#30D5C8]"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Whether you're starting out or scaling up, SKRBL AI has a plan for you.
-                </motion.p>
-              </div>
-
+            <FloatingParticles />
+            <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
+              {/* Centered BrandLogo replacing any blurry text */}
+              <BrandLogo className="skrblai-heading text-center mb-8 scale-125" animate />
+              <motion.p 
+                className="text-lg text-[#30D5C8]"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                Whether you're starting out or scaling up, SKRBL AI has a plan for you.
+              </motion.p>
               <div className="flex flex-col md:flex-row gap-12 md:gap-16 justify-center items-stretch mt-16">
                 <PricingCard
                   title="Free"

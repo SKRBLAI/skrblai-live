@@ -50,7 +50,7 @@ export default function ServicesPage(): JSX.Element {
             </p>
             <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4 px-4">
               <motion.div
-                className="w-full"
+                className="w-full md:w-auto"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}>

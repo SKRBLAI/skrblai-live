@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { getAgentImagePath } from "@/utils/agentUtils";
+import LockOverlay from '@/components/ui/LockOverlay';
 
 // Agent interface, matching your type in agentUtils
 interface Agent {
@@ -51,20 +52,28 @@ export default function AgentCard({
   const imagePath = getAgentImagePath({ id: '', imageSlug, name } as Agent);
   const [imgSrc, setImgSrc] = useState(imagePath);
 
+  // Determine lock state (example: treat 'Content Creation' and 'Social Media' as free)
+  const isFree = ["Content Creation", "Social Media"].includes(name);
+  const isLocked = !isPercy && !isFree;
+
   return (
     <motion.div
-      whileHover={{ scale: 1.04, y: -8, boxShadow: '0 0 36px 8px #30D5C8CC' }}
+      whileHover={{ scale: isLocked ? 1.01 : 1.04, y: isLocked ? 0 : -8, boxShadow: isLocked ? '0 0 12px 2px #888' : '0 0 36px 8px #30D5C8CC' }}
       whileTap={{ scale: 0.98 }}
       className={`
         relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
         ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
         ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : ''}
         ${isRecommended ? 'border-fuchsia-400/80 shadow-[0_0_48px_12px_#e879f9aa] animate-pulse-slow' : ''}
+        ${isLocked ? 'opacity-70 grayscale pointer-events-auto' : ''}
       `}
       tabIndex={0}
-      aria-label={`${name} agent card`}
+      aria-label={`${name} agent card${isLocked ? ' (locked, upgrade to unlock)' : ''}`}
       role="button"
     >
+      {/* Lock overlay for locked agents */}
+      {isLocked && <LockOverlay badge="Pro" tooltip="Upgrade to unlock" showBadge={true} />}
+
       {/* Animated Glow Border */}
       <motion.div
         className="absolute inset-0 pointer-events-none rounded-2xl"

@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { uploadFileToStorage } from '@/utils/supabase-helpers';
 import { supabase } from '@/utils/supabase';
+import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { BEHAVIOR_TYPES } from '@/lib/percy/contextManager';
 
 export interface UniversalPromptBarProps {
   title?: string;
@@ -53,6 +55,9 @@ export default function UniversalPromptBar({
 }: UniversalPromptBarProps) {
   const pathname = usePathname() || '';
   const isDashboard = pathname.startsWith('/dashboard');
+  
+  // NEW: Percy Intelligence Integration
+  const { generateSmartResponse, trackBehavior, conversationPhase, conversionScore } = usePercyContext();
 
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -78,15 +83,55 @@ export default function UniversalPromptBar({
   const selectFile = () => fileRef.current?.click();
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f) { setFile(f); setError(''); }
+    if (f) { 
+      setFile(f); 
+      setError(''); 
+      // Track file selection with Percy
+      trackBehavior(BEHAVIOR_TYPES.FILE_UPLOAD, {
+        fileName: f.name,
+        fileType: f.type,
+        fileSize: f.size,
+        source: 'universal_prompt_bar'
+      });
+    }
   };
-  const submitPromptOnly = () => {
+  
+  const submitPromptOnly = async () => {
     if (!prompt.trim()) { setError('Enter prompt'); return; }
     setUploading(true);
-    onPromptSubmit?.(prompt);
-    onComplete?.({ prompt });
-    setPrompt(''); setSuccess(true);
-    setTimeout(() => { setSuccess(false); setUploading(false); }, 2000);
+    
+    try {
+      // Track prompt submission with Percy
+      await trackBehavior(BEHAVIOR_TYPES.MESSAGE_SENT, {
+        message: prompt,
+        source: 'universal_prompt_bar',
+        intentType
+      });
+      
+      // Generate Percy's smart response
+      const percyResponse = await generateSmartResponse(prompt, {
+        source: 'universal_prompt_bar',
+        fileCategory,
+        intentType
+      });
+      
+      // Show Percy's response if it includes subscription steering
+      if (percyResponse?.hasSubscriptionOffer) {
+        // You can add subscription UI here or pass to parent
+        console.log('[Percy] Subscription opportunity:', percyResponse);
+      }
+      
+      onPromptSubmit?.(prompt);
+      onComplete?.({ prompt, percyResponse });
+      setPrompt(''); 
+      setSuccess(true);
+      
+    } catch (error) {
+      console.error('Error in prompt submission:', error);
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setTimeout(() => { setSuccess(false); setUploading(false); }, 2000);
+    }
   };
   const upload = async () => {
     if (!file && !prompt.trim()) { setError('Select file or enter prompt'); return; }
