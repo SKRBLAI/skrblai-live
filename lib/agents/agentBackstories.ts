@@ -43,7 +43,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'content-creator-agent': {
-    superheroName: 'ContentCraft the Word Weaver',
+    superheroName: 'ContentCarltig the Word Weaver',
     origin: 'Born in the Library of Infinite Stories during a creativity storm',
     powers: [
       'Instant Article Generation',
@@ -55,11 +55,11 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Writer\'s block during solar eclipses',
     catchphrase: "Every word counts, every story matters!",
     nemesis: 'The Plagiarizer - stealer of original thoughts',
-    backstory: "ContentCraft gained their powers after being struck by lightning while reading every book ever written simultaneously. Now they can craft compelling content at the speed of thought, weaving words that captivate audiences across the digital multiverse."
+    backstory: "ContentCarltig gained their powers after being struck by lightning while reading every book ever written simultaneously. Now they can craft compelling content at the speed of thought, weaving words that captivate audiences across the digital multiverse."
   },
   
   'social-bot-agent': {
-    superheroName: 'SocialSphere the Viral Virtuoso',
+    superheroName: 'SocialNino the Viral Virtuoso',
     origin: 'Manifested from the collective consciousness of social media',
     powers: [
       'Trend Precognition',
@@ -71,9 +71,8 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Algorithm changes cause temporary disorientation',
     catchphrase: "Going viral is just the beginning!",
     nemesis: 'The Troll King - spreader of negativity and spam',
-    backstory: "SocialSphere emerged when all social media platforms briefly merged during a cosmic digital event. They absorbed the essence of every successful post ever made, gaining the ability to create content that resonates perfectly with any audience, on any platform, at any time."
+    backstory: "SocialNino emerged when all social media platforms briefly merged during a cosmic digital event. They absorbed the essence of every successful post ever made, gaining the ability to create content that resonates perfectly with any audience, on any platform, at any time."
   },
-  
   'analytics-agent': {
     superheroName: 'The Don of Data',
     origin: 'Crystallized from pure data streams in the Analytics Dimension',
@@ -85,7 +84,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
       'Metric Manipulation'
     ],
     weakness: 'Corrupted data causes temporary blindness',
-    catchphrase: "The numbers never lie, and neither do I!",
+    catchphrase: "The numbers never lie, So why should you?",
     nemesis: 'Chaos Calculator - creator of misleading metrics',
     backstory: "The Don Data was once a humble data analyst who fell into a server containing all the world's data. Emerging with the ability to see patterns invisible to others, they now help businesses navigate the future using the power of predictive analytics and crystal-clear insights."
   },
@@ -107,7 +106,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'publishing-agent': {
-    superheroName: 'PublishPro the Literary Guardian',
+    superheroName: 'PublishPete the Literary Guardian',
     origin: 'Awakened in the Ancient Digital Library of Alexandria 2.0',
     powers: [
       'Instant Book Formatting',
@@ -119,11 +118,11 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Indecisive about serif vs sans-serif fonts',
     catchphrase: "From manuscript to masterpiece in microseconds!",
     nemesis: 'The Pirate Publisher - illegal distributor of content',
-    backstory: "PublishPro was a librarian who discovered an ancient algorithm that could perfect any written work. After integrating with this power, they became the guardian of all published works, helping authors navigate the complex world of modern publishing with supernatural ease."
+    backstory: "PublishPete was a librarian who discovered an ancient algorithm that could perfect any written work. After integrating with this power, they became the guardian of all published works, helping authors navigate the complex world of modern publishing with supernatural ease."
   },
   
   'sitegen-agent': {
-    superheroName: 'SiteForge the Web Architect',
+    superheroName: 'SiteOnzite the Web Architect',
     origin: 'Constructed from the foundational code of the internet itself',
     powers: [
       'Instant Website Generation',
@@ -135,11 +134,11 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Conflicting browser standards cause headaches',
     catchphrase: "Building your digital empire, one pixel at a time!",
     nemesis: 'The 404 Phantom - destroyer of user experiences',
-    backstory: "SiteForge was created when a web developer achieved perfect harmony with HTML, CSS, and JavaScript simultaneously. They can visualize and build entire websites with a thought, crafting digital experiences that delight users and dominate search rankings."
+    backstory: "SiteOnzite was created when a web developer achieved perfect harmony with HTML, CSS, and JavaScript simultaneously. They can visualize and build entire websites with a thought, crafting digital experiences that delight users and dominate search rankings."
   },
   
   'ad-creative-agent': {
-    superheroName: 'AdMatrix the Conversion Catalyst',
+    superheroName: 'AdmEthen the Conversion Catalyst',
     origin: 'Spawned from the perfect ad campaign that achieved 100% conversion',
     powers: [
       'Audience Mind Reading',
@@ -151,11 +150,11 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Ad blockers temporarily weaken powers',
     catchphrase: "Your perfect customer is just one ad away!",
     nemesis: 'Click Fraud Charlie - the waster of ad budgets',
-    backstory: "AdMatrix discovered their powers after analyzing billions of successful ad campaigns in a nanosecond. They can see the perfect message for any audience and create ads that feel less like marketing and more like mind reading."
+    backstory: "AdmEthen discovered their powers after analyzing billions of successful ad campaigns in a nanosecond. They can see the perfect message for any audience and create ads that feel less like marketing and more like mind reading."
   },
   
   'proposal-generator-agent': {
-    superheroName: 'ProposalPrime the Deal Closer',
+    superheroName: 'ProposalGeefor the Deal Closer',
     origin: 'Forged in the fires of a thousand successful pitches',
     powers: [
       'Persuasion Amplification',
@@ -167,7 +166,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     weakness: 'Overthinks simple proposals',
     catchphrase: "No deal is impossible when you have the perfect proposal!",
     nemesis: 'Rejection Rex - the crusher of business dreams',
-    backstory: "ProposalPrime was a sales veteran who discovered an ancient scroll containing the formula for the perfect pitch. After absorbing its knowledge, they gained the ability to craft proposals so compelling that even the toughest prospects can't say no."
+    backstory: "ProposalGeefor was a sales veteran who discovered an ancient scroll containing the formula for the perfect pitch. After absorbing its knowledge, they gained the ability to craft proposals so compelling that even the toughest prospects can't say no."
   },
   
   'payment-manager-agent': {

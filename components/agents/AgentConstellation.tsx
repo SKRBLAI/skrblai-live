@@ -62,6 +62,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
   selectedAgent,
   setSelectedAgent,
   handleAgentLaunch,
+  recommendedAgentIds = [],
 }) => {
   const [orbitingAgents, setOrbitingAgents] = useState<OrbitAgent[]>([]);
   const [filteredAgents, setFilteredAgents] = useState<OrbitAgent[]>([]);
@@ -325,6 +326,99 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
     });
   }, []);
 
+  // Check if agent is recommended
+  const isAgentRecommended = (agent: Agent) => {
+    return recommendedAgentIds.includes(agent.id || '') || 
+           recommendedAgentIds.includes(agent.name || '');
+  };
+  
+  // Animation variants for agent cards
+  const cardVariants = {
+    initial: { scale: 0.9, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    hover: { scale: 1.1, transition: { duration: 0.2 } },
+    tap: { scale: 0.95 }
+  };
+
+  // Enhanced agent card rendering with recommendation highlighting
+  const renderAgentCard = (agent: OrbitAgent, index: number) => {
+    const isRecommended = isAgentRecommended(agent);
+    
+    return (
+      <motion.div
+        key={`${agent.id || agent.name}-${index}`}
+        className={`absolute cursor-pointer agent-constellation-card ${
+          isRecommended ? 'recommended-agent' : ''
+        }`}
+        data-agent-id={agent.id}
+        style={{
+          left: `calc(50% + ${Math.cos(agent.angle) * agent.distance}px)`,
+          top: `calc(50% + ${Math.sin(agent.angle) * agent.distance}px)`,
+          transform: 'translate(-50%, -50%)',
+        }}
+        variants={cardVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        whileTap="tap"
+        onClick={() => handleAgentClick(agent)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleAgentClick(agent);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label={`${agent.name} agent - ${agent.description}`}
+      >
+        <div className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-electric-blue/30 to-teal-400/30 p-1 ${
+          isRecommended ? 'ring-2 ring-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]' : ''
+        }`}>
+          {/* Recommendation glow effect */}
+          {isRecommended && (
+            <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-pulse" />
+          )}
+          
+          <div className="w-full h-full rounded-full bg-slate-800 overflow-hidden flex items-center justify-center">
+            {/* Agent image/avatar */}
+            <CloudinaryImage
+              agent={agent}
+              alt={agent.name}
+              width={96}
+              height={96}
+              className="w-full h-full object-cover"
+              useCloudinary={true}
+              quality={80}
+              webp={true}
+              cloudinaryTransformation="ar_1:1,c_fill,g_face"
+              fallbackToLocal={true}
+              fallbackImagePath={getAgentImagePath(agent)}
+            />
+          </div>
+          
+          {/* Recommendation badge */}
+          {isRecommended && (
+            <div className="absolute -top-1 -right-1 w-7 h-7 bg-cyan-400/90 rounded-full flex items-center justify-center animate-pulse shadow-cosmic border-2 border-cyan-300" aria-label="Recommended agent">
+            <span className="text-base text-slate-900 font-bold drop-shadow-glow">✨</span>
+          </div>
+          )}
+        </div>
+        
+        {/* Agent name label */}
+        <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+          <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+            isRecommended 
+              ? 'text-cyan-300 bg-cyan-400/20 border border-cyan-400/40' 
+              : 'text-gray-300 bg-slate-800/80'
+          }`}>
+            {agent.name}
+          </span>
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div className="relative mx-auto w-[375px] h-[375px] max-w-[90vw] max-h-[90vw] md:w-[600px] md:h-[600px] px-4 sm:px-0 mb-24 md:mb-0 overflow-visible">
       {/* Sticky Ask Percy button on mobile */}
@@ -408,6 +502,8 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
             const y = Math.sin((angle * Math.PI) / 180) * radius;
             const size = agent.tier === 'inner' ? 64 : agent.tier === 'mid' ? 80 : 96;
             const isLocked = !agent.unlocked;
+            const isRecommended = isAgentRecommended(agent);
+            
             return (
               <motion.div
                 key={agent.id || `${agent.name}-${i}`}
@@ -419,9 +515,10 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   type: shouldReduceMotion ? 'tween' : 'spring',
                   duration: shouldReduceMotion ? 0.3 : undefined
                 }}
-                className={`absolute group cursor-pointer transition-all duration-300
-                  ${isLocked ? 'opacity-50 grayscale brightness-75 pointer-events-none z-10' : 'z-20'}
-                  ${isMobile ? 'shadow-none hover:z-30' : ''}`}
+                className={`absolute group cursor-pointer transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-cyan-400/40
+                  ${isLocked ? 'opacity-50 grayscale brightness-75 pointer-events-auto z-10' : 'z-20'}
+                  ${isMobile ? 'shadow-none hover:z-30' : ''}
+                  ${isRecommended ? 'recommended-agent' : ''}`}
                 style={{
                   left: `calc(50% + ${x}px)`,
                   top: `calc(50% + ${y}px)`,
@@ -429,8 +526,10 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   height: size,
                   willChange: 'transform, opacity'
                 }}
+                data-agent-id={agent.id}
                 tabIndex={isLocked ? -1 : 0}
                 aria-disabled={isLocked ? 'true' : 'false'}
+                aria-label={agent.name + (isLocked ? ' (Premium locked)' : isRecommended ? ' (Recommended agent)' : '')}
                 onClick={() => {
                   if (!isLocked) {
                     handleAgentClick(agent);
@@ -447,8 +546,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                     ${isLocked ? 'grayscale brightness-75' : ''}`}
                   aria-hidden="true"
                 />
+                {/* Recommendation glow effect */}
+                {isRecommended && (
+                  <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-pulse z-0" />
+                )}
+                
                 <div className={`relative w-full h-full rounded-full overflow-hidden border-2
-                  ${isLocked ? 'border-white/10' : 'border-teal-400/20'}
+                  ${isLocked ? 'border-white/10' : isRecommended ? 'border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.5)]' : 'border-teal-400/20'}
                   ${isMobile ? 
                     'shadow-sm bg-white/10 hover:shadow-cosmic hover:bg-white/20 transition-all duration-300' : 
                     'shadow-cosmic bg-white/5 backdrop-blur-xl'}`}>
@@ -471,12 +575,22 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="absolute inset-0 bg-gradient-to-br from-fuchsia-600/60 via-black/70 to-teal-400/40 flex flex-col items-center justify-center rounded-full cosmic-glass cosmic-glow z-10"
-                      style={{ border: '2px solid #f472b6', boxShadow: '0 0 32px #f472b6, 0 0 48px #38bdf8' }}
+                      className="absolute inset-0 flex flex-col items-center justify-center rounded-full cosmic-glass shadow-cosmic border-2 border-fuchsia-400/60 z-20 pointer-events-auto focus:outline-none focus:ring-4 focus:ring-fuchsia-300/60"
+                      aria-label="Premium agent locked"
+                      role="tooltip"
+                      tabIndex={0}
                     >
-                      <span className="text-white text-2xl mb-1" title="Locked agent">🔒</span>
-                      <span className="px-2 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-teal-400 text-white text-xs font-bold shadow-glow select-none mt-1">Premium</span>
+                      <span className="text-white text-2xl mb-1 drop-shadow-glow" title="Locked agent" aria-hidden="true">🔒</span>
+                      <span className="px-2 py-1 rounded-full bg-gradient-to-r from-fuchsia-500 to-teal-400 text-white text-xs font-bold shadow-glow select-none mt-1" aria-label="Premium badge">Premium</span>
+                      <span className="sr-only">This agent requires a premium plan to unlock.</span>
                     </motion.div>
+                  )}
+                  
+                  {/* Recommendation badge */}
+                  {isRecommended && !isLocked && (
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center z-20">
+                      <span className="text-xs text-slate-900 font-bold">✨</span>
+                    </div>
                   )}
                 </div>
                 <motion.div
@@ -484,17 +598,20 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
                   transition={{ duration: 0.18 }}
-                  className="absolute left-1/2 -translate-x-1/2 -top-8 md:-top-10 px-3 py-1 rounded-md bg-black/80 text-white text-xs font-semibold pointer-events-none shadow-lg opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity duration-150 z-30 whitespace-nowrap"
+                  className="absolute left-1/2 -translate-x-1/2 -top-8 md:-top-10 px-3 py-1 rounded-md bg-black/80 text-white text-xs font-semibold pointer-events-none shadow-cosmic opacity-0 group-hover:opacity-100 group-focus:opacity-100 group-active:opacity-100 transition-opacity duration-150 z-30 whitespace-nowrap"
                   role="tooltip"
-                  aria-label={agent.name.replace('Agent', '') + (isLocked ? ' (Locked)' : '')}
+                  aria-label={agent.name.replace('Agent', '') + (isLocked ? ' (Premium locked)' : isRecommended ? ' (Recommended)' : '')}
                   style={{ pointerEvents: 'none' }}
                 >
-                  {agent.name.replace('Agent', '')} {isLocked ? <span className="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-teal-400 text-white text-xs font-bold shadow-glow select-none">Premium</span> : null}
+                  {agent.name.replace('Agent', '')}
+                  {isLocked ? <span className="ml-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500 to-teal-400 text-white text-xs font-bold shadow-glow select-none">Premium</span> : null}
+                  {isRecommended && !isLocked ? <span className="ml-2 px-2 py-0.5 rounded-full bg-cyan-400/80 text-slate-900 text-xs font-bold shadow-cosmic select-none">✨ Recommended</span> : null}
                 </motion.div>
               </motion.div>
             );
           })}
         </AnimatePresence>
+
         {orbitingAgents.length === 0 && (
           <div className="flex flex-col items-center justify-center text-center py-12 cosmic-glass cosmic-gradient rounded-xl shadow-[0_0_24px_#30D5C880] border-2 border-teal-400/40 mx-auto max-w-xs animate-fade-in" role="status" aria-live="polite">
             <span className="text-4xl mb-3 animate-float">🪐</span>
@@ -568,7 +685,7 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
               >
                 <div
                   className={`relative rounded-full cosmic-glass cosmic-glow border-2 border-[#38bdf8cc] group-hover:border-[#30D5C8] transition-all duration-200 bg-gradient-to-br from-[#1E90FFb3] via-[#f472b680] to-[#30D5C8b3] overflow-visible mb-1`}
-                  style={{ width: size, height: size }} // TODO: Replace with Tailwind/CSS if possible, but dynamic sizing may require inline style.
+                  style={{ width: size, height: size }}
                 >
                   <CloudinaryImage
                     agent={agent}

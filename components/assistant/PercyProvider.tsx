@@ -44,6 +44,10 @@ interface PercyContextType {
   getFilteredAgents: () => Promise<any[]>;
   conversionScore: number;
   subscriptionRecommendation: any;
+  
+  // NEW: Onboarding state tracking
+  isOnboardingActive: boolean;
+  setIsOnboardingActive: (active: boolean) => void;
 }
 
 export const PercyContext = createContext<PercyContextType | undefined>(undefined);
@@ -56,6 +60,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const [workflowSession, setWorkflowSession] = useState<WorkflowSessionType>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [percyIntent, setPercyIntent] = useState('');
+  const [isOnboardingActive, setIsOnboardingActive] = useState(false);
   const router = useRouter();
 
   // NEW: Enhanced Percy Intelligence State
@@ -293,7 +298,11 @@ export function PercyProvider({ children }: { children: ReactNode }) {
     trackBehavior: trackBehaviorEnhanced,
     getFilteredAgents: getFilteredAgentsEnhanced,
     conversionScore,
-    subscriptionRecommendation
+    subscriptionRecommendation,
+    
+    // NEW: Onboarding state tracking
+    isOnboardingActive,
+    setIsOnboardingActive,
   };
 
   return <PercyContext.Provider value={value}>{children}</PercyContext.Provider>;

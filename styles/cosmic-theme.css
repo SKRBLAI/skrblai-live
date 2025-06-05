@@ -209,3 +209,65 @@
   border-radius: inherit;
   background: linear-gradient(135deg, #1E90FF, #30D5C8);
 }
+
+/* Percy Recommendation Highlighting */
+.recommended-agent {
+  @apply ring-2 ring-cyan-400 ring-opacity-60;
+  animation: recommendation-pulse 2s ease-in-out infinite;
+}
+
+.recommended-glow {
+  @apply ring-2 ring-cyan-400 ring-opacity-80;
+  box-shadow: 
+    0 0 20px rgba(34, 211, 238, 0.5),
+    0 0 40px rgba(34, 211, 238, 0.3),
+    inset 0 0 20px rgba(34, 211, 238, 0.1);
+  animation: recommendation-glow 3s ease-in-out infinite;
+}
+
+@keyframes recommendation-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+@keyframes recommendation-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(34, 211, 238, 0.5),
+      0 0 40px rgba(34, 211, 238, 0.3),
+      inset 0 0 20px rgba(34, 211, 238, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(34, 211, 238, 0.8),
+      0 0 60px rgba(34, 211, 238, 0.5),
+      inset 0 0 30px rgba(34, 211, 238, 0.2);
+  }
+}
+
+/* Percy Onboarding States */
+.percy-onboarding-active .percy-widget {
+  display: none !important;
+}
+
+/* Agent highlighting animation for Percy recommendations */
+.agent-constellation-card.recommended-agent {
+  animation: gentle-recommend-glow 4s ease-in-out infinite;
+}
+
+@keyframes gentle-recommend-glow {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    transform: scale(1.02);
+    filter: brightness(1.1) saturate(1.2);
+  }
+}

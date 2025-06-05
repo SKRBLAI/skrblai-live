@@ -68,7 +68,7 @@ function PercyWidget() {
   const routerResult = usePercyRouter();
   const [open, setOpen] = useState(false);
   const [lastUsedIntent, setLastUsedIntent] = useState<string>('');
-  const { setPercyIntent, closePercy } = usePercyContext();
+  const { setPercyIntent, closePercy, isOnboardingActive } = usePercyContext();
   const pathname = usePathname();
   const { agents } = useApiAgents();
 
@@ -132,6 +132,9 @@ function PercyWidget() {
     setPercyIntent('');
     // eslint-disable-next-line
   }, [pathname, setPercyIntent]);
+
+  // Hide widget on homepage when main onboarding is active
+  const shouldHideWidget = pathname === '/' && isOnboardingActive;
 
   if (!routerResult) {
     if (process.env.NODE_ENV === 'development') {
@@ -327,6 +330,11 @@ function PercyWidget() {
   };
 
   const lastUsedAgentObj = lastUsedAgent ? agents.find(a => a.intent === lastUsedAgent || a.id === lastUsedAgent) : null;
+
+  // Don't render if should be hidden
+  if (shouldHideWidget) {
+    return null;
+  }
 
   return (
     <>

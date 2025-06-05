@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from 'next/image';
+import PercyAvatar from '../ui/PercyAvatar';
+import UniversalPromptBar from '../ui/UniversalPromptBar';
 import AgentConstellation from "../agents/AgentConstellation";
 import AgentCarousel from "../agents/AgentCarousel";
 import type { Agent } from '@/types/agent';
@@ -22,6 +23,14 @@ import FloatingParticles from '@/components/ui/FloatingParticles';
 const visibleAgents = agentDashboardList.filter(
   a => a.visible !== false && a.id && a.name && a.id !== 'percy-agent'
 );
+
+// Cosmic quick-select goals for onboarding
+const percyGoals = [
+  { text: "Generate more leads & customers", emoji: "🎯", category: "marketing" },
+  { text: "Create better content faster", emoji: "✍️", category: "content" },
+  { text: "Automate repetitive tasks", emoji: "⚡", category: "automation" },
+  { text: "Build my personal brand", emoji: "🌟", category: "branding" },
+];
 
 export default function PercyHero() {
   const router = useRouter();
@@ -384,260 +393,193 @@ export default function PercyHero() {
       <div className="absolute inset-0 opacity-40 pointer-events-none">
         <FloatingParticles particleCount={32} />
       </div>
-      
-      {/* Main Content Container */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        
-        {/* Enhanced Hero Section */}
-        <div className="text-center mb-8 max-w-4xl mx-auto">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 leading-tight text-glow"
-          >
-            Meet{" "}
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent text-glow-strong">
-              Percy
-            </span>
-            , Your AI Concierge
-          </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl sm:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
-          >
-            I'm here to guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations from someone who knows AI inside and out.
-          </motion.p>
 
-          {/* Enhanced Action Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-4 mb-12"
-          >
-            <button
-              onClick={handleGetStarted}
-              className="px-8 py-4 cosmic-btn-primary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
-            >
-              🤖 Talk to Percy
-            </button>
-            <button
-              onClick={handleExploreFeatures}
-              className="px-8 py-4 cosmic-btn-primary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
-            >
-              ✨ Explore Features
-            </button>
-            <button
-              onClick={handleSeeFeatures}
-              className="px-8 py-4 cosmic-btn-secondary text-white font-bold rounded-xl transition-all duration-300 transform hover:scale-105 cosmic-glow"
-            >
-              🎯 See What SKRBL AI Can Do
-            </button>
-          </motion.div>
-        </div>
-
-        {/* Enhanced Percy Avatar */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="relative mb-16"
-        >
-          <div className="relative">
-            <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1 shadow-2xl shadow-cyan-500/50">
-              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                <Image
-                  src="/images/agents-percy-nobg-skrblai.png"
-                  alt="Percy AI Concierge"
-                  width={192}
-                  height={192}
-                  className="w-full h-full object-cover rounded-full"
-                />
-              </div>
-            </div>
-            
-            {/* Calm, reassuring animations */}
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
-            <div className="absolute inset-0 rounded-full border border-blue-500/10 animate-ping"></div>
-            
-            {/* Thinking indicator */}
-            {isPercyThinking && (
-              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
-                <div className="bg-slate-800/90 backdrop-blur-lg px-6 py-3 rounded-full border border-cyan-400/30">
-                  <div className="flex items-center space-x-2">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce animation-delay-100"></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce animation-delay-200"></div>
-                    </div>
-                    <span className="text-cyan-400 text-sm font-medium ml-2">Percy is thinking...</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Popular Agents Preview */}
+      {/* Cosmic Percy Concierge Card */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[60vh] py-12 px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className="w-full max-w-6xl mx-auto"
+          transition={{ duration: 0.8 }}
+          className="cosmic-glass cosmic-gradient shadow-[0_0_32px_#1E90FF20] max-w-2xl w-full mx-auto rounded-3xl p-8 flex flex-col items-center mb-10"
         >
-          {/* Add testimonials here */}
-          <PercyTestimonials />
-          
-          <h3 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8 mt-12">
-            Popular AI Agents
-          </h3>
-          
-          <div className="relative">
-            <AgentCarousel
-              agents={visibleAgents.slice(0, 6)}
-              onLaunch={(agent) => {
-                setSelectedAgent(agent);
-              }}
-              showPremiumBadges={true}
-            />
-          </div>
-        </motion.div>
-      </div>
+          {/* Animated Percy Avatar */}
+          <PercyAvatar className="mb-4" isThinking={isPercyThinking} />
 
-      {/* Percy's Consultation Modal */}
-      <AnimatePresence>
-        {showIntake && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-4xl w-full border border-cyan-400/20 max-h-[90vh] overflow-y-auto"
-            >
-              <button
-                className="absolute top-4 right-4 text-gray-400 hover:text-cyan-400 text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/40 rounded-lg p-1 transition-all duration-200"
-                onClick={() => setShowIntake(false)}
-                aria-label="Close consultation"
+          {/* Microcopy Headline */}
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center mb-3">
+            Let’s make cosmic AI magic together!
+          </h1>
+          <p className="text-lg text-cyan-200 text-center mb-6 max-w-xl">
+            Percy is your AI concierge. Select a goal or upload your files to get started—no overwhelm, just cosmic clarity.
+          </p>
+
+          {/* Cosmic Goal Quick Select */}
+          <div className="flex flex-wrap justify-center gap-4 mb-6 w-full">
+            {percyGoals.map((goal, i) => (
+              <motion.button
+                key={goal.category}
+                whileHover={{ scale: 1.08, boxShadow: "0 0 16px #38bdf8" }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 px-5 py-3 rounded-xl cosmic-btn-primary cosmic-glow text-white font-semibold text-base focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-all duration-200"
+                aria-label={goal.text}
+                onClick={() => handlePercyResponse(goal)}
+                disabled={isPercyThinking}
               >
-                ×
-              </button>
-              
-              {!showLeadForm ? (
-                <>
-                  {/* Percy's Message */}
-                  {percyMessage && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="mb-6 p-4 bg-cyan-500/10 border border-cyan-400/20 rounded-xl"
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
-                          <span className="text-white text-sm font-bold">P</span>
-                        </div>
-                        <p className="text-cyan-300 text-sm leading-relaxed">{percyMessage}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                  
-                  {/* Conversation Interface */}
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <div className="mb-2">
-                        <span className="text-cyan-400 text-sm font-medium">
-                          {conversationSteps[conversationStep]?.greeting}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-white mb-2">
-                        {conversationSteps[conversationStep]?.question}
-                      </h3>
-                      <p className="text-gray-400 text-sm">
-                        {conversationSteps[conversationStep]?.subtext}
-                      </p>
-                    </div>
-                    
-                    {/* Response Options */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {conversationSteps[conversationStep]?.options.map((option, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handlePercyResponse(option)}
-                          disabled={isPercyThinking}
-                          className="p-4 bg-slate-700/50 hover:bg-slate-600/70 text-white rounded-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-300 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <span className="text-2xl">{option.emoji}</span>
-                            <span className="group-hover:text-cyan-400 transition-colors">
-                              {option.text}
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+                <span className="text-2xl">{goal.emoji}</span>
+                <span>{goal.text}</span>
+              </motion.button>
+            ))}
+          </div>
 
-                    {/* Progress Indicator */}
-                    <div className="flex justify-center mt-8">
-                      <div className="flex space-x-2">
-                        {conversationSteps.map((_, index) => (
-                          <div
+          {/* Universal Prompt Bar for File Upload/Prompt */}
+          <UniversalPromptBar
+            className="mt-2 w-full"
+            theme="dark"
+            placeholder="Describe your goal or upload a file (optional)"
+            buttonText="Start with Percy"
+            onPromptSubmit={(prompt) => handlePercyResponse({ text: prompt, category: "custom" })}
+            onComplete={({ prompt }) => setInputValue(prompt)}
+          />
+
+          {/* Percy thinking indicator (microcopy) */}
+          {isPercyThinking && (
+            <div className="mt-4 flex items-center justify-center w-full">
+              <span className="text-cyan-400 animate-pulse">Percy is thinking...</span>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Onboarding Modal and Recommendations (unchanged) */}
+        <AnimatePresence>
+          {showIntake && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-4xl w-full border border-cyan-400/20 max-h-[90vh] overflow-y-auto"
+              >
+                <button
+                  className="absolute top-4 right-4 text-gray-400 hover:text-cyan-400 text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/40 rounded-lg p-1 transition-all duration-200"
+                  onClick={() => setShowIntake(false)}
+                  aria-label="Close consultation"
+                >
+                  ×
+                </button>
+                
+                {!showLeadForm ? (
+                  <>
+                    {/* Percy's Message */}
+                    {percyMessage && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-6 p-4 bg-cyan-500/10 border border-cyan-400/20 rounded-xl"
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white text-sm font-bold">P</span>
+                          </div>
+                          <p className="text-cyan-300 text-sm leading-relaxed">{percyMessage}</p>
+                        </div>
+                      </motion.div>
+                    )}
+                    
+                    {/* Conversation Interface */}
+                    <div className="space-y-6">
+                      <div className="text-center">
+                        <div className="mb-2">
+                          <span className="text-cyan-400 text-sm font-medium">
+                            {conversationSteps[conversationStep]?.greeting}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-2">
+                          {conversationSteps[conversationStep]?.question}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                          {conversationSteps[conversationStep]?.subtext}
+                        </p>
+                      </div>
+                      
+                      {/* Response Options */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {conversationSteps[conversationStep]?.options.map((option, index) => (
+                          <button
                             key={index}
-                            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                              index <= conversationStep ? 'bg-cyan-400' : 'bg-slate-600'
-                            }`}
-                          />
+                            onClick={() => handlePercyResponse(option)}
+                            disabled={isPercyThinking}
+                            className="p-4 bg-slate-700/50 hover:bg-slate-600/70 text-white rounded-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-300 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <div className="flex items-center space-x-3">
+                              <span className="text-2xl">{option.emoji}</span>
+                              <span className="group-hover:text-cyan-400 transition-colors">
+                                {option.text}
+                              </span>
+                            </div>
+                          </button>
                         ))}
                       </div>
-                      <span className="ml-4 text-gray-400 text-sm">
-                        Step {conversationStep + 1} of {conversationSteps.length}
-                      </span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <LeadCaptureForm 
-                  leadData={leadData}
-                  qualificationScore={qualificationScore}
-                  onSubmit={handleLeadSubmit}
-                />
-              )}
-              
-              {/* Show Recommendations */}
-              {suggestedAgents.length > 0 && !showLeadForm && (
-                <div className="mt-8">
-                  <h4 className="text-xl font-bold text-white text-center mb-6">
-                    🎯 Percy's Personalized Recommendations
-                  </h4>
-                  <AgentCarousel
-                    agents={suggestedAgents}
-                    onLaunch={(agent) => {
-                      setSelectedAgent(agent);
-                      setShowIntake(false);
-                    }}
-                    showDetailedCards={true}
-                    showPremiumBadges={true}
-                  />
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
-      {/* Agent Constellation */}
-      <AgentConstellation
-        agents={visibleAgents}
-        selectedAgent={selectedAgent}
-        setSelectedAgent={setSelectedAgent}
-      />
+                      {/* Progress Indicator */}
+                      <div className="flex justify-center mt-8">
+                        <div className="flex space-x-2">
+                          {conversationSteps.map((_, index) => (
+                            <div
+                              key={index}
+                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                                index <= conversationStep ? 'bg-cyan-400' : 'bg-slate-600'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="ml-4 text-gray-400 text-sm">
+                          Step {conversationStep + 1} of {conversationSteps.length}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <LeadCaptureForm 
+                    leadData={leadData}
+                    qualificationScore={qualificationScore}
+                    onSubmit={handleLeadSubmit}
+                  />
+                )}
+                
+                {/* Show Recommendations */}
+                {suggestedAgents.length > 0 && !showLeadForm && (
+                  <div className="mt-8">
+                    <h4 className="text-xl font-bold text-white text-center mb-6">
+                      🎯 Percy's Personalized Recommendations
+                    </h4>
+                    <AgentCarousel
+                      agents={suggestedAgents}
+                      onLaunch={(agent) => {
+                        setSelectedAgent(agent);
+                        setShowIntake(false);
+                      }}
+                      showDetailedCards={true}
+                      showPremiumBadges={true}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Agent Constellation */}
+        <AgentConstellation
+          agents={visibleAgents}
+          selectedAgent={selectedAgent}
+          setSelectedAgent={setSelectedAgent}
+        />
+      </div>
     </div>
   );
 }

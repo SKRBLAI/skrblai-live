@@ -41,53 +41,56 @@ export default function ServicesPage(): JSX.Element {
         <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 flex flex-col items-center px-4 md:px-8 lg:px-12">
           {/* Hero Section */}
           <div className="w-full flex flex-col items-center mb-10">
-            <BrandLogo className="skrblai-heading text-center mb-4" />
-            <h2 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-4xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
-              Discover Your Digital Superheroes
-            </h2>
-            <p className="text-xl text-teal-300 text-center max-w-2xl mx-auto mb-4 px-4 font-semibold">
-              Meet Percy and the SKRBL AI constellation—ready to automate, create, and elevate your brand.
-            </p>
-            <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4 px-4">
-              <motion.div
-                className="w-full md:w-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}>
-                <Image
-                  src="/images/agents-percy-nobg-skrblai.png"
-                  alt="Percy the AI Concierge"
-                  width={96}
-                  height={96}
-                  className="rounded-full shadow-cosmic bg-[#0d1117] transform hover:scale-105 transition-transform duration-300"
-                  priority
-                />
-              </motion.div>
-              <motion.div
-                className="flex-1 w-full"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}>
-                <UniversalPromptBar
-                  title="Ask Percy Anything"
-                  description="How can SKRBL AI assist you today? Type a prompt or upload a file—Percy will guide you!"
-                  icon={<Image src="/images/agents-percy-nobg-skrblai.png" alt="Percy" width={32} height={32} />}
-                  acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
-                  fileCategory="document"
-                  intentType="onboarding"
-                  placeholder="Describe your business challenge or creative goal..."
-                  promptLabel="Describe your request (optional):"
-                  showPrompt={true}
-                  buttonText="Send to Percy"
-                  theme="dark"
-                  compact
-                />
-              </motion.div>
-            </div>
-            <p className="text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
-              Percy is your AI concierge—always ready to help you explore, automate, and create at scale with confidence.
-            </p>
-          </div>
+  <BrandLogo className="skrblai-heading text-center mb-4" />
+  <h2 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-4xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
+    Discover Your Digital Superheroes
+  </h2>
+  <p className="text-xl text-teal-300 text-center max-w-2xl mx-auto mb-4 px-4 font-semibold">
+    Meet Percy and the SKRBL AI constellation—ready to automate, create, and elevate your brand.
+  </p>
+  <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-2xl mx-auto mb-4 px-4">
+    <motion.div
+      className="w-full md:w-auto"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}>
+      <Image
+        src="/images/agents-percy-nobg-skrblai.png"
+        alt="Percy the AI Concierge"
+        width={96}
+        height={96}
+        className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30 transform hover:scale-105 transition-transform duration-300"
+        aria-label="Percy the AI Concierge"
+        priority
+      />
+    </motion.div>
+    <motion.div
+      className="flex-1 w-full"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}>
+      <UniversalPromptBar
+        title="Ask Percy Anything"
+        description="How can SKRBL AI assist you today? Type a prompt or upload a file—Percy will guide you!"
+        icon={<Image src="/images/agents-percy-nobg-skrblai.png" alt="Percy" width={32} height={32} />}
+        acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
+        fileCategory="document"
+        intentType="onboarding"
+        placeholder="Describe your business challenge or creative goal..."
+        promptLabel="Describe your request (optional):"
+        showPrompt={true}
+        buttonText="Send to Percy"
+        theme="dark"
+        compact
+        className="cosmic-glass shadow-cosmic border border-cyan-400/20 neon-glow"
+        aria-label="Prompt Percy with your business challenge or creative goal"
+      />
+    </motion.div>
+  </div>
+  <p className="text-base text-teal-300 text-center max-w-xl mx-auto mb-8 px-4">
+    Percy is your AI concierge—always ready to help you explore, automate, and create at scale with confidence.
+  </p>
+</div>
 
           {/* Filter Bar & Agents Grid (floating, glassy, no sidebar) */}
           <motion.div 

@@ -105,8 +105,8 @@ export default function PercyTestimonials() {
               
               {/* Author Info */}
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">{testimonial.avatar}</span>
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <span aria-label="Testimonial quote" className="text-3xl text-cyan-300 drop-shadow-glow">“</span>
                 </div>
                 <div>
                   <p className="text-cyan-400 font-medium text-sm">{testimonial.author}</p>

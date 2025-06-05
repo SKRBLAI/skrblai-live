@@ -9,7 +9,7 @@ import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import AgentConstellation from '@/components/agents/AgentConstellation';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
+import UnifiedPercyOnboarding from '@/components/home/UnifiedPercyOnboarding';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import type { Agent } from '@/types/agent';
 
@@ -19,11 +19,12 @@ export default function HomePage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isOnboardingActive, setIsOnboardingActive] = useState(false);
+  const [recommendedAgentIds, setRecommendedAgentIds] = useState<string[]>([]);
 
   // Percy context for cleanup
   const percyContext = usePercyContext();
-  const { setPercyIntent, closePercy } = percyContext;
+  const { setPercyIntent, closePercy, setIsOnboardingActive: setGlobalOnboardingActive } = percyContext;
 
   // Safe mounting
   useEffect(() => {
@@ -50,15 +51,42 @@ export default function HomePage() {
     }
   }, []);
 
-  // Percy cleanup
+  // Percy cleanup and onboarding state sync
   useEffect(() => {
     try {
       if (closePercy) closePercy();
       if (setPercyIntent) setPercyIntent('');
+      if (setGlobalOnboardingActive) setGlobalOnboardingActive(isOnboardingActive);
     } catch (err) {
       console.error('Error in Percy cleanup:', err);
     }
-  }, [closePercy, setPercyIntent]);
+  }, [closePercy, setPercyIntent, setGlobalOnboardingActive, isOnboardingActive]);
+
+  // Handle onboarding activation
+  const handleOnboardingStart = () => {
+    setIsOnboardingActive(true);
+  };
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = (data: any) => {
+    setIsOnboardingActive(false);
+    console.log('Onboarding completed with data:', data);
+  };
+
+  // Handle agent recommendations
+  const handleAgentsRecommended = (agentIds: string[]) => {
+    setRecommendedAgentIds(agentIds);
+    
+    // Auto-highlight recommended agents in constellation
+    setTimeout(() => {
+      agentIds.forEach(agentId => {
+        const element = document.querySelector(`[data-agent-id="${agentId}"]`);
+        if (element) {
+          element.classList.add('recommended-glow');
+        }
+      });
+    }, 500);
+  };
 
   // Loading state
   if (!mounted) {
@@ -92,7 +120,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
-      {/* Enhanced Background Effects */}
+      {/* Background Effects */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles particleCount={48} />
       </div>
@@ -101,21 +129,20 @@ export default function HomePage() {
 
       {/* Main Content */}
       <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
-        {/* Hero Section with welcome headline at top */}
+        {/* Hero Section */}
         <section className="min-h-[85vh] flex flex-col items-center">
           <div className="flex flex-col items-center justify-center w-full">
-            {/* Welcome headline at the very top */}
+            {/* Welcome headline */}
             <motion.h1 
               initial={{ opacity: 0, y: -20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6 }}
               className="skrblai-heading text-center text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow"
-              aria-label="Welcome to SKRBL AI"
             >
               Welcome to <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">SKRBL AI</span>
             </motion.h1>
             
-            {/* Engaging copy subheadline */}
+            {/* Subheadline */}
             <motion.p 
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
@@ -126,7 +153,7 @@ export default function HomePage() {
               <span className="text-gray-300 font-normal">Meet Percy and the SKRBL AI constellation—digital superheroes ready to elevate your business and creativity.</span>
             </motion.p>
             
-            {/* Percy Introduction Section */}
+            {/* Percy Introduction */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -141,7 +168,7 @@ export default function HomePage() {
               </p>
             </motion.div>
             
-            {/* Percy Image - Full body, centered and glowing */}
+            {/* Percy Image */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -152,7 +179,6 @@ export default function HomePage() {
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
                 <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
                   <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                    {/* Use CloudinaryImage when agent data loaded, otherwise fallback to normal Image */}
                     {agents.length > 0 && agents.find(a => a.id === 'percy') ? (
                       <CloudinaryImage
                         agent={agents.find(a => a.id === 'percy')!}
@@ -187,69 +213,17 @@ export default function HomePage() {
               </div>
             </motion.div>
             
-            {/* Floating glassmorphism onboarding card */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="w-full max-w-xl mx-auto mt-8 md:mt-10 cosmic-glass p-6 md:p-8 rounded-2xl border border-white/10 shadow-[0_0_32px_rgba(30,144,255,0.2)]"
-            >
-              <div className="mb-4">
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">Start with Percy</h3>
-                <p className="text-teal-300 text-sm md:text-base">Type your goal or upload a file—Percy will guide you to the perfect AI agent.</p>
-              </div>
-              
-              {/* Universal Prompt Bar - All onboarding flows route to Percy's AI chat */}
-              <UniversalPromptBar
-                title="How can I help you today?"
-                description="Ask me anything or upload a file to get started"
-                placeholder="Enter your question or describe what you need..."
-                acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.jpg,.jpeg,.png"
-                promptLabel=""
-                buttonText={isUploading ? "Uploading..." : "Chat with Percy"}
-                theme="dark"
-                showPrompt={true}
-                minimalUI={false}
-                compact={false}
-                className="w-full"
-                fileCategory="upload"
-                intentType="ask"
-                onPromptSubmit={(prompt) => {
-                  console.log('Prompt submitted:', prompt);
-                  // Route to Percy's AI chat
-                  if (prompt.trim()) {
-                    router.push(`/dashboard?prompt=${encodeURIComponent(prompt)}`);
-                  }
-                }}
-                onFileUpload={(fileUrl, metadata) => {
-                  console.log('File uploaded:', fileUrl, metadata);
-                  // Route to Percy's AI chat with file context
-                }}
-                onComplete={(data) => {
-                  console.log('Completed:', data);
-                  setIsUploading(false);
-                  if (data.prompt || data.fileUrl) {
-                    router.push('/dashboard'); // Percy's AI chat interface
-                  }
-                }}
-              />
-              
-              <div className="mt-6 text-center">
-                <Link href="/pricing" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors duration-200">
-                  Try Premium for unlimited AI interactions and advanced features
-                </Link>
-              </div>
-            </motion.div>
+            {/* Unified Percy Onboarding */}
+            <UnifiedPercyOnboarding 
+              onComplete={handleOnboardingComplete}
+              onAgentsRecommended={handleAgentsRecommended}
+              agents={agents}
+            />
           </div>
         </section>
 
-        {/* Agent Showcase - Below hero */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
-          className="py-16"
-        >
+        {/* Agent Showcase */}
+        <section className="py-16">
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
               Discover Our AI Agents
@@ -257,9 +231,18 @@ export default function HomePage() {
             <p className="text-gray-300 max-w-2xl mx-auto">
               Each agent is specialized for specific tasks, ready to transform your workflow and boost productivity.
             </p>
+            {recommendedAgentIds.length > 0 && (
+              <motion.p 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-cyan-400 text-sm mt-2"
+              >
+                ✨ Percy recommends the highlighted agents for your goals
+              </motion.p>
+            )}
           </div>
           
-          {/* Agent Constellation with Backstory Support - Restored from previous version */}
+          {/* Agent Constellation */}
           <div className="mb-16 relative">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
               <FloatingParticles particleCount={20} />
@@ -269,6 +252,7 @@ export default function HomePage() {
                 agents={agents} 
                 selectedAgent={selectedAgent} 
                 setSelectedAgent={setSelectedAgent}
+                recommendedAgentIds={recommendedAgentIds}
               />
             </div>
           </div>
@@ -284,15 +268,10 @@ export default function HomePage() {
               </svg>
             </Link>
           </div>
-        </motion.section>
+        </section>
 
         {/* Bottom CTA Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="text-center py-16 mb-24"
-        >
+        <section className="text-center py-16 mb-24">
           <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">
             Ready to Transform Your Business?
           </h3>
@@ -322,7 +301,7 @@ export default function HomePage() {
               </motion.button>
             </Link>
           </div>
-        </motion.section>
+        </section>
       </div>
     </div>
   );

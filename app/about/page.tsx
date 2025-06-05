@@ -64,8 +64,9 @@ export default function AboutPage(): JSX.Element {
                 className="cosmic-float-card shadow-cosmic rounded-2xl p-6 sm:p-8 border-2 border-teal-400/20 max-w-2xl mx-auto mb-12 bg-white/5 backdrop-blur-xl bg-clip-padding flex flex-col items-center transform hover:scale-[1.02] transition-transform duration-300"
               >
                 <div className="flex items-center justify-center mb-6">
-                  <PercyAvatar className="mx-auto transform hover:scale-105 transition-transform duration-300" />
-                </div>
+  {/* Replaced PercyAvatar with quote icon for premium testimonial style */}
+  <span aria-label="Testimonial quote" className="text-5xl text-cyan-300 drop-shadow-glow">“</span>
+</div>
                 <blockquote className="text-center">
                   <p className="text-xl italic text-white mb-4">
                     "SKRBL AI helped me bring my idea to life faster than I ever imagined. The combination of AI agents and human creativity is truly revolutionary."
