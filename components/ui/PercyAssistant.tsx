@@ -139,6 +139,7 @@ export default function PercyAssistant() {
             </motion.div>
           )}
         </div>
+      </div>
 
       <div className="mb-8 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
         {messages.map((msg) => (

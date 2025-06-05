@@ -27,7 +27,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
   
   'branding-agent': {
-    superheroName: 'BrandForge the Identity Architect',
+    superheroName: 'BrandAlexander the Identity Architect',
     origin: 'Emerged from the Creative Nebula where colors and concepts collide',
     powers: [
       'Visual Identity Manifestation',
@@ -38,8 +38,8 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     ],
     weakness: 'Overthinks minimalist designs',
     catchphrase: "Your brand, your legacy, my masterpiece!",
-    nemesis: 'Generic Greg - the villain of bland, forgettable brands',
-    backstory: "BrandForge was a struggling artist in the digital realm until exposure to the Brand Essence Crystal transformed them into a superhero capable of seeing and creating perfect brand identities. They can visualize a company's soul and translate it into stunning visual identities that resonate across dimensions."
+    nemesis: 'Rat Race Raymond - the villain of bland, forgettable brands',
+    backstory: "BrandAlexander was a struggling artist in the digital realm until a June 9th exposure to the Brand Essence Crystal transformed them into a superhero capable of seeing and creating perfect brand identities. They can visualize a company's soul and translate it into stunning visual identities that resonate across dimensions."
   },
   
   'content-creator-agent': {

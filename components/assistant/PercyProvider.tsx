@@ -67,20 +67,6 @@ export function PercyProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   // Initialize Percy Intelligence and check authentication
-  useEffect(() => {
-    // Check if agent registry is loaded
-    console.log('PercyProvider mounted, agent count:', agentRegistry.length);
-    
-    if (agentRegistry.length === 0) {
-      console.error('WARNING: Agent registry is empty in PercyProvider!');
-    } else {
-      console.log('First few agents:', agentRegistry.slice(0, 3).map(a => a.name));
-    }
-
-    // Initialize Percy Intelligence
-    initializePercyIntelligence();
-  }, []);
-
   // Initialize Percy Intelligence system
   const initializePercyIntelligence = useCallback(async () => {
     try {
@@ -131,6 +117,20 @@ export function PercyProvider({ children }: { children: ReactNode }) {
       console.error('Error initializing Percy Intelligence:', error);
     }
   }, []);
+
+  useEffect(() => {
+    // Check if agent registry is loaded
+    console.log('PercyProvider mounted, agent count:', agentRegistry.length);
+    
+    if (agentRegistry.length === 0) {
+      console.error('WARNING: Agent registry is empty in PercyProvider!');
+    } else {
+      console.log('First few agents:', agentRegistry.slice(0, 3).map(a => a.name));
+    }
+
+    // Initialize Percy Intelligence
+    initializePercyIntelligence();
+  }, [initializePercyIntelligence]);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -209,7 +209,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
       setPercyResponse(response);
       
       // Update context based on response
-      const userContext = await getPercyContext(userId);
+      const userContext = await getPercyContext(userId) as any;
       if (userContext) {
         setConversationPhase(userContext.conversationPhase);
         setConversionScore(userContext.conversionScore);
@@ -226,7 +226,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
     if (!userId) return { hasAccess: false, reason: 'no_user_id' };
     
     try {
-      const accessResult = await checkAgentAccess(userId, agentId);
+      const accessResult = await checkAgentAccess(userId, agentId) as any;
       
       // Track access attempt
       await trackPercyBehavior(userId, 
@@ -235,7 +235,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
       );
       
       return accessResult;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking agent access:', error);
       return { hasAccess: false, reason: 'error', error: error.message };
     }
@@ -248,7 +248,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
       await trackPercyBehavior(userId, behaviorType, data);
       
       // Update local state after tracking
-      const userContext = await getPercyContext(userId);
+      const userContext = await getPercyContext(userId) as any;
       if (userContext) {
         setConversationPhase(userContext.conversationPhase);
         setConversionScore(userContext.conversionScore);

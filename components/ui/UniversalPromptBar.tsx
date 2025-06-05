@@ -122,7 +122,7 @@ export default function UniversalPromptBar({
       }
       
       onPromptSubmit?.(prompt);
-      onComplete?.({ prompt, percyResponse });
+      onComplete?.({ prompt });
       setPrompt(''); 
       setSuccess(true);
       
