@@ -70,8 +70,13 @@ class Particle implements ParticleType {
     ctx.save();
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.color;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 15 * this.glowIntensity * globalGlowIntensity;
+    
+    // Simplified drawing for better mobile performance - avoid expensive shadow operations
+    if (globalGlowIntensity > 0) {
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = Math.min(5, 15 * this.glowIntensity * globalGlowIntensity);
+    }
+    
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fill();
@@ -96,6 +101,17 @@ const FloatingParticles: React.FC<ParticleProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Mobile performance detection
+    const isMobile = window.innerWidth < 768;
+    const isLowPowerDevice = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Disable particles on mobile or low-power devices to prevent crashes
+    if (isMobile || isLowPowerDevice || reducedMotion) {
+      console.log('[FloatingParticles] Disabled on mobile/low-power device for performance');
+      return;
+    }
+
     // Set canvas size
     const resizeCanvas = () => {
       if (!canvas) return;
@@ -108,24 +124,34 @@ const FloatingParticles: React.FC<ParticleProps> = ({
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create particles
-    const particles = Array.from({ length: particleCount }, () => new Particle(canvas, size, speed, colors));
+    // Reduce particle count for better performance
+    const optimizedParticleCount = Math.min(particleCount, 25);
+    const particles = Array.from({ length: optimizedParticleCount }, () => new Particle(canvas, size, speed, colors));
 
-    // Animation loop
+    // Throttled animation loop for performance
     let animationFrameId: number;
-    const animate = () => {
+    let lastTime = 0;
+    const targetFPS = 30; // Limit to 30fps for better mobile performance
+    const frameInterval = 1000 / targetFPS;
+    
+    const animate = (currentTime: number) => {
       if (!ctx || !canvas) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach(p => {
-        p.update(canvas);
-        p.draw(ctx, glowIntensity);
-      });
+      if (currentTime - lastTime >= frameInterval) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(p => {
+          p.update(canvas);
+          p.draw(ctx, glowIntensity * 0.5); // Reduce glow intensity for performance
+        });
+        
+        lastTime = currentTime;
+      }
 
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    animate(0);
 
     // Cleanup
     return () => {

@@ -390,6 +390,7 @@ export default function PercyHero() {
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117]">
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]"></div>
+      {/* Background Particles - RE-ENABLED WITH MOBILE OPTIMIZATIONS */}
       <div className="absolute inset-0 opacity-40 pointer-events-none">
         <FloatingParticles particleCount={32} />
       </div>
@@ -573,7 +574,7 @@ export default function PercyHero() {
           )}
         </AnimatePresence>
 
-        {/* Agent Constellation */}
+        {/* Agent Constellation - RE-ENABLED WITH MOBILE ROTATION FIX */}
         <AgentConstellation
           agents={visibleAgents}
           selectedAgent={selectedAgent}

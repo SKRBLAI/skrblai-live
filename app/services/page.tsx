@@ -29,13 +29,14 @@ export default function ServicesPage(): JSX.Element {
         transition={{ duration: 0.5 }}
         className="min-h-screen relative"
       >
-        <FloatingParticles
+        {/* FloatingParticles - COMMENTED OUT FOR MOBILE SCROLL CRASH DEBUGGING */}
+        {/* <FloatingParticles
           particleCount={35}
           speed={0.35}
           size={2.5}
           colors={['#38bdf8', '#f472b6', '#0ea5e9', '#22d3ee']}
           glowIntensity={0.5}
-        />
+        /> */}
 
         {/* Content */}
         <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 flex flex-col items-center px-4 md:px-8 lg:px-12">

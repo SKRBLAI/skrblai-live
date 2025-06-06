@@ -120,7 +120,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
-      {/* Background Effects */}
+      {/* Background Effects - RE-ENABLED WITH MOBILE OPTIMIZATIONS */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles particleCount={48} />
       </div>
@@ -213,7 +213,7 @@ export default function HomePage() {
               </div>
             </motion.div>
             
-            {/* Unified Percy Onboarding */}
+            {/* Unified Percy Onboarding - RE-ENABLED */}
             <UnifiedPercyOnboarding 
               onComplete={handleOnboardingComplete}
               onAgentsRecommended={handleAgentsRecommended}
@@ -242,7 +242,7 @@ export default function HomePage() {
             )}
           </div>
           
-          {/* Agent Constellation */}
+          {/* Agent Constellation - RE-ENABLED WITH MOBILE ROTATION FIX */}
           <div className="mb-16 relative">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
               <FloatingParticles particleCount={20} />

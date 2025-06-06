@@ -50,3 +50,24 @@ npm run build
 
 # Deploy to Vercel
 vercel --prod 
+
+# DOUBLE UP 201: Mobile Scroll Crash Hunt & Fix ✅ COMPLETE
+# 
+# ROOT CAUSE FOUND: AgentConstellation infinite mobile rotation animation
+# 
+# SMOKING GUN 🔥:
+# AgentConstellation had animate={isMobile ? { rotate: 360 } : undefined}
+# with duration: 60, repeat: Infinity, ease: "linear"
+# This continuous 360° rotation was overwhelming mobile browsers!
+#
+# FIXES IMPLEMENTED:
+# ✅ FloatingParticles: Mobile detection + performance throttling
+# ✅ AgentConstellation: Disabled infinite mobile rotation 
+# ✅ All components re-enabled with mobile optimizations
+#
+# COMPONENTS STATUS:
+# ✅ UnifiedPercyOnboarding - RE-ENABLED 
+# ✅ FloatingParticles - RE-ENABLED with mobile optimizations
+# ✅ AgentConstellation - RE-ENABLED (infinite rotation DISABLED)
+# ✅ Percy background - RE-ENABLED 
+# ✅ PercyWidget - RE-ENABLED 

@@ -486,12 +486,13 @@ const AgentConstellation: React.FC<AgentConstellationProps> = ({
       {/* Orbiting Agents - Desktop (3 at a time) */}
       <motion.div 
         className="relative w-full h-full"
-        animate={isMobile ? { rotate: 360 } : undefined}
-        transition={isMobile ? { 
-          duration: 60,
-          repeat: Infinity,
-          ease: "linear",
-        } : undefined}
+        // MOBILE ROTATION DISABLED - This infinite animation was causing scroll crashes on mobile
+        // animate={isMobile ? { rotate: 360 } : undefined}
+        // transition={isMobile ? { 
+        //   duration: 60,
+        //   repeat: Infinity,
+        //   ease: "linear",
+        // } : undefined}
       >
         <AnimatePresence mode="sync">
           {visibleAgents.slice(0, isMobile ? 6 : AGENTS_PER_GROUP).map((agent, i) => {

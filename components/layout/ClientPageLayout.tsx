@@ -14,7 +14,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   const pathname = usePathname();
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0d1117]">
-      {/* Background Effects */}
+      {/* Background Effects - RE-ENABLED FOR PHASE 2 TESTING */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles />
       </div>

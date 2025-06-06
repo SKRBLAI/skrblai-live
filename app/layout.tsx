@@ -35,13 +35,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
         <PercyProvider>
-          {/* Global Percy Background */}
+          {/* Global Percy Background - RE-ENABLED FOR PHASE 2 TESTING */}
           <div className="percy-bg-global" aria-hidden="true" />
 
-          {/* Global Background */}
-          <div className="fixed inset-0 z-0 pointer-events-none">
+          {/* Global Background - COMMENTED OUT FOR MOBILE SCROLL CRASH DEBUGGING */}
+          {/* <div className="fixed inset-0 z-0 pointer-events-none">
             <FloatingParticles />
-          </div>
+          </div> */}
 
           {/* Global Navigation */}
           <Navbar />
@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </PageTransition>
           </div>
 
-          {/* Percy Widget */}
+          {/* Percy Widget - RE-ENABLED FOR PHASE 2 TESTING */}
           <PercyWidget />
         </PercyProvider>
       </body>

@@ -60,6 +60,7 @@ export default function FeaturesPage(): JSX.Element {
         transition={{ duration: 0.5 }}
         className="relative min-h-screen w-full overflow-x-hidden"
       >
+        {/* FloatingParticles - RE-ENABLED FOR PHASE 2 TESTING */}
         <FloatingParticles />
       
         <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 py-16">
