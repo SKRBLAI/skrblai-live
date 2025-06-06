@@ -1,5 +1,9 @@
 'use client';
 
+// ARCHIVED: This legacy onboarding file was migrated to UnifiedPercyOnboarding.tsx as of June 2025.
+// All business logic, analytics, state, and error handling are now consolidated in UnifiedPercyOnboarding.tsx.
+// Do not edit. Retained for reference only.
+
 import { useState } from 'react';
 import PercyAvatar from '@/components/home/PercyAvatar';
 import { supabase } from '@/utils/supabase';

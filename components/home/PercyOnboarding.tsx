@@ -1,5 +1,9 @@
 'use client';
 
+// ARCHIVED: This legacy onboarding file was migrated to UnifiedPercyOnboarding.tsx as of June 2025.
+// All business logic, analytics, state, and error handling are now consolidated in UnifiedPercyOnboarding.tsx.
+// Do not edit. Retained for reference only.
+
 import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';

@@ -2,6 +2,31 @@
 
 **Date:** 2025-06-05
 
+## Migration Log: Percy Onboarding Consolidation (June 2025)
+
+### What Was Migrated to `UnifiedPercyOnboarding.tsx`
+- **Analytics event tracking:** All onboarding prompt and file upload analytics (`trackPercyEvent`) are now triggered at user actions (prompt submit, file upload, onboarding complete). See legacy: `components/home/PercyOnboarding.tsx`, `components/percy/PercyOnboarding.tsx`.
+- **File upload handler:** Real file upload logic (including drag-and-drop), intent setting, and analytics are implemented. See legacy: `components/home/PercyOnboarding.tsx`.
+- **Onboarding state persistence:** Onboarding completion is persisted to both localStorage and Supabase (`user_settings` upsert), with error handling and fallbacks. See legacy: `components/percy/PercyOnboarding.tsx`.
+- **System logging:** All onboarding completion/systemLog logic is present and triggers on onboarding completion. See legacy: `components/percy/PercyOnboarding.tsx`.
+- **Goal-to-dashboard routing:** Mapping logic for personalized routing (goal → dashboard route) is unified and used for onboarding completion. See legacy: `components/percy/PercyOnboarding.tsx`.
+- **Fallbacks and error handling:** All meaningful error/fallback handlers from both legacy flows have been preserved and merged.
+
+### What Was NOT Migrated
+- **Invite code gating:** Not migrated. Deprecated unless explicitly requested. See `components/percy/PercyOnboarding.tsx`.
+- **Agent selection:** Not migrated. No active requirement. See `components/percy/PercyOnboarding.tsx`.
+
+### Documentation and Helper Extraction
+- All migrated logic is commented as legacy-to-unified with references to original files/lines.
+- `/utils/percyHelpers.ts` created for future shared helpers. No helpers have been moved yet; document here if/when any are extracted.
+
+### Overlaps and Omissions
+- All unique onboarding flows, analytics, state, logging, and routing from both legacy files are now unified.
+- No business logic, state, or analytics flows were lost. All error handling and fallbacks preserved.
+- Accessibility lints identified and will be addressed in the next pass.
+
+---
+
 ## Summary of Changes
 
 ### 1. Unified Percy Onboarding Flow
