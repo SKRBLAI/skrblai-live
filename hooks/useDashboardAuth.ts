@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { auth } from '@/utils/supabase-auth';
-import { User } from '@supabase/supabase-js';
+import { useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/utils/supabase'; // Update this import path if needed!
+import type { User, Session } from '@supabase/supabase-js';
 
+// --- Types ---
 export interface DashboardAccess {
   user: User | null;
   accessLevel: 'free' | 'promo' | 'vip';
@@ -30,7 +31,7 @@ export interface DashboardAuthActions {
 
 /**
  * Custom hook for dashboard authentication and access control
- * Provides user access information and helper functions for feature gating
+ * Uses official Supabase client methods (getSession, onAuthStateChange)
  */
 export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
   const [dashboardAccess, setDashboardAccess] = useState<DashboardAccess>({
@@ -48,14 +49,16 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
     error: null
   });
 
-  const checkAccess = async (): Promise<void> => {
+  // Fetches current access state from API
+  const checkAccess = useCallback(async (): Promise<void> => {
     try {
       setDashboardAccess(prev => ({ ...prev, loading: true, error: null }));
 
-      // Get current session
-      const { data: { session } } = await auth.getSession();
-      
-      if (!session?.access_token) {
+      // Use official supabase.auth.getSession()
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      const session: Session | null = data?.session || null;
+
+      if (sessionError || !session?.access_token) {
         setDashboardAccess(prev => ({
           ...prev,
           user: null,
@@ -65,7 +68,7 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
         return;
       }
 
-      // Check dashboard access with API
+      // Check dashboard access with API (pass token)
       const response = await fetch('/api/auth/dashboard-signin?checkAccess=true', {
         method: 'GET',
         headers: {
@@ -74,21 +77,21 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
         },
       });
 
-      const data = await response.json();
+      const dataJson = await response.json();
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to check access');
+      if (!dataJson.success) {
+        throw new Error(dataJson.error || 'Failed to check access');
       }
 
       setDashboardAccess(prev => ({
         ...prev,
-        user: data.user,
-        accessLevel: data.accessLevel,
-        isVIP: data.isVIP,
-        vipStatus: data.vipStatus,
-        benefits: data.benefits,
-        promoCodeUsed: data.promoCodeUsed,
-        metadata: data.metadata,
+        user: dataJson.user,
+        accessLevel: dataJson.accessLevel,
+        isVIP: dataJson.isVIP,
+        vipStatus: dataJson.vipStatus,
+        benefits: dataJson.benefits,
+        promoCodeUsed: dataJson.promoCodeUsed,
+        metadata: dataJson.metadata,
         loading: false,
         error: null
       }));
@@ -101,51 +104,46 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
         error: error.message || 'Failed to check dashboard access'
       }));
     }
-  };
+  }, []);
 
-  // Helper function to check if user has specific feature access
-  const hasFeature = (feature: string): boolean => {
+  // Helper: does user have a feature
+  const hasFeature = useCallback((feature: string): boolean => {
     const { benefits, accessLevel, isVIP } = dashboardAccess;
 
-    // VIP users have access to all features
-    if (isVIP || accessLevel === 'vip') {
-      return true;
-    }
-
-    // Check if feature is in benefits
+    if (isVIP || accessLevel === 'vip') return true;
     if (benefits.features && Array.isArray(benefits.features)) {
       return benefits.features.includes(feature);
     }
-
-    // Check specific benefit properties
     return benefits[feature] === true;
-  };
+  }, [dashboardAccess]);
 
-  // Helper function to check access level
-  const isAccessLevel = (level: 'free' | 'promo' | 'vip'): boolean => {
+  // Helper: is current access level
+  const isAccessLevel = useCallback((level: 'free' | 'promo' | 'vip'): boolean => {
     return dashboardAccess.accessLevel === level;
-  };
+  }, [dashboardAccess]);
 
-  // Helper function to get access level label
-  const getAccessLevelLabel = (): string => {
+  // Helper: get human label for current access
+  const getAccessLevelLabel = useCallback((): string => {
     const { accessLevel, vipStatus } = dashboardAccess;
-    
     if (accessLevel === 'vip') {
       return `VIP ${vipStatus.vipLevel.charAt(0).toUpperCase() + vipStatus.vipLevel.slice(1)}`;
     }
-    
-    if (accessLevel === 'promo') {
-      return 'Promo Access';
-    }
-    
+    if (accessLevel === 'promo') return 'Promo Access';
     return 'Free Access';
-  };
+  }, [dashboardAccess]);
 
-  // Set up auth state listener and initial check
+  // Listen for Supabase auth state changes (login/logout, etc)
   useEffect(() => {
-    const { data: { subscription } } = auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        await checkAccess();
+    let isMounted = true;
+
+    // On mount: run initial check
+    checkAccess();
+
+    // Auth listener (official)
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+      if (session && session.user) {
+        checkAccess();
       } else {
         setDashboardAccess(prev => ({
           ...prev,
@@ -162,8 +160,14 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    const subscription = data?.subscription;
+    return () => {
+      isMounted = false;
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
+    };
+  }, [checkAccess]);
 
   return {
     ...dashboardAccess,
@@ -174,13 +178,10 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
   };
 }
 
-/**
- * Hook for checking specific feature access
- * Useful for conditional rendering of premium features
- */
+// --- Additional hooks ---
+
 export function useFeatureAccess(feature: string) {
   const { hasFeature, accessLevel, isVIP, loading } = useDashboardAuth();
-  
   return {
     hasAccess: hasFeature(feature),
     accessLevel,
@@ -190,12 +191,8 @@ export function useFeatureAccess(feature: string) {
   };
 }
 
-/**
- * Hook for VIP status checking
- */
 export function useVIPStatus() {
   const { vipStatus, isVIP, loading } = useDashboardAuth();
-  
   return {
     ...vipStatus,
     isVIP,
@@ -206,4 +203,4 @@ export function useVIPStatus() {
     isSilver: vipStatus.vipLevel === 'silver',
     vipScore: vipStatus.vipScore || 0
   };
-} 
+}

@@ -49,6 +49,7 @@ export class AuthIntegrationSupport {
       userExists: false,
       vipStatus: null,
       dashboardAccess: null,
+      recentActivity: [],
       suggestions: []
     };
 

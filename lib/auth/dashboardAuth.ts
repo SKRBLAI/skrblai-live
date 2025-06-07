@@ -29,6 +29,7 @@ export interface DashboardAuthResponse {
   error?: string;
   benefits?: any;
   message?: string;
+  rateLimited?: boolean;
 }
 
 export interface PromoCodeValidation {

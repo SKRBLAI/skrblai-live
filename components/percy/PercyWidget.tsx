@@ -9,7 +9,7 @@ import { getCurrentUser } from '@/utils/supabase-auth';
 import { sendEmailAction } from '@/actions/sendEmail';
 import { saveChatMemory } from '@/lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
-import PercyOnboarding from './PercyOnboarding';
+
 import UpsellModal from './UpsellModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
@@ -338,15 +338,7 @@ function PercyWidget() {
 
   return (
     <>
-      {showOnboarding && (
-        <PercyOnboarding
-          onComplete={({ goal, platform }) => {
-            setShowOnboarding(false);
-            setUserProfile({ goal, platform });
-            setSuggestedAgents(getBestAgents(goal, platform, agents));
-          }}
-        />
-      )}
+
       {showUpsellModal && pendingAgent && (
         <UpsellModal agent={pendingAgent} onClose={() => setShowUpsellModal(false)} />
       )}

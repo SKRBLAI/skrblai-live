@@ -15,7 +15,6 @@ const supabase = createClient(
 
 /**
  * GET /api/auth/integration-support
- * 
  * Provides debugging and support tools for authentication integration
  * Supports different operations via query parameters
  */
@@ -27,7 +26,10 @@ export async function GET(req: NextRequest) {
     const promoCode = searchParams.get('promoCode');
 
     // Development/staging only check
-    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_INTEGRATION_SUPPORT !== 'true') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.ALLOW_INTEGRATION_SUPPORT !== 'true'
+    ) {
       return NextResponse.json(
         { success: false, error: 'Integration support not available in production' },
         { status: 403 }
@@ -77,7 +79,7 @@ export async function GET(req: NextRequest) {
       case 'list-recent-activity': {
         const hours = parseInt(searchParams.get('hours') || '24');
         const since = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
-        
+
         const { data: recentActivity, error: activityError } = await supabase
           .from('auth_audit_logs')
           .select('*')
@@ -143,7 +145,6 @@ export async function GET(req: NextRequest) {
           timestamp: new Date().toISOString()
         });
     }
-
   } catch (error: any) {
     console.error('[API] Integration support error:', error);
     return NextResponse.json(
@@ -160,7 +161,6 @@ export async function GET(req: NextRequest) {
 
 /**
  * POST /api/auth/integration-support
- * 
  * Performs integration support actions that require POST requests
  */
 export async function POST(req: NextRequest) {
@@ -169,7 +169,10 @@ export async function POST(req: NextRequest) {
     const { operation, email, password, options = {} } = body;
 
     // Development/staging only check
-    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_INTEGRATION_SUPPORT !== 'true') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.ALLOW_INTEGRATION_SUPPORT !== 'true'
+    ) {
       return NextResponse.json(
         { success: false, error: 'Integration support not available in production' },
         { status: 403 }
@@ -282,6 +285,7 @@ export async function POST(req: NextRequest) {
           },
           timestamp: new Date().toISOString()
         });
+      }
 
       default:
         return NextResponse.json(
@@ -289,7 +293,6 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
     }
-
   } catch (error: any) {
     console.error('[API] Integration support POST error:', error);
     return NextResponse.json(
@@ -306,7 +309,6 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/auth/integration-support
- * 
  * Cleanup operations for integration testing
  */
 export async function DELETE(req: NextRequest) {
@@ -315,7 +317,10 @@ export async function DELETE(req: NextRequest) {
     const operation = searchParams.get('operation');
 
     // Development/staging only check
-    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_INTEGRATION_SUPPORT !== 'true') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.ALLOW_INTEGRATION_SUPPORT !== 'true'
+    ) {
       return NextResponse.json(
         { success: false, error: 'Integration support not available in production' },
         { status: 403 }
@@ -323,7 +328,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     switch (operation) {
-      case 'cleanup-test-data':
+      case 'cleanup-test-data': {
         // Clean up test promo codes
         const { error: promoCleanupError } = await supabase
           .from('promo_codes')
@@ -359,6 +364,7 @@ export async function DELETE(req: NextRequest) {
           },
           timestamp: new Date().toISOString()
         });
+      }
 
       default:
         return NextResponse.json(
@@ -366,7 +372,6 @@ export async function DELETE(req: NextRequest) {
           { status: 400 }
         );
     }
-
   } catch (error: any) {
     console.error('[API] Integration support DELETE error:', error);
     return NextResponse.json(
@@ -379,4 +384,4 @@ export async function DELETE(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

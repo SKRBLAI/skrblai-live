@@ -199,8 +199,57 @@ All changes were implemented directly in the codebase with only one new file cre
 
 ### 7. UniversalPromptBar
 - Unified prompt/upload bar with full, compact, and minimal variants.
-- Theme support (light/dark), flexible callback system.
-- Integrated into PercyHero and onboarding flows.
+
+---
+
+## BATCH FIX: Type/interface and Subscription Cleanup - 2025-06-06
+
+**Objective**: Batch-fix all TypeScript type/interface and subscription errors to ensure clean builds.
+
+**Summary of Fixes**:
+
+1. **Unknown Properties & Interface Updates**:
+
+    - Added `rateLimited?: boolean;` to `DashboardAuthResponse` interface in `lib/auth/dashboardAuth.ts` to allow returning this field from authentication functions.
+    - Added `isSignup?: boolean` to the `metadata` parameter type of the `logSignInAttempt`, `logSignInSuccess`, `logSignInFailure`, and `logPromoRedemption` functions in `lib/auth/authAuditLogger.ts`.
+    - Added `event?: string` to the `metadata` parameter type of the `logSecurityViolation` function in `lib/auth/authAuditLogger.ts`.
+    - Added `'system_health_check'` to the `eventType` union in the `AuthAuditEvent` interface in `lib/auth/authAuditLogger.ts` to support health check logging.
+    - Added `recentActivity: []` to the `AuthDebugInfo` object initialization in `AuthIntegrationSupport.debugUserAuth` in `lib/auth/integrationSupport.ts` to fulfill interface requirements.
+
+2. **Subscription Cleanup (`unsubscribe` calls)**:
+
+    - Updated Supabase subscription cleanup logic in the following files to explicitly check if `subscription && typeof subscription.unsubscribe === 'function'` before calling `subscription.unsubscribe()`:
+        - `hooks/useDashboardAuth.ts`
+        - `utils/auth.ts`
+        - `app/dashboard/page.tsx`
+    - This ensures that `unsubscribe` is only called if it exists and is a function, preventing runtime errors.
+
+**Files Modified**:
+
+- `lib/auth/dashboardAuth.ts`
+  - Added `rateLimited?: boolean` to `DashboardAuthResponse` interface.
+
+- `lib/auth/authAuditLogger.ts`
+  - Added `isSignup?: boolean` to `metadata` parameter in `logSignInAttempt`, `logSignInSuccess`, `logSignInFailure`, and `logPromoRedemption`.
+  - Added `event?: string` to `metadata` parameter in `logSecurityViolation`.
+  - Added `'system_health_check'` to `eventType` in `AuthAuditEvent` interface.
+
+- `hooks/useDashboardAuth.ts`
+  - Modified `useEffect` cleanup function for `onAuthStateChange` subscription.
+
+- `utils/auth.ts`
+  - Modified cleanup function for `onAuthStateChanged` subscription.
+
+- `app/dashboard/page.tsx`
+  - Modified `useEffect` cleanup function for `onAuthStateChanged` subscription.
+
+- `lib/auth/integrationSupport.ts`
+  - Added `recentActivity: []` to `AuthDebugInfo` initialization in `debugUserAuth`.
+
+**Verification**:
+
+- `npx tsc --noEmit` completed successfully with zero type errors.
+- `npm run build` completed successfully.
 
 ## Key Files Modified
 - `app/page.tsx`

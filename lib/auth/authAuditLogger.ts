@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 export interface AuthAuditEvent {
-  eventType: 'signin_attempt' | 'signin_success' | 'signin_failure' | 'promo_redemption' | 'promo_validation' | 'vip_check' | 'security_violation' | 'rate_limit' | 'suspicious_activity';
+  eventType: 'signin_attempt' | 'signin_success' | 'signin_failure' | 'promo_redemption' | 'promo_validation' | 'vip_check' | 'security_violation' | 'rate_limit' | 'suspicious_activity' | 'system_health_check';
   userId?: string;
   email?: string;
   sessionId?: string;
@@ -121,7 +121,7 @@ export class AuthAuditLogger {
    */
   async logSignInAttempt(
     email: string, 
-    metadata: { ip?: string; userAgent?: string; promoCode?: string; vipCode?: string }
+    metadata: { ip?: string; userAgent?: string; promoCode?: string; vipCode?: string; isSignup?: boolean }
   ): Promise<void> {
     const securityFlags = this.analyzeSecurityFlags(email, metadata);
     
@@ -146,7 +146,7 @@ export class AuthAuditLogger {
     userId: string,
     email: string,
     accessLevel: string,
-    metadata: { promoRedeemed?: boolean; vipStatus?: any; ip?: string }
+    metadata: { promoRedeemed?: boolean; vipStatus?: any; ip?: string; isSignup?: boolean; }
   ): Promise<void> {
     await this.logEvent({
       eventType: 'signin_success',
@@ -168,7 +168,7 @@ export class AuthAuditLogger {
   async logSignInFailure(
     email: string,
     errorMessage: string,
-    metadata: { ip?: string; userAgent?: string; attempt?: number }
+    metadata: { ip?: string; userAgent?: string; attempt?: number; isSignup?: boolean; }
   ): Promise<void> {
     const severity = this.calculateFailureSeverity(email, metadata.attempt || 1);
     
@@ -193,7 +193,7 @@ export class AuthAuditLogger {
     email: string,
     promoCode: string,
     success: boolean,
-    metadata: { codeType?: string; benefits?: any; errorMessage?: string }
+    metadata: { codeType?: string; benefits?: any; errorMessage?: string; isSignup?: boolean; }
   ): Promise<void> {
     await this.logEvent({
       eventType: 'promo_redemption',
@@ -215,7 +215,7 @@ export class AuthAuditLogger {
    */
   async logSecurityViolation(
     type: string,
-    metadata: { email?: string; ip?: string; details?: any }
+    metadata: { email?: string; ip?: string; details?: any; event?: string; }
   ): Promise<void> {
     await this.logEvent({
       eventType: 'security_violation',

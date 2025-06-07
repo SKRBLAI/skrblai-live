@@ -48,7 +48,11 @@ export const initAuth = (callback: (user: any) => void) => {
     callback(session?.user || null);
   });
   
-  return () => subscription.unsubscribe();
+  return () => {
+    if (subscription && typeof subscription.unsubscribe === 'function') {
+      subscription.unsubscribe();
+    }
+  };
 };
 
 // Get user data from Supabase

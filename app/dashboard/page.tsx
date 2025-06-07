@@ -123,7 +123,9 @@ export default function Dashboard() {
       }
     });
     return () => {
-      subscription?.unsubscribe();
+      if (subscription && typeof subscription.unsubscribe === 'function') {
+        subscription.unsubscribe();
+      }
     };
   }, [router]);
 
