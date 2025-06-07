@@ -1,4 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
+import { 
+  logSignInAttempt, 
+  logSignInSuccess, 
+  logSignInFailure,
+  logPromoRedemption,
+  logSecurityViolation
+} from '@/lib/auth/authAuditLogger';
 
 // Initialize Supabase client with service role for admin operations
 const supabase = createClient(
@@ -36,12 +43,44 @@ export interface PromoCodeValidation {
  * Handles email/password auth + promo/VIP code validation
  */
 export async function authenticateForDashboard(
-  request: DashboardAuthRequest
+  request: DashboardAuthRequest,
+  metadata: { ip?: string; userAgent?: string } = {}
 ): Promise<DashboardAuthResponse> {
   try {
     console.log('[DashboardAuth] Authenticating user:', request.email);
 
-    // Step 1: Authenticate user with email/password
+    // Enhanced audit logging for sign-in attempt
+    await logSignInAttempt(request.email, {
+      ...metadata,
+      promoCode: request.promoCode,
+      vipCode: request.vipCode
+    });
+
+    // Step 1: Check rate limiting before authentication
+    const rateLimitCheck = await supabase.rpc('check_rate_limit', {
+      p_identifier: metadata.ip || request.email,
+      p_identifier_type: metadata.ip ? 'ip' : 'email',
+      p_event_type: 'signin_attempt',
+      p_max_attempts: 5,
+      p_window_minutes: 15,
+      p_block_minutes: 60
+    });
+
+    if (rateLimitCheck.data && !rateLimitCheck.data.allowed) {
+      await logSecurityViolation('rate_limit_exceeded', {
+        email: request.email,
+        ip: metadata.ip,
+        details: rateLimitCheck.data
+      });
+      
+      return {
+        success: false,
+        error: 'Too many attempts. Please try again later.',
+        rateLimited: true
+      };
+    }
+
+    // Step 2: Authenticate user with email/password
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email: request.email,
       password: request.password,
@@ -49,6 +88,17 @@ export async function authenticateForDashboard(
 
     if (authError || !authData.user) {
       console.error('[DashboardAuth] Authentication failed:', authError?.message);
+      
+      // Enhanced failure logging
+      await logSignInFailure(
+        request.email, 
+        authError?.message || 'Invalid email or password',
+        { 
+          ...metadata,
+          attempt: (rateLimitCheck.data?.attempts_in_window || 0) + 1
+        }
+      );
+      
       return {
         success: false,
         error: authError?.message || 'Invalid email or password'
@@ -79,8 +129,31 @@ export async function authenticateForDashboard(
         promoRedeemed = true;
         promoCodeBenefits = promoResult.benefits;
         console.log('[DashboardAuth] Code redeemed successfully:', promoResult.codeType);
+        
+        // Log successful promo redemption
+        await logPromoRedemption(
+          user.id,
+          user.email!,
+          codeToRedeem,
+          true,
+          {
+            codeType: promoResult.codeType,
+            benefits: promoResult.benefits
+          }
+        );
       } else {
         console.warn('[DashboardAuth] Code redemption failed:', promoResult.error);
+        
+        // Log failed promo redemption
+        await logPromoRedemption(
+          user.id,
+          user.email!,
+          codeToRedeem,
+          false,
+          {
+            errorMessage: promoResult.error
+          }
+        );
         // Don't fail auth if code is invalid - just log the issue
       }
     }
@@ -93,6 +166,18 @@ export async function authenticateForDashboard(
     const accessLevel = finalAccess?.access_level || 'free';
 
     console.log('[DashboardAuth] Final access level:', accessLevel);
+
+    // Enhanced success logging
+    await logSignInSuccess(
+      user.id,
+      user.email!,
+      accessLevel,
+      {
+        ...metadata,
+        promoRedeemed,
+        vipStatus: vipStatus?.isVIP || false
+      }
+    );
 
     return {
       success: true,
@@ -361,5 +446,202 @@ export async function logAuthEvent(
     });
   } catch (error) {
     console.error('[DashboardAuth] Failed to log auth event:', error);
+  }
+}
+
+/**
+ * Register a new user for dashboard access with optional promo/VIP code
+ */
+export async function registerUserForDashboard(
+  request: DashboardAuthRequest,
+  metadata: { ip?: string; userAgent?: string } = {}
+): Promise<DashboardAuthResponse> {
+  try {
+    console.log('[DashboardAuth] Registering new user:', request.email);
+
+    // Enhanced audit logging for signup attempt
+    await logSignInAttempt(request.email, {
+      ...metadata,
+      promoCode: request.promoCode,
+      vipCode: request.vipCode,
+      isSignup: true
+    });
+
+    // Step 1: Check rate limiting before registration
+    const rateLimitCheck = await supabase.rpc('check_rate_limit', {
+      p_identifier: metadata.ip || request.email,
+      p_identifier_type: metadata.ip ? 'ip' : 'email',
+      p_event_type: 'signup_attempt',
+      p_max_attempts: 3,
+      p_window_minutes: 15,
+      p_block_minutes: 60
+    });
+
+    if (rateLimitCheck.data && !rateLimitCheck.data.allowed) {
+      await logSecurityViolation('rate_limit_exceeded', {
+        email: request.email,
+        ip: metadata.ip,
+        details: rateLimitCheck.data,
+        event: 'signup'
+      });
+      
+      return {
+        success: false,
+        error: 'Too many signup attempts. Please try again later.',
+        rateLimited: true
+      };
+    }
+
+    // Step 2: Register user with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: request.email,
+      password: request.password,
+      options: {
+        data: {
+          signup_source: 'dashboard',
+          ip_address: metadata.ip || 'unknown',
+          user_agent: metadata.userAgent || 'unknown'
+        }
+      }
+    });
+
+    if (authError || !authData.user) {
+      console.error('[DashboardAuth] Registration failed:', authError?.message);
+      
+      // Enhanced failure logging
+      await logSignInFailure(
+        request.email, 
+        authError?.message || 'Registration failed',
+        { 
+          ...metadata,
+          attempt: (rateLimitCheck.data?.attempts_in_window || 0) + 1,
+          isSignup: true
+        }
+      );
+      
+      return {
+        success: false,
+        error: authError?.message || 'Registration failed'
+      };
+    }
+
+    const user = authData.user;
+    console.log('[DashboardAuth] User registered successfully:', user.id);
+
+    // Step 3: Handle promo code if provided during registration
+    let promoRedeemed = false;
+    let promoCodeBenefits = null;
+    
+    const codeToRedeem = request.promoCode || request.vipCode;
+    if (codeToRedeem) {
+      console.log('[DashboardAuth] Redeeming code during registration:', codeToRedeem);
+      
+      const promoResult = await validateAndRedeemCode(
+        codeToRedeem, 
+        user.id, 
+        user.email!
+      );
+      
+      if (promoResult.success) {
+        promoRedeemed = true;
+        promoCodeBenefits = promoResult.benefits;
+        console.log('[DashboardAuth] Code redeemed during registration:', promoResult.codeType);
+        
+        // Log successful promo redemption during signup
+        await logPromoRedemption(
+          user.id,
+          user.email!,
+          codeToRedeem,
+          true,
+          {
+            codeType: promoResult.codeType,
+            benefits: promoResult.benefits,
+            isSignup: true
+          }
+        );
+      } else {
+        console.warn('[DashboardAuth] Code redemption failed during registration:', promoResult.error);
+        
+        // Log failed promo redemption during signup
+        await logPromoRedemption(
+          user.id,
+          user.email!,
+          codeToRedeem,
+          false,
+          {
+            errorMessage: promoResult.error,
+            isSignup: true
+          }
+        );
+        // Don't fail registration if code is invalid - just log the issue
+      }
+    }
+
+    // Step 4: Check VIP status (may exist from pre-registration)
+    const vipStatus = await checkVIPStatus(user.email!);
+
+    // Step 5: Create initial dashboard access record
+    const accessLevel = promoRedeemed 
+      ? (request.vipCode ? 'vip' : 'promo')
+      : (vipStatus?.isVIP ? 'vip' : 'free');
+
+    const createAccessResult = await updateUserDashboardAccess(
+      user.id,
+      user.email!,
+      accessLevel as 'free' | 'promo' | 'vip',
+      promoCodeBenefits || {},
+      {
+        signup_date: new Date().toISOString(),
+        signup_ip: metadata.ip,
+        initial_promo_code: codeToRedeem || null
+      }
+    );
+
+    if (!createAccessResult) {
+      console.error('[DashboardAuth] Failed to create dashboard access record');
+      // Don't fail registration for this - the user can still access basic features
+    }
+
+    // Step 6: Get final access permissions
+    const finalAccess = await getUserDashboardAccess(user.id);
+
+    console.log('[DashboardAuth] Registration completed with access level:', finalAccess?.access_level || 'free');
+
+    // Enhanced success logging for signup
+    await logSignInSuccess(
+      user.id,
+      user.email!,
+      finalAccess?.access_level || 'free',
+      {
+        ...metadata,
+        promoRedeemed,
+        vipStatus: vipStatus?.isVIP || false,
+        isSignup: true
+      }
+    );
+
+    return {
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        user_metadata: user.user_metadata,
+        access_token: authData.session?.access_token
+      },
+      accessLevel: (finalAccess?.access_level || 'free') as 'free' | 'promo' | 'vip',
+      promoRedeemed,
+      vipStatus,
+      benefits: finalAccess?.benefits || promoCodeBenefits,
+      message: promoRedeemed 
+        ? 'Account created and promo code redeemed successfully!' 
+        : 'Account created successfully!'
+    };
+
+  } catch (error: any) {
+    console.error('[DashboardAuth] Registration error:', error);
+    return {
+      success: false,
+      error: 'Registration service temporarily unavailable'
+    };
   }
 } 

@@ -4,7 +4,12 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
-import { authenticateForDashboard, validatePromoCode, checkVIPStatus } from '@/lib/auth/dashboardAuth';
+import { 
+  authenticateForDashboard, 
+  validatePromoCode, 
+  checkVIPStatus,
+  registerUserForDashboard 
+} from '@/lib/auth/dashboardAuth';
 
 // Mock Supabase client
 jest.mock('@supabase/supabase-js', () => ({
@@ -407,6 +412,256 @@ describe('Dashboard Authentication System', () => {
       // Should handle the error and not crash
       expect(result).toBeDefined();
     });
+  });
+
+  describe('User Registration', () => {
+    it('should register new user without promo code', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock successful registration
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: testUser, session: testSession },
+        error: null
+      });
+      
+      // Mock dashboard access creation
+      mockSupabase.from().maybeSingle.mockResolvedValue({
+        data: { access_level: 'free', is_vip: false },
+        error: null
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'newuser@example.com',
+        password: 'NewPassword123!'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.user?.id).toBe(testUser.id);
+      expect(result.accessLevel).toBe('free');
+      expect(result.promoRedeemed).toBe(false);
+      expect(result.message).toBe('Account created successfully!');
+    });
+
+    it('should register new user with valid promo code', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock successful registration
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: testUser, session: testSession },
+        error: null
+      });
+
+      // Mock promo code redemption
+      mockSupabase.rpc.mockResolvedValue({
+        data: {
+          success: true,
+          code_type: 'PROMO',
+          benefits: { dashboard_access: true, duration_days: 30 }
+        },
+        error: null
+      });
+
+      // Mock dashboard access creation
+      mockSupabase.from().maybeSingle.mockResolvedValue({
+        data: { 
+          access_level: 'promo', 
+          is_vip: false,
+          benefits: { dashboard_access: true, duration_days: 30 }
+        },
+        error: null
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'newuser@example.com',
+        password: 'NewPassword123!',
+        promoCode: 'WELCOME2025'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.accessLevel).toBe('promo');
+      expect(result.promoRedeemed).toBe(true);
+      expect(result.message).toBe('Account created and promo code redeemed successfully!');
+      expect(result.benefits?.dashboard_access).toBe(true);
+    });
+
+    it('should register new user with valid VIP code', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock successful registration
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: testUser, session: testSession },
+        error: null
+      });
+
+      // Mock VIP code redemption
+      mockSupabase.rpc.mockResolvedValue({
+        data: {
+          success: true,
+          code_type: 'VIP',
+          benefits: { vip_level: 'gold', full_vip_access: true }
+        },
+        error: null
+      });
+
+      // Mock dashboard access creation
+      mockSupabase.from().maybeSingle.mockResolvedValue({
+        data: { 
+          access_level: 'vip', 
+          is_vip: true,
+          benefits: { vip_level: 'gold', full_vip_access: true }
+        },
+        error: null
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'newvip@example.com',
+        password: 'VipPassword123!',
+        vipCode: 'VIP_PREVIEW'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.accessLevel).toBe('vip');
+      expect(result.promoRedeemed).toBe(true);
+      expect(result.message).toBe('Account created and promo code redeemed successfully!');
+      expect(result.benefits?.vip_level).toBe('gold');
+    });
+
+    it('should fail registration with invalid email', async () => {
+      const result = await registerUserForDashboard({
+        email: 'invalid-email',
+        password: 'Password123!'
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('email');
+    });
+
+    it('should fail registration with weak password', async () => {
+      const result = await registerUserForDashboard({
+        email: 'test@example.com',
+        password: '123'
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Password');
+    });
+
+    it('should handle registration failure from Supabase', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock registration failure
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: null, session: null },
+        error: { message: 'User already registered' }
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'existing@example.com',
+        password: 'Password123!'
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('User already registered');
+    });
+
+    it('should register user but handle invalid promo code gracefully', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock successful registration
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: testUser, session: testSession },
+        error: null
+      });
+
+      // Mock invalid promo code
+      mockSupabase.rpc.mockResolvedValue({
+        data: {
+          success: false,
+          error: 'Invalid or expired promo code'
+        },
+        error: null
+      });
+
+      // Mock dashboard access creation (free tier)
+      mockSupabase.from().maybeSingle.mockResolvedValue({
+        data: { access_level: 'free', is_vip: false },
+        error: null
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'newuser@example.com',
+        password: 'Password123!',
+        promoCode: 'INVALID_CODE'
+      });
+
+      // Should succeed with registration but without promo benefits
+      expect(result.success).toBe(true);
+      expect(result.accessLevel).toBe('free');
+      expect(result.promoRedeemed).toBe(false);
+      expect(result.message).toBe('Account created successfully!');
+    });
+
+    it('should register VIP user based on email domain recognition', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock successful registration
+      mockSupabase.auth.signUp.mockResolvedValue({
+        data: { user: { ...testUser, email: 'ceo@microsoft.com' }, session: testSession },
+        error: null
+      });
+
+      // Mock VIP status check (pre-existing VIP recognition)
+      mockSupabase.from().maybeSingle
+        .mockResolvedValueOnce({ // Initial VIP check
+          data: {
+            is_vip: true,
+            vip_level: 'enterprise',
+            vip_score: 95,
+            company_name: 'Microsoft'
+          },
+          error: null
+        })
+        .mockResolvedValueOnce({ // Final access level
+          data: { 
+            access_level: 'vip', 
+            is_vip: true,
+            benefits: { vip_level: 'enterprise' }
+          },
+          error: null
+        });
+
+      const result = await registerUserForDashboard({
+        email: 'ceo@microsoft.com',
+        password: 'EnterprisePassword123!'
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.accessLevel).toBe('vip');
+      expect(result.vipStatus?.isVIP).toBe(true);
+      expect(result.vipStatus?.vipLevel).toBe('enterprise');
+    });
+
+    it('should handle rate limiting during registration', async () => {
+      const mockSupabase = require('@supabase/supabase-js').createClient();
+      
+      // Mock rate limit exceeded
+      mockSupabase.rpc.mockResolvedValue({
+        data: { allowed: false, blocked: true, reason: 'Too many signup attempts' },
+        error: null
+      });
+
+      const result = await registerUserForDashboard({
+        email: 'test@example.com',
+        password: 'Password123!'
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('Too many signup attempts');
+      expect(result.rateLimited).toBe(true);
+    });
+  });
+
+  describe('VIP Recognition', () => {
   });
 });
 

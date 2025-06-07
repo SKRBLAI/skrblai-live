@@ -1,3 +1,45 @@
+# DOUBLE UP 202 — Unified Percy Dashboard Auth Portal (Sign In/Up + Promo/VIP)
+
+**Date:** 2025-06-06
+
+## New Feature: Unified Percy Sign In/Sign Up + Promo/VIP Code Portal
+
+### Overview
+- Created a single, glassmorphic Percy-branded authentication portal at `/dashboard/signin`.
+- Supports both **sign in** and **sign up** in one UI (toggleable tabs).
+- After authentication, users are prompted for a **Promo Code or VIP Code**.
+- VIP codes unlock a visually distinct, premium dashboard experience (badge, cosmic flair).
+- Promo codes show perks/confirmation (dummy logic; backend integration pending).
+- Users can skip code entry and add codes later from their profile/settings (future-proofed).
+- All code validation is currently dummy logic; ready for Cursor/backend to wire up real checks.
+
+### User Flow
+1. **Step 1:** Sign In or Sign Up (email, password, confirm password for sign up)
+2. **Step 2:** Promo/VIP Code entry (optional, with clear feedback for valid/invalid/used codes)
+3. **Step 3:** Dashboard preview (VIP users see badge and premium visuals)
+
+### Files Created/Modified
+- `app/dashboard/signin/page.tsx` — New route, mounts the unified auth portal
+- `components/percy/PercyOnboardingAuth.tsx` — New component, all-in-one UI and state logic
+
+### UX/Design
+- Glassmorphic, cosmic, Percy-branded styling throughout
+- Responsive, mobile-first layout
+- Percy avatar always visible
+- Clear feedback for all states (processing, error, success)
+- VIP dashboard is visually distinct (badge, color, cosmic Percy flair)
+
+### Future-Proofing
+- Dummy code validation logic is isolated and ready for backend integration
+- User can add promo/VIP codes later from profile/settings
+- All state logic is extensible for future features
+
+### For Windsurf & Cursor Teams
+- **Windsurf:** Frontend is complete, ready for handoff
+- **Cursor:** Backend hooks can be wired in for real code validation, user upgrades, and dashboard gating
+
+---
+
 # DOUBLE UP 111 — Percy Onboarding Fusion + UI Cohesion Release
 
 **Date:** 2025-06-05
@@ -59,6 +101,9 @@
 - `components/assistant/PercyProvider.tsx`
 - `components/percy/PercyWidget.tsx`
 - `components/agents/AgentConstellation.tsx`
+- `app/dashboard/signin/page.tsx` (new)
+- `components/percy/PercyOnboardingAuth.tsx` (new)
+
 - `styles/cosmic-theme.css`
 
 ## QA Steps
