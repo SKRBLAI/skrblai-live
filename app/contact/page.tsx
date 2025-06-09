@@ -8,6 +8,16 @@ import PageLayout from '@/components/layout/PageLayout';
 
 export const dynamic = 'force-dynamic';
 
+// Framer Motion staggered variants for fields
+const fieldVariants = {
+  hidden: { opacity: 0, y: 16 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.15 + i * 0.09, duration: 0.45, type: 'spring', stiffness: 100, damping: 16 },
+  }),
+};
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -61,7 +71,15 @@ export default function ContactPage() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="text-xl text-gray-400 max-w-3xl mx-auto"
           >
-            Have questions or need support? We're here to help.
+            We’re here for you! Drop us a message and our team will respond as soon as possible.
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-2 text-base text-teal-300 max-w-2xl mx-auto"
+          >
+            Need urgent help? <a href="mailto:support@skrbl.ai" className="underline hover:text-electric-blue transition-colors">Email us directly</a>.
           </motion.p>
         </div>
 
@@ -69,8 +87,9 @@ export default function ContactPage() {
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="glass-card p-8 rounded-2xl"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="glass-card p-8 rounded-2xl shadow-xl backdrop-blur-lg border border-teal-400/10"
+            aria-label="Contact form panel"
           >
             <h2 className="text-2xl font-bold mb-6 text-white">Get in Touch</h2>
             
@@ -78,74 +97,161 @@ export default function ContactPage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-12"
+                className="text-center py-12 relative"
               >
-                <div className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-gradient-to-r from-electric-blue to-teal-400 mb-6">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.2 }}
+                  className="inline-flex items-center justify-center h-24 w-24 rounded-full bg-gradient-to-r from-electric-blue to-teal-400 mb-6 shadow-lg"
+                >
                   <svg className="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    <motion.path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 0.7, delay: 0.3 }}
+                    />
                   </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Message Sent!</h3>
-                <p className="text-gray-400 mb-6">We'll get back to you as soon as possible.</p>
-                <button 
+                </motion.div>
+                {/* Subtle confetti animation */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.8 }}
+                  transition={{ delay: 0.7, duration: 0.5 }}
+                  className="absolute inset-0 pointer-events-none z-10"
+                  aria-hidden="true"
+                >
+                  {[...Array(16)].map((_, i) => (
+                    <motion.span
+                      key={i}
+                      className="absolute w-2 h-2 rounded-full"
+                      style={{
+                        left: `${10 + Math.random() * 80}%`,
+                        top: `${20 + Math.random() * 60}%`,
+                        background: `linear-gradient(135deg, #38bdf8, #f472b6)`,
+                        opacity: 0.7 + Math.random() * 0.3,
+                      }}
+                      initial={{ y: -20, scale: 0 }}
+                      animate={{ y: [0, 24 + Math.random() * 20], scale: [0.7, 1, 0.7] }}
+                      transition={{ delay: 0.8 + i * 0.05, duration: 1.2, repeat: 0 }}
+                    />
+                  ))}
+                </motion.div>
+                <motion.h3
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.4 }}
+                  className="text-2xl font-bold text-white mb-2"
+                >
+                  Message Sent!
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.4 }}
+                  className="text-gray-400 mb-6"
+                >
+                  We'll get back to you as soon as possible.
+                </motion.p>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: 'spring', stiffness: 300 }}
                   onClick={() => setSubmitted(false)}
-                  className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all duration-300"
+                  className="px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all duration-300 shadow"
                 >
                   Send Another Message
-                </button>
+                </motion.button>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
+              <motion.form
+                variants={fieldVariants}
+                initial="hidden"
+                animate="visible"
+                onSubmit={handleSubmit}
+                className="space-y-4"
+              >
+                <motion.div
+                  variants={fieldVariants}
+                  custom={0}
+                  className="relative"
+                >
                   <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">Name</label>
-                  <input
+                  <motion.input
                     type="text"
                     id="name"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                    whileFocus={{ boxShadow: '0 0 0 2px #38bdf8, 0 0 8px #38bdf8cc' }}
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue transition-shadow"
                     placeholder="Your name"
+                    aria-required="true"
                   />
-                </div>
+                </motion.div>
                 
-                <div>
+                <motion.div
+                  variants={fieldVariants}
+                  custom={1}
+                  className="relative"
+                >
                   <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                  <input
+                  <motion.input
                     type="email"
                     id="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                    whileFocus={{ boxShadow: '0 0 0 2px #38bdf8, 0 0 8px #38bdf8cc' }}
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue transition-shadow"
                     placeholder="your@email.com"
+                    aria-required="true"
                   />
-                </div>
+                </motion.div>
                 
-                <div>
+                <motion.div
+                  variants={fieldVariants}
+                  custom={2}
+                  className="relative"
+                >
                   <label htmlFor="company" className="block text-sm font-medium text-gray-300 mb-1">Company (Optional)</label>
-                  <input
+                  <motion.input
                     type="text"
                     id="company"
                     name="company"
                     value={formData.company}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                    whileFocus={{ boxShadow: '0 0 0 2px #38bdf8, 0 0 8px #38bdf8cc' }}
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue transition-shadow"
                     placeholder="Your company"
                   />
-                </div>
+                </motion.div>
                 
-                <div>
+                <motion.div
+                  variants={fieldVariants}
+                  custom={3}
+                  className="relative"
+                >
                   <label htmlFor="subject" className="block text-sm font-medium text-gray-300 mb-1">Subject</label>
-                  <select
+                  <motion.select
                     id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                    whileFocus={{ boxShadow: '0 0 0 2px #38bdf8, 0 0 8px #38bdf8cc' }}
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue transition-shadow"
+                    aria-required="true"
                   >
                     <option value="" disabled>Select a subject</option>
                     <option value="General Inquiry">General Inquiry</option>
@@ -153,42 +259,51 @@ export default function ContactPage() {
                     <option value="Billing Question">Billing Question</option>
                     <option value="Partnership">Partnership Opportunity</option>
                     <option value="Feature Request">Feature Request</option>
-                  </select>
-                </div>
+                  </motion.select>
+                </motion.div>
                 
-                <div>
+                <motion.div
+                  variants={fieldVariants}
+                  custom={4}
+                  className="relative"
+                >
                   <label htmlFor="message" className="block text-sm font-medium text-gray-300 mb-1">Message</label>
-                  <textarea
+                  <motion.textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                    whileFocus={{ boxShadow: '0 0 0 2px #38bdf8, 0 0 8px #38bdf8cc' }}
+                    whileHover={{ scale: 1.01 }}
+                    className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-electric-blue transition-shadow"
                     placeholder="How can we help you?"
+                    aria-required="true"
                   />
-                </div>
+                </motion.div>
                 
                 <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
+                  variants={fieldVariants}
+                  custom={5}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.96 }}
                   type="submit"
                   disabled={isSubmitting}
                   className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 
                     ${isSubmitting ? 'bg-white/20 text-white/50' : 'bg-gradient-to-r from-electric-blue to-teal-400 text-white hover:shadow-lg hover:shadow-electric-blue/20'}`}
+                  aria-disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <span className="flex items-center justify-center">
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       Sending...
                     </span>
-                  ) : 'Send Message'}
+                  ) : (
+                    'Send Message'
+                  )}
                 </motion.button>
-              </form>
+              </motion.form>
             )}
           </motion.div>
           

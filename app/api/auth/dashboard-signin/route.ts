@@ -6,10 +6,30 @@ import {
   registerUserForDashboard,
   type DashboardAuthRequest 
 } from '@/lib/auth/dashboardAuth';
-import { createClient } from '@supabase/supabase-js';
+
+// Environment variable validation
+function validateEnvironment() {
+  const requiredEnvVars = [
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    'SUPABASE_SERVICE_ROLE_KEY'
+  ];
+
+  const missing = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missing.length > 0) {
+    console.error('[AUTH API] Missing environment variables:', missing);
+    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+  }
+
+  console.log('[AUTH API] Environment validation passed');
+}
 
 export async function POST(req: NextRequest) {
   try {
+    // Validate environment variables first
+    validateEnvironment();
+
     const body = await req.json();
     const { 
       email, 
@@ -26,8 +46,18 @@ export async function POST(req: NextRequest) {
       userAgent: req.headers.get('user-agent') || 'unknown'
     };
 
+    console.log('[AUTH API] Processing request:', {
+      mode,
+      email,
+      hasPromoCode: !!promoCode,
+      hasVipCode: !!vipCode,
+      ip: requestMetadata.ip,
+      userAgent: requestMetadata.userAgent.substring(0, 50)
+    });
+
     // Validate required fields
     if (!email || !password) {
+      console.log('[AUTH API] Missing required fields');
       return NextResponse.json(
         { 
           success: false, 
@@ -37,176 +67,92 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Additional validation for signup mode
+    // Handle signup mode
     if (mode === 'signup') {
-      if (!confirm || password !== confirm) {
+      if (!confirm) {
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Password confirmation does not match' 
+            error: 'Password confirmation is required for signup' 
           },
           { status: 400 }
         );
       }
 
-      // Validate password strength
-      if (password.length < 8) {
+      if (password !== confirm) {
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Password must be at least 8 characters long' 
+            error: 'Passwords do not match' 
           },
           { status: 400 }
         );
       }
-    }
 
-    // Log the authentication attempt with enhanced metadata
-    console.log('[API] Dashboard auth attempt:', { 
-      email, 
-      mode: mode || 'signin',
-      hasPromoCode: !!promoCode, 
-      hasVipCode: !!vipCode,
-      ip: requestMetadata.ip,
-      userAgent: requestMetadata.userAgent
-    });
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid email format' 
-        },
-        { status: 400 }
+      console.log('[AUTH API] Processing signup');
+      const result = await registerUserForDashboard(
+        { email, password, promoCode, vipCode },
+        requestMetadata
       );
-    }
 
-    // Validate promo code format if provided
-    const codeToValidate = promoCode || vipCode;
-    if (codeToValidate) {
-      // Basic format validation
-      if (codeToValidate.length < 3 || codeToValidate.length > 50) {
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'Invalid code format' 
-          },
-          { status: 400 }
-        );
-      }
-
-      // Pre-validate the code (optional - helps with UX)
-      const codeValidation = await validatePromoCode(codeToValidate);
-      if (!codeValidation.isValid) {
-        // Log invalid code attempt but don't fail auth
-        console.warn('[API] Invalid promo code attempted:', codeToValidate);
-      }
-    }
-
-    let authResult;
-
-    // Handle signup vs signin
-    if (mode === 'signup') {
-      // Register new user
-      authResult = await registerUserForDashboard({
-        email,
-        password,
-        promoCode,
-        vipCode
-      }, requestMetadata);
-    } else {
-      // Authenticate existing user
-      authResult = await authenticateForDashboard({
-        email,
-        password,
-        promoCode,
-        vipCode
-      }, requestMetadata);
-    }
-
-    if (!authResult.success) {
-      // Log failed authentication
-      console.error('[API] Authentication failed:', { 
-        email, 
-        mode: mode || 'signin',
-        error: authResult.error 
+      console.log('[AUTH API] Signup result:', {
+        success: result.success,
+        accessLevel: result.accessLevel,
+        isVIP: result.vipStatus?.isVIP,
+        rateLimited: result.rateLimited
       });
-      
-      return NextResponse.json(
-        {
-          success: false,
-          error: authResult.error || 'Authentication failed'
-        },
-        { status: 401 }
-      );
+
+      return NextResponse.json(result, { 
+        status: result.success ? 200 : (result.rateLimited ? 429 : 400) 
+      });
     }
 
-    // Log successful authentication
-    if (authResult.user) {
-      await logAuthEvent(
-        authResult.user.id,
-        authResult.user.email,
-        mode === 'signup' ? 'dashboard_signup' : 'dashboard_signin',
-        {
-          accessLevel: authResult.accessLevel,
-          promoRedeemed: authResult.promoRedeemed,
-          vipStatus: authResult.vipStatus?.isVIP || false,
-          hasPromoCode: !!promoCode,
-          hasVipCode: !!vipCode
-        }
-      );
-    }
+    // Handle signin mode (default)
+    console.log('[AUTH API] Processing signin');
+    const result = await authenticateForDashboard(
+      { email, password, promoCode, vipCode },
+      requestMetadata
+    );
 
-    console.log('[API] Dashboard auth successful:', {
-      userId: authResult.user?.id,
-      email: authResult.user?.email,
-      mode: mode || 'signin',
-      accessLevel: authResult.accessLevel,
-      promoRedeemed: authResult.promoRedeemed
+    console.log('[AUTH API] Signin result:', {
+      success: result.success,
+      accessLevel: result.accessLevel,
+      isVIP: result.vipStatus?.isVIP,
+      rateLimited: result.rateLimited
     });
 
-    // Determine if VIP or promo mode based on redemption and access level
-    const isVipMode = authResult.accessLevel === 'vip' || authResult.vipStatus?.isVIP;
-    const isPromoMode = authResult.accessLevel === 'promo' && authResult.promoRedeemed;
-
-    // Return successful authentication
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: authResult.user?.id,
-        email: authResult.user?.email,
-        user_metadata: authResult.user?.user_metadata
-      },
-      accessLevel: authResult.accessLevel,
-      promoRedeemed: authResult.promoRedeemed,
-      vipStatus: authResult.vipStatus,
-      benefits: authResult.benefits,
-      message: authResult.message,
-      sessionToken: authResult.user?.access_token,
-      vipMode: isVipMode,
-      promoMode: isPromoMode,
-      timestamp: new Date().toISOString()
+    return NextResponse.json(result, { 
+      status: result.success ? 200 : (result.rateLimited ? 429 : 400) 
     });
 
   } catch (error: any) {
-    console.error('[API] Dashboard auth error:', error);
+    console.error('[AUTH API] Unexpected error:', error);
     
+    // Log the error for debugging
+    await logAuthEvent('unknown', 'unknown', 'error', {
+      error: error.message,
+      stack: error.stack,
+      timestamp: new Date().toISOString()
+    }).catch(logError => {
+      console.error('[AUTH API] Failed to log error:', logError);
+    });
+
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Authentication service temporarily unavailable',
-        timestamp: new Date().toISOString()
+      { 
+        success: false, 
+        error: 'Internal server error. Please try again later.' 
       },
       { status: 500 }
     );
   }
 }
 
-// GET endpoint for validating codes without authentication
+// GET endpoint for validating codes without authentication  
 export async function GET(req: NextRequest) {
   try {
+    // Validate environment variables first
+    validateEnvironment();
+
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
     const checkAccess = searchParams.get('checkAccess');
@@ -217,6 +163,7 @@ export async function GET(req: NextRequest) {
       const token = authHeader?.replace('Bearer ', '');
       
       if (!token) {
+        console.log('[AUTH API] GET: No authorization token provided');
         return NextResponse.json(
           { 
             success: false, 
@@ -227,15 +174,18 @@ export async function GET(req: NextRequest) {
       }
 
       try {
-        // Verify token and get user
+        // Import createClient here to avoid circular dependencies
+        const { createClient } = await import('@supabase/supabase-js');
         const supabase = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY!
         );
 
+        // Verify token and get user
         const { data: { user }, error: userError } = await supabase.auth.getUser(token);
         
         if (userError || !user) {
+          console.log('[AUTH API] GET: Invalid token');
           return NextResponse.json(
             { 
               success: false, 
@@ -253,91 +203,100 @@ export async function GET(req: NextRequest) {
           .maybeSingle();
 
         if (accessError) {
-          console.error('[API] Access check error:', accessError);
+          console.error('[AUTH API] GET: Error fetching user access:', accessError);
           return NextResponse.json(
             { 
               success: false, 
-              error: 'Failed to check user access' 
+              error: 'Failed to fetch user access' 
             },
             { status: 500 }
           );
         }
 
-        // Get VIP status
-        const { data: vipData, error: vipError } = await supabase
-          .from('vip_users')
-          .select('*')
-          .eq('email', user.email!.toLowerCase())
-          .maybeSingle();
+        // Get VIP status if user is VIP
+        let vipStatus: {
+          isVIP: boolean;
+          vipLevel: string;
+          vipScore?: number;
+          companyName?: string;
+        } = { isVIP: false, vipLevel: 'none' };
+        
+        if (accessData?.is_vip) {
+          const { data: vipData } = await supabase
+            .from('vip_users')
+            .select('*')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (vipData) {
+            vipStatus = {
+              isVIP: true,
+              vipLevel: vipData.vip_level,
+              vipScore: vipData.vip_score,
+              companyName: vipData.company_name
+            };
+          }
+        }
 
-        const vipStatus = vipData ? {
-          isVIP: vipData.is_vip || vipData.vip_level !== 'standard',
-          vipLevel: vipData.vip_level,
-          vipScore: vipData.vip_score,
-          companyName: vipData.company_name
-        } : { isVIP: false, vipLevel: 'standard' };
-
+        console.log('[AUTH API] GET: User access check successful');
         return NextResponse.json({
           success: true,
           user: {
             id: user.id,
-            email: user.email,
-            user_metadata: user.user_metadata
+            email: user.email
           },
           accessLevel: accessData?.access_level || 'free',
           isVIP: accessData?.is_vip || false,
           vipStatus,
           benefits: accessData?.benefits || {},
-          promoCodeUsed: accessData?.promo_code_used || null,
-          metadata: accessData?.metadata || {},
-          timestamp: new Date().toISOString()
+          promoCodeUsed: accessData?.promo_code_used,
+          metadata: accessData?.metadata || {}
         });
 
       } catch (error: any) {
-        console.error('[API] Access check error:', error);
+        console.error('[AUTH API] GET: Error checking access:', error);
         return NextResponse.json(
           { 
             success: false, 
-            error: 'Access check failed' 
+            error: 'Failed to verify access' 
           },
           { status: 500 }
         );
       }
     }
-    
-    // Original code validation functionality
-    if (!code) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Code parameter is required' 
-        },
-        { status: 400 }
-      );
+
+    // If validating a promo/VIP code without auth
+    if (code) {
+      try {
+        const result = await validatePromoCode(code);
+        console.log('[AUTH API] GET: Code validation result:', { code, isValid: result.isValid });
+        return NextResponse.json(result);
+      } catch (error: any) {
+        console.error('[AUTH API] GET: Code validation error:', error);
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Failed to validate code' 
+          },
+          { status: 500 }
+        );
+      }
     }
 
-    console.log('[API] Validating promo code:', code);
-
-    // Validate the code
-    const validation = await validatePromoCode(code);
-
-    return NextResponse.json({
-      success: true,
-      isValid: validation.isValid,
-      type: validation.type,
-      benefits: validation.benefits,
-      error: validation.error,
-      timestamp: new Date().toISOString()
-    });
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Invalid request parameters' 
+      },
+      { status: 400 }
+    );
 
   } catch (error: any) {
-    console.error('[API] Code validation error:', error);
-    
+    console.error('[AUTH API] GET: Unexpected error:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Code validation service unavailable',
-        timestamp: new Date().toISOString()
+      { 
+        success: false, 
+        error: 'Internal server error' 
       },
       { status: 500 }
     );
