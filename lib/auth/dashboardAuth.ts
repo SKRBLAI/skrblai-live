@@ -18,6 +18,7 @@ export interface DashboardAuthRequest {
   password: string;
   promoCode?: string;
   vipCode?: string;
+  marketingConsent?: boolean;
 }
 
 export interface DashboardAuthResponse {
@@ -159,10 +160,35 @@ export async function authenticateForDashboard(
       }
     }
 
-    // Step 4: Check VIP status
+    // Step 4: Handle marketing consent if provided during signin
+    if (request.marketingConsent !== undefined) {
+      try {
+        console.log('[DashboardAuth] Recording marketing consent during signin:', request.marketingConsent);
+        
+        const consentResult = await supabase.rpc('update_marketing_consent', {
+          p_user_id: user.id,
+          p_email: user.email!,
+          p_consent_given: request.marketingConsent,
+          p_source: 'signin',
+          p_ip_address: metadata.ip || null,
+          p_user_agent: metadata.userAgent || null
+        });
+
+        if (consentResult.error) {
+          console.error('[DashboardAuth] Failed to record marketing consent during signin:', consentResult.error);
+        } else {
+          console.log('[DashboardAuth] Marketing consent recorded successfully during signin');
+        }
+      } catch (consentError: any) {
+        console.error('[DashboardAuth] Marketing consent error during signin:', consentError);
+        // Don't fail signin for consent issues - this is non-critical
+      }
+    }
+
+    // Step 5: Check VIP status
     const vipStatus = await checkVIPStatus(user.email!);
 
-    // Step 5: Determine final access level
+    // Step 6: Determine final access level
     const finalAccess = await getUserDashboardAccess(user.id);
     const accessLevel = finalAccess?.access_level || 'free';
 
@@ -581,7 +607,32 @@ export async function registerUserForDashboard(
     // Step 4: Check VIP status (may exist from pre-registration)
     const vipStatus = await checkVIPStatus(user.email!);
 
-    // Step 5: Create initial dashboard access record
+    // Step 5: Handle marketing consent if provided
+    if (request.marketingConsent !== undefined) {
+      try {
+        console.log('[DashboardAuth] Recording marketing consent:', request.marketingConsent);
+        
+        const consentResult = await supabase.rpc('update_marketing_consent', {
+          p_user_id: user.id,
+          p_email: user.email!,
+          p_consent_given: request.marketingConsent,
+          p_source: 'signup',
+          p_ip_address: metadata.ip || null,
+          p_user_agent: metadata.userAgent || null
+        });
+
+        if (consentResult.error) {
+          console.error('[DashboardAuth] Failed to record marketing consent:', consentResult.error);
+        } else {
+          console.log('[DashboardAuth] Marketing consent recorded successfully');
+        }
+      } catch (consentError: any) {
+        console.error('[DashboardAuth] Marketing consent error:', consentError);
+        // Don't fail registration for consent issues - this is non-critical
+      }
+    }
+
+    // Step 6: Create initial dashboard access record
     const accessLevel = promoRedeemed 
       ? (request.vipCode ? 'vip' : 'promo')
       : (vipStatus?.isVIP ? 'vip' : 'free');
@@ -594,7 +645,8 @@ export async function registerUserForDashboard(
       {
         signup_date: new Date().toISOString(),
         signup_ip: metadata.ip,
-        initial_promo_code: codeToRedeem || null
+        initial_promo_code: codeToRedeem || null,
+        marketing_consent: request.marketingConsent
       }
     );
 
@@ -603,7 +655,7 @@ export async function registerUserForDashboard(
       // Don't fail registration for this - the user can still access basic features
     }
 
-    // Step 6: Get final access permissions
+    // Step 7: Get final access permissions
     const finalAccess = await getUserDashboardAccess(user.id);
 
     console.log('[DashboardAuth] Registration completed with access level:', finalAccess?.access_level || 'free');

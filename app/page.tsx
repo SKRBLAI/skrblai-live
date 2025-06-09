@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
-import AgentConstellation from '@/components/agents/AgentConstellation';
+import SimpleAgentGrid from '@/components/agents/SimpleAgentGrid';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import UnifiedPercyOnboarding from '@/components/home/UnifiedPercyOnboarding';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
@@ -248,7 +248,7 @@ export default function HomePage() {
               <FloatingParticles particleCount={20} />
             </div>
             <div className="relative z-10">
-              <AgentConstellation 
+              <SimpleAgentGrid 
                 agents={agents} 
                 selectedAgent={selectedAgent} 
                 setSelectedAgent={setSelectedAgent}

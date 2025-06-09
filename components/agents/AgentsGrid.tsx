@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AgentConstellation from "./AgentConstellation";
+import SimpleAgentGrid from "./SimpleAgentGrid";
 import type { Agent } from '@/types/agent';
 
 interface AgentsGridProps {
@@ -11,7 +11,7 @@ export default function AgentsGrid({ agents = [] }: AgentsGridProps) {
 
   return (
     <div className="w-full flex flex-col items-center">
-      <AgentConstellation
+      <SimpleAgentGrid
         agents={agents}
         selectedAgent={selectedAgent}
         setSelectedAgent={setSelectedAgent}

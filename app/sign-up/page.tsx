@@ -12,6 +12,7 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [promoCode, setPromoCode] = useState('');
   const [vipCode, setVipCode] = useState('');
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -109,7 +110,8 @@ export default function SignUpPage() {
               confirm: confirmPassword,
               mode: 'signup',
               promoCode: promoCode || undefined,
-              vipCode: vipCode || undefined
+              vipCode: vipCode || undefined,
+              marketingConsent
             }),
           });
 
@@ -303,6 +305,25 @@ export default function SignUpPage() {
               {success}
             </div>
           )}
+
+          {/* Marketing Consent Checkbox */}
+          <div className="flex items-start space-x-3">
+            <div className="flex items-center h-5">
+              <input
+                id="marketing-consent"
+                name="marketing-consent"
+                type="checkbox"
+                checked={marketingConsent}
+                onChange={(e) => setMarketingConsent(e.target.checked)}
+                className="w-4 h-4 text-electric-blue bg-[#0D1117] border-gray-600 rounded focus:ring-electric-blue focus:ring-2"
+              />
+            </div>
+            <div className="text-sm">
+              <label htmlFor="marketing-consent" className="text-gray-300">
+                I agree to receive marketing communications, product updates, and promotional offers from SKRBL AI. You can unsubscribe at any time.
+              </label>
+            </div>
+          </div>
 
           <div>
             <motion.button

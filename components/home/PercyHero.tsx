@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from '../ui/PercyAvatar';
 import UniversalPromptBar from '../ui/UniversalPromptBar';
-import AgentConstellation from "../agents/AgentConstellation";
+import SimpleAgentGrid from "../agents/SimpleAgentGrid";
 import AgentCarousel from "../agents/AgentCarousel";
 import type { Agent } from '@/types/agent';
 import { useRouter } from "next/navigation";
@@ -574,8 +574,8 @@ export default function PercyHero() {
           )}
         </AnimatePresence>
 
-        {/* Agent Constellation - RE-ENABLED WITH MOBILE ROTATION FIX */}
-        <AgentConstellation
+        {/* Agent Grid - RE-ENABLED WITH MOBILE ROTATION FIX */}
+        <SimpleAgentGrid
           agents={visibleAgents}
           selectedAgent={selectedAgent}
           setSelectedAgent={setSelectedAgent}

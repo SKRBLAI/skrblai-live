@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
       promoCode, 
       vipCode, 
       mode, 
-      confirm 
+      confirm,
+      marketingConsent 
     }: DashboardAuthRequest & { mode?: string; confirm?: string } = body;
 
     // Extract request metadata for audit logging
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
       email,
       hasPromoCode: !!promoCode,
       hasVipCode: !!vipCode,
+      marketingConsent,
       ip: requestMetadata.ip,
       userAgent: requestMetadata.userAgent.substring(0, 50)
     });
@@ -91,7 +93,7 @@ export async function POST(req: NextRequest) {
 
       console.log('[AUTH API] Processing signup');
       const result = await registerUserForDashboard(
-        { email, password, promoCode, vipCode },
+        { email, password, promoCode, vipCode, marketingConsent },
         requestMetadata
       );
 
@@ -110,7 +112,7 @@ export async function POST(req: NextRequest) {
     // Handle signin mode (default)
     console.log('[AUTH API] Processing signin');
     const result = await authenticateForDashboard(
-      { email, password, promoCode, vipCode },
+      { email, password, promoCode, vipCode, marketingConsent },
       requestMetadata
     );
 
