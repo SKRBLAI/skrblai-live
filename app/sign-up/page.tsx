@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { supabase } from '@/utils/supabase';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -41,71 +42,116 @@ export default function SignUpPage() {
     try {
       console.log('[AUTH] Attempting sign-up for:', email);
       
-      const response = await fetch('/api/auth/dashboard-signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          confirm: confirmPassword,
-          mode: 'signup',
-          promoCode: promoCode || undefined,
-          vipCode: vipCode || undefined
-        }),
+      // Step 1: Create account with Supabase directly first
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            displayName: email.split('@')[0]
+          }
+        }
       });
 
-      const data = await response.json();
-      console.log('[AUTH] Sign-up response:', data);
-
-      if (data.success) {
-        setSuccess('Account created successfully! Redirecting to dashboard...');
+      if (authError) {
+        console.error('[AUTH] Supabase sign-up failed:', authError.message);
         
-        // Show success message based on access level
-        if (data.vipMode) {
-          setSuccess('VIP account created! Welcome to premium access. Redirecting...');
-        } else if (data.promoMode) {
-          setSuccess('Account created with promo benefits! Redirecting...');
-        } else {
-          setSuccess('Account created successfully! Redirecting to dashboard...');
+        // Handle specific Supabase error cases
+        let errorMessage = authError.message;
+        if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
+          errorMessage = 'This email is already registered. Please sign in or use a different email.';
+        } else if (errorMessage.includes('invalid email')) {
+          errorMessage = 'Invalid email address. Please enter a valid email.';
+        } else if (errorMessage.includes('password')) {
+          errorMessage = 'Password is too weak. Please choose a stronger password with at least 6 characters.';
+        } else if (errorMessage.includes('not allowed') || errorMessage.includes('signup')) {
+          errorMessage = 'Account creation is currently unavailable. Please contact support or try again later.';
         }
+        
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
 
-        // Log success details
-        console.log('[AUTH] Sign-up successful:', {
-          accessLevel: data.accessLevel,
-          isVIP: data.vipStatus?.isVIP,
-          promoRedeemed: data.promoRedeemed,
-          benefits: data.benefits
+      if (!authData.user) {
+        setError('Account creation failed. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      console.log('[AUTH] Supabase sign-up successful:', authData.user.id);
+
+      // Check if email confirmation is required
+      if (!authData.session && authData.user && !authData.user.email_confirmed_at) {
+        setSuccess('Account created! Please check your email to verify your account before signing in.');
+        setLoading(false);
+        
+        // Redirect to sign-in after showing success message
+        setTimeout(() => {
+          router.push('/sign-in');
+        }, 3000);
+        return;
+      }
+
+      // Step 2: If we have promo/VIP codes and the user is confirmed, redeem them via our API
+      if ((promoCode || vipCode) && authData.session) {
+        try {
+          console.log('[AUTH] Processing promo/VIP code for new user...');
+          const response = await fetch('/api/auth/dashboard-signin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authData.session.access_token}`
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              confirm: confirmPassword,
+              mode: 'signup',
+              promoCode: promoCode || undefined,
+              vipCode: vipCode || undefined
+            }),
+          });
+
+          const data = await response.json();
+          console.log('[AUTH] Promo/VIP code processing result:', data);
+
+          if (data.success && (data.promoRedeemed || data.vipStatus?.isVIP)) {
+            // Show enhanced success message for codes
+            if (data.vipStatus?.isVIP) {
+              setSuccess('VIP account created! Welcome to premium access.');
+            } else if (data.promoRedeemed) {
+              setSuccess('Account created with promo benefits! Enhanced features unlocked.');
+            }
+          } else if (!data.success) {
+            // Code redemption failed, but account created - warn user
+            console.warn('[AUTH] Code redemption failed:', data.error);
+            setSuccess('Account created successfully, but code redemption failed: ' + data.error);
+          }
+        } catch (codeError) {
+          console.error('[AUTH] Code processing error:', codeError);
+          setSuccess('Account created successfully, but there was an issue with your code. Please contact support.');
+        }
+      } else {
+        setSuccess('Account created successfully! Redirecting to dashboard...');
+      }
+
+      // Step 3: Log session details for debugging
+      if (authData.session) {
+        console.log('[AUTH] Session established:', {
+          userId: authData.user.id,
+          email: authData.user.email,
+          accessToken: authData.session.access_token ? 'Present' : 'Missing',
+          expiresAt: authData.session.expires_at
         });
 
-        // Redirect to dashboard after short delay
+        // Step 4: Wait a moment for session to be fully established, then redirect
         setTimeout(() => {
+          console.log('[AUTH] Redirecting to dashboard...');
           router.push('/dashboard');
-        }, 2000);
-      } else {
-        // Handle specific error cases
-        let errorMessage = data.error || 'Failed to create account';
-        
-        if (data.rateLimited) {
-          errorMessage = 'Too many signup attempts. Please try again later.';
-        } else if (errorMessage.toLowerCase().includes('already registered') || errorMessage.toLowerCase().includes('already exists')) {
-          errorMessage = 'This email is already registered. Please sign in or use a different email.';
-        } else if (errorMessage.toLowerCase().includes('invalid email')) {
-          errorMessage = 'Invalid email address. Please enter a valid email.';
-        } else if (errorMessage.toLowerCase().includes('password')) {
-          errorMessage = 'Password is too weak. Please choose a stronger password with at least 6 characters.';
-        } else if (errorMessage.toLowerCase().includes('not allowed') || errorMessage.toLowerCase().includes('signup')) {
-          errorMessage = 'Account creation is currently unavailable. Please contact support or try again later.';
-        } else if (errorMessage.toLowerCase().includes('promo')) {
-          errorMessage = 'Invalid or expired promo code. Please check your code and try again.';
-        } else if (errorMessage.toLowerCase().includes('vip')) {
-          errorMessage = 'Invalid VIP code. Please verify your VIP code and try again.';
-        }
-
-        setError(errorMessage);
-        console.error('[AUTH] Sign-up failed:', data);
+        }, 1000);
       }
+
     } catch (err: any) {
       console.error('[AUTH] Sign-up error:', err);
       setError('Network error. Please check your connection and try again.');

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { supabase } from '@/utils/supabase';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -29,64 +30,77 @@ export default function SignInPage() {
     try {
       console.log('[AUTH] Attempting sign-in for:', email);
       
-      const response = await fetch('/api/auth/dashboard-signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-          mode: 'signin',
-          promoCode: promoCode || undefined,
-          vipCode: vipCode || undefined
-        }),
+      // Step 1: Authenticate with Supabase directly first
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
 
-      const data = await response.json();
-      console.log('[AUTH] Sign-in response:', data);
-
-      if (data.success) {
-        setSuccess('Sign-in successful! Redirecting to dashboard...');
-        
-        // Show success message based on access level
-        if (data.vipMode) {
-          setSuccess('Welcome back, VIP! Redirecting to your premium dashboard...');
-        } else if (data.promoMode) {
-          setSuccess('Promo code applied! Redirecting to your enhanced dashboard...');
-        } else {
-          setSuccess('Welcome back! Redirecting to dashboard...');
-        }
-
-        // Log success details
-        console.log('[AUTH] Sign-in successful:', {
-          accessLevel: data.accessLevel,
-          isVIP: data.vipStatus?.isVIP,
-          promoRedeemed: data.promoRedeemed,
-          benefits: data.benefits
-        });
-
-        // Redirect to dashboard after short delay
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 1500);
-      } else {
-        // Handle specific error cases
-        let errorMessage = data.error || 'Sign-in failed';
-        
-        if (data.rateLimited) {
-          errorMessage = 'Too many sign-in attempts. Please try again later.';
-        } else if (errorMessage.toLowerCase().includes('invalid login')) {
-          errorMessage = 'Invalid email or password. Please check your credentials.';
-        } else if (errorMessage.toLowerCase().includes('not confirmed')) {
-          errorMessage = 'Please check your email and verify your account before signing in.';
-        } else if (errorMessage.toLowerCase().includes('too many attempts')) {
-          errorMessage = 'Account temporarily locked due to multiple failed attempts. Please try again later.';
-        }
-
-        setError(errorMessage);
-        console.error('[AUTH] Sign-in failed:', data);
+      if (authError || !authData.user || !authData.session) {
+        console.error('[AUTH] Supabase authentication failed:', authError?.message);
+        setError(authError?.message || 'Invalid email or password');
+        setLoading(false);
+        return;
       }
+
+      console.log('[AUTH] Supabase authentication successful:', authData.user.id);
+
+      // Step 2: If we have promo/VIP codes, redeem them via our API
+      if (promoCode || vipCode) {
+        try {
+          console.log('[AUTH] Processing promo/VIP code...');
+          const response = await fetch('/api/auth/dashboard-signin', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authData.session.access_token}`
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              mode: 'signin',
+              promoCode: promoCode || undefined,
+              vipCode: vipCode || undefined
+            }),
+          });
+
+          const data = await response.json();
+          console.log('[AUTH] Promo/VIP code processing result:', data);
+
+          if (data.success && (data.promoRedeemed || data.vipStatus?.isVIP)) {
+            // Show enhanced success message for codes
+            if (data.vipStatus?.isVIP) {
+              setSuccess('Welcome back, VIP! Your premium access is active.');
+            } else if (data.promoRedeemed) {
+              setSuccess('Promo code applied successfully! Enhanced features unlocked.');
+            }
+          } else if (!data.success) {
+            // Code redemption failed, but auth succeeded - warn user
+            console.warn('[AUTH] Code redemption failed:', data.error);
+            setSuccess('Sign-in successful, but code redemption failed: ' + data.error);
+          }
+        } catch (codeError) {
+          console.error('[AUTH] Code processing error:', codeError);
+          setSuccess('Sign-in successful, but there was an issue with your code. Please contact support.');
+        }
+      } else {
+        setSuccess('Sign-in successful! Redirecting to dashboard...');
+      }
+
+      // Step 3: Log session details for debugging
+      console.log('[AUTH] Session established:', {
+        userId: authData.user.id,
+        email: authData.user.email,
+        accessToken: authData.session.access_token ? 'Present' : 'Missing',
+        expiresAt: authData.session.expires_at
+      });
+
+      // Step 4: Wait a moment for session to be fully established, then redirect
+      setTimeout(() => {
+        console.log('[AUTH] Redirecting to dashboard...');
+        router.push('/dashboard');
+      }, 1000);
+
     } catch (err: any) {
       console.error('[AUTH] Sign-in error:', err);
       setError('Network error. Please check your connection and try again.');
