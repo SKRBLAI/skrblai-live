@@ -365,6 +365,15 @@ const bizAgent: Agent = {
     
     return runBizAgent(bizInput);
   },
+  canConverse: true,
+  recommendedHelpers: ['analytics-agent', 'proposal-generator-agent', 'client-success-agent'],
+  handoffTriggers: ['analyze data', 'create proposal', 'client management', 'analytics', 'proposal generation'],
+  conversationCapabilities: {
+    supportedLanguages: ['English'],
+    maxConversationDepth: 25,
+    specializedTopics: ['business strategy', 'market analysis', 'competitive analysis', 'business planning', 'goal setting'],
+    emotionalIntelligence: true
+  },
   roleRequired: "any"
 };
 

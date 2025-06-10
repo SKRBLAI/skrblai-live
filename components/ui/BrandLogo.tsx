@@ -5,6 +5,7 @@ interface BrandLogoProps {
   animate?: boolean;
 }
 
+// NOTE: For best clarity, avoid scaling this logo with CSS transforms (e.g., scale-125). Instead, increase font size via text-2xl/text-3xl/etc. for larger logo variants.
 export default function BrandLogo({ className = '', animate = true }: BrandLogoProps) {
   const MotionWrapper = animate ? motion.span : 'span';
   
@@ -18,19 +19,19 @@ export default function BrandLogo({ className = '', animate = true }: BrandLogoP
     >
       <span className="relative inline-block font-inter" aria-label="SKRBL logo text">
         {/* SKRBL with glow effect */}
-        <span className="absolute inset-0 blur-[1.5px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none">
+        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none" style={{ zIndex: 0 }}>
           SKRBL
         </span>
-        <span className="relative text-white font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic">
+        <span className="relative text-white font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased" style={{ zIndex: 1 }}>
           SKRBL
         </span>
       </span>
       <span className="relative inline-block font-inter" aria-label="AI logo text">
         {/* AI with matching glow effect */}
-        <span className="absolute inset-0 blur-[1.5px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none">
+        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none" style={{ zIndex: 0 }}>
           AI
         </span>
-        <span className="relative text-teal-400 font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic">
+        <span className="relative text-teal-400 font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased" style={{ zIndex: 1 }}>
           AI
         </span>
       </span>

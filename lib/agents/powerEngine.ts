@@ -10,6 +10,7 @@
 
 import { triggerN8nWorkflow } from '@/lib/n8nClient';
 import { agentLeague, type AgentPower, type AgentConfiguration } from './agentLeague';
+import { getAgentWorkflowConfig, type AgentWorkflowConfig, type WorkflowExecutionContext } from './workflowLookup';
 import { createClient } from '@supabase/supabase-js';
 
 // =============================================================================
@@ -443,7 +444,7 @@ export class PowerEngine {
    * Check if user has premium access
    */
   private hasPremiumAccess(userRole: string): boolean {
-    return ['pro', 'enterprise'].includes(userRole);
+    return ['reserve', 'starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
   }
   
   /**
@@ -597,6 +598,219 @@ export async function executeHandoff(
   userContext: PowerExecutionContext
 ): Promise<PowerExecutionResult> {
   return powerEngine.executeHandoff(sourceExecutionId, handoffSuggestion, userContext);
+}
+
+// =============================================================================
+// ENHANCED N8N WORKFLOW INTEGRATION
+// =============================================================================
+
+/**
+ * Enhanced N8N workflow trigger with full agent personality and context injection
+ */
+export async function triggerAgentWorkflow(
+  agentId: string, 
+  payload: any,
+  context: WorkflowExecutionContext
+): Promise<PowerExecutionResult> {
+  
+  const startTime = Date.now();
+  const executionId = `workflow_${Date.now()}_${agentId}_${Math.random().toString(36).substr(2, 6)}`;
+  
+  try {
+    console.log(`[PowerEngine] Triggering workflow for agent ${agentId}`);
+    
+    // Get comprehensive workflow configuration
+    const workflowConfig = getAgentWorkflowConfig(agentId);
+    if (!workflowConfig) {
+      throw new Error(`Workflow configuration not found for agent: ${agentId}`);
+    }
+    
+    if (!workflowConfig.hasWorkflow) {
+      console.warn(`[PowerEngine] Agent ${agentId} has no workflow configured, using mock mode`);
+      return createMockWorkflowResult(agentId, workflowConfig, executionId, payload, context);
+    }
+    
+    // Check premium requirements
+    if (workflowConfig.requiresPremium && !hasPremiumAccess(context.userRole)) {
+      throw new Error(`Agent ${workflowConfig.superheroName} requires premium access`);
+    }
+    
+    // Prepare enhanced payload with full agent personality injection
+    const enhancedPayload = {
+      // Core execution data
+      executionId,
+      agentId: workflowConfig.agentId,
+      agentName: workflowConfig.agentName,
+      superheroName: workflowConfig.superheroName,
+      
+      // User request and context
+      userPrompt: context.userPrompt,
+      userId: context.userId,
+      userRole: context.userRole,
+      sessionId: context.sessionId,
+      timestamp: context.requestTimestamp,
+      
+      // Workflow-specific data
+      workflowCapabilities: workflowConfig.workflowCapabilities,
+      estimatedDuration: workflowConfig.estimatedDuration,
+      
+      // Original payload and file data
+      payload: payload || {},
+      fileData: context.fileData,
+      
+      // Handoff context (if applicable)
+      previousAgent: context.previousAgent,
+      handoffReason: context.handoffReason,
+      
+      // Platform metadata
+      platform: 'skrbl-ai-v2',
+      source: 'enhanced-power-engine',
+      version: '2.0.0'
+    };
+    
+    // Trigger the N8N workflow
+    const n8nResult = await triggerN8nWorkflow(workflowConfig.n8nWorkflowId!, enhancedPayload);
+    
+    // Calculate estimated completion time
+    const estimatedCompletion = new Date(
+      Date.now() + (workflowConfig.estimatedDuration * 60 * 1000)
+    ).toISOString();
+    
+    // Log execution to database
+    await logWorkflowExecution(executionId, agentId, workflowConfig, context, n8nResult);
+    
+    // Prepare result
+    const result: PowerExecutionResult = {
+      success: n8nResult.success,
+      executionId,
+      agentId: workflowConfig.agentId,
+      powerId: 'workflow-execution',
+      powerName: `${workflowConfig.superheroName} Workflow`,
+      status: n8nResult.status as any || 'running',
+      data: n8nResult.data,
+      error: n8nResult.error,
+      estimatedCompletion,
+      metrics: {
+        executionTime: Date.now() - startTime,
+        cost: calculateWorkflowCost(workflowConfig, context.userRole)
+      }
+    };
+    
+    console.log(`[PowerEngine] Workflow triggered successfully: ${executionId}`);
+    return result;
+    
+  } catch (error: any) {
+    console.error(`[PowerEngine] Workflow trigger failed for ${agentId}:`, error);
+    
+    return {
+      success: false,
+      executionId,
+      agentId,
+      powerId: 'workflow-execution',
+      powerName: 'Workflow Execution',
+      status: 'failed',
+      error: error.message || 'Unknown workflow error',
+      metrics: {
+        executionTime: Date.now() - startTime
+      }
+    };
+  }
+}
+
+/**
+ * Create mock workflow result for agents without configured workflows
+ */
+function createMockWorkflowResult(
+  agentId: string,
+  config: AgentWorkflowConfig,
+  executionId: string,
+  payload: any,
+  context: WorkflowExecutionContext
+): PowerExecutionResult {
+  const mockData = {
+    message: `${config.superheroName} has been activated! (Mock Mode)`,
+    agent: config.agentName,
+    capabilities: config.workflowCapabilities,
+    userRequest: context.userPrompt,
+    timestamp: new Date().toISOString(),
+    mode: 'mock',
+    note: 'This is a simulated response. Connect n8n workflow for real automation.'
+  };
+  
+  return {
+    success: true,
+    executionId,
+    agentId,
+    powerId: 'mock-workflow',
+    powerName: `${config.superheroName} (Mock)`,
+    status: 'completed',
+    data: mockData,
+    metrics: {
+      executionTime: 1000, // 1 second for mock
+      cost: 0
+    }
+  };
+}
+
+/**
+ * Log workflow execution to database
+ */
+async function logWorkflowExecution(
+  executionId: string,
+  agentId: string,
+  config: AgentWorkflowConfig,
+  context: WorkflowExecutionContext,
+  n8nResult: any
+): Promise<void> {
+  try {
+    await supabase.from('agent_workflow_executions').insert({
+      execution_id: executionId,
+      agent_id: agentId,
+      agent_name: config.agentName,
+      superhero_name: config.superheroName,
+      n8n_workflow_id: config.n8nWorkflowId,
+      user_id: context.userId,
+      user_role: context.userRole,
+      session_id: context.sessionId,
+      user_prompt: context.userPrompt,
+      workflow_capabilities: config.workflowCapabilities,
+      estimated_duration: config.estimatedDuration,
+      status: n8nResult.status || 'triggered',
+      success: n8nResult.success,
+      error_message: n8nResult.error || null,
+      previous_agent: context.previousAgent || null,
+      handoff_reason: context.handoffReason || null,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('[PowerEngine] Failed to log workflow execution:', error);
+    // Don't fail the main workflow if logging fails
+  }
+}
+
+/**
+ * Calculate workflow execution cost
+ */
+function calculateWorkflowCost(config: AgentWorkflowConfig, userRole: string): number {
+  let baseCost = config.estimatedDuration * 0.15; // $0.15 per minute
+  
+  // Role-based pricing tiers
+  if (userRole === 'all_star' || userRole === 'enterprise') baseCost *= 0.6; // 40% discount
+  else if (userRole === 'star') baseCost *= 0.75; // 25% discount
+  else if (userRole === 'starter' || userRole === 'pro') baseCost *= 0.85; // 15% discount
+  else if (userRole === 'reserve') baseCost *= 0.95; // 5% discount
+  
+  // Premium agent surcharge
+  if (config.requiresPremium) baseCost *= 1.3;
+  
+  return Number(baseCost.toFixed(2));
+}
+
+/**
+ * Check premium access
+ */
+function hasPremiumAccess(userRole: string): boolean {
+  return ['reserve', 'starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
 }
 
 console.log('[PowerEngine] System initialized - Powers ready for action! ⚡'); 

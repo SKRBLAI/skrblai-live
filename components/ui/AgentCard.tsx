@@ -7,8 +7,9 @@ import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
 import AgentModal from './AgentModal';
 import LockOverlay from '@/components/ui/LockOverlay';
 
-const GLOW_COLOR = '0 0 16px 2px rgba(0, 245, 212, 0.4), 0 0 40px 4px rgba(0, 102, 255, 0.2)';
-const HOVER_GLOW = '0 0 24px 4px rgba(0, 245, 212, 0.6), 0 0 60px 8px rgba(0, 102, 255, 0.3)';
+// Cosmic Shadow Standard: Soft, premium, layered glow with teal, blue, and subtle fuchsia.
+const GLOW_COLOR = '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)';
+const HOVER_GLOW = '0 0 36px 8px rgba(0,245,212,0.70), 0 0 80px 20px rgba(0,102,255,0.38), 0 0 48px 12px rgba(232,121,249,0.28)';
 
 const getCardVariants = (index: number) => ({
   initial: { 
@@ -284,18 +285,38 @@ const AgentCard: React.FC<AgentCardProps> = ({
           </div>
         </div>
         
-        <motion.div 
-          className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-2 bg-teal-500/20 text-teal-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ 
-            type: 'spring',
-            stiffness: 300,
-            damping: 15
-          }}
-        >
-          {agent.category}
-        </motion.div>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <motion.div 
+            className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-teal-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ 
+              type: 'spring',
+              stiffness: 300,
+              damping: 15
+            }}
+          >
+            {agent.category}
+          </motion.div>
+          
+          {/* Chat capability badge */}
+          {agent.conversationCapabilities?.canConverse && (
+            <motion.div
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 backdrop-blur-sm border border-green-400/20 shadow-sm"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ 
+                type: 'spring',
+                stiffness: 400,
+                damping: 15,
+                delay: 0.1
+              }}
+              title="Conversational AI - Click to chat!"
+            >
+              💬
+            </motion.div>
+          )}
+        </div>
         
         <motion.h3 
           className="text-lg font-extrabold mb-1 text-center bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_#1E90FF]"

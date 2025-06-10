@@ -7,9 +7,9 @@ import PricingCard from '@/components/ui/PricingCard';
 
 const plans = [
   {
-    title: 'Free',
-    price: '$0',
-    period: 'forever',
+    title: 'Reserve',
+      price: '$7.99',
+    period: 'per month',
     description: 'Explore basic features and try out a few AI agents.',
     features: [
       'Access to Basic Agents',
@@ -22,36 +22,53 @@ const plans = [
     href: '/sign-up'
   },
   {
-    title: 'Pro',
-    price: '$19',
+    title: 'Starter',
+    price: '$19.99',
     period: 'per month',
     description: 'Perfect for creators and solopreneurs ready to scale.',
     features: [
-      'Access to 3 AI Agents',
-      'Unlimited Publishing',
-      'Simple Percy Access',
-      'Basic Analytics',
-      'Basic Workflows'
+      'Access to 5 AI Agents',
+      'Limited Publishing',
+      'Priority Percy Access',
+      'Advanced Analytics',
+      'Custom Workflows Access'
     ],
     gradient: 'from-amber-500 to-orange-500',
     cta: 'Upgrade Now',
-    href: '/sign-up?plan=pro',
+    href: '/sign-up?plan=starter',
     popular: true
   },
   {
-    title: 'Enterprise',
-    price: 'Custom',
+    title: 'Star',
+    price: '$39.99',
     period: 'per month',
-    description: 'For teams and orgs needing full-scale automation.',
+    description: 'For teams and small orgs needing enhanced automation.',
     features: [
-      'Dedicated AI Concierge',
-      'Custom Agent Development',
-      'Team Access & Collaboration',
+      'Access to 10+ AI Agents',
+      'Enhanced Publishing',
       'Priority Support',
-      'Custom Integrations'
+      'Advanced Workflows',
+      'Team Collaboration'
     ],
     gradient: 'from-purple-500 to-indigo-500',
-    cta: 'Talk to Percy',
+    cta: 'Upgrade to Star',
+    href: '/sign-up?plan=star'
+  },
+  {
+    title: 'All-Star',
+    price: '$99.99',
+    period: 'per month',
+    description: 'For enterprises needing full-scale automation and custom solutions.',
+    features: [
+      'Unlimited AI Agent Access',
+      'Custom Agent Development',
+      'White-label Options',
+      'API Access & Integrations',
+      'Dedicated Account Manager',
+      'Custom Workflows & Automations'
+    ],
+    gradient: 'from-gradient-purple to-gradient-pink',
+    cta: 'Contact Sales',
     href: '/contact'
   }
 ];
@@ -76,34 +93,43 @@ export default function PricingPage() {
               >
                 Whether you're starting out or scaling up, SKRBL AI has a plan for you.
               </motion.p>
-              <div className="flex flex-col md:flex-row gap-12 md:gap-16 justify-center items-stretch mt-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-center items-stretch mt-16 max-w-7xl mx-auto px-4">
                 <PricingCard
-                  title="Free"
-                  price="$0"
+                  title="Reserve"
+                  price="$7.99/mo"
                   features={["Access to Basic AI Agents", "Limited Publishing", "Community Support", "Basic Analytics"]}
-                  ctaText="Explore Agents"
-                  ctaHref="/services"
-                  badge="Starter"
+                  ctaText="Start Reserve"
+                  ctaHref="/sign-up?plan=reserve"
+                  badge="Reserve"
                   description="Explore basic features and try out a few AI agents."
                 />
                 <PricingCard
-                  title="Pro"
-                  price="$19/mo"
-                  features={["Access to 3 AI Agents", "Unlimited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows"]}
-                  ctaText="Upgrade & Explore"
-                  ctaHref="/services"
+                  title="Starter"
+                  price="$19.99/mo"
+                  features={["Access to 5 AI Agents", "Limited Publishing", "Priority Percy Access", "Advanced Analytics", "Custom Workflows Access"]}
+                  ctaText="Upgrade to Starter"
+                  ctaHref="/sign-up?plan=starter"
                   highlight
                   badge="Best Value"
                   description="Perfect for creators and solopreneurs ready to scale."
                 />
                 <PricingCard
-                  title="Enterprise"
-                  price="Custom"
-                  features={["Dedicated AI Concierge", "Custom Agent Development", "Team Access & Collaboration", "Priority Support", "Custom Integrations"]}
-                  ctaText="Talk to Percy"
+                  title="Star"
+                  price="$39.99/mo"
+                  features={["Access to 10+ AI Agents", "Enhanced Publishing", "Priority Support", "Advanced Workflows", "Team Collaboration"]}
+                  ctaText="Upgrade to Star"
+                  ctaHref="/sign-up?plan=star"
+                  badge="Star"
+                  description="For teams and small orgs needing enhanced automation."
+                />
+                <PricingCard
+                  title="All-Star"
+                  price="$99.99/mo"
+                  features={["Unlimited AI Agent Access", "Custom Agent Development", "White-label Options", "API Access & Integrations", "Dedicated Account Manager", "Custom Workflows"]}
+                  ctaText="Contact Sales"
                   ctaHref="/contact"
                   badge="Enterprise"
-                  description="For teams and orgs needing full-scale automation."
+                  description="For enterprises needing full-scale automation and custom solutions."
                 />
               </div>
             </div>

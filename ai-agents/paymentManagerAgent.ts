@@ -448,6 +448,9 @@ async function processPayment(
 }
 
 const paymentManagerAgent: Agent = {
+  canConverse: false,
+  recommendedHelpers: [],
+  handoffTriggers: [],
   id: 'payment-manager-agent',
   name: 'Payment Manager',
   category: 'Finance',

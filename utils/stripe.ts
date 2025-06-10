@@ -38,7 +38,7 @@ export const createCheckoutSession = async (userId: string, priceId: string) => 
   }
 };
 
-export const createCustomerPortalLink = async () => {
+export const createCustomerPortalLink = async (customerId: string) => {
   try {
     const response = await fetch('/api/create-customer-portal', {
       method: 'POST',
@@ -46,14 +46,62 @@ export const createCustomerPortalLink = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        customerId: 'cus_123456789', // Replace with actual customer ID
+        customerId,
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
 
     const { url } = await response.json();
     return { success: true, url };
   } catch (error) {
     console.error('Error creating customer portal link:', error);
     return { success: false, error };
+  }
+};
+
+// New utility functions for better Stripe integration
+export const createCheckoutSessionCall = async (options: {
+  priceId: string;
+  userId: string;
+  email: string;
+  successUrl?: string;
+  cancelUrl?: string;
+}) => {
+  try {
+    const response = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(options),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const { sessionId, url } = await response.json();
+    return { success: true, sessionId, url };
+  } catch (error) {
+    console.error('Error creating checkout session:', error);
+    return { success: false, error };
+  }
+};
+
+export const redirectToCheckout = async (sessionId: string) => {
+  const stripePromise = getStripePromise();
+  const stripe = await stripePromise;
+  
+  if (!stripe) {
+    throw new Error('Stripe failed to load');
+  }
+
+  const { error } = await stripe.redirectToCheckout({ sessionId });
+  
+  if (error) {
+    throw error;
   }
 }; 

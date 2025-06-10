@@ -606,6 +606,9 @@ async function generateAdCopyOpenAI(product: string, audience: string, tone: str
 }
 
 const adCreativeAgent: Agent = {
+  canConverse: false,
+  recommendedHelpers: [],
+  handoffTriggers: [],
   id: 'ad-creative-agent',
   name: 'Ad Creative Agent',
   category: 'Marketing',

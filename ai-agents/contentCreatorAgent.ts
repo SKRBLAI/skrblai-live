@@ -465,6 +465,9 @@ function capitalizeFirstLetter(str: string): string {
 }
 
 const contentCreatorAgent: Agent = {
+  canConverse: false,
+  recommendedHelpers: [],
+  handoffTriggers: [],
   id: 'content-creator-agent',
   name: 'Content Creator',
   category: 'Content',

@@ -6,6 +6,7 @@ import PercyProvider from '../../components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import Link from 'next/link';
+import TrialButton from '@/components/ui/TrialButton';
 import { Metadata } from 'next';
 
 const features = [
@@ -92,16 +93,21 @@ export default function FeaturesPage(): JSX.Element {
           ))}
         </div>
         
-        <div className="mt-16 text-center">
-          <Link href="/services/agents" className="inline-block">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="cosmic-btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold shadow-cosmic"
-            >
-              Meet Our AI Agents
-            </motion.button>
-          </Link>
+        <div className="mt-16 flex flex-col items-center gap-6">
+          <div className="flex flex-row gap-4 w-full justify-center">
+            <Link href="/" aria-label="Back to Home">
+              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-fuchsia-500 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-fuchsia-400/70 transition-all">
+                ← Back to Home
+              </button>
+            </Link>
+            <Link href="/services/agents" aria-label="Meet Percy">
+              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-400 to-teal-400 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-cyan-400/70 transition-all">
+                Meet Percy
+              </button>
+            </Link>
+          </div>
+          <TrialButton className="w-full max-w-xs" />
+          <div className="mt-6 w-full" aria-live="polite" aria-atomic="true"></div>
         </div>
         </div>
       </motion.div>

@@ -230,6 +230,9 @@ const determineNextSteps = (service: string): any => {
 }
 
 const percyAgent: Agent = {
+  canConverse: true,
+  recommendedHelpers: [],
+  handoffTriggers: [],
   id: 'percy-agent',
   name: 'Percy',
   category: 'Assistant',

@@ -11,8 +11,8 @@ interface UpgradeBannerProps {
 }
 
 export default function UpgradeBanner({
-  headline = '🌟 Unlock SKRBL Premium',
-  description = 'Access unlimited agents, premium workflows, and priority support. Upgrade now for the full cosmic experience!',
+  headline = '🌟 Unlock "Star" by SKRBL Premium',
+  description = ' Access unlimited agents, premium workflows, and priority support. Upgrade now for the full cosmic experience!',
   ctaText = 'See Plans',
   ctaHref = '/pricing',
   onDismiss,

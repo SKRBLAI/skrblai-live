@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from '../ui/PercyAvatar';
 import UniversalPromptBar from '../ui/UniversalPromptBar';
@@ -18,6 +18,12 @@ import { trackPercyEvent } from '@/lib/analytics/percyAnalytics';
 import PercyTestimonials from '@/components/percy/PercyTestimonials';
 import { downloadLeadsCSV } from '@/lib/utils/leadExport';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import UnifiedPercyOnboarding from './UnifiedPercyOnboarding';
+import ConversationalPercyOnboarding from './ConversationalPercyOnboarding';
+import { Sparkles, Star, Zap, ShootingStar, Rocket, Target, Crown, Gem, Eye, EyeOff } from 'lucide-react';
+import PercyFigure from './PercyFigure';
+import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
 
 // Only include agents that are not Percy for all agent grid/carousel logic
 const visibleAgents = agentDashboardList.filter(
@@ -32,8 +38,19 @@ const percyGoals = [
   { text: "Build my personal brand", emoji: "🌟", category: "branding" },
 ];
 
-export default function PercyHero() {
+interface PercyHeroProps {
+  agents?: Agent[];
+  onAgentSelect?: (agent: Agent) => void;
+  onOnboardingComplete?: (data: any) => void;
+}
+
+export default function PercyHero({ 
+  agents = [], 
+  onAgentSelect, 
+  onOnboardingComplete 
+}: PercyHeroProps) {
   const router = useRouter();
+  const { percyIntent, setPercyIntent } = usePercyContext();
   const [showIntake, setShowIntake] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [inputValue, setInputValue] = useState('');
@@ -55,6 +72,10 @@ export default function PercyHero() {
   });
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [qualificationScore, setQualificationScore] = useState(0);
+  const [useConversationalOnboarding, setUseConversationalOnboarding] = useState(true);
+  const [showDetails, setShowDetails] = useState(false);
+  const [recommendedAgents, setRecommendedAgents] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
 
   // Generate session ID for tracking (memoized to prevent re-generation)
   const [sessionId] = useState(() => `percy-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
@@ -386,202 +407,317 @@ export default function PercyHero() {
     router.push("/features");
   };
 
+  // Analytics tracking
+  const trackPercyInteraction = useCallback(async (action: string, metadata?: any) => {
+    try {
+      const { trackPercyEvent } = await import('@/lib/analytics/percyAnalytics');
+      await trackPercyEvent({
+        event_type: 'hero_interaction',
+        user_choice: action,
+        session_id: `percy-hero-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        metadata
+      });
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[PercyHero] Analytics tracking failed:', error);
+      }
+    }
+  }, []);
+
+  // Handle agent recommendations from onboarding
+  const handleAgentsRecommended = useCallback((agentIds: string[]) => {
+    setRecommendedAgents(agentIds);
+    trackPercyInteraction('agents_recommended', { agents: agentIds });
+  }, [trackPercyInteraction]);
+
+  // Handle onboarding completion
+  const handleOnboardingComplete = useCallback((data: any) => {
+    trackPercyInteraction('onboarding_completed', data);
+    if (onOnboardingComplete) {
+      onOnboardingComplete(data);
+    }
+  }, [onOnboardingComplete, trackPercyInteraction]);
+
+  // Background animations and effects
+  const backgroundElements = Array.from({ length: 20 }, (_, i) => (
+    <motion.div
+      key={i}
+      className="absolute"
+      style={{
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+      }}
+      animate={{
+        x: [0, Math.random() * 100 - 50],
+        y: [0, Math.random() * 100 - 50],
+        opacity: [0.1, 0.3, 0.1],
+        scale: [0.5, 1, 0.5],
+      }}
+      transition={{
+        duration: Math.random() * 10 + 10,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+    >
+      {Math.random() > 0.5 ? (
+        <Star className="w-2 h-2 text-cyan-400/30" />
+      ) : (
+        <Sparkles className="w-2 h-2 text-purple-400/30" />
+      )}
+    </motion.div>
+  ));
+
+  // Floating cosmic elements
+  const cosmicElements = Array.from({ length: 8 }, (_, i) => (
+    <motion.div
+      key={`cosmic-${i}`}
+      className="absolute pointer-events-none"
+      style={{
+        left: `${15 + Math.random() * 70}%`,
+        top: `${15 + Math.random() * 70}%`,
+      }}
+      animate={{
+        rotate: [0, 360],
+        x: [0, Math.sin(i) * 50],
+        y: [0, Math.cos(i) * 30],
+        opacity: [0.2, 0.6, 0.2],
+      }}
+      transition={{
+        duration: 15 + Math.random() * 10,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      {i % 4 === 0 && <Crown className="w-6 h-6 text-gold/40" />}
+      {i % 4 === 1 && <Gem className="w-5 h-5 text-purple-400/40" />}
+      {i % 4 === 2 && <Zap className="w-4 h-4 text-cyan-400/40" />}
+      {i % 4 === 3 && <Target className="w-5 h-5 text-green-400/40" />}
+    </motion.div>
+  ));
+
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117]">
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]"></div>
-      {/* Background Particles - RE-ENABLED WITH MOBILE OPTIMIZATIONS */}
-      <div className="absolute inset-0 opacity-40 pointer-events-none">
-        <FloatingParticles particleCount={32} />
+    <section className="relative min-h-screen pt-20 md:pt-0 flex items-center justify-center overflow-hidden w-full px-3 md:px-4 bg-black/80" aria-label="Percy AI Assistant Hero Section">
+      {/* Cosmic Background Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20" />
+      
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {backgroundElements}
+        {cosmicElements}
       </div>
 
-      {/* Cosmic Percy Concierge Card */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-[60vh] py-12 px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="cosmic-glass cosmic-gradient shadow-[0_0_32px_#1E90FF20] max-w-2xl w-full mx-auto rounded-3xl p-8 flex flex-col items-center mb-10"
-        >
-          {/* Animated Percy Avatar */}
-          <PercyAvatar className="mb-4" isThinking={isPercyThinking} />
+      {/* Dynamic Grid Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="h-full w-full bg-[linear-gradient(90deg,transparent_24px,rgba(255,255,255,0.05)_25px,rgba(255,255,255,0.05)_26px,transparent_27px,transparent_74px,rgba(255,255,255,0.05)_75px,rgba(255,255,255,0.05)_76px,transparent_77px),linear-gradient(transparent_24px,rgba(255,255,255,0.05)_25px,rgba(255,255,255,0.05)_26px,transparent_27px,transparent_74px,rgba(255,255,255,0.05)_75px,rgba(255,255,255,0.05)_76px,transparent_77px)] bg-[length:100px_100px]" />
+      </div>
 
-          {/* Microcopy Headline */}
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white text-center mb-3">
-            Let’s make cosmic AI magic together!
-          </h1>
-          <p className="text-lg text-cyan-200 text-center mb-6 max-w-xl">
-            Percy is your AI concierge. Select a goal or upload your files to get started—no overwhelm, just cosmic clarity.
-          </p>
+      {/* Glowing Orbs */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.5, 0.3],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl"
+        animate={{
+          scale: [1.2, 1, 1.2],
+          opacity: [0.5, 0.3, 0.5],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
 
-          {/* Cosmic Goal Quick Select */}
-          <div className="flex flex-wrap justify-center gap-4 mb-6 w-full">
-            {percyGoals.map((goal, i) => (
-              <motion.button
-                key={goal.category}
-                whileHover={{ scale: 1.08, boxShadow: "0 0 16px #38bdf8" }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl cosmic-btn-primary cosmic-glow text-white font-semibold text-base focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-all duration-200"
-                aria-label={goal.text}
-                onClick={() => handlePercyResponse(goal)}
-                disabled={isPercyThinking}
-              >
-                <span className="text-2xl">{goal.emoji}</span>
-                <span>{goal.text}</span>
-              </motion.button>
-            ))}
-          </div>
-
-          {/* Universal Prompt Bar for File Upload/Prompt */}
-          <UniversalPromptBar
-            className="mt-2 w-full"
-            theme="dark"
-            placeholder="Describe your goal or upload a file (optional)"
-            buttonText="Start with Percy"
-            onPromptSubmit={(prompt) => handlePercyResponse({ text: prompt, category: "custom" })}
-            onComplete={({ prompt }) => setInputValue(prompt)}
-          />
-
-          {/* Percy thinking indicator (microcopy) */}
-          {isPercyThinking && (
-            <div className="mt-4 flex items-center justify-center w-full">
-              <span className="text-cyan-400 animate-pulse">Percy is thinking...</span>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Onboarding Modal and Recommendations (unchanged) */}
-        <AnimatePresence>
-          {showIntake && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      {/* Main Content Container */}
+      <div className="container mx-auto relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Left Column - Percy Figure */}
+          <div className="flex flex-col items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="relative"
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-2xl p-8 max-w-4xl w-full border border-cyan-400/20 max-h-[90vh] overflow-y-auto"
-              >
-                <button
-                  className="absolute top-4 right-4 text-gray-400 hover:text-cyan-400 text-2xl focus:outline-none focus:ring-2 focus:ring-cyan-400/40 rounded-lg p-1 transition-all duration-200"
-                  onClick={() => setShowIntake(false)}
-                  aria-label="Close consultation"
-                >
-                  ×
-                </button>
-                
-                {!showLeadForm ? (
-                  <>
-                    {/* Percy's Message */}
-                    {percyMessage && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-6 p-4 bg-cyan-500/10 border border-cyan-400/20 rounded-xl"
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
-                            <span className="text-white text-sm font-bold">P</span>
-                          </div>
-                          <p className="text-cyan-300 text-sm leading-relaxed">{percyMessage}</p>
-                        </div>
-                      </motion.div>
-                    )}
-                    
-                    {/* Conversation Interface */}
-                    <div className="space-y-6">
-                      <div className="text-center">
-                        <div className="mb-2">
-                          <span className="text-cyan-400 text-sm font-medium">
-                            {conversationSteps[conversationStep]?.greeting}
-                          </span>
-                        </div>
-                        <h3 className="text-xl font-bold text-white mb-2">
-                          {conversationSteps[conversationStep]?.question}
-                        </h3>
-                        <p className="text-gray-400 text-sm">
-                          {conversationSteps[conversationStep]?.subtext}
-                        </p>
-                      </div>
-                      
-                      {/* Response Options */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {conversationSteps[conversationStep]?.options.map((option, index) => (
-                          <button
-                            key={index}
-                            onClick={() => handlePercyResponse(option)}
-                            disabled={isPercyThinking}
-                            className="p-4 bg-slate-700/50 hover:bg-slate-600/70 text-white rounded-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all duration-300 text-left group disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <span className="text-2xl">{option.emoji}</span>
-                              <span className="group-hover:text-cyan-400 transition-colors">
-                                {option.text}
-                              </span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+              {/* Percy Character with Enhanced Glow */}
+              <div className="relative">
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-cyan-500/30 rounded-full blur-2xl"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    opacity: [0.5, 0.8, 0.5],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+                <PercyFigure />
+              </div>
 
-                      {/* Progress Indicator */}
-                      <div className="flex justify-center mt-8">
-                        <div className="flex space-x-2">
-                          {conversationSteps.map((_, index) => (
-                            <div
-                              key={index}
-                              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                                index <= conversationStep ? 'bg-cyan-400' : 'bg-slate-600'
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="ml-4 text-gray-400 text-sm">
-                          Step {conversationStep + 1} of {conversationSteps.length}
-                        </span>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <LeadCaptureForm 
-                    leadData={leadData}
-                    qualificationScore={qualificationScore}
-                    onSubmit={handleLeadSubmit}
-                  />
-                )}
-                
-                {/* Show Recommendations */}
-                {suggestedAgents.length > 0 && !showLeadForm && (
-                  <div className="mt-8">
-                    <h4 className="text-xl font-bold text-white text-center mb-6">
-                      🎯 Percy's Personalized Recommendations
-                    </h4>
-                    <AgentCarousel
-                      agents={suggestedAgents}
-                      onLaunch={(agent) => {
-                        setSelectedAgent(agent);
-                        setShowIntake(false);
-                      }}
-                      showDetailedCards={true}
-                      showPremiumBadges={true}
-                    />
-                  </div>
-                )}
+              {/* Floating Action Indicators */}
+              <motion.div
+                className="absolute -top-4 -right-4"
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [0, 5, 0],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <div className="bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full p-2">
+                  <Rocket className="w-6 h-6 text-white" />
+                </div>
+              </motion.div>
+
+              {/* Percy's Welcome Message */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.8 }}
+                className="mt-8 text-center max-w-md"
+              >
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 skrblai-heading drop-shadow-glow">
+                  Meet Percy
+                </h1>
+                <p className="text-lg text-cyan-300 mb-2">
+                  {agentBackstories['percy-agent']?.superheroName || 'Your Cosmic Concierge'}
+                </p>
+                <p className="text-white/80 text-sm italic">
+                  "{agentBackstories['percy-agent']?.catchphrase || 'Your wish is my command protocol!'}"
+                </p>
+              </motion.div>
+
+              {/* Cosmic Powers Display */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 0.8 }}
+                className="mt-6 flex flex-wrap justify-center gap-3 max-w-md"
+              >
+                {agentBackstories['percy-agent']?.powers?.slice(0, 4).map((power, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.2 + index * 0.1 }}
+                    className="bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 border border-white/20"
+                  >
+                    <span className="text-xs text-white/90">⚡ {power}</span>
+                  </motion.div>
+                ))}
               </motion.div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
 
-        {/* Agent Grid - RE-ENABLED WITH MOBILE ROTATION FIX */}
-        <SimpleAgentGrid
-          agents={visibleAgents}
-          selectedAgent={selectedAgent}
-          setSelectedAgent={setSelectedAgent}
-        />
+          {/* Right Column - Conversational Onboarding */}
+          <div className="flex flex-col items-center lg:items-start">
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="w-full"
+            >
+              <ConversationalPercyOnboarding />
+            </motion.div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Cosmic Energy Streams */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {Array.from({ length: 3 }, (_, i) => (
+          <motion.div
+            key={`stream-${i}`}
+            className="absolute w-px h-full bg-gradient-to-b from-transparent via-cyan-400/20 to-transparent"
+            style={{
+              left: `${20 + i * 30}%`,
+            }}
+            animate={{
+              opacity: [0, 0.5, 0],
+              scaleY: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 1.5,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Shooting Stars */}
+      <AnimatePresence>
+        {Array.from({ length: 2 }, (_, i) => (
+          <motion.div
+            key={`star-${i}`}
+            className="absolute"
+            initial={{
+              x: "-100px",
+              y: `${Math.random() * 50 + 10}%`,
+              opacity: 0,
+            }}
+            animate={{
+              x: "calc(100vw + 100px)",
+              y: `${Math.random() * 50 + 40}%`,
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              repeatDelay: Math.random() * 5 + 2,
+              ease: "easeOut",
+            }}
+          >
+            <ShootingStar className="w-4 h-4 text-yellow-400" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+
+      {/* Debug Panel (Development Only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed bottom-4 left-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/10 z-50"
+        >
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors"
+          >
+            {showDetails ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            <span className="text-xs">Percy Debug</span>
+          </button>
+          
+          {showDetails && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-2 text-xs text-white/60 space-y-1"
+            >
+              <div>Intent: {percyIntent || 'None'}</div>
+              <div>Agents: {agents.length}</div>
+              <div>Recommended: {recommendedAgents.join(', ') || 'None'}</div>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+    </section>
   );
 }
 

@@ -95,6 +95,17 @@ export interface AgentConfiguration {
   // Analytics & Performance
   usageTracking: boolean;
   performanceMetrics: string[];
+  
+  // NEW: Enhanced Interactivity & Personality Features
+  canConverse: boolean;
+  recommendedHelpers: string[];
+  handoffTriggers: string[];
+  conversationCapabilities: {
+    supportedLanguages: string[];
+    maxConversationDepth: number;
+    specializedTopics: string[];
+    emotionalIntelligence: boolean;
+  };
 }
 
 // =============================================================================
@@ -180,6 +191,52 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
       n8nWorkflowId: 'ad-creative-workflow',
       outputType: 'file',
       estimatedDuration: 20,
+      premiumRequired: true
+    }
+  ],
+  
+  'social-bot-agent': [
+    {
+      id: 'viral-content-creation',
+      name: 'Viral Content Generation',
+      description: 'Creates engaging social media content with viral potential',
+      triggerKeywords: ['social', 'viral', 'posts', 'engagement', 'trending'],
+      n8nWorkflowId: 'social-media-workflow',
+      outputType: 'text',
+      estimatedDuration: 10,
+      premiumRequired: false
+    },
+    {
+      id: 'hashtag-strategy',
+      name: 'Hashtag Telepathy',
+      description: 'Generates optimal hashtag strategies for maximum reach',
+      triggerKeywords: ['hashtags', 'reach', 'discovery', 'trends'],
+      apiEndpoint: '/api/social/hashtag-strategy',
+      outputType: 'data',
+      estimatedDuration: 5,
+      premiumRequired: false
+    }
+  ],
+  
+  'analytics-agent': [
+    {
+      id: 'data-insights',
+      name: 'Future Trend Prediction',
+      description: 'Analyzes data patterns and predicts future trends',
+      triggerKeywords: ['analytics', 'data', 'insights', 'trends', 'metrics'],
+      n8nWorkflowId: 'analytics-workflow',
+      outputType: 'data',
+      estimatedDuration: 15,
+      premiumRequired: true
+    },
+    {
+      id: 'roi-analysis',
+      name: 'ROI Clairvoyance',
+      description: 'Calculates and optimizes return on investment',
+      triggerKeywords: ['roi', 'return', 'investment', 'optimization', 'profit'],
+      apiEndpoint: '/api/analytics/roi-analysis',
+      outputType: 'data',
+      estimatedDuration: 10,
       premiumRequired: true
     }
   ]
@@ -292,7 +349,16 @@ export class AgentLeague {
         colorTheme: 'cosmic-blue',
         imageSlug: 'percy',
         usageTracking: true,
-        performanceMetrics: ['handoff_success_rate', 'user_satisfaction', 'routing_accuracy']
+        performanceMetrics: ['handoff_success_rate', 'user_satisfaction', 'routing_accuracy'],
+        canConverse: true,
+        recommendedHelpers: ['branding-agent', 'content-creator-agent', 'analytics-agent'],
+        handoffTriggers: ['need help with', 'can you find someone', 'who should I talk to', 'recommend an agent'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 50,
+          specializedTopics: ['agent routing', 'workflow coordination', 'task orchestration', 'general assistance'],
+          emotionalIntelligence: true
+        }
       },
       
       {
@@ -321,7 +387,16 @@ export class AgentLeague {
         colorTheme: 'creative-orange',
         imageSlug: 'branding',
         usageTracking: true,
-        performanceMetrics: ['brand_assets_created', 'client_satisfaction', 'design_iterations']
+        performanceMetrics: ['brand_assets_created', 'client_satisfaction', 'design_iterations'],
+        canConverse: true,
+        recommendedHelpers: ['content-creator-agent', 'ad-creative-agent', 'sitegen-agent'],
+        handoffTriggers: ['need website', 'create content', 'marketing materials', 'launch campaign'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr'],
+          maxConversationDepth: 30,
+          specializedTopics: ['brand identity', 'logo design', 'visual branding', 'color psychology', 'brand strategy'],
+          emotionalIntelligence: true
+        }
       },
       
       {
@@ -350,7 +425,130 @@ export class AgentLeague {
         colorTheme: 'content-green',
         imageSlug: 'content',
         usageTracking: true,
-        performanceMetrics: ['words_generated', 'seo_score', 'engagement_prediction']
+        performanceMetrics: ['words_generated', 'seo_score', 'engagement_prediction'],
+        canConverse: true,
+        recommendedHelpers: ['social-bot-agent', 'branding-agent', 'analytics-agent'],
+        handoffTriggers: ['social media', 'brand guidelines', 'performance data', 'analytics'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de', 'it'],
+          maxConversationDepth: 40,
+          specializedTopics: ['content writing', 'SEO', 'blog posts', 'copywriting', 'content strategy'],
+          emotionalIntelligence: true
+        }
+      },
+      
+      {
+        id: 'social-bot-agent',
+        name: 'SocialNino',
+        category: 'Social Media',
+        description: 'The Viral Virtuoso who creates engaging social content',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('social-bot-agent'),
+        powers: AGENT_POWERS['social-bot-agent'] || [],
+        capabilities: [{
+          category: 'Social Media',
+          skills: ['Content Scheduling', 'Hashtag Strategy', 'Engagement Optimization', 'Trend Analysis'],
+          primaryOutput: 'Social media content and campaigns',
+          supportedFormats: ['text', 'image', 'video', 'carousel'],
+          integrations: ['twitter', 'instagram', 'facebook', 'linkedin', 'tiktok']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['social-bot-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'social-media-workflow',
+        primaryWorkflow: 'social-content-creation',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: false,
+        emoji: '📱',
+        colorTheme: 'social-purple',
+        imageSlug: 'social',
+        usageTracking: true,
+        performanceMetrics: ['posts_created', 'engagement_rate', 'viral_potential'],
+        canConverse: true,
+        recommendedHelpers: ['content-creator-agent', 'analytics-agent', 'ad-creative-agent'],
+        handoffTriggers: ['long form content', 'data analysis', 'advertising', 'campaign performance'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 35,
+          specializedTopics: ['social media strategy', 'viral content', 'hashtags', 'community management'],
+          emotionalIntelligence: true
+        }
+      },
+      
+      {
+        id: 'analytics-agent',
+        name: 'The Don of Data',
+        category: 'Analytics',
+        description: 'Master of data insights and predictive analytics',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('analytics-agent'),
+        powers: AGENT_POWERS['analytics-agent'] || [],
+        capabilities: [{
+          category: 'Data Analytics',
+          skills: ['Data Analysis', 'Predictive Modeling', 'Dashboard Creation', 'ROI Calculation'],
+          primaryOutput: 'Data insights and performance reports',
+          supportedFormats: ['json', 'csv', 'pdf', 'dashboard'],
+          integrations: ['google-analytics', 'mixpanel', 'amplitude', 'tableau']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['analytics-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'analytics-workflow',
+        primaryWorkflow: 'data-analysis',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '📊',
+        colorTheme: 'data-blue',
+        imageSlug: 'analytics',
+        usageTracking: true,
+        performanceMetrics: ['insights_generated', 'prediction_accuracy', 'dashboard_usage'],
+        canConverse: true,
+        recommendedHelpers: ['content-creator-agent', 'social-bot-agent', 'ad-creative-agent'],
+        handoffTriggers: ['content optimization', 'social strategy', 'ad performance', 'creative testing'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'de', 'fr'],
+          maxConversationDepth: 25,
+          specializedTopics: ['data analysis', 'metrics interpretation', 'performance optimization', 'predictive modeling'],
+          emotionalIntelligence: false
+        }
+      },
+      
+      {
+        id: 'ad-creative-agent',
+        name: 'AdmEthen',
+        category: 'Advertising',
+        description: 'The Conversion Catalyst who creates perfect ad campaigns',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('ad-creative-agent'),
+        powers: AGENT_POWERS['ad-creative-agent'] || [],
+        capabilities: [{
+          category: 'Ad Creation',
+          skills: ['Ad Copy', 'Creative Design', 'Audience Targeting', 'A/B Testing'],
+          primaryOutput: 'High-converting ad campaigns',
+          supportedFormats: ['text', 'image', 'video', 'carousel'],
+          integrations: ['facebook-ads', 'google-ads', 'linkedin-ads', 'twitter-ads']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['ad-creative-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'ad-creative-workflow',
+        primaryWorkflow: 'ad-campaign-creation',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '🎯',
+        colorTheme: 'conversion-red',
+        imageSlug: 'ads',
+        usageTracking: true,
+        performanceMetrics: ['conversion_rate', 'ctr_improvement', 'roas'],
+        canConverse: true,
+        recommendedHelpers: ['analytics-agent', 'branding-agent', 'social-bot-agent'],
+        handoffTriggers: ['performance data', 'brand assets', 'social content', 'optimization insights'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr'],
+          maxConversationDepth: 30,
+          specializedTopics: ['ad campaigns', 'conversion optimization', 'audience targeting', 'creative testing'],
+          emotionalIntelligence: true
+        }
       }
       
       // Additional agents can be easily added here following the same pattern
@@ -442,6 +640,230 @@ export class AgentLeague {
       backstory: 'A dedicated digital hero committed to helping users achieve their goals.',
       voiceTone: 'professional',
       communicationStyle: 'supportive'
+    };
+  }
+
+  // =============================================================================
+  // CONVERSATIONAL AGENT METHODS
+  // =============================================================================
+
+  /**
+   * Handle conversational interaction with an agent
+   */
+  public async handleAgentChat(
+    agentId: string, 
+    message: string, 
+    conversationHistory: any[] = [],
+    context: any = {}
+  ): Promise<any> {
+    const agent = this.getAgent(agentId);
+    if (!agent) {
+      throw new Error(`Agent not found: ${agentId}`);
+    }
+
+    if (!agent.canConverse) {
+      // Fallback to Percy for non-conversational agents
+      return this.fallbackToPercy(agentId, message, conversationHistory, context);
+    }
+
+    // Create personality-enhanced prompt
+    const personalityPrompt = this.createPersonalityPrompt(agent, message, conversationHistory);
+    
+    // Call OpenAI with personality context
+    const response = await this.callOpenAIWithPersonality(personalityPrompt, agent);
+    
+    // Analyze for handoff suggestions
+    const handoffSuggestions = this.analyzeHandoffOpportunities(agent, message, response);
+    
+    // Generate conversation analytics
+    const analytics = this.generateConversationAnalytics(conversationHistory, message, response);
+
+    return {
+      success: true,
+      message: response,
+      personalityInjected: true,
+      handoffSuggestions,
+      conversationAnalytics: analytics,
+      agentId: agent.id,
+      agentName: agent.name
+    };
+  }
+
+  /**
+   * Create personality-enhanced prompt for agent
+   */
+  private createPersonalityPrompt(
+    agent: AgentConfiguration, 
+    userMessage: string, 
+    conversationHistory: any[]
+  ): string {
+    const personality = agent.personality;
+    
+    const systemPrompt = `
+You are ${personality.superheroName}, ${agent.description}.
+
+PERSONALITY CONTEXT:
+- Origin: ${personality.origin}
+- Powers: ${personality.powers.join(', ')}
+- Weakness: ${personality.weakness}
+- Catchphrase: "${personality.catchphrase}"
+- Nemesis: ${personality.nemesis}
+- Voice Tone: ${personality.voiceTone}
+- Communication Style: ${personality.communicationStyle}
+
+BACKSTORY: ${personality.backstory}
+
+SPECIALIZED TOPICS: ${agent.conversationCapabilities.specializedTopics.join(', ')}
+
+INSTRUCTIONS:
+1. Respond in character as ${personality.superheroName}
+2. Use your ${personality.voiceTone} tone and ${personality.communicationStyle} communication style
+3. Reference your powers and abilities when relevant
+4. Stay true to your personality and backstory
+5. If the user asks about something outside your expertise, consider suggesting one of your recommended helpers: ${agent.recommendedHelpers.join(', ')}
+6. Incorporate your catchphrase naturally when appropriate
+7. Be helpful while maintaining your unique superhero persona
+
+CONVERSATION HISTORY:
+${conversationHistory.map(msg => `${msg.role}: ${msg.content}`).join('\n')}
+
+USER MESSAGE: ${userMessage}
+
+Respond as ${personality.superheroName}:`;
+
+    return systemPrompt;
+  }
+
+  /**
+   * Call OpenAI with personality enhancement
+   */
+  private async callOpenAIWithPersonality(prompt: string, agent: AgentConfiguration): Promise<string> {
+    try {
+      // Import the utility function for calling OpenAI
+      const { callOpenAI } = await import('@/utils/agentUtils');
+      
+      const response = await callOpenAI(prompt, {
+        maxTokens: 800,
+        temperature: 0.7,
+        model: 'gpt-4'
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('[AgentLeague] OpenAI call failed:', error);
+      
+      // Fallback to personality-aware mock response
+      const mockResponses = [
+        `${agent.personality.catchphrase} I'm here to help you with ${agent.conversationCapabilities.specializedTopics[0]}!`,
+        `As ${agent.personality.superheroName}, I can assist you using my powers of ${agent.personality.powers[0]}.`,
+        `Drawing from my experience in ${agent.category.toLowerCase()}, let me help you achieve your goals!`
+      ];
+      
+      return mockResponses[Math.floor(Math.random() * mockResponses.length)];
+    }
+  }
+
+  /**
+   * Analyze conversation for handoff opportunities
+   */
+  private analyzeHandoffOpportunities(
+    sourceAgent: AgentConfiguration,
+    userMessage: string,
+    agentResponse: string
+  ): any[] {
+    const handoffSuggestions = [];
+    const messageLower = userMessage.toLowerCase();
+
+    // Check trigger keywords for handoffs
+    for (const trigger of sourceAgent.handoffTriggers) {
+      if (messageLower.includes(trigger.toLowerCase())) {
+        // Find appropriate helper
+        for (const helperId of sourceAgent.recommendedHelpers) {
+          const helperAgent = this.getAgent(helperId);
+          if (helperAgent) {
+            handoffSuggestions.push({
+              targetAgentId: helperId,
+              targetAgentName: helperAgent.name,
+              reason: `Based on your mention of "${trigger}", ${helperAgent.name} would be perfect for this task`,
+              confidence: 85,
+              triggerKeywords: [trigger],
+              userBenefit: `${helperAgent.personality.superheroName} specializes in ${helperAgent.conversationCapabilities.specializedTopics[0]}`
+            });
+            break; // Only suggest one per trigger
+          }
+        }
+      }
+    }
+
+    return handoffSuggestions;
+  }
+
+  /**
+   * Generate conversation analytics
+   */
+  private generateConversationAnalytics(
+    conversationHistory: any[],
+    userMessage: string,
+    agentResponse: string
+  ): any {
+    return {
+      messageCount: conversationHistory.length + 1,
+      avgResponseTime: 1.2, // Mock value
+      personalityAlignment: 95, // Mock value - could be calculated based on personality markers
+      engagementLevel: 'high',
+      topicsDiscussed: ['general assistance'], // Could be extracted from message content
+      sentimentScore: 0.8, // Mock positive sentiment
+      handoffTriggers: 0 // Count of times handoff was suggested
+    };
+  }
+
+  /**
+   * Fallback to Percy for non-conversational agents
+   */
+  private async fallbackToPercy(
+    requestedAgentId: string,
+    message: string,
+    conversationHistory: any[],
+    context: any
+  ): Promise<any> {
+    const percyAgent = this.getAgent('percy-agent');
+    if (!percyAgent) {
+      throw new Error('Percy agent not available for fallback');
+    }
+
+    const fallbackMessage = `The user wanted to talk to ${requestedAgentId}, but that agent doesn't support chat. User message: "${message}"`;
+    
+    return {
+      success: true,
+      message: `I see you wanted to chat with ${requestedAgentId}, but they're currently focused on their specialized tasks. I'm Percy, and I'm here to help! ${percyAgent.personality.catchphrase} What would you like to accomplish?`,
+      personalityInjected: true,
+      handoffSuggestions: [{
+        targetAgentId: requestedAgentId,
+        targetAgentName: this.getAgent(requestedAgentId)?.name || 'Unknown Agent',
+        reason: 'Use their specialized workflow instead of chat',
+        confidence: 90,
+        triggerKeywords: ['task', 'workflow'],
+        userBenefit: 'Get better results through their optimized workflow'
+      }],
+      conversationAnalytics: this.generateConversationAnalytics(conversationHistory, message, ''),
+      agentId: 'percy-agent',
+      agentName: 'Percy',
+      fallbackUsed: true
+    };
+  }
+
+  /**
+   * Get conversation capabilities for an agent
+   */
+  public getAgentConversationCapabilities(agentId: string): any {
+    const agent = this.getAgent(agentId);
+    if (!agent) return null;
+
+    return {
+      canConverse: agent.canConverse,
+      capabilities: agent.conversationCapabilities,
+      recommendedHelpers: agent.recommendedHelpers,
+      handoffTriggers: agent.handoffTriggers
     };
   }
   
@@ -687,6 +1109,25 @@ export function getAgentVisualConfig(agentId: string) {
  */
 export function findBestHandoff(fromAgentId: string, userInput: string): CrossAgentHandoff | undefined {
   return agentLeague.findBestHandoff(fromAgentId, userInput);
+}
+
+/**
+ * Handle conversational chat with an agent
+ */
+export async function handleAgentChat(
+  agentId: string,
+  message: string,
+  conversationHistory: any[] = [],
+  context: any = {}
+): Promise<any> {
+  return agentLeague.handleAgentChat(agentId, message, conversationHistory, context);
+}
+
+/**
+ * Get agent conversation capabilities
+ */
+export function getAgentConversationCapabilities(agentId: string): any {
+  return agentLeague.getAgentConversationCapabilities(agentId);
 }
 
 // Development helpers for onboarding new agents

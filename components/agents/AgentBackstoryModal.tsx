@@ -1,9 +1,11 @@
 "use client";
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Agent } from '@/types/agent';
 import { getAgentImagePath } from '@/utils/agentUtils';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { getAgent, getAgentConversationCapabilities } from '@/lib/agents/agentLeague';
 
 interface AgentBackstoryModalProps {
   agent: Agent | null;
@@ -12,7 +14,129 @@ interface AgentBackstoryModalProps {
 }
 
 export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBackstoryModalProps) {
-  if (!agent) return null;
+  // --- Cosmic Toast State ---
+  const [showToast, setShowToast] = useState(false);
+  const toastTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLaunchWorkflow = () => {
+    setShowToast(true);
+    if (toastTimeout.current) clearTimeout(toastTimeout.current);
+    toastTimeout.current = setTimeout(() => setShowToast(false), 3000);
+    // (Logic for actual workflow launch remains TODO)
+  };
+
+  const handleDismissToast = () => {
+    setShowToast(false);
+    if (toastTimeout.current) clearTimeout(toastTimeout.current);
+  };
+  const [enrichedAgent, setEnrichedAgent] = useState<any>(null);
+  const [conversationCapabilities, setConversationCapabilities] = useState<any>(null);
+  const [chatMode, setChatMode] = useState(false);
+  const [chatHistory, setChatHistory] = useState<any[]>([]);
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+
+  useEffect(() => {
+    if (!agent) return;
+
+    // Get enriched agent data from agent league
+    const leagueAgent = getAgent(agent.id);
+    const backstory = agentBackstories[agent.id];
+    const capabilities = getAgentConversationCapabilities(agent.id);
+
+    setEnrichedAgent({
+      ...agent,
+      ...leagueAgent,
+      ...backstory
+    });
+    setConversationCapabilities(capabilities);
+  }, [agent]);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!chatMessage.trim() || chatLoading) return;
+
+    const userMessage = {
+      role: 'user',
+      content: chatMessage,
+      timestamp: new Date().toISOString()
+    };
+
+    setChatHistory(prev => [...prev, userMessage]);
+    setChatMessage('');
+    setChatLoading(true);
+
+    try {
+      const response = await fetch(`/api/agents/chat/${agent?.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: chatMessage,
+          conversationHistory: chatHistory,
+          context: {
+            source: 'backstory-modal'
+          }
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setChatHistory(prev => [...prev, {
+          role: 'assistant',
+          content: result.message,
+          timestamp: new Date().toISOString(),
+          handoffSuggestions: result.handoffSuggestions
+        }]);
+      } else {
+        setChatHistory(prev => [...prev, {
+          role: 'assistant',
+          content: 'I apologize, but I\'m having trouble responding right now. Please try again!',
+          timestamp: new Date().toISOString()
+        }]);
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      setChatHistory(prev => [...prev, {
+        role: 'assistant',
+        content: 'I apologize, but I\'m having trouble responding right now. Please try again!',
+        timestamp: new Date().toISOString()
+      }]);
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatMessage, chatLoading, agent?.id, chatHistory]);
+
+  // Handle keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+
+      if (e.key === 'Escape') {
+        onClose();
+      }
+      
+      // Chat shortcuts
+      if (chatMode && e.key === 'Enter' && e.ctrlKey && chatMessage.trim()) {
+        handleSendMessage();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, chatMode, chatMessage, onClose, handleSendMessage]);
+
+  const handleStartChat = () => {
+    setChatMode(true);
+    setChatHistory([{
+      role: 'assistant',
+      content: `${enrichedAgent?.catchphrase || 'Hello!'} I'm ${enrichedAgent?.superheroName || enrichedAgent?.name}, ready to help you with ${enrichedAgent?.conversationCapabilities?.specializedTopics?.[0] || 'your tasks'}!`,
+      timestamp: new Date().toISOString()
+    }]);
+  };
+
+  if (!agent || !enrichedAgent) return null;
 
   return (
     <AnimatePresence>
@@ -28,14 +152,18 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative bg-gradient-to-br from-slate-900/95 via-purple-900/30 to-slate-900/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 max-w-4xl w-full border-2 border-purple-500/30 max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-2xl mx-auto bg-gradient-to-b from-[#161b22] to-[#0d1117] rounded-2xl shadow-xl border border-blue-900/60 px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-label={enrichedAgent.superheroName + ' backstory modal'}
           >
+            {/* --- Modal Content --- */}
             {/* Close Button */}
             <button
-              className="absolute top-4 right-4 text-gray-300 hover:text-white text-3xl focus:outline-none focus:ring-2 focus:ring-purple-400/40 rounded-lg p-1 transition-all duration-200"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-300 hover:text-white text-2xl sm:text-3xl focus:outline-none focus:ring-2 focus:ring-purple-400/40 rounded-lg p-1 transition-all duration-200 z-10"
               onClick={onClose}
-              aria-label="Close backstory"
+              aria-label="Close agent backstory modal"
+              autoFocus
             >
               ×
             </button>
@@ -71,15 +199,100 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
               </div>
             </div>
 
-            {/* Powers Section */}
-            {agent.powers && agent.powers.length > 0 && (
-              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-fuchsia-400/30">
-                <h3 className="text-2xl font-bold text-fuchsia-300 mb-4 flex items-center gap-2" aria-label="Superpowers Section">
-                  <span className="text-3xl">⚡</span> <span className="uppercase tracking-wider">Superpowers</span>
-                  <span className="ml-2 px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-200 text-xs font-bold shadow-[0_0_10px_#e879f9]" title="Certified Cosmic Ability">COSMIC BADGE</span>
-                </h3>
+            {/* Chat Interface or Powers Section */}
+            {chatMode ? (
+              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-green-400/30">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-green-300 flex items-center gap-2 break-words">
+                    <span className="text-2xl sm:text-3xl">💬</span> 
+                    <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Chat with {enrichedAgent.superheroName}</span>
+                  </h3>
+                  <button
+                    onClick={() => setChatMode(false)}
+                    className="px-3 py-1 bg-red-500/20 border border-red-400/30 rounded-full text-red-300 text-sm hover:bg-red-500/30 transition-colors flex-shrink-0 self-start sm:self-auto"
+                    aria-label="Close chat interface"
+                  >
+                    Close Chat
+                  </button>
+                </div>
+                
+                {/* Chat Messages */}
+                <div className="h-64 overflow-y-auto mb-4 space-y-3 p-4 bg-slate-900/50 rounded-lg">
+                  {chatHistory.map((msg, index) => (
+                    <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[80%] p-3 rounded-lg ${
+                        msg.role === 'user' 
+                          ? 'bg-blue-600/30 border border-blue-400/30 text-blue-100' 
+                          : 'bg-green-600/30 border border-green-400/30 text-green-100'
+                      }`}>
+                        <p className="text-sm">{msg.content}</p>
+                        {msg.handoffSuggestions && msg.handoffSuggestions.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {msg.handoffSuggestions.map((suggestion: any, idx: number) => (
+                              <div key={idx} className="text-xs bg-yellow-500/20 border border-yellow-400/30 rounded p-2">
+                                💡 <strong>{suggestion.superheroName}</strong> might help: {suggestion.reason}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {chatLoading && (
+                    <div className="flex justify-start">
+                      <div className="bg-green-600/30 border border-green-400/30 text-green-100 p-3 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div className="animate-spin w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full"></div>
+                          <span className="text-sm">{enrichedAgent.superheroName} is thinking...</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Chat Input */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    type="text"
+                    value={chatMessage}
+                    onChange={(e) => setChatMessage(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                    placeholder={`Ask ${enrichedAgent.superheroName} anything...`}
+                    className="flex-1 p-3 bg-slate-800/50 border border-slate-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400/40 text-sm sm:text-base"
+                    disabled={chatLoading}
+                    aria-label="Chat message input"
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={chatLoading || !chatMessage.trim()}
+                    className="px-4 sm:px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:opacity-50 text-white rounded-lg transition-colors text-sm sm:text-base flex-shrink-0"
+                    aria-label="Send message"
+                  >
+                    {chatLoading ? '...' : 'Send'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="mb-6 sm:mb-8 cosmic-glass cosmic-glow rounded-2xl p-4 sm:p-6 border-2 border-fuchsia-400/30">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
+                   {/* Cosmic Section Mapping: Powers - fuchsia, ⚡/💫 */}
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-fuchsia-300 flex flex-wrap items-center gap-2" aria-label="Superpowers Section">
+                    <span className="text-2xl sm:text-3xl" aria-label="Powers Icon" title="Superpowers">⚡</span> 
+                    <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Superpowers</span>
+                    <span className="px-2 sm:px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-200 text-xs font-bold shadow-[0_0_10px_#e879f9]" title="Certified Cosmic Ability">COSMIC BADGE</span>
+                  </h3>
+                  {conversationCapabilities?.canConverse && (
+                    <button
+                      onClick={handleStartChat}
+                      className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm rounded-lg transition-colors flex items-center gap-2 flex-shrink-0 self-start sm:self-auto"
+                      aria-label="Start chat with agent"
+                    >
+                      💬 Start Chat
+                    </button>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {agent.powers.map((power, index) => (
+                  {(enrichedAgent.powers || []).map((power: string, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
@@ -92,57 +305,158 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                     </motion.div>
                   ))}
                 </div>
+                
+                {/* Conversation Capabilities */}
+                {conversationCapabilities && (
+                  <div className="mt-6 p-4 bg-green-900/20 rounded-lg border border-green-500/20">
+                    <h4 className="text-lg font-bold text-green-300 mb-2 flex items-center gap-2">
+                      💬 Conversation Abilities
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <span className="text-green-200 font-semibold">Specialized Topics:</span>
+                        <p className="text-gray-300">{conversationCapabilities.capabilities?.specializedTopics?.join(', ') || 'General assistance'}</p>
+                      </div>
+                      <div>
+                        <span className="text-green-200 font-semibold">Languages:</span>
+                        <p className="text-gray-300">{conversationCapabilities.capabilities?.supportedLanguages?.join(', ') || 'English'}</p>
+                      </div>
+                      <div>
+                        <span className="text-green-200 font-semibold">Recommended Helpers:</span>
+                        <p className="text-gray-300">{conversationCapabilities.recommendedHelpers?.join(', ') || 'None'}</p>
+                      </div>
+                      <div>
+                        <span className="text-green-200 font-semibold">Max Conversation Depth:</span>
+                        <p className="text-gray-300">{conversationCapabilities.capabilities?.maxConversationDepth || 20} messages</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Backstory */}
-            {agent.backstory && (
+            {enrichedAgent.backstory && (
               <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-cyan-400/30">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-4 flex items-center gap-2" aria-label="Origin Story Section">
-                  <span className="text-3xl">📖</span> <span className="uppercase tracking-wider">Origin Story</span>
-                </h3>
+                  {/* Cosmic Section Mapping: Origin Story - cyan, 📖 */}
+                  <h3 className="text-2xl font-bold text-cyan-300 mb-4 flex items-center gap-2" aria-label="Origin Story Section">
+                    <span className="text-3xl" aria-label="Origin Story Icon" title="Origin Story">📖</span> <span className="uppercase tracking-wider">Origin Story</span>
+                  </h3>
                 <div className="p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20">
                   <p className="text-gray-300 leading-relaxed text-lg" aria-label="Agent Backstory">
-                    {agent.backstory ? `${agent.backstory} 🌌` : 'Every hero has a story written in the stars. This one is still unfolding!'}
+                    {enrichedAgent.backstory ? `${enrichedAgent.backstory} 🌌` : 'Every hero has a story written in the stars. This one is still unfolding!'}
                   </p>
                 </div>
               </div>
             )}
 
+            {/* Catchphrase & Origin */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {enrichedAgent.catchphrase && (
+                <div className="p-4 bg-yellow-900/20 rounded-xl border border-yellow-500/20">
+                  <h4 className="text-xl font-bold text-yellow-400 mb-2 flex items-center gap-2" aria-label="Catchphrase">
+                    <span className="text-2xl" aria-label="Catchphrase Icon" title="Catchphrase">💫</span> Signature Catchphrase
+                  </h4>
+                  <p className="text-gray-300 italic font-semibold">"{enrichedAgent.catchphrase}"</p>
+                </div>
+              )}
+              {enrichedAgent.origin && (
+                <div className="p-4 bg-indigo-900/20 rounded-xl border border-indigo-500/20">
+                  <h4 className="text-xl font-bold text-indigo-400 mb-2 flex items-center gap-2" aria-label="Origin">
+                    <span className="text-2xl" aria-label="Origin Icon" title="Origin">🌟</span> Origin
+                  </h4>
+                  <p className="text-gray-300">{enrichedAgent.origin}</p>
+                </div>
+              )}
+            </div>
+
             {/* Weakness & Nemesis */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {agent.weakness && (
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {enrichedAgent.weakness && (
                 <div className="p-4 bg-red-900/20 rounded-xl border border-red-500/20">
                   <h4 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2" aria-label="Weakness">
-                    <span className="text-2xl">🔻</span> Kryptonite
+                    <span className="text-2xl" aria-label="Weakness Icon" title="Weakness">🔻</span> Kryptonite
                   </h4>
-                  <p className="text-gray-300">{agent.weakness}</p>
+                  <p className="text-gray-300">{enrichedAgent.weakness}</p>
                 </div>
               )}
-
-              {agent.nemesis && (
+              {enrichedAgent.nemesis && (
                 <div className="p-4 bg-orange-900/20 rounded-xl border border-orange-500/20">
                   <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2" aria-label="Nemesis">
-                    <span className="text-2xl">👿</span> Arch-Nemesis
+                    <span className="text-2xl" aria-label="Nemesis Icon" title="Nemesis">👿</span> Arch-Nemesis
                   </h4>
-                  <p className="text-gray-300">{agent.nemesis}</p>
+                  <p className="text-gray-300">{enrichedAgent.nemesis}</p>
                 </div>
               )}
             </div>
 
-            {/* Action Button */}
-            <div className="mt-8 text-center">
-              <button
-                onClick={onClose}
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-fuchsia-400/40"
-                aria-label="Close and return to main agent grid"
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 sm:gap-4 justify-center items-center">
+              {/* Chat Button - Show for all agents but gray out non-conversational */}
+              {!chatMode && (
+                <motion.button
+                  onClick={conversationCapabilities?.canConverse ? handleStartChat : undefined}
+                  disabled={!conversationCapabilities?.canConverse}
+                  className={`px-4 sm:px-6 py-3 font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 text-sm sm:text-base ${
+                    conversationCapabilities?.canConverse
+                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 focus:ring-green-400/40'
+                      : 'bg-gray-600/50 text-gray-300 cursor-not-allowed opacity-50'
+                  }`}
+                  aria-label={
+                    conversationCapabilities?.canConverse 
+                      ? `Start chatting with ${enrichedAgent.superheroName}` 
+                      : `${enrichedAgent.superheroName} doesn't support chat - use workflow instead`
+                  }
+                  title={
+                    conversationCapabilities?.canConverse 
+                      ? `Chat with ${enrichedAgent.superheroName}` 
+                      : 'This agent doesn\'t support conversations. Try the workflow instead!'
+                  }
+                  whileHover={conversationCapabilities?.canConverse ? { scale: 1.05 } : { scale: 1 }}
+                  whileTap={conversationCapabilities?.canConverse ? { scale: 0.95 } : { scale: 1 }}
+                >
+                  💬 Chat with {enrichedAgent.superheroName}
+                </motion.button>
+              )}
+              
+              <motion.button
+                onClick={handleLaunchWorkflow}
+                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-400/40 text-sm sm:text-base"
+                aria-label={`Launch ${enrichedAgent.name} workflow`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                🚀 Return to Mission Control
-              </button>
+                ⚡ Launch Powers
+              </motion.button>
             </div>
+
+            {/* --- Cosmic Toast for Workflow Launch --- */}
+            <AnimatePresence>
+              {showToast && (
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 40 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                  className="fixed left-1/2 bottom-8 z-[100] -translate-x-1/2 px-6 py-4 rounded-2xl shadow-xl bg-gradient-to-r from-fuchsia-500 via-blue-600 to-teal-400 text-white text-lg font-bold flex items-center gap-3 border-2 border-fuchsia-400/60 cosmic-glow backdrop-blur-md animate-glow-toast"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <span className="text-2xl animate-pulse" aria-hidden="true">🚀</span>
+                  <span>Workflow launched! Your agent is on it.</span>
+                  <button
+                    onClick={handleDismissToast}
+                    className="ml-4 px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-fuchsia-400/40"
+                    aria-label="Dismiss notification"
+                  >
+                    ×
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
-} 
+}

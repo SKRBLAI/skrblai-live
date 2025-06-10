@@ -136,6 +136,10 @@ export interface UseAgentLeagueReturn {
   executeHandoff: (params: ExecuteHandoffParams) => Promise<any>;
   findBestHandoff: (fromAgentId: string, userInput: string) => Promise<any>;
   
+  // NEW: Conversational Features
+  chatWithAgent: (agentId: string, message: string, conversationHistory?: any[], context?: any) => Promise<any>;
+  getAgentChatCapabilities: (agentId: string) => Promise<any>;
+  
   // Utility Functions
   refreshAgents: () => Promise<void>;
   validateSystem: () => Promise<any>;
@@ -146,6 +150,11 @@ export interface UseAgentLeagueReturn {
   setSelectedAgent: (agent: AgentLeagueAgent | null) => void;
   executionHistory: PowerExecutionResult[];
   handoffHistory: any[];
+  
+  // NEW: Conversation State
+  conversationHistory: any[];
+  activeConversationAgent: string | null;
+  setActiveConversationAgent: (agentId: string | null) => void;
 }
 
 export interface AnalyzeHandoffsParams {

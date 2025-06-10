@@ -75,11 +75,14 @@ export async function GET(req: NextRequest) {
       case 'health':
         return handleHealthCheck();
       
+      case 'chat-capabilities':
+        return handleGetChatCapabilities(agentId);
+      
       default:
         return NextResponse.json({
           success: false,
           error: 'Invalid action parameter',
-          availableActions: ['list', 'get', 'visual', 'prompt', 'status', 'validate', 'health']
+          availableActions: ['list', 'get', 'visual', 'prompt', 'status', 'validate', 'health', 'chat-capabilities']
         }, { status: 400 });
     }
 
@@ -497,6 +500,43 @@ async function handleFindHandoff(params: any) {
     found: !!handoff,
     timestamp: new Date().toISOString()
   });
+}
+
+/**
+ * Handle getting agent chat capabilities
+ */
+async function handleGetChatCapabilities(agentId: string | null) {
+  if (!agentId) {
+    return NextResponse.json({
+      success: false,
+      error: 'Agent ID is required'
+    }, { status: 400 });
+  }
+
+  try {
+    const { getAgentConversationCapabilities } = await import('@/lib/agents/agentLeague');
+    const capabilities = getAgentConversationCapabilities(agentId);
+    
+    if (!capabilities) {
+      return NextResponse.json({
+        success: false,
+        error: `Agent not found or doesn't support chat: ${agentId}`
+      }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      success: true,
+      agentId,
+      capabilities,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    return NextResponse.json({
+      success: false,
+      error: error.message || 'Failed to get chat capabilities',
+      timestamp: new Date().toISOString()
+    }, { status: 500 });
+  }
 }
 
 console.log('[AgentLeague API] Endpoint initialized - Ready to serve the league! 🚀'); 

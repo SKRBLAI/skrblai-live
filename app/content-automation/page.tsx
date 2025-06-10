@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import PercyAvatar from '@/components/ui/PercyAvatar';
+import TrialButton from '@/components/ui/TrialButton';
 
 export default function ContentAutomationPage() {
   return (
@@ -11,6 +13,9 @@ export default function ContentAutomationPage() {
       transition={{ duration: 0.5 }}
       className="min-h-screen py-20"
     >
+      <div className="absolute right-6 top-6 z-20 hidden md:block">
+        <PercyAvatar className="w-20 h-20" />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <motion.h1 
@@ -182,6 +187,22 @@ export default function ContentAutomationPage() {
             </button>
           </Link>
         </motion.div>
+        <div className="mt-16 flex flex-col items-center gap-6">
+          <div className="flex flex-row gap-4 w-full justify-center">
+            <Link href="/" aria-label="Back to Home">
+              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-fuchsia-500 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-fuchsia-400/70 transition-all">
+                ← Back to Home
+              </button>
+            </Link>
+            <Link href="/services/agents" aria-label="Meet Percy">
+              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-400 to-teal-400 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-cyan-400/70 transition-all">
+                Meet Percy
+              </button>
+            </Link>
+          </div>
+          <TrialButton className="w-full max-w-xs" />
+          <div className="mt-6 w-full" aria-live="polite" aria-atomic="true"></div>
+        </div>
       </div>
     </motion.div>
   );

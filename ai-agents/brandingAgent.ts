@@ -667,7 +667,16 @@ const brandingAgent: Agent = {
     
     return runBranding(brandingInput);
   },
-  roleRequired: "any",
+  canConverse: true,
+  recommendedHelpers: ['content-creator-agent', 'sitegen-agent', 'ad-creative-agent'],
+  handoffTriggers: ['create content', 'build website', 'design ads', 'content creation', 'web design'],
+  conversationCapabilities: {
+    supportedLanguages: ['English'],
+    maxConversationDepth: 20,
+    specializedTopics: ['brand identity', 'visual design', 'color theory', 'typography', 'brand strategy'],
+    emotionalIntelligence: true
+  },
+  roleRequired: "any"
 };
 
 brandingAgent.usageCount = undefined;

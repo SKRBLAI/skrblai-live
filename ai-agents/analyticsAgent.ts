@@ -778,26 +778,15 @@ const analyticsAgent: Agent = {
   id: 'analytics-agent',
   name: 'Analytics',
   category: 'Marketing',
-  description: 'AI-powered marketing analytics and optimization',
+  description: 'Analyzes your marketing performance and provides actionable insights',
   visible: true,
-  agentCategory: ['analytics', 'marketing'],
+  agentCategory: ['analytics', 'marketing', 'data'],
   config: {
     name: 'Analytics',
     description: 'AI-powered marketing analytics and optimization',
     capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization']
   },
-  capabilities: [
-    'marketing analytics',
-    'performance tracking',
-    'audience analysis',
-    'ROI optimization',
-    'data insights',
-    'campaign analysis',
-    'conversion tracking',
-    'report generation',
-    'visualizations',
-    'trend analysis'
-  ],
+  capabilities: ['Performance Tracking', 'Audience Analysis', 'ROI Optimization'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for analytics fields
     const extendedInput = input as unknown as Record<string, any>;
@@ -846,7 +835,16 @@ const analyticsAgent: Agent = {
     
     return runAnalytics(analyticsInput);
   },
-  roleRequired: "any",
+  canConverse: true,
+  recommendedHelpers: ['ad-creative-agent', 'content-creator-agent', 'social-bot-agent'],
+  handoffTriggers: ['create ads', 'ad creative', 'content creation', 'social media', 'campaign optimization'],
+  conversationCapabilities: {
+    supportedLanguages: ['English'],
+    maxConversationDepth: 20,
+    specializedTopics: ['analytics', 'data analysis', 'performance metrics', 'marketing insights', 'conversion optimization'],
+    emotionalIntelligence: true
+  },
+  roleRequired: 'client'
 };
 
 export { analyticsAgent };

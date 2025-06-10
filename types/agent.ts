@@ -23,11 +23,57 @@ export interface AgentResponse {
   error?: string;
 }
 
+// New interfaces for enhanced conversational capabilities
+export interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  metadata?: {
+    powersUsed?: string[];
+    handoffSuggested?: boolean;
+    emotionalTone?: string;
+    confidence?: number;
+  };
+}
+
+export interface ChatResponse {
+  success: boolean;
+  message: string;
+  personalityInjected: boolean;
+  handoffSuggestions?: HandoffSuggestion[];
+  conversationAnalytics?: ConversationAnalytics;
+  data?: any;
+  error?: string;
+}
+
+export interface HandoffSuggestion {
+  targetAgentId: string;
+  targetAgentName: string;
+  reason: string;
+  confidence: number; // 0-100
+  triggerKeywords: string[];
+  userBenefit: string;
+}
+
+export interface ConversationAnalytics {
+  messageCount: number;
+  avgResponseTime: number;
+  personalityAlignment: number; // 0-100
+  engagementLevel: 'low' | 'medium' | 'high';
+  topicsDiscussed: string[];
+  sentimentScore: number; // -1 to 1
+  handoffTriggers: number;
+}
+
 export interface AgentStats {
   id: string;
   name: string;
   emoji: string;
   usageCount: number;
+  conversationCount?: number;
+  avgSatisfactionScore?: number;
+  totalHandoffsInitiated?: number;
+  totalHandoffsReceived?: number;
 }
 
 export interface AgentConfig {
@@ -35,6 +81,13 @@ export interface AgentConfig {
   description?: string;
   capabilities: string[];
   workflows?: string[];
+  // Enhanced conversational config
+  conversationalSettings?: {
+    defaultGreeting?: string;
+    personalityStrength?: 'subtle' | 'moderate' | 'strong';
+    fallbackResponses?: string[];
+    maxConversationLength?: number;
+  };
 }
 
 export interface Agent {
@@ -85,13 +138,37 @@ export interface Agent {
     headers?: Record<string, string>;
   };
   
+  // NEW: Enhanced Interactivity & Personality Metadata
+  canConverse: boolean;
+  recommendedHelpers: string[]; // Array of agent IDs that work well with this agent
+  handoffTriggers: string[]; // Keywords/phrases that indicate this agent should hand off
+  conversationCapabilities?: {
+    supportedLanguages?: string[];
+    maxConversationDepth?: number;
+    specializedTopics?: string[];
+    emotionalIntelligence?: boolean;
+  };
+  
   runAgent?: (input: any) => Promise<AgentResponse>;
   handleOnboarding?: (
     lead: Lead
   ) => Promise<{ success: boolean; message: string; redirectPath?: string }>;
+  
+  // NEW: Enhanced Agent Functions
+  chat?: (
+    message: string, 
+    conversationHistory?: ConversationMessage[],
+    context?: any
+  ) => Promise<ChatResponse>;
+  
   roleRequired?: string;
   premiumFeature?: string;
   upgradeRequired?: string | null;
 }
 
 export type AgentFunction = (input: AgentInput) => Promise<AgentResponse>;
+export type AgentChatFunction = (
+  message: string, 
+  conversationHistory?: ConversationMessage[],
+  context?: any
+) => Promise<ChatResponse>;

@@ -797,6 +797,9 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
 }
 
 const clientSuccessAgent: Agent = {
+  canConverse: false,
+  recommendedHelpers: [],
+  handoffTriggers: [],
   id: 'client-success-agent',
   name: 'Client Success',
   category: 'Support',
