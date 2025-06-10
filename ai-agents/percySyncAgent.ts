@@ -219,6 +219,9 @@ const percySyncAgent: Agent = {
   agentCategory: ['system'],
   capabilities: ['AI agent', 'task automation', 'creative support'],
   roleRequired: 'any',
+  canConverse: false,
+  recommendedHelpers: [],
+  handoffTriggers: [],
 };
 
 // Handle user onboarding from Percy chat

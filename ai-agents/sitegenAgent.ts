@@ -239,6 +239,9 @@ const sitegenAgent: Agent = {
     'web copy',
     'landing pages'
   ],
+  canConverse: false,
+  recommendedHelpers: ['content-creator-agent', 'branding-agent'],
+  handoffTriggers: ['content creation', 'branding', 'copy writing'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for site generator fields
     const extendedInput = input as unknown as Record<string, any>;

@@ -460,6 +460,9 @@ const videoContentAgent: Agent = {
     'custom video scripts'
   ],
   roleRequired: 'any',
+  canConverse: false,
+  recommendedHelpers: ['content-creator-agent', 'social-bot-agent'],
+  handoffTriggers: ['social media', 'blog content', 'written content'],
   usageCount: undefined,
   lastRun: undefined,
   performanceScore: undefined,

@@ -18,9 +18,8 @@ import { trackPercyEvent } from '@/lib/analytics/percyAnalytics';
 import PercyTestimonials from '@/components/percy/PercyTestimonials';
 import { downloadLeadsCSV } from '@/lib/utils/leadExport';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import UnifiedPercyOnboarding from './UnifiedPercyOnboarding';
 import ConversationalPercyOnboarding from './ConversationalPercyOnboarding';
-import { Sparkles, Star, Zap, ShootingStar, Rocket, Target, Crown, Gem, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, Star, Zap, Rocket, Target, Crown, Gem, Eye, EyeOff } from 'lucide-react';
 import PercyFigure from './PercyFigure';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
@@ -412,11 +411,10 @@ export default function PercyHero({
     try {
       const { trackPercyEvent } = await import('@/lib/analytics/percyAnalytics');
       await trackPercyEvent({
-        event_type: 'hero_interaction',
+        event_type: 'conversation_start',
         user_choice: action,
         session_id: `percy-hero-${Date.now()}`,
-        timestamp: new Date().toISOString(),
-        metadata
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -684,7 +682,7 @@ export default function PercyHero({
               ease: "easeOut",
             }}
           >
-            <ShootingStar className="w-4 h-4 text-yellow-400" />
+                                  <Star className="w-4 h-4 text-yellow-400" />
           </motion.div>
         ))}
       </AnimatePresence>

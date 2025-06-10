@@ -114,6 +114,9 @@ const publishingAgent: Agent = {
     'publishing automation'
   ],
   roleRequired: "any",
+  canConverse: false,
+  recommendedHelpers: ['content-creator-agent'],
+  handoffTriggers: ['content creation', 'editing', 'marketing'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for publishing fields
     const extendedInput = input as unknown as Record<string, any>;

@@ -52,6 +52,9 @@ const proposalGeneratorAgent: Agent = {
     'proposal writing'
   ],
   roleRequired: "any",
+  canConverse: false,
+  recommendedHelpers: ['biz-agent', 'client-success-agent'],
+  handoffTriggers: ['business strategy', 'client support', 'business analysis'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for proposal fields
     const extendedInput = input as unknown as Record<string, any>;

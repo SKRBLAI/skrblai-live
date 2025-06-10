@@ -201,6 +201,10 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
   const [selectedAgent, setSelectedAgent] = useState<AgentLeagueAgent | null>(null);
   const [executionHistory, setExecutionHistory] = useState<PowerExecutionResult[]>([]);
   const [handoffHistory, setHandoffHistory] = useState<any[]>([]);
+  
+  // Conversation State
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]);
+  const [activeConversationAgent, setActiveConversationAgent] = useState<string | null>(null);
 
   // =============================================================================
   // API HELPERS
@@ -451,6 +455,62 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
   }, [apiCall]);
 
   // =============================================================================
+  // CONVERSATIONAL FEATURES
+  // =============================================================================
+
+  const chatWithAgent = useCallback(async (
+    agentId: string, 
+    message: string, 
+    conversationHistory: any[] = [], 
+    context: any = {}
+  ): Promise<any> => {
+    try {
+      const response = await apiCall('/api/agents/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          agentId,
+          message,
+          conversationHistory,
+          context
+        })
+      });
+
+      if (response.success) {
+        // Update conversation history
+        const newMessage = {
+          role: 'user',
+          content: message,
+          timestamp: new Date().toISOString()
+        };
+        const agentResponse = {
+          role: 'assistant',
+          content: response.message,
+          timestamp: new Date().toISOString(),
+          agentId
+        };
+        
+        setConversationHistory(prev => [...prev, newMessage, agentResponse]);
+        return response;
+      } else {
+        throw new Error(response.error || 'Chat failed');
+      }
+    } catch (err: any) {
+      console.error('[useAgentLeague] Chat with agent failed:', err);
+      return { success: false, error: err.message };
+    }
+  }, [apiCall]);
+
+  const getAgentChatCapabilities = useCallback(async (agentId: string): Promise<any> => {
+    try {
+      const response = await apiCall(`/api/agents/league?action=chat_capabilities&agentId=${agentId}`);
+      return response.success ? response.capabilities : null;
+    } catch (err: any) {
+      console.error('[useAgentLeague] Get chat capabilities failed:', err);
+      return null;
+    }
+  }, [apiCall]);
+
+  // =============================================================================
   // EFFECTS
   // =============================================================================
 
@@ -494,6 +554,10 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
     executeHandoff,
     findBestHandoff,
     
+    // Conversational Features
+    chatWithAgent,
+    getAgentChatCapabilities,
+    
     // Utility Functions
     refreshAgents,
     validateSystem,
@@ -503,7 +567,12 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
     selectedAgent,
     setSelectedAgent,
     executionHistory,
-    handoffHistory
+    handoffHistory,
+    
+    // Conversation State
+    conversationHistory,
+    activeConversationAgent,
+    setActiveConversationAgent
   };
 }
 

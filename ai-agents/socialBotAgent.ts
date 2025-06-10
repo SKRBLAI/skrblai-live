@@ -640,6 +640,9 @@ const socialBotAgent: Agent = {
     'social media automation'
   ],
   roleRequired: "any",
+  canConverse: false,
+  recommendedHelpers: ['ad-creative-agent', 'content-creator-agent', 'analytics-agent'],
+  handoffTriggers: ['analytics', 'advertising', 'content writing', 'blog content'],
   usageCount: undefined,
   lastRun: undefined,
   performanceScore: undefined,

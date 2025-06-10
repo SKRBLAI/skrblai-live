@@ -1,7 +1,7 @@
 // ARCHIVED: UnifiedPercyOnboarding.tsx
 // This component has been replaced by ConversationalPercyOnboarding.tsx
 // Kept for reference only - DO NOT USE IN PRODUCTION
-// Date: 2024-12-20
+// Date: 2025-06-10
 
 'use client';
 

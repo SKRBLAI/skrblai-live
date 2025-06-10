@@ -300,7 +300,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           </motion.div>
           
           {/* Chat capability badge */}
-          {agent.conversationCapabilities?.canConverse && (
+          {agent.canConverse && (
             <motion.div
               className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 backdrop-blur-sm border border-green-400/20 shadow-sm"
               initial={{ scale: 0, opacity: 0 }}

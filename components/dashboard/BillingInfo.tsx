@@ -34,7 +34,16 @@ export default function BillingInfo() {
 
   const handleManageBilling = async () => {
     try {
-      const result = await createCustomerPortalLink();
+      // First, get the customer ID from the user's profile
+      const userResponse = await fetch('/api/user/profile');
+      const userData = await userResponse.json();
+      
+      if (!userData.success || !userData.stripeCustomerId) {
+        console.error('No Stripe customer ID found');
+        return;
+      }
+
+      const result = await createCustomerPortalLink(userData.stripeCustomerId);
       if (result.success && result.url) {
         window.location.href = result.url;
       } else {

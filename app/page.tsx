@@ -9,7 +9,7 @@ import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import SimpleAgentGrid from '@/components/agents/SimpleAgentGrid';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import UnifiedPercyOnboarding from '@/components/home/UnifiedPercyOnboarding';
+import ConversationalPercyOnboarding from '@/components/home/ConversationalPercyOnboarding';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import type { Agent } from '@/types/agent';
 
@@ -213,12 +213,8 @@ export default function HomePage() {
               </div>
             </motion.div>
             
-            {/* Unified Percy Onboarding - RE-ENABLED */}
-            <UnifiedPercyOnboarding 
-              onComplete={handleOnboardingComplete}
-              onAgentsRecommended={handleAgentsRecommended}
-              agents={agents}
-            />
+            {/* Conversational Percy Onboarding */}
+            <ConversationalPercyOnboarding />
           </div>
         </section>
 
