@@ -1,33 +1,48 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-export default function PercyAvatar({ className = '', isThinking = false }) {
+interface PercyAvatarProps {
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+  isThinking?: boolean;
+  animate?: boolean;
+}
+
+export default function PercyAvatar({ size = 'md', className = '', isThinking = false, animate = true }: PercyAvatarProps) {
+  const sizeClasses: Record<string, string> = {
+    sm: 'w-10 h-10',
+    md: 'w-24 h-24',
+    lg: 'w-40 h-40',
+  };
+
   return (
     <motion.div
-      className={`relative w-24 h-24 mx-auto mb-6 select-none ${className}`}
-      animate={{
+      className={`relative ${sizeClasses[size]} mx-auto mb-6 select-none ${className}`}
+      animate={animate ? {
         scale: [1, 1.04, 1],
         filter: isThinking
           ? 'brightness(1.15) drop-shadow(0 0 24px #30D5C8)' : 'none',
-      }}
+      } : undefined}
       transition={{ duration: 2.2, repeat: Infinity }}
     >
       {/* Subtle breathing */}
-      <motion.div
-        className="absolute inset-0 rounded-full z-10"
-        animate={{
-          scale: [1, 1.07, 1],
-          boxShadow: [
-            '0 0 0px #30D5C8',
-            '0 0 32px 6px #30D5C8AA',
-            '0 0 0px #30D5C8'
-          ]
-        }}
-        transition={{ duration: 3.2, repeat: Infinity }}
-      />
+      {animate && (
+        <motion.div
+          className="absolute inset-0 rounded-full z-10"
+          animate={{
+            scale: [1, 1.07, 1],
+            boxShadow: [
+              '0 0 0px #30D5C8',
+              '0 0 32px 6px #30D5C8AA',
+              '0 0 0px #30D5C8'
+            ]
+          }}
+          transition={{ duration: 3.2, repeat: Infinity }}
+        />
+      )}
       <motion.div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
-        animate={{ y: [0, 2, -2, 0] }}
+        animate={animate ? { y: [0, 2, -2, 0] } : undefined}
         transition={{ duration: 2.2, repeat: Infinity }}
       >
         <Image
@@ -39,12 +54,14 @@ export default function PercyAvatar({ className = '', isThinking = false }) {
           priority
         />
         {/* Eye animation overlay */}
-        <motion.div
-          className="absolute left-1/2 top-1/2 w-6 h-3 bg-black/80 rounded-b-full opacity-80"
-          style={{ transform: 'translate(-50%, -50%)' }}
-          animate={{ y: [0, 0.5, -0.5, 0], scaleX: [1, 1.08, 0.96, 1] }}
-          transition={{ duration: 2.1, repeat: Infinity }}
-        />
+        {animate && (
+          <motion.div
+            className="absolute left-1/2 top-1/2 w-6 h-3 bg-black/80 rounded-b-full opacity-80"
+            style={{ transform: 'translate(-50%, -50%)' }}
+            animate={{ y: [0, 0.5, -0.5, 0], scaleX: [1, 1.08, 0.96, 1] }}
+            transition={{ duration: 2.1, repeat: Infinity }}
+          />
+        )}
       </motion.div>
     </motion.div>
   );

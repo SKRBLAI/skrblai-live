@@ -3,13 +3,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Send, Sparkles, Linkedin, Globe, MessageCircle, X, ChevronDown } from 'lucide-react';
+import { Send, MessageCircle, X } from 'lucide-react';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { getCurrentUser } from '@/utils/supabase-auth';
 import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
+import PercyAvatar from '@/components/home/PercyAvatar';
+import Link from 'next/link';
 
 interface ConversationMessage {
   id: string;
@@ -80,7 +82,9 @@ export default function ConversationalPercyOnboarding() {
   const [inputValue, setInputValue] = useState('');
   const [showAskPercy, setShowAskPercy] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [isScanning, setIsScanning] = useState(false); // New: indicates active scan
+  const [showBurst, setShowBurst] = useState(false); // particle burst on agent summon
+
   // Initialize state from localStorage or defaults
   const [onboardingState, setOnboardingState] = useState<OnboardingState>(() => {
     if (typeof window !== 'undefined') {
@@ -122,7 +126,7 @@ export default function ConversationalPercyOnboarding() {
       options,
       agentRecommendations
     };
-    
+
     setOnboardingState(prev => ({
       ...prev,
       conversationHistory: [...prev.conversationHistory, message]
@@ -136,7 +140,7 @@ export default function ConversationalPercyOnboarding() {
       content,
       timestamp: new Date().toISOString()
     };
-    
+
     setOnboardingState(prev => ({
       ...prev,
       conversationHistory: [...prev.conversationHistory, message]
@@ -146,11 +150,11 @@ export default function ConversationalPercyOnboarding() {
   const generateAgentRecommendations = useCallback(() => {
     setIsTyping(true);
     setOnboardingState(prev => ({ ...prev, currentStep: 'agent-recommendations' }));
-    
+
     setTimeout(() => {
       const { goal, platform } = onboardingState;
       const recommendations: AgentRecommendation[] = [];
-      
+
       // Map goals to agents
       const goalToAgents: Record<string, string[]> = {
         branding: ['branding-agent', 'content-creator-agent'],
@@ -162,9 +166,9 @@ export default function ConversationalPercyOnboarding() {
         video: ['video-content-agent', 'social-bot-agent', 'content-creator-agent'],
         business: ['biz-agent', 'proposal-generator-agent', 'analytics-agent']
       };
-      
+
       const recommendedAgentIds = goalToAgents[goal || 'content'] || ['content-creator-agent'];
-      
+
       recommendedAgentIds.forEach((agentId, index) => {
         const backstory = agentBackstories[agentId];
         if (backstory) {
@@ -178,9 +182,9 @@ export default function ConversationalPercyOnboarding() {
           });
         }
       });
-      
+
       setIsTyping(false);
-      
+
       addPercyMessage(
         "🎯 Based on your cosmic coordinates, I've summoned the perfect superheroes for your mission!",
         recommendations.map(rec => ({
@@ -208,12 +212,12 @@ export default function ConversationalPercyOnboarding() {
           updatedAt: new Date().toISOString()
         });
       }
-      
+
       // Save to localStorage
       localStorage.setItem('onboardingComplete', 'true');
       localStorage.setItem('userGoal', onboardingState.goal || '');
       localStorage.setItem('recommendedAgents', JSON.stringify(onboardingState.recommendedAgents || []));
-      
+
     } catch (error) {
       console.error('Error saving onboarding state:', error);
     }
@@ -230,7 +234,7 @@ export default function ConversationalPercyOnboarding() {
       video: '/dashboard/social-media',
       business: '/dashboard/client'
     };
-    
+
     const path = dashboardMap[onboardingState.goal || 'content'] || '/dashboard';
     router.push(`${path}?source=percy_onboarding&agents=${(onboardingState.recommendedAgents || []).join(',')}`);
   }, [onboardingState, router]);
@@ -246,13 +250,13 @@ export default function ConversationalPercyOnboarding() {
             .select('display_name, email')
             .eq('id', user.id)
             .single();
-          
+
           setOnboardingState(prev => ({
             ...prev,
             userId: user.id,
             userName: profile?.display_name || profile?.email?.split('@')[0] || 'friend'
           }));
-          
+
           // If returning user, add welcome back message
           if (onboardingState.conversationHistory.length === 0) {
             addPercyMessage(
@@ -292,7 +296,7 @@ export default function ConversationalPercyOnboarding() {
   const handleOptionClick = useCallback(async (option: ConversationOption) => {
     // Add user's selection as a message
     addUserMessage(option.label);
-    
+
     // Handle different actions
     switch (option.action) {
       case 'start':
@@ -312,7 +316,7 @@ export default function ConversationalPercyOnboarding() {
         }, 500);
         break;
       }
-        
+
       case 'continue': {
         // Continue from saved state
         if (onboardingState.goal && !onboardingState.recommendedAgents) {
@@ -324,7 +328,7 @@ export default function ConversationalPercyOnboarding() {
         }
         break;
       }
-        
+
       case 'learn': {
         addPercyMessage(
           "🌌 SKRBL AI is a universe of digital superheroes, each with unique powers to help you succeed! From branding wizards to content creators, social media masters to data analysts - we have an AI agent for every challenge. Ready to meet your perfect match?",
@@ -334,7 +338,7 @@ export default function ConversationalPercyOnboarding() {
         );
         break;
       }
-        
+
       case 'select-goal': {
         const selectedGoal = GOALS.find(g => g.id === option.data?.goalId);
         if (selectedGoal) {
@@ -343,7 +347,7 @@ export default function ConversationalPercyOnboarding() {
             goal: selectedGoal.id,
             currentStep: 'platform-selection' 
           }));
-          
+
           setTimeout(() => {
             addPercyMessage(
               `${selectedGoal.icon} "${selectedGoal.label}" - Cosmic choice! Now, which digital realm do you want to conquer?`,
@@ -359,7 +363,7 @@ export default function ConversationalPercyOnboarding() {
         }
         break;
       }
-        
+
       case 'select-platform': {
         const selectedPlatform = PLATFORMS.find(p => p.id === option.data?.platformId);
         if (selectedPlatform) {
@@ -368,7 +372,7 @@ export default function ConversationalPercyOnboarding() {
             platform: selectedPlatform.id,
             currentStep: 'business-scan' 
           }));
-          
+
           setTimeout(() => {
             addPercyMessage(
               "🔮 Perfect! Want me to scan your business for personalized recommendations? This helps me find the EXACT superhero for your needs!",
@@ -382,7 +386,7 @@ export default function ConversationalPercyOnboarding() {
         }
         break;
       }
-        
+
       case 'connect-linkedin': {
         toast("🔗 LinkedIn integration coming soon! For now, I'll use your goals to find the perfect match.", {
           icon: '🚧',
@@ -391,18 +395,24 @@ export default function ConversationalPercyOnboarding() {
         generateAgentRecommendations();
         break;
       }
-        
+
       case 'scan-website': {
         addPercyMessage("🌐 Please enter your website URL and I'll analyze it for you:");
         // Show input for website URL
         break;
       }
-        
+
       case 'skip-scan': {
         generateAgentRecommendations();
         break;
       }
-        
+
+      case 'signup': {
+        // Redirect to signup page
+        router.push('/auth/signup?source=percy_scan_limit');
+        break;
+      }
+
       case 'select-agent': {
         const agentId = option.data?.agentId;
         if (agentId) {
@@ -410,9 +420,13 @@ export default function ConversationalPercyOnboarding() {
             ...prev,
             recommendedAgents: [...(prev.recommendedAgents || []), agentId]
           }));
-          
+
           toast.success(`🎉 ${option.label} activated!`, { duration: 3000 });
-          
+
+          // Trigger celebratory burst animation
+          setShowBurst(true);
+          setTimeout(() => setShowBurst(false), 900);
+
           setTimeout(() => {
             addPercyMessage(
               "🚀 Excellent choice! Ready to start your superhero journey?",
@@ -425,38 +439,167 @@ export default function ConversationalPercyOnboarding() {
         }
         break;
       }
-        
+
       case 'complete': {
         await saveOnboardingComplete();
         navigateToDashboard();
         break;
       }
-        
+
       default: {
         console.log('Unknown action:', option.action);
       }
     }
-  }, [onboardingState, addPercyMessage, addUserMessage, generateAgentRecommendations, navigateToDashboard, saveOnboardingComplete]);
+  }, [onboardingState, addPercyMessage, addUserMessage, generateAgentRecommendations, navigateToDashboard, saveOnboardingComplete, router]);
+
+  // Declare this later after handleQuickScan is defined
+
+  // ==== Quick Scan & Paste/Drop Handlers ====
+  const isValidUrl = (str: string) => {
+    try { new URL(str); return true; } catch { return false; }
+  };
+
+  // Perform instant scan using the new API
+  const performInstantScan = useCallback(async (url: string) => {
+    try {
+      // Determine scan type based on URL
+      let scanType: 'website' | 'linkedin' | 'youtube' = 'website';
+      if (url.includes('linkedin.com')) {
+        scanType = 'linkedin';
+      } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        scanType = 'youtube';
+      }
+
+      // Get current user if available
+      const user = await getCurrentUser();
+      
+      // Call the scan API
+      const response = await fetch('/api/percy/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: scanType,
+          url,
+          userId: user?.id,
+          sessionId: `percy-onboarding-${Date.now()}`
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        if (result.requiresUpgrade) {
+          setIsScanning(false);
+          setIsTyping(false);
+          // Handle upgrade prompt from API
+          const upgradeMessage = result.upgradePrompt 
+            ? `🔄 ${result.upgradePrompt.message}`
+            : `🔄 You've reached your daily scan limit (3 per day). Upgrade to Pro for unlimited scans!`;
+          
+          addPercyMessage(
+            upgradeMessage,
+            [
+              { id: 'upgrade', label: result.upgradePrompt?.ctaText || 'Upgrade to Pro', icon: '🚀', action: 'upgrade' },
+              { id: 'continue', label: 'Continue without scan', icon: '⏭️', action: 'skip-scan' }
+            ]
+          );
+          return;
+        }
+        throw new Error(result.error);
+      }
+
+      // Update state with scan results
+      setOnboardingState(prev => ({ 
+        ...prev, 
+        businessUrl: url,
+        currentStep: 'agent-recommendations'
+      }));
+
+      setIsScanning(false);
+
+      // Create enhanced recommendations based on scan results
+      const scanBasedRecommendations = result.agentRecommendations.map((rec: any) => ({
+        agentId: rec.agentId,
+        superheroName: rec.superheroName,
+        catchphrase: rec.catchphrase,
+        reason: rec.reason,
+        powers: rec.capabilities,
+        confidence: rec.confidence
+      }));
+
+      // Generate summary message based on analysis
+      const analysis = result.analysis;
+      const summaryMessage = `✨ Scan complete! I analyzed your ${scanType === 'website' ? 'website' : scanType === 'linkedin' ? 'LinkedIn profile' : 'YouTube content'} and discovered:
+
+🎯 **Business Type**: ${analysis.businessType}
+🏢 **Industry**: ${analysis.industry}
+${analysis.keyFeatures?.length ? `⭐ **Key Features**: ${analysis.keyFeatures.slice(0, 3).join(', ')}` : ''}
+
+Based on this analysis, here are my cosmic recommendations:`;
+
+      addPercyMessage(
+        summaryMessage,
+        result.agentRecommendations.slice(0, 3).map((rec: any) => ({
+          id: rec.agentId,
+          label: `Activate ${rec.superheroName}`,
+          icon: '⚡',
+          action: 'select-agent',
+          data: { agentId: rec.agentId }
+        })),
+        scanBasedRecommendations
+      );
+
+      // Track scan completion
+      try {
+        await fetch('/api/analytics/percy-events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_type: 'scan_completed',
+            scan_type: scanType,
+            user_id: user?.id,
+            session_id: `percy-onboarding-${Date.now()}`,
+            timestamp: new Date().toISOString()
+          })
+        });
+      } catch (analyticsError) {
+        console.warn('Analytics tracking failed:', analyticsError);
+      }
+
+    } catch (error) {
+      console.error('Instant scan failed:', error);
+      throw error; // Re-throw to be handled by caller
+    }
+  }, [addPercyMessage, setOnboardingState]);
+
+  const handleQuickScan = useCallback(async (url: string) => {
+    setOnboardingState(prev => ({ ...prev, businessUrl: url }));
+    setIsScanning(true);
+    setIsTyping(false);
+    addPercyMessage(`🔍 Scanning ${url} for insights...`);
+    
+    try {
+      await performInstantScan(url);
+    } catch (error) {
+      setIsScanning(false);
+      setIsTyping(false);
+      addPercyMessage(`⚠️ Had trouble scanning that URL, but I can still help! Here are my top recommendations:`);
+      generateAgentRecommendations();
+    }
+  }, [addPercyMessage, performInstantScan, generateAgentRecommendations]);
 
   const handleTextSubmit = useCallback(async () => {
     if (!inputValue.trim()) return;
-    
+
     const userInput = inputValue.trim();
     setInputValue('');
     addUserMessage(userInput);
-    
-    // Handle website URL input
+
+    // Handle website URL input with real scanning
     if (onboardingState.currentStep === 'business-scan' && userInput.includes('.')) {
-      setOnboardingState(prev => ({ ...prev, businessUrl: userInput }));
-      
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        addPercyMessage(
-          `🔍 Analyzing ${userInput}... Detected: Modern design, strong brand presence, growth potential! Based on this scan, here are my recommendations:`,
-        );
-        generateAgentRecommendations();
-      }, 2000);
+      await handleQuickScan(userInput);
     } else {
       // General chat response
       setIsTyping(true);
@@ -474,7 +617,23 @@ export default function ConversationalPercyOnboarding() {
         );
       }, 1000);
     }
-  }, [inputValue, onboardingState, addUserMessage, addPercyMessage, generateAgentRecommendations]);
+  }, [inputValue, onboardingState, addUserMessage, addPercyMessage, generateAgentRecommendations, handleQuickScan]);
+
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (isValidUrl(text)) {
+      e.preventDefault();
+      handleQuickScan(text);
+    }
+  }, [handleQuickScan]);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const text = e.dataTransfer.getData('text');
+    if (isValidUrl(text)) {
+      handleQuickScan(text);
+    }
+  }, [handleQuickScan]);
 
   const resetOnboarding = useCallback(() => {
     setOnboardingState({
@@ -490,17 +649,15 @@ export default function ConversationalPercyOnboarding() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="relative w-full max-w-4xl mx-auto"
+      className="relative w-full max-w-full md:max-w-3xl mx-auto min-h-screen flex items-center justify-center px-4"
     >
       {/* Main Chat Interface */}
-      <div className="cosmic-glass rounded-2xl border border-white/10 shadow-cosmic overflow-hidden">
+      <div id="percy-chat" className="cosmic-glass w-full md:w-auto rounded-none md:rounded-2xl border border-white/10 shadow-cosmic overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-4 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-cyan-400 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
+              <PercyAvatar size="sm" animate className={`${(isTyping || isScanning) ? 'ring-2 ring-electric-blue animate-pulse' : ''}`} />
               <div>
                 <h3 className="text-white font-bold">Percy the Cosmic Concierge</h3>
                 <p className="text-cyan-300 text-sm">Your AI guide to the SKRBL universe</p>
@@ -519,7 +676,7 @@ export default function ConversationalPercyOnboarding() {
         {/* Chat Container */}
         <div 
           ref={chatContainerRef}
-          className="h-[500px] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20"
+          className="md:h-[500px] max-h-[70vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20"
         >
           <AnimatePresence>
             {onboardingState.conversationHistory.map((message, index) => (
@@ -532,15 +689,19 @@ export default function ConversationalPercyOnboarding() {
               >
                 <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
                   {/* Message Bubble */}
-                  <div className={`
-                    rounded-2xl p-4 
-                    ${message.type === 'user' 
-                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
-                      : 'bg-white/10 text-white border border-white/20'
-                    }
-                  `}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`
+                      rounded-2xl p-4 
+                      ${message.type === 'user' 
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
+                        : 'bg-white/10 text-white border border-white/20'
+                      }
+                    `}
+                  >
                     <p className="text-sm leading-relaxed">{message.content}</p>
-                  </div>
+                  </motion.div>
 
                   {/* Agent Recommendations */}
                   {message.agentRecommendations && message.agentRecommendations.length > 0 && (
@@ -548,8 +709,9 @@ export default function ConversationalPercyOnboarding() {
                       {message.agentRecommendations.map((rec) => (
                         <motion.div
                           key={rec.agentId}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
+                          initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                          animate={{ opacity: 1, x: 0, scale: 1 }}
+                          transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
                           className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-400/20"
                         >
                           <div className="flex items-start justify-between mb-2">
@@ -579,6 +741,7 @@ export default function ConversationalPercyOnboarding() {
                         <button
                           key={option.id}
                           onClick={() => handleOptionClick(option)}
+                          aria-label={option.label}
                           className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 border border-cyan-400/20 hover:border-cyan-400/40 transition-all group"
                         >
                           <span className="flex items-center gap-2">
@@ -612,28 +775,61 @@ export default function ConversationalPercyOnboarding() {
               </div>
             </motion.div>
           )}
+
+          {/* Scan Indicator */}
+          {isScanning && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex justify-start"
+            >
+              <div className="relative flex items-center gap-3 bg-white/5 px-4 py-3 rounded-2xl border border-teal-400/20 overflow-hidden">
+                {/* Orbiting ring */}
+                <motion.div
+                  className="w-6 h-6 rounded-full border-2 border-teal-400 border-t-transparent"
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                />
+                <span className="text-teal-300 text-sm">Cosmic scan in progress…</span>
+              </div>
+            </motion.div>
+          )}
         </div>
 
         {/* Input Area */}
         <div className="p-4 border-t border-white/10">
           <div className="flex gap-2">
             <input
+              id="percy-input"
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleTextSubmit()}
-              placeholder="Type your message or question..."
-              className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+              onPaste={handlePaste}
+              onDrop={handleDrop}
+              placeholder="Drop a link, video, or profile… or ask Percy anything!"
+              className="flex-1 bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-electric-blue/60"
             />
             <button
               onClick={handleTextSubmit}
               disabled={!inputValue.trim()}
               className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Navigation CTAs */}
+      <div className="flex flex-col sm:flex-row gap-2 p-4 border-t border-white/10 bg-white/5">
+        <Link href="/" className="flex-1 text-center py-2 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow focus:outline-none focus:ring-2 focus:ring-electric-blue/60">
+          🏠 Back to Home
+        </Link>
+        <Link href="/agents" className="flex-1 text-center py-2 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-electric-blue/60">
+          🦸 View All Agents
+        </Link>
       </div>
 
       {/* Persistent "Ask Percy" Button */}
@@ -641,8 +837,14 @@ export default function ConversationalPercyOnboarding() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        onClick={() => setShowAskPercy(!showAskPercy)}
+        onClick={() => {
+          setShowAskPercy(!showAskPercy);
+          if (!showAskPercy) {
+            document.getElementById('percy-chat')?.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
         className="fixed bottom-4 right-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
+        aria-label="Ask Percy"
       >
         <MessageCircle className="w-6 h-6" />
       </motion.button>
@@ -661,8 +863,9 @@ export default function ConversationalPercyOnboarding() {
               <button
                 onClick={() => setShowAskPercy(false)}
                 className="text-white/60 hover:text-white/80"
+                aria-label="Close"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
             <input
@@ -684,6 +887,41 @@ export default function ConversationalPercyOnboarding() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Celebratory particle burst */}
+      {showBurst && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          {[...Array(10)].map((_, i) => (
+            <motion.span
+              key={i}
+              className="absolute w-1.5 h-1.5 bg-teal-300 rounded-full"
+              style={{
+                top: '50%', left: '50%',
+                transformOrigin: 'center',
+              }}
+              initial={{
+                scale: 1,
+                x: 0,
+                y: 0,
+                opacity: 1,
+                rotate: Math.random() * 360,
+              }}
+              animate={{
+                scale: [1, 1.4, 0],
+                x: Math.cos((i/10)*Math.PI*2) * 60,
+                y: Math.sin((i/10)*Math.PI*2) * 60,
+                opacity: [1, 1, 0],
+              }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+            />
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
-} 
+}

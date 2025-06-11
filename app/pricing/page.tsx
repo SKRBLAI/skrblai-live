@@ -10,7 +10,7 @@ const plans = [
     title: 'Reserve',
       price: '$7.99',
     period: 'per month',
-    description: 'Explore basic features and try out a few AI agents.',
+    description: 'Kick-start your adventure with essential AI side-kick powers—perfect for curious creators.',
     features: [
       'Access to Basic Agents',
       'Limited Publishing',
@@ -25,7 +25,7 @@ const plans = [
     title: 'Starter',
     price: '$19.99',
     period: 'per month',
-    description: 'Perfect for creators and solopreneurs ready to scale.',
+    description: 'Recruit a mighty squad of 5 AI heroes and watch your workflow soar.',
     features: [
       'Access to 5 AI Agents',
       'Limited Publishing',
@@ -42,7 +42,7 @@ const plans = [
     title: 'Star',
     price: '$39.99',
     period: 'per month',
-    description: 'For teams and small orgs needing enhanced automation.',
+    description: 'Deploy a full team of AI specialists to automate and amplify your business.',
     features: [
       'Access to 10+ AI Agents',
       'Enhanced Publishing',
@@ -58,7 +58,7 @@ const plans = [
     title: 'All-Star',
     price: '$99.99',
     period: 'per month',
-    description: 'For enterprises needing full-scale automation and custom solutions.',
+    description: 'Command the entire SKRBL AI league with custom powers, integrations and white-label control.',
     features: [
       'Unlimited AI Agent Access',
       'Custom Agent Development',
@@ -73,8 +73,6 @@ const plans = [
   }
 ];
 
-import BrandLogo from '@/components/ui/BrandLogo';
-
 export default function PricingPage() {
   return (
     
@@ -83,15 +81,22 @@ export default function PricingPage() {
           <div className="relative min-h-screen overflow-hidden">
             <FloatingParticles />
             <div className="flex flex-col items-center justify-center min-h-[80vh] py-16 z-10 relative">
-              {/* Centered BrandLogo replacing any blurry text */}
-              <BrandLogo className="skrblai-heading text-center mb-8 scale-125" animate />
-              <motion.p 
-                className="text-lg text-[#30D5C8]"
+              {/* Headline & Tagline */}
+              <motion.h1
+                className="skrblai-heading text-3xl md:text-5xl text-center mb-4"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.1 }}
               >
-                Whether you're starting out or scaling up, SKRBL AI has a plan for you.
+                Choose Your AI Superpower Plan
+              </motion.h1>
+              <motion.p 
+                className="text-center max-w-2xl text-[#30D5C8]"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                From solo creators to growing teams, SKRBL AI offers a league of digital superheroes to help you create, automate, and scale—faster than ever. Pick the plan that fits your journey. All tiers come with Percy’s cosmic guidance and a risk-free 3-Day Free Trial.
               </motion.p>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 justify-center items-stretch mt-16 max-w-7xl mx-auto px-4">
                 <PricingCard
@@ -101,7 +106,7 @@ export default function PricingPage() {
                   ctaText="Start Reserve"
                   ctaHref="/sign-up?plan=reserve"
                   badge="Reserve"
-                  description="Explore basic features and try out a few AI agents."
+                  description="Kick-start your adventure with essential AI side-kick powers—perfect for curious creators."
                 />
                 <PricingCard
                   title="Starter"
@@ -111,7 +116,7 @@ export default function PricingPage() {
                   ctaHref="/sign-up?plan=starter"
                   highlight
                   badge="Best Value"
-                  description="Perfect for creators and solopreneurs ready to scale."
+                  description="Recruit a mighty squad of 5 AI heroes and watch your workflow soar." 
                 />
                 <PricingCard
                   title="Star"
@@ -120,7 +125,7 @@ export default function PricingPage() {
                   ctaText="Upgrade to Star"
                   ctaHref="/sign-up?plan=star"
                   badge="Star"
-                  description="For teams and small orgs needing enhanced automation."
+                  description="Deploy a full team of AI specialists to automate and amplify your business." 
                 />
                 <PricingCard
                   title="All-Star"
@@ -129,7 +134,7 @@ export default function PricingPage() {
                   ctaText="Contact Sales"
                   ctaHref="/contact"
                   badge="Enterprise"
-                  description="For enterprises needing full-scale automation and custom solutions."
+                  description="Command the entire SKRBL AI league with custom powers, integrations and white-label control." 
                 />
               </div>
             </div>
@@ -139,4 +144,3 @@ export default function PricingPage() {
     
   );
 }
-
