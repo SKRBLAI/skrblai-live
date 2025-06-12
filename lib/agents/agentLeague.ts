@@ -559,6 +559,71 @@ export class AgentLeague {
       this.agents.set(config.id, config);
     });
     
+    // ---------------------------------------------------------------------
+    // Auto-register any backstories that were not explicitly configured above
+    // ---------------------------------------------------------------------
+    Object.entries(agentBackstories).forEach(([agentId, backstory]) => {
+      if (this.agents.has(agentId)) return; // already registered (manual)
+
+      // Derive a friendly agent name (fallback to superheroName or id)
+      const friendlyName = backstory.superheroName || agentId.replace(/-agent$/, '').replace(/-/g, ' ');
+
+      // Create a minimalist power that simply triggers the primary n8n workflow
+      const defaultPower: AgentPower = {
+        id: 'default-workflow',
+        name: 'Primary Workflow',
+        description: `${friendlyName} primary automation workflow`,
+        triggerKeywords: [friendlyName.toLowerCase(), 'run', 'execute', 'workflow'],
+        n8nWorkflowId: backstory.n8nWorkflowId,
+        outputType: 'workflow',
+        estimatedDuration: 10,
+        premiumRequired: false
+      };
+
+      // Fallback capability mapping – use first power as capability summary
+      const defaultCapability: AgentCapability = {
+        category: 'Automation',
+        skills: backstory.powers?.slice(0, 4) || [],
+        primaryOutput: 'Automated deliverable',
+        supportedFormats: ['text', 'file', 'data'],
+        integrations: ['n8n']
+      };
+
+      const genericConfig: AgentConfiguration = {
+        id: agentId,
+        name: friendlyName,
+        category: 'General',
+        description: backstory.backstory?.slice(0, 140) || `${friendlyName} automation agent`,
+        version: '1.0.0',
+        personality: this.mapBackstoryToPersonality(agentId),
+        powers: [defaultPower],
+        capabilities: [defaultCapability],
+        handoffTargets: [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: backstory.n8nWorkflowId,
+        primaryWorkflow: backstory.n8nWorkflowId || 'generic-workflow',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: false,
+        emoji: '🤖',
+        colorTheme: 'cosmic-blue',
+        imageSlug: agentId.replace(/-agent$/, ''),
+        usageTracking: true,
+        performanceMetrics: [],
+        canConverse: true,
+        recommendedHelpers: [],
+        handoffTriggers: [],
+        conversationCapabilities: {
+          supportedLanguages: ['en'],
+          maxConversationDepth: 20,
+          specializedTopics: [],
+          emotionalIntelligence: false
+        }
+      };
+
+      this.agents.set(agentId, genericConfig);
+    });
+    
     console.log(`[AgentLeague] Initialized ${this.agents.size} agents in the league`);
   }
   

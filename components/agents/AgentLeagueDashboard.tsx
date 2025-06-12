@@ -6,9 +6,19 @@ import AgentCarousel from './AgentCarousel';
 import type { Agent } from '@/types/agent';
 // import { useMediaQuery } from 'react-responsive'; // Commented out - using window.innerWidth instead
 
-// Fetch agentBackstories/config from backend or context (replace with actual data source)
+// Fetch Agent League data from the backend
 async function fetchAgentLeagueData() {
-  const res = await fetch('/api/agent-league');
+  // Query parameters: list visible agents only
+  const query = new URLSearchParams({
+    action: 'list',
+    visible: 'true',
+  }).toString();
+
+  const res = await fetch(`/api/agents/league?${query}`);
+  if (!res.ok) {
+    throw new Error(`Failed to load Agent League data – ${res.status}`);
+  }
+
   return res.json();
 }
 
