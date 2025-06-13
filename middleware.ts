@@ -11,14 +11,14 @@ export const config = {
 };
 
 export function middleware(request: NextRequest) {
-  // Check for auth cookie instead of firebase directly
-  const authCookie = request.cookies.get('auth');
+  // Detect Supabase auth cookie (sb-<project>-auth-token) – key starts with 'sb' and ends with '-auth-token'
+  const authCookie = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('auth-token'));
   
   // Protect both dashboard routes
   if (!authCookie && 
       (request.nextUrl.pathname.startsWith('/dashboard') || 
        request.nextUrl.pathname.startsWith('/user-dashboard'))) {
-    return NextResponse.redirect(new URL('/auth', request.url));
+    return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
   // Add security headers

@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Meet Your Agent League | SKRBL AI',
-  description: "Explore the full roster of SKRBL AI's cosmic Agent League and discover the perfect assistants for your workflow.",
+  description: "Explore the full roster of SKRBL AI's cosmic Agent League and discover the perfect personnel for your workflow.",
 };
 
 export default function AgentsPage() {

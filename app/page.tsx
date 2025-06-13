@@ -2,23 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import type { Agent } from '@/types/agent';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
-import SimpleAgentGrid from '@/components/agents/SimpleAgentGrid';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import ConversationalPercyOnboarding from '@/components/home/ConversationalPercyOnboarding';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
-import type { Agent } from '@/types/agent';
+import AgentsGrid from '@/components/agents/AgentsGrid';
 
 export default function HomePage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [isOnboardingActive, setIsOnboardingActive] = useState(false);
   const [recommendedAgentIds, setRecommendedAgentIds] = useState<string[]>([]);
 
@@ -29,26 +26,6 @@ export default function HomePage() {
   // Safe mounting
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  // Fetch agents from registry
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined') {
-        import('@/lib/agents/agentRegistry')
-          .then((module) => {
-            const agentRegistry = module.default || [];
-            setAgents(agentRegistry.filter(agent => agent && agent.visible !== false));
-          })
-          .catch((err) => {
-            console.error('Failed to load agent registry:', err);
-            setError('Failed to load agents');
-          });
-      }
-    } catch (err) {
-      console.error('Error setting up agents:', err);
-      setError('Error setting up agents');
-    }
   }, []);
 
   // Percy cleanup and onboarding state sync
@@ -88,6 +65,18 @@ export default function HomePage() {
     }, 500);
   };
 
+  const percyAgent: Agent = {
+    id: 'percy',
+    name: 'Percy AI',
+    description: 'AI Concierge',
+    category: 'assistant',
+    capabilities: [],
+    visible: true,
+    canConverse: true,
+    recommendedHelpers: [],
+    handoffTriggers: [],
+  };
+
   // Loading state
   if (!mounted) {
     return (
@@ -95,24 +84,6 @@ export default function HomePage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p>Loading SKRBL AI...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0d1117] text-white">
-        <div className="text-center">
-          <h1 className="text-2xl mb-4">⚠️ Loading Error</h1>
-          <p className="text-gray-400 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
-          >
-            Reload Page
-          </button>
         </div>
       </div>
     );
@@ -179,31 +150,20 @@ export default function HomePage() {
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
                 <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
                   <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                    {agents.length > 0 && agents.find(a => a.id === 'percy') ? (
-                      <CloudinaryImage
-                        agent={agents.find(a => a.id === 'percy')!}
-                        alt="Percy AI Concierge"
-                        width={256}
-                        height={256}
-                        priority={true}
-                        className="w-full h-full object-cover"
-                        useCloudinary={true}
-                        quality={90}
-                        webp={true}
-                        cloudinaryTransformation="ar_1:1,c_fill,g_face"
-                        fallbackToLocal={true}
-                        fallbackImagePath="/images/agents-percy-nobg-skrblai.png"
-                      />
-                    ) : (
-                      <Image
-                        src="/images/agents-percy-nobg-skrblai.png"
-                        alt="Percy AI Concierge"
-                        width={256}
-                        height={256}
-                        priority
-                        className="w-full h-full object-cover cosmic-img-glow"
-                      />
-                    )}
+                    <CloudinaryImage
+                      agent={percyAgent}
+                      alt="Percy AI Concierge"
+                      width={256}
+                      height={256}
+                      priority={true}
+                      className="w-full h-full object-cover"
+                      useCloudinary={true}
+                      quality={90}
+                      webp={true}
+                      cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                      fallbackToLocal={true}
+                      fallbackImagePath="/images/agents-percy-nobg-skrblai.png"
+                    />
                   </div>
                 </div>
                 
@@ -244,12 +204,7 @@ export default function HomePage() {
               <FloatingParticles particleCount={20} />
             </div>
             <div className="relative z-10">
-              <SimpleAgentGrid 
-                agents={agents} 
-                selectedAgent={selectedAgent} 
-                setSelectedAgent={setSelectedAgent}
-                recommendedAgentIds={recommendedAgentIds}
-              />
+              <AgentsGrid />
             </div>
           </div>
           

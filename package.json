@@ -11,7 +11,8 @@
     "rebuild": "npm run clean && npm install && npm run build",
     "optimize-images": "node scripts/convert-images-webp.js",
     "image-audit": "node -e \"const fs=require('fs'),path=require('path'); fs.readdirSync('public/images').filter(f=>f.includes('agents-')).forEach(f=>{const stat=fs.statSync(path.join('public/images',f)); console.log(`${f}: ${(stat.size/1024/1024).toFixed(1)}MB`)})\"",
-    "image-performance": "node scripts/image-performance-monitor.js"
+    "image-performance": "node scripts/image-performance-monitor.js",
+    "validate:agents": "ts-node scripts/validateAgents.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
@@ -58,6 +59,7 @@
     "eslint-config-next": "14.0.3",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "ts-node": "^10.9.1"
   }
 }

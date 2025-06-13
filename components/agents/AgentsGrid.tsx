@@ -1,21 +1,19 @@
-import React, { useState } from "react";
-import SimpleAgentGrid from "./SimpleAgentGrid";
-import type { Agent } from '@/types/agent';
+import React from "react";
+import type { ReactElement } from 'react';
+import dynamic from 'next/dynamic';
 
+// Optional prop interface retained for backward compatibility in pages like Services
 interface AgentsGridProps {
-  agents?: Agent[];
+  agents?: any[]; // Currently unused; AgentLeagueDashboard handles its own data
 }
 
-export default function AgentsGrid({ agents = [] }: AgentsGridProps) {
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+// Dynamically load the AgentLeagueDashboard on the client only
+const AgentLeagueDashboard = dynamic(() => import('./AgentLeagueDashboard.client'), { ssr: false });
 
+export default function AgentsGrid(_props: AgentsGridProps): ReactElement {
   return (
     <div className="w-full flex flex-col items-center">
-      <SimpleAgentGrid
-        agents={agents}
-        selectedAgent={selectedAgent}
-        setSelectedAgent={setSelectedAgent}
-      />
+      <AgentLeagueDashboard />
     </div>
   );
 }

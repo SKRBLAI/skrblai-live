@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Send, MessageCircle, X } from 'lucide-react';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
@@ -76,6 +77,8 @@ const PLATFORMS = [
 
 export default function ConversationalPercyOnboarding() {
   const router = useRouter();
+  const pathname = usePathname();
+  const onHome = pathname === '/';
   const { setPercyIntent } = usePercyContext();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -649,7 +652,7 @@ Based on this analysis, here are my cosmic recommendations:`;
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="relative w-full max-w-full md:max-w-3xl mx-auto min-h-screen flex items-center justify-center px-4"
+      className={`${onHome ? 'relative w-full md:max-w-3xl mx-auto px-4 mt-6' : 'relative w-full max-w-full md:max-w-3xl mx-auto min-h-screen flex items-center justify-center px-4'}`}
     >
       {/* Main Chat Interface */}
       <div id="percy-chat" className="cosmic-glass w-full md:w-auto rounded-none md:rounded-2xl border border-white/10 shadow-cosmic overflow-hidden">

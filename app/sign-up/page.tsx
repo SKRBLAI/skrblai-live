@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { supabase } from '@/utils/supabase';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -48,6 +49,7 @@ export default function SignUpPage() {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
           data: {
             displayName: email.split('@')[0]
           }
@@ -170,6 +172,27 @@ export default function SignUpPage() {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      console.error('[AUTH] Google auth error:', err);
+      setError(err.message || 'Google authentication failed');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
@@ -193,7 +216,17 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        {/* Google Sign-Up */}
+        <button
+          type="button"
+          onClick={handleGoogleAuth}
+          className="w-full flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-white text-gray-800 hover:bg-gray-100 font-medium shadow mb-6"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.6-5.6C34.8 6.5 29.7 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.3-.1-2.6-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C15 16 18.2 14 22 14c2.9 0 5.5 1.1 7.4 2.9l5.6-5.6C31.6 8.5 27.1 6 22 6 14.5 6 8 10.2 6.3 14.7z"/><path fill="#4CAF50" d="M22 44c5.2 0 9.8-2 13.2-5.3l-6-4.9C27.5 35.9 24.9 37 22 37c-5.3 0-9.7-3.4-11.3-8H4.1l-6.1 4.8C3.9 39.8 12 44 22 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5-5.4 6.5l6 4.9C39 35.2 44 30 44 24c0-1.3-.1-2.6-.4-3.5z"/></svg>
+          Continue with Google
+        </button>
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -351,6 +384,8 @@ export default function SignUpPage() {
             </p>
           </div>
         </form>
+
+        <Toaster position="top-center" reverseOrder={false} />
       </motion.div>
     </div>
   );

@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import BrandLogo from '@/components/ui/BrandLogo';
 import Image from 'next/image';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 import AgentMarketplace from 'components/agents/AgentMarketplace';
@@ -42,7 +41,6 @@ export default function ServicesPage(): JSX.Element {
         <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 flex flex-col items-center px-4 md:px-8 lg:px-12">
           {/* Hero Section */}
           <div className="w-full flex flex-col items-center mb-10">
-  <BrandLogo className="skrblai-heading text-center mb-4" />
   <h2 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-4xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
     Discover Your Digital Superheroes
   </h2>
@@ -110,4 +108,3 @@ export default function ServicesPage(): JSX.Element {
     </PageLayout>
   );
 }
-

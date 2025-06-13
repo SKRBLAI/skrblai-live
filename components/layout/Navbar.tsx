@@ -9,6 +9,7 @@ import BrandLogo from '@/components/ui/BrandLogo';
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const onHome = pathname === '/';
   
   useEffect(() => {
     router.prefetch('/services');
@@ -25,14 +26,16 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo + Tagline */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center group" aria-label="SKRBL AI Home">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <BrandLogo animate />
-              </motion.div>
-            </Link>
+            {onHome && (
+              <Link href="/" className="flex items-center group" aria-label="SKRBL AI Home">
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <BrandLogo animate />
+                </motion.div>
+              </Link>
+            )}
             {/* Tagline badge - full on desktop, short on mobile */}
             <span
               data-testid="skrbl-tagline"

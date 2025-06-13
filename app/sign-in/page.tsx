@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { supabase } from '@/utils/supabase';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [magicSent, setMagicSent] = useState(false);
   const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -117,6 +119,58 @@ export default function SignInPage() {
     }
   };
 
+  // Google OAuth sign-in
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+        setLoading(false);
+      }
+      // Supabase will redirect, so we don't manually push
+    } catch (err: any) {
+      console.error('[AUTH] Google sign-in error:', err);
+      setError(err.message || 'Google sign-in failed');
+      setLoading(false);
+    }
+  };
+
+  // Magic-link sign-in (password-less)
+  const handleMagicLink = async () => {
+    if (!email) {
+      setError('Enter an email to receive a magic link');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
+      });
+      if (otpError) {
+        setError(otpError.message);
+      } else {
+        setMagicSent(true);
+        toast.success('Magic link sent! Check your email to complete sign-in.');
+      }
+    } catch (err: any) {
+      console.error('[AUTH] Magic link error:', err);
+      setError(err.message || 'Failed to send magic link');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
       <motion.div
@@ -138,6 +192,25 @@ export default function SignInPage() {
               create a new account
             </Link>
           </p>
+        </div>
+
+        {/* --- OAuth / Magic Link options --- */}
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            className="w-full flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-white text-gray-800 hover:bg-gray-100 font-medium shadow"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.6-5.6C34.8 6.5 29.7 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.3-.1-2.6-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C15 16 18.2 14 22 14c2.9 0 5.5 1.1 7.4 2.9l5.6-5.6C31.6 8.5 27.1 6 22 6 14.5 6 8 10.2 6.3 14.7z"/><path fill="#4CAF50" d="M22 44c5.2 0 9.8-2 13.2-5.3l-6-4.9C27.5 35.9 24.9 37 22 37c-5.3 0-9.7-3.4-11.3-8H4.1l-6.1 4.8C3.9 39.8 12 44 22 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5-5.4 6.5l6 4.9C39 35.2 44 30 44 24c0-1.3-.1-2.6-.4-3.5z"/></svg>
+            Continue with Google
+          </button>
+          <button
+            type="button"
+            onClick={handleMagicLink}
+            className="w-full flex justify-center items-center px-4 py-2 rounded-md bg-electric-blue text-white hover:bg-electric-blue/90 font-medium shadow"
+          >
+            {magicSent ? 'Resend Magic Link' : 'Send Magic Link'}
+          </button>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
@@ -270,6 +343,8 @@ export default function SignInPage() {
             </p>
           </div>
         </form>
+
+        <Toaster position="top-center" reverseOrder={false} />
       </motion.div>
     </div>
   );

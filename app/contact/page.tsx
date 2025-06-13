@@ -4,7 +4,6 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import BrandLogo from '@/components/ui/BrandLogo';
 
 const fieldVariants = {
   hidden: { opacity: 0, y: 16 },
@@ -52,7 +51,6 @@ export default function ContactPage() {
         <FloatingParticles fullScreen={false} particleCount={60} speed={0.6} size={2.5} glowIntensity={0.35} />
       </div>
       <div className="container relative z-10 mx-auto max-w-4xl flex flex-col items-center justify-center">
-        <BrandLogo className="skrblai-heading text-center mb-8 scale-125" animate />
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

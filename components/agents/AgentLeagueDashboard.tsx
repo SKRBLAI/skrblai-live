@@ -4,6 +4,7 @@ import AgentCard from '../ui/AgentCard';
 import AgentBackstoryModal from './AgentBackstoryModal';
 import AgentCarousel from './AgentCarousel';
 import type { Agent } from '@/types/agent';
+import { Toaster } from 'react-hot-toast';
 // import { useMediaQuery } from 'react-responsive'; // Commented out - using window.innerWidth instead
 
 // Fetch Agent League data from the backend
@@ -54,6 +55,8 @@ export default function AgentLeagueDashboard() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-12">
+      {/* Toast container */}
+      <Toaster position="bottom-right" />
       {/* Percy Centerpiece */}
       <div className="flex flex-col items-center mb-10">
         <div className="text-center">

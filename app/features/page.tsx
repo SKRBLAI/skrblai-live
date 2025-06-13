@@ -1,7 +1,6 @@
 import React from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import BrandLogo from '@/components/ui/BrandLogo';
 import PercyProvider from '../../components/assistant/PercyProvider';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '@/components/ui/FloatingParticles';
@@ -66,7 +65,6 @@ export default function FeaturesPage(): JSX.Element {
       
         <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 py-16">
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo className="skrblai-heading text-center" />
           <span className="sr-only">Features</span>
         </div>
         

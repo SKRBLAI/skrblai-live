@@ -129,7 +129,7 @@ export default function PricingPage() {
                 />
                 <PricingCard
                   title="All-Star"
-                  price="$99.99/mo"
+                  price="$299.99/mo"
                   features={["Unlimited AI Agent Access", "Custom Agent Development", "White-label Options", "API Access & Integrations", "Dedicated Account Manager", "Custom Workflows"]}
                   ctaText="Contact Sales"
                   ctaHref="/contact"

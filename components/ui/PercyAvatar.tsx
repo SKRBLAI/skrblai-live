@@ -6,15 +6,17 @@ interface PercyAvatarProps {
   className?: string;
   isThinking?: boolean;
   animate?: boolean;
+  glow?: boolean; // adds gradient ring/glow
 }
 
-export default function PercyAvatar({ size = 'md', className = '', isThinking = false, animate = true }: PercyAvatarProps) {
+export default function PercyAvatar({ size = 'md', className = '', isThinking = false, animate = true, glow = false }: PercyAvatarProps) {
   const sizeClasses: Record<string, string> = {
     sm: 'w-10 h-10',
     md: 'w-24 h-24',
     lg: 'w-40 h-40',
   };
 
+  // Wrapper div adds optional glow ring
   return (
     <motion.div
       className={`relative ${sizeClasses[size]} mx-auto mb-6 select-none ${className}`}
@@ -39,6 +41,9 @@ export default function PercyAvatar({ size = 'md', className = '', isThinking = 
           }}
           transition={{ duration: 3.2, repeat: Infinity }}
         />
+      )}
+      {glow && (
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-0.5 animate-pulse" />
       )}
       <motion.div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20"
