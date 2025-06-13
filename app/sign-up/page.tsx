@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -18,6 +18,18 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) router.replace('/dashboard');
+    })();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => {
+      if (session) router.replace('/dashboard');
+    });
+    return () => subscription?.unsubscribe();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,7 +110,9 @@ export default function SignUpPage() {
 
       // Step 2: If we have promo/VIP codes and the user is confirmed, redeem them via our API
       if ((promoCode || vipCode) && authData.session) {
+        let redeemToast: string | undefined;
         try {
+          redeemToast = toast.loading('Applying code...');
           console.log('[AUTH] Processing promo/VIP code for new user...');
           const response = await fetch('/api/auth/dashboard-signin', {
             method: 'POST',
@@ -127,14 +141,17 @@ export default function SignUpPage() {
             } else if (data.promoRedeemed) {
               setSuccess('Account created with promo benefits! Enhanced features unlocked.');
             }
+            if (redeemToast) toast.success('Code redeemed!', { id: redeemToast });
           } else if (!data.success) {
             // Code redemption failed, but account created - warn user
             console.warn('[AUTH] Code redemption failed:', data.error);
             setSuccess('Account created successfully, but code redemption failed: ' + data.error);
+            if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
           }
         } catch (codeError) {
           console.error('[AUTH] Code processing error:', codeError);
           setSuccess('Account created successfully, but there was an issue with your code. Please contact support.');
+          toast.error('Code validation failed', { id: redeemToast });
         }
       } else {
         setSuccess('Account created successfully! Redirecting to dashboard...');

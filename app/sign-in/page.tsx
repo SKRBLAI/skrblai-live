@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -16,6 +16,26 @@ export default function SignInPage() {
   const [success, setSuccess] = useState('');
   const [magicSent, setMagicSent] = useState(false);
   const router = useRouter();
+
+  // Auto-redirect if session already exists (handles social/magic link return)
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace('/dashboard');
+      }
+    })();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.replace('/dashboard');
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [router]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +68,10 @@ export default function SignInPage() {
       console.log('[AUTH] Supabase authentication successful:', authData.user.id);
 
       // Step 2: If we have promo/VIP codes, redeem them via our API
+      let redeemToast: string | undefined;
       if (promoCode || vipCode) {
         try {
+          redeemToast = toast.loading('Validating code...');
           console.log('[AUTH] Processing promo/VIP code...');
           const response = await fetch('/api/auth/dashboard-signin', {
             method: 'POST',
@@ -76,13 +98,16 @@ export default function SignInPage() {
             } else if (data.promoRedeemed) {
               setSuccess('Promo code applied successfully! Enhanced features unlocked.');
             }
+            if (redeemToast) toast.success('Code redeemed!', { id: redeemToast });
           } else if (!data.success) {
             // Code redemption failed, but auth succeeded - warn user
             console.warn('[AUTH] Code redemption failed:', data.error);
+            if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
             setSuccess('Sign-in successful, but code redemption failed: ' + data.error);
           }
         } catch (codeError) {
           console.error('[AUTH] Code processing error:', codeError);
+          if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
           setSuccess('Sign-in successful, but there was an issue with your code. Please contact support.');
         }
       } else {
