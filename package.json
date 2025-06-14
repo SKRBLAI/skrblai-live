@@ -17,6 +17,7 @@
   "dependencies": {
     "@fontsource/inter": "^5.2.5",
     "@stripe/stripe-js": "^2.2.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.49.4",
     "@tailwindcss/forms": "^0.5.10",
@@ -43,6 +44,7 @@
     "react-dom": "^18",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",
+    "recharts": "^2.15.3",
     "resend": "^2.0.0",
     "stripe": "^14.8.0",
     "twilio": "^5.7.0",

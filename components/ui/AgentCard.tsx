@@ -250,7 +250,11 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 alt={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
                 aria-label={agent.name}
                 title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
-                className="object-contain w-28 h-28 rounded-full mx-auto mb-2"
+                className="object-cover w-full h-full rounded-full"
+                style={{ imageRendering: 'crisp-edges' }}
+                loading="lazy"
+                width={112}
+                height={112}
                 onError={() => {
                   if (imgSrc !== '') {
                     setImgSrc('');
@@ -263,7 +267,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               />
             )}
             {!imgSrc && (
-              <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',fontSize:'2rem',background:'#222'}}>
+              <div className="flex items-center justify-center h-full text-4xl bg-gray-800 rounded-full">
                 🤖
               </div>
             )}
@@ -396,6 +400,23 @@ const AgentCard: React.FC<AgentCardProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
+        />
+        
+        {/* Uniform blue accent bar */}
+        <motion.div 
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gradient-to-r from-electric-blue to-teal rounded-full"
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ 
+            duration: 0.6, 
+            delay: 0.5 + (index || 0) * 0.05,
+            ease: 'easeOut'
+          }}
+          whileHover={{ 
+            scaleX: 1.2, 
+            height: 6,
+            transition: { type: 'spring', stiffness: 400, damping: 15 }
+          }}
         />
       </motion.article>
     </>

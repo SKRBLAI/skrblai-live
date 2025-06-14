@@ -152,7 +152,8 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl mx-auto bg-gradient-to-b from-[#161b22] to-[#0d1117] rounded-2xl shadow-xl border border-blue-900/60 px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
+            className="relative w-full max-w-2xl max-h-[90vh] mx-auto bg-gradient-to-b from-[#161b22] to-[#0d1117] rounded-2xl shadow-xl border border-blue-900/60 px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-label={enrichedAgent.superheroName + ' backstory modal'}

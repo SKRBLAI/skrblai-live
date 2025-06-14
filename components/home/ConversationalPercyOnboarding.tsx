@@ -620,7 +620,7 @@ Based on this analysis, here are my cosmic recommendations:`;
         );
       }, 1000);
     }
-  }, [inputValue, onboardingState, addUserMessage, addPercyMessage, generateAgentRecommendations, handleQuickScan]);
+  }, [inputValue, onboardingState, addUserMessage, addPercyMessage, handleQuickScan]);
 
   const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
     const text = e.clipboardData.getData('text');

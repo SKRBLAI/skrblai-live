@@ -3,10 +3,14 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { supabase } from '@/utils/supabase';
 import toast, { Toaster } from 'react-hot-toast';
+import { useBanner } from '@/components/context/BannerContext';
+import AuthProviderButton from '@/components/ui/AuthProviderButton';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function SignInPage() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [promoCode, setPromoCode] = useState('');
@@ -15,7 +19,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [magicSent, setMagicSent] = useState(false);
-  const router = useRouter();
+  const [providerLoading, setProviderLoading] = useState<string | null>(null);
+  const { showBanner } = useBanner();
 
   // Auto-redirect if session already exists (handles social/magic link return)
   useEffect(() => {
@@ -35,118 +40,11 @@ export default function SignInPage() {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [router]);
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      console.log('[AUTH] Attempting sign-in for:', email);
-      
-      // Step 1: Authenticate with Supabase directly first
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (authError || !authData.user || !authData.session) {
-        console.error('[AUTH] Supabase authentication failed:', authError?.message);
-        setError(authError?.message || 'Invalid email or password');
-        setLoading(false);
-        return;
-      }
-
-      console.log('[AUTH] Supabase authentication successful:', authData.user.id);
-
-      // Step 2: If we have promo/VIP codes, redeem them via our API
-      let redeemToast: string | undefined;
-      if (promoCode || vipCode) {
-        try {
-          redeemToast = toast.loading('Validating code...');
-          console.log('[AUTH] Processing promo/VIP code...');
-          const response = await fetch('/api/auth/dashboard-signin', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${authData.session.access_token}`
-            },
-            body: JSON.stringify({
-              email,
-              password,
-              mode: 'signin',
-              promoCode: promoCode || undefined,
-              vipCode: vipCode || undefined
-            }),
-          });
-
-          const data = await response.json();
-          console.log('[AUTH] Promo/VIP code processing result:', data);
-
-          if (data.success && (data.promoRedeemed || data.vipStatus?.isVIP)) {
-            // Show enhanced success message for codes
-            if (data.vipStatus?.isVIP) {
-              setSuccess('Welcome back, VIP! Your premium access is active.');
-            } else if (data.promoRedeemed) {
-              setSuccess('Promo code applied successfully! Enhanced features unlocked.');
-            }
-            if (redeemToast) toast.success('Code redeemed!', { id: redeemToast });
-          } else if (!data.success) {
-            // Code redemption failed, but auth succeeded - warn user
-            console.warn('[AUTH] Code redemption failed:', data.error);
-            if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
-            setSuccess('Sign-in successful, but code redemption failed: ' + data.error);
-          }
-        } catch (codeError) {
-          console.error('[AUTH] Code processing error:', codeError);
-          if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
-          setSuccess('Sign-in successful, but there was an issue with your code. Please contact support.');
-        }
-      } else {
-        setSuccess('Sign-in successful! Redirecting to dashboard...');
-      }
-
-      // Step 3: Log session details for debugging
-      console.log('[AUTH] Session established:', {
-        userId: authData.user.id,
-        email: authData.user.email,
-        accessToken: authData.session.access_token ? 'Present' : 'Missing',
-        expiresAt: authData.session.expires_at
-      });
-
-      // Step 4: Wait a moment for session to be fully established, then redirect
-      setTimeout(() => {
-        console.log('[AUTH] Redirecting to dashboard...');
-        router.push('/dashboard');
-      }, 1000);
-
-    } catch (err: any) {
-      console.error('[AUTH] Sign-in error:', err);
-      setError('Network error. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleCodeField = () => {
-    if (promoCode) {
-      setPromoCode('');
-    } else if (vipCode) {
-      setVipCode('');
-    }
-  };
+  }, [router, supabase]);
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
-    setLoading(true);
+    setProviderLoading('google');
     setError('');
     try {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
@@ -157,13 +55,13 @@ export default function SignInPage() {
       });
       if (oauthError) {
         setError(oauthError.message);
-        setLoading(false);
+        setProviderLoading(null);
       }
       // Supabase will redirect, so we don't manually push
     } catch (err: any) {
       console.error('[AUTH] Google sign-in error:', err);
       setError(err.message || 'Google sign-in failed');
-      setLoading(false);
+      setProviderLoading(null);
     }
   };
 
@@ -173,7 +71,7 @@ export default function SignInPage() {
       setError('Enter an email to receive a magic link');
       return;
     }
-    setLoading(true);
+    setProviderLoading('magic');
     setError('');
     try {
       const { error: otpError } = await supabase.auth.signInWithOtp({
@@ -192,7 +90,81 @@ export default function SignInPage() {
       console.error('[AUTH] Magic link error:', err);
       setError(err.message || 'Failed to send magic link');
     } finally {
+      setProviderLoading(null);
+    }
+  };
+
+  // Email/password sign-in
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Validate inputs
+      if (!email || !password) {
+        setError('Email and password are required');
+        setLoading(false);
+        return;
+      }
+
+      // Attempt sign in
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        console.error('[AUTH] Sign-in error:', signInError);
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Handle promo or VIP code if provided
+      if (promoCode || vipCode) {
+        try {
+          const codeType = promoCode ? 'promo' : 'vip';
+          const codeValue = promoCode || vipCode;
+          
+          const { error: codeError } = await supabase
+            .from('user_codes')
+            .insert({
+              user_id: data.user?.id,
+              code: codeValue,
+              code_type: codeType,
+              applied_at: new Date().toISOString()
+            });
+          
+          if (codeError) {
+            console.error('[AUTH] Code application error:', codeError);
+            // Don't block sign-in for code errors, just notify
+            toast.error(`Failed to apply ${codeType} code: ${codeError.message}`);
+          } else {
+            toast.success(`${codeType.toUpperCase()} code applied successfully!`);
+          }
+        } catch (codeErr) {
+          console.error('[AUTH] Code application exception:', codeErr);
+          toast.error('Failed to apply code');
+        }
+      }
+
+      // Redirect to dashboard on success
+      setSuccess('Sign-in successful! Redirecting...');
+      router.push('/dashboard');
+      
+    } catch (err: any) {
+      console.error('[AUTH] Sign-in exception:', err);
+      setError(err.message || 'An unexpected error occurred');
       setLoading(false);
+    }
+  };
+
+  // Toggle promo/VIP code field visibility
+  const toggleCodeField = () => {
+    if (promoCode || vipCode) {
+      setPromoCode('');
+      setVipCode('');
     }
   };
 
@@ -221,21 +193,25 @@ export default function SignInPage() {
 
         {/* --- OAuth / Magic Link options --- */}
         <div className="space-y-4">
-          <button
-            type="button"
+          <AuthProviderButton
+            provider="google"
+            loading={providerLoading === 'google'}
             onClick={handleGoogleSignIn}
-            className="w-full flex justify-center items-center gap-2 px-4 py-2 rounded-md bg-white text-gray-800 hover:bg-gray-100 font-medium shadow"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.6-5.6C34.8 6.5 29.7 4 24 4 12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20c0-1.3-.1-2.6-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C15 16 18.2 14 22 14c2.9 0 5.5 1.1 7.4 2.9l5.6-5.6C31.6 8.5 27.1 6 22 6 14.5 6 8 10.2 6.3 14.7z"/><path fill="#4CAF50" d="M22 44c5.2 0 9.8-2 13.2-5.3l-6-4.9C27.5 35.9 24.9 37 22 37c-5.3 0-9.7-3.4-11.3-8H4.1l-6.1 4.8C3.9 39.8 12 44 22 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.9-3 5-5.4 6.5l6 4.9C39 35.2 44 30 44 24c0-1.3-.1-2.6-.4-3.5z"/></svg>
-            Continue with Google
-          </button>
-          <button
-            type="button"
+          />
+          <AuthProviderButton
+            provider="magic"
+            loading={providerLoading === 'magic'}
             onClick={handleMagicLink}
-            className="w-full flex justify-center items-center px-4 py-2 rounded-md bg-electric-blue text-white hover:bg-electric-blue/90 font-medium shadow"
-          >
-            {magicSent ? 'Resend Magic Link' : 'Send Magic Link'}
-          </button>
+          />
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-700"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-[#161B22] text-gray-400">Or continue with</span>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
@@ -343,16 +319,21 @@ export default function SignInPage() {
           </div>
 
           <div>
-            <motion.button
+            <button
               type="submit"
-              aria-label="Sign in"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue"
               disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.04, boxShadow: loading ? '0 0 0' : '0 0 16px #00ffe7' }}
-              whileTap={{ scale: loading ? 1 : 0.97 }}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue transition-all duration-150 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </motion.button>
+              {loading ? (
+                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </span>
+              ) : null}
+              Sign in
+            </button>
           </div>
 
           <div className="text-center">
@@ -368,8 +349,6 @@ export default function SignInPage() {
             </p>
           </div>
         </form>
-
-        <Toaster position="top-center" reverseOrder={false} />
       </motion.div>
     </div>
   );

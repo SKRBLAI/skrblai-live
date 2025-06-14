@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import toast from 'react-hot-toast';
+import { fireAgentLaunchWebhook } from '@/lib/webhooks/n8nWebhooks';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -178,6 +179,30 @@ export default function WorkflowLaunchButton({
           }
         })
       });
+
+      // Fire agent launch webhook to n8n (non-blocking)
+      try {
+        await fireAgentLaunchWebhook(
+          {
+            id: user.id,
+            email: user.email || '',
+            role: accessLevel
+          },
+          {
+            id: agentId,
+            name: agentName,
+            superheroName,
+            workflowId: executionResult?.executionId
+          },
+          {
+            source: 'workflow-launch-button',
+            userAgent: navigator.userAgent,
+            sessionId: `session_${Date.now()}`
+          }
+        );
+      } catch (webhookError) {
+        console.warn('[AgentLaunch] Webhook failed (non-blocking):', webhookError);
+      }
 
       if (!response.ok) {
         const errorData = await response.json();
