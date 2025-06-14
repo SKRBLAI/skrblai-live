@@ -8,6 +8,7 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import toast from 'react-hot-toast';
 import { useBanner } from '@/components/context/BannerContext';
 import AuthProviderButton from '@/components/ui/AuthProviderButton';
+import { useAuth } from '@/components/context/AuthContext';
 import Spinner from '@/components/ui/Spinner';
 
 export default function SignUpPage() {
@@ -24,18 +25,14 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState('');
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
   const { showBanner } = useBanner();
+  const { user, session } = useAuth();
 
+  // Auto-redirect if user is already logged in
   useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) router.replace('/dashboard');
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => {
-      if (session) router.replace('/dashboard');
-    });
-    return () => subscription?.unsubscribe();
-  }, [router, supabase]);
+    if (user && session) { // Check user and session from useAuth
+      router.replace('/dashboard');
+    }
+  }, [user, session, router]); // Add user and session to dependency array
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

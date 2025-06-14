@@ -10,7 +10,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DownloadCenter from '@/components/dashboard/DownloadCenter';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 import { useCallback, useEffect, useState, CSSProperties } from 'react';
-import { auth, getCurrentUser } from '@/utils/supabase-auth';
+import { useAuth } from '@/components/context/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
@@ -21,8 +21,8 @@ import agentRegistry from '@/lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
 export default function BookPublishingDashboard() {
+  const { user, session, isLoading: authIsLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [publishingProjects, setPublishingProjects] = useState<any[]>([]);
   const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const [state, setState] = useState<BookPublishingState>({
@@ -38,6 +38,12 @@ export default function BookPublishingDashboard() {
     success: false
   });
   const router = useRouter();
+
+  useEffect(() => {
+    if (!authIsLoading && !user) { // Check for user object
+      router.push('/sign-in');
+    }
+  }, [authIsLoading, user, router]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -169,19 +175,6 @@ export default function BookPublishingDashboard() {
       success: false
     });
   };
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getCurrentUser();
-      if (!user) {
-        router.push('/sign-in');
-        return;
-      }
-      setUser(user);
-      setIsLoading(false);
-    };
-    fetchUser();
-  }, [router]);
 
   useEffect(() => {
     if (!user) return;

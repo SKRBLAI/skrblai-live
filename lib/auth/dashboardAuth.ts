@@ -526,6 +526,7 @@ export async function registerUserForDashboard(
       options: {
         data: {
           signup_source: 'dashboard',
+          marketing_consent: request.marketingConsent,
           ip_address: metadata.ip || 'unknown',
           user_agent: metadata.userAgent || 'unknown'
         }
@@ -533,29 +534,27 @@ export async function registerUserForDashboard(
     });
 
     if (authError || !authData.user) {
-      console.error('[DashboardAuth] Registration failed:', authError?.message);
-      
-      // Enhanced failure logging
+      console.error('[DashboardAuth] Signup failed:', authError?.message);
       await logSignInFailure(
         request.email, 
-        authError?.message || 'Registration failed',
-        { 
-          ...metadata,
-          attempt: (rateLimitCheck.data?.attempts_in_window || 0) + 1,
-          isSignup: true
-        }
+        authError?.message || 'Failed to create user',
+        { ...metadata, isSignup: true }
       );
-      
-      return {
-        success: false,
-        error: authError?.message || 'Registration failed'
-      };
+      return { success: false, error: authError?.message || 'Failed to create user' };
     }
 
     const user = authData.user;
-    console.log('[DashboardAuth] User registered successfully:', user.id);
+    console.log('[DashboardAuth] User account created successfully:', user.id);
 
-    // Step 3: Handle promo code if provided during registration
+    // Log successful sign-up to auth_events
+    await supabase.from('auth_events').insert({
+      user_id: user.id,
+      event_type: 'sign_up',
+      provider: 'email',
+      details: { email: user.email }
+    });
+
+    // Step 3: Handle promo code redemption
     let promoRedeemed = false;
     let promoCodeBenefits = null;
     

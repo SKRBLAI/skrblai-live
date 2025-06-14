@@ -247,56 +247,79 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
 // =============================================================================
 
 const CROSS_AGENT_HANDOFFS: Record<string, CrossAgentHandoff[]> = {
+  // Demo Workflow: BrandBot -> SocialBot -> ClientSuccess -> PaymentManager
+  'branding-agent': [
+    {
+      targetAgentId: 'social-bot-agent',
+      triggerConditions: ['social', 'promote', 'share', 'post'],
+      handoffMessage: 'Your new branding is ready! Shall we get SocialBot to create a social media campaign to show it off?',
+      autoTrigger: false,
+      confidence: 95
+    }
+  ],
+  'social-bot-agent': [
+    {
+      targetAgentId: 'client-success-agent',
+      triggerConditions: ['customer', 'client', 'engagement', 'feedback', 'community'],
+      handoffMessage: 'Great, your social campaign is underway. Now, let\'s connect you with the Client Success Agent to manage engagement and gather feedback.',
+      autoTrigger: false,
+      confidence: 90
+    }
+  ],
+  'client-success-agent': [
+    {
+      targetAgentId: 'payment-manager-agent',
+      triggerConditions: ['payment', 'upgrade', 'subscribe', 'purchase', 'buy'],
+      handoffMessage: 'It looks like you\'re ready to upgrade your plan. I\'ll hand you over to the Payment Manager to complete the process securely.',
+      autoTrigger: true,
+      confidence: 98
+    }
+  ],
+
+  // Other general handoffs
   'percy-agent': [
     {
-      targetAgentId: 'branding-agent',
-      triggerConditions: ['brand identity', 'logo design', 'visual identity'],
-      handoffMessage: "Perfect! I'm connecting you with BrandAlexander, our Identity Architect. They'll create an amazing brand identity for you!",
+      targetAgentId: 'biz-agent',
+      triggerConditions: ['business plan', 'strategy', 'model'],
+      handoffMessage: 'For a detailed business strategy, I recommend consulting with Biz. Would you like me to connect you?',
+      autoTrigger: false,
+      confidence: 90
+    }
+  ],
+  'content-creator-agent': [
+    {
+      targetAgentId: 'social-bot-agent',
+      triggerConditions: ['promote', 'share', 'social media', 'post this'],
+      handoffMessage: 'Now that your content is ready, shall I have Social Bot draft some posts to promote it?',
       autoTrigger: true,
       confidence: 95
     },
     {
-      targetAgentId: 'content-creator-agent',
-      triggerConditions: ['blog post', 'article', 'content creation', 'writing'],
-      handoffMessage: "ContentCarltig is perfect for this! They're our Word Weaver and can create compelling content for you.",
-      autoTrigger: true,
+      targetAgentId: 'publishing-agent',
+      triggerConditions: ['publish', 'distribute', 'go live'],
+      handoffMessage: 'Ready to publish this content across your channels? Publishing Agent can handle that.',
+      autoTrigger: false,
       confidence: 90
     }
   ],
-  
-  'branding-agent': [
+  'ad-creative-agent': [
     {
-      targetAgentId: 'content-creator-agent',
-      triggerConditions: ['brand story', 'brand messaging', 'content strategy'],
-      handoffMessage: "Now that your brand identity is ready, let's create content that tells your brand story! I'm calling in ContentCarltig.",
+      targetAgentId: 'analytics-agent',
+      triggerConditions: ['track', 'performance', 'metrics', 'results', 'analytics'],
+      handoffMessage: 'Once your ad campaign is live, Analytics Agent can track its performance. Want me to set that up?',
       autoTrigger: false,
-      confidence: 85
-    },
-    {
-      targetAgentId: 'sitegen-agent',
-      triggerConditions: ['website', 'landing page', 'web presence'],
-      handoffMessage: "Your brand looks amazing! Ready to showcase it online? SiteOnzite can build you a stunning website with your new identity.",
-      autoTrigger: false,
-      confidence: 80
+      confidence: 88
     }
   ],
-  
-  'content-creator-agent': [
+  'biz-agent': [
     {
-      targetAgentId: 'social-bot-agent',
-      triggerConditions: ['social media', 'promote content', 'distribution'],
-      handoffMessage: "Great content! Now let's get it seen. SocialNino can help distribute this across all your social channels.",
+      targetAgentId: 'proposal-generator-agent',
+      triggerConditions: ['proposal', 'pitch', 'investors', 'funding'],
+      handoffMessage: 'Now that the business plan is solid, the Proposal Generator can create a compelling pitch deck.',
       autoTrigger: false,
-      confidence: 75
-    },
-    {
-      targetAgentId: 'ad-creative-agent',
-      triggerConditions: ['promote', 'advertising', 'paid promotion'],
-      handoffMessage: "This content deserves a bigger audience! AdmEthen can create targeted ads to amplify your reach.",
-      autoTrigger: false,
-      confidence: 70
+      confidence: 93
     }
-  ]
+  ],
 };
 
 // =============================================================================

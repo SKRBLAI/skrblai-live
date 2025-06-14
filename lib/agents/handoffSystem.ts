@@ -11,6 +11,7 @@
 import { agentLeague, type AgentConfiguration, type CrossAgentHandoff } from './agentLeague';
 import { powerEngine, type PowerExecutionResult, type HandoffSuggestion } from './powerEngine';
 import { createClient } from '@supabase/supabase-js';
+import { runAgentWorkflow } from './runAgentWorkflow';
 
 // =============================================================================
 // HANDOFF TYPES & INTERFACES
@@ -254,85 +255,59 @@ export class HandoffSystem {
     context: HandoffContext,
     userConfirmation: boolean = false
   ): Promise<HandoffExecution> {
-    
-    const handoffId = `handoff_${Date.now()}_${context.sourceAgentId}_${recommendation.targetAgentId}`;
-    
-    console.log(`[HandoffSystem] Executing handoff ${handoffId}`);
+    const handoffId = `handoff_${context.sourceExecutionId}_${recommendation.targetAgentId}`;
     
     const execution: HandoffExecution = {
       id: handoffId,
       sourceAgentId: context.sourceAgentId,
       targetAgentId: recommendation.targetAgentId,
-      userPrompt: recommendation.suggestedAction,
-      executionStatus: 'pending',
-      chainedHandoffs: [],
-      totalValue: recommendation.estimatedValue
+      userPrompt: context.userPrompt,
+      executionStatus: 'running',
+      chainedHandoffs: [context.sourceAgentId],
+      totalValue: recommendation.estimatedValue,
     };
-    
+
     this.activeHandoffs.set(handoffId, execution);
-    
+    await this.logHandoffExecution(execution, 'executed', context);
+
     try {
-      // Log handoff execution start
-      await this.logHandoffExecution(execution, 'started', context);
+      // Extract context from the previous agent's execution result
+      const continuationPayload = this.extractContinuationData(context);
       
-      execution.executionStatus = 'running';
-      
-      // Prepare handoff payload
-      const handoffPayload = {
-        previousAgent: context.sourceAgentId,
-        previousResult: context.executionResult.data,
-        handoffReason: recommendation.reasoning,
-        userGoal: context.sessionData.workflowGoal,
-        continuationData: this.extractContinuationData(context)
+      const payload = {
+        ...continuationPayload,
+        user_prompt: context.userPrompt,
+        source_agent_id: context.sourceAgentId,
+        source_execution_id: context.sourceExecutionId
       };
-      
-      // Execute power on target agent
-      const targetAgent = agentLeague.getAgent(recommendation.targetAgentId)!;
-      const primaryPower = targetAgent.powers[0]; // Use primary power for handoff
-      
-      if (primaryPower) {
-        const powerResult = await powerEngine.executePower({
-          agentId: recommendation.targetAgentId,
-          powerId: primaryPower.id,
-          userPrompt: recommendation.suggestedAction,
-          payload: handoffPayload,
-          context: {
-            userId: context.sessionData.userId,
-            userRole: context.sessionData.userRole,
-            sessionId: context.sessionData.sessionId,
-            metadata: {
-              handoffId,
-              sourceAgent: context.sourceAgentId,
-              isHandoff: true
-            },
-            requestTimestamp: new Date().toISOString()
-          }
-        });
-        
-        execution.result = powerResult;
-        execution.executionStatus = powerResult.success ? 'completed' : 'failed';
-        
-        // Check for chained handoffs
-        if (powerResult.handoffSuggestions && powerResult.handoffSuggestions.length > 0) {
-          await this.processChainedHandoffs(execution, powerResult.handoffSuggestions, context);
-        }
-        
+
+      // Run the target agent's workflow
+      const result = await runAgentWorkflow(
+        recommendation.targetAgentId,
+        payload,
+        context.sessionData.userRole
+      );
+
+      execution.result = result as any;
+      if (result.status === 'success') {
+        execution.executionStatus = 'completed';
       } else {
-        throw new Error(`No powers available for target agent: ${recommendation.targetAgentId}`);
+        execution.executionStatus = 'failed';
       }
+
+      await this.logHandoffExecution(execution, execution.executionStatus, context, result.status !== 'success' ? result.result : undefined);
       
-      // Log completion
-      await this.logHandoffExecution(execution, 'completed', context);
+      // Here you could analyze for a chained handoff
       
-      console.log(`[HandoffSystem] Handoff completed: ${handoffId}`);
-      
+      return execution;
+
     } catch (error: any) {
+      console.error(`[HandoffSystem] Handoff execution failed for ${handoffId}:`, error);
       execution.executionStatus = 'failed';
       await this.logHandoffExecution(execution, 'failed', context, error.message);
-      console.error(`[HandoffSystem] Handoff failed: ${handoffId}`, error);
+      this.activeHandoffs.delete(handoffId);
+      throw error; // Re-throw to be handled by the caller
     }
-    
-    return execution;
   }
   
   /**
@@ -536,48 +511,46 @@ export class HandoffSystem {
     context: HandoffContext,
     recommendations: HandoffRecommendation[]
   ): Promise<void> {
-    try {
-      await supabase.from('agent_handoff_analysis').insert({
-        source_agent_id: context.sourceAgentId,
-        source_execution_id: context.sourceExecutionId,
-        user_id: context.sessionData.userId,
-        session_id: context.sessionData.sessionId,
-        user_prompt: context.userPrompt,
-        recommendations_count: recommendations.length,
-        recommendations: JSON.stringify(recommendations),
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('[HandoffSystem] Failed to log analysis:', error);
+    if (recommendations.length === 0) return;
+
+    const handoffRecords = recommendations.map(rec => ({
+      source_agent_id: context.sourceAgentId,
+      target_agent_id: rec.targetAgentId,
+      source_execution_id: context.sourceExecutionId,
+      user_id: context.sessionData.userId,
+      status: 'recommended',
+      recommendation_details: rec as any,
+    }));
+
+    const { error } = await supabase.from('agent_handoffs').insert(handoffRecords);
+    if (error) {
+      console.error('[HandoffSystem] Error logging handoff analysis:', error);
     }
   }
   
   /**
-   * Log handoff execution to Supabase
+   * Log the execution of a handoff
    */
   private async logHandoffExecution(
     execution: HandoffExecution,
-    status: string,
+    status: 'executed' | 'completed' | 'failed',
     context: HandoffContext,
     error?: string
   ): Promise<void> {
-    try {
-      await supabase.from('agent_handoff_executions').insert({
-        handoff_id: execution.id,
-        source_agent_id: execution.sourceAgentId,
-        target_agent_id: execution.targetAgentId,
-        user_id: context.sessionData.userId,
-        session_id: context.sessionData.sessionId,
-        status,
-        user_prompt: execution.userPrompt,
-        result_data: execution.result ? JSON.stringify(execution.result) : null,
-        chained_handoffs: JSON.stringify(execution.chainedHandoffs),
-        total_value: execution.totalValue,
-        error_message: error || null,
-        timestamp: new Date().toISOString()
-      });
-    } catch (logError) {
-      console.error('[HandoffSystem] Failed to log execution:', logError);
+    const { data, error: updateError } = await supabase
+      .from('agent_handoffs')
+      .update({
+        status: status,
+        execution_details: { ...execution, error } as any,
+      })
+      .eq('source_agent_id', execution.sourceAgentId)
+      .eq('target_agent_id', execution.targetAgentId)
+      .eq('source_execution_id', context.sourceExecutionId)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (updateError) {
+      console.error(`[HandoffSystem] Error updating handoff execution log for ${execution.id}:`, updateError);
     }
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/components/context/AuthContext'; // ++ Import useAuth
 import { supabase } from '@/utils/supabase'; // Update this import path if needed!
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -34,6 +35,8 @@ export interface DashboardAuthActions {
  * Uses official Supabase client methods (getSession, onAuthStateChange)
  */
 export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
+  const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth(); // ++ Use AuthContext
+  const [loginEventLogged, setLoginEventLogged] = useState(false);
   const [dashboardAccess, setDashboardAccess] = useState<DashboardAccess>({
     user: null,
     accessLevel: 'free',
@@ -45,34 +48,30 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
     benefits: {},
     promoCodeUsed: null,
     metadata: {},
-    loading: true,
+    loading: true, // This will be managed based on authIsLoading and checkAccess
     error: null
   });
 
   // Fetches current access state from API
+  // Fetches current access state from API
   const checkAccess = useCallback(async (): Promise<void> => {
+    if (!authUser || !authSession?.access_token) { // ++ Check authUser and token from context
+      setDashboardAccess(prev => ({
+        ...prev,
+        user: null,
+        loading: false, // Not loading if no authenticated user
+        error: 'No active authenticated session'
+      }));
+      return;
+    }
     try {
       setDashboardAccess(prev => ({ ...prev, loading: true, error: null }));
-
-      // Use official supabase.auth.getSession()
-      const { data, error: sessionError } = await supabase.auth.getSession();
-      const session: Session | null = data?.session || null;
-
-      if (sessionError || !session?.access_token) {
-        setDashboardAccess(prev => ({
-          ...prev,
-          user: null,
-          loading: false,
-          error: 'No active session'
-        }));
-        return;
-      }
 
       // Check dashboard access with API (pass token)
       const response = await fetch('/api/auth/dashboard-signin?checkAccess=true', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${authSession.access_token}`, // ++ Use token from context's session
           'Content-Type': 'application/json',
         },
       });
@@ -85,7 +84,7 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
 
       setDashboardAccess(prev => ({
         ...prev,
-        user: dataJson.user,
+        user: authUser, // ++ Set user from context
         accessLevel: dataJson.accessLevel,
         isVIP: dataJson.isVIP,
         vipStatus: dataJson.vipStatus,
@@ -101,10 +100,10 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
       setDashboardAccess(prev => ({
         ...prev,
         loading: false,
-        error: error.message || 'Failed to check dashboard access'
+        error: error.message || 'Unknown error during access check'
       }));
     }
-  }, []);
+  }, [authUser, authSession]); // ++ Add authUser and authSession as dependencies
 
   // Helper: does user have a feature
   const hasFeature = useCallback((feature: string): boolean => {
@@ -132,42 +131,42 @@ export function useDashboardAuth(): DashboardAccess & DashboardAuthActions {
     return 'Free Access';
   }, [dashboardAccess]);
 
-  // Listen for Supabase auth state changes (login/logout, etc)
+  // Effect to react to changes in auth state from AuthContext
   useEffect(() => {
-    let isMounted = true;
+    if (authIsLoading) {
+      // If auth context is still loading, reflect this in dashboardAccess
+      setDashboardAccess(prev => ({ ...prev, user: null, loading: true }));
+    } else if (authUser && authSession) {
+      // If auth context has loaded and user is authenticated, check access
+      checkAccess();
 
-    // On mount: run initial check
-    checkAccess();
-
-    // Auth listener (official)
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) return;
-      if (session && session.user) {
-        checkAccess();
-      } else {
-        setDashboardAccess(prev => ({
-          ...prev,
-          user: null,
-          accessLevel: 'free',
-          isVIP: false,
-          vipStatus: { isVIP: false, vipLevel: 'standard' },
-          benefits: {},
-          promoCodeUsed: null,
-          metadata: {},
-          loading: false,
-          error: null
-        }));
+      // Log sign-in event if it hasn't been logged for this session
+      if (!loginEventLogged) {
+        const provider = authUser.app_metadata.provider;
+        // Don't log for email provider, as it's handled on the sign-in page
+        if (provider && provider !== 'email') {
+          supabase.from('auth_events').insert({
+            user_id: authUser.id,
+            event_type: 'sign_in',
+            provider: provider,
+            details: { email: authUser.email }
+          }).then(({ error }) => {
+            if (error) {
+              console.error('[useDashboardAuth] Failed to log sign-in event:', error);
+            }
+          });
+        }
+        setLoginEventLogged(true);
       }
-    });
-
-    const subscription = data?.subscription;
-    return () => {
-      isMounted = false;
-      if (subscription && typeof subscription.unsubscribe === 'function') {
-        subscription.unsubscribe();
-      }
-    };
-  }, [checkAccess]);
+    } else {
+      // If auth context has loaded and no user/session, set dashboardAccess accordingly
+      setDashboardAccess({
+        user: null, accessLevel: 'free', isVIP: false, vipStatus: { isVIP: false, vipLevel: 'standard' },
+        benefits: {}, promoCodeUsed: null, metadata: {}, loading: false, error: null
+      });
+      setLoginEventLogged(false); // Reset when user signs out
+    }
+  }, [authUser, authSession, authIsLoading, checkAccess, loginEventLogged]); // ++ Depend on context values
 
   return {
     ...dashboardAccess,

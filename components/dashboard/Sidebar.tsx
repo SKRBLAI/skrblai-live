@@ -72,7 +72,7 @@ export default function Sidebar() {
       
       <div className="p-4 border-t border-gray-700">
         <Link
-          href="/logout"
+          href="/log-out"
           className="flex items-center p-2 hover:bg-gray-700 rounded transition-colors"
         >
           <span className="text-xl mr-3">🚪</span>

@@ -5,6 +5,7 @@ import '../styles/cosmic-theme.css';
 import PageTransition from '@/components/ui/PageTransition';
 import PercyProvider from '@/components/assistant/PercyProvider';
 import { BannerProvider } from '@/components/context/BannerContext';
+import { AuthProvider } from '@/components/context/AuthContext';
 import PercyWidget from '@/components/percy/PercyWidget';
 import Navbar from '@/components/layout/Navbar';
 import FloatingParticles from '@/components/ui/FloatingParticles';
@@ -35,8 +36,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
-        <PercyProvider>
-          <BannerProvider>
+        <AuthProvider>
+          <PercyProvider>
+            <BannerProvider>
           {/* Global Percy Background - RE-ENABLED FOR PHASE 2 TESTING */}
           <div className="percy-bg-global" aria-hidden="true" />
 
@@ -58,7 +60,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {/* Percy Widget - RE-ENABLED FOR PHASE 2 TESTING */}
           <PercyWidget />
                   </BannerProvider>
-        </PercyProvider>
+          </PercyProvider>
+        </AuthProvider>
       </body>
     </html>
   );

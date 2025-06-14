@@ -2,15 +2,16 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { logoutUser } from '@/utils/auth';
+import { useAuth } from '@/components/context/AuthContext';
 
 export default function LogoutPage() {
   const router = useRouter();
+  const { signOut } = useAuth();
   
   useEffect(() => {
     const performLogout = async () => {
       try {
-        await logoutUser();
+        await signOut();
         router.push('/sign-in');
       } catch (error) {
         console.error('Logout error:', error);
@@ -19,7 +20,7 @@ export default function LogoutPage() {
     };
     
     performLogout();
-  }, [router]);
+  }, [router, signOut]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900" aria-busy="true">

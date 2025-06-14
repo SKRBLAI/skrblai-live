@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { logoutUser } from '@/utils/auth';
+import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 interface HeaderProps {
@@ -13,10 +13,12 @@ interface HeaderProps {
 export default function Header({ user }: HeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    const result = await logoutUser();
-    if (result.success) {
+    try {
+      await signOut();
+    } finally {
       router.push('/sign-in');
     }
   };

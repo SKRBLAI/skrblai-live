@@ -6,18 +6,9 @@ export const dynamic = 'force-dynamic'; // Disable static page generation
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { createClient } from '@supabase/supabase-js';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { useAuth } from '@/components/context/AuthContext';
+import { supabase } from '@/utils/supabase'; // Ensure this path is correct for your global Supabase client
 import agentRegistry from '@/lib/agents/agentRegistry';
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
-
-// Initialize auth
-const auth = supabase.auth;
 
 // Helper functions
 const checkUserRole = async (userId: string): Promise<'free' | 'premium'> => {
@@ -106,28 +97,27 @@ export default function Dashboard() {
   const [suggestion, setSuggestion] = useState<string>("");
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Auth effect
+  const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth(); // Renamed to authIsLoading
+
+  // Auth effect using AuthContext
   useEffect(() => {
-    const { data: { subscription } } = auth.onAuthStateChange(async (_event, session) => {
-      const user = session?.user;
-      if (user) {
-        setUserId(user.id);
-        const role = await checkUserRole(user.id);
-        setUserRole(role);
-        setIsLoading(false);
+    if (!authIsLoading) {
+      if (authUser && authSession) {
+        setUserId(authUser.id);
+        // Fetch user role after user is confirmed
+        checkUserRole(authUser.id).then(role => {
+          setUserRole(role);
+          setIsLoading(false); // Set loading to false after role is fetched
+        });
       } else {
-        console.log('[SKRBL AUTH] Dashboard route protection standardized.');
-        if (!session) {
-          router.push('/sign-in');
-        }
+        console.log('[SKRBL AUTH] Dashboard route protection: No user/session, redirecting.');
+        router.push('/sign-in');
       }
-    });
-    return () => {
-      if (subscription && typeof subscription.unsubscribe === 'function') {
-        subscription.unsubscribe();
-      }
-    };
-  }, [router]);
+    } else {
+      // Still loading auth state, ensure dashboard loading is true
+      setIsLoading(true); // This refers to the local page loading state
+    }
+  }, [authUser, authSession, authIsLoading, router]);
 
   // Load data on mount and when userId changes
   useEffect(() => {

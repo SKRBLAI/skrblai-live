@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import { useBanner } from '@/components/context/BannerContext';
 import AuthProviderButton from '@/components/ui/AuthProviderButton';
+import { useAuth } from '@/components/context/AuthContext';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function SignInPage() {
@@ -21,26 +22,14 @@ export default function SignInPage() {
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
   const { showBanner } = useBanner();
+  const { user, session } = useAuth();
 
-  // Auto-redirect if session already exists (handles social/magic link return)
+  // Auto-redirect if user is already logged in
   useEffect(() => {
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace('/dashboard');
-      }
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        router.replace('/dashboard');
-      }
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [router, supabase]);
+    if (user && session) { // Check user and session from useAuth
+      router.replace('/dashboard');
+    }
+  }, [user, session, router]); // Add user and session to dependency array
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
@@ -119,6 +108,16 @@ export default function SignInPage() {
         setError(signInError.message);
         setLoading(false);
         return;
+      }
+      
+      // Log successful sign-in
+      if (data.user) {
+        await supabase.from('auth_events').insert({
+          user_id: data.user.id,
+          event_type: 'sign_in',
+          provider: 'email',
+          details: { email: data.user.email }
+        });
       }
 
       // Handle promo or VIP code if provided

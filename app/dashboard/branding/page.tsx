@@ -8,7 +8,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import FileUploadCard from '@/components/dashboard/FileUploadCard';
 
 import { useEffect, useState } from 'react';
-import { auth, getCurrentUser } from '@/utils/supabase-auth';
+import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
@@ -16,27 +16,20 @@ import agentRegistry from '@/lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
 export default function BrandingDashboard() {
+  const { user, isLoading: authIsLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
   const [brandingProjects, setBrandingProjects] = useState<any[]>([]);
   const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const user = await getCurrentUser();
-      if (!user) {
-        console.log('[SKRBL AUTH] Dashboard route protection standardized.');
-        if (!user) {
-          router.push('/sign-in');
-        }
-        return;
-      }
-      setUser(user);
+    if (!authIsLoading && !user) {
+      router.push('/sign-in');
+    }
+    if (user) {
       setIsLoading(false);
-    };
-    fetchUser();
-  }, [router]);
+    }
+  }, [user, authIsLoading, router]);
 
   useEffect(() => {
     if (!user) return;

@@ -1,6 +1,6 @@
 'use client';
 
-import { signOut } from '@/utils/supabase-auth';
+import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
 import React, { useEffect, useState } from 'react';
@@ -8,17 +8,15 @@ import { motion } from 'framer-motion';
 
 export default function DashboardHeader() {
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     try {
-      const result = await signOut();
-      if (result.success) {
-        router.push('/');
-      } else {
-        console.error('Logout error:', result.error);
-      }
+      await signOut();
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      router.push('/');
     }
   };
 
