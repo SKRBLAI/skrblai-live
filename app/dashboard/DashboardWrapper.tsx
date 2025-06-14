@@ -75,7 +75,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
 
     if (!user && !loading) {
       console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
-      router.push('/dashboard/signin');
+      router.push('/sign-in');
       return;
     }
 
@@ -122,7 +122,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
             </details>
           )}
           <button
-            onClick={() => router.push('/dashboard/signin')}
+            onClick={() => router.push('/sign-in')}
             className="px-4 py-2 bg-electric-blue text-white rounded hover:bg-electric-blue/90 transition-colors"
           >
             Return to Sign In

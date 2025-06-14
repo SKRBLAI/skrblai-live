@@ -81,5 +81,5 @@ console.log('\n🔄 Auth Flow Test Routes:');
 console.log('  Sign In: /sign-in');
 console.log('  Sign Up: /sign-up');
 console.log('  Dashboard: /dashboard');
-console.log('  Percy Auth: /dashboard/signin');
+console.log('  Percy Auth: /sign-in');
 console.log('  API Endpoint: /api/auth/dashboard-signin'); 

@@ -5,13 +5,27 @@
 ## New Feature: Unified Percy Sign In/Sign Up + Promo/VIP Code Portal
 
 ### Overview
-- Created a single, glassmorphic Percy-branded authentication portal at `/dashboard/signin`.
-- Supports both **sign in** and **sign up** in one UI (toggleable tabs).
-- After authentication, users are prompted for a **Promo Code or VIP Code**.
-- VIP codes unlock a visually distinct, premium dashboard experience (badge, cosmic flair).
-- Promo codes show perks/confirmation (dummy logic; backend integration pending).
-- Users can skip code entry and add codes later from their profile/settings (future-proofed).
-- All code validation is currently dummy logic; ready for Cursor/backend to wire up real checks.
+- Created a single, glassmorphic Percy-branded authentication portal at `/sign-in`.
+- All unauthenticated traffic to `/dashboard` or protected sub-routes is now redirected to this unified portal.
+- Integrated Supabase OAuth (Google) and Magic Link (passwordless) sign-in options.
+- Retained standard email/password sign-in.
+- Added fields for one-time promo codes or VIP codes.
+
+**File Changes:**
+- `app/sign-in/page.tsx` — New route, mounts the unified auth portal
+- `components/percy/PercyOnboardingAuth.tsx` — The core UI component for the sign-in/sign-up form.
+- `hooks/useDashboardAuth.ts` — Enhanced hook to provide detailed user session and access level data.
+- `lib/auth/dashboardAuth.ts` — Backend logic for fetching user roles, VIP status, and permissions.
+- `middleware.ts` — Updated to enforce the new redirect logic.
+- `app/dashboard/signin/page.tsx` (deleted)
+
+### Objective 2: Debug & Harden Authentication Flow
+
+**Problem:** The previous authentication flow was inconsistent. Users could sometimes access parts of the dashboard without a valid session, and redirects were unreliable. The new VIP/promo code system also needed to be integrated at the auth level.
+
+### Objective 3: VIP & Access Level System
+
+**Problem:** We needed a way to grant different access levels (e.g., "Free", "Standard", "VIP") to users, unlocking specific features. This needed to be tied to their authentication state.
 
 ### User Flow
 1. **Step 1:** Sign In or Sign Up (email, password, confirm password for sign up)
@@ -19,7 +33,7 @@
 3. **Step 3:** Dashboard preview (VIP users see badge and premium visuals)
 
 ### Files Created/Modified
-- `app/dashboard/signin/page.tsx` — New route, mounts the unified auth portal
+- `app/sign-in/page.tsx` — New route, mounts the unified auth portal
 - `components/percy/PercyOnboardingAuth.tsx` — New component, all-in-one UI and state logic
 
 ### UX/Design
@@ -101,7 +115,7 @@
 - `components/assistant/PercyProvider.tsx`
 - `components/percy/PercyWidget.tsx`
 - `components/agents/AgentConstellation.tsx`
-- `app/dashboard/signin/page.tsx` (new)
+- `app/sign-in/page.tsx` (new)
 - `components/percy/PercyOnboardingAuth.tsx` (new)
 
 - `styles/cosmic-theme.css`

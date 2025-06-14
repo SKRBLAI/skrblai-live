@@ -47,7 +47,7 @@
 - ✅ **Migrated to `useDashboardAuth` hook**
 - ✅ **Proper loading states** during auth check
 - ✅ **Error handling** with fallback UI
-- ✅ **Auto-redirect** to `/dashboard/signin` if unauthenticated
+- ✅ **Auto-redirect** to `/sign-in` if unauthenticated
 - ✅ **Development debug panel** showing access levels
 - ✅ **React import fix** for ESLint compliance
 
@@ -67,8 +67,7 @@
 | `/sign-in` | ✅ **Fixed** | Standard sign-in with VIP/promo codes |
 | `/sign-up` | ✅ **Fixed** | Account creation with VIP/promo codes |
 | `/auth` | ✅ **Working** | Redirects to `/sign-in` |
-| `/dashboard/signin` | ✅ **Working** | Percy onboarding auth portal |
-| `/dashboard/*` | ✅ **Protected** | Requires authentication |
+| `/dashboard` | ✅ **Protected** | Redirects to `/sign-in` if not logged in |
 | `/api/auth/dashboard-signin` | ✅ **Enhanced** | Handles all auth operations |
 
 ---
@@ -218,3 +217,26 @@ To test the complete auth flow:
 - ✅ Production-ready environment validation
 
 **The authentication system is now fully functional and ready for deployment! 🚀** 
+
+- ✅ **Centralized Auth Portal:** A single, unified sign-in/sign-up portal is now live at `/sign-in`.
+- ✅ **Auto-redirect** to `/sign-in` if unauthenticated
+- ✅ **Google OAuth & Magic Link** are fully integrated for passwordless options.
+- ✅ **Standard email/password** sign-in is retained and functional.
+- ✅ **Promo/VIP Code** application is integrated into the sign-in flow.
+- ✅ **Robust Session Management** via the `useDashboardAuth` hook, preventing content flashes or unauthorized access.
+- ✅ **Clear Error Handling** on the sign-in page for a better user experience.
+
+---
+
+### 2. Route & Component Inventory
+
+| Route             | Status          | Description                                |
+| ----------------- | --------------- | ------------------------------------------ |
+| `/sign-in`        | ✅ **Working**  | The new canonical, unified auth portal.    |
+| `/sign-up`        | ✅ **Working**  | Redirects to `/sign-in` (now unified).     |
+| `/dashboard`      | ✅ **Protected**| Redirects to `/sign-in` if not logged in.  |
+| `/dashboard/signin` | ❌ **Removed**    | Legacy route, deleted.                     |
+| `/dashboard/...`  | ✅ **Protected**| All sub-routes are protected.              |
+
+| Component                       | Purpose                                                      |
+| ------------------------------- | ------------------------------------------------------------ |

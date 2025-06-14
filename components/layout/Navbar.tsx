@@ -62,31 +62,17 @@ export default function Navbar() {
             <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
               {/* FIXED: Route 'Agents' to '/agents' */}
               <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/about" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  About
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
                 <Link href="/agents" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
                   aria-label="Meet your Agent League"
                   tabIndex={0}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/agents'; } }}
                 >
                   Agent League
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/services" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
-                  aria-label="Browse all agents and services"
-                  tabIndex={0}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
-                >
-                  Services Offered
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/pricing" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
-                  Pricing
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/about" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
-                  About
                 </Link>
               </motion.div>
               <Link href="/contact">
@@ -98,6 +84,20 @@ export default function Navbar() {
                   Contact
                 </motion.button>
               </Link>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/pricing" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  Pricing
+                </Link>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/services" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
+                  aria-label="Browse all agents and services"
+                  tabIndex={0}
+                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
+                >
+                  Services Offered
+                </Link>
+              </motion.div>
               <Link href="/sign-up">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -182,11 +182,11 @@ function MobileMenu() {
             tabIndex={-1}
           >
             <nav aria-label="Mobile Navigation" className="flex flex-col gap-4 mt-4">
-              <Link href="/agents" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Agent League</Link>
-              <Link href="/services" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Services Offered</Link>
-              <Link href="/pricing" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Pricing</Link>
               <Link href="/about" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>About</Link>
+              <Link href="/agents" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Agent League</Link>
               <Link href="/contact" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Contact</Link>
+              <Link href="/pricing" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Pricing</Link>
+              <Link href="/services" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Services Offered</Link>
               <Link href="/sign-up" tabIndex={0} className="text-lg font-bold text-white bg-gradient-to-r from-teal-500 to-blue-400 px-3 py-2 rounded-lg shadow-glow hover:from-blue-400 hover:to-teal-500 transition-all" onClick={() => setOpen(false)}>Get Started</Link>
             </nav>
             {/* Mobile tagline, only if hidden above */}
