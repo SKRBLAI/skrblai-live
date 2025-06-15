@@ -128,6 +128,12 @@ export interface Agent {
   nemesis?: string;
   backstory?: string;
   
+  // Standardized action handlers
+  onInfo?: () => void;
+  onChat?: () => void;
+  onHandoff?: () => void;
+  onLaunch?: () => void;
+  
   // N8N Integration fields
   n8nWorkflowId?: string;
   primaryOutput?: string;

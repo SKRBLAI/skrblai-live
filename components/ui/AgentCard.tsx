@@ -150,6 +150,7 @@ interface AgentCardProps {
   isPremiumUnlocked?: boolean;
   className?: string;
   onClick?: () => void;
+  onInfo?: () => void;
 }
 
 const AgentCard: React.FC<AgentCardProps> = ({
@@ -157,7 +158,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
   index = 0,
   isPremiumUnlocked = true,
   className = '',
-  onClick = () => {}
+  onClick = () => {},
+  onInfo
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -206,13 +208,27 @@ const AgentCard: React.FC<AgentCardProps> = ({
   
   const handleCardClick = () => {
     if (agent.premium && !isPremiumUnlocked) return;
-    setModalOpen(true);
+    if (onInfo) {
+      onInfo();
+    } else {
+      setModalOpen(true);
+    }
   };
   
   const handleCtaClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (agent.premium && !isPremiumUnlocked) return;
     onClick();
+  };
+
+  const handleInfoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (agent.premium && !isPremiumUnlocked) return;
+    if (onInfo) {
+      onInfo();
+    } else {
+      setModalOpen(true);
+    }
   };
   
   const emoji = agent?.icon ?? getAgentEmoji(agent.category) ?? '🤖';

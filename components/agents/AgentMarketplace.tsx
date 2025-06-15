@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import AgentCard from '@/components/ui/AgentCard';
 import AgentInputModal from './AgentInputModal';
 import { Agent } from '@/types/agent';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
 
 // Remove agentRegistry import and static usage
 
@@ -76,6 +77,10 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
     setSelectedAgent(agent);
   };
 
+  const handleAgentInfo = (agent: Agent) => {
+    router.push(`/agent-backstory/${agent.id}`);
+  };
+
   const handleCloseModal = () => {
     setSelectedAgent(null);
   };
@@ -136,15 +141,23 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
       {/* Recommended Section (optional) */}
       {recommendedAgents && recommendedAgents.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.5 }} className="mb-8 flex flex-wrap gap-4 justify-center">
-          {recommendedAgents.slice(0, 3).map(agent => (
-            <AgentCard 
-              key={agent.id} 
-              agent={agent} 
-              onClick={() => handleAgentClick(agent)} 
-              isPremiumUnlocked={!(agent.premium && userRole === 'free')}
-              className="w-full h-full"
-            />
-          ))}
+          {recommendedAgents.slice(0, 3).map(agent => {
+            // Get backstory data if available
+            const backstory = agentBackstories[agent.id] || 
+                             agentBackstories[agent.id.replace('-agent', '')] || 
+                             agentBackstories[agent.id.replace('Agent', '')];
+            
+            return (
+              <AgentCard 
+                key={agent.id} 
+                agent={{...agent, ...backstory}}
+                onClick={() => handleAgentClick(agent)}
+                onInfo={() => handleAgentInfo(agent)}
+                isPremiumUnlocked={!(agent.premium && userRole === 'free')}
+                className="w-full h-full"
+              />
+            );
+          })}
         </motion.div>
       )}
       <motion.div
@@ -168,34 +181,20 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
           ) : filteredAgents.length > 0 ? (
             filteredAgents.map(agent => {
               const isLocked = agent.unlocked === false;
+              // Get backstory data if available
+              const backstory = agentBackstories[agent.id] || 
+                               agentBackstories[agent.id.replace('-agent', '')] || 
+                               agentBackstories[agent.id.replace('Agent', '')];
+              
               return (
-                <motion.div
+                <AgentCard
                   key={agent.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  whileHover={!isLocked ? { scale: 1.02 } : undefined}
-                  onClick={() => !isLocked && handleAgentClick(agent)}
-                  className={`glass-card p-6 rounded-xl backdrop-blur-lg border border-sky-500/10 cursor-pointer relative transition-all duration-200 ${isLocked ? 'opacity-50 grayscale pointer-events-none' : ''}`}
-                  tabIndex={isLocked ? -1 : 0}
-                  aria-disabled={isLocked ? 'true' : 'false'}
-                >
-                  <h3 className="text-xl font-semibold text-white mb-2 flex items-center gap-2">
-                    {agent.name}
-                    {isLocked && <span title="Locked agent" className="ml-1 text-lg">🔒</span>}
-                  </h3>
-                  <p className="text-gray-300 text-sm mb-4">{agent.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-teal-400 text-sm">{agent.category}</span>
-                    <motion.button
-                      whileHover={!isLocked ? { scale: 1.05 } : undefined}
-                      whileTap={!isLocked ? { scale: 0.95 } : undefined}
-                      className="px-4 py-2 rounded-lg bg-gradient-to-r from-sky-400 to-teal-300 text-deep-navy font-semibold shadow-lg hover:shadow-teal-500/20 disabled:opacity-60"
-                      disabled={isLocked}
-                    >
-                      {isLocked ? 'Locked' : 'Use Agent'}
-                    </motion.button>
-                  </div>
-                </motion.div>
+                  agent={{...agent, ...backstory}}
+                  onClick={() => handleAgentClick(agent)}
+                  onInfo={() => handleAgentInfo(agent)}
+                  isPremiumUnlocked={!(agent.premium && userRole === 'free')}
+                  className="w-full h-full"
+                />
               );
             })
           ) : (

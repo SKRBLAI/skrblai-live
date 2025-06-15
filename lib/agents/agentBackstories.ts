@@ -19,7 +19,7 @@ export interface AgentBackstory {
 export const agentBackstories: Record<string, AgentBackstory> = {
   'percy-agent': {
     superheroName: 'Percy the Cosmic Concierge',
-    origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percy and Jaki algorithms and cosmic energy in the SKRBL AI nexus',
+    origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percival and Jachlin algorithms and cosmic energy in the SKRBL AI nexus',
     powers: [
       'Omniscient Knowledge Navigation',
       'Intent Telepathy',

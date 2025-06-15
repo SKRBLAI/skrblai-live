@@ -13,6 +13,15 @@ This document tracks the ongoing development, refactoring, and enhancement effor
 
 ## ✅ Completed Changes
 
+### Agent Component Standardization (May 2025)
+- Created dedicated agent backstory pages at `/agent-backstory/[agentId]`
+- Standardized all agent components to use consistent props and routing
+- Updated all "Info"/"Details" buttons to route to `/agent-backstory/[agentId]`
+- Ensured all components use `agentBackstories.ts` as the single source of truth
+- Standardized action naming with `onInfo`, `onChat`, `onHandoff`, and `onLaunch`
+- Removed modal-based backstory display for better UX and SEO
+- Added comprehensive documentation in `docs/AGENT_COMPONENTS_STANDARDIZATION.md`
+
 ### Image Path Standardization (May 2025)
 - Standardized agent image paths across the entire platform
 - Consolidated all agent images to follow the format: `/images/agents-{slug}-skrblai.png`

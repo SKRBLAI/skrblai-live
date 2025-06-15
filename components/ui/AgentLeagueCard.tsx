@@ -12,6 +12,7 @@ interface AgentLeagueCardProps {
   index?: number;
   className?: string;
   onChat?: (agent: Agent) => void;
+  onInfo?: (agent: Agent) => void;
   onHandoff?: (agent: Agent) => void;
 }
 
@@ -32,6 +33,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps> = ({
   index = 0,
   className = '',
   onChat,
+  onInfo,
   onHandoff,
 }) => {
   const router = useRouter();
@@ -39,6 +41,15 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps> = ({
 
   const avatarSrc = getAgentImagePath(agent.id);
   const showEmojiFallback = !avatarSrc;
+
+  const handleInfoClick = () => {
+    if (onInfo) {
+      onInfo(agent);
+    } else {
+      // Default behavior: navigate to agent backstory page
+      router.push(`/agent-backstory/${agent.id}`);
+    }
+  };
 
   return (
     <motion.div
@@ -88,7 +99,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps> = ({
         <MotionButton ariaLabel={`Chat with ${agent.name}`} onClick={() => onChat?.(agent)}>
           💬 Chat
         </MotionButton>
-        <MotionButton ariaLabel={`${agent.name} info`} onClick={() => router.push(`/agent-backstory/${agent.id}`)}>
+        <MotionButton ariaLabel={`${agent.name} info`} onClick={handleInfoClick}>
           ℹ️ Info
         </MotionButton>
         <MotionButton ariaLabel={`Handoff to ${agent.name}`} onClick={() => onHandoff?.(agent)}>

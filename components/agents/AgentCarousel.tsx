@@ -2,12 +2,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 import type { Agent } from '@/types/agent';
 import { getAgentImagePath } from '@/utils/agentUtils';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
 
 interface AgentCarouselProps {
   agents: Agent[];
   onLaunch?: (agent: Agent) => void;
+  onInfo?: (agent: Agent) => void;
+  onHandoff?: (agent: Agent) => void;
   selectedAgentId?: string;
   showPremiumBadges?: boolean;
   showDetailedCards?: boolean;
@@ -16,14 +20,32 @@ interface AgentCarouselProps {
 export default function AgentCarousel({ 
   agents, 
   onLaunch, 
+  onInfo,
+  onHandoff,
   selectedAgentId,
   showPremiumBadges = false,
   showDetailedCards = false 
 }: AgentCarouselProps) {
+  const router = useRouter();
   
-  const handleAgentClick = (agent: Agent) => {
+  const handleAgentLaunch = (agent: Agent) => {
     if (onLaunch) {
       onLaunch(agent);
+    }
+  };
+
+  const handleAgentInfo = (agent: Agent) => {
+    if (onInfo) {
+      onInfo(agent);
+    } else {
+      // Default behavior: navigate to agent backstory page
+      router.push(`/agent-backstory/${agent.id}`);
+    }
+  };
+
+  const handleAgentHandoff = (agent: Agent) => {
+    if (onHandoff) {
+      onHandoff(agent);
     }
   };
 
@@ -33,6 +55,10 @@ export default function AgentCarousel({
         {agents.map((agent, index) => {
           const isPremium = !!agent.premium;
           const isSelected = selectedAgentId === agent.id;
+          // Get backstory data if available
+          const backstory = agentBackstories[agent.id] || 
+                           agentBackstories[agent.id.replace('-agent', '')] || 
+                           agentBackstories[agent.id.replace('Agent', '')];
           
           return (
             <motion.div
@@ -54,7 +80,6 @@ export default function AgentCarousel({
                 `}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => handleAgentClick(agent)}
               >
                 {/* Premium Badge */}
                 {showPremiumBadges && isPremium && (
@@ -70,7 +95,7 @@ export default function AgentCarousel({
                   <div className="w-full h-full rounded-full bg-slate-900 overflow-hidden">
                     <Image
                       src={getAgentImagePath(agent)}
-                      alt={agent.name}
+                      alt={backstory?.superheroName || agent.name}
                       fill
                       className="carousel-agent-image"
                       sizes={showDetailedCards ? "80px" : "64px"}
@@ -100,7 +125,7 @@ export default function AgentCarousel({
                   <h3 className={`font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors duration-200 text-glow ${
                     showDetailedCards ? 'text-lg' : 'text-sm sm:text-base'
                   }`}>
-                    {agent.name.replace('Agent', '')}
+                    {backstory?.superheroName || agent.name.replace('Agent', '')}
                   </h3>
                   
                   {showDetailedCards && (
@@ -111,7 +136,7 @@ export default function AgentCarousel({
                       
                       {/* Capabilities */}
                       <div className="flex flex-wrap gap-1 justify-center mb-3">
-                        {agent.capabilities?.slice(0, 2).map((capability, idx) => (
+                        {(backstory?.powers || agent.capabilities || []).slice(0, 2).map((capability, idx) => (
                           <span
                             key={idx}
                             className="px-2 py-1 bg-slate-700/50 text-cyan-400 text-xs rounded-full"
@@ -123,23 +148,36 @@ export default function AgentCarousel({
                     </>
                   )}
                   
-                  {/* Launch Button */}
-                  <button
-                    className={`
-                      w-full py-2 rounded-lg font-medium transition-all duration-200
-                      ${isPremium 
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white' 
-                        : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white'
-                      }
-                      ${showDetailedCards ? 'py-3 text-sm' : 'py-2 text-xs sm:text-sm'}
-                    `}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAgentClick(agent);
-                    }}
-                  >
-                    {isPremium ? '👑 Launch Premium' : '🚀 Launch Agent'}
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex justify-center gap-2 mt-3">
+                    {/* Info Button */}
+                    <button
+                      className="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAgentInfo(agent);
+                      }}
+                    >
+                      ℹ️ Info
+                    </button>
+                    
+                    {/* Launch Button */}
+                    <button
+                      className={`
+                        px-2 py-1 rounded text-xs transition-colors
+                        ${isPremium 
+                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white' 
+                          : 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white'
+                        }
+                      `}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAgentLaunch(agent);
+                      }}
+                    >
+                      🚀 Launch
+                    </button>
+                  </div>
                 </div>
 
                 {/* Premium Lock Overlay */}

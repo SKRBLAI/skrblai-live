@@ -196,6 +196,32 @@ export default function HomePage() {
                 ✨ Percy recommends the highlighted agents for your goals
               </motion.p>
             )}
+            
+            {/* Agent Backstory Links for Testing */}
+            <div className="mt-8 p-4 bg-gray-800/50 rounded-xl max-w-2xl mx-auto">
+              <h4 className="text-lg font-semibold text-white mb-3">Agent Backstory Pages</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <Link href="/agent-backstory/percy-agent" className="px-3 py-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 rounded-lg transition-colors">
+                  Percy Backstory
+                </Link>
+                <Link href="/agent-backstory/branding-agent" className="px-3 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg transition-colors">
+                  Branding Agent
+                </Link>
+                <Link href="/agent-backstory/content-creator-agent" className="px-3 py-2 bg-green-600/30 hover:bg-green-600/50 text-green-300 rounded-lg transition-colors">
+                  Content Creator
+                </Link>
+                <Link href="/agent-backstory/social-bot-agent" className="px-3 py-2 bg-pink-600/30 hover:bg-pink-600/50 text-pink-300 rounded-lg transition-colors">
+                  Social Bot
+                </Link>
+                <Link href="/agent-backstory/analytics-agent" className="px-3 py-2 bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 rounded-lg transition-colors">
+                  Analytics Agent
+                </Link>
+                <Link href="/agent-backstory/sitegen-agent" className="px-3 py-2 bg-teal-600/30 hover:bg-teal-600/50 text-teal-300 rounded-lg transition-colors">
+                  SiteGen Agent
+                </Link>
+              </div>
+              <p className="text-xs text-gray-400 mt-3">These links are for testing the new agent backstory pages</p>
+            </div>
           </div>
           
           {/* Agent Constellation - RE-ENABLED WITH MOBILE ROTATION FIX */}
