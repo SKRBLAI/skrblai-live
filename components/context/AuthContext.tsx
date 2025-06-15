@@ -49,8 +49,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
         (event, currentSession) => {
           console.log('[AUTH] Auth state change:', event, currentSession ? 'session exists' : 'no session');
+          
+          // Update state based on auth event
           setSession(currentSession);
           setUser(currentSession?.user ?? null);
+          
+          // Log the auth event for debugging
+          if (event === 'SIGNED_IN') {
+            console.log('[AUTH] User signed in:', currentSession?.user?.email);
+          } else if (event === 'SIGNED_OUT') {
+            console.log('[AUTH] User signed out');
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log('[AUTH] Token refreshed');
+          }
+          
           // Ensure loading is false after any auth state change
           if (isLoading) setIsLoading(false);
         }
@@ -72,6 +84,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setError(null);
+      console.log('[AUTH] Attempting sign-in for:', email);
+      
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -86,6 +100,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Log successful sign-in
       if (data.user) {
         console.log('[AUTH] Sign-in successful for:', data.user.email);
+        
+        // Update local state immediately to ensure UI updates
+        setUser(data.user);
+        setSession(data.session);
+        
         await supabase.from('auth_events').insert({
           user_id: data.user.id,
           event_type: 'sign_in',

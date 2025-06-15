@@ -8,6 +8,7 @@ import { useBanner } from '@/components/context/BannerContext';
 import AuthProviderButton from '@/components/ui/AuthProviderButton';
 import { useAuth } from '@/components/context/AuthContext';
 import SessionAlert from '@/components/alerts/SessionAlert';
+import { addAuthDebugButton, attemptAuthFix } from '@/lib/auth/authDebugger';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -46,6 +47,22 @@ export default function SignInPage() {
       router.replace('/dashboard');
     }
   }, [user, session, router]);
+
+  // Attempt to fix auth issues if coming from a session expired redirect
+  useEffect(() => {
+    const reason = searchParams?.get('reason');
+    if (reason === 'session-expired') {
+      toast.error('Your session has expired. Please sign in again.');
+      
+      // Try to fix auth issues
+      attemptAuthFix().then(result => {
+        if (result.success && result.fixed) {
+          toast.success('Session restored! Redirecting...');
+          router.push('/dashboard');
+        }
+      });
+    }
+  }, [searchParams, router]);
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
@@ -143,7 +160,11 @@ export default function SignInPage() {
       // Redirect to dashboard on success
       setSuccess('Sign-in successful! Redirecting...');
       toast.success('Sign-in successful!');
-      router.push('/dashboard');
+      
+      // Force a small delay to ensure the auth state is updated
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
       
     } catch (err: any) {
       console.error('[AUTH] Sign-in exception:', err);
@@ -160,6 +181,13 @@ export default function SignInPage() {
       setVipCode('');
     }
   };
+
+  // Add debug button in development mode
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      addAuthDebugButton();
+    }
+  }, []);
 
   // Show loading state while checking auth
   if (isLoading) {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { useAuth } from '@/components/context/AuthContext';
 import toast from 'react-hot-toast';
+import { debugAuthState, attemptAuthFix } from '@/lib/auth/authDebugger';
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -33,18 +34,41 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     setIsClient(true);
   }, []);
   
+  // Attempt to fix auth issues on mount
+  useEffect(() => {
+    if (isClient && !user && !authLoading) {
+      console.log('[DASHBOARD] No user detected, attempting to fix auth issues');
+      attemptAuthFix().then(result => {
+        if (result.success && result.fixed) {
+          console.log('[DASHBOARD] Auth fix successful, refreshing page');
+          window.location.reload();
+        } else if (result.needsSignIn) {
+          console.log('[DASHBOARD] Auth fix failed, redirecting to sign-in');
+          router.push('/sign-in?reason=session-expired');
+        }
+      });
+    }
+  }, [isClient, user, authLoading, router]);
+  
   // Collect debug info for development
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
-      setDebugInfo({
-        hasUser: !!user,
-        userEmail: user?.email,
-        authLoading,
-        dashboardLoading,
-        dashboardError,
-        accessLevel,
-        sessionExists: !!session,
-      });
+      // Enhanced debug info
+      const getDebugInfo = async () => {
+        const authDiagnostics = await debugAuthState();
+        setDebugInfo({
+          hasUser: !!user,
+          userEmail: user?.email,
+          authLoading,
+          dashboardLoading,
+          dashboardError,
+          accessLevel,
+          sessionExists: !!session,
+          authDiagnostics: authDiagnostics.diagnostics || null
+        });
+      };
+      
+      getDebugInfo();
     }
   }, [user, session, authLoading, dashboardLoading, dashboardError, accessLevel]);
   
@@ -83,7 +107,17 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     if (!user && !authLoading) {
       console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
       toast.error('Please sign in to access the dashboard');
-      router.push('/sign-in?reason=session-expired');
+      
+      // Try to fix auth issues before redirecting
+      attemptAuthFix().then(result => {
+        if (result.success && result.fixed) {
+          console.log('[DASHBOARD] Auth fix successful, refreshing page');
+          window.location.reload();
+        } else {
+          router.push('/sign-in?reason=session-expired');
+        }
+      });
+      
       return;
     }
 

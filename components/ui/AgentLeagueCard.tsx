@@ -39,8 +39,23 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps> = ({
   const router = useRouter();
   const frameSrc = frameImages[index % frameImages.length];
 
-  const avatarSrc = getAgentImagePath(agent.id);
+  // Debug: Log agent props before rendering
+  console.log('[AgentLeagueCard] Rendering agent props:', agent);
+
+  // Use agent.imageSlug if present, else getAgentImagePath
+  const avatarSrc = agent.imageSlug
+    ? `/images/agents/${agent.imageSlug}.png`
+    : getAgentImagePath(agent.id);
   const showEmojiFallback = !avatarSrc;
+
+  // Placeholder image path
+  const placeholderImg = '/images/agents/placeholder.png';
+
+  // Image error handler
+  const handleImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('[AgentLeagueCard] Failed to load image:', avatarSrc, 'for agent:', agent.id);
+    event.currentTarget.src = placeholderImg;
+  };
 
   const handleInfoClick = () => {
     if (onInfo) {
@@ -60,6 +75,19 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps> = ({
       className={`relative w-[260px] sm:w-[300px] md:w-[330px] lg:w-[350px] h-[360px] sm:h-[400px] lg:h-[450px] flex-shrink-0 mx-auto ${className}`}
       style={{ filter: 'drop-shadow(' + glow.resting + ')' }}
     >
+      {/* Agent Avatar with fallback and error handling */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 w-24 h-24 rounded-full bg-gradient-to-br from-electric-blue via-fuchsia-500 to-teal-400 flex items-center justify-center shadow-glow">
+        {avatarSrc ? (
+          <img
+            src={avatarSrc}
+            alt={agent.name}
+            className="w-20 h-20 rounded-full object-cover border-4 border-white shadow"
+            onError={handleImgError}
+          />
+        ) : (
+          <span className="text-4xl" aria-label={agent.name + ' emoji'}>{getAgentEmoji(agent.id)}</span>
+        )}
+      </div>
       {/* Cosmic Frame */}
       <Image
         src={frameSrc}

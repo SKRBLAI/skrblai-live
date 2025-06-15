@@ -1,4 +1,4 @@
-"use client";
+"// AgentCarousel.tsx removed as part of AgentLeague UI merge/refactor. All carousel logic is now deprecated. Do not use this file.";
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from '../ui/PercyAvatar';
 import UniversalPromptBar from '../ui/UniversalPromptBar'
-import AgentCarousel from "../agents/AgentCarousel";
+
 import type { Agent } from '@/types/agent';
 import { useRouter } from "next/navigation";
 import { usePercyTimeline } from "@/components/hooks/usePercyTimeline";

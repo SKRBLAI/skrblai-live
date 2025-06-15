@@ -18,10 +18,15 @@ export function middleware(request: NextRequest) {
   // Detect Supabase auth cookie (sb-<project>-auth-token) – key starts with 'sb' and ends with '-auth-token'
   const authCookie = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('auth-token'));
   
+  // Debug logging for authentication issues
+  console.log('[MIDDLEWARE] Path:', path, 'Auth Cookie:', authCookie ? 'Present' : 'Missing');
+  
   // Protect dashboard routes
   if (!authCookie && 
       (path.startsWith('/dashboard') || 
        path.startsWith('/user-dashboard'))) {
+    
+    console.log('[MIDDLEWARE] No auth cookie found, redirecting to sign-in');
     
     // Create redirect URL with reason parameter
     const redirectUrl = new URL('/sign-in', request.url);
@@ -35,6 +40,8 @@ export function middleware(request: NextRequest) {
   if (!authCookie && path.startsWith('/api/') && 
       !path.startsWith('/api/auth/') && 
       !path.startsWith('/api/public/')) {
+    
+    console.log('[MIDDLEWARE] API request without auth cookie:', path);
     
     return NextResponse.json(
       { 

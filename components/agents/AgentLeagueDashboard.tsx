@@ -3,7 +3,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
-import AgentCarousel from './AgentCarousel';
+
 import type { Agent } from '@/types/agent';
 import { Toaster } from 'react-hot-toast';
 // import { useMediaQuery } from 'react-responsive'; // Commented out - using window.innerWidth instead
@@ -88,32 +88,25 @@ export default function AgentLeagueDashboard() {
         <div className="text-center text-gray-400 py-12">
           <p>No agents available. Please try again later.</p>
         </div>
-      ) : isMobile ? (
-        <AgentCarousel
-          agents={otherAgents}
-          onLaunch={handleAgentChat}
-          onInfo={handleAgentInfo}
-          onHandoff={(agent) => handleHandoff(agent.id)}
-          selectedAgentId={selectedAgent?.id}
-          showPremiumBadges={true}
-          showDetailedCards={true}
-        />
       ) : (
         <motion.div
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
           initial="hidden"
           animate="visible"
         >
-          {otherAgents.map((agent, index) => (
-            <AgentLeagueCard
-              key={agent.id}
-              agent={agent}
-              index={index}
-              onChat={() => handleAgentChat(agent)}
-              onInfo={() => handleAgentInfo(agent)}
-              onHandoff={() => handleHandoff(agent.id)}
-            />
-          ))}
+          {otherAgents.map((agent, index) => {
+            console.log('[AgentLeagueDashboard] Rendering agent:', agent);
+            return (
+              <AgentLeagueCard
+                key={agent.id}
+                agent={agent}
+                index={index}
+                onChat={() => handleAgentChat(agent)}
+                onInfo={() => handleAgentInfo(agent)}
+                onHandoff={() => handleHandoff(agent.id)}
+              />
+            );
+          })}
         </motion.div>
       )}
       {/* Cross-agent recommendations/handoff */}

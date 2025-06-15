@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import AgentCarousel from '../agents/AgentCarousel';
+
 import { supabase } from '@/utils/supabase';
+import AgentLeagueCard from '../ui/AgentLeagueCard';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
 import { getCurrentUser } from '@/utils/supabase-auth';
@@ -355,15 +356,22 @@ function PercyWidget() {
               <h3 className="text-lg font-semibold mb-3 text-white">Pick an agent to try, or start with Percy.</h3>
               <div className="w-full flex flex-col items-center">
                 <div className="w-full">
-                  <AgentCarousel
-                    agents={suggestedAgents}
-                    onLaunch={(agent: Agent) => {
-                      setActiveAgent(agent);
-                      setShowAgentSuggestions(false);
-                      handleAgentClick(agent);
-                    }}
-                    selectedAgentId={activeAgent?.id}
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {suggestedAgents.map((agent, idx) => (
+                      <AgentLeagueCard
+                        key={agent.id}
+                        agent={agent}
+                        index={idx}
+                        onChat={() => {
+                          setActiveAgent(agent);
+                          setShowAgentSuggestions(false);
+                          handleAgentClick(agent);
+                        }}
+                        onInfo={() => handleAgentClick(agent)}
+                        onHandoff={() => handleAgentClick(agent)}
+                      />
+                    ))}
+                  </div>
                 </div>
                 {/* No duplicate preview modal here */}
               </div>
