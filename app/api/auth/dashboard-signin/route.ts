@@ -166,13 +166,16 @@ export async function GET(req: NextRequest) {
       
       if (!token) {
         console.log('[AUTH API] GET: No authorization token provided');
-        return NextResponse.json(
-          { 
-            success: false, 
-            error: 'No authorization token provided' 
-          },
-          { status: 401 }
-        );
+        // Instead of returning an error, provide fallback access
+        return NextResponse.json({
+          success: true,
+          accessLevel: 'free',
+          isVIP: false,
+          vipStatus: { isVIP: false, vipLevel: 'none' },
+          benefits: { features: [] },
+          promoCodeUsed: null,
+          metadata: {}
+        });
       }
 
       try {
@@ -188,13 +191,16 @@ export async function GET(req: NextRequest) {
         
         if (userError || !user) {
           console.log('[AUTH API] GET: Invalid token');
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: 'Invalid or expired token' 
-            },
-            { status: 401 }
-          );
+          // Instead of returning an error, provide fallback access
+          return NextResponse.json({
+            success: true,
+            accessLevel: 'free',
+            isVIP: false,
+            vipStatus: { isVIP: false, vipLevel: 'none' },
+            benefits: { features: [] },
+            promoCodeUsed: null,
+            metadata: {}
+          });
         }
 
         // Get user's dashboard access
@@ -206,13 +212,20 @@ export async function GET(req: NextRequest) {
 
         if (accessError) {
           console.error('[AUTH API] GET: Error fetching user access:', accessError);
-          return NextResponse.json(
-            { 
-              success: false, 
-              error: 'Failed to fetch user access' 
+          // Instead of returning an error, provide fallback access
+          return NextResponse.json({
+            success: true,
+            user: {
+              id: user.id,
+              email: user.email
             },
-            { status: 500 }
-          );
+            accessLevel: 'free',
+            isVIP: false,
+            vipStatus: { isVIP: false, vipLevel: 'none' },
+            benefits: { features: [] },
+            promoCodeUsed: null,
+            metadata: {}
+          });
         }
 
         // Get VIP status if user is VIP

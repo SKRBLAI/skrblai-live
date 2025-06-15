@@ -28,11 +28,24 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   
   const [isClient, setIsClient] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
   
   // Set client-side rendering flag
   useEffect(() => {
     setIsClient(true);
   }, []);
+  
+  // Set a timeout to prevent infinite loading
+  useEffect(() => {
+    if (isClient && (authLoading || dashboardLoading)) {
+      const timer = setTimeout(() => {
+        console.log('[DASHBOARD] Loading timeout reached, forcing render');
+        setLoadingTimeout(true);
+      }, 5000); // 5 second timeout
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isClient, authLoading, dashboardLoading]);
   
   // Attempt to fix auth issues on mount
   useEffect(() => {
@@ -89,7 +102,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
 
   // Handle authentication check
   useEffect(() => {
-    if (!isClient || authLoading || dashboardLoading) {
+    if (!isClient || (authLoading && !loadingTimeout) || (dashboardLoading && !loadingTimeout)) {
       console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, authLoading, dashboardLoading });
       return;
     }
@@ -130,10 +143,10 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         hasFeatures: Object.keys(benefits.features || {}).length
       });
     }
-  }, [user, authLoading, dashboardLoading, router, isClient, accessLevel, isVIP, vipStatus, benefits, dashboardError, debugInfo]);
+  }, [user, authLoading, dashboardLoading, router, isClient, accessLevel, isVIP, vipStatus, benefits, dashboardError, debugInfo, loadingTimeout]);
 
   // Show loading state
-  if (!isClient || authLoading || dashboardLoading) {
+  if ((!isClient || authLoading || dashboardLoading) && !loadingTimeout) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
         <div className="text-center">

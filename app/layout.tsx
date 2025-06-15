@@ -8,7 +8,7 @@ import { BannerProvider } from '@/components/context/BannerContext';
 import { AuthProvider } from '@/components/context/AuthContext';
 import PercyWidget from '@/components/percy/PercyWidget';
 import Navbar from '@/components/layout/Navbar';
-import FloatingParticles from '@/components/ui/FloatingParticles';
+import CosmicBackground from '@/components/ui/CosmicBackground';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { useState, useEffect, useCallback } from 'react';
@@ -39,13 +39,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
-          {/* Global Percy Background - RE-ENABLED FOR PHASE 2 TESTING */}
-          <div className="percy-bg-global" aria-hidden="true" />
-
-          {/* Global Background - COMMENTED OUT FOR MOBILE SCROLL CRASH DEBUGGING */}
-          {/* <div className="fixed inset-0 z-0 pointer-events-none">
-            <FloatingParticles />
-          </div> */}
+          {/* Global Cosmic Background */}
+          <CosmicBackground />
 
           {/* Global Navigation */}
           <Navbar />

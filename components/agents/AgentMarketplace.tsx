@@ -26,7 +26,27 @@ interface AgentMarketplaceProps {
   agents?: Agent[];
 }
 
+// --- Cosmic Marketplace Copy ---
+const CosmicMarketplaceHeader = () => (
+  <div className="w-full flex flex-col items-center mb-10 mt-4">
+    <h1 className="text-3xl md:text-4xl font-extrabold text-center bg-gradient-to-r from-fuchsia-400 via-electric-blue to-teal-400 bg-clip-text text-transparent drop-shadow-lg mb-2">
+      Summon Your Cosmic AI Hero
+    </h1>
+    <p className="text-lg md:text-xl text-center text-fuchsia-200 max-w-2xl mb-2">
+      Meet the League: Each agent is ready to power up your workflow.<br />
+      Tap a card to reveal their superpowers, or chat to get started.
+    </p>
+    <p className="text-base text-center text-teal-300 max-w-xl">
+      Choose your champion and unlock cosmic productivity.<br />
+      <span className="text-fuchsia-400">Interactive. Premium. Legendary.</span>
+    </p>
+  </div>
+);
+
+
 const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommendedAgents, agents: agentsProp }) => {
+  // --- Cosmic Header is rendered above the grid ---
+
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sort, setSort] = useState<string>('popular');
   const router = useRouter();
