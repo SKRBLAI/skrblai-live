@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDashboardAuth } from '@/hooks/useDashboardAuth';
-import { supabase } from '@/utils/supabase';
+import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -11,71 +12,78 @@ interface DashboardWrapperProps {
 
 export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  const { user, session, isLoading: authLoading } = useAuth();
   const { 
-    user, 
+    user: dashboardUser, 
     accessLevel, 
     isVIP, 
     vipStatus, 
     benefits, 
-    loading, 
-    error,
-    hasFeature,
-    getAccessLevelLabel
+    loading: dashboardLoading, 
+    error: dashboardError,
+    checkAccess,
+    getAccessLevelLabel 
   } = useDashboardAuth();
-
-  // Ensure client-side only rendering
+  
+  const [isClient, setIsClient] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+  
+  // Set client-side rendering flag
   useEffect(() => {
     setIsClient(true);
   }, []);
-
-  // Debug session info
+  
+  // Collect debug info for development
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        const debug = {
-          hasSession: !!session,
-          sessionUser: session?.user?.id || null,
-          sessionEmail: session?.user?.email || null,
-          accessToken: session?.access_token ? 'Present' : 'Missing',
-          expiresAt: session?.expires_at || null,
-          hookUser: user?.id || null,
-          hookError: error?.message || null,
-          timestamp: new Date().toISOString()
-        };
-        setDebugInfo(debug);
-        console.log('[DASHBOARD] Session debug info:', debug);
-      } catch (err) {
-        console.error('[DASHBOARD] Session check error:', err);
-      }
-    };
-
-    if (isClient) {
-      checkSession();
+    if (process.env.NODE_ENV === 'development') {
+      setDebugInfo({
+        hasUser: !!user,
+        userEmail: user?.email,
+        authLoading,
+        dashboardLoading,
+        dashboardError,
+        accessLevel,
+        sessionExists: !!session,
+      });
     }
-  }, [isClient, user]);
+  }, [user, session, authLoading, dashboardLoading, dashboardError, accessLevel]);
+  
+  // Handle auth errors with toast
+  useEffect(() => {
+    if (dashboardError && isClient) {
+      console.error('[DASHBOARD] Error:', dashboardError);
+      toast.error(dashboardError);
+    }
+  }, [dashboardError, isClient]);
+  
+  // Force access check on mount
+  useEffect(() => {
+    if (user && session && !dashboardLoading) {
+      checkAccess();
+    }
+  }, [user, session, checkAccess, dashboardLoading]);
 
   // Handle authentication check
   useEffect(() => {
-    if (!isClient || loading) {
-      console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, loading });
+    if (!isClient || authLoading || dashboardLoading) {
+      console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, authLoading, dashboardLoading });
       return;
     }
 
     console.log('[DASHBOARD] Authentication check:', {
       hasUser: !!user,
       userEmail: user?.email,
-      loading,
-      error,
+      authLoading,
+      dashboardLoading,
+      dashboardError,
       accessLevel,
       debugInfo
     });
 
-    if (!user && !loading) {
+    if (!user && !authLoading) {
       console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
-      router.push('/sign-in');
+      toast.error('Please sign in to access the dashboard');
+      router.push('/sign-in?reason=session-expired');
       return;
     }
 
@@ -88,10 +96,10 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         hasFeatures: Object.keys(benefits.features || {}).length
       });
     }
-  }, [user, loading, router, isClient, accessLevel, isVIP, vipStatus, benefits, error, debugInfo]);
+  }, [user, authLoading, dashboardLoading, router, isClient, accessLevel, isVIP, vipStatus, benefits, dashboardError, debugInfo]);
 
   // Show loading state
-  if (!isClient || loading) {
+  if (!isClient || authLoading || dashboardLoading) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
         <div className="text-center">
@@ -108,43 +116,20 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     );
   }
 
-  // Show error state
-  if (error) {
+  // Error state - show error and redirect
+  if (dashboardError) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <div className="text-red-500 text-xl mb-4">⚠️ Authentication Error</div>
-          <p className="text-gray-300 mb-4">{error}</p>
-          {process.env.NODE_ENV === 'development' && debugInfo && (
-            <details className="text-xs text-gray-500 mt-4 text-left">
-              <summary>Debug Info</summary>
-              <pre className="mt-2">{JSON.stringify(debugInfo, null, 2)}</pre>
-            </details>
-          )}
-          <button
+        <div className="text-center max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-white text-2xl font-bold mb-4">Access Error</h2>
+          <p className="text-gray-300 mb-6">{dashboardError}</p>
+          <button 
             onClick={() => router.push('/sign-in')}
-            className="px-4 py-2 bg-electric-blue text-white rounded hover:bg-electric-blue/90 transition-colors"
+            className="px-4 py-2 bg-electric-blue text-white rounded-md hover:bg-electric-blue/80"
           >
             Return to Sign In
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  // If no user after loading complete, don't render anything (redirect will happen)
-  if (!user) {
-    console.log('[DASHBOARD] No user found, redirecting should happen...');
-    return (
-      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white">Redirecting to sign in...</p>
-          {process.env.NODE_ENV === 'development' && debugInfo && (
-            <details className="text-xs text-gray-500 mt-4 text-left">
-              <summary>Debug Info</summary>
-              <pre className="mt-2">{JSON.stringify(debugInfo, null, 2)}</pre>
-            </details>
-          )}
         </div>
       </div>
     );
@@ -159,7 +144,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
           <div>Level: {getAccessLevelLabel()}</div>
           {isVIP && <div>VIP: {vipStatus?.vipLevel}</div>}
           <div>Features: {Object.keys(benefits.features || {}).length}</div>
-          <div>User: {user.email}</div>
+          <div>User: {user?.email || 'No user'}</div>
           {debugInfo && (
             <details className="mt-2">
               <summary>Session</summary>

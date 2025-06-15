@@ -1,19 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { useBanner } from '@/components/context/BannerContext';
 import AuthProviderButton from '@/components/ui/AuthProviderButton';
 import { useAuth } from '@/components/context/AuthContext';
-import Spinner from '@/components/ui/Spinner';
+import SessionAlert from '@/components/alerts/SessionAlert';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,84 +21,68 @@ export default function SignUpPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
   const { showBanner } = useBanner();
-  const { user, session } = useAuth();
+  const { user, session, isLoading, signUp, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
+
+  // Show auth errors from context
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
 
   // Auto-redirect if user is already logged in
   useEffect(() => {
-    if (user && session) { // Check user and session from useAuth
+    if (user && session) {
+      console.log('[SIGN-UP] User already authenticated, redirecting to dashboard');
       router.replace('/dashboard');
     }
-  }, [user, session, router]); // Add user and session to dependency array
+  }, [user, session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !password || !confirmPassword) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
     setLoading(true);
     setError('');
-    setSuccess('');
 
     try {
-      console.log('[AUTH] Attempting sign-up for:', email);
-      
-      // Step 1: Create account with Supabase directly
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            displayName: email.split('@')[0]
-          }
-        }
-      });
-
-      if (authError) {
-        console.error('[AUTH] Supabase sign-up failed:', authError.message);
-        
-        // Handle specific Supabase error cases
-        let errorMessage = authError.message;
-        if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
-          errorMessage = 'This email is already registered. Please sign in or use a different email.';
-        } else if (errorMessage.includes('invalid email')) {
-          errorMessage = 'Invalid email address. Please enter a valid email.';
-        } else if (errorMessage.includes('password')) {
-          errorMessage = 'Password is too weak. Please choose a stronger password with at least 6 characters.';
-        } else if (errorMessage.includes('not allowed') || errorMessage.includes('signup')) {
-          errorMessage = 'Account creation is currently unavailable. Please contact support or try again later.';
-        }
-        
-        setError(errorMessage);
+      // Validate inputs
+      if (!email) {
+        setError('Email is required');
         setLoading(false);
         return;
       }
 
-      if (!authData.user) {
-        setError('Account creation failed. Please try again.');
+      if (!password) {
+        setError('Password is required');
         setLoading(false);
         return;
       }
 
-      console.log('[AUTH] Supabase sign-up successful:', authData.user.id);
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      if (password.length < 8) {
+        setError('Password must be at least 8 characters');
+        setLoading(false);
+        return;
+      }
+
+      // Attempt sign up
+      const { success, error, needsEmailConfirmation } = await signUp(email, password);
+
+      if (!success && error) {
+        setError(error);
+        setLoading(false);
+        return;
+      }
 
       // Check if email confirmation is required
-      if (!authData.session && authData.user && !authData.user.email_confirmed_at) {
+      if (needsEmailConfirmation) {
         setSuccess('Account created! Please check your email to verify your account before signing in.');
         showBanner('Sign-up successful! Check your email to verify.', 'success');
         setLoading(false);
@@ -113,67 +95,47 @@ export default function SignUpPage() {
       }
 
       // Step 2: If we have promo/VIP codes and the user is confirmed, redeem them via our API
-      if ((promoCode || vipCode) && authData.session) {
-        let redeemToast: string | undefined;
+      if (promoCode || vipCode) {
         try {
-          redeemToast = toast.loading('Applying code...');
-          console.log('[AUTH] Processing promo/VIP code for new user...');
+          const codeType = promoCode ? 'promo' : 'vip';
+          const codeValue = promoCode || vipCode;
           
-          const { error: codeError } = await supabase
-            .from('user_codes')
-            .insert({
-              user_id: authData.user.id,
-              code: promoCode || vipCode,
-              code_type: promoCode ? 'promo' : 'vip',
-              applied_at: new Date().toISOString()
-            });
+          // Apply code via API
+          const response = await fetch('/api/auth/apply-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              code: codeValue,
+              codeType
+            })
+          });
           
-          if (codeError) {
-            console.error('[AUTH] Code application error:', codeError);
-            if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
-            setSuccess('Account created successfully, but code redemption failed.');
+          const data = await response.json();
+          
+          if (!data.success) {
+            console.error('[AUTH] Code application error:', data.error);
+            // Don't block sign-in for code errors, just notify
+            toast.error(`Failed to apply ${codeType} code: ${data.error}`);
           } else {
-            if (redeemToast) toast.success('Code applied successfully!', { id: redeemToast });
-            setSuccess('Account created with promo benefits! Enhanced features unlocked.');
-            showBanner('Promo/VIP benefits unlocked 🎉', 'success');
+            toast.success(`${codeType.toUpperCase()} code applied successfully!`);
           }
-        } catch (codeError) {
-          console.error('[AUTH] Code processing error:', codeError);
-          setSuccess('Account created successfully, but there was an issue with your code. Please contact support.');
-          if (redeemToast) toast.error('Code validation failed', { id: redeemToast });
-        }
-      } else {
-        setSuccess('Account created successfully! Redirecting to dashboard...');
-        showBanner('Welcome! You\'re in 🎉', 'success');
-      }
-
-      // Save marketing consent if provided
-      if (marketingConsent && authData.user) {
-        try {
-          await supabase
-            .from('user_preferences')
-            .insert({
-              user_id: authData.user.id,
-              marketing_consent: true,
-              consent_date: new Date().toISOString()
-            });
-        } catch (prefError) {
-          console.error('[AUTH] Failed to save marketing preferences:', prefError);
+        } catch (codeErr) {
+          console.error('[AUTH] Code application exception:', codeErr);
+          toast.error('Failed to apply code');
         }
       }
 
-      // Redirect to dashboard if session exists
-      if (authData.session) {
-        setTimeout(() => {
-          console.log('[AUTH] Redirecting to dashboard...');
-          router.push('/dashboard');
-        }, 1000);
-      }
-
+      // Redirect to dashboard on success
+      setSuccess('Account created! Redirecting to dashboard...');
+      toast.success('Account created successfully!');
+      router.push('/dashboard');
+      
     } catch (err: any) {
-      console.error('[AUTH] Sign-up error:', err);
-      setError('Network error. Please check your connection and try again.');
-    } finally {
+      console.error('[AUTH] Sign-up exception:', err);
+      setError(err.message || 'An unexpected error occurred');
+      toast.error(err.message || 'An unexpected error occurred');
       setLoading(false);
     }
   };
@@ -188,26 +150,15 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setProviderLoading('google');
     setError('');
-    try {
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { 
-          redirectTo: `${window.location.origin}/dashboard`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent'
-          }
-        },
-      });
-      if (oauthError) {
-        setError(oauthError.message);
-        setProviderLoading(null);
-      }
-    } catch (err: any) {
-      console.error('[AUTH] Google sign-up error:', err);
-      setError(err.message || 'Google authentication failed');
+    
+    const { success, error } = await signInWithOAuth('google');
+    
+    if (!success && error) {
+      setError(error);
+      toast.error(error);
       setProviderLoading(null);
     }
+    // Supabase will redirect, so we don't manually push
   };
 
   const handleMagicLink = async () => {
@@ -217,28 +168,38 @@ export default function SignUpPage() {
     }
     setProviderLoading('magic');
     setError('');
-    try {
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
-      });
-      if (otpError) {
-        setError(otpError.message);
-      } else {
-        toast.success('Magic link sent! Check your email to complete sign-up.');
-      }
-    } catch (err: any) {
-      console.error('[AUTH] Magic link error:', err);
-      setError(err.message || 'Failed to send magic link');
-    } finally {
-      setProviderLoading(null);
+    
+    const { success, error } = await signInWithOtp(email);
+    
+    if (!success && error) {
+      setError(error);
+      toast.error(error);
+    } else {
+      setMagicSent(true);
+      toast.success('Magic link sent! Check your email to complete sign-up.');
     }
+    
+    setProviderLoading(null);
   };
 
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0D1117]">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-4 border-electric-blue border-t-transparent animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
+      <Toaster position="top-center" />
+      <div className="w-full max-w-md mb-4">
+        <SessionAlert />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -315,7 +276,7 @@ export default function SignUpPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                placeholder="Password"
+                placeholder="Password (min 8 characters)"
               />
             </div>
 
@@ -339,19 +300,16 @@ export default function SignUpPage() {
             {/* Promo/VIP Code Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-gray-400">
-                  Have a promo or VIP code?
-                </label>
                 <button
                   type="button"
                   onClick={toggleCodeField}
-                  className="text-xs text-electric-blue hover:text-electric-blue/80"
+                  className="text-sm text-electric-blue hover:text-electric-blue/80 focus:outline-none"
                 >
-                  {promoCode || vipCode ? 'Remove' : 'Add Code'}
+                  {promoCode || vipCode ? 'Remove code' : 'Have a promo or VIP code?'}
                 </button>
               </div>
               
-              {(promoCode !== '' || vipCode !== '' || (!promoCode && !vipCode)) && (
+              {(promoCode || vipCode || (!promoCode && !vipCode)) && (
                 <div className="space-y-2">
                   <input
                     id="promoCode"
@@ -363,9 +321,10 @@ export default function SignUpPage() {
                       if (e.target.value && vipCode) setVipCode('');
                     }}
                     disabled={!!vipCode}
-                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm disabled:opacity-50"
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue sm:text-sm disabled:opacity-50"
                     placeholder="Promo code (optional)"
                   />
+                  
                   <input
                     id="vipCode"
                     name="vipCode"
@@ -425,8 +384,21 @@ export default function SignUpPage() {
                   </svg>
                 </span>
               ) : null}
-              Sign up
+              Create Account
             </button>
+          </div>
+
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              By signing up, you agree to our{' '}
+              <Link href="/terms" className="text-electric-blue hover:text-electric-blue/80">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-electric-blue hover:text-electric-blue/80">
+                Privacy Policy
+              </Link>
+            </p>
           </div>
         </form>
       </motion.div>

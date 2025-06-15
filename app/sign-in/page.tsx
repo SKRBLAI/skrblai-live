@@ -1,57 +1,65 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import { useBanner } from '@/components/context/BannerContext';
 import AuthProviderButton from '@/components/ui/AuthProviderButton';
 import { useAuth } from '@/components/context/AuthContext';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import SessionAlert from '@/components/alerts/SessionAlert';
 
 export default function SignInPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [promoCode, setPromoCode] = useState('');
   const [vipCode, setVipCode] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
   const { showBanner } = useBanner();
-  const { user, session } = useAuth();
+  const { user, session, isLoading, signIn, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
+  const [error, setError] = useState('');
+
+  // Show auth errors from context
+  useEffect(() => {
+    if (authError) {
+      setError(authError);
+    }
+  }, [authError]);
+
+  // Check for session expired param
+  useEffect(() => {
+    const reason = searchParams?.get('reason');
+    if (reason === 'session-expired') {
+      toast.error('Your session has expired. Please sign in again.');
+    }
+  }, [searchParams]);
 
   // Auto-redirect if user is already logged in
   useEffect(() => {
-    if (user && session) { // Check user and session from useAuth
+    if (user && session) {
+      console.log('[SIGN-IN] User already authenticated, redirecting to dashboard');
       router.replace('/dashboard');
     }
-  }, [user, session, router]); // Add user and session to dependency array
+  }, [user, session, router]);
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
     setProviderLoading('google');
     setError('');
-    try {
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
-      });
-      if (oauthError) {
-        setError(oauthError.message);
-        setProviderLoading(null);
-      }
-      // Supabase will redirect, so we don't manually push
-    } catch (err: any) {
-      console.error('[AUTH] Google sign-in error:', err);
-      setError(err.message || 'Google sign-in failed');
+    
+    const { success, error } = await signInWithOAuth('google');
+    
+    if (!success && error) {
+      setError(error);
+      toast.error(error);
       setProviderLoading(null);
     }
+    // Supabase will redirect, so we don't manually push
   };
 
   // Magic-link sign-in (password-less)
@@ -62,25 +70,18 @@ export default function SignInPage() {
     }
     setProviderLoading('magic');
     setError('');
-    try {
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
-        }
-      });
-      if (otpError) {
-        setError(otpError.message);
-      } else {
-        setMagicSent(true);
-        toast.success('Magic link sent! Check your email to complete sign-in.');
-      }
-    } catch (err: any) {
-      console.error('[AUTH] Magic link error:', err);
-      setError(err.message || 'Failed to send magic link');
-    } finally {
-      setProviderLoading(null);
+    
+    const { success, error } = await signInWithOtp(email);
+    
+    if (!success && error) {
+      setError(error);
+      toast.error(error);
+    } else {
+      setMagicSent(true);
+      toast.success('Magic link sent! Check your email to complete sign-in.');
     }
+    
+    setProviderLoading(null);
   };
 
   // Email/password sign-in
@@ -98,47 +99,38 @@ export default function SignInPage() {
       }
 
       // Attempt sign in
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { success, error } = await signIn(email, password);
 
-      if (signInError) {
-        console.error('[AUTH] Sign-in error:', signInError);
-        setError(signInError.message);
+      if (!success && error) {
+        setError(error);
         setLoading(false);
         return;
       }
       
-      // Log successful sign-in
-      if (data.user) {
-        await supabase.from('auth_events').insert({
-          user_id: data.user.id,
-          event_type: 'sign_in',
-          provider: 'email',
-          details: { email: data.user.email }
-        });
-      }
-
       // Handle promo or VIP code if provided
       if (promoCode || vipCode) {
         try {
           const codeType = promoCode ? 'promo' : 'vip';
           const codeValue = promoCode || vipCode;
           
-          const { error: codeError } = await supabase
-            .from('user_codes')
-            .insert({
-              user_id: data.user?.id,
+          // Apply code via API
+          const response = await fetch('/api/auth/apply-code', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
               code: codeValue,
-              code_type: codeType,
-              applied_at: new Date().toISOString()
-            });
+              codeType
+            })
+          });
           
-          if (codeError) {
-            console.error('[AUTH] Code application error:', codeError);
+          const data = await response.json();
+          
+          if (!data.success) {
+            console.error('[AUTH] Code application error:', data.error);
             // Don't block sign-in for code errors, just notify
-            toast.error(`Failed to apply ${codeType} code: ${codeError.message}`);
+            toast.error(`Failed to apply ${codeType} code: ${data.error}`);
           } else {
             toast.success(`${codeType.toUpperCase()} code applied successfully!`);
           }
@@ -150,11 +142,13 @@ export default function SignInPage() {
 
       // Redirect to dashboard on success
       setSuccess('Sign-in successful! Redirecting...');
+      toast.success('Sign-in successful!');
       router.push('/dashboard');
       
     } catch (err: any) {
       console.error('[AUTH] Sign-in exception:', err);
       setError(err.message || 'An unexpected error occurred');
+      toast.error(err.message || 'An unexpected error occurred');
       setLoading(false);
     }
   };
@@ -167,8 +161,24 @@ export default function SignInPage() {
     }
   };
 
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0D1117]">
+        <div className="text-center">
+          <div className="w-12 h-12 rounded-full border-4 border-electric-blue border-t-transparent animate-spin mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
+      <Toaster position="top-center" />
+      <div className="w-full max-w-md mb-4">
+        <SessionAlert />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -252,19 +262,16 @@ export default function SignInPage() {
             {/* Promo/VIP Code Section */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm text-gray-400">
-                  Have a promo or VIP code?
-                </label>
                 <button
                   type="button"
                   onClick={toggleCodeField}
-                  className="text-xs text-electric-blue hover:text-electric-blue/80"
+                  className="text-sm text-electric-blue hover:text-electric-blue/80 focus:outline-none"
                 >
-                  {promoCode || vipCode ? 'Remove' : 'Add Code'}
+                  {promoCode || vipCode ? 'Remove code' : 'Have a promo or VIP code?'}
                 </button>
               </div>
               
-              {(promoCode !== '' || vipCode !== '' || (!promoCode && !vipCode)) && (
+              {(promoCode || vipCode || (!promoCode && !vipCode)) && (
                 <div className="space-y-2">
                   <input
                     id="promoCode"
@@ -276,9 +283,10 @@ export default function SignInPage() {
                       if (e.target.value && vipCode) setVipCode('');
                     }}
                     disabled={!!vipCode}
-                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm disabled:opacity-50"
+                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue sm:text-sm disabled:opacity-50"
                     placeholder="Promo code (optional)"
                   />
+                  
                   <input
                     id="vipCode"
                     name="vipCode"

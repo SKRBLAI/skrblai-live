@@ -2,21 +2,22 @@
 
 import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 
 export default function DashboardHeader() {
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
+      // The signOut function now handles redirection
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      router.push('/');
+      console.error('[DASHBOARD] Logout error:', error);
+      toast.error('There was a problem signing out. Please try again.');
     }
   };
 
@@ -48,50 +49,69 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    <header className="bg-deep-navy/90 backdrop-blur-md border-b border-electric-blue/20 p-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold text-electric-blue">SKRBL AI Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          {/* n8n Status Indicator */}
-          <div
-            className="flex items-center"
-            aria-live="polite"
-            role="status"
+    <header className="bg-gray-800 border-b border-gray-700 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <h1 className="text-xl font-bold text-white">Dashboard</h1>
+          {n8nOnline !== null && (
+            <div className={`ml-4 px-2 py-1 rounded-full text-xs flex items-center ${
+              n8nOnline ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+            }`}>
+              <span className={`w-2 h-2 rounded-full mr-1 ${
+                n8nOnline ? 'bg-green-400' : 'bg-red-400'
+              }`}></span>
+              {n8nMessage}
+            </div>
+          )}
+        </div>
+        
+        <div className="relative">
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-700"
+            aria-expanded={menuOpen}
+            aria-haspopup="true"
           >
-            {n8nOnline === true && (
-              <motion.span
-                className="flex items-center px-3 py-1 rounded-full bg-teal-400/20 text-teal-300 font-medium mr-2 shadow-glow"
-                initial={{ scale: 1 }}
-                animate={{ scale: [1, 1.08, 1], boxShadow: [
-                  '0 0 0px #00ffe7',
-                  '0 0 12px #00ffe7',
-                  '0 0 0px #00ffe7'
-                ] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <span className="w-2 h-2 mr-2 rounded-full bg-teal-400 animate-pulse" />
-                {n8nMessage}
-              </motion.span>
-            )}
-            {n8nOnline === false && (
-              <motion.span
-                className="flex items-center px-3 py-1 rounded-full bg-orange-400/20 text-orange-300 font-medium mr-2"
-                initial={{ opacity: 0.7 }}
-                animate={{ opacity: [0.7, 1, 0.7] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <span className="w-2 h-2 mr-2 rounded-full bg-orange-400 animate-pulse" />
-                {n8nMessage}
-                <span className="ml-2 text-xs text-orange-200">Try again later or contact support</span>
-              </motion.span>
-            )}
-          </div>
-          <button
-            onClick={handleSignOut}
-            className="btn-secondary"
-          >
-            Logout
+            <div className="h-8 w-8 rounded-full bg-electric-blue flex items-center justify-center text-white">
+              {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <span className="text-white hidden md:block">{user?.email || 'User'}</span>
+            <svg 
+              className={`w-4 h-4 text-gray-400 transform transition-transform ${menuOpen ? 'rotate-180' : ''}`}
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
+          
+          {menuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg overflow-hidden z-10"
+            >
+              <div className="py-1">
+                <button
+                  onClick={() => {
+                    router.push('/dashboard/profile');
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+                >
+                  Profile Settings
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-600"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     </header>

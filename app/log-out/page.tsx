@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -11,10 +12,13 @@ export default function LogoutPage() {
   useEffect(() => {
     const performLogout = async () => {
       try {
+        console.log('[LOGOUT] Initiating sign-out process');
         await signOut();
+        toast.success('You have been signed out successfully');
         router.push('/sign-in');
       } catch (error) {
-        console.error('Logout error:', error);
+        console.error('[LOGOUT] Error during sign-out:', error);
+        toast.error('There was a problem signing out. Please try again.');
         router.push('/sign-in');
       }
     };

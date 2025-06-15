@@ -11,14 +11,39 @@ export const config = {
 };
 
 export function middleware(request: NextRequest) {
+  // Get URL info
+  const url = request.nextUrl.clone();
+  const path = url.pathname;
+  
   // Detect Supabase auth cookie (sb-<project>-auth-token) – key starts with 'sb' and ends with '-auth-token'
   const authCookie = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('auth-token'));
   
-  // Protect both dashboard routes
+  // Protect dashboard routes
   if (!authCookie && 
-      (request.nextUrl.pathname.startsWith('/dashboard') || 
-       request.nextUrl.pathname.startsWith('/user-dashboard'))) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+      (path.startsWith('/dashboard') || 
+       path.startsWith('/user-dashboard'))) {
+    
+    // Create redirect URL with reason parameter
+    const redirectUrl = new URL('/sign-in', request.url);
+    redirectUrl.searchParams.set('reason', 'session-expired');
+    redirectUrl.searchParams.set('from', path);
+    
+    return NextResponse.redirect(redirectUrl);
+  }
+  
+  // Handle API routes without auth
+  if (!authCookie && path.startsWith('/api/') && 
+      !path.startsWith('/api/auth/') && 
+      !path.startsWith('/api/public/')) {
+    
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Authentication required',
+        code: 'auth_required'
+      }, 
+      { status: 401 }
+    );
   }
 
   // Add security headers

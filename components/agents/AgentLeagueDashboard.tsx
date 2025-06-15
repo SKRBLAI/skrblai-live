@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import AgentCard from '../ui/AgentCard';
+import AgentLeagueCard from '../ui/AgentLeagueCard';
 import AgentBackstoryModal from './AgentBackstoryModal';
 import AgentCarousel from './AgentCarousel';
 import type { Agent } from '@/types/agent';
@@ -63,7 +63,7 @@ export default function AgentLeagueDashboard() {
           <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-electric-blue via-fuchsia-500 to-teal-400 flex items-center justify-center text-4xl">
             🤖
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Percy's Agent League</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Welcome to the Digital Agent League</h2>
           <p className="text-gray-300">Your cosmic concierge is ready to coordinate the perfect team</p>
         </div>
       </div>
@@ -83,12 +83,12 @@ export default function AgentLeagueDashboard() {
           animate="visible"
         >
           {otherAgents.map((agent, index) => (
-            <AgentCard
+            <AgentLeagueCard
               key={agent.id}
               agent={agent}
               index={index}
-              onClick={() => setSelectedAgent(agent)}
-              className="cursor-pointer"
+              onChat={() => setSelectedAgent(agent)}
+              onHandoff={() => handleHandoff(agent.id)}
             />
           ))}
         </motion.div>
