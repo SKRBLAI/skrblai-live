@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { getAuth } from '@clerk/nextjs/server';
+// import { getAuth } from '@clerk/nextjs/server'; // Removed Clerk
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase for logging
@@ -17,7 +17,7 @@ export async function POST(
 ) {
   const { agentId } = params;
   const payload = await req.json();
-  const { userId, sessionClaims } = getAuth(req as any); // Clerk auth
+  const userId = null; // Placeholder - TODO: Implement Supabase auth check
 
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,7 +49,8 @@ export async function POST(
 
   try {
     // Execute the agent's primary workflow
-    const userRole = typeof sessionClaims === 'object' && sessionClaims !== null && 'metadata' in sessionClaims && typeof sessionClaims.metadata === 'object' && sessionClaims.metadata !== null && 'role' in sessionClaims.metadata ? sessionClaims.metadata.role as string : 'user';
+    // const userRole = typeof sessionClaims === 'object' && sessionClaims !== null && 'metadata' in sessionClaims && typeof sessionClaims.metadata === 'object' && sessionClaims.metadata !== null && 'role' in sessionClaims.metadata ? sessionClaims.metadata.role as string : 'user'; // Removed Clerk sessionClaims
+    const userRole = 'user'; // Placeholder - TODO: Implement Supabase role check if needed
     const result = await runAgentWorkflow(agentId, payload, userRole);
 
     // If workflow execution is successful, trigger n8n webhook

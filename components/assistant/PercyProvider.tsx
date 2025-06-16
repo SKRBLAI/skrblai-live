@@ -81,15 +81,18 @@ export function PercyProvider({ children }: { children: ReactNode }) {
 
       // Check authentication status
       if (typeof window !== 'undefined') {
+        console.log('[SKRBL_AUTH_DEBUG_PERCY_PROVIDER] Checking auth status in localStorage.');
         // Try to get authenticated user ID from localStorage or auth state
         const storedUserId = localStorage.getItem('percy_user_id');
         const authState = localStorage.getItem('supabase.auth.token');
+        console.log('[SKRBL_AUTH_DEBUG_PERCY_PROVIDER] Found supabase.auth.token in localStorage:', authState ? 'Yes' : 'No');
         
         if (authState) {
           try {
             const parsed = JSON.parse(authState);
             currentUserId = parsed.user?.id || '';
             authenticated = !!currentUserId;
+            console.log('[SKRBL_AUTH_DEBUG_PERCY_PROVIDER] Parsed token. User ID:', currentUserId, 'Authenticated:', authenticated);
           } catch (e) {
             console.warn('Failed to parse auth state');
           }
@@ -97,6 +100,7 @@ export function PercyProvider({ children }: { children: ReactNode }) {
         
         // Fallback to session-based ID for anonymous users
         if (!currentUserId) {
+          console.log('[SKRBL_AUTH_DEBUG_PERCY_PROVIDER] No authenticated user found, falling back to anonymous ID.');
           currentUserId = storedUserId || `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           localStorage.setItem('percy_user_id', currentUserId);
         }
@@ -104,6 +108,8 @@ export function PercyProvider({ children }: { children: ReactNode }) {
 
       setUserId(currentUserId);
       setIsAuthenticated(authenticated);
+
+      console.log('[SKRBL_AUTH_DEBUG_PERCY_PROVIDER] State updated in provider. UserID:', currentUserId, 'IsAuthenticated:', authenticated);
 
       // Initialize Percy context
       const context = await initializePercyContext(currentUserId, authenticated, {

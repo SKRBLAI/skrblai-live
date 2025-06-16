@@ -101,19 +101,27 @@ export default function Dashboard() {
 
   // Auth effect using AuthContext
   useEffect(() => {
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth useEffect triggered. AuthIsLoading:', authIsLoading, 'AuthUser:', authUser, 'AuthSession:', authSession);
     if (!authIsLoading) {
+      console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth is NOT loading. AuthUser:', authUser, 'AuthSession:', authSession);
       if (authUser && authSession) {
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User and session EXIST. User ID:', authUser.id);
         setUserId(authUser.id);
         // Fetch user role after user is confirmed
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Fetching user role for user ID:', authUser.id);
         checkUserRole(authUser.id).then(role => {
+          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User role fetched:', role, 'for user ID:', authUser.id);
           setUserRole(role);
           setIsLoading(false); // Set loading to false after role is fetched
+          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Page isLoading set to false.');
         });
       } else {
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User or session MISSING. AuthUser:', authUser, 'AuthSession:', authSession);
         console.log('[SKRBL AUTH] Dashboard route protection: No user/session, redirecting.');
         router.push('/sign-in');
       }
     } else {
+      console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth IS STILL LOADING. Setting page isLoading to true.');
       // Still loading auth state, ensure dashboard loading is true
       setIsLoading(true); // This refers to the local page loading state
     }

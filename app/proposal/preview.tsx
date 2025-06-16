@@ -35,7 +35,7 @@ export default function ProposalPreviewPage() {
     pdf.save(`${proposal?.projectName || "proposal"}.pdf`);
   };
 
-  // Share link logic (MVP: use localStorage, production: Firebase)
+  // Share link logic (MVP: use localStorage, production: Supabase)
   const handleShareLink = () => {
     if (!proposal) return;
     // Generate a simple unique id (timestamp-based)

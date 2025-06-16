@@ -137,8 +137,10 @@ export default function UniversalPromptBar({
     if (!file && !prompt.trim()) { setError('Select file or enter prompt'); return; }
     if (!file && prompt.trim()) { submitPromptOnly(); return; }
     try {
+      console.log('[SKRBL_AUTH_DEBUG_PROMPT_BAR] Upload started. Checking for user...');
       setUploading(true); setProgress(10);
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('[SKRBL_AUTH_DEBUG_PROMPT_BAR] supabase.auth.getUser() result:', user);
       if (!user) throw new Error('Login required');
       const path = `${intentType}/${user.id}/${fileCategory}/${Date.now()}_${file!.name}`;
       setProgress(30);
@@ -152,6 +154,7 @@ export default function UniversalPromptBar({
       setProgress(100); setSuccess(true); setFile(null); setPrompt('');
       setTimeout(() => setSuccess(false), 3000);
     } catch (e: any) {
+      console.error('[SKRBL_AUTH_DEBUG_PROMPT_BAR] Upload failed with error:', e);
       setError(e.message||'Error');
     } finally { setUploading(false); }
   };

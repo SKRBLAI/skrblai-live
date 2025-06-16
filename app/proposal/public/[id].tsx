@@ -18,7 +18,7 @@ export default function PublicProposalPage() {
 
   useEffect(() => {
     if (!id) return;
-    // For MVP: fetch public proposal data from localStorage (replace with Firebase in production)
+    // For MVP: fetch public proposal data from localStorage (production: Supabase)
     const data = localStorage.getItem(`publicProposal_${id}`);
     if (data) setProposal(JSON.parse(data));
   }, [id]);
