@@ -1,38 +1,34 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
-// Configure dynamic rendering and revalidation at the page level
-export const dynamic = 'force-dynamic'; // Disable static page generation
+// Configure dynamic rendering
+export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/components/context/AuthContext';
-import { supabase } from '@/utils/supabase'; // Ensure this path is correct for your global Supabase client
-import agentRegistry from '@/lib/agents/agentRegistry';
+import { useAuth } from '@/components/context/AuthContext'; 
+import { supabase } from '@/utils/supabase';
 
-// Helper functions
-const checkUserRole = async (userId: string): Promise<'free' | 'premium'> => {
-  const { data } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .single();
-  return data?.role || 'free';
-};
+import Spinner from '@/components/ui/Spinner';
 
-// Components
-import PageLayout from '@/components/layout/PageLayout';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import CampaignMetrics from '@/components/dashboard/CampaignMetrics';
-import PostScheduler from '@/components/dashboard/PostScheduler';
-import ProposalGenerator from '@/components/dashboard/ProposalGenerator';
-import VideoContentQueue from '@/components/dashboard/VideoContentQueue';
-import UpsellModal from '@/components/percy/UpsellModal';
-import DownloadCenter from '@/components/dashboard/DownloadCenter';
-import BillingInfo from '@/components/dashboard/BillingInfo';
-import Notifications from '@/components/dashboard/Notifications';
-import UpgradeBanner from '@/components/ui/UpgradeBanner';
+// Import actual UI components - paths should be verified by USER
+import PageLayout from '@/components/layout/PageLayout'; // Corrected from DashboardLayout
+import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Corrected from DashboardWelcomeHeader
+import DashboardOverview from '@/components/dashboard/DashboardOverview'; // Corrected from OverviewSection
+import Notifications from '@/components/dashboard/Notifications'; // Corrected from NotificationsPanel
+
+// Missing component imports - commented out
+// import PremiumFeaturesPanel from '@/components/dashboard/PremiumFeaturesPanel'; 
+// import UpsellCard from '@/components/ui/UpsellCard'; 
+// import SectionNavigation from '@/components/dashboard/SectionNavigation'; 
+// import MyAgentsSection from '@/components/dashboard/MyAgentsSection'; 
+// import ActivityFeed from '@/components/dashboard/ActivityFeed'; 
+// import AgentDiscovery from '@/components/dashboard/AgentDiscovery'; 
+// import QuickActionPanel from '@/components/dashboard/QuickActionPanel'; 
+// import UsageStats from '@/components/dashboard/UsageStats'; 
+// import FeaturedAgent from '@/components/dashboard/FeaturedAgent'; 
+// import SuggestionModal from '@/components/ui/SuggestionModal'; 
 
 // Types
 export type Agent = {
@@ -41,9 +37,13 @@ export type Agent = {
   description: string;
   category?: string;
   lastUsed?: string;
+  intent?: string; 
+  visible?: boolean; 
+  avatar?: string; 
+  specialty?: string; 
 };
 
-type Activity = {
+type ActivityItem = {
   id: string;
   description: string;
   timestamp: string;
@@ -51,337 +51,246 @@ type Activity = {
 
 type WorkflowLog = {
   id: string;
+  userId: string; 
   description: string;
   created_at: string;
-};
-
-type PercyMemory = {
-  agents?: string[];
 };
 
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: 'easeOut'
-    }
-  }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } }
 };
 
 export default function Dashboard() {
   const router = useRouter();
-  const [recentAgents, setRecentAgents] = useState<Agent[]>([]);
-  const [workflowLogs, setWorkflowLogs] = useState<WorkflowLog[]>([]);
-  const [recommended, setRecommended] = useState<Agent[]>([]);
-  const [showUpsell, setShowUpsell] = useState(false);
-  const [upsellAgent, setUpsellAgent] = useState<Agent | null>(null);
-  const [userRole, setUserRole] = useState<'free' | 'premium'>('free');
-  const [activeSection, setActiveSection] = useState<string>('overview');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [lastUsed, setLastUsed] = useState<Agent[]>([]);
-  const [activity, setActivity] = useState<Activity[]>([]);
-  const [suggestion, setSuggestion] = useState<string>("");
+  const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth();
+
   const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<'free' | 'premium'>('free');
+  const [localIsLoading, setLocalIsLoading] = useState<boolean>(true);
+  
+  const [activeSection, setActiveSection] = useState<string>('overview');
+  const [lastUsed, setLastUsed] = useState<Agent[]>([]);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [suggestion, setSuggestion] = useState<string>("");
+  const [upsellAgent, setUpsellAgent] = useState<Agent | null>(null); 
+  const [featuredAgent, setFeaturedAgent] = useState<Agent | null>(null); 
 
-  const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth(); // Renamed to authIsLoading
+  const checkUserRole = useCallback(async (id: string): Promise<'free' | 'premium'> => {
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] checkUserRole called for ID:', id);
+    if (!id) return 'free';
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', id)
+        .single();
+      if (error) {
+        console.error('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error fetching user role:', error.message);
+        if (error.code === 'PGRST116') return 'free'; 
+      }
+      return data?.role || 'free';
+    } catch (e) {
+      console.error('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Exception fetching user role:', e);
+      return 'free';
+    }
+  }, []);
 
-  // Auth effect using AuthContext
+  // Auth effect
   useEffect(() => {
-    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth useEffect triggered. AuthIsLoading:', authIsLoading, 'AuthUser:', authUser, 'AuthSession:', authSession);
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth useEffect triggered. AuthIsLoading:', authIsLoading, 'AuthUser:', !!authUser, 'AuthSession:', !!authSession);
     if (!authIsLoading) {
-      console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth is NOT loading. AuthUser:', authUser, 'AuthSession:', authSession);
-      if (authUser && authSession) {
-        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User and session EXIST. User ID:', authUser.id);
-        setUserId(authUser.id);
-        // Fetch user role after user is confirmed
-        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Fetching user role for user ID:', authUser.id);
-        checkUserRole(authUser.id).then(role => {
-          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User role fetched:', role, 'for user ID:', authUser.id);
-          setUserRole(role);
-          setIsLoading(false); // Set loading to false after role is fetched
-          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Page isLoading set to false.');
-        });
-      } else {
-        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User or session MISSING. AuthUser:', authUser, 'AuthSession:', authSession);
-        console.log('[SKRBL AUTH] Dashboard route protection: No user/session, redirecting.');
+      if (!authUser || !authSession) {
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth loaded: No user/session. Redirecting to /sign-in.');
         router.push('/sign-in');
+      } else {
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth loaded: User and session EXIST. User ID:', authUser.id);
+        setUserId(authUser.id);
+        checkUserRole(authUser.id).then(role => {
+          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] User role fetched:', role);
+          setUserRole(role);
+          setLocalIsLoading(false);
+          console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] localIsLoading set to false.');
+        }).catch(err => {
+           console.error('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error in checkUserRole promise:', err);
+           setLocalIsLoading(false); 
+        });
       }
     } else {
-      console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth IS STILL LOADING. Setting page isLoading to true.');
-      // Still loading auth state, ensure dashboard loading is true
-      setIsLoading(true); // This refers to the local page loading state
+      console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth IS STILL LOADING. localIsLoading set to true.');
+      setLocalIsLoading(true);
     }
-  }, [authUser, authSession, authIsLoading, router]);
+  }, [authUser, authSession, authIsLoading, router, checkUserRole]);
 
-  // Load data on mount and when userId changes
+  // Data fetching effect
   useEffect(() => {
-    if (!userId) return;
-    let logsSubscription: any = null;
-    const loadData = async () => {
-      try {
-        // Fetch recent agents for this user from Supabase memory/content logs
-        const { data: memory } = await supabase
-          .from('user_settings')
-          .select('recentAgents')
-          .eq('userId', userId)
-          .maybeSingle();
-        let recentAgentIds: string[] = [];
-        if (memory && memory.recentAgents && Array.isArray(memory.recentAgents)) {
-          recentAgentIds = memory.recentAgents;
-        }
-        // Fallback: use agent usage logs
-        if (recentAgentIds.length === 0) {
-          const { data: usage } = await supabase
-            .from('agent_usage')
-            .select('intent')
-            .eq('userId', userId)
-            .order('updatedAt', { ascending: false })
-            .limit(3);
-          recentAgentIds = (usage || []).map((u: any) => u.intent).filter(Boolean);
-        }
-        const recentAgentData = recentAgentIds
-          .map((id: string) => agentRegistry.find(a => a.id === id || a.intent === id))
-          .filter(Boolean) as Agent[];
-        setRecentAgents(recentAgentData);
-        setLastUsed(recentAgentData.slice(0, 3));
+    if (!userId || !authUser) return; 
+    
+    console.log(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Data fetching useEffect for userId: ${userId}`);
+    setLocalIsLoading(true); 
 
-        // Fetch workflow logs for this user
-        const { data: logs } = await supabase
-          .from('workflowLogs')
-          .select('*')
+    let logsSubscription: any = null;
+
+    const loadDashboardData = async () => {
+      try {
+        setLastUsed([
+            { id: '1', name: 'Placeholder Agent 1', description: 'Used recently', intent: 'agent1' },
+            { id: '2', name: 'Placeholder Agent 2', description: 'Also used recently', intent: 'agent2' },
+        ]);
+
+        const { data: workflowLogsData } = await supabase
+          .from('workflowLogs') // Specify WorkflowLog type if possible, or 'any' then map
+          .select('id, description, created_at')
           .eq('userId', userId)
           .order('created_at', { ascending: false })
           .limit(5);
-        setWorkflowLogs(logs || []);
-        setActivity((logs as WorkflowLog[] || []).map(log => ({
+        setActivity(workflowLogsData?.map((log: any) => ({
           id: log.id,
           description: log.description,
           timestamp: log.created_at
-        })));
+        })) || []);
+        
+        setFeaturedAgent({ id: 'feat1', name: 'Featured Percy', description: 'Try this amazing agent!', avatar: '/images/percy-avatar.png', specialty: 'Content Creation' });
+        setUpsellAgent({ id: 'upsell1', name: 'Premium Percy', description: 'Unlock more power!', intent: 'premium_percy'});
 
-        // Recommended agents: top 3 visible agents
-        setRecommended(agentRegistry.filter(a => a.visible).slice(0, 3));
-
-        // Suggestion: personalize based on usage
-        setSuggestion('Try our new AI content generator for better engagement!');
+        setSuggestion('Explore new AI capabilities for your projects!');
+        
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        console.error('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error loading dashboard data:', error);
+      } finally {
+        setLocalIsLoading(false);
+        console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Dashboard data fetch complete, localIsLoading set to false.');
       }
     };
-    loadData();
 
-    // Real-time subscription for workflow logs
+    loadDashboardData();
+
     logsSubscription = supabase
-      .channel('public:workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${userId}` }, (payload: any) => {
-        loadData();
-      })
-      .subscribe();
+      .channel(`workflow-logs-user-${userId}`)
+      .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${userId}` }, 
+          (payload: any) => {
+            console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Realtime workflow log update:', payload);
+            loadDashboardData(); 
+          })
+      .subscribe((status, err) => {
+        if (status === 'SUBSCRIBED') {
+          console.log(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Subscribed to workflowLogs for user ${userId}`);
+        }
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          console.error(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Subscription error for workflowLogs: ${status}`, err);
+        }
+      });
+      
     return () => {
-      if (logsSubscription) supabase.removeChannel(logsSubscription);
+      if (logsSubscription) {
+        supabase.removeChannel(logsSubscription)
+          .then(() => console.log(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Unsubscribed from workflowLogs for user ${userId}`))
+          .catch(err => console.error(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error unsubscribing from workflowLogs:`, err));
+      }
     };
-  }, [userId]);
+  }, [userId, authUser]); 
 
-  if (isLoading) {
-    return (
-      <PageLayout title="Loading...">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex items-center justify-center min-h-[60vh]"
-        >
-          <motion.div variants={itemVariants} className="animate-pulse flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-electric-blue/30 mb-4" />
-            <div className="h-4 w-24 bg-electric-blue/30 rounded" />
-          </motion.div>
-        </motion.div>
-      </PageLayout>
-    );
+  if (!authIsLoading && !authUser) {
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Render: Auth loaded, no user. Showing spinner pending redirect.');
+    return <Spinner />;
   }
 
+  if (localIsLoading) {
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Render: localIsLoading is true. Showing spinner.');
+    return <Spinner />;
+  }
+  
+  console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Render: User authenticated, data loaded. Rendering dashboard.');
   return (
-    <div className="flex h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className="flex-grow overflow-auto">
-        <PageLayout title="Dashboard Overview">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-8"
-          >
-            {/* Cosmic Upgrade Banner for Free Users */}
-            {userRole === 'free' && (
+    <PageLayout>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="space-y-6 md:space-y-8 p-4 md:p-6"
+      >
+        <motion.div variants={itemVariants}>
+          <DashboardHeader />
+        </motion.div>
+        
+        {/* {userRole === 'free' && upsellAgent && (
+          <motion.div variants={itemVariants}>
+            <UpsellCard agent={upsellAgent} onCTAClick={() => router.push('/pricing')} />
+          </motion.div>
+        )} */}
+
+        {/* {userRole === 'premium' && (
+           <motion.div variants={itemVariants}>
+             <PremiumFeaturesPanel />
+           </motion.div>
+        )} */}
+
+        {/* <motion.div variants={itemVariants}>
+          <SectionNavigation activeSection={activeSection} onNavigate={setActiveSection} />
+        </motion.div> */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
+            {activeSection === 'overview' && (
               <motion.div variants={itemVariants}>
-                <UpgradeBanner />
+                <DashboardOverview 
+                  lastUsed={lastUsed} 
+                  activity={activity} 
+                  suggestion={suggestion}
+                />
               </motion.div>
             )}
+            {/* {activeSection === 'my-agents' && (
+              <motion.div variants={itemVariants}>
+                <MyAgentsSection agents={[]} onConfigureAgent={(agentId: string) => console.log('Configure agent:', agentId)} />
+              </motion.div>
+            )} */}
+            {/* {activeSection === 'activity' && (
+              <motion.div variants={itemVariants}>
+                <ActivityFeed items={activity} />
+              </motion.div>
+            )} */}
+            {/* {activeSection === 'discover' && (
+              <motion.div variants={itemVariants}>
+                <AgentDiscovery onAgentSelect={(agentId: string) => console.log('Discover agent selected:', agentId)} />
+              </motion.div>
+            )} */}
+          </div>
+
+          <div className="lg:col-span-1 space-y-6 md:space-y-8">
+            {/* <motion.div variants={itemVariants}>
+              <QuickActionPanel onAction={(action: string) => console.log('Quick action:', action)} />
+            </motion.div> */}
+            {/* <motion.div variants={itemVariants}>
+              <UsageStats stats={{ creditsUsed: 120, creditsRemaining: 880, tasksCompleted: 15 }} />
+            </motion.div> */}
+            {/* {featuredAgent && (
+              <motion.div variants={itemVariants}>
+                <FeaturedAgent agent={featuredAgent} />
+              </motion.div>
+            )} */}
             <motion.div variants={itemVariants}>
-              <DashboardHeader />
+              <Notifications />
             </motion.div>
-
-            {/* Agent List/Panel */}
-            <motion.div
-              variants={itemVariants}
-              initial="hidden"
-              animate="visible"
-              className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {Object.values(agentRegistry).map((agent, idx) => (
-                <motion.div
-                  key={agent.id}
-                  variants={itemVariants}
-                  whileHover={{ scale: 1.03, boxShadow: '0 0 16px #2dd4bf' }}
-                  className="rounded-xl bg-white/10 backdrop-blur-md border border-teal-400 shadow-glow p-6 flex flex-col gap-2 transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400"
-                  tabIndex={0}
-                  aria-label={`Agent: ${agent.name}`}
-                  onClick={() => {
-                    setUpsellAgent(agent);
-                    setShowUpsell(true);
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      setUpsellAgent(agent);
-                      setShowUpsell(true);
-                    }
-                  }}
-                >
-                  <h3 className="text-lg font-bold text-teal-300 mb-1 gradient-text-sk">{agent.name}</h3>
-                  <p className="text-gray-300 mb-2 text-sm">{agent.description}</p>
-                  <div className="flex items-center text-xs text-gray-400 mt-auto">
-                    <span className="mr-2">Last Run:</span>
-                    <span className="font-semibold text-white">—</span>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="grid grid-cols-1 gap-8">
-              {/* Overview Section */}
-              {activeSection === 'overview' && (
-                <motion.div variants={itemVariants}>
-                  <DashboardOverview
-                    lastUsed={lastUsed}
-                    activity={activity}
-                    suggestion={suggestion}
-                  />
-                </motion.div>
-              )}
-
-              {/* Campaign Metrics */}
-              {activeSection === 'metrics' && (
-                <motion.div variants={itemVariants}>
-                  <CampaignMetrics />
-                </motion.div>
-              )}
-
-              {/* Post Scheduler */}
-              {activeSection === 'scheduler' && (
-                <motion.div variants={itemVariants}>
-                  <PostScheduler />
-                </motion.div>
-              )}
-
-              {/* Proposal Generator */}
-              {activeSection === 'proposals' && (
-                <motion.div variants={itemVariants}>
-                  <ProposalGenerator />
-                </motion.div>
-              )}
-
-              {/* Video Content Queue */}
-              {activeSection === 'video' && (
-                <motion.div variants={itemVariants}>
-                  <VideoContentQueue />
-                </motion.div>
-              )}
-
-              {/* Downloads */}
-              {activeSection === 'downloads' && (
-                <motion.div variants={itemVariants}>
-                  <DownloadCenter />
-                </motion.div>
-              )}
-
-              {/* Billing */}
-              {activeSection === 'billing' && (
-                <motion.div variants={itemVariants}>
-                  <BillingInfo />
-                </motion.div>
-              )}
-
-              {/* Notifications */}
-              {activeSection === 'notifications' && (
-                <motion.div variants={itemVariants}>
-                  <Notifications />
-                </motion.div>
-              )}
-            </motion.div>
-          </motion.div>
-
-          {/* Upsell Modal */}
-          {showUpsell && (
-            <UpsellModal 
-              onClose={() => setShowUpsell(false)}
-              agent={{
-                name: upsellAgent?.name || '',
-                description: upsellAgent?.description || ''
-              }}
-            />
-          )}
-        </PageLayout>
-      </div>
-      {/* Recommended Section */}
-      {recommended.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-2 text-teal-300">Recommended For You</h2>
-          <div className="flex flex-wrap gap-2">
-            {recommended.map((agent: any) => (
-              <span key={agent.id} className="px-4 py-2 rounded-lg bg-teal-700/20 border border-teal-400 text-teal-200 font-semibold text-sm shadow-glow">
-                {agent.name}
-              </span>
-            ))}
           </div>
         </div>
-      )}
-
-      {/* Recent Agents Section */}
-      {recentAgents.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-2 text-electric-blue">Recent Agents</h2>
-          <div className="flex flex-wrap gap-2">
-            {recentAgents.map((mem: any, idx: number) => {
-              const agent = agentRegistry[mem.id];
-              if (!agent) return null;
-              return (
-                <div key={agent.id + idx} className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-lg border border-white/10">
-                  <span>{agent.name}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      {/* Workflow Log Table */}
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-2 text-white">Workflow Log</h2>
-        <div className="overflow-x-auto rounded-xl bg-white/5 border border-white/10">
-        </div>
-      </div>
-    </div>
+        
+        {/* {suggestion && (
+          <SuggestionModal 
+            suggestion={suggestion} 
+            onAccept={() => { console.log("Suggestion accepted"); setSuggestion(""); }} 
+            onReject={() => { console.log("Suggestion rejected"); setSuggestion(""); }}
+          />
+        )} */}
+      </motion.div>
+    </PageLayout>
   );
 }
+

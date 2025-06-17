@@ -1,9 +1,44 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, Transition, TargetAndTransition } from "framer-motion";
+import React, { useState, useEffect } from 'react';
+
+interface Particle {
+  id: number;
+  style: React.CSSProperties;
+  animate: TargetAndTransition;
+  transition: Transition;
+}
 
 export default function CosmicBackground() {
-  // Animated gradient orbs (from FloatingBackground)
-  // Animated floating particles (from AnimatedBackground)
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    const generateParticles = () => {
+      return [...Array(30)].map((_, i) => ({
+        id: i,
+        style: {
+          width: `${Math.random() * 6 + 6}px`,
+          height: `${Math.random() * 6 + 6}px`,
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          filter: 'blur(1.5px)',
+        },
+        animate: {
+          y: [0, Math.random() * 40 - 20, 0],
+          x: [0, Math.random() * 40 - 20, 0],
+          opacity: [0.7, 1, 0.7],
+        },
+        transition: {
+          duration: Math.random() * 5 + 4,
+          repeat: Infinity,
+          repeatType: "mirror" as const,
+          delay: Math.random() * 2,
+        },
+      }));
+    };
+    setParticles(generateParticles());
+  }, []);
+
   return (
     <div className="fixed inset-0 w-full h-full -z-10 pointer-events-none overflow-hidden">
       {/* Animated Gradient Orbs */}
@@ -23,28 +58,13 @@ export default function CosmicBackground() {
         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
       />
       {/* Animated floating stars/particles */}
-      {[...Array(30)].map((_, i) => (
+      {particles.map((p) => (
         <motion.div
-          key={i}
+          key={p.id}
           className="absolute rounded-full bg-teal-400/20 shadow-lg"
-          style={{
-            width: `${Math.random() * 6 + 6}px`,
-            height: `${Math.random() * 6 + 6}px`,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            filter: 'blur(1.5px)'
-          }}
-          animate={{
-            y: [0, Math.random() * 40 - 20, 0],
-            x: [0, Math.random() * 40 - 20, 0],
-            opacity: [0.7, 1, 0.7]
-          }}
-          transition={{
-            duration: Math.random() * 5 + 4,
-            repeat: Infinity,
-            repeatType: "mirror",
-            delay: Math.random() * 2
-          }}
+          style={p.style}
+          animate={p.animate}
+          transition={p.transition}
         />
       ))}
       {/* Grid and gradient overlays */}
