@@ -55,7 +55,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         if (result.success && result.fixed) {
           console.log('[DASHBOARD] Auth fix successful, refreshing page');
           window.location.reload();
-        } else if (result.needsSignIn) {
+        } else {
           console.log('[DASHBOARD] Auth fix failed, redirecting to sign-in');
           router.push('/sign-in?reason=session-expired');
         }

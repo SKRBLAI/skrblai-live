@@ -24,7 +24,7 @@ export default function PricingCard({
 }: PricingCardProps) {
   return (
     <motion.a
-      href={ctaHref}
+      href={["See Plans", "Compare Plans"].includes(ctaText) ? "/pricing" : "/sign-up"}
       whileHover={{ y: -12, boxShadow: highlight ? '0 0 64px 8px #1E90FFCC' : '0 0 48px 4px #30D5C8CC', scale: 1.04 }}
       whileFocus={{ boxShadow: highlight ? '0 0 80px 12px #1E90FFEE' : '0 0 64px 8px #30D5C8EE', scale: 1.03 }}
       transition={{ type: 'spring', stiffness: 200, damping: 22 }}

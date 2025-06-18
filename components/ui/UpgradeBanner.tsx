@@ -39,7 +39,12 @@ export default function UpgradeBanner({
             </div>
             <div className="text-[#30D5C8] text-sm font-medium max-w-xl">{description}</div>
           </div>
-          <Link href={ctaHref} className="cosmic-btn-primary px-6 py-3 rounded-xl font-bold text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E90FF] focus:ring-offset-2">
+          {/*
+            Windsurf CTA Routing Rule:
+            - If ctaText is 'See Plans' or 'Compare Plans', keep ctaHref as /pricing
+            - Otherwise (Start Trial, Upgrade, Get Premium, etc), force ctaHref to /sign-up for max conversion
+          */}
+          <Link href={["See Plans", "Compare Plans"].includes(ctaText || "") ? "/pricing" : "/sign-up"} className="cosmic-btn-primary px-6 py-3 rounded-xl font-bold text-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1E90FF] focus:ring-offset-2">
             {ctaText}
           </Link>
           <button

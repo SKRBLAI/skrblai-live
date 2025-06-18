@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { createClient } from '@supabase/supabase-js';
 import { TrialManager } from '@/lib/trial/trialManager';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 /**
  * GET /api/trial/status
@@ -8,14 +13,23 @@ import { TrialManager } from '@/lib/trial/trialManager';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Get current user
-    const user = await getCurrentUser();
-    
-    if (!user) {
-      return NextResponse.json({
-        success: false,
-        error: 'Authentication required'
-      }, { status: 401 });
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    if (!token) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired token' },
+        { status: 401 }
+      );
     }
 
     // Get trial status
@@ -23,15 +37,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      trialStatus
+      trialStatus,
     });
 
   } catch (error: any) {
     console.error('[Trial Status] Error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to get trial status'
-    }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to get trial status' },
+      { status: 500 }
+    );
   }
 }
 
@@ -41,13 +55,22 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Get current user
-    const user = await getCurrentUser();
-    
-    if (!user) {
+    const authHeader = request.headers.get('authorization');
+    const token = authHeader?.replace('Bearer ', '');
+
+    if (!token) {
       return NextResponse.json({
         success: false,
         error: 'Authentication required'
+      }, { status: 401 });
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+
+    if (userError || !user) {
+      return NextResponse.json({
+        success: false,
+        error: 'Invalid or expired token'
       }, { status: 401 });
     }
 

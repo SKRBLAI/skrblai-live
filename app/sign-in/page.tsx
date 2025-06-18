@@ -4,11 +4,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
-import { useBanner } from '@/components/context/BannerContext';
-import AuthProviderButton from '@/components/ui/AuthProviderButton';
 import { useAuth } from '@/components/context/AuthContext';
+import AuthProviderButton from '@/components/ui/AuthProviderButton';
 import SessionAlert from '@/components/alerts/SessionAlert';
-import { addAuthDebugButton, attemptAuthFix } from '@/lib/auth/authDebugger';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -16,12 +14,9 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [promoCode, setPromoCode] = useState('');
-  const [vipCode, setVipCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
-  const { showBanner } = useBanner();
   const { user, session, isLoading, signIn, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
   const [error, setError] = useState('');
 
@@ -48,22 +43,6 @@ export default function SignInPage() {
     }
   }, [user, session, router]);
 
-  // Attempt to fix auth issues if coming from a session expired redirect
-  useEffect(() => {
-    const reason = searchParams?.get('reason');
-    if (reason === 'session-expired') {
-      toast.error('Your session has expired. Please sign in again.');
-      
-      // Try to fix auth issues
-      attemptAuthFix().then(result => {
-        if (result.success && result.fixed) {
-          toast.success('Session restored! Redirecting...');
-          router.push('/dashboard');
-        }
-      });
-    }
-  }, [searchParams, router]);
-
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
     setProviderLoading('google');
@@ -76,7 +55,6 @@ export default function SignInPage() {
       toast.error(error);
       setProviderLoading(null);
     }
-    // Supabase will redirect, so we don't manually push
   };
 
   // Magic-link sign-in (password-less)
@@ -124,12 +102,9 @@ export default function SignInPage() {
         return;
       }
       
-      // Handle promo or VIP code if provided
-      if (promoCode || vipCode) {
+      // Handle promo code if provided
+      if (promoCode) {
         try {
-          const codeType = promoCode ? 'promo' : 'vip';
-          const codeValue = promoCode || vipCode;
-          
           // Apply code via API
           const response = await fetch('/api/auth/apply-code', {
             method: 'POST',
@@ -137,8 +112,8 @@ export default function SignInPage() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              code: codeValue,
-              codeType
+              code: promoCode,
+              codeType: 'promo'
             })
           });
           
@@ -146,10 +121,9 @@ export default function SignInPage() {
           
           if (!data.success) {
             console.error('[AUTH] Code application error:', data.error);
-            // Don't block sign-in for code errors, just notify
-            toast.error(`Failed to apply ${codeType} code: ${data.error}`);
+            toast.error(`Failed to apply promo code: ${data.error}`);
           } else {
-            toast.success(`${codeType.toUpperCase()} code applied successfully!`);
+            toast.success(`Promo code applied successfully!`);
           }
         } catch (codeErr) {
           console.error('[AUTH] Code application exception:', codeErr);
@@ -157,37 +131,17 @@ export default function SignInPage() {
         }
       }
 
-      // Redirect to dashboard on success
-      setSuccess('Sign-in successful! Redirecting...');
+      // Redirect to dashboard on success (will happen automatically via effect)
       toast.success('Sign-in successful!');
-      
-      // Force a small delay to ensure the auth state is updated
-      setTimeout(() => {
-        router.push('/dashboard');
-      }, 500);
       
     } catch (err: any) {
       console.error('[AUTH] Sign-in exception:', err);
       setError(err.message || 'An unexpected error occurred');
       toast.error(err.message || 'An unexpected error occurred');
+    } finally {
       setLoading(false);
     }
   };
-
-  // Toggle promo/VIP code field visibility
-  const toggleCodeField = () => {
-    if (promoCode || vipCode) {
-      setPromoCode('');
-      setVipCode('');
-    }
-  };
-
-  // Add debug button in development mode
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      addAuthDebugButton();
-    }
-  }, []);
 
   // Show loading state while checking auth
   if (isLoading) {
@@ -211,7 +165,7 @@ export default function SignInPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 bg-[#161B22] p-8 rounded-lg shadow-xl"
+        className="max-w-md w-full space-y-8 bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] p-8 rounded-xl shadow-glow border border-electric-blue/30 backdrop-blur-xl"
       >
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
@@ -251,139 +205,114 @@ export default function SignInPage() {
           </div>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-
-            {/* Promo/VIP Code Section */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <button
-                  type="button"
-                  onClick={toggleCodeField}
-                  className="text-sm text-electric-blue hover:text-electric-blue/80 focus:outline-none"
-                >
-                  {promoCode || vipCode ? 'Remove code' : 'Have a promo or VIP code?'}
-                </button>
-              </div>
-              
-              {(promoCode || vipCode || (!promoCode && !vipCode)) && (
-                <div className="space-y-2">
-                  <input
-                    id="promoCode"
-                    name="promoCode"
-                    type="text"
-                    value={promoCode}
-                    onChange={(e) => {
-                      setPromoCode(e.target.value);
-                      if (e.target.value && vipCode) setVipCode('');
-                    }}
-                    disabled={!!vipCode}
-                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue sm:text-sm disabled:opacity-50"
-                    placeholder="Promo code (optional)"
-                  />
-                  
-                  <input
-                    id="vipCode"
-                    name="vipCode"
-                    type="text"
-                    value={vipCode}
-                    onChange={(e) => {
-                      setVipCode(e.target.value);
-                      if (e.target.value && promoCode) setPromoCode('');
-                    }}
-                    disabled={!!promoCode}
-                    className="appearance-none relative block w-full px-3 py-2 border border-gray-700 bg-[#0D1117] placeholder-gray-500 text-white rounded-md focus:outline-none focus:ring-fuchsia-400 focus:border-fuchsia-400 sm:text-sm disabled:opacity-50"
-                    placeholder="VIP code (optional)"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-
-          {error && (
-            <div className="text-red-500 text-sm text-center bg-red-500/10 border border-red-500/20 rounded-md p-3" role="alert">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="text-green-500 text-sm text-center bg-green-500/10 border border-green-500/20 rounded-md p-3">
-              {success}
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-electric-blue hover:text-electric-blue/80">
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </span>
-              ) : null}
-              Sign in
-            </button>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-gray-500">
-              By signing in, you agree to our{' '}
-              <Link href="/terms" className="text-electric-blue hover:text-electric-blue/80">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link href="/privacy" className="text-electric-blue hover:text-electric-blue/80">
-                Privacy Policy
-              </Link>
+        {/* Show success message for magic link */}
+        {magicSent ? (
+          <div className="text-center py-4">
+            <p className="text-green-500 mb-4">Magic link sent! Check your email inbox.</p>
+            <p className="text-gray-400 text-sm">
+              Didn&apos;t receive an email?{' '}
+              <button
+                type="button"
+                onClick={handleMagicLink}
+                className="text-electric-blue hover:text-electric-blue/80"
+                disabled={providerLoading === 'magic'}
+              >
+                Send again
+              </button>
             </p>
           </div>
-        </form>
+        ) : (
+          <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
+            {error && (
+              <div className="bg-red-900/20 border border-red-500 text-red-400 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            
+            <div className="rounded-md shadow-sm space-y-4">
+              <div>
+                <label htmlFor="email" className="sr-only">
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  placeholder="Email address"
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  placeholder="Password"
+                />
+              </div>
+              <div>
+                <label htmlFor="promo" className="sr-only">
+                  Promo Code (Optional)
+                </label>
+                <input
+                  id="promo"
+                  name="promo"
+                  type="text"
+                  value={promoCode}
+                  onChange={(e) => setPromoCode(e.target.value)}
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  placeholder="Promo Code (Optional)"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-electric-blue focus:ring-electric-blue border-gray-700 rounded bg-[#0D1117]"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link href="/forgot-password" className="font-medium text-electric-blue hover:text-electric-blue/80">
+                  Forgot your password?
+                </Link>
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin mx-auto"></div>
+                ) : (
+                  'Sign in'
+                )}
+              </button>
+            </div>
+          </form>
+        )}
       </motion.div>
     </div>
   );

@@ -55,18 +55,55 @@ export default function AgentLeagueDashboard() {
   const otherAgents = agents.filter(a => a.id !== 'percy-agent' && a.name !== 'Percy');
 
   // Recommendation handoff logic
-  function handleHandoff(agentId: string) {
-    setSelectedAgent(agents.find(a => a.id === agentId) || null);
+  function handleHandoff(agent: Agent) {
+    setSelectedAgent(agent);
+    console.log('[AgentLeagueDashboard] Handoff to:', agent.name);
   }
 
   // Navigation to agent backstory page
   function handleAgentInfo(agent: Agent) {
     router.push(`/agent-backstory/${agent.id}`);
+    console.log('[AgentLeagueDashboard] View info for:', agent.name);
   }
 
   // Chat with agent
   function handleAgentChat(agent: Agent) {
     setSelectedAgent(agent);
+    console.log('[AgentLeagueDashboard] Chat with:', agent.name);
+  }
+
+  // Launch agent functionality
+  function handleAgentLaunch(agent: Agent) {
+    console.log('[AgentLeagueDashboard] Launch agent:', agent.name);
+
+    // Navigate to agent's specific route if available
+    if (agent.route) {
+      router.push(agent.route);
+      return;
+    }
+
+    // Otherwise trigger the agent workflow
+    fetch(`/api/agents/${agent.id}/launch`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ agentId: agent.id }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.redirectUrl) {
+          router.push(data.redirectUrl);
+        } else {
+          // Fallback to handoff
+          handleHandoff(agent);
+        }
+      })
+      .catch(error => {
+        console.error('[AgentLeagueDashboard] Launch error:', error);
+        // Fallback to handoff on error
+        handleHandoff(agent);
+      });
   }
 
   return (
@@ -103,7 +140,8 @@ export default function AgentLeagueDashboard() {
                 index={index}
                 onChat={() => handleAgentChat(agent)}
                 onInfo={() => handleAgentInfo(agent)}
-                onHandoff={() => handleHandoff(agent.id)}
+                onHandoff={() => handleHandoff(agent)}
+                onLaunch={() => handleAgentLaunch(agent)}
               />
             );
           })}
@@ -121,7 +159,7 @@ export default function AgentLeagueDashboard() {
                 <button
                   key={agent.id}
                   className="bg-teal-500 hover:bg-electric-blue text-white px-4 py-2 rounded-lg shadow font-medium transition-all"
-                  onClick={() => handleHandoff(agent.id)}
+                  onClick={() => handleHandoff(agent)}
                 >
                   {agent.name}
                 </button>

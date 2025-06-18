@@ -1,32 +1,30 @@
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/user-dashboard/:path*',
     '/api/:path*'
-  ],
-  runtime: 'experimental-edge' // Setting back based on build error
+  ]
 };
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req: request, res });
+  
+  // Check if user is authenticated
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   // Get URL info
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
-  // Detect Supabase auth cookie (sb-<project>-auth-token) – key starts with 'sb' and ends with '-auth-token'
-  const authCookie = request.cookies.getAll().find(c => c.name.startsWith('sb-') && c.name.endsWith('auth-token'));
-  
-  // Debug logging for authentication issues
-  console.log('[MIDDLEWARE] Path:', path, 'Auth Cookie:', authCookie ? 'Present' : 'Missing');
-  
   // Protect dashboard routes
-  if (!authCookie && 
-      (path.startsWith('/dashboard') || 
-       path.startsWith('/user-dashboard'))) {
-    
-    console.log('[MIDDLEWARE] No auth cookie found, redirecting to sign-in');
+  if (!session && path.startsWith('/dashboard')) {
+    console.log('[MIDDLEWARE] No auth session found, redirecting to sign-in');
     
     // Create redirect URL with reason parameter
     const redirectUrl = new URL('/sign-in', request.url);
@@ -37,11 +35,11 @@ export function middleware(request: NextRequest) {
   }
   
   // Handle API routes without auth
-  if (!authCookie && path.startsWith('/api/') && 
+  if (!session && path.startsWith('/api/') && 
       !path.startsWith('/api/auth/') && 
       !path.startsWith('/api/public/')) {
     
-    console.log('[MIDDLEWARE] API request without auth cookie:', path);
+    console.log('[MIDDLEWARE] API request without auth:', path);
     
     return NextResponse.json(
       { 

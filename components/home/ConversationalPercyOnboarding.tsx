@@ -9,6 +9,7 @@ import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { getCurrentUser } from '@/utils/supabase-auth';
+import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import PercyAvatar from '@/components/home/PercyAvatar';
@@ -204,7 +205,7 @@ export default function ConversationalPercyOnboarding() {
 
   const saveOnboardingComplete = useCallback(async () => {
     try {
-      const user = await getCurrentUser();
+      const user: User | null = await getCurrentUser();
       if (user) {
         await supabase.from('user_settings').upsert({
           userId: user.id,
@@ -242,11 +243,10 @@ export default function ConversationalPercyOnboarding() {
     router.push(`${path}?source=percy_onboarding&agents=${(onboardingState.recommendedAgents || []).join(',')}`);
   }, [onboardingState, router]);
 
-  // Get user info on mount
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const user = await getCurrentUser();
+        const user: User | null = await getCurrentUser();
         if (user) {
           const { data: profile } = await supabase
             .from('profiles')
