@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createCheckoutSessionCall, redirectToCheckout } from '@/utils/stripe';
-import { useDashboardAuth } from '@/hooks/useDashboardAuth';
+import { useAuth } from '@/components/context/AuthContext';
 import toast from 'react-hot-toast';
 
 interface PaymentButtonProps {
@@ -25,7 +25,7 @@ export default function PaymentButton({
   disabled = false
 }: PaymentButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, accessLevel } = useDashboardAuth();
+  const { user, accessLevel } = useAuth();
 
   const handlePayment = async () => {
     if (!user) {

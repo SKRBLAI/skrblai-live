@@ -3,61 +3,49 @@
 import React, { useState } from 'react';
 import PercyAvatar from '@/components/home/PercyAvatar';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 
+interface PercyOnboardingAuthProps {
+  onAuthenticated: () => void;
+}
 
-
-export default function PercyOnboardingAuth() {
+export default function PercyOnboardingAuth({ onAuthenticated }: PercyOnboardingAuthProps) {
+  const { signIn, signUp, error } = useAuth();
   // Step: 'auth' | 'code' | 'done'
   const [step, setStep] = useState<'auth' | 'code' | 'done'>('auth');
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Code step
   const [promoCode, setPromoCode] = useState('');
   const [vipCode, setVipCode] = useState('');
   const [codeStatus, setCodeStatus] = useState<'none' | 'promo' | 'vip' | 'invalid' | 'used'>('none');
   const [codeMessage, setCodeMessage] = useState('');
-
-  // VIP dashboard visual
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [isVIP, setIsVIP] = useState(false);
 
-  // Handle auth (real API integration)
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
-    if (!email || !password || (mode === 'signup' && password !== confirm)) {
-      setError('Please fill all fields correctly.');
-      return;
-    }
     setLoading(true);
-    try {
-      const res = await fetch('/api/auth/dashboard-signin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          mode,
-          confirm: mode === 'signup' ? confirm : undefined
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStep('code');
-      } else {
-        setError(data.error || 'Authentication failed.');
-      }
-    } catch (err: any) {
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
+    const authPromise = mode === 'signin'
+      ? signIn(email, password)
+      : signUp(email, password, { promoCode, marketingConsent });
+
+    const result = await authPromise;
+
+    if (result.success) {
+      toast.success(mode === 'signin' ? 'Signed in successfully!' : 'Account created!');
+      if (onAuthenticated) {
+        onAuthenticated();
+      }
+    } else {
+      toast.error(result.error || 'An unexpected error occurred.');
+    }
+    setLoading(false);
+  };
 
   // Handle code validation (real API integration)
   const handleCodeSubmit = async (e: React.FormEvent) => {
@@ -111,7 +99,6 @@ export default function PercyOnboardingAuth() {
       setLoading(false);
     }
   };
-
 
   // Auth form (sign in/up)
   const renderAuthForm = () => (

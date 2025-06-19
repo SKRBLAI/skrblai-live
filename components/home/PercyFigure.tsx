@@ -32,7 +32,7 @@ export default function PercyFigure({
     transition: {
       repeat: Infinity,
       duration: 8,
-      ease: "easeInOut"
+      ease: "easeInOut" as const
     }
   } : {};
 

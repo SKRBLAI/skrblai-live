@@ -17,7 +17,7 @@ const getCardVariants = (index: number) => ({
     opacity: 0, 
     y: 24, 
     boxShadow: GLOW_COLOR,
-    transition: { duration: 0.3, ease: 'easeOut' }
+    transition: { duration: 0.3, ease: 'easeOut' as const }
   },
   animate: { 
     scale: 1, 
@@ -102,7 +102,7 @@ const getContentVariants = (index: number) => ({
     transition: { 
       duration: 0.4,
       delay: 0.3 + index * 0.03,
-      ease: 'easeOut'
+      ease: 'easeOut' as const
     }
   },
   hover: { 
@@ -128,7 +128,7 @@ const getCtaVariants = (index: number) => ({
     transition: {
       duration: 0.4,
       delay: 0.4 + index * 0.02,
-      ease: 'easeOut'
+      ease: 'easeOut' as const
     }
   },
   hover: { 
@@ -344,7 +344,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           animate={{ opacity: 1, y: 0 }}
           transition={{ 
             delay: 0.3 + (index || 0) * 0.02,
-            ease: 'easeOut'
+            ease: 'easeOut' as const
           }}
         >
           {agent.name}
@@ -400,7 +400,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
                     duration: 1.5,
                     repeat: Infinity,
                     repeatType: 'loop',
-                    ease: 'easeInOut'
+                    ease: 'easeInOut' as const
                   }}
                   aria-hidden
                 >
@@ -415,7 +415,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           className="absolute inset-0 rounded-2xl pointer-events-none bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm z-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: 'easeOut' as const }}
         />
         
         {/* Uniform blue accent bar */}
@@ -426,7 +426,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           transition={{ 
             duration: 0.6, 
             delay: 0.5 + (index || 0) * 0.05,
-            ease: 'easeOut'
+            ease: 'easeOut' as const
           }}
           whileHover={{ 
             scaleX: 1.2, 

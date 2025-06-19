@@ -108,6 +108,28 @@ export async function POST(request: Request) {
     const newBenefits = codeDetails.benefits;
     const newIsVip = typeof newAccessLevel === 'string' && newAccessLevel.toLowerCase().includes('vip');
 
+    // Fetch current metadata so we can merge with new values in JS
+    const { data: currentAccess, error: fetchAccessError } = await supabase
+      .from('user_dashboard_access')
+      .select('metadata')
+      .eq('user_id', session.user.id)
+      .single();
+
+    if (fetchAccessError) {
+      console.error(`[AUTH] Apply Code: Error fetching current metadata for user ${session.user.id}:`, fetchAccessError.message);
+      // Proceed with empty metadata if fetch fails – metadata updates are non-critical.
+    }
+
+    const currentMetadata = (currentAccess?.metadata as Record<string, any>) ?? {};
+
+    const mergedMetadata = {
+      ...currentMetadata,
+      last_applied_code: code,
+      last_applied_code_type: codeType,
+      last_code_applied_at: new Date().toISOString(),
+      updated_by_api_apply_code: true,
+    };
+
     const { error: updateAccessError } = await supabase
       .from('user_dashboard_access')
       .update({
@@ -115,12 +137,7 @@ export async function POST(request: Request) {
         benefits: newBenefits,
         is_vip: newIsVip,
         updated_at: new Date().toISOString(),
-        metadata: supabase.sql`COALESCE(metadata, '{}'::jsonb) || ${{ // Append to existing metadata or create if null
-            last_applied_code: code,
-            last_applied_code_type: codeType,
-            last_code_applied_at: new Date().toISOString(),
-            updated_by_api_apply_code: true
-        }}::jsonb`
+        metadata: mergedMetadata,
       })
       .eq('user_id', session.user.id);
 

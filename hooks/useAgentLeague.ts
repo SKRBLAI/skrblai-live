@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useDashboardAuth } from '@/hooks/useDashboardAuth';
+import { useAuth } from '@/components/context/AuthContext';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -191,8 +191,10 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
   } = options;
 
   // Authentication
-  const dashboardAuth = useDashboardAuth();
-  const { user } = dashboardAuth;
+  const auth = useAuth();
+  const { accessLevel } = auth;
+
+  const hasPremiumAccess = accessLevel === 'promo' || accessLevel === 'vip';
 
   // State
   const [agents, setAgents] = useState<AgentLeagueAgent[]>([]);

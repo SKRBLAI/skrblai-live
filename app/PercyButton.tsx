@@ -71,8 +71,8 @@ export default function PercyButton({
                 ],
               }}
               transition={{
-                y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-                filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+                y: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const },
+                filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const }
               }}
             >
               <Image 

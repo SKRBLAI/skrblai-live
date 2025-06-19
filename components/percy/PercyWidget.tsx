@@ -404,7 +404,7 @@ function PercyWidget() {
             boxShadow: {
               repeat: Infinity,
               duration: 3,
-              ease: 'easeInOut'
+              ease: 'easeInOut' as const
             }
           }
         }}
@@ -420,8 +420,8 @@ function PercyWidget() {
             ]
           }}
           transition={{
-            y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-            filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+            y: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const },
+            filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const }
           }}
         >
           <img
@@ -440,7 +440,7 @@ function PercyWidget() {
             initial={{ opacity: 0, y: 20, height: 0 }}
             animate={{ opacity: 1, y: 0, height: 'auto' }}
             exit={{ opacity: 0, y: 20, height: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            transition={{ duration: 0.4, ease: 'easeOut' as const }}
           >
             {/* Percy Avatar Header */}
             <div className="bg-gradient-to-r from-electric-blue/30 via-fuchsia-500/20 to-teal-400/30 p-3 flex items-center gap-3 border-b border-white/10">
@@ -454,8 +454,8 @@ function PercyWidget() {
                   ]
                 }}
                 transition={{
-                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
-                  filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' }
+                  y: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const },
+                  filter: { duration: 3, repeat: Infinity, ease: 'easeInOut' as const }
                 }}
               >
                 <img
@@ -479,7 +479,7 @@ function PercyWidget() {
                     transition={{
                       duration: 1,
                       repeat: Infinity,
-                      ease: 'easeInOut'
+                      ease: 'easeInOut' as const
                     }}
                   />
                 </div>
@@ -529,7 +529,7 @@ function PercyWidget() {
                 <motion.div
                   className="absolute right-3 bottom-3 text-xs text-gray-400 flex items-center"
                   animate={{ opacity: [0.7, 1, 0.7] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' as const }}
                 >
                   <span className="mr-1">Press</span>
                   <span className="bg-white/20 rounded px-1">Enter ↵</span>

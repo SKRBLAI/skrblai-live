@@ -25,7 +25,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '', 
       transition: {
         repeat: Infinity,
         duration: 7,
-        ease: 'easeInOut',
+        ease: 'easeInOut' as const,
       },
     },
   };
@@ -44,7 +44,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '', 
       transition: {
         repeat: Infinity,
         duration: 2.8,
-        ease: 'easeInOut',
+        ease: 'easeInOut' as const,
       },
     },
   };
@@ -96,12 +96,12 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({ size = 'md', className = '', 
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-electric-blue/30 to-teal-400/30 rounded-full blur-sm"
           animate={{ opacity: [0.7, 1, 0.7], scale: [1, 1.08, 1] }}
-          transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut' }}
+          transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut' as const }}
         />
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-400/10 rounded-full blur-md"
           animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.12, 1] }}
-          transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' }}
+          transition={{ repeat: Infinity, duration: 3.2, ease: 'easeInOut' as const }}
         />
       </div>
     </motion.div>

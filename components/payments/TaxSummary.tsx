@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getUserTaxCalculations, formatTaxSummary, type TaxCalculation } from '@/utils/tax';
-import { useDashboardAuth } from '@/hooks/useDashboardAuth';
+import { useAuth } from '@/components/context/AuthContext';
 
 interface TaxSummaryProps {
   className?: string;
@@ -18,7 +18,7 @@ export default function TaxSummary({
   const [calculations, setCalculations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useDashboardAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!user) return;

@@ -10,12 +10,16 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  accessLevel?: 'free' | 'promo' | 'vip';
+  vipStatus?: any;
+  benefits?: any;
+  signIn: (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => Promise<{ success: boolean; error?: string }>;
   signInWithOAuth: (provider: 'google') => Promise<{ success: boolean; error?: string }>;
   signInWithOtp: (email: string) => Promise<{ success: boolean; error?: string }>;
-  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }>;
+  signUp: (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => Promise<{ success: boolean; error?: string; needsEmailConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   error: string | null;
+  validatePromoCode: (code: string) => Promise<{ isValid: boolean; type: 'PROMO' | 'VIP'; benefits: any; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +29,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [accessLevel, setAccessLevel] = useState<'free' | 'promo' | 'vip'>('free');
+  const [vipStatus, setVipStatus] = useState<any>(null);
+  const [benefits, setBenefits] = useState<any>(null);
   const router = useRouter();
   const supabase = createClientComponentClient();
 
@@ -59,9 +66,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [supabase]);
 
-  const signIn = async (email: string, password: string) => {
+  // Add dashboard access check on auth state change
+  useEffect(() => {
+    const checkDashboardAccess = async () => {
+      if (user && session) {
+        try {
+          const response = await fetch('/api/auth/dashboard-signin?checkAccess=true', {
+            headers: {
+              'Authorization': `Bearer ${session.access_token}`
+            }
+          });
+          
+          const result = await response.json();
+          if (result.success) {
+            setAccessLevel(result.accessLevel);
+            setVipStatus(result.vipStatus);
+            setBenefits(result.benefits);
+          }
+        } catch (err) {
+          console.error('[AUTH] Failed to check dashboard access:', err);
+        }
+      }
+    };
+
+    checkDashboardAccess();
+  }, [user, session]);
+
+  const signIn = async (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => {
     try {
       setError(null);
+      
+      // Get client IP and user agent for logging
+      const metadata = {
+        userAgent: window.navigator.userAgent,
+        ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip)
+      };
+
+      // Step 1: Authenticate with Supabase
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -73,20 +114,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: signInError.message };
       }
 
-      // Log successful sign-in
+      // Step 2: If authentication successful, handle dashboard-specific features
       if (data.user) {
         console.log('[AUTH] Sign-in successful for:', data.user.email);
         
         // Update local state
         setUser(data.user);
         setSession(data.session);
+
+        // Call dashboard-signin endpoint for additional features
+        const dashboardResponse = await fetch('/api/auth/dashboard-signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.session?.access_token}`
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            promoCode: options?.promoCode,
+            vipCode: options?.vipCode,
+            marketingConsent: options?.marketingConsent
+          })
+        });
+
+        const dashboardResult = await dashboardResponse.json();
+        
+        if (dashboardResult.success) {
+          // Update context with dashboard access info
+          setAccessLevel(dashboardResult.accessLevel);
+          setVipStatus(dashboardResult.vipStatus);
+          setBenefits(dashboardResult.benefits);
+        } else {
+          console.warn('[AUTH] Dashboard features setup warning:', dashboardResult.error);
+          // Don't fail the sign-in if dashboard features fail
+        }
         
         // Log the sign-in event
         await supabase.from('auth_events').insert({
           user_id: data.user.id,
           event_type: 'sign_in',
           provider: 'email',
-          details: { email: data.user.email }
+          details: { 
+            email: data.user.email,
+            accessLevel: dashboardResult.accessLevel,
+            promoRedeemed: dashboardResult.promoRedeemed
+          }
         });
       }
 
@@ -146,14 +219,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => {
     try {
       setError(null);
+      
+      // Get client IP and user agent for logging
+      const metadata = {
+        userAgent: window.navigator.userAgent,
+        ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip)
+      };
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          ...options
         }
       });
       
@@ -165,14 +246,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       const needsEmailConfirmation = !data.session;
       
-      // Log successful sign-up
-      if (data.user) {
+      // Register with dashboard if email confirmation not required
+      if (data.user && data.session) {
         console.log('[AUTH] Sign-up successful for:', data.user.email);
+        
+        // Call dashboard registration endpoint
+        const dashboardResponse = await fetch('/api/auth/dashboard-signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.session.access_token}`
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            promoCode: options?.promoCode,
+            vipCode: options?.vipCode,
+            marketingConsent: options?.marketingConsent,
+            mode: 'signup'
+          })
+        });
+
+        const dashboardResult = await dashboardResponse.json();
+        
+        if (dashboardResult.success) {
+          setAccessLevel(dashboardResult.accessLevel);
+          setVipStatus(dashboardResult.vipStatus);
+          setBenefits(dashboardResult.benefits);
+        }
+        
+        // Log successful sign-up
         await supabase.from('auth_events').insert({
           user_id: data.user.id,
           event_type: 'sign_up',
           provider: 'email',
-          details: { email: data.user.email }
+          details: { 
+            email: data.user.email,
+            accessLevel: dashboardResult.accessLevel,
+            promoRedeemed: dashboardResult.promoRedeemed,
+            marketingConsent: options?.marketingConsent
+          }
         });
       }
       
@@ -201,18 +314,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const validatePromoCode = async (code: string) => {
+    try {
+      const { data, error: validateError } = await supabase.from('promo_codes').select('*').eq('code', code);
+
+      if (validateError) {
+        console.error('[AUTH] Promo code validation error:', validateError);
+        return { isValid: false, type: 'PROMO' as const, benefits: null, error: validateError.message };
+      }
+
+      if (data.length > 0) {
+        const promoCode = data[0];
+        return {
+          isValid: true,
+          type: promoCode.type as 'PROMO' | 'VIP',
+          benefits: promoCode.benefits,
+          error: undefined
+        };
+      } else {
+        return { isValid: false, type: 'PROMO' as const, benefits: null, error: 'Promo code not found' };
+      }
+    } catch (err: any) {
+      console.error('[AUTH] Promo code validation exception:', err);
+      return { isValid: false, type: 'PROMO' as const, benefits: null, error: err.message || 'An unexpected error occurred' };
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         session,
         isLoading,
+        accessLevel,
+        vipStatus,
+        benefits,
         signIn,
         signInWithOAuth,
         signInWithOtp,
         signUp,
         signOut,
         error,
+        validatePromoCode,
       }}
     >
       {children}

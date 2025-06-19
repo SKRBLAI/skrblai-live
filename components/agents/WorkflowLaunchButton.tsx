@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useDashboardAuth } from '@/hooks/useDashboardAuth';
+import { useAuth } from '@/components/context/AuthContext';
 import toast from 'react-hot-toast';
 import { fireAgentLaunchWebhook } from '@/lib/webhooks/n8nWebhooks';
 
@@ -72,7 +72,7 @@ export default function WorkflowLaunchButton({
   const [userPrompt, setUserPrompt] = useState(initialPrompt);
   const [executionResult, setExecutionResult] = useState<WorkflowResult | null>(null);
   
-  const { user, accessLevel } = useDashboardAuth();
+  const { user, accessLevel } = useAuth();
 
   // =============================================================================
   // ACCESS LEVEL HELPERS
@@ -80,8 +80,9 @@ export default function WorkflowLaunchButton({
 
   const TIER_HIERARCHY = ['client', 'reserve', 'starter', 'star', 'all_star', 'admin'];
 
-  const hasAccessToTier = (userTier: string, requiredTier: string): boolean => {
-    const userIndex = TIER_HIERARCHY.indexOf(userTier);
+  const hasAccessToTier = (userTier: string | undefined, requiredTier: string): boolean => {
+    const tier = userTier || 'client';
+    const userIndex = TIER_HIERARCHY.indexOf(tier);
     const requiredIndex = TIER_HIERARCHY.indexOf(requiredTier);
     return userIndex >= requiredIndex;
   };
@@ -132,7 +133,7 @@ export default function WorkflowLaunchButton({
       return;
     }
 
-    if (requiresPremium && !hasAccessToTier(accessLevel, requiredTier)) {
+    if (requiresPremium && !hasAccessToTier(accessLevel || 'client', requiredTier)) {
       toast.error(`${superheroName} requires ${getTierDisplayName(requiredTier)} access or higher`);
       return;
     }
@@ -251,13 +252,12 @@ export default function WorkflowLaunchButton({
   };
 
   // =============================================================================
-  // ACCESS CHECK HELPERS
+  // HELPER FUNCTIONS
   // =============================================================================
-
+  
   const canUseAgent = () => {
-    if (!user) return false;
-    if (requiresPremium && !hasAccessToTier(accessLevel, requiredTier)) return false;
-    return true;
+    if (!requiresPremium) return true;
+    return hasAccessToTier(accessLevel, requiredTier);
   };
 
   const getButtonText = () => {
@@ -396,4 +396,4 @@ export default function WorkflowLaunchButton({
       )}
     </div>
   );
-} 
+}

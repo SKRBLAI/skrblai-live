@@ -1,10 +1,20 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
-import { Variants } from 'framer-motion';
+
+const emojiVariants: Variants = {
+  animate: {
+    rotate: [0, 10, 0],
+    transition: {
+      duration: 0.5,
+      repeat: Infinity,
+      repeatDelay: 2,
+    },
+  },
+};
 
 const transitionProps = {
   duration: 0.5,
@@ -86,8 +96,8 @@ const HeroSection = () => {
             Automate. Publish. Scale.{' '}
             <motion.span 
               className="inline-block text-electric-blue"
-              animate={{ rotate: [0, 10, 0] }}
-              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+              variants={emojiVariants}
+              animate="animate"
             >
               ⚡
             </motion.span>
@@ -136,7 +146,7 @@ const HeroSection = () => {
                   Meet the Agent League
                   <motion.span
                     animate={{ x: [0, 8, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' }}
+                    transition={{ duration: 1.5, repeat: Infinity, repeatType: 'loop', ease: 'easeInOut' as const }}
                     aria-hidden
                   >🚀</motion.span>
                 </span>
@@ -175,7 +185,7 @@ const HeroSection = () => {
               transition={{
                 duration: 10,
                 repeat: Infinity,
-                ease: 'linear'
+                ease: 'linear' as const
               }}
             />
           </motion.div>

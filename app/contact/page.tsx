@@ -10,7 +10,7 @@ const fieldVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: 0.15 + i * 0.09, duration: 0.45, type: 'spring', stiffness: 100, damping: 16 },
+    transition: { delay: 0.15 + i * 0.09, duration: 0.45, type: 'spring' as const, stiffness: 100, damping: 16 },
   }),
 };
 
@@ -65,7 +65,7 @@ export default function ContactPage() {
           transition={{ delay: 0.2, duration: 0.7 }}
           className="text-xl md:text-2xl text-gray-300 mb-8 text-center"
         >
-          We’d love to hear from you. For urgent matters, email{' '}
+          We'd love to hear from you. For urgent matters, email{' '}
           <a href="mailto:contact@skrblai.io" className="text-electric-blue hover:text-teal-400 underline transition-colors">contact@skrblai.io</a>.
         </motion.p>
         {/* Glassmorphic Card */}

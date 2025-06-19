@@ -104,7 +104,7 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
       className={`flex flex-col h-full bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-lg rounded-2xl border border-teal-500/20 shadow-2xl overflow-hidden ${className}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      transition={{ duration: 0.3, ease: 'easeOut' as const }}
     >
       <div className="flex items-center justify-between p-4 bg-gradient-to-r from-teal-500/10 to-blue-500/10 border-b border-teal-500/20">
         <div className="flex items-center">

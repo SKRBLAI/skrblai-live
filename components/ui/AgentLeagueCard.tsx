@@ -131,9 +131,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         rotateY: [0, 6, 0, -6, 0], // slow cosmic sway
         rotateX: [0, 2, 0, -2, 0],
         transition: {
-          y: { duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' },
-          rotateY: { duration: 13, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' },
-          rotateX: { duration: 11, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' },
+          y: { duration: 9, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
+          rotateY: { duration: 13, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
+          rotateX: { duration: 11, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
           opacity: { duration: 0.6 },
           scale: { duration: 0.6 },
         }

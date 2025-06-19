@@ -243,7 +243,7 @@ export default function UniversalPromptBar({
     <motion.div
       initial={{ width: 0 }}
       animate={{ width: `${progress}%` }}
-      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      transition={{ duration: 0.5, ease: 'easeInOut' as const }}
       className="absolute left-0 top-0 h-full bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue shadow-[0_0_12px_#30D5C8] animate-pulse"
       style={{ borderRadius: 8 }}
     />

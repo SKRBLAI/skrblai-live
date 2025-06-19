@@ -114,7 +114,7 @@ export default function TrialStatus({ trialStatus, onUpgrade, compact = false }:
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${getProgressPercentage(trialStatus.agentsUsedToday, trialStatus.agentLimit)}%` }}
-              transition={{ duration: 1, ease: 'easeOut' }}
+              transition={{ duration: 1, ease: 'easeOut' as const }}
               className={`h-2 rounded-full ${
                 trialStatus.agentsUsedToday >= trialStatus.agentLimit
                   ? 'bg-gradient-to-r from-red-500 to-red-600'
@@ -139,7 +139,7 @@ export default function TrialStatus({ trialStatus, onUpgrade, compact = false }:
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${getProgressPercentage(trialStatus.scansUsedToday, trialStatus.scanLimit)}%` }}
-              transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
+              transition={{ duration: 1, ease: 'easeOut' as const, delay: 0.2 }}
               className={`h-2 rounded-full ${
                 trialStatus.scansUsedToday >= trialStatus.scanLimit
                   ? 'bg-gradient-to-r from-red-500 to-red-600'

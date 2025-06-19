@@ -792,7 +792,7 @@ Based on this analysis, here are my cosmic recommendations:`;
                 <motion.div
                   className="w-6 h-6 rounded-full border-2 border-teal-400 border-t-transparent"
                   animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' as const }}
                 />
                 <span className="text-teal-300 text-sm">Cosmic scan in progress…</span>
               </div>
@@ -920,7 +920,7 @@ Based on this analysis, here are my cosmic recommendations:`;
                 y: Math.sin((i/10)*Math.PI*2) * 60,
                 opacity: [1, 1, 0],
               }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              transition={{ duration: 0.8, ease: 'easeOut' as const }}
             />
           ))}
         </motion.div>

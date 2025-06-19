@@ -61,12 +61,16 @@ export default function PercyAcademyPage() {
   // Animate mission cards
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
-    visible: (i: number) => ({
+    visible: {
       opacity: 1,
-      y: 0,
-      transition: { delay: 0.2 + i * 0.18, duration: 0.6, type: "spring" },
-    }),
+      y: 0
+    }
   };
+
+  // Use custom prop for delay
+  const getCustomDelay = (i: number) => ({
+    transition: { delay: 0.2 + i * 0.18, duration: 0.6 }
+  });
 
   // Animate badge
   const badgeVariants = {
@@ -113,6 +117,7 @@ export default function PercyAcademyPage() {
                   initial="hidden"
                   animate="visible"
                   variants={cardVariants}
+                  {...getCustomDelay(i)}
                   className={`glass-card p-7 rounded-2xl border-2 shadow-xl flex flex-col items-center relative transition-all duration-300 ${completed ? "border-teal-400/80 bg-teal-400/10" : "border-white/20"} group hover:shadow-glow hover:scale-105`}
                 >
                   {/* Badge */}

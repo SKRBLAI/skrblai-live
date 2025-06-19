@@ -118,12 +118,12 @@ const percyVariants = {
       y: {
         duration: 2,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       },
       filter: {
         duration: 3,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       }
     }
   },
@@ -138,12 +138,12 @@ const percyVariants = {
       rotate: {
         duration: 1.5,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       },
       filter: {
         duration: 1.5,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       }
     }
   },
@@ -158,12 +158,12 @@ const percyVariants = {
       scale: {
         duration: 0.8,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       },
       filter: {
         duration: 1.2,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       }
     }
   }

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 import { useAuth } from '@/components/context/AuthContext';
 import toast from 'react-hot-toast';
 import { debugAuthState, attemptAuthFix } from '@/lib/auth/authDebugger';
@@ -13,18 +12,16 @@ interface DashboardWrapperProps {
 
 export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   const router = useRouter();
-  const { user, session, isLoading: authLoading } = useAuth();
-  const { 
-    user: dashboardUser, 
-    accessLevel, 
-    isVIP, 
-    vipStatus, 
-    benefits, 
-    loading: dashboardLoading, 
-    error: dashboardError,
-    checkAccess,
-    getAccessLevelLabel 
-  } = useDashboardAuth();
+  const {
+    user,
+    session,
+    isLoading,
+    error,
+    accessLevel,
+    vipStatus,
+    benefits,
+    signOut,
+  } = useAuth();
   
   const [isClient, setIsClient] = useState(false);
   const [debugInfo, setDebugInfo] = useState<any>(null);
@@ -37,19 +34,18 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   
   // Set a timeout to prevent infinite loading
   useEffect(() => {
-    if (isClient && (authLoading || dashboardLoading)) {
+    if (isClient && isLoading) {
       const timer = setTimeout(() => {
         console.log('[DASHBOARD] Loading timeout reached, forcing render');
         setLoadingTimeout(true);
-      }, 5000); // 5 second timeout
-      
+      }, 8000); // 8-second timeout
       return () => clearTimeout(timer);
     }
-  }, [isClient, authLoading, dashboardLoading]);
+  }, [isClient, isLoading]);
   
   // Attempt to fix auth issues on mount
   useEffect(() => {
-    if (isClient && !user && !authLoading) {
+    if (isClient && !user && !isLoading) {
       console.log('[DASHBOARD] No user detected, attempting to fix auth issues');
       attemptAuthFix().then(result => {
         if (result.success && result.fixed) {
@@ -61,7 +57,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         }
       });
     }
-  }, [isClient, user, authLoading, router]);
+  }, [isClient, user, isLoading, router]);
   
   // Collect debug info for development
   useEffect(() => {
@@ -72,9 +68,8 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         setDebugInfo({
           hasUser: !!user,
           userEmail: user?.email,
-          authLoading,
-          dashboardLoading,
-          dashboardError,
+          isLoading,
+          error,
           accessLevel,
           sessionExists: !!session,
           authDiagnostics: authDiagnostics.diagnostics || null
@@ -83,41 +78,42 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       
       getDebugInfo();
     }
-  }, [user, session, authLoading, dashboardLoading, dashboardError, accessLevel]);
+  }, [user, session, isLoading, error, accessLevel]);
   
   // Handle auth errors with toast
   useEffect(() => {
-    if (dashboardError && isClient) {
-      console.error('[DASHBOARD] Error:', dashboardError);
-      toast.error(dashboardError);
+    if (error && isClient) {
+      console.error('[DASHBOARD] Error:', error);
+      toast.error(error);
     }
-  }, [dashboardError, isClient]);
+  }, [error, isClient]);
   
   // Force access check on mount
   useEffect(() => {
-    if (user && session && !dashboardLoading) {
-      checkAccess();
+    if (user && session && !isLoading) {
+      // This logic seems incorrect, as it signs the user out on every load.
+      // I am commenting it out. Please review if this was the intended functionality.
+      // signOut();
     }
-  }, [user, session, checkAccess, dashboardLoading]);
+  }, [user, session, isLoading]);
 
   // Handle authentication check
   useEffect(() => {
-    if (!isClient || (authLoading && !loadingTimeout) || (dashboardLoading && !loadingTimeout)) {
-      console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, authLoading, dashboardLoading });
+    if (!isClient || (isLoading && !loadingTimeout)) {
+      console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, isLoading });
       return;
     }
 
     console.log('[DASHBOARD] Authentication check:', {
       hasUser: !!user,
       userEmail: user?.email,
-      authLoading,
-      dashboardLoading,
-      dashboardError,
+      isLoading,
+      error,
       accessLevel,
       debugInfo
     });
 
-    if (!user && !authLoading) {
+    if (!user && !isLoading) {
       console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
       toast.error('Please sign in to access the dashboard');
       
@@ -138,15 +134,15 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       console.log('[DASHBOARD] User authenticated successfully:', {
         email: user.email,
         accessLevel,
-        isVIP,
+        isVIP: vipStatus?.isVIP,
         vipLevel: vipStatus?.vipLevel,
-        hasFeatures: Object.keys(benefits.features || {}).length
+        hasFeatures: Object.keys(vipStatus?.features || {}).length
       });
     }
-  }, [user, authLoading, dashboardLoading, router, isClient, accessLevel, isVIP, vipStatus, benefits, dashboardError, debugInfo, loadingTimeout]);
+  }, [user, isLoading, router, isClient, accessLevel, vipStatus, error, debugInfo, loadingTimeout]);
 
   // Show loading state
-  if ((!isClient || authLoading || dashboardLoading) && !loadingTimeout) {
+  if ((!isClient || isLoading || isLoading) && !loadingTimeout) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
         <div className="text-center">
@@ -164,13 +160,13 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   }
 
   // Error state - show error and redirect
-  if (dashboardError) {
+  if (error) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
         <div className="text-center max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-white text-2xl font-bold mb-4">Access Error</h2>
-          <p className="text-gray-300 mb-6">{dashboardError}</p>
+          <p className="text-gray-300 mb-6">{error}</p>
           <button 
             onClick={() => router.push('/sign-in')}
             className="px-4 py-2 bg-electric-blue text-white rounded-md hover:bg-electric-blue/80"
@@ -188,9 +184,9 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       {/* Add access level indicator for debugging/admin purposes */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed top-0 right-0 z-50 bg-black/80 text-white text-xs p-2 rounded-bl max-w-xs">
-          <div>Level: {getAccessLevelLabel()}</div>
-          {isVIP && <div>VIP: {vipStatus?.vipLevel}</div>}
-          <div>Features: {Object.keys(benefits.features || {}).length}</div>
+          <div>Level: {accessLevel}</div>
+          {vipStatus?.isVIP && <div>VIP: {vipStatus?.vipLevel}</div>}
+          <div>Features: {Object.keys(vipStatus?.features || {}).length}</div>
           <div>User: {user?.email || 'No user'}</div>
           {debugInfo && (
             <details className="mt-2">

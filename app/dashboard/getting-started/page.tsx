@@ -195,7 +195,7 @@ export default function GettingStartedDashboard() {
                 <div className="mb-4">
                   <p className="text-gray-400 mb-2">Days Remaining</p>
                   <div className="progress-bar">
-                    <div className="progress-bar-fill" style={{ width: '100%' }}></div>
+                    <div className="progress-bar-fill progress-bar-fill-100"></div>
                   </div>
                   <div className="flex justify-between mt-1">
                     <span className="text-xs text-gray-400">Day 1</span>

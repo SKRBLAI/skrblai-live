@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { useAuth } from '@/components/context/AuthContext';
 
 interface AgentStats {
   count: number;
@@ -36,27 +36,12 @@ const MOCK_ANALYTICS: PercyAnalytics = {
 };
 
 export function usePercyAnalytics(): PercyAnalytics {
+  const { user } = useAuth();
   const [analytics, setAnalytics] = useState<PercyAnalytics>({});
-  const [userId, setUserId] = useState<string | null>(null);
-
-  // Get current user
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await getCurrentUser();
-        if (user) {
-          setUserId(user.id);
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-    fetchUser();
-  }, []);
 
   // Fetch analytics data and subscribe to updates
   useEffect(() => {
-    if (!userId) return;
+    if (!user) return;
     
     let analyticsSubscription: any = null;
     
@@ -66,7 +51,7 @@ export function usePercyAnalytics(): PercyAnalytics {
         const { data, error } = await supabase
           .from('agent_usage')
           .select('intent, count, updatedAt')
-          .eq('userId', userId)
+          .eq('userId', user.id)
           .order('count', { ascending: false });
           
         if (error) throw error;
@@ -90,7 +75,7 @@ export function usePercyAnalytics(): PercyAnalytics {
           const { data: logsData, error: logsError } = await supabase
             .from('workflowLogs')
             .select('agentId, created_at')
-            .eq('userId', userId)
+            .eq('userId', user.id)
             .order('created_at', { ascending: false });
             
           if (!logsError && logsData) {
@@ -129,7 +114,7 @@ export function usePercyAnalytics(): PercyAnalytics {
     analyticsSubscription = supabase
       .channel('agent-usage-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'agent_usage', filter: `userId=eq.${userId}` }, 
+        { event: '*', schema: 'public', table: 'agent_usage', filter: `userId=eq.${user.id}` }, 
         () => {
           fetchAnalyticsData();
         }
@@ -140,7 +125,7 @@ export function usePercyAnalytics(): PercyAnalytics {
     const logsSubscription = supabase
       .channel('workflow-logs-changes')
       .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${userId}` }, 
+        { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, 
         () => {
           fetchAnalyticsData();
         }
@@ -152,7 +137,7 @@ export function usePercyAnalytics(): PercyAnalytics {
       if (analyticsSubscription) supabase.removeChannel(analyticsSubscription);
       if (logsSubscription) supabase.removeChannel(logsSubscription);
     };
-  }, [userId]);
+  }, [user]);
 
   return analytics;
 }
