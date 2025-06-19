@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { getCurrentUser } from '@/utils/supabase-helpers';
 import { supabase } from '@/utils/supabase';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';

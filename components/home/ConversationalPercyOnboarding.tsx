@@ -8,7 +8,7 @@ import { Send, MessageCircle, X } from 'lucide-react';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { getCurrentUser } from '@/utils/supabase-helpers';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';

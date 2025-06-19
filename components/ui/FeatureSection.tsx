@@ -1,7 +1,44 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { fadeInUp, staggerContainer, scaleIn } from '@/utils/animations';
+import { motion, Variants } from 'framer-motion';
+
+const transitionProps = {
+  duration: 0.5,
+  ease: [0.43, 0.13, 0.23, 0.96] as const
+};
+
+const springProps = {
+  stiffness: 200,
+  damping: 20
+};
+
+const fadeInUp: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: "tween", ...transitionProps }
+  }
+};
+
+const staggerContainer: Variants = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+      type: "tween"
+    }
+  }
+};
+
+const scaleIn: Variants = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { 
+    opacity: 1, 
+    scale: 1,
+    transition: { type: "spring", ...springProps }
+  }
+};
 import Image from 'next/image';
 
 const features = [

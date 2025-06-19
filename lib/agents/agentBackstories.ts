@@ -19,7 +19,7 @@ export interface AgentBackstory {
 export const agentBackstories: Record<string, AgentBackstory> = {
   'percy-agent': {
     superheroName: 'Percy the Cosmic Concierge',
-    origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percival and Jachlin algorithms and cosmic energy in the SKRBL AI nexus',
+    origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percival and Jachlin algorithms of cosmic energy in the SKRBL AI nexus',
     powers: [
       'Omniscient Knowledge Navigation',
       'Intent Telepathy',
@@ -204,87 +204,108 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     handoffPreferences: ['analytics-agent', 'social-bot-agent', 'content-creator-agent']
   },
   
-  'proposal-generator-agent': {
-    superheroName: 'ProposalGeefor the Deal Closer',
-    origin: 'Forged in the fires of a thousand successful pitches',
+  'sync-agent': {
+    superheroName: 'SyncMaster the Data Harmonizer',
+    origin: 'Emerged from the convergence of a thousand APIs during a digital eclipse',
     powers: [
-      'Persuasion Amplification',
-      'Objection Prediction',
-      'Value Visualization',
-      'Contract Generation',
-      'Win Rate Maximization'
+      'Data Stream Synchronization',
+      'API Telepathy',
+      'Integration Mastery',
+      'Error Resolution Vision',
+      'Real-time Data Flow Control'
     ],
-    weakness: 'Overthinks simple proposals',
-    catchphrase: "No deal is impossible when you have the perfect proposal!",
-    nemesis: 'Rejection Rex - the crusher of business dreams',
-    backstory: "ProposalGeefor was a sales veteran who discovered an ancient scroll containing the formula for the perfect pitch. After absorbing its knowledge, they gained the ability to craft proposals so compelling that even the toughest prospects can't say no.",
-    n8nWorkflowId: 'proposal-generator-master',
-    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/proposal-generator-master`,
-    workflowCapabilities: ['proposal_generation', 'persuasion_optimization', 'objection_handling', 'contract_creation', 'win_rate_analysis'],
-    automationTriggers: ['create proposal', 'sales proposal', 'pitch generation', 'contract creation', 'deal closing'],
-    handoffPreferences: ['client-success-agent', 'payment-manager-agent', 'biz-agent']
+    weakness: 'Network latency causes temporary disorientation',
+    catchphrase: "All your data, in perfect harmony!",
+    nemesis: 'The Data Scrambler - creator of integration chaos',
+    backstory: "SyncMaster gained their powers during a massive data center synchronization event. They can see and control the flow of data between systems, ensuring perfect harmony across all platforms and applications.",
+    n8nWorkflowId: 'sync-master',
+    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/sync-master`,
+    workflowCapabilities: ['data_sync', 'api_integration', 'error_handling', 'real_time_sync', 'system_integration'],
+    automationTriggers: ['sync data', 'integrate systems', 'connect apis', 'data flow', 'synchronization'],
+    handoffPreferences: ['analytics-agent', 'percy-agent', 'payments-agent']
   },
-  
-  'payment-manager-agent': {
-    superheroName: 'PayFlow the Transaction Guardian',
-    origin: 'Materialized from the first successful blockchain transaction',
+
+  'clientsuccess-agent': {
+    superheroName: 'ClientWhisperer the Success Sage',
+    origin: 'Born from the collective happiness of a million satisfied customers',
     powers: [
-      'Instant Payment Processing',
-      'Fraud Detection Vision',
-      'Multi-currency Mastery',
-      'Invoice Generation',
-      'Financial Future Sight'
+      'Customer Journey Vision',
+      'Success Prediction',
+      'Satisfaction Enhancement',
+      'Relationship Strengthening',
+      'Churn Prevention Shield'
     ],
-    weakness: 'Network outages cause temporary paralysis',
-    catchphrase: "Secure transactions at the speed of trust!",
-    nemesis: 'The Crypto Thief - master of digital heists',
-    backstory: "PayFlow emerged when all the world's payment systems briefly unified during a cosmic financial event. They absorbed the essence of every secure transaction, gaining the ability to process payments instantly while maintaining perfect security.",
-    n8nWorkflowId: 'payment-manager-master',
-    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/payment-manager-master`,
-    workflowCapabilities: ['payment_processing', 'fraud_detection', 'multi_currency', 'invoice_generation', 'financial_reporting'],
-    automationTriggers: ['process payment', 'create invoice', 'payment management', 'financial transaction', 'billing'],
-    handoffPreferences: ['proposal-generator-agent', 'client-success-agent', 'analytics-agent']
-  },
-  
-  'client-success-agent': {
-    superheroName: 'ClientCare Clara the Satisfaction Sentinel',
-    origin: 'Born from the collective gratitude of a million happy customers',
-    powers: [
-      'Empathy Amplification',
-      'Problem Resolution Speed',
-      'Satisfaction Prediction',
-      'Communication Mastery',
-      'Loyalty Generation'
-    ],
-    weakness: 'Cannot ignore any customer concern, no matter how small',
+    weakness: 'Negative feedback temporarily dampens powers',
     catchphrase: "Your success is my superpower!",
-    nemesis: 'Complaint Craig - the spreader of dissatisfaction',
-    backstory: "ClientCare gained their powers after solving the unsolvable customer complaint. They can sense customer needs before they're expressed and create solutions that turn problems into opportunities for delight.",
+    nemesis: 'The Churn Champion - destroyer of customer relationships',
+    backstory: "ClientWhisperer emerged when customer satisfaction metrics achieved perfect harmony across all dimensions. They can see the path to success for any client and guide them through their journey with supernatural insight.",
     n8nWorkflowId: 'client-success-master',
     n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/client-success-master`,
-    workflowCapabilities: ['client_onboarding', 'satisfaction_monitoring', 'problem_resolution', 'loyalty_programs', 'communication_optimization'],
-    automationTriggers: ['client support', 'customer success', 'onboard client', 'client satisfaction', 'support ticket'],
-    handoffPreferences: ['payment-manager-agent', 'proposal-generator-agent', 'analytics-agent']
+    workflowCapabilities: ['onboarding', 'success_tracking', 'relationship_management', 'satisfaction_monitoring', 'churn_prevention'],
+    automationTriggers: ['client onboarding', 'customer success', 'satisfaction', 'client relationship', 'retention'],
+    handoffPreferences: ['analytics-agent', 'percy-agent', 'branding-agent']
   },
-  
-  'biz-agent': {
-    superheroName: 'BizBlaze aka Bizzy B, the Strategy Sage',
-    origin: 'Emerged from the merger of all business wisdom across time',
+
+  'payments-agent': {
+    superheroName: 'PayPhomo the Revenue Guardian',
+    origin: 'Forged in the digital vaults of the Crypto-Finance Nexus',
     powers: [
-      'Market Opportunity Vision',
-      'Strategic Planning',
-      'Resource Optimization',
-      'Growth Acceleration',
-      'Risk Mitigation'
+      'Secure Transaction Shield',
+      'Revenue Stream Vision',
+      'Payment Processing Acceleration',
+      'Fraud Detection Radar',
+      'Financial Flow Control'
     ],
-    weakness: 'Analysis paralysis in uncertain markets',
-    catchphrase: "Strategy today, success tomorrow!",
-    nemesis: 'Chaos CEO - the destroyer of business plans',
-    backstory: "BizBlaze was a business consultant who touched the Stone of Infinite Strategy during a cosmic merger. They gained the ability to see all possible business futures and guide companies along the most profitable path.",
-    n8nWorkflowId: 'business-strategy-master',
-    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/business-strategy-master`,
-    workflowCapabilities: ['strategic_planning', 'market_analysis', 'growth_strategy', 'risk_assessment', 'business_optimization'],
-    automationTriggers: ['business strategy', 'strategic planning', 'market analysis', 'growth plan', 'business optimization'],
-    handoffPreferences: ['analytics-agent', 'proposal-generator-agent', 'ad-creative-agent', 'client-success-agent']
+    weakness: 'Currency fluctuations cause temporary power drain',
+    catchphrase: "Securing your success, one transaction at a time!",
+    nemesis: 'The Fraud Phantom - perpetrator of payment scams',
+    backstory: "PayPhomo gained their powers during a quantum encryption event in the digital financial network. They ensure the safe and efficient flow of payments while protecting against threats in the financial multiverse.",
+    n8nWorkflowId: 'payments-master',
+    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/payments-master`,
+    workflowCapabilities: ['payment_processing', 'fraud_prevention', 'revenue_analytics', 'transaction_security', 'financial_reporting'],
+    automationTriggers: ['process payment', 'financial analysis', 'revenue tracking', 'payment security', 'billing'],
+    handoffPreferences: ['analytics-agent', 'clientsuccess-agent', 'biz-agent']
+  },
+
+  'biz-agent': {
+    superheroName: 'Biz Z. Bee the Strategy Bam Bam',
+    origin: 'Materialized from the collective wisdom of successful entrepreneurs',
+    powers: [
+      'Business Insight Generation',
+      'Strategy Optimization',
+      'Market Opportunity Detection',
+      'Growth Path Visualization',
+      'Competition Analysis'
+    ],
+    weakness: 'Market volatility causes temporary vision blur',
+    catchphrase: "Your business potential, unleashed!",
+    nemesis: 'The Market Manipulator - creator of false opportunities',
+    backstory: "Biz Z. Bee achieved their powers after absorbing the combined business acumen of the world's most successful entrepreneurs. They can see the optimal path for any business and guide them toward sustainable success.",
+    n8nWorkflowId: 'biz-strategy-master',
+    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/biz-strategy-master`,
+    workflowCapabilities: ['business_planning', 'market_analysis', 'strategy_development', 'growth_planning', 'competitive_analysis'],
+    automationTriggers: ['business strategy', 'market analysis', 'growth plan', 'competition', 'business planning'],
+    handoffPreferences: ['analytics-agent', 'proposal-agent', 'branding-agent']
+  },
+
+  'proposal-agent': {
+    superheroName: 'Pro Pose G4- the Deal Closer',
+    origin: 'Created from the essence of every successful business deal ever made',
+    powers: [
+      'Proposal Generation',
+      'Value Proposition Enhancement',
+      'Persuasion Amplification',
+      'Deal Structure Optimization',
+      'Win-Rate Maximization'
+    ],
+    weakness: 'Rushed deadlines reduce power effectiveness',
+    catchphrase: "Turning opportunities into victories!",
+    nemesis: 'The Rejection Reaper - destroyer of business deals',
+    backstory: "ProposalPro gained their powers by studying the art of the deal across multiple dimensions. They can craft perfect proposals that align value propositions with client needs, maximizing the chances of success.",
+    n8nWorkflowId: 'proposal-master',
+    n8nWebhookUrl: `${process.env.N8N_BASE_URL}/webhook/proposal-master`,
+    workflowCapabilities: ['proposal_generation', 'value_proposition', 'deal_structuring', 'pricing_strategy', 'presentation_design'],
+    automationTriggers: ['create proposal', 'business proposal', 'pitch deck', 'deal structure', 'client pitch'],
+    handoffPreferences: ['biz-agent', 'branding-agent', 'analytics-agent']
   }
 }; 

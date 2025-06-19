@@ -4,7 +4,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
-import { fadeInUp, staggerContainer, hoverScale } from '@/utils/animations';
+import { Variants } from 'framer-motion';
+
+const transitionProps = {
+  duration: 0.5,
+  ease: [0.43, 0.13, 0.23, 0.96] as const
+};
+
+const fadeInUp: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: "tween", ...transitionProps }
+  }
+};
+
+const staggerContainer: Variants = {
+  initial: {},
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+      type: "tween"
+    }
+  }
+};
+
+const hoverScale = {
+  whileHover: { scale: 1.05 },
+  whileTap: { scale: 0.95 }
+};
 
 import FloatingBackground from './FloatingBackground';
 import AgentLeagueDashboard from '../agents/AgentLeagueDashboard';

@@ -3,14 +3,21 @@ import React, { useState } from 'react';
 import { useUser, useSession } from '@supabase/auth-helpers-react';
 import { useAgentTracking, useUpgradeTracking } from '@/lib/hooks/useAnalytics';
 import type { Agent } from '@/types/agent';
+import { motion } from 'framer-motion';
 
 interface AgentLaunchButtonProps {
   agent: Agent;
   onLaunch?: (agent: Agent) => void;
   className?: string;
+  variant?: 'default' | 'card'; // New prop for different contexts
 }
 
-export default function AgentLaunchButton({ agent, onLaunch, className = '' }: AgentLaunchButtonProps) {
+export default function AgentLaunchButton({ 
+  agent, 
+  onLaunch, 
+  className = '',
+  variant = 'default'
+}: AgentLaunchButtonProps) {
   const [isLaunching, setIsLaunching] = useState(false);
   const [upgradeRequired, setUpgradeRequired] = useState<string | null>(null);
   const user = useUser();
@@ -66,6 +73,29 @@ export default function AgentLaunchButton({ agent, onLaunch, className = '' }: A
     }
   };
 
+  // For card variant, show minimal UI
+  if (variant === 'card') {
+    return (
+      <motion.button
+        onClick={upgradeRequired ? () => window.open('/pricing', '_blank') : handleLaunch}
+        disabled={isLaunching}
+        className={`relative ${className}`}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <span className="sr-only">
+          {upgradeRequired ? `Upgrade to ${upgradeRequired}` : `Launch ${agent.name}`}
+        </span>
+        {isLaunching && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-lg">
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+      </motion.button>
+    );
+  }
+
+  // Default variant with full UI
   if (upgradeRequired) {
     return (
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-4">

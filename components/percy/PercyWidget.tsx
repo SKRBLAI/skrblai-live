@@ -6,7 +6,7 @@ import { supabase } from '@/utils/supabase';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import { usePercyRouter } from '@/contexts/PercyContext';
 import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { getCurrentUser } from '@/utils/supabase-helpers';
 import { sendEmailAction } from '@/actions/sendEmail';
 import { saveChatMemory } from '@/lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';

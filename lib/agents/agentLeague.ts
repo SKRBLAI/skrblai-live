@@ -218,25 +218,176 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'analytics-agent': [
+  'publishing-agent': [
     {
-      id: 'data-insights',
-      name: 'Future Trend Prediction',
-      description: 'Analyzes data patterns and predicts future trends',
-      triggerKeywords: ['analytics', 'data', 'insights', 'trends', 'metrics'],
-      n8nWorkflowId: 'analytics-workflow',
-      outputType: 'data',
-      estimatedDuration: 15,
+      id: 'book-publishing',
+      name: 'Book Publishing Mastery',
+      description: 'Guides through the entire book publishing process',
+      triggerKeywords: ['publish', 'book', 'manuscript', 'author', 'publishing'],
+      n8nWorkflowId: 'publishing-workflow',
+      outputType: 'workflow',
+      estimatedDuration: 45,
       premiumRequired: true
     },
     {
-      id: 'roi-analysis',
-      name: 'ROI Clairvoyance',
-      description: 'Calculates and optimizes return on investment',
-      triggerKeywords: ['roi', 'return', 'investment', 'optimization', 'profit'],
-      apiEndpoint: '/api/analytics/roi-analysis',
+      id: 'manuscript-analysis',
+      name: 'Manuscript Analysis',
+      description: 'Analyzes manuscripts for marketability and improvement areas',
+      triggerKeywords: ['analyze', 'review', 'manuscript', 'feedback'],
+      apiEndpoint: '/api/publishing/manuscript-analysis',
+      outputType: 'data',
+      estimatedDuration: 30,
+      premiumRequired: true
+    }
+  ],
+
+  'sitegen-agent': [
+    {
+      id: 'website-generation',
+      name: 'Website Generation',
+      description: 'Creates complete website designs and content',
+      triggerKeywords: ['website', 'design', 'generate', 'site'],
+      n8nWorkflowId: 'sitegen-workflow',
+      outputType: 'file',
+      estimatedDuration: 40,
+      premiumRequired: false
+    },
+    {
+      id: 'site-optimization',
+      name: 'Site Optimization',
+      description: 'Optimizes websites for performance and SEO',
+      triggerKeywords: ['optimize', 'seo', 'performance', 'speed'],
+      apiEndpoint: '/api/sitegen/optimize',
+      outputType: 'data',
+      estimatedDuration: 20,
+      premiumRequired: true
+    }
+  ],
+
+  'sync-agent': [
+    {
+      id: 'data-sync',
+      name: 'Data Synchronization',
+      description: 'Synchronizes data across multiple platforms',
+      triggerKeywords: ['sync', 'integrate', 'data', 'connect'],
+      n8nWorkflowId: 'sync-workflow',
+      outputType: 'workflow',
+      estimatedDuration: 15,
+      premiumRequired: false
+    }
+  ],
+
+  'clientsuccess-agent': [
+    {
+      id: 'client-onboarding',
+      name: 'Client Onboarding',
+      description: 'Manages client onboarding and success tracking',
+      triggerKeywords: ['onboard', 'client', 'success', 'welcome'],
+      n8nWorkflowId: 'clientsuccess-workflow',
+      outputType: 'workflow',
+      estimatedDuration: 25,
+      premiumRequired: false
+    },
+    {
+      id: 'success-tracking',
+      name: 'Success Metrics Tracking',
+      description: 'Tracks and analyzes client success metrics',
+      triggerKeywords: ['metrics', 'track', 'success', 'analytics'],
+      apiEndpoint: '/api/clientsuccess/metrics',
       outputType: 'data',
       estimatedDuration: 10,
+      premiumRequired: true
+    }
+  ],
+
+  'payments-agent': [
+    {
+      id: 'payment-processing',
+      name: 'Payment Processing',
+      description: 'Handles secure payment processing and invoicing',
+      triggerKeywords: ['payment', 'invoice', 'billing', 'charge'],
+      n8nWorkflowId: 'payments-workflow',
+      outputType: 'workflow',
+      estimatedDuration: 5,
+      premiumRequired: false
+    },
+    {
+      id: 'revenue-analytics',
+      name: 'Revenue Analytics',
+      description: 'Analyzes revenue streams and payment patterns',
+      triggerKeywords: ['revenue', 'analyze', 'patterns', 'income'],
+      apiEndpoint: '/api/payments/analytics',
+      outputType: 'data',
+      estimatedDuration: 15,
+      premiumRequired: true
+    }
+  ],
+
+  'analytics-agent': [
+    {
+      id: 'data-analysis',
+      name: 'Data Analysis',
+      description: 'Performs deep data analysis and visualization',
+      triggerKeywords: ['analyze', 'data', 'metrics', 'insights'],
+      n8nWorkflowId: 'analytics-workflow',
+      outputType: 'data',
+      estimatedDuration: 20,
+      premiumRequired: false
+    },
+    {
+      id: 'predictive-analytics',
+      name: 'Predictive Analytics',
+      description: 'Predicts future trends and outcomes',
+      triggerKeywords: ['predict', 'forecast', 'trends', 'future'],
+      apiEndpoint: '/api/analytics/predict',
+      outputType: 'data',
+      estimatedDuration: 30,
+      premiumRequired: true
+    }
+  ],
+
+  'biz-agent': [
+    {
+      id: 'business-planning',
+      name: 'Business Planning',
+      description: 'Creates comprehensive business plans and strategies',
+      triggerKeywords: ['plan', 'business', 'strategy', 'startup'],
+      n8nWorkflowId: 'biz-planning-workflow',
+      outputType: 'file',
+      estimatedDuration: 45,
+      premiumRequired: true
+    },
+    {
+      id: 'market-analysis',
+      name: 'Market Analysis',
+      description: 'Analyzes market conditions and opportunities',
+      triggerKeywords: ['market', 'analysis', 'competition', 'opportunity'],
+      apiEndpoint: '/api/biz/market-analysis',
+      outputType: 'data',
+      estimatedDuration: 25,
+      premiumRequired: true
+    }
+  ],
+
+  'videocontent-agent': [
+    {
+      id: 'video-creation',
+      name: 'Video Content Creation',
+      description: 'Creates engaging video content and scripts',
+      triggerKeywords: ['video', 'create', 'script', 'content'],
+      n8nWorkflowId: 'video-workflow',
+      outputType: 'file',
+      estimatedDuration: 35,
+      premiumRequired: true
+    },
+    {
+      id: 'video-optimization',
+      name: 'Video Optimization',
+      description: 'Optimizes videos for different platforms',
+      triggerKeywords: ['optimize', 'platform', 'format', 'video'],
+      apiEndpoint: '/api/video/optimize',
+      outputType: 'file',
+      estimatedDuration: 20,
       premiumRequired: true
     }
   ]
@@ -570,6 +721,234 @@ export class AgentLeague {
           supportedLanguages: ['en', 'es', 'fr'],
           maxConversationDepth: 30,
           specializedTopics: ['ad campaigns', 'conversion optimization', 'audience targeting', 'creative testing'],
+          emotionalIntelligence: true
+        }
+      },
+      
+      {
+        id: 'video-content-agent',
+        name: 'VideoVortex',
+        category: 'Video',
+        description: 'The Motion Master who creates stunning video content',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('video-content-agent'),
+        powers: AGENT_POWERS['video-content-agent'] || [],
+        capabilities: [{
+          category: 'Video Creation',
+          skills: ['Video Generation', 'Motion Graphics', 'Scene Creation', 'Audio Sync'],
+          primaryOutput: 'Professional video content',
+          supportedFormats: ['mp4', 'mov', 'gif', 'webm'],
+          integrations: ['adobe-premiere', 'after-effects', 'davinci-resolve']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['video-content-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'video-creation-master',
+        primaryWorkflow: 'video-content-creation',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '🎥',
+        colorTheme: 'video-purple',
+        imageSlug: 'video',
+        usageTracking: true,
+        performanceMetrics: ['videos_created', 'render_time', 'viewer_engagement'],
+        canConverse: true,
+        recommendedHelpers: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent'],
+        handoffTriggers: ['social media', 'advertising', 'performance data'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr'],
+          maxConversationDepth: 30,
+          specializedTopics: ['video production', 'motion graphics', 'visual storytelling', 'video editing'],
+          emotionalIntelligence: true
+        }
+      },
+
+      {
+        id: 'publishing-agent',
+        name: 'PublishPete',
+        category: 'Publishing',
+        description: 'The Literary Guardian who masters the publishing process',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('publishing-agent'),
+        powers: AGENT_POWERS['publishing-agent'] || [],
+        capabilities: [{
+          category: 'Book Publishing',
+          skills: ['Book Formatting', 'ISBN Generation', 'Distribution', 'Copyright Protection'],
+          primaryOutput: 'Published books and distribution',
+          supportedFormats: ['epub', 'pdf', 'mobi', 'paperback'],
+          integrations: ['amazon-kdp', 'ingramspark', 'draft2digital']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['publishing-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'publishing-master',
+        primaryWorkflow: 'book-publishing',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '📚',
+        colorTheme: 'publishing-brown',
+        imageSlug: 'publishing',
+        usageTracking: true,
+        performanceMetrics: ['books_published', 'distribution_reach', 'author_satisfaction'],
+        canConverse: true,
+        recommendedHelpers: ['content-creator-agent', 'branding-agent', 'analytics-agent'],
+        handoffTriggers: ['content creation', 'brand identity', 'sales data'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 40,
+          specializedTopics: ['book publishing', 'distribution', 'copyright', 'formatting'],
+          emotionalIntelligence: true
+        }
+      },
+
+      {
+        id: 'sitegen-agent',
+        name: 'SiteOnzite',
+        category: 'Web Development',
+        description: 'The Web Architect who builds perfect websites',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('sitegen-agent'),
+        powers: AGENT_POWERS['sitegen-agent'] || [],
+        capabilities: [{
+          category: 'Website Creation',
+          skills: ['Website Generation', 'Responsive Design', 'SEO Architecture', 'UX Optimization'],
+          primaryOutput: 'Complete website solutions',
+          supportedFormats: ['html', 'css', 'js', 'react', 'next.js'],
+          integrations: ['vercel', 'netlify', 'wordpress', 'webflow']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['sitegen-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'sitegen-web-master',
+        primaryWorkflow: 'website-generation',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: false,
+        emoji: '🌐',
+        colorTheme: 'web-blue',
+        imageSlug: 'sitegen',
+        usageTracking: true,
+        performanceMetrics: ['sites_created', 'performance_score', 'seo_ranking'],
+        canConverse: true,
+        recommendedHelpers: ['branding-agent', 'content-creator-agent', 'analytics-agent'],
+        handoffTriggers: ['brand assets', 'content creation', 'analytics data'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 35,
+          specializedTopics: ['web development', 'responsive design', 'seo', 'user experience'],
+          emotionalIntelligence: true
+        }
+      },
+
+      {
+        id: 'sync-agent',
+        name: 'SyncMaster',
+        category: 'Integration',
+        description: 'The Data Harmonizer who perfects system integrations',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('sync-agent'),
+        powers: AGENT_POWERS['sync-agent'] || [],
+        capabilities: [{
+          category: 'Data Synchronization',
+          skills: ['Data Sync', 'API Integration', 'Error Handling', 'Real-time Sync'],
+          primaryOutput: 'Seamless system integrations',
+          supportedFormats: ['json', 'xml', 'csv', 'api'],
+          integrations: ['zapier', 'n8n', 'make', 'workato']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['sync-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'sync-master',
+        primaryWorkflow: 'data-synchronization',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '🔄',
+        colorTheme: 'sync-green',
+        imageSlug: 'sync',
+        usageTracking: true,
+        performanceMetrics: ['sync_success_rate', 'data_accuracy', 'system_uptime'],
+        canConverse: true,
+        recommendedHelpers: ['analytics-agent', 'percy-agent', 'payments-agent'],
+        handoffTriggers: ['data analysis', 'workflow coordination', 'payment processing'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'de'],
+          maxConversationDepth: 25,
+          specializedTopics: ['system integration', 'api configuration', 'data synchronization', 'error handling'],
+          emotionalIntelligence: false
+        }
+      },
+
+      {
+        id: 'clientsuccess-agent',
+        name: 'ClientWhisperer',
+        category: 'Client Success',
+        description: 'The Success Sage who ensures client satisfaction',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('clientsuccess-agent'),
+        powers: AGENT_POWERS['clientsuccess-agent'] || [],
+        capabilities: [{
+          category: 'Client Success',
+          skills: ['Onboarding', 'Success Tracking', 'Relationship Management', 'Churn Prevention'],
+          primaryOutput: 'Client success and satisfaction',
+          supportedFormats: ['text', 'pdf', 'dashboard'],
+          integrations: ['salesforce', 'hubspot', 'intercom', 'zendesk']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['clientsuccess-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'client-success-master',
+        primaryWorkflow: 'client-success-management',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '🤝',
+        colorTheme: 'success-gold',
+        imageSlug: 'clientsuccess',
+        usageTracking: true,
+        performanceMetrics: ['client_satisfaction', 'retention_rate', 'response_time'],
+        canConverse: true,
+        recommendedHelpers: ['analytics-agent', 'percy-agent', 'branding-agent'],
+        handoffTriggers: ['performance data', 'workflow help', 'brand updates'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 45,
+          specializedTopics: ['client relations', 'success tracking', 'satisfaction', 'retention'],
+          emotionalIntelligence: true
+        }
+      },
+
+      {
+        id: 'payments-agent',
+        name: 'PayPhomo',
+        category: 'Finance',
+        description: 'The Revenue Guardian who manages payment processes',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('payments-agent'),
+        powers: AGENT_POWERS['payments-agent'] || [],
+        capabilities: [{
+          category: 'Payment Processing',
+          skills: ['Payment Integration', 'Revenue Management', 'Subscription Handling', 'Fraud Prevention'],
+          primaryOutput: 'Payment processing and management',
+          supportedFormats: ['json', 'csv', 'dashboard'],
+          integrations: ['stripe', 'paypal', 'square', 'wise']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['payments-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'payments-master',
+        primaryWorkflow: 'payment-processing',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: true,
+        emoji: '💳',
+        colorTheme: 'finance-green',
+        imageSlug: 'payments',
+        usageTracking: true,
+        performanceMetrics: ['transaction_success_rate', 'revenue_processed', 'fraud_prevention'],
+        canConverse: true,
+        recommendedHelpers: ['analytics-agent', 'sync-agent', 'clientsuccess-agent'],
+        handoffTriggers: ['data analysis', 'system integration', 'client support'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr', 'de'],
+          maxConversationDepth: 30,
+          specializedTopics: ['payment processing', 'revenue management', 'subscriptions', 'fraud prevention'],
           emotionalIntelligence: true
         }
       }

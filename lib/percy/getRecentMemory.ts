@@ -1,5 +1,5 @@
 import { supabase } from '@/utils/supabase';
-import { getCurrentUser } from '@/utils/supabase-auth';
+import { getCurrentUser } from '@/utils/supabase-helpers';
 
 export const getRecentPercyMemory = async () => {
   try {

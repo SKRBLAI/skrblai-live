@@ -34,74 +34,129 @@ export async function POST(request: Request) {
       }, { status: 401 });
     }
     
-    // First check if code is valid
-    const { data: codeData, error: codeError } = await supabase
+    // 1. Validate the code from 'codes' table
+    const { data: codeDetails, error: codeValidationError } = await supabase
       .from('codes')
-      .select('*')
+      .select('access_level_granted, benefits, is_active, expires_at') // Select necessary fields from 'codes' table
       .eq('code', code)
-      .eq('code_type', codeType)
-      .single();
+      .eq('code_type', codeType) // Ensure code_type also matches
+      .single(); // Expect a single code
     
-    if (codeError || !codeData) {
-      console.error('[AUTH] Invalid code:', code, codeError);
+    if (codeValidationError || !codeDetails) {
+      console.error(`[AUTH] Apply Code: Invalid code '${code}' or DB error:`, codeValidationError?.message);
       return NextResponse.json({ 
         success: false, 
         error: 'Invalid code. Please check and try again.' 
       }, { status: 400 });
     }
+
+    // Check if code is active
+    if (!codeDetails.is_active) {
+      console.warn(`[AUTH] Apply Code: Code '${code}' is not active.`);
+      return NextResponse.json({ success: false, error: 'This code is no longer active.' }, { status: 400 });
+    }
+
+    // Check if code has expired
+    if (codeDetails.expires_at && new Date(codeDetails.expires_at) < new Date()) {
+      console.warn(`[AUTH] Apply Code: Code '${code}' has expired.`);
+      return NextResponse.json({ success: false, error: 'This code has expired.' }, { status: 400 });
+    }
     
-    // Check if code is already used
-    const { data: existingCode, error: existingError } = await supabase
+    // 2. Check if code is already used by this user in 'user_codes'
+    const { data: existingUserCode, error: existingUserCodeError } = await supabase
       .from('user_codes')
-      .select('*')
+      .select('code') // Only need to check for existence
       .eq('user_id', session.user.id)
       .eq('code', code)
-      .single();
-    
-    if (existingCode) {
+      .maybeSingle(); // Use maybeSingle to not error if no record found
+      
+    // PGRST116: "Searched for a single row, but found no rows" - this is OK, means code not used by user.
+    if (existingUserCodeError && existingUserCodeError.code !== 'PGRST116') { 
+        console.error(`[AUTH] Apply Code: Error checking existing user code for user ${session.user.id}, code '${code}':`, existingUserCodeError.message);
+        return NextResponse.json({ success: false, error: 'Error validating code. Please try again.' }, { status: 500 });
+    }
+
+    if (existingUserCode) {
+      console.warn(`[AUTH] Apply Code: Code '${code}' already applied by user ${session.user.id}.`);
       return NextResponse.json({ 
         success: false, 
-        error: 'This code has already been applied to your account' 
+        error: 'This code has already been applied to your account.' 
       }, { status: 400 });
     }
     
-    // Apply the code
-    const { error: applyError } = await supabase
+    // 3. Apply the code by inserting into 'user_codes'
+    const { error: applyUserCodeError } = await supabase
       .from('user_codes')
       .insert({
         user_id: session.user.id,
         code: code,
-        code_type: codeType,
-        applied_at: new Date().toISOString()
+        code_type: codeType, 
+        applied_at: new Date().toISOString(),
       });
     
-    if (applyError) {
-      console.error('[AUTH] Error applying code:', applyError);
+    if (applyUserCodeError) {
+      console.error(`[AUTH] Apply Code: Error applying code to user_codes for user ${session.user.id}, code '${code}':`, applyUserCodeError.message);
       return NextResponse.json({ 
         success: false, 
-        error: 'Failed to apply code. Please try again later.' 
+        error: 'Failed to record code usage. Please try again later.' 
+      }, { status: 500 });
+    }
+
+    // 4. Update 'user_dashboard_access' with new access level and benefits
+    // The trigger has already created a record, so we UPDATE it.
+    const newAccessLevel = codeDetails.access_level_granted;
+    const newBenefits = codeDetails.benefits;
+    const newIsVip = typeof newAccessLevel === 'string' && newAccessLevel.toLowerCase().includes('vip');
+
+    const { error: updateAccessError } = await supabase
+      .from('user_dashboard_access')
+      .update({
+        access_level: newAccessLevel,
+        benefits: newBenefits,
+        is_vip: newIsVip,
+        updated_at: new Date().toISOString(),
+        metadata: supabase.sql`COALESCE(metadata, '{}'::jsonb) || ${{ // Append to existing metadata or create if null
+            last_applied_code: code,
+            last_applied_code_type: codeType,
+            last_code_applied_at: new Date().toISOString(),
+            updated_by_api_apply_code: true
+        }}::jsonb`
+      })
+      .eq('user_id', session.user.id);
+
+    if (updateAccessError) {
+      console.error(`[AUTH] Apply Code: CRITICAL - Error updating user_dashboard_access for user ${session.user.id} with code '${code}':`, updateAccessError.message);
+      // Consider rollback or specific logging for manual intervention
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Failed to update account access with code benefits. Please contact support.' 
       }, { status: 500 });
     }
     
-    // Log the event
+    // 5. Log the event to 'user_events'
     await supabase
       .from('user_events')
       .insert({
         user_id: session.user.id,
-        event_type: `${codeType}_code_applied`,
-        details: { code }
+        event_type: `${codeType}_code_applied_successfully`,
+        details: { 
+            code, 
+            access_granted: newAccessLevel,
+            benefits_applied: newBenefits 
+        }
       });
     
+    console.log(`[AUTH] Apply Code: Successfully applied code '${code}' for user ${session.user.id}. New access: ${newAccessLevel}`);
     return NextResponse.json({ 
       success: true,
-      message: `${codeType.toUpperCase()} code applied successfully!`
+      message: `${codeType.toUpperCase()} code applied successfully! Your access has been updated.`
     });
     
-  } catch (error) {
-    console.error('[AUTH] Code application error:', error);
+  } catch (error: any) {
+    console.error('[AUTH] Apply Code: Unexpected error:', error.message, error.stack);
     return NextResponse.json({ 
       success: false, 
-      error: 'An unexpected error occurred' 
+      error: 'An unexpected error occurred while applying the code.' 
     }, { status: 500 });
   }
-} 
+}

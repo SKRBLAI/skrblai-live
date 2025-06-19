@@ -8,6 +8,7 @@ import { MessageCircle, Info, Rocket } from 'lucide-react';
 import { Agent } from '@/types/agent';
 import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
+import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
 
 interface AgentLeagueCardProps {
   agent: Agent;
@@ -77,7 +78,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const handleFrameImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('[AgentLeagueCard] Failed to load frame asset:', frameAssetPath, 'for agent:', agent.id);
     // Try webp format as fallback
-    event.currentTarget.src = `/images/Agents-${agentSlug}-Buttons.webp`;
+    event.currentTarget.src = `/images/agents-${agentSlug}-nobg-skrblai.webp`;
     // Set onerror again for the webp fallback
     event.currentTarget.onerror = () => {
       console.error('[AgentLeagueCard] Failed to load webp fallback as well, using default frame');
@@ -185,34 +186,39 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               {agent.name}
             </motion.h3>
 
-            {/* Card Buttons - positioned on the button area of the frame */}
-            <div className="absolute bottom-[8%] left-0 right-0 flex justify-center gap-4">
+            {/* Interactive Button Overlays */}
+            <div className="absolute bottom-[12%] left-0 right-0 flex justify-center gap-6">
               {/* Learn Button */}
-              <button
-                className="px-3 py-1 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white text-xs font-bold shadow-md hover:from-blue-500 hover:to-blue-700 transition-colors"
+              <motion.button
+                className="w-[85px] h-[36px] rounded-lg bg-transparent hover:bg-white/10 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] focus:bg-white/10 transition-all"
                 onClick={handleInfoClick}
                 aria-label={`Learn about ${agent.name}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                LEARN
-              </button>
+                <span className="sr-only">LEARN</span>
+              </motion.button>
               
               {/* Chat Button */}
-              <button
-                className="px-3 py-1 rounded-lg bg-gradient-to-br from-green-400 to-green-600 text-white text-xs font-bold shadow-md hover:from-green-500 hover:to-green-700 transition-colors"
+              <motion.button
+                className="w-[85px] h-[36px] rounded-lg bg-transparent hover:bg-white/10 hover:shadow-[0_0_12px_rgba(255,255,255,0.2)] focus:bg-white/10 transition-all"
                 onClick={handleChatClick}
                 aria-label={`Chat with ${agent.name}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                CHAT
-              </button>
+                <span className="sr-only">CHAT</span>
+              </motion.button>
               
-              {/* Launch Button */}
-              <button
-                className="px-3 py-1 rounded-lg bg-gradient-to-br from-purple-400 to-purple-600 text-white text-xs font-bold shadow-md hover:from-purple-500 hover:to-purple-700 transition-colors"
-                onClick={handleLaunchClick}
-                aria-label={`Launch ${agent.name}`}
-              >
-                LAUNCH
-              </button>
+              {/* Launch Button - Now using AgentLaunchButton */}
+              <div className="w-[85px] h-[36px]">
+                <AgentLaunchButton
+                  agent={agent}
+                  onLaunch={handleLaunchClick}
+                  variant="card"
+                  className="!w-full !h-full !px-0 !py-0 !bg-transparent hover:!bg-white/10 hover:!shadow-[0_0_12px_rgba(255,255,255,0.2)] focus:!bg-white/10"
+                />
+              </div>
             </div>
           </div>
         </div>

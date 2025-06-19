@@ -82,22 +82,17 @@ const allAgents: Agent[] = [
       primaryOutput: 'SEO-optimized content and articles',
       n8nWorkflowId: 'content-creation-workflow'
     },
-    'payment-manager-agent': {
-      primaryCapability: 'Payment Processing',
-      primaryOutput: 'Processed payments and receipts',
-      n8nWorkflowId: 'payment-workflow'
+    'payments-agent': {
+      primaryCapability: 'Payment Processing & Analytics',
+      primaryOutput: 'Payment processing and revenue insights',
+      n8nWorkflowId: 'payments-workflow'
     },
     'percy-agent': {
       primaryCapability: 'AI Concierge & Orchestration',
       primaryOutput: 'Coordinated agent responses and workflows',
       n8nWorkflowId: 'percy-orchestration-workflow'
     },
-    'percy-sync-agent': {
-      primaryCapability: 'System Synchronization',
-      primaryOutput: 'Synchronized system states and data',
-      n8nWorkflowId: 'percy-sync-workflow'
-    },
-    'proposal-generator-agent': {
+    'proposal-agent': {
       primaryCapability: 'Business Proposal Generation',
       primaryOutput: 'Professional business proposals',
       n8nWorkflowId: 'proposal-workflow'
@@ -108,8 +103,8 @@ const allAgents: Agent[] = [
       n8nWorkflowId: 'publishing-workflow'
     },
     'sitegen-agent': {
-      primaryCapability: 'Website Generation',
-      primaryOutput: 'Complete website builds and deployments',
+      primaryCapability: 'Website Generation & Optimization',
+      primaryOutput: 'Complete website builds and optimizations',
       n8nWorkflowId: 'sitegen-workflow'
     },
     'social-bot-agent': {
@@ -117,7 +112,12 @@ const allAgents: Agent[] = [
       primaryOutput: 'Social media content and engagement',
       n8nWorkflowId: 'social-media-workflow'
     },
-    'video-content-agent': {
+    'sync-agent': {
+      primaryCapability: 'Data Synchronization',
+      primaryOutput: 'Synchronized data across platforms',
+      n8nWorkflowId: 'sync-workflow'
+    },
+    'videocontent-agent': {
       primaryCapability: 'Video Content Creation',
       primaryOutput: 'Video content and multimedia assets',
       n8nWorkflowId: 'video-content-workflow'
