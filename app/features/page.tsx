@@ -1,8 +1,5 @@
-import React from 'react';
-import type { JSX } from 'react';
-import PageLayout from 'components/layout/PageLayout';
-import FeatureDisplay from '@/components/features/FeatureDisplay'; // Import the new client component
 import { Metadata } from 'next';
+import FeaturesContent from './FeaturesContent';
 
 const features = [
   {
@@ -47,10 +44,6 @@ export const metadata: Metadata = {
   description: 'Explore the powerful AI agents and automation features of SKRBL AI',
 };
 
-export default function FeaturesPage(): JSX.Element {
-  return (
-    <PageLayout>
-      <FeatureDisplay features={features} />
-    </PageLayout>
-  );
-} 
+export default function FeaturesPage() {
+  return <FeaturesContent />;
+}

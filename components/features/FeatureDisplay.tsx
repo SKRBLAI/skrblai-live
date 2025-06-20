@@ -4,8 +4,10 @@ import React from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import FloatingParticles from '@/components/ui/FloatingParticles';
-import TrialButton from '@/components/ui/TrialButton';
+import CosmicBackground from '@/components/shared/CosmicBackground';
+import CosmicHeading from '@/components/shared/CosmicHeading';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import CosmicButton from '@/components/shared/CosmicButton';
 
 interface Feature {
   title: string;
@@ -21,60 +23,80 @@ interface FeatureDisplayProps {
 
 export default function FeatureDisplay({ features }: FeatureDisplayProps): JSX.Element {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative min-h-screen w-full overflow-x-hidden"
-    >
-      {/* FloatingParticles - RE-ENABLED FOR PHASE 2 TESTING */}
-      <FloatingParticles />
-    
-      <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 py-16">
-      <div className="flex flex-col items-center mb-8">
-        <span className="sr-only">Features</span>
-      </div>
+    <div className="relative min-h-screen">
+      <CosmicBackground />
       
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-        {features.map((feature, index) => (
-          <Link href={feature.href} key={index} className="group">
-            <motion.div 
-              whileHover={{ y: -8, scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="cosmic-float-card shadow-cosmic rounded-2xl p-6 sm:p-8 h-full flex flex-col justify-between transition-all duration-300 bg-white/5 backdrop-blur-xl bg-clip-padding border-2 border-teal-400/20"
-            >
-              <div>
-                <div className="text-4xl mb-4 drop-shadow-glow">{feature.icon}</div>
-                <h3 className="skrblai-heading text-lg mb-3">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
-              </div>
-              <div className="mt-6 flex justify-end">
-                <span className="text-sm text-cyan-400 flex items-center">
-                  Explore <span className="ml-1">→</span>
-                </span>
-              </div>
-            </motion.div>
-          </Link>
-        ))}
-      </div>
-      
-      <div className="mt-16 flex flex-col items-center gap-6">
-        <div className="flex flex-row gap-4 w-full justify-center">
-          <Link href="/" aria-label="Back to Home">
-            <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-fuchsia-500 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-fuchsia-400/70 transition-all">
-              ← Back to Home
-            </button>
-          </Link>
-          <Link href="/services/agents" aria-label="Meet Percy">
-            <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-400 to-teal-400 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-cyan-400/70 transition-all">
-              Meet Percy
-            </button>
-          </Link>
+      <div className="container mx-auto px-4 py-24 relative z-10">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <CosmicHeading level={1}>Explore Our Features</CosmicHeading>
+          
+          <motion.p
+            className="text-xl text-electric-blue leading-relaxed mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            Unleash the power of AI with our suite of digital superpowers.
+          </motion.p>
+          
+          <motion.p
+            className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            From branding to publishing, our AI agents are here to help you create, automate, and scale your business.
+          </motion.p>
         </div>
-        <TrialButton className="w-full max-w-xs" />
-        <div className="mt-6 w-full" aria-live="polite" aria-atomic="true"></div>
+      
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <GlassmorphicCard
+              key={feature.title}
+              className="p-8 h-full flex flex-col justify-between hover:scale-[1.02] hover:-translate-y-2 transition-all duration-300"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+              >
+                <div className="text-5xl mb-6 drop-shadow-glow">{feature.icon}</div>
+                <h3 className="text-2xl font-bold text-electric-blue mb-4">{feature.title}</h3>
+                <p className="text-gray-300 mb-8">{feature.description}</p>
+                
+                <CosmicButton
+                  href={feature.href}
+                  variant="secondary"
+                  size="lg"
+                  className="w-full"
+                >
+                  Explore {feature.title}
+                </CosmicButton>
+              </motion.div>
+            </GlassmorphicCard>
+          ))}
+        </div>
+        
+        <div className="mt-20 flex flex-col items-center gap-8">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <CosmicButton href="/" variant="outline">
+              ← Back to Home
+            </CosmicButton>
+            <CosmicButton href="/services/agents" variant="primary">
+              Meet Percy
+            </CosmicButton>
+          </div>
+          
+          <CosmicButton
+            href="/sign-up"
+            variant="primary"
+            size="lg"
+            className="w-full max-w-xs"
+          >
+            Start Free Trial
+          </CosmicButton>
+        </div>
       </div>
-      </div>
-    </motion.div>
+    </div>
   );
 }

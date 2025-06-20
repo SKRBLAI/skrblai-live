@@ -641,7 +641,7 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
           animate={percyState}
         >
           <img 
-            src="/images/Agents-percy-Buttons.png"
+            src="/images/agents-percy-nobg-skrblai.webp"
             alt="Percy, your AI concierge" 
             className="w-32 h-auto"
           />

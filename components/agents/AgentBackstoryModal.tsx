@@ -176,7 +176,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full animate-pulse blur-xl opacity-50"></div>
                 <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-purple-400/50 shadow-2xl agent-image-container">
                   <Image
-                    src={getAgentImagePath(agent)}
+                    src={getAgentImagePath(agent, "nobg")}
                     alt={agent.superheroName || agent.name}
                     fill
                     className="agent-image"

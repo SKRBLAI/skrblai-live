@@ -1,11 +1,64 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import CosmicButton from '@/components/shared/CosmicButton';
+import CosmicHeading from '@/components/shared/CosmicHeading';
 import Image from 'next/image';
+import Link from 'next/link';
 import { BookOpen, Palette, FilePenLine, Megaphone, BarChart2, LayoutDashboard } from 'lucide-react';
 
+const services = [
+  {
+    title: 'Book Publishing',
+    description: 'Transform your manuscript into a polished book with our AI-powered publishing pipeline.',
+    icon: <BookOpen className="w-8 h-8" />,
+    href: '/book-publishing'
+  },
+  {
+    title: 'Brand Design',
+    description: 'Create stunning brand identities with AI-powered logo design and brand voice development.',
+    icon: <Palette className="w-8 h-8" />,
+    href: '/branding'
+  },
+  {
+    title: 'Content Creation',
+    description: 'Generate engaging content across all platforms with our AI content specialists.',
+    icon: <FilePenLine className="w-8 h-8" />,
+    href: '/content-automation'
+  },
+  {
+    title: 'Marketing',
+    description: 'Launch powerful marketing campaigns with AI-driven insights and automation.',
+    icon: <Megaphone className="w-8 h-8" />,
+    href: '/marketing'
+  },
+  {
+    title: 'Analytics',
+    description: 'Get deep insights into your performance with AI-powered analytics.',
+    icon: <BarChart2 className="w-8 h-8" />,
+    href: '/analytics'
+  },
+  {
+    title: 'Custom Solutions',
+    description: 'Build tailored AI solutions for your unique business needs.',
+    icon: <LayoutDashboard className="w-8 h-8" />,
+    href: '/custom-solutions'
+  }
+];
+
 export default function ServicesPage() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
   return (
     <PageLayout>
       <motion.div 
@@ -23,19 +76,17 @@ export default function ServicesPage() {
           glowIntensity={0.5}
         /> */}
 
-        {/* Content */}
-        <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 flex flex-col items-center px-4 md:px-8 lg:px-12">
-          {/* Hero Section */}
+        <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
           <motion.div
-            className="w-full flex flex-col items-center mb-14"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-5xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
+            <CosmicHeading className="text-4xl md:text-5xl lg:text-6xl mb-6">
               Let Percy Orchestrate Your Brand's Next Level
-            </h1>
-            <p className="text-xl text-teal-300 text-center max-w-2xl mx-auto mb-8 px-4 font-semibold">
+            </CosmicHeading>
+            <p className="text-xl text-teal-300 max-w-2xl mx-auto mb-8 font-semibold">
               SKRBL AI automates, creates, and scales your business with a league of digital superheroes—led by your personal AI concierge.
             </p>
             <Image
@@ -43,37 +94,42 @@ export default function ServicesPage() {
               alt="Percy the AI Concierge"
               width={128}
               height={128}
-              className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30 mb-6"
+              className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30"
               priority
             />
           </motion.div>
 
-          {/* Features Section */}
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mb-16"
+            variants={container}
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.2 }}
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
           >
-            {[
-              { icon: BookOpen, title: 'Automated Book Publishing' },
-              { icon: Palette, title: 'Instant Brand Identity' },
-              { icon: FilePenLine, title: 'Supercharged Content Creation' },
-              { icon: Megaphone, title: 'Social Campaigns & Ads' },
-              { icon: BarChart2, title: 'Actionable Analytics' },
-              { icon: LayoutDashboard, title: 'All-in-One Dashboard' },
-            ].map(({ icon: Icon, title }) => (
-              <motion.div
-                key={title}
-                className="cosmic-glass border border-teal-400/20 shadow-cosmic rounded-2xl p-6 flex items-center gap-4 backdrop-blur-md"
-                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+            {services.map((service, index) => (
+              <GlassmorphicCard
+                key={service.title}
+                hoverEffect
+                className="flex flex-col h-full"
               >
-                <div className="flex-shrink-0 bg-teal-500/20 p-3 rounded-full border border-teal-400/40 shadow-glow">
-                  <Icon className="text-teal-300" size={28} />
+                <div className="flex flex-col h-full p-6">
+                  <div className="flex items-center mb-4">
+                    <div className="p-3 rounded-lg bg-gradient-to-r from-electric-blue to-cyan-400 shadow-glow mr-4">
+                      {service.icon}
+                    </div>
+                    <h3 className="text-2xl font-bold text-electric-blue">
+                      {service.title}
+                    </h3>
+                  </div>
+                  <p className="text-gray-300 mb-6 flex-grow">
+                    {service.description}
+                  </p>
+                  <Link href={service.href} className="mt-auto">
+                    <CosmicButton variant="secondary" className="w-full">
+                      Explore {service.title}
+                    </CosmicButton>
+                  </Link>
                 </div>
-                <h3 className="text-teal-200 font-semibold text-lg">{title}</h3>
-              </motion.div>
+              </GlassmorphicCard>
             ))}
           </motion.div>
 

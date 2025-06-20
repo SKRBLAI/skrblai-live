@@ -39,7 +39,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
                 {title}
               </motion.h1>
             )}
-            {/* 7-Day Trial Button — show on all pages except homepage */}
+            {/* 3-Day Trial Button — show on all pages except homepage */}
             {pathname !== "/" && (
               <div className="flex justify-center mb-8">
                 <TrialButton />

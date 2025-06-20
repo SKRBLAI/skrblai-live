@@ -28,7 +28,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     { id: 'content', label: 'Content Calendar', href: '/dashboard/content' },
     { id: 'analytics', label: 'Analytics', href: '/dashboard/analytics' },
     { id: 'social', label: 'Social Media Planner', href: '/dashboard/social-media' },
-    { id: 'video', label: 'Video Content Queue', href: '/dashboard/video' }
+    { id: 'video', label: 'Video Content Queue', href: '/dashboard/video' },
+    { id: 'profile', label: 'Profile Settings', href: '/dashboard/profile' }
   ];
 
   // Check if current path matches this item's href

@@ -186,18 +186,17 @@ export function getAgentImageSlug(agent: Agent): string {
 /**
  * Get the image path for an agent using the standardized naming convention
  * @param agent - The agent object or string ID
- * @param _options - Deprecated options (kept for compatibility)
+ * @param type - Image type: "card" (Buttons.png) or "nobg" (transparent WebP)
  */
 export function getAgentImagePath(
   agent: any,
-  _options: Record<string, unknown> = {}
+  type: "card" | "nobg" = "card"
 ): string {
   /*
-   * Agent Image Standardization 2025
+   * Agent Image Policy v2 - SKRBL AI
    * --------------------------------------------------
-   * All agent images are in /public/images/ with the pattern:
-   *   Agents-{Slug}-Buttons.png
-   * where {Slug} uses anycase with no spaces or dashes between words
+   * CARD: /images/Agents-{Slug}-Buttons.png (for League, Preview, Dashboard)
+   * NOBG: /images/agents-{slug}-nobg-skrblai.webp (for Backstory, Bio, Onboarding)
    */
 
   // Determine ID from either a string or an agent object
@@ -205,7 +204,9 @@ export function getAgentImagePath(
 
   if (!rawId) {
     console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
-    return '/images/Agents-Default-Buttons.png';
+    return type === "card" 
+      ? '/images/Agents-Default-Buttons.png'
+      : '/images/agents-default-nobg-skrblai.webp';
   }
 
   // Clean the ID and map to correct image slug
@@ -247,7 +248,12 @@ export function getAgentImagePath(
   };
 
   const slug = slugMapping[cleanId] || cleanId;
-  return `/images/Agents-${slug}-Buttons.png`;
+  
+  if (type === "nobg") {
+    return `/images/agents-${slug.toLowerCase()}-nobg-skrblai.webp`;
+  } else {
+    return `/images/Agents-${slug}-Buttons.png`;
+  }
 }
 
 /**

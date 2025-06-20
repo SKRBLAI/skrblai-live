@@ -48,7 +48,7 @@ export default function PercyFigure({
         animate={animate ? { opacity: 1, ...floatAnimation } : {}}
       >
         <Image
-          src="/images/Agents-percy-Buttons.png"
+          src="/images/agents-percy-nobg-skrblai.webp"
           alt="Percy the AI Concierge"
           width={300}
           height={400}

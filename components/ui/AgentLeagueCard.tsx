@@ -60,24 +60,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   // Debug: Log agent props before rendering
   console.log('[AgentLeagueCard] Rendering agent props:', agent);
 
-  // Unified card/avatar asset
-  const frameAssetPath = getAgentImagePath(agent);
-  const avatarSrc = frameAssetPath;
-
-  const placeholderImg = '/images/Agents-Default-Buttons.png';
+  // Agent League Card uses ONLY the Buttons.png card frame (no separate avatar)
+  const frameAssetPath = getAgentImagePath(agent, "card");
 
   // Image error handler – fall back to global default once
   const handleFrameImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('[AgentLeagueCard] Failed to load frame asset:', frameAssetPath, 'for agent:', agent.id);
     event.currentTarget.onerror = null; // prevent infinite loop
     event.currentTarget.src = '/images/Agents-Default-Buttons.png';
-  };
-
-  // Image error handler for agent avatar
-  const handleAvatarImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error('[AgentLeagueCard] Failed to load avatar image:', avatarSrc, 'for agent:', agent.id);
-    event.currentTarget.onerror = null;
-    event.currentTarget.src = placeholderImg;
   };
 
   // Action handlers
@@ -152,16 +142,6 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               className="w-full h-full object-contain"
               onError={handleFrameImgError}
             />
-            
-            {/* Agent Avatar - positioned inside the frame */}
-            <div className="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full overflow-hidden flex items-center justify-center">
-              <img
-                src={avatarSrc}
-                alt={`${agent.name} avatar`}
-                className="w-full h-full object-cover"
-                onError={handleAvatarImgError}
-              />
-            </div>
             
             {/* Agent Name */}
             <motion.h3

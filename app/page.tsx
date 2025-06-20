@@ -162,7 +162,7 @@ export default function HomePage() {
                       webp={true}
                       cloudinaryTransformation="ar_1:1,c_fill,g_face"
                       fallbackToLocal={true}
-                      fallbackImagePath="/images/Agents-percy-Buttons.png"
+                      fallbackImagePath="/images/agents-percy-nobg-skrblai.webp"
                     />
                   </div>
                 </div>

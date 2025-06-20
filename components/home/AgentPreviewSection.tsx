@@ -86,7 +86,7 @@ export default function AgentPreviewSection(): React.ReactElement {
             {/* Agent Card Image */}
             <div className="aspect-[3/4] relative w-full">
               <Image 
-                src={getAgentImagePath(agent.id)}
+                src={getAgentImagePath(agent.id, "card")}
                 alt={agent.name}
                 fill
                 className="object-cover"
