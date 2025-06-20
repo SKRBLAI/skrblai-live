@@ -33,13 +33,13 @@ export default function ServicesPage() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="skrblai-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-4 max-w-5xl mx-auto px-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow">
-              Let Percy Orchestrate Your Brand’s Next Level
+              Let Percy Orchestrate Your Brand's Next Level
             </h1>
             <p className="text-xl text-teal-300 text-center max-w-2xl mx-auto mb-8 px-4 font-semibold">
               SKRBL AI automates, creates, and scales your business with a league of digital superheroes—led by your personal AI concierge.
             </p>
             <Image
-              src="/images/agents-percy-nobg-skrblai.png"
+              src="/images/Agents-percy-Buttons.png"
               alt="Percy the AI Concierge"
               width={128}
               height={128}

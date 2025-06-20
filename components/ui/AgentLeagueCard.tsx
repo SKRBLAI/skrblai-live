@@ -64,13 +64,13 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const frameAssetPath = getAgentImagePath(agent);
   const avatarSrc = frameAssetPath;
 
-  const placeholderImg = '/images/agents/Agents-default-Buttons.png';
+  const placeholderImg = '/images/Agents-Default-Buttons.png';
 
   // Image error handler – fall back to global default once
   const handleFrameImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('[AgentLeagueCard] Failed to load frame asset:', frameAssetPath, 'for agent:', agent.id);
     event.currentTarget.onerror = null; // prevent infinite loop
-    event.currentTarget.src = '/images/agents/Agents-default-Buttons.png';
+    event.currentTarget.src = '/images/Agents-Default-Buttons.png';
   };
 
   // Image error handler for agent avatar

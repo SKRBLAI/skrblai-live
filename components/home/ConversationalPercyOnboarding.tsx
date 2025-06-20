@@ -182,19 +182,8 @@ export default function ConversationalPercyOnboarding() {
       const { goal, platform } = onboardingState;
       const recommendations: AgentRecommendation[] = [];
 
-      // Map goals to agents
-      const goalToAgents: Record<string, string[]> = {
-        branding: ['branding-agent', 'content-creator-agent'],
-        content: ['content-creator-agent', 'social-bot-agent', 'publishing-agent'],
-        social: ['social-bot-agent', 'content-creator-agent', 'video-content-agent'],
-        website: ['sitegen-agent', 'branding-agent', 'content-creator-agent'],
-        analytics: ['analytics-agent', 'ad-creative-agent'],
-        ads: ['ad-creative-agent', 'analytics-agent', 'social-bot-agent'],
-        video: ['video-content-agent', 'social-bot-agent', 'content-creator-agent'],
-        business: ['biz-agent', 'proposal-generator-agent', 'analytics-agent']
-      };
-
-      const recommendedAgentIds = goalToAgents[goal || 'content'] || ['content-creator-agent'];
+      // Simplified agent recommendation
+      const recommendedAgentIds = ['contentcreator-agent'];
 
       recommendedAgentIds.forEach((agentId, index) => {
         const backstory = agentBackstories[agentId];
@@ -672,30 +661,34 @@ Based on this analysis, here are my cosmic recommendations:`;
 
   return (
     <motion.div className={`max-w-7xl mx-auto px-4 md:px-8 py-12 ${onHome ? '' : 'mt-20'}`}>
-      {/* Meet Percy Hero */}
-      <div className="flex flex-col items-center text-center mb-10 md:mb-14">
-        <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent mb-6">
-          Meet Percy, Your Cosmic Concierge
-        </h2>
-        <PercyFigure className="w-48 h-48 md:w-60 md:h-60" />
-      </div>
-
       {/* Main Chat Interface */}
-      <div id="percy-chat" className="cosmic-glass relative overflow-hidden rounded-2xl shadow-glow">
-        {/* Header with PercyAvatar */}
+      <div id="percy-chat" className="cosmic-glass rounded-xl backdrop-blur-md border border-gray-800 shadow-2xl overflow-hidden max-w-4xl mx-auto mb-10">
+        {/* Chat Header */}
         <div className="flex items-center gap-3 p-4 border-b border-gray-700">
           <PercyAvatar className="w-10 h-10" />
           <div>
-            <h3 className="font-semibold text-white">Percy</h3>
-            <p className="text-sm text-gray-400">Your AI Companion</p>
+            <h3 className="font-semibold text-white">Hey, I'm Percy</h3>
+            <p className="text-sm text-gray-400">Your SKRBL AI Concierge</p>
           </div>
           <button
             onClick={resetOnboarding}
-            className="ml-auto text-gray-400 hover:text-white transition-colors"
             title="Reset conversation"
+            className="ml-auto p-2 text-gray-400 hover:text-white transition-colors"
           >
-            <RefreshCw className="w-5 h-5" />
+            <RefreshCw className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Percy Hero Section - Centered */}
+        <div className="flex flex-col items-center text-center py-12 px-6">
+          <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent mb-8">
+            Meet Percy, Your Cosmic Concierge
+          </h2>
+          <PercyFigure className="w-48 h-48 md:w-60 md:h-60" />
+          <p className="text-lg md:text-xl text-gray-300 mt-6 max-w-2xl">
+            Your gateway to intelligent automation.
+            Ready to help you create amazing digital content and help.
+          </p>
         </div>
 
         <div className="flex flex-col h-[500px]">

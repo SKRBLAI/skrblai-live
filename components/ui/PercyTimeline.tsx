@@ -5,6 +5,7 @@ import { ChatBubble } from '@/components/ui';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRef, useState } from 'react';
+import { getAgentImagePath } from '@/utils/agentUtils';
 dayjs.extend(relativeTime);
 
 export interface PercyTimelineItem {
@@ -25,7 +26,7 @@ export default function PercyTimeline({ timeline }: PercyTimelineProps) {
   return (
     <div className="flex flex-col gap-4 mt-8">
       {timeline.map((item: PercyTimelineItem, idx: number) => {
-        const avatarSrc = `/images/agents-${item.agentId}-nobg-skrblai.png`;
+        const avatarSrc = getAgentImagePath(item.agentId);
         return (
           <motion.div
             key={item.timestamp + item.agentId + idx}

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
 import Image from "next/image";
+import { getAgentImagePath } from '@/utils/agentUtils';
 
 interface Workflow {
   id: string;
@@ -20,9 +21,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Social Media Growth Machine",
     description: "Rapidly scale your social channels with coordinated AI agents for content, branding, and automation.",
     agents: [
-      { name: "SocialBot", avatar: "/images/agents-social-nobg-skrblai.png" },
-      { name: "BrandingAgent", avatar: "/images/agents-branding-nobg-skrblai.png" },
-      { name: "ContentAgent", avatar: "/images/agents-contentcreation-nobg-skrblai.png" }
+      { name: "SocialBot", avatar: getAgentImagePath("social") },
+      { name: "BrandingAgent", avatar: getAgentImagePath("branding") },
+      { name: "ContentAgent", avatar: getAgentImagePath("contentcreation") }
     ]
   },
   {
@@ -30,9 +31,9 @@ const WORKFLOWS: Workflow[] = [
     title: "Automated Content Factory",
     description: "Produce, schedule, and publish high-quality content with zero manual effort.",
     agents: [
-      { name: "ContentAgent", avatar: "/images/agents-contentcreation-nobg-skrblai.png" },
-      { name: "VideoContentAgent", avatar: "/images/agents-videocontent-nobg-skrblai.png" },
-      { name: "SocialBot", avatar: "/images/agents-social-nobg-skrblai.png" }
+      { name: "ContentAgent", avatar: getAgentImagePath("contentcreation") },
+      { name: "VideoContentAgent", avatar: getAgentImagePath("videocontent") },
+      { name: "SocialBot", avatar: getAgentImagePath("social") }
     ]
   },
   {
@@ -40,9 +41,9 @@ const WORKFLOWS: Workflow[] = [
     title: "AI Brand Launch Strategy",
     description: "Launch your brand with a unified AI-powered strategy across all platforms.",
     agents: [
-      { name: "BrandingAgent", avatar: "/images/agents-branding-nobg-skrblai.png" },
-      { name: "AnalyticsAgent", avatar: "/images/agents-analytics-nobg-skrblai.png" },
-      { name: "SitegenAgent", avatar: "/images/agents-site-nobg-skrblai.png" }
+      { name: "BrandingAgent", avatar: getAgentImagePath("branding") },
+      { name: "AnalyticsAgent", avatar: getAgentImagePath("analytics") },
+      { name: "SitegenAgent", avatar: getAgentImagePath("sitegen") }
     ]
   }
 ];

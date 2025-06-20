@@ -184,44 +184,70 @@ export function getAgentImageSlug(agent: Agent): string {
 }
 
 /**
- * Get the image path for an agent with CDN optimization
- * Supports both local images and Cloudinary-hosted images
- * @param agent - The agent object
- * @param options - Image optimization options
+ * Get the image path for an agent using the standardized naming convention
+ * @param agent - The agent object or string ID
+ * @param _options - Deprecated options (kept for compatibility)
  */
 export function getAgentImagePath(
   agent: any,
   _options: Record<string, unknown> = {}
 ): string {
   /*
-   * Image Standardization 2025-07-xx
+   * Agent Image Standardization 2025
    * --------------------------------------------------
-   * All agent artwork now lives in /public/images/agents
-   * with the canonical filename pattern:
-   *   Agents-{slug}-Buttons.png
-   * where {slug} is the agent id with any trailing "-agent"
-   * (or "Agent") suffix removed and lower-cased.
-   * No querystring optimisation is required – everything is
-   * served locally via Next.js static assets.  All previous
-   * Cloudinary/WebP/CDN logic has been deprecated but the
-   * function signature remains for backwards compatibility.
+   * All agent images are in /public/images/ with the pattern:
+   *   Agents-{Slug}-Buttons.png
+   * where {Slug} uses anycase with no spaces or dashes between words
    */
 
-  // Determine slug from either a string id or an agent object
+  // Determine ID from either a string or an agent object
   const rawId = typeof agent === 'string' ? agent : agent?.imageSlug || agent?.id || '';
 
   if (!rawId) {
     console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
-    return '/images/agents/Agents-default-Buttons.png';
+    return '/images/Agents-Default-Buttons.png';
   }
 
-  const slug = rawId
+  // Clean the ID and map to correct image slug
+  const cleanId = rawId
     .toString()
     .replace(/-agent$/i, '')
     .replace(/Agent$/i, '')
     .toLowerCase();
 
-  return `/images/agents/Agents-${slug}-Buttons.png`;
+  // Map agent IDs to correct image slugs based on actual files
+  const slugMapping: Record<string, string> = {
+    'proposal': 'proposal',
+    'social': 'social', 
+    'social-bot': 'social',
+    'sitegen': 'Sitegen',
+    'site': 'Sitegen',
+    'sync': 'sync',
+    'percy': 'percy',
+    'clientsuccess': 'Clientsuccess',
+    'client-success': 'Clientsuccess',
+    'payments': 'payments',
+    'payment': 'payments',
+    'publishing': 'publishing',
+    'book-publishing': 'publishing',
+    'videocontent': 'VideoContent',
+    'video-content': 'VideoContent',
+    'video': 'VideoContent',
+    'contentcreation': 'ContentCreation',
+    'content-creation': 'ContentCreation',
+    'content': 'ContentCreation',
+    'biz': 'Biz',
+    'business': 'Biz',
+    'analytics': 'Analytics',
+    'branding': 'Branding',
+    'brand': 'Branding',
+    'adcreative': 'AdCreative',
+    'ad-creative': 'AdCreative',
+    'ad': 'AdCreative'
+  };
+
+  const slug = slugMapping[cleanId] || cleanId;
+  return `/images/Agents-${slug}-Buttons.png`;
 }
 
 /**

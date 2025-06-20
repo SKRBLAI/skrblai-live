@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import PercyButton from './PercyButton';
 import agentRegistry from '@/lib/agents/agentRegistry';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import { getAgentImagePath } from '@/utils/agentUtils';
 
 interface PercyChatProps {
   onComplete?: (data: { name: string; email: string; plan: string; intent: string }) => void;
@@ -70,9 +71,9 @@ const WORKFLOWS = {
     title: 'Social Media Growth Machine',
     description: 'Rapidly scale your social channels with coordinated AI agents for content, branding, and automation.',
     agents: [
-      { name: 'SocialBot', avatar: '/images/agents-social-nobg-skrblai.png' },
-      { name: 'BrandingAgent', avatar: '/images/agents-branding-nobg-skrblai.png' },
-      { name: 'ContentAgent', avatar: '/images/agents-contentcreation-nobg-skrblai.png' }
+      { name: 'SocialBot', avatar: getAgentImagePath("social") },
+      { name: 'BrandingAgent', avatar: getAgentImagePath("branding") },
+      { name: 'ContentAgent', avatar: getAgentImagePath("contentcreation") }
     ],
     initialPrompt: 'Let\'s kickstart your social media growth! What platform or campaign do you want to focus on first?'
   },
@@ -80,9 +81,9 @@ const WORKFLOWS = {
     title: 'Automated Content Factory',
     description: 'Produce, schedule, and publish high-quality content with zero manual effort.',
     agents: [
-      { name: 'ContentAgent', avatar: '/images/agents-contentcreation-nobg-skrblai.png' },
-      { name: 'VideoContentAgent', avatar: '/images/agents-videocontent-nobg-skrblai.png' },
-      { name: 'SocialBot', avatar: '/images/agents-social-nobg-skrblai.png' }
+      { name: 'ContentAgent', avatar: getAgentImagePath("contentcreation") },
+      { name: 'VideoContentAgent', avatar: getAgentImagePath("videocontent") },
+      { name: 'SocialBot', avatar: getAgentImagePath("social") }
     ],
     initialPrompt: 'Welcome to the Automated Content Factory! What type of content would you like to produce today?'
   },
@@ -90,9 +91,9 @@ const WORKFLOWS = {
     title: 'AI Brand Launch Strategy',
     description: 'Launch your brand with a unified AI-powered strategy across all platforms.',
     agents: [
-      { name: 'BrandingAgent', avatar: '/images/agents-branding-nobg-skrblai.png' },
-      { name: 'AnalyticsAgent', avatar: '/images/agents-analytics-nobg-skrblai.png' },
-      { name: 'SitegenAgent', avatar: '/images/agents-site-nobg-skrblai.png' }
+      { name: 'BrandingAgent', avatar: getAgentImagePath("branding") },
+      { name: 'AnalyticsAgent', avatar: getAgentImagePath("analytics") },
+      { name: 'SitegenAgent', avatar: getAgentImagePath("sitegen") }
     ],
     initialPrompt: 'Ready to launch your brand? Tell us your brand name or vision to get started.'
   }
@@ -640,7 +641,7 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
           animate={percyState}
         >
           <img 
-            src="/images/agents-percy-nobg-skrblai.png"
+            src="/images/Agents-percy-Buttons.png"
             alt="Percy, your AI concierge" 
             className="w-32 h-auto"
           />
