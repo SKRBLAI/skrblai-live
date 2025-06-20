@@ -26,7 +26,7 @@ const getCardVariants = (index: number) => ({
     boxShadow: GLOW_COLOR,
     transition: { 
       duration: 0.5, 
-      type: 'spring', 
+      type: 'spring' as const,
       stiffness: 120,
       delay: 0.1 * index
     } 
@@ -35,7 +35,7 @@ const getCardVariants = (index: number) => ({
     scale: 1.02,
     boxShadow: HOVER_GLOW,
     transition: { 
-      type: 'spring', 
+      type: 'spring' as const, 
       stiffness: 400, 
       damping: 15,
       mass: 0.5
@@ -44,7 +44,7 @@ const getCardVariants = (index: number) => ({
   tap: { 
     scale: 0.98,
     transition: { 
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 500,
       damping: 20
     } 
@@ -64,12 +64,12 @@ const getAvatarVariants = (index: number) => ({
     scale: 1,
     rotate: 0,
     transition: { 
-      type: 'spring', 
+      type: 'spring' as const, 
       stiffness: 350, 
       damping: 22, 
       delay: 0.2 + index * 0.05,
       rotate: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 100,
         damping: 12
       }
@@ -80,7 +80,7 @@ const getAvatarVariants = (index: number) => ({
     scale: 1.04,
     rotate: [0, -3, 3, -2, 2, 0],
     transition: { 
-      type: 'spring', 
+      type: 'spring' as const, 
       stiffness: 400, 
       damping: 15,
       rotate: {
@@ -108,7 +108,7 @@ const getContentVariants = (index: number) => ({
   hover: { 
     y: -4,
     transition: { 
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 300,
       damping: 15
     } 
@@ -134,7 +134,7 @@ const getCtaVariants = (index: number) => ({
   hover: { 
     scale: 1.02,
     transition: { 
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 400,
       damping: 10
     }
@@ -293,7 +293,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ 
-                  type: 'spring', 
+                  type: 'spring' as const, 
                   stiffness: 500,
                   damping: 20,
                   delay: 0.5
@@ -311,7 +311,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ 
-              type: 'spring',
+              type: 'spring' as const,
               stiffness: 300,
               damping: 15
             }}
@@ -326,7 +326,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ 
-                type: 'spring',
+                type: 'spring' as const,
                 stiffness: 400,
                 damping: 15,
                 delay: 0.1
@@ -391,7 +391,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               <motion.span 
                 className="flex items-center justify-center gap-2"
                 whileHover={{ gap: '0.5rem' }}
-                transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+                transition={{ type: 'spring' as const, stiffness: 400, damping: 10 }}
               >
                 Launch Agent 
                 <motion.span 
@@ -431,7 +431,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           whileHover={{ 
             scaleX: 1.2, 
             height: 6,
-            transition: { type: 'spring', stiffness: 400, damping: 15 }
+            transition: { type: 'spring' as const, stiffness: 400, damping: 15 }
           }}
         />
       </motion.article>

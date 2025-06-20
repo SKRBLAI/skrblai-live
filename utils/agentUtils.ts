@@ -189,135 +189,39 @@ export function getAgentImageSlug(agent: Agent): string {
  * @param agent - The agent object
  * @param options - Image optimization options
  */
-export function getAgentImagePath(agent: any, options: {
-  webp?: boolean;
-  quality?: number;
-  size?: string;
-  cdn?: boolean;
-  useCloudinary?: boolean;
-  cloudinaryTransformation?: string;
-  fallbackToLocal?: boolean;
-} = {}): string {
-  const {
-    webp = false,
-    quality = 85,
-    size = 'original',
-    cdn = true,
-    useCloudinary = false,
-    cloudinaryTransformation = '',
-    fallbackToLocal = true
-  } = options;
+export function getAgentImagePath(
+  agent: any,
+  _options: Record<string, unknown> = {}
+): string {
+  /*
+   * Image Standardization 2025-07-xx
+   * --------------------------------------------------
+   * All agent artwork now lives in /public/images/agents
+   * with the canonical filename pattern:
+   *   Agents-{slug}-Buttons.png
+   * where {slug} is the agent id with any trailing "-agent"
+   * (or "Agent") suffix removed and lower-cased.
+   * No querystring optimisation is required – everything is
+   * served locally via Next.js static assets.  All previous
+   * Cloudinary/WebP/CDN logic has been deprecated but the
+   * function signature remains for backwards compatibility.
+   */
 
-  // Use agent's imageSlug or generate from agent data
-  const imageSlug = agent?.imageSlug || getAgentImageSlug(agent);
-  
-  if (!imageSlug) {
-    console.warn(`No image slug found for agent:`, agent?.name || agent?.id);
-    return '/images/default-agent.png';
+  // Determine slug from either a string id or an agent object
+  const rawId = typeof agent === 'string' ? agent : agent?.imageSlug || agent?.id || '';
+
+  if (!rawId) {
+    console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
+    return '/images/agents/Agents-default-Buttons.png';
   }
 
-  // Check if agent has a direct cloudinaryUrl property
-  if (useCloudinary && agent?.cloudinaryUrl) {
-    // Direct URL provided - use as is or with transformations
-    let cloudinaryUrl = agent.cloudinaryUrl;
-    
-    // Add transformations if not already present and requested
-    if (cloudinaryUrl && cloudinaryTransformation && !cloudinaryUrl.includes('/upload/')) {
-      // Extract the base URL up to /upload/ and add transformations
-      const baseUrlParts = cloudinaryUrl.match(/(.*\/upload\/)(.*)/);
-      if (baseUrlParts && baseUrlParts.length >= 3) {
-        cloudinaryUrl = `${baseUrlParts[1]}${cloudinaryTransformation}/${baseUrlParts[2]}`;
-      }
-    }
-    
-    return cloudinaryUrl;
-  }
+  const slug = rawId
+    .toString()
+    .replace(/-agent$/i, '')
+    .replace(/Agent$/i, '')
+    .toLowerCase();
 
-  // If Cloudinary is requested but no direct URL exists, construct a Cloudinary URL
-  if (useCloudinary) {
-    try {
-      // Get Cloudinary cloud name from env or use default
-      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'skrblai';
-      
-      // Format: https://res.cloudinary.com/cloudName/image/upload/transformations/folder/filename
-      let transformations = [];
-      
-      // Add size transformation if specified
-      if (size !== 'original') {
-        transformations.push(`w_${getSizePixels(size)}`);  
-      }
-      
-      // Add quality transformation if specified
-      if (quality < 100) {
-        transformations.push(`q_${quality}`);
-      }
-      
-      // Add format transformation if specified
-      if (webp) {
-        transformations.push('f_webp');
-      }
-      
-      // Add custom transformations if provided
-      if (cloudinaryTransformation) {
-        transformations.push(cloudinaryTransformation);
-      }
-      
-      // Construct the transformation string
-      const transformationString = transformations.length > 0 
-        ? transformations.join(',') + '/' 
-        : '';
-      
-      // Construct the Cloudinary URL
-      return `https://res.cloudinary.com/${cloudName}/image/upload/${transformationString}skrblai/agents/${imageSlug}-nobg.png`;
-    } catch (error) {
-      console.error('Error constructing Cloudinary URL:', error);
-      // Fall back to local image if specified
-      if (!fallbackToLocal) {
-        return '/images/default-agent.png';
-      }
-      // Otherwise continue to local image construction below
-    }
-  }
-
-  // Build base image path using existing format (local image)
-  let imagePath = `/images/agents-${imageSlug}-nobg-skrblai.png`;
-  
-  // Use WebP if supported and requested
-  if (webp) {
-    imagePath = `/images/agents-${imageSlug}-nobg-skrblai.webp`;
-  }
-
-  // Add CDN query parameters for optimization
-  if (cdn) {
-    const params = new URLSearchParams();
-    
-    // Quality optimization
-    if (quality < 100) {
-      params.append('q', quality.toString());
-    }
-    
-    // Size optimization
-    if (size !== 'original') {
-      params.append('w', getSizePixels(size).toString());
-    }
-    
-    // Format optimization
-    if (webp) {
-      params.append('fm', 'webp');
-    }
-    
-    // Auto-optimization
-    params.append('auto', 'compress,format');
-    
-    // Add cache busting for updates
-    params.append('v', '2.0');
-    
-    if (params.toString()) {
-      imagePath += `?${params.toString()}`;
-    }
-  }
-
-  return imagePath;
+  return `/images/agents/Agents-${slug}-Buttons.png`;
 }
 
 /**

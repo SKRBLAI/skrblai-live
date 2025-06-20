@@ -60,35 +60,23 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   // Debug: Log agent props before rendering
   console.log('[AgentLeagueCard] Rendering agent props:', agent);
 
-  // Get the agent slug for the frame asset
-  const agentSlug = agent.imageSlug || 
-    agent.id.replace(/-agent$/, '').replace(/Agent$/, '').toLowerCase();
+  // Unified card/avatar asset
+  const frameAssetPath = getAgentImagePath(agent);
+  const avatarSrc = frameAssetPath;
 
-  // Path for the new frame asset
-  const frameAssetPath = `/images/Agents-${agentSlug}-Buttons.png`;
-  
-  // Use agent.imageSlug if present, else getAgentImagePath
-  const avatarSrc = agent.imageSlug
-    ? `/images/agents/${agent.imageSlug}.png`
-    : getAgentImagePath(agent.id);
-  
-  const placeholderImg = '/images/agents/placeholder.png';
+  const placeholderImg = '/images/agents/Agents-default-Buttons.png';
 
-  // Image error handler for frame asset
+  // Image error handler – fall back to global default once
   const handleFrameImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('[AgentLeagueCard] Failed to load frame asset:', frameAssetPath, 'for agent:', agent.id);
-    // Try webp format as fallback
-    event.currentTarget.src = `/images/agents-${agentSlug}-nobg-skrblai.webp`;
-    // Set onerror again for the webp fallback
-    event.currentTarget.onerror = () => {
-      console.error('[AgentLeagueCard] Failed to load webp fallback as well, using default frame');
-      event.currentTarget.src = '/images/Agents-default-Buttons.png';
-    };
+    event.currentTarget.onerror = null; // prevent infinite loop
+    event.currentTarget.src = '/images/agents/Agents-default-Buttons.png';
   };
 
   // Image error handler for agent avatar
   const handleAvatarImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('[AgentLeagueCard] Failed to load avatar image:', avatarSrc, 'for agent:', agent.id);
+    event.currentTarget.onerror = null;
     event.currentTarget.src = placeholderImg;
   };
 
@@ -109,13 +97,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     }
   };
 
-  const handleLaunchClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleLaunchClick = (targetAgent: Agent) => {
     if (onLaunch) {
-      onLaunch(agent);
+      onLaunch(targetAgent);
     } else if (onHandoff) {
       // Fallback to handoff if launch is not available
-      onHandoff(agent);
+      onHandoff(targetAgent);
     }
   };
 

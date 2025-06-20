@@ -24,11 +24,11 @@ export async function POST(req: NextRequest) {
       }, { status: 404 });
     }
 
-    // Simulate SocialSphere the Viral Virtuoso's boost strategy
+    // Simulate SocialNino the Viral Virtuoso's boost strategy
     const boostStrategy = {
       platform: platform.toLowerCase(),
       agent: {
-        superheroName: socialAgent.superheroName || 'SocialSphere the Viral Virtuoso',
+        superheroName: socialAgent.superheroName || 'SocialNino the Viral Virtuoso',
         catchphrase: socialAgent.catchphrase || 'Going viral is just the beginning!',
         powers: socialAgent.powers || ['Trend Precognition', 'Viral Content Creation', 'Engagement Multiplication']
       },
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: boostStrategy,
-      message: `🚀 SocialSphere has crafted a viral strategy for ${platform}!`
+      message: `🚀 SocialNino has crafted a viral strategy for ${platform}!`
     });
 
   } catch (error: any) {
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   return NextResponse.json({
     endpoint: 'social-boost',
-    description: 'SocialSphere the Viral Virtuoso\'s social media amplification superpower',
+    description: 'SocialNino the Viral Virtuoso\'s social media amplification superpower',
     method: 'POST',
     requiredFields: ['platform'],
     optionalFields: ['contentType', 'targetAudience', 'goals', 'currentFollowers'],

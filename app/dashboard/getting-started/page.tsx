@@ -111,7 +111,7 @@ export default function GettingStartedDashboard() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent"
             >
-              Welcome to Your 7-Day Free Trial
+              Welcome to Your 3-Day Free Trial
             </motion.h1>
             <motion.div
               initial={{ opacity: 0 }}
@@ -121,7 +121,7 @@ export default function GettingStartedDashboard() {
             >
               <h2 className="text-xl font-semibold mb-4 text-white">Getting Started</h2>
               <p className="text-gray-300 mb-6">
-                Welcome to SKRBL AI! Your 7-day free trial gives you access to all our premium features. Here's how to make the most of it:
+                Welcome to SKRBL AI! Your 3-day free trial gives you access to many of  our premium features. Here's how to make the most of it:
               </p>
               <div className="space-y-4">
                 <div className="flex items-start">

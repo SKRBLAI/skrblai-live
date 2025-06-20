@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { usePathname } from 'next/navigation';
-import { Send, MessageCircle, X } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { RefreshCw, Send } from 'lucide-react';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
@@ -13,7 +12,8 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import PercyAvatar from '@/components/home/PercyAvatar';
-import Link from 'next/link';
+import PercyFigure from '@/components/home/PercyFigure';
+import AgentPreviewSection from '@/components/home/AgentPreviewSection';
 
 interface ConversationMessage {
   id: string;
@@ -30,8 +30,10 @@ interface ConversationOption {
   label: string;
   icon?: string;
   action: string;
-  data?: any;
+  data?: Record<string, any>;
 }
+
+type Option = ConversationOption;
 
 interface AgentRecommendation {
   agentId: string;
@@ -76,6 +78,28 @@ const PLATFORMS = [
   { id: 'multiple', label: 'Multiple Platforms', icon: '🌟' }
 ];
 
+type MessageType = 'user' | 'percy' | 'agent-recommendation' | 'system';
+
+interface Message {
+  type: MessageType;
+  content: string;
+  agentRecommendations?: Array<{
+    agentId: string;
+    superheroName: string;
+    catchphrase: string;
+    confidence: number;
+    reason: string;
+    powers: string[];
+  }>;
+  options?: Array<{
+    id: string;
+    label: string;
+    icon?: string;
+    action: string;
+    data?: Record<string, any>;
+  }>;
+}
+
 export default function ConversationalPercyOnboarding() {
   const router = useRouter();
   const pathname = usePathname();
@@ -84,7 +108,6 @@ export default function ConversationalPercyOnboarding() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [showAskPercy, setShowAskPercy] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false); // New: indicates active scan
   const [showBurst, setShowBurst] = useState(false); // particle burst on agent summon
@@ -648,248 +671,181 @@ Based on this analysis, here are my cosmic recommendations:`;
   }, []);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className={`${onHome ? 'relative w-full md:max-w-3xl mx-auto px-4 mt-6' : 'relative w-full max-w-full md:max-w-3xl mx-auto min-h-screen flex items-center justify-center px-4'}`}
-    >
+    <motion.div className={`max-w-7xl mx-auto px-4 md:px-8 py-12 ${onHome ? '' : 'mt-20'}`}>
+      {/* Meet Percy Hero */}
+      <div className="flex flex-col items-center text-center mb-10 md:mb-14">
+        <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent mb-6">
+          Meet Percy, Your Cosmic Concierge
+        </h2>
+        <PercyFigure className="w-48 h-48 md:w-60 md:h-60" />
+      </div>
+
       {/* Main Chat Interface */}
-      <div id="percy-chat" className="cosmic-glass w-full md:w-auto rounded-none md:rounded-2xl border border-white/10 shadow-cosmic overflow-hidden">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 p-4 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <PercyAvatar size="sm" animate className={`${(isTyping || isScanning) ? 'ring-2 ring-electric-blue animate-pulse' : ''}`} />
-              <div>
-                <h3 className="text-white font-bold">Percy the Cosmic Concierge</h3>
-                <p className="text-cyan-300 text-sm">Your AI guide to the SKRBL universe</p>
-              </div>
-            </div>
-            <button
-              onClick={resetOnboarding}
-              className="text-white/60 hover:text-white/80 transition-colors"
-              title="Reset conversation"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      <div id="percy-chat" className="cosmic-glass relative overflow-hidden rounded-2xl shadow-glow">
+        {/* Header with PercyAvatar */}
+        <div className="flex items-center gap-3 p-4 border-b border-gray-700">
+          <PercyAvatar className="w-10 h-10" />
+          <div>
+            <h3 className="font-semibold text-white">Percy</h3>
+            <p className="text-sm text-gray-400">Your AI Companion</p>
           </div>
+          <button
+            onClick={resetOnboarding}
+            className="ml-auto text-gray-400 hover:text-white transition-colors"
+            title="Reset conversation"
+          >
+            <RefreshCw className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Chat Container */}
-        <div 
-          ref={chatContainerRef}
-          className="md:h-[500px] max-h-[70vh] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/20"
-        >
-          <AnimatePresence>
-            {onboardingState.conversationHistory.map((message, index) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
-                  {/* Message Bubble */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className={`
+        <div className="flex flex-col h-[500px]">
+          {/* Chat Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={chatContainerRef}>
+            <AnimatePresence>
+              {onboardingState.conversationHistory.map((message: Message, index: number) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
+                    <div className={`
                       rounded-2xl p-4 
                       ${message.type === 'user' 
                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
                         : 'bg-white/10 text-white border border-white/20'
                       }
-                    `}
-                  >
-                    <p className="text-sm leading-relaxed">{message.content}</p>
-                  </motion.div>
+                    `}>
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                    </div>
 
-                  {/* Agent Recommendations */}
-                  {message.agentRecommendations && message.agentRecommendations.length > 0 && (
-                    <div className="mt-3 space-y-3">
-                      {message.agentRecommendations.map((rec) => (
-                        <motion.div
-                          key={rec.agentId}
-                          initial={{ opacity: 0, x: -20, scale: 0.9 }}
-                          animate={{ opacity: 1, x: 0, scale: 1 }}
-                          transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-                          className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-400/20"
-                        >
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="text-lg font-bold text-purple-300">{rec.superheroName}</h4>
-                            <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
-                              {rec.confidence}% match
-                            </span>
-                          </div>
-                          <p className="text-sm text-cyan-300 italic mb-2">"{rec.catchphrase}"</p>
-                          <p className="text-sm text-white/80 mb-3">{rec.reason}</p>
-                          <div className="flex flex-wrap gap-2">
-                            {rec.powers.map((power, i) => (
-                              <span key={i} className="text-xs bg-white/10 px-2 py-1 rounded-full text-white/70">
-                                ⚡ {power}
+                    {/* Agent Recommendations */}
+                    {message.agentRecommendations && message.agentRecommendations.length > 0 && (
+                      <div className="mt-3 space-y-3">
+                        {message.agentRecommendations.map((rec: AgentRecommendation) => (
+                          <motion.div
+                            key={rec.agentId}
+                            initial={{ opacity: 0, x: -20, scale: 0.9 }}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                            className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-xl p-4 border border-purple-400/20"
+                          >
+                            <div className="flex items-start justify-between mb-2">
+                              <h4 className="text-lg font-bold text-purple-300">{rec.superheroName}</h4>
+                              <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded-full">
+                                {rec.confidence}% match
                               </span>
-                            ))}
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
+                            </div>
+                            <p className="text-sm text-cyan-300 italic mb-2">"{rec.catchphrase}"</p>
+                            <p className="text-sm text-white/80 mb-3">{rec.reason}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {rec.powers.map((power, i) => (
+                                <span key={i} className="text-xs bg-white/10 px-2 py-1 rounded-full text-white/70">
+                                  ⚡ {power}
+                                </span>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Options */}
-                  {message.options && message.options.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {message.options.map((option) => (
-                        <button
-                          key={option.id}
-                          onClick={() => handleOptionClick(option)}
-                          aria-label={option.label}
-                          className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 border border-cyan-400/20 hover:border-cyan-400/40 transition-all group"
-                        >
-                          <span className="flex items-center gap-2">
-                            {option.icon && <span className="text-lg">{option.icon}</span>}
-                            <span className="text-white group-hover:text-cyan-300 transition-colors">
-                              {option.label}
+                    {/* Options */}
+                    {message.options && message.options.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {message.options.map((option: Option) => (
+                          <button
+                            key={option.id}
+                            onClick={() => handleOptionClick(option)}
+                            aria-label={option.label}
+                            className="w-full text-left p-3 rounded-lg bg-white/10 hover:bg-white/20 border border-cyan-400/20 hover:border-cyan-400/40 transition-all group"
+                          >
+                            <span className="flex items-center gap-2">
+                              {option.icon && <span className="text-lg">{option.icon}</span>}
+                              <span className="text-white group-hover:text-cyan-300 transition-colors">
+                                {option.label}
+                              </span>
                             </span>
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {/* Typing Indicator */}
+            {isTyping && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex justify-start"
+              >
+                <div className="bg-white/10 rounded-2xl px-4 py-3 border border-white/20">
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-100" />
+                    <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-200" />
+                  </div>
                 </div>
               </motion.div>
-            ))}
-          </AnimatePresence>
+            )}
 
-          {/* Typing Indicator */}
-          {isTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-start"
-            >
-              <div className="bg-white/10 rounded-2xl px-4 py-3 border border-white/20">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-100" />
-                  <span className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-200" />
+            {/* Scan Indicator */}
+            {isScanning && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex justify-start"
+              >
+                <div className="relative flex items-center gap-3 bg-white/5 px-4 py-3 rounded-2xl border border-teal-400/20 overflow-hidden">
+                  {/* Orbiting ring */}
+                  <motion.div
+                    className="w-6 h-6 rounded-full border-2 border-teal-400 border-t-transparent"
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' as const }}
+                  />
+                  <span className="text-teal-300 text-sm">Cosmic scan in progress…</span>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
+          </div>
 
-          {/* Scan Indicator */}
-          {isScanning && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex justify-start"
-            >
-              <div className="relative flex items-center gap-3 bg-white/5 px-4 py-3 rounded-2xl border border-teal-400/20 overflow-hidden">
-                {/* Orbiting ring */}
-                <motion.div
-                  className="w-6 h-6 rounded-full border-2 border-teal-400 border-t-transparent"
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' as const }}
-                />
-                <span className="text-teal-300 text-sm">Cosmic scan in progress…</span>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-white/10">
-          <div className="flex gap-2">
-            <input
-              id="percy-input"
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleTextSubmit()}
-              onPaste={handlePaste}
-              onDrop={handleDrop}
-              placeholder="Drop a link, video, or profile… or ask Percy anything!"
-              className="flex-1 bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-electric-blue/60"
-            />
-            <button
-              onClick={handleTextSubmit}
-              disabled={!inputValue.trim()}
-              className="p-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-white hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Send className="w-5 h-5" aria-hidden="true" />
-            </button>
+          {/* Input Area */}
+          <div className="p-4 border-t border-gray-700">
+            <form onSubmit={handleTextSubmit} className="flex gap-2">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onPaste={handlePaste}
+                onDrop={handleDrop}
+                placeholder="Type your message..."
+                className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-electric-blue"
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                className="bg-electric-blue hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Send message"
+                aria-label="Send message"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </form>
           </div>
         </div>
       </div>
 
-      {/* Navigation CTAs */}
-      <div className="flex flex-col sm:flex-row gap-2 p-4 border-t border-white/10 bg-white/5">
-        <Link href="/" className="flex-1 text-center py-2 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow focus:outline-none focus:ring-2 focus:ring-electric-blue/60">
-          🏠 Back to Home
-        </Link>
-        <Link href="/agents" className="flex-1 text-center py-2 rounded-lg bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-electric-blue/60">
-          🦸 View All Agents
-        </Link>
+      {/* Agent Preview Section */}
+      <div className="mt-8">
+        <AgentPreviewSection />
       </div>
-
-      {/* Persistent "Ask Percy" Button */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        onClick={() => {
-          setShowAskPercy(!showAskPercy);
-          if (!showAskPercy) {
-            document.getElementById('percy-chat')?.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
-        className="fixed bottom-4 right-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all z-50"
-        aria-label="Ask Percy"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </motion.button>
-
-      {/* Ask Percy Modal */}
-      <AnimatePresence>
-        {showAskPercy && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed bottom-20 right-4 w-96 bg-deep-navy rounded-2xl shadow-2xl border border-white/10 p-4 z-50"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-white font-bold">Ask Percy Anything!</h4>
-              <button
-                onClick={() => setShowAskPercy(false)}
-                className="text-white/60 hover:text-white/80"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" aria-hidden="true" />
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="What would you like to know?"
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-white/50 text-sm mb-2"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && e.currentTarget.value) {
-                  setInputValue(e.currentTarget.value);
-                  e.currentTarget.value = '';
-                  setShowAskPercy(false);
-                  handleTextSubmit();
-                }
-              }}
-            />
-            <p className="text-xs text-white/50">
-              I can help you choose agents, explain features, or guide you through SKRBL AI!
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Celebratory particle burst */}
       {showBurst && (

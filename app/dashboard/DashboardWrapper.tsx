@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/context/AuthContext';
 import toast from 'react-hot-toast';
-import { debugAuthState, attemptAuthFix } from '@/lib/auth/authDebugger';
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -24,7 +23,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   } = useAuth();
   
   const [isClient, setIsClient] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
   const [loadingTimeout, setLoadingTimeout] = useState(false);
   
   // Set client-side rendering flag
@@ -43,43 +41,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     }
   }, [isClient, isLoading]);
   
-  // Attempt to fix auth issues on mount
-  useEffect(() => {
-    if (isClient && !user && !isLoading) {
-      console.log('[DASHBOARD] No user detected, attempting to fix auth issues');
-      attemptAuthFix().then(result => {
-        if (result.success && result.fixed) {
-          console.log('[DASHBOARD] Auth fix successful, refreshing page');
-          window.location.reload();
-        } else {
-          console.log('[DASHBOARD] Auth fix failed, redirecting to sign-in');
-          router.push('/sign-in?reason=session-expired');
-        }
-      });
-    }
-  }, [isClient, user, isLoading, router]);
-  
-  // Collect debug info for development
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      // Enhanced debug info
-      const getDebugInfo = async () => {
-        const authDiagnostics = await debugAuthState();
-        setDebugInfo({
-          hasUser: !!user,
-          userEmail: user?.email,
-          isLoading,
-          error,
-          accessLevel,
-          sessionExists: !!session,
-          authDiagnostics: authDiagnostics.diagnostics || null
-        });
-      };
-      
-      getDebugInfo();
-    }
-  }, [user, session, isLoading, error, accessLevel]);
-  
   // Handle auth errors with toast
   useEffect(() => {
     if (error && isClient) {
@@ -87,15 +48,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       toast.error(error);
     }
   }, [error, isClient]);
-  
-  // Force access check on mount
-  useEffect(() => {
-    if (user && session && !isLoading) {
-      // This logic seems incorrect, as it signs the user out on every load.
-      // I am commenting it out. Please review if this was the intended functionality.
-      // signOut();
-    }
-  }, [user, session, isLoading]);
 
   // Handle authentication check
   useEffect(() => {
@@ -109,24 +61,13 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       userEmail: user?.email,
       isLoading,
       error,
-      accessLevel,
-      debugInfo
+      accessLevel
     });
 
     if (!user && !isLoading) {
       console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
       toast.error('Please sign in to access the dashboard');
-      
-      // Try to fix auth issues before redirecting
-      attemptAuthFix().then(result => {
-        if (result.success && result.fixed) {
-          console.log('[DASHBOARD] Auth fix successful, refreshing page');
-          window.location.reload();
-        } else {
-          router.push('/sign-in?reason=session-expired');
-        }
-      });
-      
+      router.push('/sign-in?reason=session-expired');
       return;
     }
 
@@ -139,21 +80,16 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
         hasFeatures: Object.keys(vipStatus?.features || {}).length
       });
     }
-  }, [user, isLoading, router, isClient, accessLevel, vipStatus, error, debugInfo, loadingTimeout]);
+  }, [user, isLoading, router, isClient, accessLevel, vipStatus, error, loadingTimeout]);
 
   // Show loading state
-  if ((!isClient || isLoading || isLoading) && !loadingTimeout) {
+  if ((!isClient || isLoading) && !loadingTimeout) {
     return (
       <div className="min-h-screen bg-deep-navy flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-electric-blue mx-auto mb-4"></div>
           <p className="text-white">Loading dashboard...</p>
           <p className="text-gray-400 text-sm">Verifying access permissions</p>
-          {process.env.NODE_ENV === 'development' && debugInfo && (
-            <pre className="text-xs text-gray-500 mt-4 max-w-lg mx-auto text-left">
-              {JSON.stringify(debugInfo, null, 2)}
-            </pre>
-          )}
         </div>
       </div>
     );
@@ -188,12 +124,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
           {vipStatus?.isVIP && <div>VIP: {vipStatus?.vipLevel}</div>}
           <div>Features: {Object.keys(vipStatus?.features || {}).length}</div>
           <div>User: {user?.email || 'No user'}</div>
-          {debugInfo && (
-            <details className="mt-2">
-              <summary>Session</summary>
-              <pre className="text-xs">{JSON.stringify(debugInfo, null, 2)}</pre>
-            </details>
-          )}
         </div>
       )}
       
