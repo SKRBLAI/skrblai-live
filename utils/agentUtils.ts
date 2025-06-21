@@ -303,11 +303,7 @@ export function getOptimizedImageProps(agent: any, context: string = 'default') 
   const settings = contextSettings[context as keyof typeof contextSettings] || contextSettings.default;
   
   return {
-    src: getAgentImagePath(agent, {
-      webp: isWebPSupported,
-      quality: settings.quality,
-      size: settings.size
-    }),
+    src: getAgentImagePath(agent, "card"),
     alt: agent?.role || agent?.name || 'AI Agent',
     loading: context === 'hero' ? 'eager' as const : 'lazy' as const,
     priority: context === 'hero',
