@@ -1,5 +1,6 @@
 import React from 'react'
-import type { Metadata } from 'next'
+import { Metadata } from 'next';
+import { ReactNode } from 'react';
 import DashboardWrapper from './DashboardWrapper'
 
 export const revalidate = 0;
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   return (
     <DashboardWrapper>

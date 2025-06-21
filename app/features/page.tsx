@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { JSX } from 'react';
 import FeaturesContent from './FeaturesContent';
 
 const features = [

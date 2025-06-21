@@ -1,4 +1,5 @@
 import DashboardWrapper from '@/app/dashboard/DashboardWrapper';
+import { ReactNode } from 'react';
 import { metadata } from './metadata';
 
 export { metadata };
@@ -6,7 +7,7 @@ export { metadata };
 export default function ProfileLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <DashboardWrapper>
