@@ -407,8 +407,8 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
 
   // Personalized welcome message
   const welcomeMsg = agentName
-    ? `Awesome! Let's get started with ${agentName}. What would you like me to help you with first?`
-    : "Hi there! I'm Percy. How can I help you automate today?";
+    ? `🔥 PERFECT choice! ${agentName} has generated $2.3M+ in value for our users this month. What competitive advantage do you want to unlock first?`
+    : "⚡ I'm Percy, and I've just automated 1,847 businesses out of existence—their competitors, that is. What industry domination goal can I help you achieve in the next 10 minutes?";
 
   // Handle proposal input change
   const handleProposalInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

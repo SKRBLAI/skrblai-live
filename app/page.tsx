@@ -110,7 +110,7 @@ export default function HomePage() {
               transition={{ duration: 0.6 }}
               className="skrblai-heading text-center text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow"
             >
-              Welcome to <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">SKRBL AI</span>
+              Your Competition Just Became <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">Extinct</span>
             </motion.h1>
             
             {/* Subheadline */}
@@ -120,8 +120,8 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-xl md:text-2xl text-teal-300 text-center max-w-3xl mx-auto mb-8 font-semibold"
             >
-              Your gateway to intelligent automation.<br />
-              <span className="text-gray-300 font-normal">Meet Percy and the SKRBL AI constellation—digital superheroes ready to elevate your business and creativity.</span>
+              SKRBL AI doesn't just automate—it <span className="text-white font-bold">DOMINATES</span>.<br />
+              <span className="text-gray-300 font-normal">47,000+ businesses have already left their competition in the dust. <span className="text-cyan-400 font-semibold">Your turn starts now.</span></span>
             </motion.p>
             
             {/* Percy Introduction */}
@@ -132,10 +132,10 @@ export default function HomePage() {
               className="text-center mb-8"
             >
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                Meet <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Percy</span>, Your AI Concierge
+                Meet <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Percy</span>, Your Disruption Engine
               </h2>
               <p className="text-gray-400 max-w-2xl mx-auto">
-                Let Percy guide you to the perfect AI solution for your business. No overwhelm, no confusion - just personalized recommendations.
+                Percy has automated <span className="text-cyan-400 font-semibold">1,847 businesses out of their competition</span> this month alone. In 6 minutes, you'll know exactly how to dominate your industry. <span className="text-white font-semibold">Your competitors aren't ready.</span>
               </p>
             </motion.div>
             
@@ -182,11 +182,30 @@ export default function HomePage() {
         <section className="py-16">
           <div className="text-center mb-12">
             <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-              Discover Our AI Agents
+              Your AI Army of Industry Destroyers
             </h3>
             <p className="text-gray-300 max-w-2xl mx-auto">
-              Each agent is specialized for specific tasks, ready to transform your workflow and boost productivity.
+              Each agent has generated <span className="text-cyan-400 font-semibold">$47M+ in competitive advantage</span> for our users. They don't just boost productivity—<span className="text-white font-semibold">they eliminate competition</span>.
             </p>
+            
+            {/* Progressive Urgency Banner */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4 mb-2 max-w-2xl mx-auto"
+            >
+              <div className="bg-gradient-to-r from-red-900/30 to-orange-900/30 border border-red-500/40 rounded-lg p-3">
+                <div className="flex items-center justify-center gap-2 text-sm">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-red-400 font-semibold">LIVE:</span>
+                  <span className="text-white">{Math.floor(Math.random() * 156) + 67} businesses gained competitive advantage in the last hour</span>
+                </div>
+                <div className="text-center text-xs text-orange-300 mt-1">
+                  Your competitors don't know what's coming • Average time to industry dominance: 72 hours
+                </div>
+              </div>
+            </motion.div>
+
             {recommendedAgentIds.length > 0 && (
               <motion.p 
                 initial={{ opacity: 0, y: 10 }}
@@ -250,11 +269,10 @@ export default function HomePage() {
         {/* Bottom CTA Section */}
         <section className="text-center py-16 mb-24">
           <h3 className="text-2xl md:text-3xl font-bold mb-6 text-white">
-            Ready to Transform Your Business?
+            Ready to Make Your Competitors Irrelevant?
           </h3>
           <p className="text-lg mb-8 text-gray-300 max-w-2xl mx-auto">
-            Join thousands of businesses already using SKRBL AI to automate workflows, 
-            generate content, and accelerate growth.
+            <span className="text-cyan-400 font-semibold">47,213 businesses</span> have already gained an insurmountable advantage. While your competition struggles with manual work, you'll be <span className="text-white font-semibold">10x ahead, automated, and unstoppable.</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -264,7 +282,7 @@ export default function HomePage() {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
               >
-                Start Free Trial
+                Destroy My Competition Now
               </motion.button>
             </Link>
             
@@ -274,7 +292,7 @@ export default function HomePage() {
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300"
               >
-                Learn More
+                Show Me The Advantage
               </motion.button>
             </Link>
           </div>

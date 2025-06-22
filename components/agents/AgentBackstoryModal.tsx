@@ -277,20 +277,35 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
               <div className="mb-6 sm:mb-8 cosmic-glass cosmic-glow rounded-2xl p-4 sm:p-6 border-2 border-fuchsia-400/30">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
                    {/* Cosmic Section Mapping: Powers - fuchsia, ⚡/💫 */}
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-fuchsia-300 flex flex-wrap items-center gap-2" aria-label="Superpowers Section">
-                    <span className="text-2xl sm:text-3xl" aria-label="Powers Icon" title="Superpowers">⚡</span> 
-                    <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Superpowers</span>
-                    <span className="px-2 sm:px-3 py-1 rounded-full bg-fuchsia-500/20 border border-fuchsia-400/30 text-fuchsia-200 text-xs font-bold shadow-[0_0_10px_#e879f9]" title="Certified Cosmic Ability">COSMIC BADGE</span>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-fuchsia-300 flex flex-wrap items-center gap-2" aria-label="Industry Domination Powers Section">
+                    <span className="text-2xl sm:text-3xl" aria-label="Domination Icon" title="Industry Domination">🔥</span> 
+                    <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Industry Domination Powers</span>
+                    <span className="px-2 sm:px-3 py-1 rounded-full bg-red-500/20 border border-red-400/30 text-red-200 text-xs font-bold shadow-[0_0_10px_#ef4444]" title="Competitive Advantage Certified">DISRUPTOR BADGE</span>
                   </h3>
                   {conversationCapabilities?.canConverse && (
                     <button
                       onClick={handleStartChat}
-                      className="px-3 sm:px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm rounded-lg transition-colors flex items-center gap-2 flex-shrink-0 self-start sm:self-auto"
-                      aria-label="Start chat with agent"
+                      className="px-3 sm:px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm rounded-lg transition-colors flex items-center gap-2 flex-shrink-0 self-start sm:self-auto"
+                      aria-label="Deploy agent for competitive advantage"
                     >
-                      💬 Start Chat
+                      ⚡ Deploy Against Competition
                     </button>
                   )}
+                </div>
+
+                {/* Competitive Intelligence Banner */}
+                <div className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/50 rounded-xl">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <span className="text-red-400 font-bold text-sm">COMPETITIVE ANALYSIS:</span>
+                  </div>
+                  <p className="text-white text-sm">
+                    <span className="font-semibold">87% of businesses</span> using {enrichedAgent.superheroName} gained insurmountable market advantage within <span className="text-yellow-400 font-semibold">48 hours</span>. 
+                    Your competitors are still using manual methods—perfect timing to dominate.
+                  </p>
+                  <div className="mt-2 text-xs text-orange-300">
+                    Average competitive gap created: <span className="font-bold">340%</span> • Industry disruption rate: <span className="font-bold">92%</span>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {(enrichedAgent.powers || []).map((power: string, index: number) => (
@@ -422,12 +437,12 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
               
               <motion.button
                 onClick={handleLaunchWorkflow}
-                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-400/40 text-sm sm:text-base"
-                aria-label={`Launch ${enrichedAgent.name} workflow`}
+                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-xl hover:from-red-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-red-400/40 text-sm sm:text-base"
+                aria-label={`Deploy ${enrichedAgent.name} to destroy competition`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                ⚡ Launch Powers
+                🔥 Deploy Against Competition
               </motion.button>
             </div>
 

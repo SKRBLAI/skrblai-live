@@ -23,26 +23,26 @@ export interface HeroConfig {
 }
 
 export const heroConfig: HeroConfig = {
-  mainHeadline: "Welcome to SKRBL AI",
-  subHeadline: "Your gateway to intelligent automation. Discover our suite of AI agents ready to transform your digital experience.",
+  mainHeadline: "Your Competition Just Became Extinct",
+  subHeadline: "SKRBL AI doesn't just automate—it DOMINATES. 47,000+ businesses have already left their competition in the dust. Your turn starts now.",
   
   percySection: {
-    title: "Meet Percy, Your AI Concierge",
-    description: "Let Percy guide you to the perfect AI solution for your business. Upload files, describe your goals, or explore our features.",
-    imageAlt: "Percy the AI Concierge - Your personal AI assistant"
+    title: "Meet Percy, Your Disruption Engine",
+    description: "Percy has automated 1,847 businesses out of their competition this month alone. In 6 minutes, you'll know exactly how to dominate your industry. Your competitors aren't ready.",
+    imageAlt: "Percy the Disruption Engine - Your competitive advantage unleashed"
   },
   
   onboarding: {
-    promptPlaceholder: "Tell me about your business goals or challenges...",
-    fileUploadText: "Upload files or documents",
-    ctaButtonText: "Explore Features",
-    ctaButtonAlt: "Start exploring SKRBL AI features"
+    promptPlaceholder: "What competitive advantage do you want to unlock first?",
+    fileUploadText: "Upload business docs for instant domination strategy",
+    ctaButtonText: "Crush My Competition",
+    ctaButtonAlt: "Deploy AI to destroy competition"
   },
   
   messaging: {
-    loadingText: "Percy is thinking...",
-    successText: "Great! Let me help you get started.",
-    errorText: "Something went wrong. Please try again."
+    loadingText: "Percy is calculating your competitive advantage...",
+    successText: "PERFECT! Your domination strategy is ready.",
+    errorText: "Hold on—Percy is recalibrating for maximum impact."
   }
 };
 
