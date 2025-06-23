@@ -10,72 +10,80 @@ import CosmicButton from '@/components/shared/CosmicButton';
 
 const plans = [
   {
-    title: 'Reserve',
-    price: '$7.99',
-    period: 'per month',
-    description: 'Kick-start your adventure with essential AI side-kick powers—perfect for curious creators.',
+    title: 'Gateway',
+    price: 'FREE',
+    period: 'forever',
+    description: 'Taste the power with 3 strategic agents. See what industry domination feels like.',
     features: [
-      'Access to Basic Agents',
-      'Limited Publishing',
+      '3 Strategic Agents (AdCreative, Analytics, Biz)',
+      'Percy Concierge Access',
+      '10 Tasks per Agent/Month',
       'Community Support',
-      'Basic Analytics'
+      'Taste the Revolution'
     ],
-    gradient: 'from-sky-400 to-teal-300',
-    cta: 'Start Free',
-    href: '/sign-up'
+    gradient: 'from-gray-600 to-gray-500',
+    cta: 'Start Your Domination',
+    href: '/sign-up',
+    badge: 'Get Addicted'
   },
   {
-    title: 'Starter',
-    price: '$19.99',
+    title: 'Starter Hustler',
+    price: '$27',
     period: 'per month',
-    description: 'Recruit a mighty squad of 5 AI heroes and watch your workflow soar.',
+    description: 'Content creators & solo entrepreneurs: Your automation empire starts here.',
     features: [
-      'Access to 5 AI Agents',
-      'Limited Publishing',
-      'Priority Percy Access',
-      'Advanced Analytics',
-      'Custom Workflows Access'
+      '6 Content Creator Agents',
+      'Percy Unlimited Access',
+      '50 Tasks per Agent/Month',
+      'Social Media Automation',
+      'Brand Development Kit',
+      'Priority Support'
     ],
-    gradient: 'from-amber-500 to-orange-500',
-    cta: 'Upgrade Now',
+    gradient: 'from-blue-600 to-cyan-500',
+    cta: 'Become a Hustler',
     href: '/sign-up?plan=starter',
-    popular: true
+    popular: true,
+    badge: 'Perfect for Creators'
   },
   {
-    title: 'Star',
-    price: '$39.99',
+    title: 'Business Dominator',
+    price: '$67',
     period: 'per month',
-    description: 'Deploy a full team of AI specialists to automate and amplify your business.',
+    description: 'Growing businesses: Deploy the arsenal that makes competitors cry.',
     features: [
-      'Access to 10+ AI Agents',
-      'Enhanced Publishing',
-      'Priority Support',
-      'Advanced Workflows',
-      'Team Collaboration'
+      '10 Growth Business Agents',
+      'Percy + Advanced Analytics',
+      '200 Tasks per Agent/Month',
+      'Client Success Automation',
+      'Payment Processing Engine',
+      'Video Content Machine',
+      'Dedicated Success Support'
     ],
-    gradient: 'from-purple-500 to-indigo-500',
-    cta: 'Upgrade to Star',
-    href: '/sign-up?plan=star'
+    gradient: 'from-yellow-500 to-orange-500',
+    cta: 'Dominate Your Market',
+    href: '/sign-up?plan=star',
+    badge: 'Revenue Multiplier'
   },
   {
-    title: 'Enterprise',
-    price: 'Custom',
+    title: 'Industry Crusher',
+    price: '$147',
     period: 'per month',
-    description: 'Command the entire SKRBL AI league with custom powers, integrations and white-label control.',
+    description: 'Enterprise disruptors: The complete arsenal for market domination.',
     features: [
-      'Unlimited AI Agent Access',
-      'Custom Agent Development',
+      'Complete Agent Arsenal (14+ Agents)',
+      'Percy + Predictive Intelligence',
+      'Unlimited Tasks & Processing',
+      'Custom Agent Builder',
       'White-label Options',
-      'API Access & Integrations',
-      'Dedicated Account Manager',
-      'Custom Workflows & Automations',
-      'SLA & Priority Support',
-      'Custom Training & Onboarding'
+      'API Integration Access',
+      'Dedicated Success Manager',
+      'Revenue Guarantee Program'
     ],
-    gradient: 'from-gradient-purple to-gradient-pink',
-    cta: 'Contact Sales',
-    href: '/contact',
-    enterprise: true
+    gradient: 'from-purple-600 to-pink-600',
+    cta: 'Crush Your Industry',
+    href: '/sign-up?plan=all_star',
+    enterprise: true,
+    badge: 'Complete Annihilation'
   }
 ];
 
@@ -88,7 +96,7 @@ export default function PricingPage() {
         <div className="container mx-auto px-4 py-24 relative z-10">
           {/* Hero Section */}
           <div className="max-w-4xl mx-auto text-center mb-16">
-            <CosmicHeading level={1}>Choose Your AI Superpower Plan</CosmicHeading>
+            <CosmicHeading level={1}>Choose Your Domination Level</CosmicHeading>
             
             <motion.p
               className="text-xl text-electric-blue leading-relaxed mb-6"
@@ -96,7 +104,7 @@ export default function PricingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              From solo creators to growing teams, SKRBL AI offers a league of digital superheroes.
+              From content creators to industry crushers, SKRBL AI delivers the firepower your competitors fear.
             </motion.p>
             
             <motion.p
@@ -105,8 +113,8 @@ export default function PricingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              Help you create, automate, and scale—faster than ever. Pick the plan that fits your journey.
-              All tiers come with Percy's cosmic guidance and a risk-free 3-Day Free Trial.
+              Stop playing small. Choose the tier that matches your ambition and watch your competition become extinct.
+              Every plan includes Percy's cosmic intelligence and starts with our risk-free trial.
             </motion.p>
           </div>
 
@@ -122,6 +130,14 @@ export default function PricingPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                 >
+                  {plan.badge && (
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1 text-sm text-electric-blue bg-electric-blue/10 rounded-full">
+                        {plan.badge}
+                      </span>
+                    </div>
+                  )}
+                  
                   <h3 className="text-2xl font-bold text-electric-blue mb-2">{plan.title}</h3>
                   <div className="mb-4">
                     <span className="text-4xl font-bold text-white">{plan.price}</span>
@@ -150,8 +166,8 @@ export default function PricingPage() {
                   
                   {plan.popular && (
                     <div className="mt-4">
-                      <span className="inline-block px-3 py-1 text-sm text-electric-blue bg-electric-blue/10 rounded-full">
-                        Most Popular
+                      <span className="inline-block px-3 py-1 text-sm text-yellow-400 bg-yellow-400/10 rounded-full">
+                        Revenue Accelerator
                       </span>
                     </div>
                   )}

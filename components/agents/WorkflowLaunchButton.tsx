@@ -22,7 +22,7 @@ interface WorkflowLaunchButtonProps {
   onWorkflowComplete?: (result: any) => void;
   onHandoffSuggestion?: (suggestions: any[]) => void;
   initialPrompt?: string;
-  requiredTier?: 'reserve' | 'starter' | 'star' | 'all_star';
+  requiredTier?: 'starter' | 'star' | 'all_star';
 }
 
 interface WorkflowResult {
@@ -45,6 +45,10 @@ interface WorkflowResult {
     cost?: number;
     requestProcessingTime: number;
   };
+}
+
+interface Agent {
+  // Add any necessary properties for the Agent type
 }
 
 // =============================================================================
@@ -78,7 +82,7 @@ export default function WorkflowLaunchButton({
   // ACCESS LEVEL HELPERS
   // =============================================================================
 
-  const TIER_HIERARCHY = ['client', 'reserve', 'starter', 'star', 'all_star', 'admin'];
+  const TIER_HIERARCHY = ['client', 'starter', 'star', 'all_star', 'admin'];
 
   const hasAccessToTier = (userTier: string | undefined, requiredTier: string): boolean => {
     const tier = userTier || 'client';
@@ -90,10 +94,9 @@ export default function WorkflowLaunchButton({
   const getTierDisplayName = (tier: string): string => {
     const tierNames: Record<string, string> = {
       'client': 'Free',
-      'reserve': 'Reserve',
-      'starter': 'Starter', 
-      'star': 'Star',
-      'all_star': 'All-Star',
+      'starter': 'Starter Hustler',
+      'star': 'Business Dominator',
+      'all_star': 'Industry Crusher',
       'admin': 'Admin'
     };
     return tierNames[tier] || tier;

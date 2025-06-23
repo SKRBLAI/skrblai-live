@@ -444,7 +444,7 @@ export class PowerEngine {
    * Check if user has premium access
    */
   private hasPremiumAccess(userRole: string): boolean {
-    return ['reserve', 'starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
+    return ['starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
   }
   
   /**
@@ -798,7 +798,6 @@ function calculateWorkflowCost(config: AgentWorkflowConfig, userRole: string): n
   if (userRole === 'all_star' || userRole === 'enterprise') baseCost *= 0.6; // 40% discount
   else if (userRole === 'star') baseCost *= 0.75; // 25% discount
   else if (userRole === 'starter' || userRole === 'pro') baseCost *= 0.85; // 15% discount
-  else if (userRole === 'reserve') baseCost *= 0.95; // 5% discount
   
   // Premium agent surcharge
   if (config.requiresPremium) baseCost *= 1.3;
@@ -810,7 +809,7 @@ function calculateWorkflowCost(config: AgentWorkflowConfig, userRole: string): n
  * Check premium access
  */
 function hasPremiumAccess(userRole: string): boolean {
-  return ['reserve', 'starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
+  return ['starter', 'star', 'all_star', 'pro', 'enterprise', 'vip', 'admin'].includes(userRole);
 }
 
 console.log('[PowerEngine] System initialized - Powers ready for action! ⚡'); 

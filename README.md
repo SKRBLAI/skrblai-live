@@ -286,3 +286,72 @@ npm run image-performance  # Detailed optimization analysis
 ---
 
 ## Core Features 
+
+## 🎯 Agent Image Button Hotspot Implementation
+*Completed: June 23, 2025*
+
+### Overview
+Implemented invisible clickable hotspots positioned precisely over the LEARN, CHAT, and LAUNCH buttons that are embedded within the agent card images (`Agents-*-Buttons.png`). This creates a seamless user experience where users can click directly on the visual buttons they see in the image.
+
+### Implementation Details
+
+**Files Modified:**
+- `components/ui/AgentLeagueCard.tsx` - Main implementation with invisible button hotspots
+- `README.md` - Documentation (this file)
+
+**Key Features:**
+- ✅ **Invisible Hotspots**: Completely transparent clickable areas positioned over image buttons
+- ✅ **Precise Positioning**: 22% width, 45% height hotspots aligned with button locations
+- ✅ **Accessibility**: Focus rings and screen reader support maintained
+- ✅ **Clean Design**: Removed all decorative overlays for clean appearance
+- ✅ **Functional**: All button actions (Learn, Chat, Launch) preserved
+
+**Technical Implementation:**
+```tsx
+{/* Clickable Hotspots for Actual Image Buttons */}
+<div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-end pb-[3%]">
+  {/* LEARN Button Hotspot */}
+  <motion.button
+    className="w-[22%] h-[45%] bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400/50"
+    onClick={handleLearnClick}
+    aria-label={`Learn about ${agent.name}`}
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.99 }}
+  >
+    <span className="sr-only">LEARN about {agent.name}</span>
+  </motion.button>
+  {/* CHAT and LAUNCH buttons follow same pattern */}
+</div>
+```
+
+**Removed Elements:**
+- Intelligence headers and badges
+- Live activity overlays
+- Progress bars and mastery stars
+- Predictive insights overlays
+- Visual button overlays and effects
+
+**Button Positioning:**
+- **LEARN**: Left position (22% width with 2% right margin)
+- **CHAT**: Center position (22% width with 2% right margin)  
+- **LAUNCH**: Right position (22% width, no margin)
+- **Container**: Bottom 20% of card, 3% padding from bottom
+
+### Usage
+Users can now click directly on the LEARN, CHAT, and LAUNCH buttons they see in the agent card images. The buttons provide:
+- Visual feedback through subtle scaling (1.01x on hover, 0.99x on tap)
+- Accessibility through focus rings and screen reader text
+- Full functionality for agent interactions
+
+### Related Files
+- **Agent Images**: `/public/images/Agents-*-Buttons.png` (various agent card images)
+- **Agent Utils**: `utils/agentUtils.ts` (image path management)
+- **Agent League**: `components/agents/AgentLeagueDashboard.tsx` (uses AgentLeagueCard)
+
+This implementation ensures the visual buttons in agent card images are actually functional, creating an intuitive and seamless user experience.
+
+---
+
+## 🤖 AI Agent System
+
+### Overview 

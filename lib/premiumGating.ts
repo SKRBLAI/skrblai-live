@@ -2,7 +2,7 @@ export interface PremiumFeature {
   id: string;
   name: string;
   description: string;
-  requiredRole: 'reserve' | 'starter' | 'star' | 'all_star';
+  requiredRole: 'starter' | 'star' | 'all_star';
   category: 'automation' | 'agents' | 'usage' | 'integrations';
 }
 
@@ -12,7 +12,7 @@ export const PREMIUM_FEATURES: Record<string, PremiumFeature> = {
     id: 'basic-automation',
     name: 'Basic Automation',
     description: 'Simple single-step workflows',
-    requiredRole: 'reserve',
+    requiredRole: 'starter',
     category: 'automation'
   },
   'advanced-automation': {
@@ -42,20 +42,20 @@ export const PREMIUM_FEATURES: Record<string, PremiumFeature> = {
     id: 'basic-agents',
     name: 'Basic Agents',
     description: 'Access to 3 core agents',
-    requiredRole: 'reserve',
+    requiredRole: 'starter',
     category: 'agents'
   },
   'starter-agents': {
     id: 'starter-agents',
-    name: 'Starter Agents',
-    description: 'Access to 5 specialized agents',
+    name: 'Content Creator Agents',
+    description: 'Access to 6 specialized content creation agents',
     requiredRole: 'starter',
     category: 'agents'
   },
   'premium-agents': {
     id: 'premium-agents',
-    name: 'Premium Agents',
-    description: 'Access to 10+ high-value agents',
+    name: 'Business Growth Agents',
+    description: 'Access to 10+ high-value business agents',
     requiredRole: 'star',
     category: 'agents'
   },
@@ -92,7 +92,7 @@ export const PREMIUM_FEATURES: Record<string, PremiumFeature> = {
 };
 
 export interface UserRole {
-  role: 'client' | 'reserve' | 'starter' | 'star' | 'all_star' | 'admin';
+  role: 'client' | 'starter' | 'star' | 'all_star' | 'admin';
   features: string[];
   limits: {
     dailyAutomations: number;
@@ -108,15 +108,6 @@ export const ROLE_PERMISSIONS: Record<string, UserRole> = {
     limits: {
       dailyAutomations: 3,
       monthlyAgentCalls: 50,
-      customAgents: 0
-    }
-  },
-  'reserve': {
-    role: 'reserve',
-    features: ['basic-automation', 'basic-agents'],
-    limits: {
-      dailyAutomations: 10,
-      monthlyAgentCalls: 200,
       customAgents: 0
     }
   },

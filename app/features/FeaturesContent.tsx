@@ -50,8 +50,7 @@ const features = [
 export default function FeaturesContent(): JSX.Element {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
   const { scrollYProgress } = useScroll();
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.98]);
   const container: Variants = {
     hidden: { opacity: 0 },
     show: {
@@ -104,7 +103,7 @@ export default function FeaturesContent(): JSX.Element {
   return (
     <PageLayout>
       <motion.div 
-        style={{ opacity, scale }} 
+        style={{ scale }} 
         className="min-h-screen relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
         <FloatingParticles 
           particleCount={20}

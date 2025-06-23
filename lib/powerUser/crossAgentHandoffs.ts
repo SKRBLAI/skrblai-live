@@ -264,7 +264,7 @@ function calculateCapabilityMatch(intentKeywords: string, agent: any): number {
  * Check if user tier is compatible with agent requirements
  */
 function checkTierCompatibility(userTier: string, requiredTier: string): boolean {
-  const tierHierarchy = ['client', 'reserve', 'starter', 'star', 'all_star', 'admin'];
+  const tierHierarchy = ['client', 'starter', 'star', 'all_star', 'admin'];
   const userIndex = tierHierarchy.indexOf(userTier);
   const requiredIndex = tierHierarchy.indexOf(requiredTier);
   
