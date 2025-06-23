@@ -32,6 +32,28 @@ export default function AgentLeagueDashboard() {
   const [isMobile, setIsMobile] = useState(false);
   const { session } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [handoffSuggestions, setHandoffSuggestions] = useState<any[]>([]);
+
+  // Phase 3: Mock user data for demonstration
+  const [userAgentData] = useState({
+    recommended: ['social-agent', 'analytics-agent', 'branding-agent'],
+    progress: {
+      'social-agent': 75,
+      'analytics-agent': 45,
+      'branding-agent': 90,
+      'content-creation-agent': 60,
+      'proposal-generator-agent': 30,
+    } as Record<string, number>,
+    mastery: {
+      'social-agent': 3,
+      'analytics-agent': 2,
+      'branding-agent': 3,
+      'content-creation-agent': 2,
+      'proposal-generator-agent': 1,
+    } as Record<string, number>
+  });
 
   // Replace useMediaQuery with simple window width check
   useEffect(() => {
@@ -142,6 +164,9 @@ export default function AgentLeagueDashboard() {
                 onInfo={() => handleAgentInfo(agent)}
                 onHandoff={() => handleHandoff(agent)}
                 onLaunch={() => handleAgentLaunch(agent)}
+                isRecommended={userAgentData.recommended.includes(agent.id)}
+                userProgress={userAgentData.progress[agent.id] || 0}
+                userMastery={userAgentData.mastery[agent.id] || 0}
               />
             );
           })}
