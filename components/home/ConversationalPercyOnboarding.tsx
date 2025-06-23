@@ -667,40 +667,49 @@ Based on this analysis, here are my cosmic recommendations:`;
   }, []);
 
   return (
-    <motion.div className={`max-w-7xl mx-auto px-4 md:px-8 py-12 ${onHome ? '' : 'mt-20'}`}>
-      {/* Main Chat Interface */}
-      <div id="percy-chat" className="cosmic-glass rounded-xl backdrop-blur-md border border-gray-800 shadow-2xl overflow-hidden max-w-4xl mx-auto mb-10">
-        {/* Chat Header */}
-        <div className="flex items-center gap-3 p-4 border-b border-gray-700">
-          <PercyAvatar className="w-10 h-10" />
-          <div>
-            <h3 className="font-semibold text-white">Hey, I'm Percy</h3>
-            <p className="text-sm text-gray-400">Your SKRBL AI Concierge</p>
+    <div className="w-full max-w-6xl mx-auto">
+      {/* AI Concierge Header Section with Percy Figure */}
+      <div className="text-center mb-8">
+        <div className="flex flex-col items-center justify-center space-y-4">
+          {/* Percy Figure moved here */}
+          <div className="relative">
+            <PercyFigure />
           </div>
-          <button
-            onClick={resetOnboarding}
-            title="Reset conversation"
-            className="ml-auto p-2 text-gray-400 hover:text-white transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Percy Hero Section - Centered */}
-        <div className="flex flex-col items-center text-center py-12 px-6">
-          <h2 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent mb-8">
-            Meet Percy, Your Cosmic Concierge
+          
+          <h2 className="text-3xl font-bold text-white">
+            Meet Percy, Your Cosmic AI Concierge
           </h2>
-          <PercyFigure className="w-48 h-48 md:w-60 md:h-60" />
-          <p className="text-lg md:text-xl text-gray-300 mt-6 max-w-2xl">
-            Your gateway to intelligent automation.
-            Ready to help you create amazing digital content and help.
+          <p className="text-cyan-400 text-lg">
+            Your gateway to intelligent automation built by the League
           </p>
         </div>
+      </div>
 
-        <div className="flex flex-col h-[500px]">
-          {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={chatContainerRef}>
+      {/* Chat Interface - Moved up to fill the space */}
+      <div className="bg-gray-900/50 backdrop-blur-lg rounded-2xl border border-cyan-500/30 shadow-2xl p-6">
+        <div className="flex flex-col h-96">
+          {/* Messages Area */}
+          <div 
+            ref={chatContainerRef}
+            className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-black/20 rounded-xl border border-gray-700/50"
+          >
+            {onboardingState.conversationHistory.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-8"
+              >
+                <PercyAvatar size="lg" />
+                <h3 className="text-xl font-bold text-white mt-4 mb-2">Hey, I'm Percy! 👋</h3>
+                <p className="text-gray-300 mb-4">
+                  Your gateway to intelligent automation built by the League 
+                </p>
+                <p className="text-cyan-400 text-sm">
+                  What business challenge can we destroy together?
+                </p>
+              </motion.div>
+            )}
+
             <AnimatePresence>
               {onboardingState.conversationHistory.map((message: Message, index: number) => (
                 <motion.div
@@ -881,6 +890,6 @@ Based on this analysis, here are my cosmic recommendations:`;
           ))}
         </motion.div>
       )}
-    </motion.div>
+    </div>
   );
 }

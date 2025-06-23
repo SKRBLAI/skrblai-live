@@ -99,15 +99,17 @@ export default function AgentLaunchButton({
   if (upgradeRequired) {
     return (
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-4">
-        <h4 className="font-semibold text-amber-800 mb-2">Premium Feature Required</h4>
+        <h4 className="font-semibold text-amber-800 mb-2">🚀 Agent Power Locked</h4>
         <p className="text-amber-700 mb-3">
-          {agent.name} requires a {upgradeRequired} subscription to access its full capabilities.
+          {agent.name} requires {upgradeRequired === 'starter' ? 'Starter Hustler ($27/month)' : 
+           upgradeRequired === 'star' ? 'Business Dominator ($67/month)' : 
+           'Industry Crusher ($147/month)'} access. Your competition is already using this firepower!
         </p>
         <button
           onClick={() => window.open('/pricing', '_blank')}
           className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-md font-medium hover:from-amber-600 hover:to-orange-600 transition-all"
         >
-          Upgrade to {upgradeRequired}
+          Unlock {agent.name} Power
         </button>
       </div>
     );

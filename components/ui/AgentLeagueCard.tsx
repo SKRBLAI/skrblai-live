@@ -181,9 +181,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             onError={handleFrameImgError}
           />
           
-          {/* Agent Name with Enhanced Styling */}
+          {/* Agent Name with Enhanced Styling - Repositioned above buttons */}
           <motion.h3
-            className="absolute top-[46%] left-1/2 -translate-x-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)]"
+            className="absolute top-[75%] left-1/2 -translate-x-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)] z-20"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + 0.05 * index }}
@@ -191,12 +191,68 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {agent.name}
           </motion.h3>
 
+          {/* Agent Intelligence Overlay */}
+          {showIntelligence && agentIntelligence && (
+            <motion.div
+              className="absolute top-2 left-2 right-2 z-10"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + 0.05 * index }}
+            >
+              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="text-purple-400 font-semibold flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                    IQ: {agentIntelligence.intelligenceLevel}
+                  </div>
+                  <div className="text-cyan-400 font-medium flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                    {liveUsers} live now
+                  </div>
+                </div>
+                <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
+                  {agentIntelligence.autonomyLevel} • {urgencySpots} urgent tasks
+                </div>
+                <div className="text-xs text-gray-300 mt-1">
+                  {agentIntelligence.superheroName} • {agentIntelligence.predictionCapabilities.length} prediction domains
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Predictive Insights Overlay (on hover) */}
+          {showIntelligence && isHovered && predictiveInsights.length > 0 && (
+            <motion.div
+              className="absolute top-16 left-2 right-2 z-20"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl">
+                <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
+                  🔮 Predictive Insights
+                </div>
+                {predictiveInsights.slice(0, 2).map((insight, idx) => (
+                  <div key={idx} className="text-xs text-gray-300 mb-1">
+                    <span className="text-yellow-400 font-medium capitalize">
+                      {insight.domain.replace('_', ' ')}:
+                    </span>
+                    <span className="ml-1">{insight.insight.slice(0, 50)}...</span>
+                    <div className="text-xs text-green-400 mt-0.5">
+                      {Math.round(insight.probability * 100)}% confidence
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
           {/* Clickable Hotspots for Actual Image Buttons */}
           {/* These invisible hotspots align with the LEARN, CHAT, LAUNCH buttons in the buttons.png images */}
           <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-end pb-[3%]">
             {/* LEARN Button Hotspot - Left position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
+              className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
               onClick={handleLearnClick}
               aria-label={`Learn about ${agent.name}`}
               whileHover={{ scale: 1.01 }}
@@ -205,11 +261,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">LEARN about {agent.name}</span>
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-cyan-400 font-bold">LEARN</div>
             </motion.button>
             
             {/* CHAT Button Hotspot - Center position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
+              className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
               onClick={handleChatClick}
               aria-label={`Chat with ${agent.name}`}
               whileHover={{ scale: 1.01 }}
@@ -218,11 +275,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">CHAT with {agent.name}</span>
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-purple-400 font-bold">CHAT</div>
             </motion.button>
             
             {/* LAUNCH Button Hotspot - Right position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
+              className="w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
               onClick={handleLaunchClick}
               aria-label={`Launch ${agent.name}`}
               whileHover={{ scale: 1.01 }}
@@ -230,6 +288,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">LAUNCH {agent.name}</span>
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-green-400 font-bold">LAUNCH</div>
             </motion.button>
           </div>
         </div>

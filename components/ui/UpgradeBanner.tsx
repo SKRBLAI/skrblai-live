@@ -13,9 +13,9 @@ interface UpgradeBannerProps {
 }
 
 export default function UpgradeBanner({
-  headline = '🌟 Unlock "Star" by SKRBL Premium',
-  description = ' Access unlimited agents, premium workflows, and priority support. Upgrade now for the full cosmic experience!',
-  ctaText = 'See Plans',
+  headline = '💰 Unlock Business Domination Powers',
+  description = 'Stop playing small! Access 10+ growth agents, unlimited tasks, and industry-crushing automation. Your competition is already upgrading.',
+  ctaText = 'Choose Your Domination Level',
   ctaHref = '/pricing',
   onDismiss,
 }: UpgradeBannerProps) {

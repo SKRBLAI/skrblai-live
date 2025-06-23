@@ -9,6 +9,7 @@ import { getCurrentUser } from '@/utils/supabase-helpers';
 import Link from 'next/link';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgentImagePath } from '@/utils/agentUtils';
+import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => {
@@ -69,6 +70,9 @@ export default function AgentPreviewSection(): React.ReactElement {
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
+  const [agentIntelligence, setAgentIntelligence] = useState<Map<string, AgentIntelligence>>(new Map());
+  const [predictiveInsights, setPredictiveInsights] = useState<Map<string, PredictiveInsight[]>>(new Map());
+  const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
 
   // Check if user is logged in
   React.useEffect(() => {
@@ -77,6 +81,30 @@ export default function AgentPreviewSection(): React.ReactElement {
       setIsLoggedIn(!!user);
     };
     checkLoginStatus();
+  }, []);
+
+  // Load agent intelligence data
+  React.useEffect(() => {
+    const loadIntelligence = async () => {
+      const intelligenceMap = new Map<string, AgentIntelligence>();
+      const insightsMap = new Map<string, PredictiveInsight[]>();
+
+      for (const agent of FEATURED_AGENTS) {
+        const intelligence = agentIntelligenceEngine.getAgentIntelligence(agent.id);
+        if (intelligence) {
+          intelligenceMap.set(agent.id, intelligence);
+          
+          // Load predictive insights
+          const insights = await agentIntelligenceEngine.generatePredictiveInsights(agent.id, 7);
+          insightsMap.set(agent.id, insights);
+        }
+      }
+
+      setAgentIntelligence(intelligenceMap);
+      setPredictiveInsights(insightsMap);
+    };
+
+    loadIntelligence();
   }, []);
 
   // Update live activity every 45 seconds for dynamic feel
@@ -123,89 +151,164 @@ export default function AgentPreviewSection(): React.ReactElement {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {FEATURED_AGENTS.map((agent) => (
-          <motion.div
-            key={agent.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
-          >
-            {/* Live Activity Overlay */}
-            <div className="absolute top-2 left-2 right-2 z-10">
-              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-cyan-500/30">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="text-cyan-400 font-semibold flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                    {liveActivity[agent.activityKey].liveUsers} live now
+        {FEATURED_AGENTS.map((agent) => {
+          const intelligence = agentIntelligence.get(agent.id);
+          const insights = predictiveInsights.get(agent.id) || [];
+          
+          return (
+            <motion.div
+              key={agent.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
+              onMouseEnter={() => setHoveredAgent(agent.id)}
+              onMouseLeave={() => setHoveredAgent(null)}
+            >
+              {/* Live Activity Overlay */}
+              <div className="absolute top-2 left-2 right-2 z-10">
+                <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-cyan-500/30">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="text-cyan-400 font-semibold flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                      {liveActivity[agent.activityKey].liveUsers} live now
+                    </div>
+                    <div className="text-white font-medium">
+                      {liveActivity[agent.activityKey].todayCreated.toLocaleString()} today
+                    </div>
                   </div>
-                  <div className="text-white font-medium">
-                    {liveActivity[agent.activityKey].todayCreated.toLocaleString()} today
+                  <div className="text-xs text-yellow-400 font-semibold mt-1">
+                    {agent.dominanceMetric} • {liveActivity[agent.activityKey].marketShare}% market control
                   </div>
-                </div>
-                <div className="text-xs text-yellow-400 font-semibold mt-1">
-                  {agent.dominanceMetric} • {liveActivity[agent.activityKey].marketShare}% market control
                 </div>
               </div>
-            </div>
 
-            {/* Agent Card Image */}
-            <div className="aspect-[3/4] relative w-full">
-              <Image 
-                src={getAgentImagePath(agent.id, "card")}
-                alt={agent.name}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            
-            {/* Card Action Buttons */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4">
-              <div className="flex justify-center space-x-2">
-                {/* LEARN Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleLearnClick(agent.id)}
-                  className="px-4 py-2 bg-purple-500/80 text-white rounded-md font-medium text-sm"
+              {/* Agent Intelligence Overlay */}
+              {intelligence && (
+                <motion.div
+                  className="absolute top-16 left-2 right-2 z-10"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  LEARN
-                </motion.button>
-                
-                {/* CHAT Button (Freebie) */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleChatClick(agent.id, agent.freeTip)}
-                  className="px-4 py-2 bg-purple-500/80 text-white rounded-md font-medium text-sm"
-                >
-                  CHAT
-                </motion.button>
-                
-                {/* LAUNCH Button (Locked for non-users) */}
-                <motion.button
-                  whileHover={isLoggedIn ? { scale: 1.05 } : { scale: 1 }}
-                  whileTap={isLoggedIn ? { scale: 0.95 } : { scale: 1 }}
-                  disabled={!isLoggedIn}
-                  className={`px-4 py-2 rounded-md font-medium text-sm relative ${
-                    isLoggedIn ? 'bg-blue-500 text-white' : 'bg-gray-500/40 text-gray-300'
-                  }`}
-                  onMouseEnter={() => !isLoggedIn && setShowTooltip(agent.id)}
-                  onMouseLeave={() => setShowTooltip(null)}
-                  onClick={() => isLoggedIn && router.push(`/agent/${agent.id}`)}
-                >
-                  LAUNCH
-                  {!isLoggedIn && showTooltip === agent.id && (
-                    <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs p-2 rounded whitespace-nowrap z-50">
-                      Sign up to unlock
+                  <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="text-purple-400 font-semibold flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                        IQ: {intelligence.intelligenceLevel}
+                      </div>
+                      <div className="text-cyan-400 font-medium capitalize">
+                        {intelligence.autonomyLevel}
+                      </div>
                     </div>
-                  )}
-                </motion.button>
+                    <div className="text-xs text-gray-300 mt-1">
+                      {intelligence.superheroName} • {intelligence.predictionCapabilities.length} domains
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Predictive Insights Overlay (on hover) */}
+              {hoveredAgent === agent.id && insights.length > 0 && (
+                <motion.div
+                  className="absolute top-28 left-2 right-2 z-20"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl">
+                    <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
+                      🔮 Predictive Insights
+                    </div>
+                    {insights.slice(0, 2).map((insight, idx) => (
+                      <div key={idx} className="text-xs text-gray-300 mb-1">
+                        <span className="text-yellow-400 font-medium capitalize">
+                          {insight.domain.replace('_', ' ')}:
+                        </span>
+                        <span className="ml-1">{insight.insight.slice(0, 40)}...</span>
+                        <div className="text-xs text-green-400 mt-0.5">
+                          {Math.round(insight.probability * 100)}% confidence
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Agent Card Image */}
+              <div className="aspect-[3/4] relative w-full">
+                <Image 
+                  src={getAgentImagePath(agent.id, "card")}
+                  alt={agent.name}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                
+                {/* Agent Name - Positioned above buttons */}
+                <motion.h3
+                  className="absolute top-[75%] left-1/2 -translate-x-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)] z-20"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  {agent.name}
+                </motion.h3>
+                
+                {/* Invisible Hotspots for Image Buttons */}
+                <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-end pb-[3%]">
+                  {/* LEARN Button Hotspot */}
+                  <motion.button
+                    className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 rounded-lg"
+                    onClick={() => handleLearnClick(agent.id)}
+                    aria-label={`Learn about ${agent.name}`}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    style={{ marginRight: '2%' }}
+                  >
+                    <span className="sr-only">LEARN about {agent.name}</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-xs text-cyan-400 font-bold">LEARN</div>
+                  </motion.button>
+                  
+                  {/* CHAT Button Hotspot */}
+                  <motion.button
+                    className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 rounded-lg"
+                    onClick={() => handleChatClick(agent.id, agent.freeTip)}
+                    aria-label={`Chat with ${agent.name}`}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    style={{ marginRight: '2%' }}
+                  >
+                    <span className="sr-only">CHAT with {agent.name}</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-xs text-purple-400 font-bold">CHAT</div>
+                  </motion.button>
+                  
+                  {/* LAUNCH Button Hotspot */}
+                  <motion.button
+                    className={`w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none rounded-lg ${
+                      isLoggedIn ? 'focus:ring-2 focus:ring-green-400/50' : 'cursor-not-allowed opacity-50'
+                    }`}
+                    onClick={() => isLoggedIn && router.push(`/agent/${agent.id}`)}
+                    onMouseEnter={() => !isLoggedIn && setShowTooltip(agent.id)}
+                    onMouseLeave={() => setShowTooltip(null)}
+                    disabled={!isLoggedIn}
+                    aria-label={`Launch ${agent.name}`}
+                    whileHover={isLoggedIn ? { scale: 1.01 } : {}}
+                    whileTap={isLoggedIn ? { scale: 0.99 } : {}}
+                  >
+                    <span className="sr-only">LAUNCH {agent.name}</span>
+                    <div className="absolute inset-0 flex items-center justify-center text-xs text-green-400 font-bold">LAUNCH</div>
+                    {!isLoggedIn && showTooltip === agent.id && (
+                      <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs p-2 rounded whitespace-nowrap z-50">
+                        Sign up to unlock
+                      </div>
+                    )}
+                  </motion.button>
+                </div>
               </div>
               
               {/* Competitive Intelligence & Power Preview */}
-              <div className="mt-2 p-2 bg-black/60 rounded-md opacity-0 hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-black/0 p-4">
                 <div className="text-xs mb-2">
                   <div className="text-red-400 font-semibold mb-1">⚡ Competitive Edge:</div>
                   <div className="text-white">{liveActivity[agent.activityKey].competitiveEdge}</div>
@@ -213,9 +316,9 @@ export default function AgentPreviewSection(): React.ReactElement {
                 <p className="text-white text-xs mb-1"><span className="text-teal-400">Free Preview:</span> {agent.freeTip}</p>
                 <p className="text-white text-xs"><span className="text-yellow-400">Full Domination:</span> {agent.upsell}</p>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
       
       {/* Progressive Urgency CTA */}

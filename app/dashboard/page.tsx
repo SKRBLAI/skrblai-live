@@ -4,7 +4,7 @@
 // Configure dynamic rendering
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/components/context/AuthContext'; 
@@ -13,15 +13,15 @@ import { supabase } from '@/utils/supabase';
 import Spinner from '@/components/ui/Spinner';
 
 // Import actual UI components - paths should be verified by USER
-import PageLayout from '@/components/layout/PageLayout'; // Corrected from DashboardLayout
+import PageLayout from '@/components/layout/ClientPageLayout'; // Corrected from DashboardLayout
 import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Corrected from DashboardWelcomeHeader
 import DashboardOverview from '@/components/dashboard/DashboardOverview'; // Corrected from OverviewSection
 import Notifications from '@/components/dashboard/Notifications'; // Corrected from NotificationsPanel
+import SectionNavigation from '@/components/dashboard/SectionNavigation';
 
 // Missing component imports - commented out
 // import PremiumFeaturesPanel from '@/components/dashboard/PremiumFeaturesPanel'; 
 // import UpsellCard from '@/components/ui/UpsellCard'; 
-// import SectionNavigation from '@/components/dashboard/SectionNavigation'; 
 // import MyAgentsSection from '@/components/dashboard/MyAgentsSection'; 
 // import ActivityFeed from '@/components/dashboard/ActivityFeed'; 
 // import AgentDiscovery from '@/components/dashboard/AgentDiscovery'; 
@@ -220,6 +220,34 @@ export default function Dashboard() {
           <DashboardHeader />
         </motion.div>
         
+        {/* Usage Pressure Banner - Show upgrade urgency */}
+        <motion.div variants={itemVariants}>
+          <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Gateway Tier: 3 Free Agents Active</h3>
+                  <p className="text-orange-200 text-sm">
+                    Unlock 11+ more agents with Starter Hustler ($27/month). Your competition isn't waiting.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => router.push('/pricing')}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
+                >
+                  Upgrade to Dominate
+                </button>
+                <p className="text-orange-300 text-xs text-center">11 agents locked</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* {userRole === 'free' && upsellAgent && (
           <motion.div variants={itemVariants}>
             <UpsellCard agent={upsellAgent} onCTAClick={() => router.push('/pricing')} />
@@ -232,9 +260,9 @@ export default function Dashboard() {
            </motion.div>
         )} */}
 
-        {/* <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants}>
           <SectionNavigation activeSection={activeSection} onNavigate={setActiveSection} />
-        </motion.div> */}
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2 space-y-6 md:space-y-8">

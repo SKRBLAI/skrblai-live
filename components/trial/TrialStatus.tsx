@@ -161,10 +161,10 @@ export default function TrialStatus({ trialStatus, onUpgrade, compact = false }:
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white font-semibold mb-1">
-                Ready for unlimited access?
+                Ready to dominate your industry?
               </p>
               <p className="text-gray-300 text-sm">
-                Upgrade to Pro for unlimited agents, scans, and features
+                Upgrade to Starter Hustler ($27) for unlimited agents and competitive advantage
               </p>
             </div>
             <motion.button
@@ -173,7 +173,7 @@ export default function TrialStatus({ trialStatus, onUpgrade, compact = false }:
               onClick={onUpgrade}
               className="px-6 py-3 bg-gradient-to-r from-fuchsia-500 to-cyan-500 text-white font-bold rounded-xl hover:shadow-lg transition-shadow flex items-center gap-2 whitespace-nowrap"
             >
-              <span>Upgrade to Pro</span>
+              <span>Start Dominating</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           </div>
