@@ -67,13 +67,16 @@ export default function AgentLeagueDashboard() {
   useEffect(() => {
     if (!session?.access_token) return;
     fetchAgentLeagueData(session.access_token).then(data => {
-      console.log('[AgentLeagueDashboard] Loaded agents:', data.agents);
-      console.log('[AgentLeagueDashboard] Agent count:', data.agents.length);
-      console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible })));
+      // Production-optimized logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[AgentLeagueDashboard] Loaded agents:', data.agents);
+        console.log('[AgentLeagueDashboard] Agent count:', data.agents.length);
+        console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible })));
+      }
       setAgents(data.agents);
       setRecommendations(data.recommendations || []);
     }).catch(error => {
-      console.error('[AgentLeagueDashboard] Error loading agents:', error);
+      console.error('[CRITICAL][AgentLeagueDashboard] Error loading agents:', error);
       setError(error.message);
     }).finally(() => {
       setLoading(false);
@@ -87,25 +90,32 @@ export default function AgentLeagueDashboard() {
   // Recommendation handoff logic
   function handleHandoff(agent: Agent) {
     setSelectedAgent(agent);
-    console.log('[AgentLeagueDashboard] Handoff to:', agent.name);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AgentLeagueDashboard] Handoff to:', agent.name);
+    }
   }
 
   // Navigation to agent backstory page
   function handleAgentInfo(agent: Agent) {
     router.push(`/agent-backstory/${agent.id}`);
-    console.log('[AgentLeagueDashboard] View info for:', agent.name);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AgentLeagueDashboard] View info for:', agent.name);
+    }
   }
 
   // Chat with agent
   function handleAgentChat(agent: Agent) {
     setSelectedAgent(agent);
-    console.log('[AgentLeagueDashboard] Chat with:', agent.name);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AgentLeagueDashboard] Chat with:', agent.name);
+    }
   }
 
   // Launch agent functionality
   function handleAgentLaunch(agent: Agent) {
-    console.log('[AgentLeagueDashboard] Launch agent:', agent.name);
-
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[AgentLeagueDashboard] Launch agent:', agent.name);
+    }
     // Navigate to agent's specific service page
     router.push(`/services/${agent.id}`);
   }
@@ -150,7 +160,9 @@ export default function AgentLeagueDashboard() {
           animate="visible"
         >
           {otherAgents.map((agent, index) => {
-            console.log('[AgentLeagueDashboard] Rendering agent:', agent);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('[AgentLeagueDashboard] Rendering agent:', agent);
+            }
             return (
               <AgentLeagueCard
                 key={agent.id}
