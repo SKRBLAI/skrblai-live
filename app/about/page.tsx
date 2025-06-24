@@ -10,7 +10,8 @@ import FloatingParticles from '@/components/ui/FloatingParticles';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, DollarSign, Clock, Users, Zap, Target, Star, Crown, Rocket, Shield } from 'lucide-react';
+import { TrendingUp, DollarSign, Clock, Users, Zap, Target, Star, Crown, Rocket, Shield, Brain } from 'lucide-react';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 // Live metrics simulation
 const useLiveMetrics = () => {
@@ -92,7 +93,7 @@ const competitiveAdvantages = [
 
 const testimonials = [
   {
-    quote: "SKRBL AI transformed our content strategy. What used to take our team 40 hours now takes 4 hours with better results.",
+    quote: (<><SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> transformed our content strategy. What used to take our team 40 hours now takes 4 hours with better results.</>),
     author: "Sarah Chen",
     role: "Marketing Director",
     company: "TechFlow Dynamics",
@@ -166,7 +167,7 @@ export default function AboutPage(): JSX.Element {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                While others talk about AI, we deliver it. SKRBL AI is the platform disrupting how businesses automate, create, and scale.
+                While others talk about AI, we deliver it. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> is the platform disrupting how businesses automate, create, and scale.
               </motion.p>
 
               <motion.p
@@ -292,7 +293,7 @@ export default function AboutPage(): JSX.Element {
               viewport={{ once: true }}
             >
               <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                Why <span className="text-electric-blue">Businesses Choose</span> SKRBL AI
+                Why <span className="text-electric-blue">Businesses Choose</span> <SkrblAiText variant="glow" size="xl">SKRBL AI</SkrblAiText>
               </CosmicHeading>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                 We don't just compete - we redefine what AI automation can achieve.
@@ -413,8 +414,8 @@ export default function AboutPage(): JSX.Element {
                   </CosmicButton>
                 </div>
 
-                <p className="text-sm text-gray-400 mt-6">
-                  Join 2,847+ companies already transforming with SKRBL AI
+                <p className="text-lg text-gray-300 mb-8">
+                  Join 2,847+ companies already transforming with <SkrblAiText variant="pulse" size="md">SKRBL AI</SkrblAiText>
                 </p>
               </GlassmorphicCard>
             </motion.div>

@@ -162,7 +162,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         }}
         whileFocus={{ scale: 1.05 }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-72 h-96 flex-shrink-0 mx-auto rounded-3xl shadow-xl overflow-visible perspective-1000 ${selected ? 'ring-4 ring-fuchsia-400/80 ring-offset-2' : ''} ${className}`}
+        className={`relative w-full max-w-72 h-80 md:h-96 flex-shrink-0 mx-auto rounded-3xl shadow-xl overflow-visible perspective-1000 ${selected ? 'ring-4 ring-fuchsia-400/80 ring-offset-2' : ''} ${className}`}
         style={{ 
           filter: 'drop-shadow(' + (isRecommended ? glow.recommended : glow.resting) + ')',
           zIndex: isRecommended ? 10 : 1
@@ -183,12 +183,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           
           {/* Agent Name - Positioned between card and buttons */}
           <motion.div
-            className="absolute bottom-[88px] left-1/2 -translate-x-1/2 z-30 px-3 py-1 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-sm rounded-lg border border-cyan-400/30"
+            className="absolute bottom-[75px] md:bottom-[88px] left-1/2 -translate-x-1/2 z-30 px-2 md:px-3 py-1 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-sm rounded-lg border border-cyan-400/30"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + 0.05 * index }}
           >
-            <h3 className="text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-nowrap">
+            <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-nowrap no-text-cutoff">
               {agent.name}
             </h3>
           </motion.div>

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { Agent } from '@/types/agent';
 import { Toaster } from 'react-hot-toast';
@@ -31,6 +32,7 @@ export default function AgentLeagueDashboard() {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const { session } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,22 @@ export default function AgentLeagueDashboard() {
   const percy = agents.find(a => a.id === 'percy-agent' || a.name === 'Percy');
   const otherAgents = agents.filter(a => a.id !== 'percy-agent' && a.name !== 'Percy');
 
+  // Mobile slider controls
+  const agentsPerPage = isMobile ? 1 : otherAgents.length;
+  const totalSlides = isMobile ? otherAgents.length : 1;
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
   // Recommendation handoff logic
   function handleHandoff(agent: Agent) {
     setSelectedAgent(agent);
@@ -121,13 +139,14 @@ export default function AgentLeagueDashboard() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-12">
+    <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
       {/* Toast container */}
       <Toaster position="bottom-right" />
+      
       {/* Percy Centerpiece */}
-      <div className="flex flex-col items-center mb-10">
-        <div className="text-center">
-          <div className="relative w-24 h-24 mx-auto mb-4">
+      <div className="flex flex-col items-center mb-8 md:mb-10">
+        <div className="text-center mobile-text-safe">
+          <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-4">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
             <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
               <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
@@ -144,54 +163,136 @@ export default function AgentLeagueDashboard() {
             </div>
             <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome to Percy's League of Superheroes</h2>
-          <p className="text-gray-300">Your cosmic concierge is ready to coordinate the perfect team</p>
+          <h2 className="text-xl md:text-2xl font-bold text-white mb-2 no-text-cutoff">
+            Welcome to Percy's League of Superheroes
+          </h2>
+          <p className="text-sm md:text-base text-gray-300 no-text-cutoff">
+            Your cosmic concierge is ready to coordinate the perfect team
+          </p>
         </div>
       </div>
-      {/* Agent League Grid or Carousel */}
+
+      {/* Agent League - Mobile Slider / Desktop Grid */}
       {agents.length === 0 ? (
         <div className="text-center text-gray-400 py-12">
-          <p>No agents available. Please try again later.</p>
+          <p className="mobile-text-safe">No agents available. Please try again later.</p>
         </div>
       ) : (
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"
-          initial="hidden"
-          animate="visible"
-        >
-          {otherAgents.map((agent, index) => {
-            if (process.env.NODE_ENV === 'development') {
-              console.log('[AgentLeagueDashboard] Rendering agent:', agent);
-            }
-            return (
-              <AgentLeagueCard
-                key={agent.id}
-                agent={agent}
-                index={index}
-                onChat={() => handleAgentChat(agent)}
-                onInfo={() => handleAgentInfo(agent)}
-                onHandoff={() => handleHandoff(agent)}
-                onLaunch={() => handleAgentLaunch(agent)}
-                isRecommended={userAgentData.recommended.includes(agent.id)}
-                userProgress={userAgentData.progress[agent.id] || 0}
-                userMastery={userAgentData.mastery[agent.id] || 0}
-              />
-            );
-          })}
-        </motion.div>
+        <div className="relative">
+          {/* Mobile Slider */}
+          {isMobile ? (
+            <div className="relative">
+              {/* Slider Navigation */}
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  onClick={prevSlide}
+                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                  disabled={currentSlide === 0}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                
+                <div className="text-center">
+                  <span className="text-sm text-gray-400">
+                    {currentSlide + 1} of {totalSlides}
+                  </span>
+                </div>
+                
+                <button
+                  onClick={nextSlide}
+                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                  disabled={currentSlide === totalSlides - 1}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Slider Content */}
+              <div className="agent-slider-container overflow-hidden">
+                <motion.div
+                  className="flex transition-transform duration-300 ease-in-out"
+                  style={{
+                    transform: `translateX(-${currentSlide * 100}%)`,
+                  }}
+                >
+                  {otherAgents.map((agent, index) => (
+                    <div key={agent.id} className="w-full flex-shrink-0 px-4">
+                      <AgentLeagueCard
+                        agent={agent}
+                        index={index}
+                        onChat={() => handleAgentChat(agent)}
+                        onInfo={() => handleAgentInfo(agent)}
+                        onHandoff={() => handleHandoff(agent)}
+                        onLaunch={() => handleAgentLaunch(agent)}
+                        isRecommended={userAgentData.recommended.includes(agent.id)}
+                        userProgress={userAgentData.progress[agent.id] || 0}
+                        userMastery={userAgentData.mastery[agent.id] || 0}
+                      />
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Slide Indicators */}
+              <div className="flex justify-center mt-4 space-x-2">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      index === currentSlide
+                        ? 'bg-cyan-400 w-6'
+                        : 'bg-gray-600 hover:bg-gray-500'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* Desktop Grid */
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
+              initial="hidden"
+              animate="visible"
+            >
+              {otherAgents.map((agent, index) => {
+                if (process.env.NODE_ENV === 'development') {
+                  console.log('[AgentLeagueDashboard] Rendering agent:', agent);
+                }
+                return (
+                  <AgentLeagueCard
+                    key={agent.id}
+                    agent={agent}
+                    index={index}
+                    onChat={() => handleAgentChat(agent)}
+                    onInfo={() => handleAgentInfo(agent)}
+                    onHandoff={() => handleHandoff(agent)}
+                    onLaunch={() => handleAgentLaunch(agent)}
+                    isRecommended={userAgentData.recommended.includes(agent.id)}
+                    userProgress={userAgentData.progress[agent.id] || 0}
+                    userMastery={userAgentData.mastery[agent.id] || 0}
+                  />
+                );
+              })}
+            </motion.div>
+          )}
+        </div>
       )}
+
       {/* Cross-agent recommendations/handoff */}
       {recommendations.length > 0 && (
-        <div className="mt-12">
-          <h3 className="skrblai-heading text-2xl md:text-3xl font-bold text-white mb-4">Other agents who can help next</h3>
-          <div className="flex flex-wrap gap-4">
+        <div className="mt-8 md:mt-12 mobile-text-safe">
+          <h3 className="skrblai-heading text-xl md:text-2xl lg:text-3xl font-bold text-white mb-4 no-text-cutoff">
+            Other agents who can help next
+          </h3>
+          <div className="mobile-button-container md:flex md:flex-wrap md:gap-4">
             {recommendations.map((agentId: string) => {
               const agent = agents.find(a => a.id === agentId);
               if (!agent) return null;
               return (
                 <button
                   key={agent.id}
-                  className="bg-teal-500 hover:bg-electric-blue text-white px-4 py-2 rounded-lg shadow font-medium transition-all"
+                  className="bg-teal-500 hover:bg-electric-blue text-white px-4 py-2 rounded-lg shadow font-medium transition-all text-sm md:text-base"
                   onClick={() => handleHandoff(agent)}
                 >
                   {agent.name}

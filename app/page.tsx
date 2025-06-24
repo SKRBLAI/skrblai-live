@@ -12,6 +12,7 @@ import FloatingParticles from '@/components/ui/FloatingParticles';
 import ConversationalPercyOnboarding from '@/components/home/ConversationalPercyOnboarding';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import AgentsGrid from '@/components/agents/AgentsGrid';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 export default function HomePage() {
   const router = useRouter();
@@ -108,7 +109,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6 }}
-              className="skrblai-heading text-center text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow"
+              className="skrblai-heading text-center text-3xl sm:text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow mobile-text-safe no-text-cutoff"
             >
               Your Competition Just Became <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">Extinct</span>
             </motion.h1>
@@ -118,9 +119,9 @@ export default function HomePage() {
               initial={{ opacity: 0, y: -10 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-xl md:text-2xl text-teal-300 text-center max-w-3xl mx-auto mb-8 font-semibold"
+              className="text-lg sm:text-xl md:text-2xl text-teal-300 text-center max-w-3xl mx-auto mb-6 md:mb-8 font-semibold mobile-text-safe no-text-cutoff"
             >
-              SKRBL AI doesn't just automate—it <span className="text-white font-bold">DOMINATES</span>.<br />
+              <SkrblAiText variant="glow" size="lg">SKRBL AI</SkrblAiText> doesn't just automate—it <span className="text-white font-bold">DOMINATES</span>.<br />
               <span className="text-gray-300 font-normal">47,000+ businesses have already left their competition in the dust. <span className="text-cyan-400 font-semibold">Your turn starts now.</span></span>
             </motion.p>
             

@@ -341,10 +341,11 @@ export default function ConversationalPercyOnboarding() {
           // New user greeting
           if (onboardingState.conversationHistory.length === 0) {
             addPercyMessage(
-              `⚡ You've just discovered the future of business automation! I'm Percy, and I've helped 47,000+ businesses destroy their competition using AI. ${agentBackstories['percy-agent'].catchphrase} Most people take 6 months to see results—you'll see them in 6 minutes!`,
+              `✨ Welcome to the SKRBL AI universe! I'm Percy, your cosmic concierge. ${agentBackstories['percy-agent'].catchphrase} Ready to find your perfect AI superhero?`,
               [
                 { id: 'start', label: "I want to dominate my industry! 🚀", icon: '🚀', action: 'start' },
-                { id: 'learn', label: 'Show me the competitive advantage 📊', icon: '📊', action: 'learn' }
+                { id: 'learn', label: "Tell me about your agents 🤖", icon: '🤖', action: 'learn' },
+                { id: 'skip', label: "Skip to agent selection ⚡", icon: '⚡', action: 'skip' }
               ]
             );
           }

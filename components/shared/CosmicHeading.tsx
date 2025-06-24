@@ -23,13 +23,15 @@ export default function CosmicHeading({
     to-teal-400
     bg-clip-text
     text-transparent
+    leading-tight
+    overflow-visible
     ${centered ? 'text-center' : ''}
   `;
 
   const sizeStyles = {
-    1: 'text-4xl md:text-6xl mb-6',
-    2: 'text-3xl md:text-5xl mb-4',
-    3: 'text-2xl md:text-4xl mb-3'
+    1: 'text-4xl md:text-6xl mb-6 leading-tight',
+    2: 'text-3xl md:text-5xl mb-4 leading-tight',
+    3: 'text-2xl md:text-4xl mb-3 leading-snug'
   };
 
   const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
@@ -39,6 +41,7 @@ export default function CosmicHeading({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      className="no-text-cutoff"
     >
       <HeadingTag className={`${baseStyles} ${sizeStyles[level]} ${className}`}>
         {children}

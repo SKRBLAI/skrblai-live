@@ -11,6 +11,7 @@ import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import CosmicButton from '@/components/shared/CosmicButton';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, DollarSign, Target, Phone, Mail, Calendar } from 'lucide-react';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 // Live contact metrics simulation
 const useLiveContactMetrics = () => {
@@ -212,7 +213,7 @@ export default function ContactPage() {
                 </CosmicHeading>
                 
                 <p className="text-2xl text-green-400 mb-6 font-bold">
-                  Percy and the SKRBL AI team are analyzing your request.
+                  <span className="text-cyan-400 font-bold">Percy</span> and the <SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> team are analyzing your request.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -320,7 +321,7 @@ export default function ContactPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Join the {metrics.dealsClosedThisWeek} companies that chose SKRBL AI this week. 
+                Join the {metrics.dealsClosedThisWeek} companies that chose <SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> this week. 
                 Average project value: <span className="text-green-400 font-bold">${metrics.avgProjectValue.toLocaleString()}</span>
               </motion.p>
 
@@ -516,8 +517,6 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     name="message"
-                    value={formData.message}
-                    onChange={handleChange}
                     required
                     rows={6}
                     className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors resize-none"

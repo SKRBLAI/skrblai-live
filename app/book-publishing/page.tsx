@@ -10,6 +10,7 @@ import CosmicButton from '@/components/shared/CosmicButton';
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, PenTool, Share2, Award } from 'lucide-react';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 export default function BookPublishingPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({
@@ -107,30 +108,30 @@ export default function BookPublishingPage(): JSX.Element {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
+                className="mobile-metrics-container md:grid md:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-16"
               >
-                <GlassmorphicCard className="p-6 text-center border-orange-500/20">
-                  <div className="text-3xl font-bold text-orange-400 mb-2">{liveMetrics.booksPublished.toLocaleString()}</div>
-                  <div className="text-gray-400">Books Published</div>
-                  <div className="text-sm text-green-400">+{Math.floor(Math.random() * 10 + 15)} today</div>
+                <GlassmorphicCard className="mobile-stat-card md:p-6 text-center border-orange-500/20">
+                  <div className="text-2xl md:text-3xl font-bold text-orange-400 mb-1 md:mb-2 no-text-cutoff">{liveMetrics.booksPublished.toLocaleString()}</div>
+                  <div className="text-sm md:text-base text-gray-400 no-text-cutoff">Books Published</div>
+                  <div className="text-xs md:text-sm text-green-400 no-text-cutoff">+{Math.floor(Math.random() * 10 + 15)} today</div>
                 </GlassmorphicCard>
                 
-                <GlassmorphicCard className="p-6 text-center border-emerald-500/20">
-                  <div className="text-3xl font-bold text-emerald-400 mb-2">{liveMetrics.authorsLaunched.toLocaleString()}</div>
-                  <div className="text-gray-400">Authors Launched</div>
-                  <div className="text-sm text-green-400">+{Math.floor(Math.random() * 5 + 8)} today</div>
+                <GlassmorphicCard className="mobile-stat-card md:p-6 text-center border-emerald-500/20">
+                  <div className="text-2xl md:text-3xl font-bold text-emerald-400 mb-1 md:mb-2 no-text-cutoff">{liveMetrics.authorsLaunched.toLocaleString()}</div>
+                  <div className="text-sm md:text-base text-gray-400 no-text-cutoff">Authors Launched</div>
+                  <div className="text-xs md:text-sm text-green-400 no-text-cutoff">+{Math.floor(Math.random() * 5 + 8)} today</div>
                 </GlassmorphicCard>
                 
-                <GlassmorphicCard className="p-6 text-center border-blue-500/20">
-                  <div className="text-3xl font-bold text-blue-400 mb-2">7-14</div>
-                  <div className="text-gray-400">Days to Launch</div>
-                  <div className="text-sm text-blue-400">vs 18+ months traditional</div>
+                <GlassmorphicCard className="mobile-stat-card md:p-6 text-center border-blue-500/20">
+                  <div className="text-2xl md:text-3xl font-bold text-blue-400 mb-1 md:mb-2 no-text-cutoff">7-14</div>
+                  <div className="text-sm md:text-base text-gray-400 no-text-cutoff">Days to Launch</div>
+                  <div className="text-xs md:text-sm text-blue-400 no-text-cutoff">vs 18+ months traditional</div>
                 </GlassmorphicCard>
                 
-                <GlassmorphicCard className="p-6 text-center border-red-500/20">
-                  <div className="text-3xl font-bold text-red-400 mb-2">94%</div>
-                  <div className="text-gray-400">Success Rate</div>
-                  <div className="text-sm text-red-400">vs 2% traditional</div>
+                <GlassmorphicCard className="mobile-stat-card md:p-6 text-center border-red-500/20">
+                  <div className="text-2xl md:text-3xl font-bold text-red-400 mb-1 md:mb-2 no-text-cutoff">94%</div>
+                  <div className="text-sm md:text-base text-gray-400 no-text-cutoff">Success Rate</div>
+                  <div className="text-xs md:text-sm text-red-400 no-text-cutoff">vs 2% traditional</div>
                 </GlassmorphicCard>
               </motion.div>
 
@@ -205,7 +206,7 @@ export default function BookPublishingPage(): JSX.Element {
                     <div className="absolute top-0 right-0 bg-green-500 text-black px-3 py-1 text-sm font-bold">
                       DOMINATION MODE
                     </div>
-                    <h3 className="text-2xl font-bold text-green-400 mb-6 text-center">SKRBL AI Publishing</h3>
+                    <h3 className="text-2xl font-bold text-green-400 mb-6 text-center"><SkrblAiText variant="pulse" size="md">SKRBL AI</SkrblAiText> Publishing</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-green-300">
                         <span className="text-green-400 mr-3">✓</span>
@@ -325,7 +326,7 @@ export default function BookPublishingPage(): JSX.Element {
                         <p className="text-sm text-gray-400">Business Coach</p>
                       </div>
                     </div>
-                    <p className="text-gray-300 mb-4">"$47,000 in book sales in my first 3 months. SKRBL AI handled everything - editing, cover design, marketing. I just focused on my expertise."</p>
+                    <p className="text-gray-300 mb-4">"$47,000 in book sales in my first 3 months. <SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> handled everything - editing, cover design, marketing. I just focused on my expertise."</p>
                     <div className="text-sm">
                       <span className="text-green-400">📈 Revenue: $47,000</span><br/>
                       <span className="text-blue-400">⏱️ Time to Market: 9 days</span>

@@ -8,6 +8,7 @@ import CosmicHeading from '@/components/shared/CosmicHeading';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import CosmicButton from '@/components/shared/CosmicButton';
 import Image from 'next/image';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 const plans = [
   {
@@ -321,7 +322,7 @@ export default function PricingPage() {
             <GlassmorphicCard className="p-8 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-2 border-green-400/30">
               <h3 className="text-2xl font-bold text-green-400 mb-4">🛡️ Zero-Risk Domination Guarantee</h3>
               <p className="text-lg text-gray-300 mb-4">
-                <span className="text-green-400 font-bold">30-day money-back guarantee.</span> If SKRBL AI doesn't give you an unfair advantage over your competition, we'll refund every penny.
+                <span className="text-green-400 font-bold">30-day money-back guarantee.</span> If <SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> doesn't give you an unfair advantage over your competition, we'll refund every penny.
               </p>
               <p className="text-gray-400">
                 Plus: Cancel anytime. No contracts. No commitments. Just pure automation power.

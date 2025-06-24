@@ -9,6 +9,7 @@ import CosmicHeading from '@/components/shared/CosmicHeading';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BookOpen, Palette, FilePenLine, Megaphone, BarChart2, LayoutDashboard, Users, TrendingUp, Zap, Crown, DollarSign, Clock } from 'lucide-react';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 // Business Problem-Focused Services
 const businessSolutions = [
@@ -86,7 +87,7 @@ const successStories = [
     business: "TechFlow Solutions",
     result: "$127K revenue increase in 90 days",
     solution: "Revenue Stalling → Analytics + Marketing Automation",
-    quote: "SKRBL AI found $127K in hidden revenue opportunities we never knew existed."
+    quote: (<><SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> found $127K in hidden revenue opportunities we never knew existed.</>)
   },
   {
     business: "Creative Studio Labs", 
@@ -175,10 +176,10 @@ export default function ServicesPage() {
               </div>
             </div>
             
-            <CosmicHeading className="text-4xl md:text-5xl lg:text-6xl mb-6">
-              Which Business Problem Is Crushing You Right Now?
+            <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6 mobile-text-safe no-text-cutoff">
+              What's Your Biggest Business Challenge?
             </CosmicHeading>
-            <p className="text-xl text-teal-300 max-w-3xl mx-auto mb-8 font-semibold">
+            <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed mobile-text-safe no-text-cutoff">
               Percy analyzes your challenge and assembles the perfect AI agent team to solve it. <span className="text-white font-bold">Real solutions, real results, real fast.</span>
             </p>
             
@@ -364,7 +365,7 @@ export default function ServicesPage() {
                 Ready To Transform Your Business?
               </h2>
               <p className="text-xl text-gray-300 mb-8">
-                Join {liveMetrics.totalUsers}+ businesses already using SKRBL AI to dominate their industries.
+                Join {liveMetrics.totalUsers}+ businesses already using <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> to dominate their industries.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/sign-up" className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl">

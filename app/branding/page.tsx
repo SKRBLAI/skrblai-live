@@ -10,6 +10,7 @@ import CosmicButton from '@/components/shared/CosmicButton';
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, Palette, Eye, Star, Crown } from 'lucide-react';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 export default function BrandingPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({
@@ -198,7 +199,7 @@ export default function BrandingPage(): JSX.Element {
                     <div className="absolute top-0 right-0 bg-green-500 text-black px-3 py-1 text-sm font-bold">
                       DOMINATION MODE
                     </div>
-                    <h3 className="text-2xl font-bold text-green-400 mb-6 text-center">SKRBL AI Branding</h3>
+                    <h3 className="text-2xl font-bold text-green-400 mb-6 text-center"><SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> Branding</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-green-300">
                         <span className="text-green-400 mr-3">✓</span>

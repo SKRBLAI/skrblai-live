@@ -4,6 +4,8 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
+import FloatingBackground from './FloatingBackground';
+import SkrblAiText from '@/components/shared/SkrblAiText';
 
 const emojiVariants: Variants = {
   animate: {
@@ -45,7 +47,6 @@ const hoverScale = {
   whileTap: { scale: 0.95 }
 };
 
-import FloatingBackground from './FloatingBackground';
 import AgentLeagueDashboard from '../agents/AgentLeagueDashboard';
 
 const HeroSection = () => {
@@ -103,7 +104,7 @@ const HeroSection = () => {
             </motion.span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-2xl mx-auto font-inter">
-            SKRBL AI helps you automate content, branding, and website building — all powered by AI.
+            <SkrblAiText variant="glow" size="lg">SKRBL AI</SkrblAiText> helps you automate content, branding, and website building — all powered by AI.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <motion.div {...hoverScale}>
