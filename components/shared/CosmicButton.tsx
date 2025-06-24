@@ -9,9 +9,10 @@ interface CosmicButtonProps {
   href?: string;
   onClick?: () => void;
   variant?: 'primary' | 'secondary' | 'outline';
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   disabled?: boolean;
+  type?: 'submit' | 'button' | 'reset';
 }
 
 export default function CosmicButton({
@@ -21,7 +22,8 @@ export default function CosmicButton({
   variant = 'primary',
   size = 'md',
   className = '',
-  disabled = false
+  disabled = false,
+  type = 'button'
 }: CosmicButtonProps) {
   const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-all duration-300';
   
@@ -34,7 +36,8 @@ export default function CosmicButton({
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg'
+    lg: 'px-6 py-3 text-lg',
+    xl: 'px-8 py-4 text-xl font-bold'
   };
 
   const buttonStyles = `
@@ -63,6 +66,7 @@ export default function CosmicButton({
 
   return (
     <motion.button
+      type={type}
       onClick={onClick}
       disabled={disabled}
       className={buttonStyles}

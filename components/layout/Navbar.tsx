@@ -75,6 +75,11 @@ export default function Navbar() {
                   Agent League
                 </Link>
               </motion.div>
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+                <Link href="/features" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+                  Features
+                </Link>
+              </motion.div>
               <Link href="/contact">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -184,6 +189,7 @@ function MobileMenu() {
             <nav aria-label="Mobile Navigation" className="flex flex-col gap-4 mt-4">
               <Link href="/about" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>About</Link>
               <Link href="/agents" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Agent League</Link>
+              <Link href="/features" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Features</Link>
               <Link href="/contact" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Contact</Link>
               <Link href="/pricing" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Pricing</Link>
               <Link href="/services" tabIndex={0} className="text-lg font-semibold text-teal-200 hover:text-white focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 px-1 py-2 rounded" onClick={() => setOpen(false)}>Services Offered</Link>

@@ -181,15 +181,17 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             onError={handleFrameImgError}
           />
           
-          {/* Agent Name with Perfect Centering */}
-          <motion.h3
-            className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)] z-20 text-center px-2 leading-tight"
+          {/* Agent Name - Positioned between card and buttons */}
+          <motion.div
+            className="absolute bottom-[88px] left-1/2 -translate-x-1/2 z-30 px-3 py-1 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-sm rounded-lg border border-cyan-400/30"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + 0.05 * index }}
           >
-            {agent.name}
-          </motion.h3>
+            <h3 className="text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-nowrap">
+              {agent.name}
+            </h3>
+          </motion.div>
 
           {/* Agent Intelligence Overlay */}
           {showIntelligence && agentIntelligence && (

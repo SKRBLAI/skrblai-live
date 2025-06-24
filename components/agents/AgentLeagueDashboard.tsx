@@ -3,6 +3,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
+import Image from 'next/image';
 
 import type { Agent } from '@/types/agent';
 import { Toaster } from 'react-hot-toast';
@@ -105,34 +106,8 @@ export default function AgentLeagueDashboard() {
   function handleAgentLaunch(agent: Agent) {
     console.log('[AgentLeagueDashboard] Launch agent:', agent.name);
 
-    // Navigate to agent's specific route if available
-    if (agent.route) {
-      router.push(agent.route);
-      return;
-    }
-
-    // Otherwise trigger the agent workflow
-    fetch(`/api/agents/${agent.id}/launch`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ agentId: agent.id }),
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.redirectUrl) {
-          router.push(data.redirectUrl);
-        } else {
-          // Fallback to handoff
-          handleHandoff(agent);
-        }
-      })
-      .catch(error => {
-        console.error('[AgentLeagueDashboard] Launch error:', error);
-        // Fallback to handoff on error
-        handleHandoff(agent);
-      });
+    // Navigate to agent's specific service page
+    router.push(`/services/${agent.id}`);
   }
 
   return (
@@ -142,10 +117,24 @@ export default function AgentLeagueDashboard() {
       {/* Percy Centerpiece */}
       <div className="flex flex-col items-center mb-10">
         <div className="text-center">
-          <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-electric-blue via-fuchsia-500 to-teal-400 flex items-center justify-center text-4xl">
-            🤖
+          <div className="relative w-24 h-24 mx-auto mb-4">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
+            <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
+              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                <Image
+                  src="/images/agents-percy-nobg-skrblai.webp"
+                  alt="Percy - Cosmic Concierge"
+                  width={88}
+                  height={88}
+                  className="agent-image object-contain w-full h-full"
+                  style={{ transform: 'scale(0.85)' }}
+                  priority
+                />
+              </div>
+            </div>
+            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome to the Digital Agent League</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Welcome to Percy's League of Superheroes</h2>
           <p className="text-gray-300">Your cosmic concierge is ready to coordinate the perfect team</p>
         </div>
       </div>
