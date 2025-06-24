@@ -13,7 +13,7 @@ export interface StandardMetricsConfig {
   updateRules: Record<string, {
     min?: number;
     max?: number;
-    increment?: [number, number]; // [min, max] range
+    increment: [number, number]; // [min, max] range - required
     decrements?: boolean; // Allow negative changes
   }>;
   updateInterval: number;
@@ -183,7 +183,7 @@ export function useStandardMetrics(configKey: keyof typeof STANDARD_METRICS) {
           const currentValue = updated[key];
           
           // Calculate increment
-          const [minInc, maxInc] = rule.increment;
+          const [minInc, maxInc] = rule.increment || [1, 3];
           let change = Math.floor(Math.random() * (maxInc - minInc + 1)) + minInc;
           
           // Handle decrements

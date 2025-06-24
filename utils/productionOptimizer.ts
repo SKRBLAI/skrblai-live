@@ -121,20 +121,20 @@ class ProductionOptimizer {
     updateRules: Partial<Record<keyof T, { min?: number; max?: number; increment?: number }>>
   ) {
     return {
-      metrics: { ...initialMetrics },
+      metrics: { ...initialMetrics } as T,
       
       update: function(this: { metrics: T }) {
         Object.keys(updateRules).forEach((key) => {
-          const rule = updateRules[key];
+          const rule = updateRules[key as keyof T];
           if (rule) {
-            const currentValue = this.metrics[key];
+            const currentValue = this.metrics[key as keyof T] as number;
             const increment = rule.increment || Math.floor(Math.random() * 5) + 1;
             let newValue = currentValue + increment;
             
             if (rule.min !== undefined) newValue = Math.max(newValue, rule.min);
             if (rule.max !== undefined) newValue = Math.min(newValue, rule.max);
             
-            this.metrics[key] = newValue;
+            (this.metrics as any)[key] = newValue;
           }
         });
       }
