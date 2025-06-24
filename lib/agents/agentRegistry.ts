@@ -193,6 +193,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Log out the agents for debugging
 console.log(`All agents loaded: ${allAgents.length}`);
+console.log('Agent list details:', allAgents.map(a => ({ id: a.id, name: a.name, visible: a.visible })));
 if (allAgents.some((a: any) => a === undefined || a === null)) {
   console.error('Some agents failed to load properly');
   const problemAgents = allAgents
@@ -206,6 +207,12 @@ if (allAgents.some((a: any) => a === undefined || a === null)) {
 // (No code change needed here if all agent files are correct, but add a runtime check for missing category)
 
 allAgents.forEach(agent => {
+  // Ensure visibility is true by default if not explicitly set
+  if (agent.visible === undefined) {
+    agent.visible = true;
+    console.log(`Setting visible=true for agent: ${agent.name || agent.id}`);
+  }
+  
   if (!agent.category) {
     console.error(`Agent missing category: ${agent.name || agent.id}`);
   }

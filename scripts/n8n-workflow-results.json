@@ -1,0 +1,181 @@
+{
+  "timestamp": "2025-06-24T05:50:53.216Z",
+  "config": {
+    "baseUrl": "https://skrblai.app.n8n.cloud",
+    "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyZTUxYTg0Zi0wNDY4LTRlY2QtOWYwMi01M2M4ZTgxNDc4YjQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzQ4OTQxNzMxfQ.Bt9CLjGopX-S1cwS-glYf_Mmo2mb3-m6pmPXtqbgkGo",
+    "webhookPath": "https://skrblai.app.n8n.cloud"
+  },
+  "results": [
+    {
+      "success": true,
+      "workflowId": "E4ZmsqZbjoElXzdn",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/percy-orchestration-master",
+      "agent": "percy-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "sxgg19buIk9pgUtQ",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/branding-identity-master",
+      "agent": "branding-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "x8M8yNF8YfpWDPek",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/content-creation-master",
+      "agent": "content-creator-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "JFw0UEKuehTnGZYQ",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/social-media-master",
+      "agent": "social-bot-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "jrPSAlkQRFAGM8Tk",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/analytics-insights-master",
+      "agent": "analytics-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "OvtL3oefM6CLoizH",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/ad-creative-master",
+      "agent": "ad-creative-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "np7xlrTeebZI5GVS",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/sitegen-website-master",
+      "agent": "sitegen-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "I09N3Cd6wJIVjiLu",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/video-creation-master",
+      "agent": "video-content-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "AOAMNCdl0EaE8gEf",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/publishing-master",
+      "agent": "publishing-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "zQPe7yDMi8OvMjEq",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/payments-processing-master",
+      "agent": "payments-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "hF781qPncYYMostp",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/sync-master",
+      "agent": "sync-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "8uRAQWSKyNnOvAiE",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/client-success-master",
+      "agent": "clientsuccess-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "DrIZsJBbg5Rx2mnc",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/proposal-generation-master",
+      "agent": "proposal-generator-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "CKh4yJg5zrtQnOAn",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/business-strategy-master",
+      "agent": "biz-agent"
+    }
+  ],
+  "successful": [
+    {
+      "success": true,
+      "workflowId": "E4ZmsqZbjoElXzdn",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/percy-orchestration-master",
+      "agent": "percy-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "sxgg19buIk9pgUtQ",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/branding-identity-master",
+      "agent": "branding-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "x8M8yNF8YfpWDPek",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/content-creation-master",
+      "agent": "content-creator-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "JFw0UEKuehTnGZYQ",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/social-media-master",
+      "agent": "social-bot-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "jrPSAlkQRFAGM8Tk",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/analytics-insights-master",
+      "agent": "analytics-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "OvtL3oefM6CLoizH",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/ad-creative-master",
+      "agent": "ad-creative-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "np7xlrTeebZI5GVS",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/sitegen-website-master",
+      "agent": "sitegen-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "I09N3Cd6wJIVjiLu",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/video-creation-master",
+      "agent": "video-content-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "AOAMNCdl0EaE8gEf",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/publishing-master",
+      "agent": "publishing-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "zQPe7yDMi8OvMjEq",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/payments-processing-master",
+      "agent": "payments-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "hF781qPncYYMostp",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/sync-master",
+      "agent": "sync-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "8uRAQWSKyNnOvAiE",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/client-success-master",
+      "agent": "clientsuccess-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "DrIZsJBbg5Rx2mnc",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/proposal-generation-master",
+      "agent": "proposal-generator-agent"
+    },
+    {
+      "success": true,
+      "workflowId": "CKh4yJg5zrtQnOAn",
+      "webhookUrl": "https://skrblai.app.n8n.cloud/webhook/business-strategy-master",
+      "agent": "biz-agent"
+    }
+  ],
+  "failed": []
+}

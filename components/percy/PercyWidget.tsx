@@ -73,8 +73,22 @@ function PercyWidget() {
   const pathname = usePathname();
   const { agents } = useApiAgents();
 
-  const [messages, setMessages] = useState<{ role: 'assistant' | 'user'; text: string }[]>([
-    { role: 'assistant', text: 'Hi! I\'m Percy, your AI concierge. How can I help you today?' }
+  // Enhanced with intelligence sync
+  const { 
+    generateSmartResponse, 
+    trackBehavior, 
+    conversionScore, 
+    conversationPhase 
+  } = usePercyContext();
+
+  const [messages, setMessages] = useState<{ role: 'assistant' | 'user'; text: string; intelligence?: any }[]>([
+    { 
+      role: 'assistant', 
+      text: conversionScore > 50 
+        ? '🔥 Welcome back! I\'ve been tracking your progress and have 3 critical insights that could change everything. Ready?' 
+        : 'Hi! I\'m Percy, your AI concierge. How can I help you today?',
+      intelligence: { confidence: 95, mode: conversationPhase }
+    }
   ]);
   const [memory, setMemory] = useState<any[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);

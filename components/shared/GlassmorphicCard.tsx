@@ -7,14 +7,16 @@ interface GlassmorphicCardProps {
   children: ReactNode;
   className?: string;
   hoverEffect?: boolean;
+  onClick?: () => void;
 }
 
-export default function GlassmorphicCard({ children, className = '', hoverEffect = true }: GlassmorphicCardProps) {
+export default function GlassmorphicCard({ children, className = '', hoverEffect = true, onClick }: GlassmorphicCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      onClick={onClick}
       className={`
         cosmic-glass
         rounded-2xl

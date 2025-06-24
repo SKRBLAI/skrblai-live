@@ -67,8 +67,15 @@ export default function AgentLeagueDashboard() {
     if (!session?.access_token) return;
     fetchAgentLeagueData(session.access_token).then(data => {
       console.log('[AgentLeagueDashboard] Loaded agents:', data.agents);
+      console.log('[AgentLeagueDashboard] Agent count:', data.agents.length);
+      console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible })));
       setAgents(data.agents);
       setRecommendations(data.recommendations || []);
+    }).catch(error => {
+      console.error('[AgentLeagueDashboard] Error loading agents:', error);
+      setError(error.message);
+    }).finally(() => {
+      setLoading(false);
     });
   }, [session]);
 

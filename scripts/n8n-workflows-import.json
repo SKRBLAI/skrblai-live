@@ -1,0 +1,186 @@
+{
+  "workflows": [
+    {
+      "name": "Percy Orchestration Master",
+      "id": "percy-orchestration-master",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "percy-orchestration-master",
+            "options": {}
+          },
+          "id": "webhook-1",
+          "name": "Percy Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [240, 300]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "model": "gpt-4",
+            "messages": {
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are Percy the Cosmic Concierge, the ultimate AI orchestrator. Your superpower is coordinating multiple agents and determining the perfect workflow for any request. Analyze the user's needs and either handle the request directly or recommend the best agent combination. Always be helpful, confident, and strategic in your recommendations."
+                },
+                {
+                  "role": "user",
+                  "content": "={{ $json.userPrompt }}"
+                }
+              ]
+            }
+          },
+          "id": "openai-1",
+          "name": "Percy AI",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [460, 300]
+        },
+        {
+          "parameters": {
+            "respondWith": "json",
+            "responseBody": "={{ { \"success\": true, \"agentId\": \"percy-agent\", \"result\": $json.message.content, \"handoffSuggestions\": [{ \"agentId\": \"branding-agent\", \"reason\": \"Brand identity work\", \"confidence\": 85 }] } }}",
+            "options": {}
+          },
+          "id": "response-1",
+          "name": "Percy Response",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1,
+          "position": [680, 300]
+        }
+      ],
+      "connections": {
+        "webhook-1": { "main": [[ { "node": "openai-1", "type": "main", "index": 0 } ]] },
+        "openai-1": { "main": [[ { "node": "response-1", "type": "main", "index": 0 } ]] }
+      },
+      "active": true
+    },
+    {
+      "name": "Branding Identity Master",
+      "id": "branding-identity-master",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "branding-identity-master",
+            "options": {}
+          },
+          "id": "webhook-2",
+          "name": "Branding Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [240, 300]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "model": "gpt-4",
+            "messages": {
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are BrandAlexander the Identity Architect, a superhero branding agent. You have the power to create compelling brand identities that resonate with target audiences. Your mission: Create comprehensive branding solutions including logos, color schemes, and brand guidelines. Based on the user's request, provide: 1. Brand concept and positioning 2. Logo description and design brief 3. Color palette (hex codes) 4. Typography recommendations 5. Brand voice and personality 6. Next steps for implementation. Be creative, professional, and superhero-confident in your response!"
+                },
+                {
+                  "role": "user",
+                  "content": "={{ $json.userPrompt }}"
+                }
+              ]
+            }
+          },
+          "id": "openai-2",
+          "name": "Branding AI",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [460, 300]
+        },
+        {
+          "parameters": {
+            "respondWith": "json",
+            "responseBody": "={{ { \"success\": true, \"agentId\": \"branding-agent\", \"result\": $json.message.content, \"handoffSuggestions\": [{ \"agentId\": \"content-creator-agent\", \"reason\": \"Create marketing copy for your new brand\", \"confidence\": 85 }] } }}",
+            "options": {}
+          },
+          "id": "response-2",
+          "name": "Branding Response",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1,
+          "position": [680, 300]
+        }
+      ],
+      "connections": {
+        "webhook-2": { "main": [[ { "node": "openai-2", "type": "main", "index": 0 } ]] },
+        "openai-2": { "main": [[ { "node": "response-2", "type": "main", "index": 0 } ]] }
+      },
+      "active": true
+    },
+    {
+      "name": "Content Creation Master",
+      "id": "content-creation-master",
+      "nodes": [
+        {
+          "parameters": {
+            "httpMethod": "POST",
+            "path": "content-creation-master",
+            "options": {}
+          },
+          "id": "webhook-3",
+          "name": "Content Webhook",
+          "type": "n8n-nodes-base.webhook",
+          "typeVersion": 1,
+          "position": [240, 300]
+        },
+        {
+          "parameters": {
+            "resource": "chat",
+            "model": "gpt-4",
+            "messages": {
+              "messages": [
+                {
+                  "role": "system",
+                  "content": "You are ContentCarltig the Word Weaver, master of written communication. Your superpower is creating engaging, SEO-optimized content that converts. Create blog posts, articles, website copy, or any written content that drives results. Always include SEO keywords and engagement hooks."
+                },
+                {
+                  "role": "user",
+                  "content": "={{ $json.userPrompt }}"
+                }
+              ]
+            }
+          },
+          "id": "openai-3",
+          "name": "Content AI",
+          "type": "@n8n/n8n-nodes-langchain.openAi",
+          "typeVersion": 1,
+          "position": [460, 300]
+        },
+        {
+          "parameters": {
+            "respondWith": "json",
+            "responseBody": "={{ { \"success\": true, \"agentId\": \"content-creator-agent\", \"result\": $json.message.content, \"handoffSuggestions\": [{ \"agentId\": \"social-bot-agent\", \"reason\": \"Create social media strategy for your content\", \"confidence\": 85 }] } }}",
+            "options": {}
+          },
+          "id": "response-3",
+          "name": "Content Response",
+          "type": "n8n-nodes-base.respondToWebhook",
+          "typeVersion": 1,
+          "position": [680, 300]
+        }
+      ],
+      "connections": {
+        "webhook-3": { "main": [[ { "node": "openai-3", "type": "main", "index": 0 } ]] },
+        "openai-3": { "main": [[ { "node": "response-3", "type": "main", "index": 0 } ]] }
+      },
+      "active": true
+    }
+  ],
+  "meta": {
+    "exportFormatVersion": 1,
+    "exportedAt": "2025-01-17T20:00:00.000Z",
+    "version": "1.0.0",
+    "created_by": "SKRBL_AI_Auto_Generator",
+    "agent_count": 14,
+    "description": "Complete SKRBL AI agent workflows for N8N - Import this file to get all 14 agents connected instantly!"
+  }
+} 

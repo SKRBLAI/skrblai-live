@@ -181,9 +181,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             onError={handleFrameImgError}
           />
           
-          {/* Agent Name with Enhanced Styling - Repositioned above buttons */}
+          {/* Agent Name with Perfect Centering */}
           <motion.h3
-            className="absolute top-[75%] left-1/2 -translate-x-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)] z-20"
+            className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,245,212,0.6)] z-20 text-center px-2 leading-tight"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + 0.05 * index }}

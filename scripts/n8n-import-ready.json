@@ -1,0 +1,137 @@
+{
+  "name": "SKRBL AI - Percy Orchestration Master",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "percy-orchestration-master",
+        "options": {}
+      },
+      "id": "d1d5e0e0-1234-4567-8901-123456789012",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process SKRBL AI agent request\nconst input = $input.first().json;\n\n// Extract user prompt\nconst userPrompt = input.userPrompt || input.prompt || 'Hello';\nconst agentId = input.agentId || 'percy-agent';\nconst executionId = input.executionId || `exec_${Date.now()}`;\n\n// Return formatted data for OpenAI\nreturn [{\n  json: {\n    userPrompt,\n    agentId,\n    executionId,\n    timestamp: new Date().toISOString(),\n    superheroName: 'Percy the Cosmic Concierge',\n    systemMessage: 'You are Percy the Cosmic Concierge, the ultimate AI orchestrator. Your superpower is coordinating multiple agents and determining the perfect workflow for any request. Analyze the user\\'s needs and either handle the request directly or recommend the best agent combination. Always be helpful, confident, and strategic in your recommendations.'\n  }\n}];"
+      },
+      "id": "e2e6f1f1-2345-5678-9012-234567890123",
+      "name": "Process Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4",
+        "messages": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "={{ $json.systemMessage }}"
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.userPrompt }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 1500
+        }
+      },
+      "id": "f3f7g2g2-3456-6789-0123-345678901234",
+      "name": "OpenAI Chat",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "default-openai",
+          "name": "OpenAI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format response for SKRBL AI\nconst openaiResponse = $input.first().json;\nconst inputData = $('Process Input').first().json;\n\n// Create SKRBL AI compatible response\nconst response = {\n  success: true,\n  executionId: inputData.executionId,\n  agentId: inputData.agentId,\n  superheroName: inputData.superheroName,\n  result: {\n    type: 'orchestration',\n    output: openaiResponse.message ? openaiResponse.message.content : openaiResponse.choices?.[0]?.message?.content || 'Processing complete',\n    metadata: {\n      processingTime: Date.now() - new Date(inputData.timestamp).getTime(),\n      confidence: 95,\n      model: 'gpt-4',\n      capabilities: ['agent_routing', 'task_orchestration', 'workflow_coordination']\n    }\n  },\n  handoffSuggestions: [\n    {\n      agentId: 'branding-agent',\n      reason: 'Brand identity and visual design work',\n      confidence: 85\n    },\n    {\n      agentId: 'content-creator-agent',\n      reason: 'Content creation and copywriting',\n      confidence: 80\n    }\n  ],\n  timestamp: new Date().toISOString(),\n  status: 'completed'\n};\n\nreturn [{ json: response }];"
+      },
+      "id": "g4g8h3h3-4567-7890-1234-456789012345",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "h5h9i4i4-5678-8901-2345-567890123456",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Input": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "percy-orchestration-master",
+  "meta": {
+    "templateCreatedBy": "SKRBL AI",
+    "description": "Percy the Cosmic Concierge - AI Agent Orchestration Workflow"
+  }
+} 

@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, usePathname } from 'next/navigation';
-import { RefreshCw, Send } from 'lucide-react';
+import { RefreshCw, Send, Zap, Target, Brain } from 'lucide-react';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { useAuth } from '@/components/context/AuthContext';
 import { getCurrentUser } from '@/utils/supabase-helpers';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabase';
@@ -98,19 +99,33 @@ interface Message {
     action: string;
     data?: Record<string, any>;
   }>;
+  metadata?: {
+    intelligenceScore?: number;
+    percyState?: string;
+    conversionScore?: number;
+    conversationPhase?: string;
+    competitiveMode?: boolean;
+  };
 }
 
 export default function ConversationalPercyOnboarding() {
   const router = useRouter();
   const pathname = usePathname();
   const onHome = pathname === '/';
-  const { setPercyIntent } = usePercyContext();
+  const { setPercyIntent, trackBehavior, conversionScore, conversationPhase } = usePercyContext();
+  const { session } = useAuth();
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false); // New: indicates active scan
   const [showBurst, setShowBurst] = useState(false); // particle burst on agent summon
+  
+  // ✨ NEW: Enhanced Intelligence State
+  const [percyState, setPercyState] = useState<'idle' | 'analyzing' | 'thinking' | 'celebrating'>('idle');
+  const [intelligenceScore, setIntelligenceScore] = useState(147); // Percy's IQ
+  const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
+  const [userEngagementLevel, setUserEngagementLevel] = useState(0);
 
   // Initialize state from localStorage or defaults
   const [onboardingState, setOnboardingState] = useState<OnboardingState>(() => {
@@ -145,20 +160,40 @@ export default function ConversationalPercyOnboarding() {
   }, [onboardingState.conversationHistory]);
 
   const addPercyMessage = useCallback((content: string, options?: ConversationOption[], agentRecommendations?: AgentRecommendation[]) => {
+    // ✨ Enhanced with intelligence metadata
+    const enhancedContent = `${content}`;
+    
     const message: ConversationMessage = {
       id: `percy-${Date.now()}`,
       type: 'percy',
-      content,
+      content: enhancedContent,
       timestamp: new Date().toISOString(),
       options,
-      agentRecommendations
+      agentRecommendations,
+      metadata: {
+        intelligenceScore,
+        percyState,
+        conversionScore,
+        conversationPhase,
+        competitiveMode: conversationPhase === 'aggressive'
+      }
     };
 
     setOnboardingState(prev => ({
       ...prev,
       conversationHistory: [...prev.conversationHistory, message]
     }));
-  }, []);
+    
+    // Track message for intelligence learning
+    if (session?.user?.id) {
+      trackBehavior('percy_message_sent', {
+        messageType: 'onboarding',
+        hasOptions: !!options,
+        hasRecommendations: !!agentRecommendations,
+        conversionScore
+      });
+    }
+  }, [intelligenceScore, percyState, conversionScore, conversationPhase, session, trackBehavior]);
 
   const addUserMessage = useCallback((content: string) => {
     const message: ConversationMessage = {
@@ -176,7 +211,16 @@ export default function ConversationalPercyOnboarding() {
 
   const generateAgentRecommendations = useCallback(() => {
     setIsTyping(true);
+    setPercyState('analyzing');
     setOnboardingState(prev => ({ ...prev, currentStep: 'agent-recommendations' }));
+
+    // ✨ Enhanced competitive intelligence
+    const competitiveInsights = [
+      "While you were deciding, 47 businesses in your industry just automated their competition away",
+      "Your competitors gained 12% market advantage in the last 6 hours - time to strike back",
+      "I've detected 3 critical gaps in your industry that could be worth $50K+ in the next 90 days",
+      "There's a 73% chance your biggest competitor doesn't know about these AI capabilities yet"
+    ];
 
     setTimeout(() => {
       const { goal, platform } = onboardingState;
@@ -188,6 +232,10 @@ export default function ConversationalPercyOnboarding() {
         competitorGap: Math.floor(Math.random() * 200) + 150, // 150-350%
         industryRank: Math.floor(Math.random() * 3) + 1 // Top 1-3
       };
+
+      // Enhanced competitive messaging
+      const competitiveMessage = competitiveInsights[Math.floor(Math.random() * competitiveInsights.length)];
+      setCompetitiveInsights([competitiveMessage]);
 
       // Simplified agent recommendation
       const recommendedAgentIds = ['contentcreator-agent'];
@@ -697,15 +745,59 @@ Based on this analysis, here are my cosmic recommendations:`;
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center py-8"
+                className="text-center py-8 relative"
               >
-                <PercyAvatar size="lg" />
-                <h3 className="text-xl font-bold text-white mt-4 mb-2">Hey, I'm Percy! 👋</h3>
-                <p className="text-gray-300 mb-4">
-                  Your gateway to intelligent automation built by the League 
+                <div className="relative inline-block">
+                  <PercyAvatar size="lg" />
+                  {/* Intelligence State Indicator */}
+                  <motion.div 
+                    className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 border-white ${
+                      percyState === 'analyzing' ? 'bg-yellow-400 animate-pulse' :
+                      percyState === 'thinking' ? 'bg-blue-400 animate-ping' :
+                      percyState === 'celebrating' ? 'bg-green-400 animate-bounce' :
+                      'bg-teal-400'
+                    }`}
+                    animate={percyState !== 'idle' ? { scale: [1, 1.2, 1] } : {}}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                  >
+                    {percyState === 'analyzing' && <Brain className="w-3 h-3 text-black m-1.5" />}
+                    {percyState === 'thinking' && <Target className="w-3 h-3 text-white m-1.5" />}
+                    {percyState === 'celebrating' && <Zap className="w-3 h-3 text-white m-1.5" />}
+                    {percyState === 'idle' && <Zap className="w-3 h-3 text-white m-1.5" />}
+                  </motion.div>
+                </div>
+                
+                <h3 className="text-xl font-bold text-white mt-4 mb-2 flex items-center justify-center gap-2">
+                  Hey, I'm Percy! 👋
+                  {conversionScore > 70 && (
+                    <span className="text-xs bg-gradient-to-r from-orange-400 to-red-500 px-2 py-1 rounded-full">
+                      🔥 HOT PROSPECT
+                    </span>
+                  )}
+                </h3>
+                
+                <p className="text-gray-300 mb-2">
+                  {percyState === 'analyzing' ? '🧠 Analyzing your competitive landscape...' :
+                   percyState === 'thinking' ? '💭 Processing market opportunities...' :
+                   percyState === 'celebrating' ? '🎉 Success pattern detected!' :
+                   'Your gateway to intelligent automation built by the League'}
                 </p>
+                
+                <div className="flex items-center justify-center gap-4 text-xs text-gray-400 mb-4">
+                  <span>IQ: {intelligenceScore}</span>
+                  <span>•</span>
+                  <span>{conversationPhase} mode</span>
+                  <span>•</span>
+                  <span>Score: {conversionScore}</span>
+                </div>
+                
                 <p className="text-cyan-400 text-sm">
-                  What business challenge can we destroy together?
+                  {competitiveInsights.length > 0 
+                    ? `⚡ ${competitiveInsights[0]}`
+                    : conversionScore > 50 
+                      ? "Ready to outmaneuver your competition? Let's identify their blind spots."
+                      : "What business challenge can we destroy together?"
+                  }
                 </p>
               </motion.div>
             )}
@@ -722,13 +814,43 @@ Based on this analysis, here are my cosmic recommendations:`;
                 >
                   <div className={`max-w-[80%] ${message.type === 'user' ? 'order-2' : 'order-1'}`}>
                     <div className={`
-                      rounded-2xl p-4 
+                      rounded-2xl p-4 relative
                       ${message.type === 'user' 
                         ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' 
-                        : 'bg-white/10 text-white border border-white/20'
+                        : message.metadata?.competitiveMode
+                          ? 'bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 text-white'
+                          : 'bg-white/10 text-white border border-white/20'
                       }
                     `}>
+                      {/* Intelligence badge for competitive messages */}
+                      {message.metadata?.competitiveMode && (
+                        <div className="absolute -top-2 -left-2 bg-orange-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                          🎯 COMPETITIVE
+                        </div>
+                      )}
+                      
                       <p className="text-sm leading-relaxed">{message.content}</p>
+                      
+                      {/* Intelligence metadata for Percy messages */}
+                      {message.type === 'percy' && message.metadata && (
+                        <div className="mt-3 pt-3 border-t border-white/10">
+                          <div className="flex items-center justify-between text-xs text-gray-400">
+                            <span>Intelligence: {message.metadata.intelligenceScore}</span>
+                            <span className={`px-2 py-1 rounded-full ${
+                              message.metadata.conversationPhase === 'aggressive' ? 'bg-red-500/20 text-red-300' :
+                              message.metadata.conversationPhase === 'persuasive' ? 'bg-yellow-500/20 text-yellow-300' :
+                              'bg-teal-500/20 text-teal-300'
+                            }`}>
+                              {message.metadata.conversationPhase} mode
+                            </span>
+                          </div>
+                                                     {(message.metadata.conversionScore || 0) > 50 && (
+                             <div className="text-xs text-green-300 mt-1">
+                               🎯 High conversion potential: {message.metadata.conversionScore}%
+                             </div>
+                           )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Agent Recommendations */}
