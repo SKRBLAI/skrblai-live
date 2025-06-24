@@ -473,7 +473,7 @@ function PercyWidget() {
                 }}
               >
                 <img
-                  src="/images/Agents-percy-Buttons.png"
+                  src="/images/agents-percy-nobg-skrblai.webp"
                   alt="Percy"
                   className="w-10 h-10 object-contain"
                 />

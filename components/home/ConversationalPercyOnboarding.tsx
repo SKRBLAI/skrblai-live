@@ -719,7 +719,7 @@ Based on this analysis, here are my cosmic recommendations:`;
       {/* AI Concierge Header Section with Percy Figure */}
       <div className="text-center mb-8">
         <div className="flex flex-col items-center justify-center space-y-4">
-          {/* Percy Figure moved here */}
+          {/* Percy Figure restored */}
           <div className="relative">
             <PercyFigure />
           </div>
@@ -728,7 +728,7 @@ Based on this analysis, here are my cosmic recommendations:`;
             Meet Percy, Your Cosmic AI Concierge
           </h2>
           <p className="text-cyan-400 text-lg">
-            Your gateway to intelligent automation built by the League
+            Your gateway to intelligent automation built by the Agent League
           </p>
         </div>
       </div>

@@ -82,21 +82,21 @@ const urgentContactOptions = [
 const quickContactMethods = [
   {
     method: "Direct Email",
-    contact: "hello@skrblai.io",
+    contact: "contact@skrblai.io",
     description: "For immediate assistance",
     icon: <Mail className="w-6 h-6" />,
     responseTime: "< 2 hours"
   },
   {
     method: "Enterprise Hotline",
-    contact: "+1 (555) SKRBL-AI",
+    contact: "(844) 426-2860",
     description: "Enterprise & partnership calls",
     icon: <Phone className="w-6 h-6" />,
     responseTime: "< 30 minutes"
   },
   {
     method: "Schedule a Demo",
-    contact: "calendly.com/skrblai",
+    contact: "contact@skrblai.io",
     description: "See the platform in action",
     icon: <Calendar className="w-6 h-6" />,
     responseTime: "Same day"
@@ -246,10 +246,13 @@ export default function ContactPage() {
 
                 <p className="text-gray-300 mb-8 leading-relaxed">
                   For immediate assistance, contact us directly at{' '}
-                  <a href="mailto:hello@skrblai.io" className="text-electric-blue hover:text-teal-400 underline font-semibold">
-                    hello@skrblai.io
+                  <a href="mailto:contact@skrblai.io" className="text-electric-blue hover:text-teal-400 underline font-semibold">
+                    contact@skrblai.io
                   </a>
-                  {' '}or call our enterprise hotline.
+                  {' '}or call our enterprise hotline at{' '}
+                  <a href="tel:8444262860" className="text-electric-blue hover:text-teal-400 underline font-semibold">
+                    (844) 426-2860
+                  </a>.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -53,7 +53,7 @@ export default function PercyAvatar({ size = 'md', className = '', isThinking = 
         transition={{ duration: 2.2, repeat: Infinity }}
       >
         <Image
-          src="/images/Agents-percy-Buttons.png"
+          src="/images/agents-percy-nobg-skrblai.webp"
           alt="Percy AI Assistant"
           width={96}
           height={96}

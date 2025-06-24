@@ -1,7 +1,7 @@
 'use client';
 
 import React, { JSX, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import CosmicButton from '@/components/shared/CosmicButton';
@@ -70,19 +70,25 @@ export default function FeaturesContent(): JSX.Element {
   const [revenueGenerated, setRevenueGenerated] = useState(284756923);
   const [competitorsDestroyed, setCompetitorsDestroyed] = useState(18934);
   
-  const { scrollYProgress } = useScroll();
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.98]);
+  // Removed scroll-based scale transform to prevent flicker
 
-  // Live metrics animation
+  // Optimized metrics animation - single state update to prevent flicker
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveUsers(prev => prev + Math.floor(Math.random() * 5) + 1);
-      setCompaniesTransformed(prev => prev + Math.floor(Math.random() * 3) + 1);
-      setRevenueGenerated(prev => prev + Math.floor(Math.random() * 50000) + 10000);
-      if (Math.random() > 0.7) {
-        setCompetitorsDestroyed(prev => prev + 1);
+      // Batch state updates to prevent multiple re-renders
+      const userInc = Math.floor(Math.random() * 5) + 1;
+      const companyInc = Math.floor(Math.random() * 3) + 1;
+      const revenueInc = Math.floor(Math.random() * 50000) + 10000;
+      const competitorInc = Math.random() > 0.7 ? 1 : 0;
+      
+      // Use functional updates to batch all changes
+      setLiveUsers(prev => prev + userInc);
+      setCompaniesTransformed(prev => prev + companyInc);
+      setRevenueGenerated(prev => prev + revenueInc);
+      if (competitorInc > 0) {
+        setCompetitorsDestroyed(prev => prev + competitorInc);
       }
-    }, 8000);
+    }, 12000); // Reduced frequency to prevent excessive updates
     return () => clearInterval(interval);
   }, []);
 
@@ -102,34 +108,20 @@ export default function FeaturesContent(): JSX.Element {
       opacity: 1, 
       y: 0,
       transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15
+        duration: 0.4,
+        ease: "easeOut"
       }
-    },
-    hover: {
-      scale: 1.02,
-      transition: {
-        type: 'spring',
-        stiffness: 400,
-        damping: 25
-      }
-    },
-    tap: {
-      scale: 0.98
     }
   };
 
   return (
     <PageLayout>
-      <motion.div 
-        style={{ scale }} 
-        className="min-h-screen relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
+      <div className="min-h-screen relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
         <FloatingParticles 
-          particleCount={30}
+          particleCount={15}
           fullScreen={false}
           colors={['#0066FF', '#00FFFF', '#FF00FF', '#FFD700']}
-          glowIntensity={0.7}
+          glowIntensity={0.5}
         />
 
         {/* Live Activity Bar */}
@@ -207,8 +199,7 @@ export default function FeaturesContent(): JSX.Element {
             <motion.div
               key={feature.title}
               variants={cardVariants}
-              whileHover="hover"
-              whileTap="tap"
+              className="transform hover:scale-105 transition-transform duration-300"
               onHoverStart={() => setHoveredFeature(feature.title)}
               onHoverEnd={() => setHoveredFeature(null)}
             >
@@ -219,13 +210,9 @@ export default function FeaturesContent(): JSX.Element {
                 <Link href={feature.href} className="flex flex-col h-full p-6 group">
                   {/* Live Performance Badge */}
                   <div className="flex justify-between items-start mb-4">
-                    <motion.div 
-                      className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gradient-to-r ${feature.color} shadow-glow`}
-                      whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
-                    >
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gradient-to-r ${feature.color} shadow-glow transform hover:rotate-12 transition-transform duration-300`}>
                       {feature.icon}
-                    </motion.div>
+                    </div>
                     <div className="bg-green-500/20 text-green-400 px-2 py-1 rounded-full text-xs font-bold animate-pulse">
                       LIVE
                     </div>
@@ -375,7 +362,7 @@ export default function FeaturesContent(): JSX.Element {
             ⚡ 3-day free trial • 🔒 No contracts • 💳 Cancel anytime
           </p>
         </motion.div>
-      </motion.div>
+      </div>
     </PageLayout>
   );
 }
