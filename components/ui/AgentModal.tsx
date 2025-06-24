@@ -112,7 +112,8 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
                 <img
                   src={getAgentImagePath(agent)}
                   alt={agent.name}
-                  className="w-20 h-20 object-cover rounded-full"
+                  className="agent-image w-20 h-20 object-contain rounded-full"
+                  style={{ transform: 'scale(0.85)' }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;

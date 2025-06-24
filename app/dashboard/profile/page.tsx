@@ -22,7 +22,8 @@ import {
   Star,
   Settings,
   Bell,
-  Globe
+  Globe,
+  ArrowLeft
 } from 'lucide-react';
 
 interface UserProfile {
@@ -291,10 +292,24 @@ export default function ProfileSettingsPage() {
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20 pointer-events-none" />
       
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
+        {/* Back Button */}
+        <motion.button
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-6 group"
+          whileHover={{ x: -5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowLeft className="w-5 h-5 group-hover:text-electric-blue transition-colors" />
+          <span className="font-medium">Back to Dashboard</span>
+        </motion.button>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
@@ -329,7 +344,8 @@ export default function ProfileSettingsPage() {
                       <img 
                         src={profile.avatar_url} 
                         alt="Profile" 
-                        className="w-full h-full rounded-full object-cover"
+                        className="agent-image w-full h-full rounded-full object-contain"
+                style={{ transform: 'scale(0.85)' }}
                       />
                     ) : (
                       (profile.name?.charAt(0) || profile.email.charAt(0)).toUpperCase()

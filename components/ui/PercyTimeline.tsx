@@ -38,7 +38,8 @@ export default function PercyTimeline({ timeline }: PercyTimelineProps) {
               <img
                 src={avatarSrc}
                 alt={item.agentId}
-                className="w-12 h-12 rounded-full object-cover"
+                className="agent-image w-12 h-12 rounded-full object-contain"
+                style={{ transform: 'scale(0.85)' }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.onerror = null;

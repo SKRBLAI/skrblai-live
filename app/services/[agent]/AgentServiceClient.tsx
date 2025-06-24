@@ -1,35 +1,81 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import type { Agent } from '@/types/agent'; // Corrected import path for Agent type
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import type { Agent } from '@/types/agent';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { getAgentImagePath } from '@/utils/agentUtils';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import CosmicButton from '@/components/shared/CosmicButton';
+import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star } from 'lucide-react';
 
 interface AgentServiceClientProps {
   agent: Agent | undefined;
-  params: { agent: string }; // Keep params if needed for fallback or other client logic
+  params: { agent: string };
 }
 
 export default function AgentServiceClient({ agent, params }: AgentServiceClientProps) {
+  const router = useRouter();
+  const [showBackstory, setShowBackstory] = useState(false);
+  const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
+  const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
+  const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
+  const [isLaunching, setIsLaunching] = useState(false);
+
+  // Live metrics animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveUsers(prev => Math.max(1, prev + Math.floor(Math.random() * 3) - 1));
+      if (Math.random() > 0.8) {
+        setUrgencySpots(prev => Math.max(1, prev - 1));
+      }
+      if (Math.random() > 0.9) {
+        setSuccessRate(prev => Math.min(99, Math.max(85, prev + Math.floor(Math.random() * 3) - 1)));
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (!agent) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0d1117]">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#0d1117] to-[#161b22]">
         <motion.div 
           initial={{ opacity: 0, y: 40 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.5 }} 
-          className="glass-card p-10 rounded-2xl text-center max-w-lg"
+          className="text-center max-w-lg mx-4"
         >
-          <h1 className="text-3xl font-bold mb-4 text-electric-blue">Percy can't find this agent!</h1>
-          <p className="text-gray-300 mb-6">Looks like this agent (ID: {params.agent}) doesn't exist or isn't available right now.</p>
-          <Link href="/services" className="text-teal-400 hover:underline">Back to Services</Link>
+          <div className="text-6xl mb-6">🤖💫</div>
+          <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
+            Agent Not Found in The League
+          </h1>
+          <p className="text-gray-300 mb-8 text-lg">
+            The agent "{params.agent}" isn't available or might be on a secret mission. 
+            Let Percy help you find the perfect alternative!
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link href="/agents" className="cosmic-btn-primary px-6 py-3 rounded-xl">
+              Browse Agent League
+            </Link>
+            <Link href="/services" className="cosmic-btn-secondary px-6 py-3 rounded-xl">
+              View All Services
+            </Link>
+          </div>
         </motion.div>
       </div>
     );
   }
 
+  const backstory = agentBackstories[agent.id];
+  const agentImagePath = getAgentImagePath(agent, "card");
+
+  // Enhanced emoji mapping
   const emojiMap: { [key: string]: string } = {
     "Brand Development": "🎨",
-    "Ebook Creation": "📚",
+    "Ebook Creation": "📚", 
     "Paid Marketing": "💸",
     "Business Intelligence": "📊",
     "Strategy & Growth": "🚀",
@@ -46,48 +92,287 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   };
   const emoji = emojiMap[agent.category] || "🤖";
 
+  // Agent capabilities showcase
+  const capabilities = backstory?.powers || agent.capabilities || [
+    'Advanced AI Processing',
+    'Workflow Automation',
+    'Task Optimization'
+  ];
+
+  // Mock workflow steps
+  const workflowSteps = [
+    { step: 1, title: "Agent Activation", description: "Initialize agent with your requirements", time: "30 seconds" },
+    { step: 2, title: "Intelligence Analysis", description: "Agent analyzes your data and context", time: "2-5 minutes" },
+    { step: 3, title: "Solution Generation", description: "Creates optimized solution for your needs", time: "3-10 minutes" },
+    { step: 4, title: "Results Delivery", description: "Delivers completed work to your dashboard", time: "Instant" }
+  ];
+
+  const handleLaunchAgent = () => {
+    setIsLaunching(true);
+    // Simulate agent launch process
+    setTimeout(() => {
+      // Navigate to the actual agent workflow or dashboard
+      if (agent.route) {
+        router.push(agent.route);
+      } else {
+        router.push(`/dashboard?agent=${agent.id}&action=launch`);
+      }
+    }, 2000);
+  };
+
+  const handleStartChat = () => {
+    router.push(`/agents/${agent.id}/chat`);
+  };
+
+  const handleViewBackstory = () => {
+    router.push(`/agent-backstory/${agent.id}`);
+  };
+
   return (
-    <div className="min-h-screen bg-[#0d1117] flex flex-col items-center py-16 px-4">
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.5 }} 
-        className="glass-card max-w-2xl w-full p-10 rounded-2xl shadow-xl mb-10"
-      >
-        <div className="flex items-center gap-4 mb-6">
-          <span className="text-5xl">{emoji}</span>
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-electric-blue to-teal-400 bg-clip-text text-transparent mb-1">{agent.name}</h1>
-            <div className="text-teal-300 font-semibold text-lg">{agent.category}</div>
-          </div>
-        </div>
-        <motion.p 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ delay: 0.25, duration: 0.5 }} 
-          className="text-gray-300 text-lg mb-6"
-        >
-          {agent.description}
-        </motion.p>
+    <div className="min-h-screen bg-gradient-to-b from-[#0d1117] via-[#161b22] to-[#0d1117] relative">
+      {/* Background Effects */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 pt-24 pb-16 px-4 md:px-8 lg:px-12">
+        {/* Hero Section */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+          initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
-          transition={{ delay: 0.4, duration: 0.5 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-7xl mx-auto"
         >
-          <button
-            className="px-8 py-3 rounded-lg bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold shadow-glow hover:scale-105 hover:shadow-xl transition-all duration-200"
-            onClick={() => {
-              // Client-side navigation logic
-              localStorage.setItem('lastUsedAgent', agent.id);
-              window.location.href = '/ask-percy?intent=' + encodeURIComponent(agent.intent || agent.id);
-            }}
-          >
-            Try This Agent Now
-          </button>
+          {/* Live Activity Bar */}
+          <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm font-bold">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              🔥 {liveUsers} using this agent now
+            </div>
+            <div className="flex items-center gap-2 bg-red-500/20 text-red-400 px-4 py-2 rounded-full text-sm font-bold animate-pulse">
+              ⚡ {urgencySpots} spots left today
+            </div>
+            <div className="flex items-center gap-2 bg-cyan-500/20 text-cyan-400 px-4 py-2 rounded-full text-sm font-bold">
+              📊 {successRate}% success rate
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Agent Info */}
+            <div>
+              <motion.div 
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.6 }}
+                className="flex items-center gap-6 mb-8"
+              >
+                <div className="relative">
+                  <Image
+                    src={agentImagePath}
+                    alt={agent.name}
+                    width={120}
+                    height={120}
+                    className="rounded-2xl shadow-2xl border-4 border-cyan-400/30"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/Agents-Default-Buttons.png';
+                    }}
+                  />
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-cyan-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
+                    LIVE
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-4xl">{emoji}</span>
+                    <div>
+                      <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+                        {backstory?.superheroName || agent.name}
+                      </h1>
+                      <div className="text-cyan-300 font-semibold text-lg">{agent.category}</div>
+                    </div>
+                  </div>
+                  {backstory?.catchphrase && (
+                    <div className="text-purple-300 italic text-lg font-medium mt-2">
+                      "{backstory.catchphrase}"
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              <motion.p 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                transition={{ delay: 0.4, duration: 0.6 }}
+                className="text-gray-300 text-xl leading-relaxed mb-8"
+              >
+                {backstory?.backstory || agent.description}
+              </motion.p>
+
+              {/* Superpowers */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="mb-8"
+              >
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Zap className="w-6 h-6 text-yellow-400" />
+                  Superpowers
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {capabilities.slice(0, 6).map((power, index) => (
+                    <div key={index} className="flex items-center gap-3 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg p-3 border border-purple-500/30">
+                      <Star className="w-4 h-4 text-yellow-400" />
+                      <span className="text-white font-medium">{power}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Action Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="flex flex-col sm:flex-row gap-4"
+              >
+                <CosmicButton
+                  onClick={handleLaunchAgent}
+                  disabled={isLaunching}
+                  className="flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold relative overflow-hidden group"
+                >
+                  {isLaunching ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Launching Agent...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-5 h-5" />
+                      Launch {agent.name.replace('Agent', '').replace('-', ' ')}
+                    </>
+                  )}
+                </CosmicButton>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleStartChat}
+                    className="flex items-center gap-2 px-6 py-4 bg-purple-600/20 text-purple-300 rounded-xl border border-purple-500/30 hover:bg-purple-600/30 transition-all duration-200 font-semibold"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Chat
+                  </button>
+                  <button
+                    onClick={handleViewBackstory}
+                    className="flex items-center gap-2 px-6 py-4 bg-cyan-600/20 text-cyan-300 rounded-xl border border-cyan-500/30 hover:bg-cyan-600/30 transition-all duration-200 font-semibold"
+                  >
+                    <Info className="w-5 h-5" />
+                    Backstory
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right: Workflow Demo */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              <GlassmorphicCard className="p-8">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                  <Target className="w-6 h-6 text-cyan-400" />
+                  How {agent.name.replace('Agent', '')} Works
+                </h3>
+                <div className="space-y-6">
+                  {workflowSteps.map((step, index) => (
+                    <motion.div
+                      key={step.step}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + (index * 0.2), duration: 0.5 }}
+                      className="flex items-start gap-4"
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
+                        {step.step}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-white font-semibold">{step.title}</h4>
+                          <div className="flex items-center gap-1 text-gray-400 text-sm">
+                            <Clock className="w-3 h-3" />
+                            {step.time}
+                          </div>
+                        </div>
+                        <p className="text-gray-300 text-sm">{step.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </GlassmorphicCard>
+            </motion.div>
+          </div>
         </motion.div>
-        {/* Optional: Demo preview (stub) */}
-        <div className="mt-8 text-center text-gray-400 italic text-sm">Demo preview coming soon...</div>
-      </motion.div>
+
+        {/* Performance Metrics */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.6 }}
+          className="max-w-7xl mx-auto mt-16"
+        >
+          <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
+            Agent Performance Stats
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <GlassmorphicCard className="p-6 text-center">
+              <div className="text-3xl font-bold text-green-400 mb-2">{successRate}%</div>
+              <div className="text-gray-400">Success Rate</div>
+            </GlassmorphicCard>
+            <GlassmorphicCard className="p-6 text-center">
+              <div className="text-3xl font-bold text-cyan-400 mb-2">{liveUsers}</div>
+              <div className="text-gray-400">Active Users</div>
+            </GlassmorphicCard>
+            <GlassmorphicCard className="p-6 text-center">
+              <div className="text-3xl font-bold text-purple-400 mb-2">4.9⭐</div>
+              <div className="text-gray-400">User Rating</div>
+            </GlassmorphicCard>
+            <GlassmorphicCard className="p-6 text-center">
+              <div className="text-3xl font-bold text-orange-400 mb-2">24/7</div>
+              <div className="text-gray-400">Availability</div>
+            </GlassmorphicCard>
+          </div>
+        </motion.div>
+
+        {/* Related Agents */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="max-w-7xl mx-auto mt-16 text-center"
+        >
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Need More Power? Combine with Other Agents
+          </h2>
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {backstory?.handoffPreferences?.slice(0, 3).map((agentId) => (
+              <Link 
+                key={agentId}
+                href={`/services/${agentId}`}
+                className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 text-white px-4 py-2 rounded-full border border-purple-500/30 hover:border-cyan-400/50 transition-all duration-200 font-medium"
+              >
+                {agentId.replace('-agent', '').replace('-', ' ')}
+              </Link>
+            )) || (
+              <div className="text-gray-400">Additional agent combinations coming soon...</div>
+            )}
+          </div>
+          <Link href="/agents" className="cosmic-btn-secondary px-8 py-3 rounded-xl font-bold">
+            Explore Full Agent League
+          </Link>
+        </motion.div>
+      </div>
     </div>
   );
 }

@@ -261,13 +261,16 @@ const AgentCard: React.FC<AgentCardProps> = ({
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
           <div className="w-28 h-28 rounded-full object-contain cosmic-glass cosmic-glow border-2 border-[#30D5C8] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
             {imgSrc && (
-              <img
+                              <img
                 src={imgSrc}
                 alt={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
                 aria-label={agent.name}
                 title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
-                className="object-cover w-full h-full rounded-full"
-                style={{ imageRendering: 'crisp-edges' }}
+                className="agent-image object-contain w-full h-full rounded-full"
+                style={{ 
+                  imageRendering: 'crisp-edges',
+                  transform: 'scale(0.85)'
+                }}
                 loading="lazy"
                 width={112}
                 height={112}
