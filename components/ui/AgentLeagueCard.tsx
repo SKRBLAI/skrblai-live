@@ -118,8 +118,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     if (onChat) {
       onChat(agent);
     } else {
-      // Default chat behavior
-      router.push(`/agents/${agent.id}/chat`);
+      // Navigate to agent backstory which has chat functionality
+      router.push(`/agent-backstory/${agent.id}`);
     }
   };
 
@@ -130,8 +130,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     } else if (onHandoff) {
       onHandoff(agent);
     } else {
-      // Default launch behavior
-      router.push(`/agents/${agent.id}/launch`);
+      // Route to agent service page
+      router.push(`/services/${agent.id}`);
     }
   };
 
@@ -251,7 +251,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
           {/* Clickable Hotspots for Actual Image Buttons */}
           {/* These invisible hotspots align with the LEARN, CHAT, LAUNCH buttons in the buttons.png images */}
-          <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-end pb-[3%]">
+          <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-center pb-[1%]">
             {/* LEARN Button Hotspot - Left position */}
             <motion.button
               className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden"
@@ -263,7 +263,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">LEARN about {agent.name}</span>
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-cyan-400 font-bold">LEARN</div>
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] md:text-xs text-cyan-400 font-bold">LEARN</div>
             </motion.button>
             
             {/* CHAT Button Hotspot - Center position */}
@@ -277,7 +277,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">CHAT with {agent.name}</span>
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-purple-400 font-bold">CHAT</div>
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] md:text-xs text-purple-400 font-bold">CHAT</div>
             </motion.button>
             
             {/* LAUNCH Button Hotspot - Right position */}
@@ -290,7 +290,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               {/* Screen reader text */}
               <span className="sr-only">LAUNCH {agent.name}</span>
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-green-400 font-bold">LAUNCH</div>
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] md:text-xs text-green-400 font-bold">LAUNCH</div>
             </motion.button>
           </div>
         </div>

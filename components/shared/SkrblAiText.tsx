@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 interface SkrblAiTextProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
   variant?: 'default' | 'glow' | 'pulse' | 'wave';
   children?: React.ReactNode;
 }
@@ -20,7 +20,9 @@ export default function SkrblAiText({
     sm: 'text-sm',
     md: 'text-base',
     lg: 'text-lg',
-    xl: 'text-xl'
+    xl: 'text-xl',
+    '2xl': 'text-2xl',
+    '3xl': 'text-3xl'
   };
 
   const baseStyles = `

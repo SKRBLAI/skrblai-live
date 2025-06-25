@@ -50,7 +50,7 @@ const hoverScale = {
 const HeroSection = () => {
 
   return (
-    <section className="min-h-screen flex items-center justify-center text-white px-4 relative overflow-hidden py-20">
+    <section className="min-h-screen flex items-center justify-center text-white px-4 relative overflow-hidden pt-16 pb-20">
       <FloatingBackground />
       
       <motion.div 
@@ -71,7 +71,7 @@ const HeroSection = () => {
             </motion.span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-10 max-w-2xl mx-auto font-inter">
-            <SkrblAiText variant="glow" size="lg">SKRBL AI</SkrblAiText> helps you automate content, branding, and website building — all powered by AI.
+            <SkrblAiText variant="glow" size="2xl">SKRBL AI</SkrblAiText> helps you automate content, branding, and website building — all powered by AI.
           </p>
           <div className="flex flex-col sm:flex-row gap-5 justify-center">
             <motion.div {...hoverScale}>

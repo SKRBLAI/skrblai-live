@@ -23,10 +23,10 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 cosmic-glass cosmic-gradient border-b border-[#30D5C8]/30 shadow-[0_2px_24px_#1E90FF30]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           {/* Logo + Tagline */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center group" aria-label="SKRBL AI Home">
+          <div className="flex items-center gap-3 h-full">
+            <Link href="/" className="flex items-center group h-full" aria-label="SKRBL AI Home">
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -37,14 +37,14 @@ export default function Navbar() {
             {/* Tagline badge - full on desktop, short on mobile */}
             <span
               data-testid="skrbl-tagline"
-              className="ml-2 text-xs md:text-sm font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1 shadow-glow border border-teal-400/60 whitespace-nowrap hidden xs:inline md:inline"
+              className="ml-2 text-xs md:text-sm font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1.5 shadow-glow border border-teal-400/60 whitespace-nowrap hidden xs:inline md:inline"
               aria-label="pronounced like scribble, just without the vowels."
               tabIndex={-1}
             >
               pronounced like <span className="italic">scribble</span>, just without the vowels.
             </span>
             <span
-              className="ml-2 text-xs font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1 shadow-glow border border-teal-400/60 whitespace-nowrap inline xs:hidden md:hidden"
+              className="ml-2 text-xs font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1.5 shadow-glow border border-teal-400/60 whitespace-nowrap inline xs:hidden md:hidden"
               aria-label="just without the vowels."
               tabIndex={-1}
             >
@@ -58,16 +58,16 @@ export default function Navbar() {
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex flex-1 justify-end items-center">
-            <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end">
+          <div className="hidden md:flex flex-1 justify-end items-center h-full">
+            <div className="flex items-center gap-x-4 w-full max-w-6xl justify-end h-full">
               {/* FIXED: Route 'Agents' to '/agents' */}
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/about" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+                <Link href="/about" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm flex items-center h-10">
                   About
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/agents" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+                <Link href="/agents" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm flex items-center h-10"
                   aria-label="Meet your Agent League"
                   tabIndex={0}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/agents'; } }}
@@ -75,27 +75,27 @@ export default function Navbar() {
                   Agent League
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/features" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+                <Link href="/features" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm flex items-center h-10">
                   Features
                 </Link>
               </motion.div>
-              <Link href="/contact">
+              <Link href="/contact" className="flex items-center h-full">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="text-white hover:text-teal-400 transition-all duration-300 whitespace-nowrap"
+                  className="text-white hover:text-teal-400 transition-all duration-300 whitespace-nowrap text-sm px-4 py-2.5 flex items-center h-10"
                 >
                   Contact
                 </motion.button>
               </Link>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/pricing" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg">
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+                <Link href="/pricing" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm flex items-center h-10">
                   Pricing
                 </Link>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
-                <Link href="/services" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-2 py-1 rounded-lg"
+              <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+                <Link href="/services" className="text-gray-300 hover:text-teal-400 focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 transition-all hover:scale-105 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm flex items-center h-10"
                   aria-label="Browse all agents and services"
                   tabIndex={0}
                   onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { window.location.href = '/services'; } }}
@@ -103,11 +103,11 @@ export default function Navbar() {
                   Services Offered
                 </Link>
               </motion.div>
-              <Link href="/sign-up">
+              <Link href="/sign-up" className="flex items-center h-full">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="cosmic-btn-primary px-4 py-2 rounded-lg font-bold transition-all duration-300 whitespace-nowrap"
+                  className="cosmic-btn-primary px-4 py-2.5 rounded-lg font-bold transition-all duration-300 whitespace-nowrap text-sm flex items-center h-10"
                 >
                   Get Started
                 </motion.button>

@@ -156,7 +156,7 @@ export default function AgentLeagueDashboard() {
                   width={88}
                   height={88}
                   className="agent-image object-contain w-full h-full"
-                  style={{ transform: 'scale(0.85)' }}
+                  style={{ transform: 'scale(1.0)' }}
                   priority
                 />
               </div>
