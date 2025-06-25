@@ -155,8 +155,7 @@ export default function AgentLeagueDashboard() {
                   alt="Percy - Cosmic Concierge"
                   width={88}
                   height={88}
-                  className="agent-image object-contain w-full h-full"
-                  style={{ transform: 'scale(1.0)' }}
+                  className="w-full h-full object-cover rounded-full"
                   priority
                 />
               </div>
