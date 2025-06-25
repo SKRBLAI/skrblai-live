@@ -241,7 +241,7 @@ export default function FeaturesContent(): JSX.Element {
                     </div>
                   </div>
 
-                  <div className="mt-auto flex items-center text-teal-300 group-hover:text-teal-400 font-bold">
+                  <div className="mt-auto flex items-center text-cyan-400 group-hover:text-white font-bold transition-colors duration-300">
                     <span>Dominate With This →</span>
                   </div>
                 </Link>
@@ -314,7 +314,7 @@ export default function FeaturesContent(): JSX.Element {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-400 font-bold">✅</span>
-                  <span>Infinite scalability and automation</span>
+                  <span className="text-gray-200">Infinite scalability and automation</span>
                 </li>
               </ul>
             </GlassmorphicCard>
@@ -358,7 +358,7 @@ export default function FeaturesContent(): JSX.Element {
             </Link>
           </div>
           
-          <p className="text-sm text-gray-400 mt-4">
+          <p className="text-sm text-gray-300 mt-4">
             ⚡ 3-day free trial • 🔒 No contracts • 💳 Cancel anytime
           </p>
         </motion.div>

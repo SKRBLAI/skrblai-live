@@ -178,7 +178,6 @@ export default function AgentLeagueDashboard() {
         </div>
       ) : (
         <div className="relative">
-          {/* Mobile Slider */}
           {isMobile ? (
             <div className="relative">
               {/* Slider Navigation */}
@@ -206,23 +205,23 @@ export default function AgentLeagueDashboard() {
                 </button>
               </div>
 
-              {/* Slider Content */}
-              <div className="agent-slider-container overflow-hidden">
+              {/* Mobile Agent Slider */}
+              <div className="overflow-hidden w-full">
                 <motion.div
-                  className="flex transition-transform duration-300 ease-in-out"
-                  style={{
-                    transform: `translateX(-${currentSlide * 100}%)`,
-                  }}
+                  className="flex"
+                  animate={{ x: `-${currentSlide * 100}%` }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 >
                   {otherAgents.map((agent, index) => (
-                    <div key={agent.id} className="w-full flex-shrink-0 px-4">
+                    <div key={agent.id} className="w-full flex-shrink-0 px-1">
                       <AgentLeagueCard
                         agent={agent}
                         index={index}
-                        onChat={() => handleAgentChat(agent)}
-                        onInfo={() => handleAgentInfo(agent)}
-                        onHandoff={() => handleHandoff(agent)}
-                        onLaunch={() => handleAgentLaunch(agent)}
+                        onInfo={handleAgentInfo}
+                        onChat={handleAgentChat}
+                        onLaunch={handleAgentLaunch}
+                        onHandoff={handleHandoff}
+                        selected={selectedAgent?.id === agent.id}
                         isRecommended={userAgentData.recommended.includes(agent.id)}
                         userProgress={userAgentData.progress[agent.id] || 0}
                         userMastery={userAgentData.mastery[agent.id] || 0}
@@ -231,49 +230,26 @@ export default function AgentLeagueDashboard() {
                   ))}
                 </motion.div>
               </div>
-
-              {/* Slide Indicators */}
-              <div className="flex justify-center mt-4 space-x-2">
-                {Array.from({ length: totalSlides }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => goToSlide(index)}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === currentSlide
-                        ? 'bg-cyan-400 w-6'
-                        : 'bg-gray-600 hover:bg-gray-500'
-                    }`}
-                  />
-                ))}
-              </div>
             </div>
           ) : (
             /* Desktop Grid */
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8"
-              initial="hidden"
-              animate="visible"
-            >
-              {otherAgents.map((agent, index) => {
-                if (process.env.NODE_ENV === 'development') {
-                  console.log('[AgentLeagueDashboard] Rendering agent:', agent);
-                }
-                return (
-                  <AgentLeagueCard
-                    key={agent.id}
-                    agent={agent}
-                    index={index}
-                    onChat={() => handleAgentChat(agent)}
-                    onInfo={() => handleAgentInfo(agent)}
-                    onHandoff={() => handleHandoff(agent)}
-                    onLaunch={() => handleAgentLaunch(agent)}
-                    isRecommended={userAgentData.recommended.includes(agent.id)}
-                    userProgress={userAgentData.progress[agent.id] || 0}
-                    userMastery={userAgentData.mastery[agent.id] || 0}
-                  />
-                );
-              })}
-            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              {otherAgents.map((agent, index) => (
+                <AgentLeagueCard
+                  key={agent.id}
+                  agent={agent}
+                  index={index}
+                  onInfo={handleAgentInfo}
+                  onChat={handleAgentChat}
+                  onLaunch={handleAgentLaunch}
+                  onHandoff={handleHandoff}
+                  selected={selectedAgent?.id === agent.id}
+                  isRecommended={userAgentData.recommended.includes(agent.id)}
+                  userProgress={userAgentData.progress[agent.id] || 0}
+                  userMastery={userAgentData.mastery[agent.id] || 0}
+                />
+              ))}
+            </div>
           )}
         </div>
       )}

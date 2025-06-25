@@ -254,43 +254,40 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-center pb-[1%]">
             {/* LEARN Button Hotspot - Left position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-center justify-center"
+              className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleLearnClick}
               aria-label={`Learn about ${agent.name}`}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               style={{ marginRight: '2%' }}
             >
-              {/* Screen reader text */}
               <span className="sr-only">LEARN about {agent.name}</span>
-              <span className="text-[11px] md:text-xs lg:text-sm text-cyan-400 font-bold leading-none">LEARN</span>
+              <span className="text-[10px] md:text-xs text-cyan-400 font-bold leading-none">LEARN</span>
             </motion.button>
             
             {/* CHAT Button Hotspot - Center position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-center justify-center"
+              className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleChatClick}
               aria-label={`Chat with ${agent.name}`}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               style={{ marginRight: '2%' }}
             >
-              {/* Screen reader text */}
               <span className="sr-only">CHAT with {agent.name}</span>
-              <span className="text-[11px] md:text-xs lg:text-sm text-purple-400 font-bold leading-none">CHAT</span>
+              <span className="text-[10px] md:text-xs text-purple-400 font-bold leading-none">CHAT</span>
             </motion.button>
             
             {/* LAUNCH Button Hotspot - Right position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-center justify-center"
+              className="w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleLaunchClick}
               aria-label={`Launch ${agent.name}`}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
             >
-              {/* Screen reader text */}
               <span className="sr-only">LAUNCH {agent.name}</span>
-              <span className="text-[11px] md:text-xs lg:text-sm text-green-400 font-bold leading-none">LAUNCH</span>
+              <span className="text-[10px] md:text-xs text-green-400 font-bold leading-none">LAUNCH</span>
             </motion.button>
           </div>
         </div>

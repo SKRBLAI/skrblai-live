@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -18,44 +18,47 @@ export default function Navbar() {
   }, [router]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0d1117]/95 backdrop-blur-md border-b border-[#30D5C8]/20">
+    <nav className="fixed top-0 left-0 right-0 z-50 cosmic-glass cosmic-gradient border-b border-[#30D5C8]/30 shadow-[0_2px_24px_#1E90FF30]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          
-          {/* Left Side - Logo + Tagline */}
-          <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center" aria-label="SKRBL AI Home">
-              <BrandLogo animate={onHome} />
+        <div className="flex justify-between items-center h-14">
+          {/* Logo + Tagline */}
+          <div className="flex items-center gap-3 h-full">
+            <Link href="/" className="flex items-center group h-full" aria-label="SKRBL AI Home">
+                <BrandLogo animate={onHome} />
             </Link>
-            
-            {/* Tagline - responsive visibility */}
-            <div className="hidden sm:block">
-              <span className="text-xs font-medium text-teal-300 bg-teal-900/30 px-3 py-1 rounded-full border border-teal-400/30">
-                pronounced like <em>scribble</em>, just without the vowels.
-              </span>
-            </div>
+            <span
+              className="ml-2 text-xs md:text-sm font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1.5 shadow-glow border border-teal-400/60 whitespace-nowrap hidden sm:inline-flex items-center"
+            >
+              pronounced like <span className="italic ml-1">scribble</span>, just without the vowels.
+            </span>
           </div>
 
-          {/* Center/Right - Navigation Links (Desktop) */}
-          <div className="hidden md:flex items-center space-x-1">
-            <NavLink href="/about" active={pathname === '/about'}>About</NavLink>
-            <NavLink href="/agents" active={pathname === '/agents'}>Agent League</NavLink>
-            <NavLink href="/features" active={pathname === '/features'}>Features</NavLink>
-            <NavLink href="/contact" active={pathname === '/contact'}>Contact</NavLink>
-            <NavLink href="/pricing" active={pathname === '/pricing'}>Pricing</NavLink>
-            <NavLink href="/services" active={pathname === '/services'}>Services</NavLink>
-            
-            {/* CTA Button */}
-            <Link href="/sign-up" className="ml-4">
-              <button className="bg-gradient-to-r from-blue-500 to-teal-400 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-teal-500 transition-all duration-200 hover:scale-105">
-                Get Started
-              </button>
-            </Link>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Hamburger for mobile */}
+          <div className="flex md:hidden items-center">
             <MobileMenu />
+          </div>
+
+          {/* Navigation Links */}
+          <div className="hidden md:flex flex-1 items-center justify-end h-full">
+            <div className="flex items-center gap-x-2 h-full">
+              <NavLink href="/about">About</NavLink>
+              <NavLink href="/agents">Agent League</NavLink>
+              <NavLink href="/features">Features</NavLink>
+              <NavLink href="/contact">Contact</NavLink>
+              <NavLink href="/pricing">Pricing</NavLink>
+              <NavLink href="/services">Services</NavLink>
+              <div className="ml-2 flex items-center h-full">
+                <Link href="/sign-up">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="cosmic-btn-primary px-4 py-2 rounded-lg font-bold transition-all duration-300 whitespace-nowrap text-sm flex items-center h-10"
+                  >
+                    Get Started
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -63,111 +66,97 @@ export default function Navbar() {
   );
 }
 
-// Clean Navigation Link Component
-function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
   return (
-    <Link 
-      href={href}
-      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-        active 
-          ? 'text-teal-400 bg-teal-900/20' 
-          : 'text-gray-300 hover:text-teal-400 hover:bg-gray-800/50'
-      }`}
-    >
-      {children}
-    </Link>
+    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
+      <Link href={href} className={`text-sm flex items-center h-10 px-3 py-2.5 rounded-lg whitespace-nowrap transition-colors duration-200 ${
+        isActive 
+          ? 'text-teal-300 font-semibold' 
+          : 'text-gray-300 hover:text-teal-400'
+      }`}>
+        {children}
+      </Link>
+    </motion.div>
   );
 }
 
-// Simplified Mobile Menu
+// --- MobileMenu component ---
 function MobileMenu() {
-  const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
-
-  const toggleMenu = () => setIsOpen(!isOpen);
-  const closeMenu = () => setIsOpen(false);
-
-  const menuItems = [
-    { href: '/about', label: 'About' },
-    { href: '/agents', label: 'Agent League' },
-    { href: '/features', label: 'Features' },
-    { href: '/contact', label: 'Contact' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/services', label: 'Services' },
-  ];
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (!open) return;
+    const focusable = menuRef.current?.querySelectorAll<HTMLElement>(
+      'a,button,[tabindex]:not([tabindex="-1"])'
+    );
+    focusable?.[0]?.focus();
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Tab' && focusable && focusable.length > 0) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        } else if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [open]);
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <button
-        onClick={toggleMenu}
-        className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800/50 focus:outline-none focus:ring-2 focus:ring-teal-400"
-        aria-label={isOpen ? 'Close menu' : 'Open menu'}
+        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-expanded={open ? 'true' : 'false'}
+        aria-controls="mobile-nav-drawer"
+        onClick={() => setOpen(v => !v)}
+        className="p-2 rounded-lg bg-teal-700/70 hover:bg-teal-600/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 shadow-glow"
       >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          {isOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        <span aria-hidden="true">
+          {open ? (
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           )}
-        </svg>
+        </span>
       </button>
 
-      {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <>
-          <div 
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
-            onClick={closeMenu}
+      {open && (
+        <div className="fixed inset-0 z-50" aria-modal="true" role="dialog">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-[2px] transition-opacity"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
           />
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] bg-[#0d1117]/95 backdrop-blur-md border-l border-teal-400/20 shadow-2xl"
+            ref={menuRef}
+            id="mobile-nav-drawer"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+            className="fixed top-0 right-0 h-full w-72 max-w-[90vw] bg-gradient-to-br from-[#172a3aee] to-[#0d1117ee] shadow-2xl cosmic-glass border-l border-teal-400/30 z-50 flex flex-col px-6 py-7 gap-3 focus:outline-none"
+            tabIndex={-1}
           >
-            {/* Mobile Menu Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
-              <span className="text-lg font-semibold text-white">Menu</span>
-              <button
-                onClick={closeMenu}
-                className="p-2 rounded-md text-gray-300 hover:text-white hover:bg-gray-800/50"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Mobile Menu Items */}
-            <div className="px-4 py-6 space-y-2">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={`block px-3 py-3 rounded-md text-base font-medium transition-colors duration-200 ${
-                    pathname === item.href
-                      ? 'text-teal-400 bg-teal-900/20'
-                      : 'text-gray-300 hover:text-teal-400 hover:bg-gray-800/50'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              
-              {/* Mobile CTA */}
-              <div className="pt-4">
-                <Link href="/sign-up" onClick={closeMenu}>
-                  <button className="w-full bg-gradient-to-r from-blue-500 to-teal-400 text-white px-4 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-teal-500 transition-all duration-200">
-                    Get Started
-                  </button>
-                </Link>
-              </div>
-            </div>
+            <nav aria-label="Mobile Navigation" className="flex flex-col gap-4 mt-4">
+              <Link href="/about" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>About</Link>
+              <Link href="/agents" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>Agent League</Link>
+              <Link href="/features" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>Features</Link>
+              <Link href="/contact" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>Contact</Link>
+              <Link href="/pricing" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>Pricing</Link>
+              <Link href="/services" className="text-lg font-semibold text-teal-200 hover:text-white px-1 py-2 rounded" onClick={() => setOpen(false)}>Services</Link>
+              <div className="border-t border-teal-400/20 my-2"></div>
+              <Link href="/sign-up" className="text-lg font-bold text-white bg-gradient-to-r from-teal-500 to-blue-400 px-3 py-2 rounded-lg shadow-glow hover:from-blue-400 hover:to-teal-500 transition-all text-center" onClick={() => setOpen(false)}>Get Started</Link>
+            </nav>
           </motion.div>
-        </>
+        </div>
       )}
     </>
   );
