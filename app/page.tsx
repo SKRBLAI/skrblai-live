@@ -91,16 +91,17 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen relative text-white bg-[#0d1117] pt-16 overflow-hidden">
+    <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden">
       {/* Background Effects - RE-ENABLED WITH MOBILE OPTIMIZATIONS */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles particleCount={48} />
       </div>
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
+      <main className="relative z-10 min-h-screen pt-24 md:pt-28">
 
       {/* Main Content */}
-      <div className="relative z-10 pt-8 px-4 md:px-8 max-w-7xl mx-auto">
+      <div className="px-4 md:px-8 max-w-7xl mx-auto">
         {/* Hero Section */}
         <section className="min-h-[85vh] flex flex-col items-center">
           <div className="flex flex-col items-center justify-center w-full">
@@ -299,6 +300,7 @@ export default function HomePage() {
           </div>
         </section>
       </div>
+      </main>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import BrandLogo from '@/components/ui/BrandLogo';
+import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -18,51 +19,45 @@ export default function Navbar() {
   }, [router]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 cosmic-glass cosmic-gradient border-b border-[#30D5C8]/30 shadow-[0_2px_24px_#1E90FF30]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
-          {/* Logo + Tagline */}
-          <div className="flex items-center gap-3 h-full">
-            <Link href="/" className="flex items-center group h-full" aria-label="SKRBL AI Home">
-                <BrandLogo animate={onHome} />
-            </Link>
-            <span
-              className="ml-2 text-xs md:text-sm font-semibold text-white bg-teal-600/80 rounded-full px-3 py-1.5 shadow-glow border border-teal-400/60 whitespace-nowrap hidden sm:inline-flex items-center"
-            >
-              pronounced like <span className="italic ml-1">scribble</span>, just without the vowels.
-            </span>
-          </div>
-
-          {/* Hamburger for mobile */}
-          <div className="flex md:hidden items-center">
-            <MobileMenu />
-          </div>
-
-          {/* Navigation Links */}
-          <div className="hidden md:flex flex-1 items-center justify-end h-full">
-            <div className="flex items-center gap-x-2 h-full">
+    <div className={styles.floatingNav}>
+      <nav className={styles.glassContainer} aria-label="Main Navigation">
+        <div className={styles.navCol}>
+          <div className={styles.navRow}>
+            {/* Logo + Tagline */}
+            <div className={styles.logoTagline}>
+              <Link href="/" aria-label="SKRBL AI Home">
+                <span className={styles.logoGlow}><BrandLogo animate={onHome} /></span>
+              </Link>
+              <span className={styles.tagline + " hidden md:inline-block"}>
+                pronounced like <span style={{marginRight: '0.22em'}}></span><span className="italic" style={{verticalAlign: 'baseline'}}>scribble</span>, just without the vowels.
+              </span>
+            </div>
+            <div className={styles.flexSpacer} />
+            {/* Desktop Nav Links */}
+            <div className={styles.navLinks + " hidden md:flex"}>
               <NavLink href="/about">About</NavLink>
               <NavLink href="/agents">Agent League</NavLink>
               <NavLink href="/features">Features</NavLink>
               <NavLink href="/contact">Contact</NavLink>
               <NavLink href="/pricing">Pricing</NavLink>
               <NavLink href="/services">Services</NavLink>
-              <div className="ml-2 flex items-center h-full">
-                <Link href="/sign-up">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="cosmic-btn-primary px-4 py-2 rounded-lg font-bold transition-all duration-300 whitespace-nowrap text-sm flex items-center h-10"
-                  >
-                    Get Started
-                  </motion.button>
-                </Link>
-              </div>
             </div>
           </div>
+          {/* CTA Button Desktop - now below */}
+          <div className={styles.ctaRow + " hidden md:flex"}>
+            <Link href="/sign-up">
+              <button className={styles.ctaBtn}>
+                Get Started
+              </button>
+            </Link>
+          </div>
         </div>
-      </div>
-    </nav>
+        {/* Hamburger for mobile */}
+        <div className="md:hidden flex items-center">
+          <MobileMenu />
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -71,12 +66,15 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   const isActive = pathname === href;
 
   return (
-    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }} className="flex items-center h-full">
-      <Link href={href} className={`text-sm flex items-center h-10 px-3 py-2.5 rounded-lg whitespace-nowrap transition-colors duration-200 ${
-        isActive 
-          ? 'text-teal-300 font-semibold' 
-          : 'text-gray-300 hover:text-teal-400'
-      }`}>
+    <motion.div whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.96 }}>
+      <Link
+        href={href}
+        className={
+          styles.navLink +
+          ' ' +
+          (isActive ? ' text-teal-300 font-semibold' : '')
+        }
+      >
         {children}
       </Link>
     </motion.div>
@@ -114,8 +112,9 @@ function MobileMenu() {
     <>
       <button
         aria-label={open ? 'Close menu' : 'Open menu'}
-        aria-expanded={open ? 'true' : 'false'}
-        aria-controls="mobile-nav-drawer"
+        aria-expanded="true"
+        aria-controls="mobile-nav-menu"
+        data-open={open}
         onClick={() => setOpen(v => !v)}
         className="p-2 rounded-lg bg-teal-700/70 hover:bg-teal-600/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-400 shadow-glow"
       >
