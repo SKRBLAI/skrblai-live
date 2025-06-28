@@ -516,6 +516,68 @@ export default function ConversationalPercyOnboarding() {
         navigateToDashboard();
         break;
       }
+      
+      case 'signup-for-analysis':
+      case 'signup-now': {
+        addPercyMessage(
+          `🚀 **Perfect choice!** You're about to gain an unfair advantage over your competition.`,
+          [
+            { id: 'start-trial', label: '🎯 Start Free Trial', icon: '🚀', action: 'redirect-signup' }
+          ]
+        );
+        setTimeout(() => {
+          window.location.href = '/sign-up';
+        }, 1000);
+        break;
+      }
+      
+      case 'show-preview-recommendations':
+      case 'continue-preview':
+      case 'maybe-later': {
+        // Generate simplified agent recommendations for preview
+        generateAgentRecommendations();
+        addPercyMessage(
+          `👀 **Preview Mode:** Here's a taste of what's possible. For the full arsenal and competitive analysis, you'll need to unlock the complete system.`,
+          [
+            { id: 'unlock-now', label: '🔓 Unlock Full System', icon: '🚀', action: 'signup-for-analysis' },
+            { id: 'continue-browsing', label: '🌍 Explore More', icon: '👀', action: 'continue' }
+          ]
+        );
+        break;
+      }
+      
+      case 'show-industry-commitment': {
+        const industryData = option.data;
+        addPercyMessage(
+          `📊 **${industryData?.industry} INDUSTRY BENCHMARK REVEALED:**\n\n**Your Competition's Current State:**\n• Average automation level: 23% (pathetic)\n• Manual processes wasting: 31 hours/week\n• Revenue left on table: $847K annually\n• Customer acquisition cost: 340% higher than optimized businesses\n\n🎯 **Top 5% of ${industryData?.industry} companies** that use our agent system:\n• Automate 89% of repetitive tasks\n• Reduce operational costs by 67%\n• Increase customer lifetime value by 290%\n• Dominate local search rankings\n\n🔥 **The gap is widening every day.** Your competitors who implement this first will make the others irrelevant.\n\n**Which side of history do you want to be on?**`,
+          [
+            { 
+              id: 'signup-for-analysis', 
+              label: '🚀 Join the Top 5% (Free Trial)', 
+              icon: '👑', 
+              action: 'signup-for-analysis'
+            },
+            { 
+              id: 'show-preview-recommendations', 
+              label: '🔍 Show Preview Recommendations', 
+              icon: '👀', 
+              action: 'show-preview-recommendations'
+            },
+            { 
+              id: 'final-chance', 
+              label: '💤 Stay with the 95% (Continue Browsing)', 
+              icon: '😴', 
+              action: 'maybe-later'
+            }
+          ]
+        );
+        break;
+      }
+      
+      case 'redirect-signup': {
+        window.location.href = '/sign-up';
+        break;
+      }
 
       default: {
         console.log('Unknown action:', option.action);
@@ -602,25 +664,85 @@ export default function ConversationalPercyOnboarding() {
 
       // Generate summary message based on analysis
       const analysis = result.analysis;
-      const summaryMessage = `✨ Scan complete! I analyzed your ${scanType === 'website' ? 'website' : scanType === 'linkedin' ? 'LinkedIn profile' : 'YouTube content'} and discovered:
+      
+      // Check if user is logged in for full details
+      const currentUser = await getCurrentUser();
+      const isLoggedIn = !!currentUser;
+      
+      const summaryMessage = isLoggedIn 
+        ? `✨ Scan complete! I analyzed your ${scanType === 'website' ? 'website' : scanType === 'linkedin' ? 'LinkedIn profile' : 'YouTube content'} and discovered:
 
 🎯 **Business Type**: ${analysis.businessType}
 🏢 **Industry**: ${analysis.industry}
 ${analysis.keyFeatures?.length ? `⭐ **Key Features**: ${analysis.keyFeatures.slice(0, 3).join(', ')}` : ''}
 
-Based on this analysis, here are my cosmic recommendations:`;
+Based on this analysis, here are my cosmic recommendations:`
+        : `🔥 **COMPETITIVE INTELLIGENCE REPORT:** Your ${analysis.industry} competitors are about to be shocked.
+
+**Quick Scan Results:**
+🎯 Business: ${analysis.businessType}
+📊 Industry: ${analysis.industry}
+⚡ Automation Potential: **EXTREME**
+
+🚨 **I've detected 3 critical blind spots** in your competitive landscape. Companies implementing these specific automations are seeing 340% revenue increases within 90 days.
+
+**But I need to verify you're serious about eliminating your competition.**`;
+
+      const actionOptions = isLoggedIn 
+        ? result.agentRecommendations.slice(0, 3).map((rec: any) => ({
+            id: rec.agentId,
+            label: `Activate ${rec.superheroName}`,
+            icon: '⚡',
+            action: 'select-agent',
+            data: { agentId: rec.agentId }
+          }))
+        : [
+            {
+              id: 'signup-for-analysis',
+              label: '🚀 I\'m Ready to Dominate (Free Access)',
+              icon: '⚡',
+              action: 'signup-for-analysis'
+            },
+            {
+              id: 'show-industry-commitment',
+              label: `📊 Show ${analysis.industry} Benchmark First`,
+              icon: '🎯',
+              action: 'show-industry-commitment',
+              data: { industry: analysis.industry, businessType: analysis.businessType }
+            },
+            {
+              id: 'maybe-later',
+              label: '💤 Maybe Later (Stay Behind Competition)',
+              icon: '😴',
+              action: 'maybe-later'
+            }
+          ];
 
       addPercyMessage(
         summaryMessage,
-        result.agentRecommendations.slice(0, 3).map((rec: any) => ({
-          id: rec.agentId,
-          label: `Activate ${rec.superheroName}`,
-          icon: '⚡',
-          action: 'select-agent',
-          data: { agentId: rec.agentId }
-        })),
-        scanBasedRecommendations
+        actionOptions,
+        isLoggedIn ? scanBasedRecommendations : undefined
       );
+      
+      // If not logged in, show teaser benefits
+      if (!isLoggedIn) {
+        setTimeout(() => {
+          addPercyMessage(
+            `🎯 **Your Full Analysis Includes:**
+• Complete competitor vulnerability report
+• 14-day automated domination roadmap  
+• Revenue optimization opportunities ($47K+ potential)
+• Custom agent team recommendations
+• Industry-specific automation triggers
+
+**Plus:** Instant access to all 14 agents in your free trial. Your competitors won't see this coming.`,
+            [
+              { id: 'signup-now', label: '🚀 Get Full Analysis (Free Trial)', icon: '🎯', action: 'signup' },
+              { id: 'maybe-later', label: '⏭️ Continue with Preview', icon: '👀', action: 'continue-preview' }
+            ]
+          );
+        }, 2000);
+      }
 
       // Track scan completion
       try {
@@ -716,7 +838,7 @@ Based on this analysis, here are my cosmic recommendations:`;
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto" data-percy-onboarding>
       {/* AI Concierge Header Section with Percy Figure */}
       <div className="text-center mb-8">
         <div className="flex flex-col items-center justify-center space-y-4">
@@ -959,6 +1081,7 @@ Based on this analysis, here are my cosmic recommendations:`;
                 onDrop={handleDrop}
                 placeholder="Type your message..."
                 className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-electric-blue"
+                data-percy-input
               />
               <button
                 type="submit"

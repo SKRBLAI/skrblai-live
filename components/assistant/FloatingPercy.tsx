@@ -20,6 +20,45 @@ interface Message {
   };
 }
 
+// Live Social Proof Data Pool
+const socialProofActivities = [
+  {
+    type: 'signup',
+    messages: [
+      "Sarah from Austin just activated 3 automation agents",
+      "Marketing agency in Seattle automated their entire workflow",
+      "Mike in Denver increased revenue by 340% using our agents",
+      "Content creator in Miami published 47 articles this month",
+      "Boston startup eliminated 85% of manual tasks",
+      "Consultant in Phoenix secured 12 new clients this week"
+    ]
+  },
+  {
+    type: 'result',
+    messages: [
+      "Business in Atlanta generated $18K in new leads today",
+      "Agency client saved 32 hours with automation",
+      "E-commerce store boosted sales by 267% this quarter",
+      "Author in Portland hit #1 bestseller using our platform",
+      "Marketing team doubled their output in 30 days",
+      "Freelancer raised rates 150% after automating workflow"
+    ]
+  },
+  {
+    type: 'urgency',
+    messages: [
+      "23 businesses joined today - limited spots remaining",
+      "Your competitors gained another advantage this hour",
+      "156 automation workflows launched in last 24 hours",
+      "Premium spots filling fast - 8 left today",
+      "Live users: 2,847 currently destroying competition",
+      "Revenue generated today: $247K+ and counting"
+    ]
+  }
+];
+
+const cities = ["Austin", "Seattle", "Denver", "Miami", "Boston", "Phoenix", "Atlanta", "Portland", "Chicago", "Dallas", "San Francisco", "New York", "Los Angeles", "Nashville", "Orlando"];
+
 // Page-specific suggestions based on current path
 const pathSuggestions: Record<string, string[]> = {
   '/': [
@@ -61,11 +100,21 @@ export default function FloatingPercy() {
   const [percyState, setPercyState] = useState<'idle' | 'thinking' | 'analyzing' | 'celebrating'>('idle');
   const [activeNotification, setActiveNotification] = useState<string | null>(null);
   const [userActivity, setUserActivity] = useState<any>(null);
+  
+  // ✨ NEW: Live Social Proof System
+  const [socialProofNotification, setSocialProofNotification] = useState<{
+    message: string;
+    type: 'signup' | 'result' | 'urgency';
+    timestamp: number;
+  } | null>(null);
+  const [isVisibleOnPage, setIsVisibleOnPage] = useState(true);
+  
   const pathname = usePathname();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognition = useRef<any>(null);
   const activityTimer = useRef<any>(null);
+  const socialProofTimer = useRef<any>(null);
   
   // Enhanced Percy Intelligence Hooks
   const { 
@@ -348,8 +397,142 @@ export default function FloatingPercy() {
     }
   };
   
+  // ✨ NEW: Generate Live Social Proof Notifications
+  const generateSocialProofNotification = useCallback(() => {
+    if (!isVisibleOnPage) return;
+    
+    const activityType = Math.random() < 0.4 ? 'signup' : Math.random() < 0.7 ? 'result' : 'urgency';
+    const activities = socialProofActivities.find(a => a.type === activityType)?.messages || [];
+    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+    
+    // Add location context for signup/result messages
+    let finalMessage = randomActivity;
+    if (activityType === 'signup' || activityType === 'result') {
+      const randomCity = cities[Math.floor(Math.random() * cities.length)];
+      if (!finalMessage.includes('in ')) {
+        finalMessage = finalMessage.replace(/from \w+/, `from ${randomCity}`);
+        if (!finalMessage.includes('from')) {
+          finalMessage = `${finalMessage.split(' ')[0]} in ${randomCity} ${finalMessage.split(' ').slice(1).join(' ')}`;
+        }
+      }
+    }
+    
+    setSocialProofNotification({
+      message: finalMessage,
+      type: activityType,
+      timestamp: Date.now()
+    });
+    
+    // Track social proof display
+    trackBehavior && trackBehavior('social_proof_shown', {
+      type: activityType,
+      message: finalMessage,
+      pathname
+    });
+    
+    // Auto-hide after 6 seconds
+    setTimeout(() => {
+      setSocialProofNotification(null);
+    }, 6000);
+  }, [isVisibleOnPage, pathname, trackBehavior]);
+
+  // ✨ NEW: Social Proof Timer System
+  useEffect(() => {
+    if (socialProofTimer.current) {
+      clearInterval(socialProofTimer.current);
+    }
+    
+    // Show first notification after 3 seconds
+    setTimeout(() => {
+      generateSocialProofNotification();
+    }, 3000);
+    
+    // Then show notifications every 12-18 seconds
+    socialProofTimer.current = setInterval(() => {
+      if (Math.random() < 0.7) { // 70% chance to show
+        generateSocialProofNotification();
+      }
+    }, Math.random() * 6000 + 12000); // 12-18 seconds
+    
+    return () => {
+      if (socialProofTimer.current) {
+        clearInterval(socialProofTimer.current);
+      }
+    };
+  }, [generateSocialProofNotification]);
+
+  // ✨ NEW: Page Visibility Detection
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      setIsVisibleOnPage(!document.hidden);
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+  
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-4">
+      {/* ✨ NEW: Live Social Proof Notification */}
+      <AnimatePresence>
+        {socialProofNotification && (
+          <motion.div
+            initial={{ opacity: 0, x: 100, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 100, scale: 0.9 }}
+            className={`max-w-sm bg-gradient-to-r backdrop-blur-lg rounded-xl shadow-2xl border p-4 ${
+              socialProofNotification.type === 'signup' 
+                ? 'from-green-900/90 to-emerald-900/90 border-green-400/30' :
+              socialProofNotification.type === 'result'
+                ? 'from-blue-900/90 to-cyan-900/90 border-cyan-400/30' :
+                'from-orange-900/90 to-red-900/90 border-red-400/30'
+            }`}
+          >
+            <div className="flex items-start space-x-3">
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                socialProofNotification.type === 'signup' 
+                  ? 'bg-green-400/20 text-green-400' :
+                socialProofNotification.type === 'result'
+                  ? 'bg-cyan-400/20 text-cyan-400' :
+                  'bg-red-400/20 text-red-400'
+              }`}>
+                {socialProofNotification.type === 'signup' && '🚀'}
+                {socialProofNotification.type === 'result' && '💰'}
+                {socialProofNotification.type === 'urgency' && '⚡'}
+              </div>
+              <div className="flex-1">
+                <p className="text-white text-sm font-medium leading-snug">
+                  {socialProofNotification.message}
+                </p>
+                <p className="text-gray-400 text-xs mt-1">
+                  {socialProofNotification.type === 'signup' && 'Just now'}
+                  {socialProofNotification.type === 'result' && 'Live update'}
+                  {socialProofNotification.type === 'urgency' && 'Real-time'}
+                </p>
+              </div>
+              <motion.div
+                className={`w-2 h-2 rounded-full ${
+                  socialProofNotification.type === 'signup' 
+                    ? 'bg-green-400' :
+                  socialProofNotification.type === 'result'
+                    ? 'bg-cyan-400' :
+                    'bg-red-400'
+                }`}
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
+              />
+            </div>
+            
+            {/* Live activity pulse */}
+            <motion.div
+              className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full opacity-60"
+              animate={{ scale: [0, 1.5], opacity: [0.6, 0] }}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div

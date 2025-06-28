@@ -21,12 +21,30 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState('');
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
+  const [showFullForm, setShowFullForm] = useState(false);
   const { user, session, isLoading, signUp, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
 
-  // Show auth errors from context
+  // Show auth errors from context and handle special offers
   useEffect(() => {
     if (authError) {
       setError(authError);
+    }
+
+    // ✨ NEW: Check for special offers from URL params
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const offer = urlParams.get('offer');
+      const emailParam = urlParams.get('email');
+      
+      if (emailParam) {
+        setEmail(emailParam);
+      }
+      
+      if (offer === 'launch40') {
+        toast.success('🎉 40% Launch Discount Applied! Complete signup to claim your savings.', { duration: 6000 });
+      } else if (offer === 'exit_capture') {
+        toast.success('🚀 Welcome back! Your free competitive analysis is waiting.', { duration: 5000 });
+      }
     }
   }, [authError]);
 
@@ -180,6 +198,56 @@ export default function SignUpPage() {
     setProviderLoading(null);
   };
 
+  // ✨ NEW: Quick Start Handler - Email-only signup
+  const handleQuickStart = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Generate temporary password for email-only signup
+      const tempPassword = `SKRBL_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const { success, error, needsEmailConfirmation } = await signUp(email, tempPassword);
+
+      if (!success && error) {
+        setError(error);
+        setLoading(false);
+        return;
+      }
+
+      // Store marketing consent if checked
+      if (marketingConsent) {
+        try {
+          await fetch('/api/marketing-consent', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, consent: true })
+          });
+        } catch (err) {
+          console.error('[MARKETING] Failed to store consent:', err);
+        }
+      }
+
+      if (needsEmailConfirmation) {
+        setSuccess('🚀 Almost there! Check your email and click the verification link to activate your 3-day trial.');
+        toast.success('Verification email sent! Check your inbox to activate your trial.');
+        setLoading(false);
+      } else {
+        // Direct success - redirect to dashboard
+        toast.success('🎉 Welcome to SKRBL AI! Your trial has started.');
+        router.push('/dashboard');
+      }
+      
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  };
+
   // Show loading state while checking auth
   if (isLoading) {
     return (
@@ -272,70 +340,140 @@ export default function SignUpPage() {
               </div>
             )}
             
-            <div className="rounded-md shadow-sm space-y-4">
-              <div>
-                <label htmlFor="email" className="sr-only">
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                  placeholder="Email address"
-                />
+            {/* ✨ NEW: Simplified Email-Only Quick Start */}
+            {!showFullForm ? (
+              <div className="space-y-4">
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-bold text-white mb-2">🚀 Start Your 3-Day Trial</h3>
+                  <p className="text-cyan-400 text-sm">
+                    Get instant access to all 14 AI agents. No payment required.
+                  </p>
+                </div>
+                
+                <div>
+                  <input
+                    id="email-quick"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="appearance-none relative block w-full px-4 py-4 border border-gray-700 placeholder-gray-500 text-white rounded-xl bg-[#0D1117] focus:outline-none focus:ring-2 focus:ring-electric-blue focus:border-electric-blue focus:z-10 text-lg"
+                    placeholder="Enter your email to start"
+                  />
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={handleQuickStart}
+                  disabled={loading || !email}
+                  className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-electric-blue to-cyan-500 hover:from-electric-blue/90 hover:to-cyan-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                >
+                  {loading ? (
+                    <div className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin mx-auto"></div>
+                  ) : (
+                    <>
+                      🚀 Start Free Trial (30 Seconds)
+                      <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </>
+                  )}
+                </button>
+                
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowFullForm(true)}
+                    className="text-sm text-gray-400 hover:text-electric-blue transition-colors"
+                  >
+                    Prefer to set a password? Use full signup form
+                  </button>
+                </div>
+                
+                <div className="flex items-center justify-center space-x-4 text-xs text-green-400">
+                  <span>✓ No payment required</span>
+                  <span>•</span>
+                  <span>✓ Cancel anytime</span>
+                  <span>•</span>
+                  <span>✓ Full access</span>
+                </div>
               </div>
-              <div>
-                <label htmlFor="password" className="sr-only">
-                  Password
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                  placeholder="Password (min. 8 characters)"
-                />
+            ) : (
+              <div className="rounded-md shadow-sm space-y-4">
+                <div>
+                  <label htmlFor="email" className="sr-only">
+                    Email address
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                    placeholder="Email address"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="password" className="sr-only">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                    placeholder="Password (min. 8 characters)"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="confirmPassword" className="sr-only">
+                    Confirm Password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                    placeholder="Confirm password"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="promoCode" className="sr-only">
+                    Promo Code (Optional)
+                  </label>
+                  <input
+                    id="promoCode"
+                    name="promoCode"
+                    type="text"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                    className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                    placeholder="Promo code (optional)"
+                  />
+                </div>
+                
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowFullForm(false)}
+                    className="text-sm text-gray-400 hover:text-electric-blue transition-colors"
+                  >
+                    ← Switch to quick email signup
+                  </button>
+                </div>
               </div>
-              <div>
-                <label htmlFor="confirmPassword" className="sr-only">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                  placeholder="Confirm password"
-                />
-              </div>
-              <div>
-                <label htmlFor="promoCode" className="sr-only">
-                  Promo Code (Optional)
-                </label>
-                <input
-                  id="promoCode"
-                  name="promoCode"
-                  type="text"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
-                  placeholder="Promo code (optional)"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="flex items-center">
               <input
@@ -360,7 +498,7 @@ export default function SignUpPage() {
                 {loading ? (
                   <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin mx-auto"></div>
                 ) : (
-                  'Create account'
+                  '🔒 Create Secure Account'
                 )}
               </button>
             </div>

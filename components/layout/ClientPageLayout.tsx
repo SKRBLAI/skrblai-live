@@ -1,9 +1,11 @@
 "use client";
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import TrialButton from '@/components/ui/TrialButton';
+import ExitIntentModal from '@/components/shared/ExitIntentModal';
+import { useExitIntent } from '@/hooks/useExitIntent';
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -12,6 +14,19 @@ type PageLayoutProps = {
 
 export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   const pathname = usePathname();
+  
+  // Exit Intent System
+  const { isExitIntent, resetExitIntent } = useExitIntent({
+    enabled: pathname !== '/sign-up' && pathname !== '/login', // Don't show on auth pages
+    delay: 5000, // Wait 5 seconds before enabling
+    threshold: 15
+  });
+
+  const handleExitCapture = async (email: string) => {
+    console.log('Exit intent email captured:', email);
+    // Additional tracking/processing can be added here
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0d1117]">
       {/* Background Effects - RE-ENABLED FOR PHASE 2 TESTING */}
@@ -60,6 +75,13 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
           </div>
         </motion.div>
       </main>
+
+      {/* ✨ NEW: Exit Intent Modal */}
+      <ExitIntentModal
+        isOpen={isExitIntent}
+        onClose={resetExitIntent}
+        onCapture={handleExitCapture}
+      />
     </div>
   );
 }

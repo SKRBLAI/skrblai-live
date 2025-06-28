@@ -9,8 +9,14 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/components/context/AuthContext'; 
 import { supabase } from '@/utils/supabase';
+import { createClient } from '@supabase/supabase-js';
+import { getCurrentUser } from '@/utils/supabase-helpers';
+import { userJourneyTracker } from '@/lib/analytics/userJourney';
+import RevenuePulseWidget from '@/components/ui/RevenuePulseWidget';
+import useUsageBasedPricing from '@/hooks/useUsageBasedPricing';
 
 import Spinner from '@/components/ui/Spinner';
+import ActionBanner from '@/components/ui/ActionBanner';
 
 // Import actual UI components - paths should be verified by USER
 import PageLayout from '@/components/layout/ClientPageLayout'; // Corrected from DashboardLayout
@@ -18,6 +24,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Correct
 import DashboardOverview from '@/components/dashboard/DashboardOverview'; // Corrected from OverviewSection
 import Notifications from '@/components/dashboard/Notifications'; // Corrected from NotificationsPanel
 import SectionNavigation from '@/components/dashboard/SectionNavigation';
+import DashboardWrapper from './DashboardWrapper';
 
 // Missing component imports - commented out
 // import PremiumFeaturesPanel from '@/components/dashboard/PremiumFeaturesPanel'; 
@@ -67,13 +74,39 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } }
 };
 
+
 export default function Dashboard() {
   const router = useRouter();
   const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth();
 
+  // ✨ NEW: Usage-based pricing integration
+  const {
+    usage,
+    currentTier,
+    recommendation,
+    upgradeUrgency,
+    valueRealized,
+    trackUsage,
+    shouldShowUpgradePrompt
+  } = useUsageBasedPricing();
+
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<'free' | 'premium'>('free');
   const [localIsLoading, setLocalIsLoading] = useState<boolean>(true);
+  // First-time user celebration/checklist state
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [checklistDismissed, setChecklistDismissed] = useState(false);
+  const [checklist, setChecklist] = useState([
+    { label: 'Try your first agent', key: 'try-agent', done: false },
+    { label: 'Complete your profile', key: 'complete-profile', done: false },
+    { label: 'Explore premium features', key: 'explore-premium', done: false },
+    { label: 'Join our community', key: 'join-community', done: false },
+    { label: 'Invite a teammate', key: 'invite-teammate', done: false },
+  ]);
+  
+  // ✨ NEW: Enhanced usage pressure state
+  const [showUsagePressure, setShowUsagePressure] = useState(false);
   
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [lastUsed, setLastUsed] = useState<Agent[]>([]);
@@ -101,6 +134,28 @@ export default function Dashboard() {
       return 'free';
     }
   }, []);
+
+  // ✨ NEW: Enhanced celebration/checklist effect with usage tracking
+  useEffect(() => {
+    if (!authIsLoading && authUser) {
+      const onboardingComplete = window.localStorage.getItem('skrbl_onboarding_complete');
+      const dashboardFirstVisit = window.localStorage.getItem('skrbl_dashboard_first_visit');
+      if (onboardingComplete && !dashboardFirstVisit) {
+        setShowCelebration(true);
+        setShowChecklist(true);
+        window.localStorage.setItem('skrbl_dashboard_first_visit', 'true');
+        userJourneyTracker.trackEvent('page_view', { userId: authUser.id, page: 'dashboard_first_visit' });
+        
+        // Track dashboard access for usage-based pricing
+        trackUsage('dashboard_access', { firstTime: true });
+      }
+
+      // ✨ NEW: Show usage pressure based on tier and usage
+      if (currentTier === 'free' && (usage.agentsUsedToday >= 2 || usage.scansUsedToday >= 2)) {
+        setShowUsagePressure(true);
+      }
+    }
+  }, [authIsLoading, authUser, currentTier, usage.agentsUsedToday, usage.scansUsedToday, trackUsage]);
 
   // Auth effect
   useEffect(() => {
@@ -207,9 +262,156 @@ export default function Dashboard() {
     return <Spinner />;
   }
   
+  // Confetti SVG (lightweight, no npm)
+  const Confetti = () => showCelebration ? (
+    <svg className="fixed inset-0 pointer-events-none z-50" width="100vw" height="100vh" style={{width:'100vw',height:'100vh'}} aria-hidden>
+      <g>
+        {[...Array(40)].map((_,i) => (
+          <circle key={i} cx={Math.random()*window.innerWidth} cy={Math.random()*window.innerHeight/2} r={6+Math.random()*8} fill={`hsl(${Math.random()*360},90%,60%)`} opacity=".6">
+            <animate attributeName="cy" values={`0;${window.innerHeight}`} dur={`${2+Math.random()*2}s`} repeatCount="indefinite"/>
+          </circle>
+        ))}
+      </g>
+    </svg>
+  ) : null;
+
+  // ✨ NEW: Enhanced checklist interaction with usage tracking
+  const handleChecklistClick = (idx: number) => {
+    const updated = [...checklist];
+    updated[idx].done = true;
+    setChecklist(updated);
+    userJourneyTracker.trackEvent('page_view', { item: updated[idx].key, userId, action: 'checklist_item_clicked' });
+    
+    // Track task completion for usage-based pricing
+    trackUsage('task_completed', { 
+      task: updated[idx].key,
+      checklistComplete: updated.every(item => item.done)
+    });
+    
+    // Optionally auto-dismiss when all done
+    if (updated.every(item => item.done)) {
+      setShowChecklist(false);
+      trackUsage('checklist_completed', { totalTasks: updated.length });
+    }
+  };
+
+  // Dismiss checklist
+  const dismissChecklist = () => {
+    setShowChecklist(false);
+    setChecklistDismissed(true);
+    userJourneyTracker.trackEvent('page_view', { userId, action: 'checklist_dismissed' });
+  };
+
+  // Dismiss celebration
+  const dismissCelebration = () => {
+    setShowCelebration(false);
+    userJourneyTracker.trackEvent('page_view', { userId, action: 'celebration_dismissed' });
+  };
+
   console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Render: User authenticated, data loaded. Rendering dashboard.');
   return (
     <PageLayout>
+      {/* First-time celebration banner */}
+      {showCelebration && (
+        <ActionBanner 
+          message="🎉 Welcome to your SKRBL AI Dashboard! You're ready to launch your first agent."
+          variant="success"
+        />
+      )}
+      {/* Lightweight confetti animation */}
+      <Confetti />
+      
+      {/* ✨ NEW: Enhanced Usage Pressure Banner with dynamic messaging */}
+      {showUsagePressure && shouldShowUpgradePrompt() && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-2xl w-full px-4"
+        >
+          <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-6 mb-6 backdrop-blur-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="text-2xl">⚡</span>
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">
+                    {usage.agentsUsedToday >= 3 ? '🚨 Agent Usage Limit Reached!' : 
+                     usage.scansUsedToday >= 3 ? '🧠 Scan Limit Reached!' :
+                     '🔥 Usage Momentum Detected!'}
+                  </h3>
+                  <p className="text-orange-200 text-sm">
+                    {upgradeUrgency >= 70 ? 
+                      `High-velocity usage detected! You've used ${usage.agentsUsedToday} agents and ${usage.scansUsedToday} scans today.` :
+                      `You're building momentum with ${usage.agentsUsedToday} agents used today. Unlock the full arsenal!`
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => router.push('/pricing?offer=dashboard_pressure')}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
+                >
+                  {recommendation?.potentialRevenue === 67 ? 'Scale to Business ($67/mo)' : 'Upgrade to Dominate ($27/mo)'}
+                </button>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-orange-300">{usage.agentsUsedToday}/3 daily agents</span>
+                  <span className="text-orange-300">Urgency: {upgradeUrgency}%</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowUsagePressure(false)}
+                className="text-orange-300 hover:text-white text-xl ml-4"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* New-user checklist panel */}
+      {showChecklist && !checklistDismissed && (
+        <div className="max-w-xl mx-auto bg-gradient-to-r from-[#0d1117] to-[#161b22] border border-teal-400/30 rounded-xl shadow-glow p-6 mt-8 mb-8 animate-fade-in">
+          <div className="flex items-center gap-3 mb-3">
+            <span className="text-3xl">🚀</span>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#0066FF] to-teal-400 bg-clip-text text-transparent">Get Started Checklist</h2>
+            {/* ✨ NEW: Progress indicator */}
+            <span className="text-sm text-gray-400">
+              ({checklist.filter(item => item.done).length}/{checklist.length})
+            </span>
+          </div>
+          <ul className="space-y-3 mb-4">
+            {checklist.map((item, idx) => (
+              <li key={item.key} className="flex items-center gap-2">
+                <button
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${item.done ? 'bg-teal-400 border-teal-400' : 'bg-gray-800 border-gray-600 hover:border-teal-400'}`}
+                  aria-label={item.label}
+                  onClick={() => handleChecklistClick(idx)}
+                  disabled={item.done}
+                >
+                  {item.done ? <span className="text-white">✓</span> : ''}
+                </button>
+                <span className={`text-white ${item.done ? 'line-through opacity-60' : ''}`}>{item.label}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="flex items-center justify-between">
+            <button
+              className="px-5 py-2 rounded-xl font-bold bg-gradient-to-r from-[#0066FF] to-teal-400 text-white shadow-glow hover:opacity-90 focus:outline-none"
+              onClick={dismissChecklist}
+            >
+              Dismiss
+            </button>
+            {/* ✨ NEW: Value realization indicator */}
+            <div className="text-xs text-gray-400">
+              Value Score: <span className="text-teal-400 font-bold">{valueRealized}%</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -220,7 +422,7 @@ export default function Dashboard() {
           <DashboardHeader />
         </motion.div>
         
-        {/* Usage Pressure Banner - Show upgrade urgency */}
+        {/* ✨ ENHANCED: Usage Pressure Banner with dynamic metrics */}
         <motion.div variants={itemVariants}>
           <div className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-xl p-6 mb-6">
             <div className="flex items-center justify-between">
@@ -229,20 +431,33 @@ export default function Dashboard() {
                   <span className="text-2xl">⚡</span>
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg">Gateway Tier: 3 Free Agents Active</h3>
+                  <h3 className="text-white font-bold text-lg">Gateway Tier: {usage.agentsUsedToday}/3 Agents Used Today</h3>
                   <p className="text-orange-200 text-sm">
                     Unlock 11+ more agents with Starter Hustler ($27/month). Your competition isn't waiting.
                   </p>
+                  {/* ✨ NEW: Real-time usage metrics */}
+                  <div className="flex items-center gap-4 mt-2 text-xs text-orange-300">
+                    <span>Scans: {usage.scansUsedToday}/3</span>
+                    <span>•</span>
+                    <span>This Week: {usage.agentsUsedThisWeek} agents</span>
+                    <span>•</span>
+                    <span>Streak: {usage.consecutiveDaysActive} days</span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
                 <button
-                  onClick={() => router.push('/pricing')}
+                  onClick={() => {
+                    trackUsage('upgrade_click', { source: 'dashboard_banner', urgency: upgradeUrgency });
+                    router.push('/pricing?offer=dashboard_banner');
+                  }}
                   className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold rounded-xl hover:shadow-lg transition-all"
                 >
                   Upgrade to Dominate
                 </button>
-                <p className="text-orange-300 text-xs text-center">11 agents locked</p>
+                <p className="text-orange-300 text-xs text-center">
+                  {currentTier === 'free' ? '11 agents locked' : 'Advanced features available'}
+                </p>
               </div>
             </div>
           </div>
@@ -254,70 +469,22 @@ export default function Dashboard() {
           </motion.div>
         )} */}
 
-        {/* {userRole === 'premium' && (
-           <motion.div variants={itemVariants}>
-             <PremiumFeaturesPanel />
-           </motion.div>
-        )} */}
-
         <motion.div variants={itemVariants}>
-          <SectionNavigation activeSection={activeSection} onNavigate={setActiveSection} />
+          <DashboardWrapper>
+            <div>
+              {/* Dashboard content would go here */}
+            </div>
+          </DashboardWrapper>
         </motion.div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {activeSection === 'overview' && (
-              <motion.div variants={itemVariants}>
-                <DashboardOverview 
-                  lastUsed={lastUsed} 
-                  activity={activity} 
-                  suggestion={suggestion}
-                />
-              </motion.div>
-            )}
-            {/* {activeSection === 'my-agents' && (
-              <motion.div variants={itemVariants}>
-                <MyAgentsSection agents={[]} onConfigureAgent={(agentId: string) => console.log('Configure agent:', agentId)} />
-              </motion.div>
-            )} */}
-            {/* {activeSection === 'activity' && (
-              <motion.div variants={itemVariants}>
-                <ActivityFeed items={activity} />
-              </motion.div>
-            )} */}
-            {/* {activeSection === 'discover' && (
-              <motion.div variants={itemVariants}>
-                <AgentDiscovery onAgentSelect={(agentId: string) => console.log('Discover agent selected:', agentId)} />
-              </motion.div>
-            )} */}
-          </div>
-
-          <div className="lg:col-span-1 space-y-6 md:space-y-8">
-            {/* <motion.div variants={itemVariants}>
-              <QuickActionPanel onAction={(action: string) => console.log('Quick action:', action)} />
-            </motion.div> */}
-            {/* <motion.div variants={itemVariants}>
-              <UsageStats stats={{ creditsUsed: 120, creditsRemaining: 880, tasksCompleted: 15 }} />
-            </motion.div> */}
-            {/* {featuredAgent && (
-              <motion.div variants={itemVariants}>
-                <FeaturedAgent agent={featuredAgent} />
-              </motion.div>
-            )} */}
-            <motion.div variants={itemVariants}>
-              <Notifications />
-            </motion.div>
-          </div>
-        </div>
-        
-        {/* {suggestion && (
-          <SuggestionModal 
-            suggestion={suggestion} 
-            onAccept={() => { console.log("Suggestion accepted"); setSuggestion(""); }} 
-            onReject={() => { console.log("Suggestion rejected"); setSuggestion(""); }}
-          />
-        )} */}
       </motion.div>
+
+      {/* ✨ NEW: Revenue Pulse Widget - Contextual upgrade opportunities */}
+      <RevenuePulseWidget 
+        currentTier={currentTier}
+        agentsUsedToday={usage.agentsUsedToday}
+        scansUsedToday={usage.scansUsedToday}
+        className="dashboard-revenue-pulse"
+      />
     </PageLayout>
   );
 }

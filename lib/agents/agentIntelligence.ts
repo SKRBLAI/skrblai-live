@@ -631,9 +631,9 @@ export class AgentIntelligenceEngine {
   private findRelatedAgents(domain: string): string[] {
     const domainAgents: Record<string, string[]> = {
       'market_trends': ['analytics-agent', 'biz-agent', 'social-bot-agent'],
-      'user_behavior': ['analytics-agent', 'social-bot-agent', 'content-creator-agent'],
+      'user_behavior': ['analytics-agent', 'socialbot-agent', 'content-creator-agent'],
       'workflow_optimization': ['percy-agent', 'sync-agent', 'biz-agent'],
-      'viral_content': ['social-bot-agent', 'content-creator-agent', 'ad-creative-agent'],
+      'viral_content': ['socialbot-agent', 'contentcreator-agent', 'ad-creative-agent'],
       'performance_metrics': ['analytics-agent', 'biz-agent', 'clientsuccess-agent']
     };
     
@@ -672,4 +672,26 @@ export class AgentIntelligenceEngine {
 // EXPORT SINGLETON INSTANCE
 // =============================================================================
 
-export const agentIntelligenceEngine = new AgentIntelligenceEngine(); 
+export const getPublicAgents = () => {
+  // Return all visible agents for UI display (stub: use getVisibleAgents if available, else getAllAgents)
+  try {
+    // Prefer AgentLeague singleton if available
+    // eslint-disable-next-line no-undef
+    const globalScope = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : {};
+    const league = (globalScope as any).AgentLeague?.getInstance?.();
+    if (league && typeof league.getVisibleAgents === 'function') {
+      return league.getVisibleAgents();
+    }
+    // Fallback to getAllAgents
+    if (league && typeof league.getAllAgents === 'function') {
+      return league.getAllAgents();
+    }
+  } catch (error) {
+    // Handle potential errors gracefully
+    console.warn('Failed to get agents from AgentLeague:', error);
+  }
+  // Fallback: return empty array
+  return [];
+};
+
+export const agentIntelligenceEngine = new AgentIntelligenceEngine();
