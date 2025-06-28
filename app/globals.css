@@ -260,8 +260,9 @@
 /* Enhanced mobile typography with better line heights and text cutoff prevention */
 @layer base {
   body {
+    @apply bg-transparent min-h-screen antialiased font-sans overflow-x-hidden;
+    padding-top: 96px; /* Account for fixed navbar height */
     line-height: 1.6;
-    overflow-x: hidden;
     word-break: break-word;
     overflow-wrap: break-word;
   }

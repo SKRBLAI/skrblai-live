@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Agent } from '@/types/agent';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -13,6 +13,10 @@ import ConversationalPercyOnboarding from '@/components/home/ConversationalPercy
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import AgentsGrid from '@/components/agents/AgentsGrid';
 import SkrblAiText from '@/components/shared/SkrblAiText';
+import { IntegratedFloatingPercy } from '@/components/home/ConversationalPercyOnboarding';
+import AgentPreviewSection from '@/components/home/AgentPreviewSection';
+import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { ArrowRight, Sparkles, Zap, Target, Users, TrendingUp, Globe, Building, User } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -193,12 +197,12 @@ export default function HomePage() {
                 </div>
                 
                 {/* Instant Demo Input */}
-                <div className="relative">
+                <div className="relative max-w-2xl mx-auto">
                   <input
                     id="instant-demo-input"
                     type="text"
                     placeholder="Enter your website, business idea, or LinkedIn profile..."
-                    className="w-full px-6 py-4 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-lg"
+                    className="w-full px-6 py-4 pr-36 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-lg"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         const input = e.target as HTMLInputElement;
@@ -223,7 +227,7 @@ export default function HomePage() {
                     }}
                   />
                   <motion.button
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg hover:shadow-xl"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
@@ -287,18 +291,18 @@ export default function HomePage() {
               <div className="relative w-48 h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
                 <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
-                  <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                  <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
                     <CloudinaryImage
                       agent={percyAgent}
                       alt="Percy AI Concierge"
-                      width={256}
-                      height={256}
+                      width={300}
+                      height={300}
                       priority={true}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain scale-90"
                       useCloudinary={true}
                       quality={90}
                       webp={true}
-                      cloudinaryTransformation="ar_1:1,c_fill,g_face"
+                      cloudinaryTransformation="ar_1:1,c_fit"
                       fallbackToLocal={true}
                       fallbackImagePath="/images/agents-percy-nobg-skrblai.webp"
                     />
@@ -567,6 +571,9 @@ export default function HomePage() {
         </section>
       </div>
       </main>
+      
+      {/* Integrated FloatingPercy for additional assistance */}
+      <IntegratedFloatingPercy />
     </div>
   );
 }

@@ -121,6 +121,10 @@ export default function ConversationalPercyOnboarding() {
   const [isScanning, setIsScanning] = useState(false); // New: indicates active scan
   const [showBurst, setShowBurst] = useState(false); // particle burst on agent summon
   
+  // ✨ NEW: Floating Percy Integration
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [showFloatingChat, setShowFloatingChat] = useState(false);
+  
   // ✨ NEW: Enhanced Intelligence State
   const [percyState, setPercyState] = useState<'idle' | 'analyzing' | 'thinking' | 'celebrating'>('idle');
   const [intelligenceScore, setIntelligenceScore] = useState(147); // Percy's IQ
@@ -1136,6 +1140,135 @@ Based on this analysis, here are my cosmic recommendations:`
           ))}
         </motion.div>
       )}
+
+      {/* Floating Percy interface at the end */}
+      {showFloatingChat && (
+        <motion.div
+          initial={{ opacity: 0, y: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="fixed bottom-4 right-4 z-50"
+        >
+          {/* Floating Percy content */}
+          {/* Add your floating Percy content here */}
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
+// ✨ NEW: Integrated FloatingPercy functionality
+export function IntegratedFloatingPercy() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: 'assistant' | 'user'; content: string }>>([
+    { role: 'assistant', content: 'Hi! I\'m Percy, your AI assistant. How can I help you today?' }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const { generateSmartResponse, trackBehavior, conversionScore, conversationPhase } = usePercyContext();
+  const { session } = useAuth();
+  const pathname = usePathname();
+
+  const toggleOpen = () => setIsOpen(!isOpen);
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!inputValue.trim()) return;
+
+    setMessages(prev => [...prev, { role: 'user', content: inputValue }]);
+    setInputValue('');
+
+    // Generate response
+    setTimeout(() => {
+      const responses = [
+        "I can help you with that! Would you like me to connect you with one of our specialized AI agents?",
+        "Great question! Based on your needs, I'd recommend checking out our agent capabilities.",
+        "Let me analyze that for you. I can provide insights or connect you with the right agent for your specific needs."
+      ];
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+    }, 1000);
+  };
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="bg-gray-900/95 backdrop-blur-lg border border-cyan-500/30 rounded-2xl w-80 mb-4 shadow-2xl"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-cyan-500/20">
+              <div className="flex items-center space-x-3">
+                <PercyAvatar size="sm" />
+                <div>
+                  <h3 className="text-white font-medium">Percy Assistant</h3>
+                  <p className="text-xs text-cyan-300">Your AI Concierge</p>
+                </div>
+              </div>
+              <button onClick={toggleOpen} className="text-gray-400 hover:text-white">
+                ✕
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div className="h-64 overflow-y-auto p-4 space-y-3">
+              {messages.map((message, index) => (
+                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] p-3 rounded-lg ${
+                    message.role === 'user' 
+                      ? 'bg-cyan-600 text-white' 
+                      : 'bg-white/10 text-white border border-white/20'
+                  }`}>
+                    {message.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="p-4 border-t border-cyan-500/20">
+              <form onSubmit={handleSubmit} className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Type your message..."
+                  className="flex-1 bg-gray-800 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <button
+                  type="submit"
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-500"
+                >
+                  ✈
+                </button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Button */}
+      <motion.button
+        onClick={toggleOpen}
+        className={`${isOpen ? 'bg-white/10' : 'bg-gradient-to-r from-cyan-500 to-blue-600'} rounded-full p-3 shadow-lg hover:shadow-xl transition-all`}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        {isOpen ? (
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <PercyAvatar size="sm" />
+        )}
+        
+        {!isOpen && (
+          <span className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full animate-pulse"></span>
+        )}
+      </motion.button>
     </div>
   );
 }

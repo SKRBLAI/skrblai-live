@@ -6,7 +6,6 @@ import PageTransition from '@/components/ui/PageTransition';
 import PercyProvider from '@/components/assistant/PercyProvider';
 import { BannerProvider } from '@/components/context/BannerContext';
 import { AuthProvider } from '@/components/context/AuthContext';
-import PercyWidget from '@/components/percy/PercyWidget';
 import Navbar from '@/components/layout/Navbar';
 import CosmicBackground from '@/components/ui/CosmicBackground';
 import type { ReactNode } from "react";
@@ -52,8 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </PageTransition>
           </div>
 
-          {/* Percy Widget - RE-ENABLED FOR PHASE 2 TESTING */}
-          <PercyWidget />
+          {/* Percy Widget removed - now integrated into ConversationalPercyOnboarding */}
                   </BannerProvider>
           </PercyProvider>
         </AuthProvider>
