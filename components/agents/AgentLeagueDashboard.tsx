@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import PercyFigure from '@/components/home/PercyFigure';
 import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -146,21 +147,8 @@ export default function AgentLeagueDashboard() {
       {/* Percy Centerpiece */}
       <div className="flex flex-col items-center mb-8 md:mb-10">
         <div className="text-center mobile-text-safe">
-          <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-4">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
-            <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
-              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                <Image
-                  src="/images/agents-percy-nobg-skrblai.webp"
-                  alt="Percy - Cosmic Concierge"
-                  width={88}
-                  height={88}
-                  className="w-full h-full object-cover rounded-full"
-                  priority
-                />
-              </div>
-            </div>
-            <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
+          <div className="flex flex-col items-center justify-center mb-4">
+            <PercyFigure size="md" animate showGlow />
           </div>
           <h2 className="text-xl md:text-2xl font-bold text-white mb-2 no-text-cutoff">
             Welcome to Percy's League of Superheroes
@@ -177,15 +165,17 @@ export default function AgentLeagueDashboard() {
           <p className="mobile-text-safe">No agents available. Please try again later.</p>
         </div>
       ) : (
-        <div className="relative">
+        <div className="relative" role="region" aria-label="Agent League">
           {isMobile ? (
             <div className="relative">
               {/* Slider Navigation */}
               <div className="flex justify-between items-center mb-4">
                 <button
                   onClick={prevSlide}
-                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                   disabled={currentSlide === 0}
+                  aria-label="Previous agent"
+                  tabIndex={0}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -198,15 +188,17 @@ export default function AgentLeagueDashboard() {
                 
                 <button
                   onClick={nextSlide}
-                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all"
+                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                   disabled={currentSlide === totalSlides - 1}
+                  aria-label="Next agent"
+                  tabIndex={0}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Mobile Agent Slider */}
-              <div className="overflow-hidden w-full">
+              <div className="overflow-x-auto overflow-y-visible w-full scrollbar-thin scrollbar-thumb-cyan-700/30" style={{ WebkitOverflowScrolling: 'touch' }}>
                 <motion.div
                   className="flex"
                   animate={{ x: `-${currentSlide * 100}%` }}

@@ -17,11 +17,33 @@ export async function POST(
 ) {
   const { agentId } = params;
   const payload = await req.json();
-  const userId = null; // Placeholder - TODO: Implement Supabase auth check
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
+  // ✅ PROPER AUTH VALIDATION - Get user from auth header
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return NextResponse.json({ error: 'Authorization token required' }, { status: 401 });
   }
+
+  // Validate the token and get user
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  
+  if (authError || !user) {
+    console.error('[Agent Launch] Auth validation failed:', authError?.message);
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+  }
+
+  const userId = user.id;
+
+  // Get user role for workflow permissions
+  const { data: userRoleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .maybeSingle();
+    
+  const userRole = userRoleData?.role || 'free';
 
   // Log the initiation of the agent launch and get the unique ID
   const { data: launchData, error: logError } = await supabase
@@ -50,7 +72,6 @@ export async function POST(
   try {
     // Execute the agent's primary workflow
     // const userRole = typeof sessionClaims === 'object' && sessionClaims !== null && 'metadata' in sessionClaims && typeof sessionClaims.metadata === 'object' && sessionClaims.metadata !== null && 'role' in sessionClaims.metadata ? sessionClaims.metadata.role as string : 'user'; // Removed Clerk sessionClaims
-    const userRole = 'user'; // Placeholder - TODO: Implement Supabase role check if needed
     const result = await runAgentWorkflow(agentId, payload, userRole);
 
     // If workflow execution is successful, trigger n8n webhook

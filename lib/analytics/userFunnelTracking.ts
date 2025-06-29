@@ -51,16 +51,37 @@ interface UserJourney {
   userTier: string;
 }
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Supabase client with error handling for missing environment variables
+let supabase: any = null;
+
+try {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    console.warn('[Funnel Tracking] Missing Supabase environment variables - analytics will be disabled');
+    console.warn('Missing:', {
+      url: !supabaseUrl ? 'NEXT_PUBLIC_SUPABASE_URL' : null,
+      key: !supabaseKey ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : null
+    });
+  } else {
+    supabase = createClient(supabaseUrl, supabaseKey);
+  }
+} catch (error) {
+  console.error('[Funnel Tracking] Error initializing Supabase client:', error);
+}
 
 /**
  * Track a funnel event
  */
 export async function trackFunnelEvent(event: Omit<FunnelEvent, 'timestamp'>): Promise<void> {
   try {
+    // Skip if Supabase is not available
+    if (!supabase) {
+      console.warn('[Funnel Tracking] Supabase not available - skipping event tracking');
+      return;
+    }
+
     const eventWithTimestamp: FunnelEvent = {
       ...event,
       timestamp: new Date().toISOString()
@@ -97,6 +118,11 @@ export async function trackFunnelEvent(event: Omit<FunnelEvent, 'timestamp'>): P
  */
 async function updateUserJourneyCache(userId: string, event: FunnelEvent): Promise<void> {
   try {
+    // Skip if Supabase is not available
+    if (!supabase) {
+      return;
+    }
+
     // Get or create user journey record
     const { data: existingJourney, error: fetchError } = await supabase
       .from('user_journeys')
@@ -157,6 +183,22 @@ export async function getFunnelMetrics(
   timeRange: '24h' | '7d' | '30d' | '90d' = '30d'
 ): Promise<FunnelMetrics> {
   try {
+    // Return default metrics if Supabase is not available
+    if (!supabase) {
+      console.warn('[Funnel Metrics] Supabase not available - returning default metrics');
+      return {
+        totalUsers: 0,
+        signupRate: 0,
+        activationRate: 0,
+        retentionRate: 0,
+        conversionRate: 0,
+        averageSessionDuration: 0,
+        topAgents: [],
+        dropoffPoints: [],
+        cohortAnalysis: []
+      };
+    }
+
     const timeRangeHours = {
       '24h': 24,
       '7d': 168,
@@ -179,15 +221,15 @@ export async function getFunnelMetrics(
     }
 
     // Calculate metrics
-    const totalUsers = new Set(events?.filter(e => e.user_id).map(e => e.user_id)).size;
-    const signupStarts = events?.filter(e => e.event_type === 'signup_start').length || 0;
-    const signupCompletes = events?.filter(e => e.event_type === 'signup_complete').length || 0;
-    const agentLaunches = events?.filter(e => e.event_type === 'agent_launch').length || 0;
-    const workflowCompletes = events?.filter(e => e.event_type === 'workflow_complete').length || 0;
+    const totalUsers = new Set(events?.filter((e: any) => e.user_id).map((e: any) => e.user_id)).size;
+    const signupStarts = events?.filter((e: any) => e.event_type === 'signup_start').length || 0;
+    const signupCompletes = events?.filter((e: any) => e.event_type === 'signup_complete').length || 0;
+    const agentLaunches = events?.filter((e: any) => e.event_type === 'agent_launch').length || 0;
+    const workflowCompletes = events?.filter((e: any) => e.event_type === 'workflow_complete').length || 0;
 
     // Agent usage analysis
-    const agentEvents = events?.filter(e => e.agent_id) || [];
-    const agentStats = agentEvents.reduce((acc, event) => {
+    const agentEvents = events?.filter((e: any) => e.agent_id) || [];
+    const agentStats = agentEvents.reduce((acc: any, event: any) => {
       const agentId = event.agent_id!;
       if (!acc[agentId]) {
         acc[agentId] = { launches: 0, completes: 0 };
@@ -208,7 +250,7 @@ export async function getFunnelMetrics(
 
     // Calculate dropoff points
     const funnelSteps = [
-      { step: 'page_view', count: events?.filter(e => e.event_type === 'page_view').length || 0 },
+      { step: 'page_view', count: events?.filter((e: any) => e.event_type === 'page_view').length || 0 },
       { step: 'signup_start', count: signupStarts },
       { step: 'signup_complete', count: signupCompletes },
       { step: 'agent_launch', count: agentLaunches },
@@ -250,6 +292,12 @@ export async function getFunnelMetrics(
  */
 export async function getUserJourney(userId: string, sessionId?: string): Promise<UserJourney | null> {
   try {
+    // Return null if Supabase is not available
+    if (!supabase) {
+      console.warn('[User Journey] Supabase not available - returning null');
+      return null;
+    }
+
     let query = supabase
       .from('user_journeys')
       .select('*')

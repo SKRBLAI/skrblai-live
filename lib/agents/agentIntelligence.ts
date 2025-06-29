@@ -673,25 +673,80 @@ export class AgentIntelligenceEngine {
 // =============================================================================
 
 export const getPublicAgents = () => {
-  // Return all visible agents for UI display (stub: use getVisibleAgents if available, else getAllAgents)
+  // Return all visible agents for UI display, mapped to Agent type format
   try {
-    // Prefer AgentLeague singleton if available
-    // eslint-disable-next-line no-undef
-    const globalScope = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : {};
-    const league = (globalScope as any).AgentLeague?.getInstance?.();
-    if (league && typeof league.getVisibleAgents === 'function') {
-      return league.getVisibleAgents();
-    }
-    // Fallback to getAllAgents
-    if (league && typeof league.getAllAgents === 'function') {
-      return league.getAllAgents();
-    }
+    const agentConfigs = agentLeague.getVisibleAgents();
+    
+    // Map AgentConfiguration[] to Agent[] format
+    return agentConfigs.map((config): any => ({
+      id: config.id,
+      name: config.name,
+      description: config.description,
+      category: config.category,
+      emoji: config.emoji,
+      visible: config.visible,
+      premium: config.premium,
+      imageSlug: config.imageSlug,
+      capabilities: config.capabilities.map(cap => cap.category), // Map AgentCapability[] to string[]
+      
+      // Superhero fields from personality
+      superheroName: config.personality?.superheroName,
+      origin: config.personality?.origin,
+      powers: config.personality?.powers,
+      weakness: config.personality?.weakness,
+      catchphrase: config.personality?.catchphrase,
+      nemesis: config.personality?.nemesis,
+      backstory: config.personality?.backstory,
+      
+      // Enhanced conversation capabilities
+      canConverse: config.canConverse,
+      recommendedHelpers: config.recommendedHelpers,
+      handoffTriggers: config.handoffTriggers,
+      conversationCapabilities: config.conversationCapabilities,
+      
+      // Technical fields
+      n8nWorkflowId: config.n8nWorkflowId,
+      primaryCapability: config.capabilities[0]?.category,
+      
+      // UI fields
+      usageCount: 0,
+      performanceScore: 0,
+      unlocked: true,
+      hasImage: !!config.imageSlug,
+      roleRequired: config.roleRequired,
+      upgradeRequired: config.premium ? 'premium' : null
+    }));
   } catch (error) {
-    // Handle potential errors gracefully
     console.warn('Failed to get agents from AgentLeague:', error);
+    // Fallback to getAllAgents
+    try {
+      const agentConfigs = agentLeague.getAllAgents();
+      return agentConfigs.map((config): any => ({
+        id: config.id,
+        name: config.name,
+        description: config.description,
+        category: config.category,
+        emoji: config.emoji,
+        visible: config.visible,
+        premium: config.premium,
+        imageSlug: config.imageSlug,
+        capabilities: config.capabilities.map(cap => cap.category),
+        superheroName: config.personality?.superheroName,
+        canConverse: config.canConverse,
+        recommendedHelpers: config.recommendedHelpers,
+        handoffTriggers: config.handoffTriggers,
+        conversationCapabilities: config.conversationCapabilities,
+        usageCount: 0,
+        performanceScore: 0,
+        unlocked: true,
+        hasImage: !!config.imageSlug,
+        upgradeRequired: config.premium ? 'premium' : null
+      }));
+    } catch (fallbackError) {
+      console.error('Failed to get agents from AgentLeague fallback:', fallbackError);
+      return [];
+    }
   }
-  // Fallback: return empty array
-  return [];
 };
 
 export const agentIntelligenceEngine = new AgentIntelligenceEngine();

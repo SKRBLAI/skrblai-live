@@ -842,14 +842,17 @@ Based on this analysis, here are my cosmic recommendations:`
   }, []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto" data-percy-onboarding>
+    <div className="w-full max-w-6xl mx-auto relative" data-percy-onboarding>
+  {/* Gradient Glow Background */}
+  <div
+    aria-hidden="true"
+    className="absolute inset-0 z-0 pointer-events-none select-none bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-purple-500/30 blur-2xl opacity-75 rounded-2xl"
+    style={{ filter: 'blur(48px)' }}
+  />
       {/* AI Concierge Header Section with Percy Figure */}
       <div className="text-center mb-8">
         <div className="flex flex-col items-center justify-center space-y-4">
-          {/* Percy Figure restored */}
-          <div className="relative">
-            <PercyFigure />
-          </div>
+
           
           <h2 className="text-3xl font-bold text-white">
             Meet Percy, Your Cosmic AI Concierge
@@ -874,25 +877,7 @@ Based on this analysis, here are my cosmic recommendations:`
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center py-8 relative"
               >
-                <div className="relative inline-block">
-                  <PercyAvatar size="lg" />
-                  {/* Intelligence State Indicator */}
-                  <motion.div 
-                    className={`absolute -top-2 -right-2 w-6 h-6 rounded-full border-2 border-white ${
-                      percyState === 'analyzing' ? 'bg-yellow-400 animate-pulse' :
-                      percyState === 'thinking' ? 'bg-blue-400 animate-ping' :
-                      percyState === 'celebrating' ? 'bg-green-400 animate-bounce' :
-                      'bg-teal-400'
-                    }`}
-                    animate={percyState !== 'idle' ? { scale: [1, 1.2, 1] } : {}}
-                    transition={{ repeat: Infinity, duration: 1 }}
-                  >
-                    {percyState === 'analyzing' && <Brain className="w-3 h-3 text-black m-1.5" />}
-                    {percyState === 'thinking' && <Target className="w-3 h-3 text-white m-1.5" />}
-                    {percyState === 'celebrating' && <Zap className="w-3 h-3 text-white m-1.5" />}
-                    {percyState === 'idle' && <Zap className="w-3 h-3 text-white m-1.5" />}
-                  </motion.div>
-                </div>
+
                 
                 <h3 className="text-xl font-bold text-white mt-4 mb-2 flex items-center justify-center gap-2">
                   Hey, I'm Percy! 👋

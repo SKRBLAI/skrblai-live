@@ -47,7 +47,7 @@ const nextConfig = {
   },
   transpilePackages: ['@stripe/stripe-js', 'framer-motion'],
   trailingSlash: false,
-  output: 'standalone',
+  // output: 'standalone', // Temporarily disabled to fix API route build issues
   distDir: '.next',
   webpack: (config, { isServer }) => {
     if (!isServer) {

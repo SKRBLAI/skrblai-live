@@ -8,17 +8,39 @@ const supabase = createClient(
 );
 
 export async function GET(req: Request) {
-  // const userId = null; // Placeholder - TODO: Implement Supabase auth check
+  // ✅ PROPER AUTH VALIDATION - Get user from auth header
+  const authHeader = req.headers.get('authorization');
+  const token = authHeader?.replace('Bearer ', '');
+  
+  if (!token) {
+    return NextResponse.json({ error: 'Authorization token required' }, { status: 401 });
+  }
+
+  // Validate the token and get user
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+  
+  if (authError || !user) {
+    console.error('[Analytics] Auth validation failed:', authError?.message);
+    return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
+  }
+
+  // Check if user is admin
+  const { data: userRoleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle();
+    
+  const userRole = userRoleData?.role;
+  const isAdmin = userRole === 'admin' || userRole === 'superadmin' || 
+                  user.email?.endsWith('@skrbl.ai') || user.email?.endsWith('@skrblai.io');
+  
+  if (!isAdmin) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+
   const { searchParams } = new URL(req.url);
   const statType = searchParams.get('stat');
-
-  // Only admins can access these analytics
-  // const userRole = null; // Placeholder - (sessionClaims as { metadata?: { role?: string } } | null)?.metadata?.role;
-  // if (userRole !== 'admin') {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-  // }
-  // For now, allow analytics to proceed without auth for cleanup purposes.
-  // Proper Supabase auth check needs to be added here later.
 
   try {
     switch (statType) {

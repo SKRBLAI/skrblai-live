@@ -139,6 +139,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     <>
       <motion.div
         ref={cardRef}
+        role="group"
+        aria-label={`${agent.name} agent card`}
         tabIndex={0}
         initial={{ opacity: 0, y: 24, scale: 0.95 }}
         animate={{
@@ -167,7 +169,6 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           filter: 'drop-shadow(' + (isRecommended ? glow.recommended : glow.resting) + ')',
           zIndex: isRecommended ? 10 : 1
         }}
-        aria-label={`${agent.name} agent card`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
@@ -188,7 +189,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + 0.05 * index }}
           >
-            <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-nowrap no-text-cutoff">
+            <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-normal break-words truncate no-text-cutoff">
               {agent.name}
             </h3>
           </motion.div>
@@ -196,7 +197,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           {/* Agent Intelligence Overlay */}
           {showIntelligence && agentIntelligence && (
             <motion.div
-              className="absolute top-2 left-2 right-2 z-10"
+              className="absolute top-2 left-2 right-2 z-10 max-w-xs md:max-w-sm overflow-auto"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + 0.05 * index }}
@@ -225,7 +226,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           {/* Predictive Insights Overlay (on hover) */}
           {showIntelligence && isHovered && predictiveInsights.length > 0 && (
             <motion.div
-              className="absolute top-16 left-2 right-2 z-20"
+              className="absolute top-16 left-2 right-2 z-20 max-w-xs md:max-w-sm overflow-auto"
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
@@ -254,9 +255,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-center pb-[1%]">
             {/* LEARN Button Hotspot - Left position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleLearnClick}
               aria-label={`Learn about ${agent.name}`}
+              tabIndex={0}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               style={{ marginRight: '2%' }}
@@ -267,9 +269,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             
             {/* CHAT Button Hotspot - Center position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleChatClick}
               aria-label={`Chat with ${agent.name}`}
+              tabIndex={0}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               style={{ marginRight: '2%' }}
@@ -280,9 +283,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             
             {/* LAUNCH Button Hotspot - Right position */}
             <motion.button
-              className="w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none focus:ring-2 focus:ring-green-400/50 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
               onClick={handleLaunchClick}
               aria-label={`Launch ${agent.name}`}
+              tabIndex={0}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
             >
