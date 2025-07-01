@@ -113,7 +113,11 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
                   src={getAgentImagePath(agent)}
                   alt={agent.name}
                   className="agent-image w-20 h-20 object-contain rounded-full"
-                  style={{ transform: 'scale(0.85)' }}
+                  style={{ 
+                    transform: 'scale(0.95)',
+                    objectFit: 'contain',
+                    objectPosition: 'center center'
+                  }}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;

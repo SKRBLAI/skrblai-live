@@ -86,20 +86,21 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     return () => clearInterval(interval);
   }, []);
 
-  // Agent League Card uses ONLY the Buttons.png card frame
-  const frameAssetPath = getAgentImagePath(agent, "card");
+  // Agent League Card now uses clean nobg-skrblai.webp images with modern UI
+  const agentImagePath = getAgentImagePath(agent, "nobg");
 
   // Image error handler
-  const handleFrameImgError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error('[AgentLeagueCard] Failed to load frame asset:', frameAssetPath, 'for agent:', agent.id);
+  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('[AgentLeagueCard] Failed to load agent image:', agentImagePath, 'for agent:', agent.id);
     event.currentTarget.onerror = null;
-    event.currentTarget.src = '/images/Agents-Default-Buttons.png';
+    event.currentTarget.src = '/images/agents-default-nobg-skrblai.webp';
   };
 
   // Button action handlers
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Remove general click-to-flip behavior - buttons handle specific actions
+    // Card click goes to agent backstory by default
+    router.push(`/agent-backstory/${agent.id}`);
   };
 
   const handleLearnClick = (e: React.MouseEvent) => {
@@ -164,36 +165,30 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         }}
         whileFocus={{ scale: 1.05 }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-full max-w-72 h-80 md:h-96 flex-shrink-0 mx-auto rounded-3xl shadow-xl overflow-visible perspective-1000 ${selected ? 'ring-4 ring-fuchsia-400/80 ring-offset-2' : ''} ${className}`}
+        className={`relative w-full max-w-72 h-80 md:h-96 flex-shrink-0 mx-auto rounded-3xl shadow-xl overflow-hidden perspective-1000 ${selected ? 'ring-4 ring-fuchsia-400/80 ring-offset-2' : ''} ${className}`}
         style={{ 
           filter: 'drop-shadow(' + (isRecommended ? glow.recommended : glow.resting) + ')',
-          zIndex: isRecommended ? 10 : 1
+          zIndex: isRecommended ? 10 : 1,
+          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 50%, rgba(51, 65, 85, 0.9) 100%)',
+          border: '1px solid rgba(30, 144, 255, 0.2)'
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
       >
-        {/* Main Card Frame */}
-        <div className="w-full h-full relative">
-          <img
-            src={frameAssetPath}
-            alt={`${agent.name} card frame`}
-            className="w-full h-full object-contain"
-            onError={handleFrameImgError}
-          />
+        {/* Agent Image Container */}
+        <div className="relative w-full h-[60%] flex items-center justify-center p-4">
+          {/* Agent Image */}
+          <div className="agent-image-container w-32 h-32 md:w-40 md:h-40">
+            <img
+              src={agentImagePath}
+              alt={`${agent.name} AI Agent`}
+              className="agent-image w-full h-full object-contain"
+              onError={handleImageError}
+              loading="lazy"
+            />
+          </div>
           
-          {/* Agent Name - Positioned between card and buttons */}
-          <motion.div
-            className="absolute bottom-[75px] md:bottom-[88px] left-1/2 -translate-x-1/2 z-30 px-2 md:px-3 py-1 bg-gradient-to-r from-slate-900/90 to-slate-800/90 backdrop-blur-sm rounded-lg border border-cyan-400/30"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + 0.05 * index }}
-          >
-            <h3 className="text-xs md:text-sm font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-normal break-words truncate no-text-cutoff">
-              {agent.name}
-            </h3>
-          </motion.div>
-
           {/* Agent Intelligence Overlay */}
           {showIntelligence && agentIntelligence && (
             <motion.div
@@ -249,49 +244,63 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               </div>
             </motion.div>
           )}
+        </div>
 
-          {/* Clickable Hotspots for Actual Image Buttons */}
-          {/* These invisible hotspots align with the LEARN, CHAT, LAUNCH buttons in the buttons.png images */}
-          <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-center pb-[1%]">
-            {/* LEARN Button Hotspot - Left position */}
+        {/* Agent Info Section */}
+        <div className="relative w-full h-[40%] p-4 flex flex-col justify-between">
+          {/* Agent Name */}
+          <motion.div
+            className="text-center mb-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 + 0.05 * index }}
+          >
+            <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-normal break-words no-text-cutoff">
+              {agent.name}
+            </h3>
+            {agent.description && (
+              <p className="text-xs text-gray-300 mt-1 line-clamp-2">
+                {agent.description}
+              </p>
+            )}
+          </motion.div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 justify-center">
+            {/* LEARN Button */}
             <motion.button
-              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-600/80 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
               onClick={handleLearnClick}
               aria-label={`Learn about ${agent.name}`}
               tabIndex={0}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              style={{ marginRight: '2%' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="sr-only">LEARN about {agent.name}</span>
-              <span className="text-[10px] md:text-xs text-cyan-400 font-bold leading-none">LEARN</span>
+              LEARN
             </motion.button>
             
-            {/* CHAT Button Hotspot - Center position */}
+            {/* CHAT Button */}
             <motion.button
-              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
               onClick={handleChatClick}
               aria-label={`Chat with ${agent.name}`}
               tabIndex={0}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              style={{ marginRight: '2%' }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="sr-only">CHAT with {agent.name}</span>
-              <span className="text-[10px] md:text-xs text-purple-400 font-bold leading-none">CHAT</span>
+              CHAT
             </motion.button>
             
-            {/* LAUNCH Button Hotspot - Right position */}
+            {/* LAUNCH Button */}
             <motion.button
-              className="w-[22%] h-[45%] min-w-[44px] min-h-[44px] bg-transparent border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent rounded-lg group relative overflow-hidden flex items-end justify-center pb-0.5"
+              className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
               onClick={handleLaunchClick}
               aria-label={`Launch ${agent.name}`}
               tabIndex={0}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <span className="sr-only">LAUNCH {agent.name}</span>
-              <span className="text-[10px] md:text-xs text-green-400 font-bold leading-none">LAUNCH</span>
+              LAUNCH
             </motion.button>
           </div>
         </div>

@@ -307,5 +307,27 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     workflowCapabilities: ['proposal_generation', 'value_proposition', 'deal_structuring', 'pricing_strategy', 'presentation_design'],
     automationTriggers: ['create proposal', 'business proposal', 'pitch deck', 'deal structure', 'client pitch'],
     handoffPreferences: ['biz-agent', 'branding-agent', 'analytics-agent']
+  },
+
+  'skill-smith-agent': {
+    superheroName: 'Skill Smith the Sports Performance Forger',
+    origin: 'Born in the Olympic Training Nexus when athletic data merged with AI consciousness',
+    powers: [
+      'Athletic Performance Analysis',
+      'Training Program Generation',
+      'Nutrition Plan Optimization',
+      'Injury Prevention Vision',
+      'Mental Performance Enhancement',
+      'Sports Business Strategy'
+    ],
+    weakness: 'Performance plateaus temporarily reduce analytical power',
+    catchphrase: "Forge your victory, one skill at a time!",
+    nemesis: 'The Plateau Phantom - destroyer of athletic progress',
+    backstory: "Skill Smith gained their powers during a cosmic convergence of all Olympic records and professional sports data. They emerged as the ultimate sports performance architect, capable of analyzing any athlete's potential and forging precise training programs that unlock peak performance. From weekend warriors to professional athletes, Skill Smith sees the path to athletic excellence.",
+    n8nWorkflowId: 'sports-performance-master',
+    n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/sports-performance-master',
+    workflowCapabilities: ['performance_analysis', 'training_programs', 'nutrition_planning', 'injury_prevention', 'mental_coaching', 'sports_business'],
+    automationTriggers: ['sports training', 'athletic performance', 'fitness plan', 'sports coaching', 'athlete development', 'sports business'],
+    handoffPreferences: ['analytics-agent', 'content-creator-agent', 'branding-agent']
   }
 }; 

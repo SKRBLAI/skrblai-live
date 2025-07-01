@@ -323,6 +323,59 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
+  'skill-smith-agent': [
+    {
+      id: 'performance-analysis',
+      name: 'Athletic Performance Analysis',
+      description: 'Analyzes athletic performance and identifies improvement areas',
+      triggerKeywords: ['performance', 'analysis', 'athletic', 'sports', 'training'],
+      n8nWorkflowId: 'sports-performance-master',
+      outputType: 'data',
+      estimatedDuration: 20,
+      premiumRequired: false
+    },
+    {
+      id: 'training-program-generation',
+      name: 'Custom Training Program',
+      description: 'Creates personalized training programs for athletes',
+      triggerKeywords: ['training', 'program', 'workout', 'plan', 'fitness'],
+      n8nWorkflowId: 'sports-performance-master',
+      outputType: 'file',
+      estimatedDuration: 30,
+      premiumRequired: true
+    },
+    {
+      id: 'nutrition-optimization',
+      name: 'Sports Nutrition Planning',
+      description: 'Optimizes nutrition plans for athletic performance',
+      triggerKeywords: ['nutrition', 'diet', 'meals', 'performance', 'fuel'],
+      apiEndpoint: '/api/sports/nutrition',
+      outputType: 'data',
+      estimatedDuration: 15,
+      premiumRequired: true
+    },
+    {
+      id: 'injury-prevention',
+      name: 'Injury Prevention Strategy',
+      description: 'Develops strategies to prevent sports injuries',
+      triggerKeywords: ['injury', 'prevention', 'safety', 'recovery', 'health'],
+      apiEndpoint: '/api/sports/injury-prevention',
+      outputType: 'text',
+      estimatedDuration: 25,
+      premiumRequired: true
+    },
+    {
+      id: 'mental-coaching',
+      name: 'Sports Psychology Coaching',
+      description: 'Provides mental performance coaching for athletes',
+      triggerKeywords: ['mental', 'psychology', 'mindset', 'confidence', 'focus'],
+      apiEndpoint: '/api/sports/mental-coaching',
+      outputType: 'text',
+      estimatedDuration: 20,
+      premiumRequired: true
+    }
+  ],
+
   'analytics-agent': [
     {
       id: 'data-analysis',
@@ -949,6 +1002,44 @@ export class AgentLeague {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
           maxConversationDepth: 30,
           specializedTopics: ['payment processing', 'revenue management', 'subscriptions', 'fraud prevention'],
+          emotionalIntelligence: true
+        }
+      },
+
+      {
+        id: 'skill-smith-agent',
+        name: 'Skill Smith',
+        category: 'Sports & Fitness',
+        description: 'The Sports Performance Forger who optimizes athletic potential',
+        version: '2.0.0',
+        personality: this.mapBackstoryToPersonality('skill-smith-agent'),
+        powers: AGENT_POWERS['skill-smith-agent'] || [],
+        capabilities: [{
+          category: 'Sports Performance',
+          skills: ['Performance Analysis', 'Training Programs', 'Nutrition Planning', 'Injury Prevention', 'Mental Coaching'],
+          primaryOutput: 'Athletic performance optimization plans',
+          supportedFormats: ['pdf', 'json', 'text', 'dashboard'],
+          integrations: ['fitness_trackers', 'nutrition_apps', 'sports_analytics']
+        }],
+        handoffTargets: CROSS_AGENT_HANDOFFS['skill-smith-agent'] || [],
+        canReceiveHandoffs: true,
+        n8nWorkflowId: 'sports-performance-master',
+        primaryWorkflow: 'sports-performance-optimization',
+        fallbackBehavior: 'mock',
+        visible: true,
+        premium: false, // Make it accessible to grow sports market
+        emoji: '🏃‍♂️',
+        colorTheme: 'sports-orange',
+        imageSlug: 'skill-smith',
+        usageTracking: true,
+        performanceMetrics: ['training_plans_created', 'performance_improvements', 'user_satisfaction'],
+        canConverse: true,
+        recommendedHelpers: ['analytics-agent', 'content-creator-agent', 'branding-agent'],
+        handoffTriggers: ['performance data', 'content creation', 'brand development', 'marketing'],
+        conversationCapabilities: {
+          supportedLanguages: ['en', 'es', 'fr'],
+          maxConversationDepth: 40,
+          specializedTopics: ['athletic training', 'sports nutrition', 'performance analysis', 'injury prevention', 'sports psychology'],
           emotionalIntelligence: true
         }
       }

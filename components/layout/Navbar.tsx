@@ -1,99 +1,100 @@
-'use client';
-import React, { useEffect, useState, useRef } from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import BrandLogo from '@/components/ui/BrandLogo';
-import { Menu, X, Sparkles } from 'lucide-react';
+"use client";
 
+import React, { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Sparkles } from "lucide-react";
+
+/**
+ * Premium animated Navbar with single video logo (desktop & mobile).
+ * - Responsive, accessible, and mobile-first.
+ * - Uses Framer Motion for subtle motion flourishes.
+ * - Removes all legacy duplicated logos / taglines.
+ */
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const onHome = pathname === '/';
-  
+
+  // Prefetch heavy routes for a snappy UX.
   useEffect(() => {
-    router.prefetch('/services');
-    router.prefetch('/pricing');
-    router.prefetch('/dashboard');
-    router.prefetch('/agents');
+    ["/services", "/pricing", "/dashboard", "/agents", "/sports"].forEach((route) =>
+      router.prefetch(route)
+    );
   }, [router]);
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
       className="fixed top-0 left-0 right-0 z-50 p-3"
     >
-      <nav className="relative max-w-7xl mx-auto">
-        {/* Premium Navbar Container with Blue Border */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-gray-900/98 to-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-[#0066FF]/30" />
+      <nav className="relative mx-auto max-w-7xl">
+        {/* Fancy glass + glow container */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-[#0066FF]/30 bg-gradient-to-r from-slate-900/95 via-gray-900/98 to-slate-900/95 backdrop-blur-xl shadow-2xl" />
         {/* Subtle blue glow */}
-        <div className="absolute -inset-0.5 bg-[#0066FF]/20 blur-xl opacity-20 rounded-2xl" />
+        
 
-        {/* Navigation Content - Everything contained within */}
-        <div className="relative px-4 py-3">
-          <div className="flex items-center justify-between h-20">
-            
-            {/* SINGLE Brand Logo Section (Circled 1 - Keep this) */}
-            <motion.div 
-              className="flex items-center space-x-3 flex-shrink-0 -mb-1"
+        {/* NAV CONTENT */}
+        <div className="relative py-3 px-4">
+          <div className="flex h-16 md:h-20 items-center justify-between">
+            {/* Brand */}
+            <motion.div
               whileHover={{ scale: 1.02 }}
+              className="-mb-1 flex flex-shrink-0 items-center space-x-3"
             >
-              <Link href="/" className="flex items-center space-x-3 group focus:outline-none pb-0.5 relative">
-                <div className="flex flex-col items-start relative leading-tight max-w-[160px] sm:max-w-none truncate">
-  <div className="flex items-center relative">
-    <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-purple-500/30 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity" />
-    <BrandLogo animate={onHome} className="w-48 relative mt-8" />
-  </div>
-  <div className="text-xs text-white font-medium ml-1 tracking-wide whitespace-nowrap truncate max-w-[140px] sm:max-w-none drop-shadow-[0_0_5px_rgba(45,212,191,0.6)] mt-0">pronounced like scribble, just without the vowels</div>
-</div>
-                
-                {/* Mobile-only: Just brand logo */}
-                <div className="sm:hidden">
-                  <BrandLogo animate={onHome} className="w-24" />
-                </div>
+              <Link href="/" className="group relative flex items-center focus:outline-none">
+                <video
+                  src="/static/SkrblAI-brandlogo-tag.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  poster="/static/SkrblAI-brandlogo-tag.png"
+                  className="h-auto w-36 max-h-16 sm:w-48 sm:max-h-20"
+                />
               </Link>
             </motion.div>
 
-            {/* Right Side: Navigation & CTA */}
+            {/* Desktop Nav & CTA */}
             <div className="flex items-center space-x-6">
-              {/* Desktop Navigation Links */}
-              <div className="hidden lg:flex items-center space-x-3 py-1">
+              {/* Links */}
+              <div className="hidden items-center space-x-3 py-1 lg:flex">
                 <NavLink href="/about">About</NavLink>
                 <NavLink href="/agents">Agent League</NavLink>
                 <NavLink href="/features">Features</NavLink>
                 <NavLink href="/contact">Contact</NavLink>
                 <NavLink href="/pricing">Pricing</NavLink>
                 <NavLink href="/services">Services</NavLink>
+                <NavLink href="/sports">Sports</NavLink>
               </div>
 
-              {/* Eye-Catching CTA Button */}
-              <motion.div 
-                className="hidden md:flex flex-shrink-0 py-1"
+              {/* CTA */}
+              <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                className="hidden flex-shrink-0 py-1 md:flex"
               >
-                <Link href="/sign-up">
-                  <button className="relative px-4 py-1.5 font-semibold text-white overflow-hidden rounded-lg group shadow-lg bg-[#0066FF] hover:bg-[#0055DD] transition-colors min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-  {/* Animated background gradient */}
-  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500 transition-all duration-300" />
-  {/* Subtle outer glow */}
-  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 rounded-xl blur opacity-60 group-hover:opacity-80 transition-opacity" />
-  {/* Shimmer effect */}
-  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-  {/* Button content */}
-  <div className="relative flex items-center space-x-2">
-    <Sparkles className="w-4 h-4" />
-    <span className="font-semibold text-sm">Get Started</span>
-  </div>
-</button>
+                <Link href="/sign-up" className="focus:outline-none">
+                  <button className="relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-1.5 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                    {/* Animated gradient */}
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
+                    {/* Outer glow */}
+                    <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
+                    {/* Shimmer */}
+                    <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+                    <div className="relative flex items-center space-x-2">
+                      <Sparkles className="h-4 w-4" />
+                      <span className="text-sm font-semibold">Get Started</span>
+                    </div>
+                  </button>
                 </Link>
               </motion.div>
 
-              {/* Mobile Menu Button */}
-              <div className="lg:hidden flex-shrink-0">
-                <MobileMenu />
+              {/* Mobile Hamburger */}
+              <div className="flex-shrink-0 lg:hidden">
+                <MobileMenu pathname={pathname} />
               </div>
             </div>
           </div>
@@ -103,89 +104,107 @@ export default function Navbar() {
   );
 }
 
-const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+/****************************
+ * NavLink (desktop only)
+ ***************************/
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   const pathname = usePathname();
   const isActive = pathname === href;
 
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      transition={{ type: "spring", stiffness: 300, damping: 10 }}
-    >
+    <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
       <Link
         href={href}
-        className={`relative px-4 py-2 font-medium transition-all duration-300 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 rounded-lg text-base whitespace-nowrap min-w-[44px] min-h-[44px] ${isActive ? 'text-white bg-[#0066FF]/15 shadow-[0_0_30px_rgba(255,182,255,0.6)]' : 'text-gray-400 hover:text-white hover:bg-[#0066FF]/10 hover:shadow-[0_0_25px_rgba(255,182,255,0.5)]'}`}
+        className={`group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg px-4 py-2 text-base font-medium transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 ${
+          isActive
+            ? "bg-[#0066FF]/30 text-white shadow-[0_0_30px_rgba(0,102,255,0.6)]"
+            : "text-gray-300 hover:bg-[#0066FF]/20 hover:text-white"
+        }`}
       >
-        <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-200 to-cyan-200 font-semibold tracking-wide drop-shadow-[0_0_4px_rgba(255,182,255,0.4)]">{children}</span>
-        <div 
-          className={`absolute -bottom-px left-3 right-3 h-px bg-cyan-400 transform origin-left transition-transform duration-300 ${isActive ? 'scale-x-100' : 'scale-x-0'}`}
+        
+          {children}
+        {/* glow ring */}
+        <div
+          className="absolute inset-0 rounded-lg transition-shadow duration-300 group-hover:shadow-[0_0_15px_2px_rgba(0,102,255,0.4)] group-focus-visible:shadow-[0_0_15px_2px_rgba(0,102,255,0.5)]"
         />
       </Link>
     </motion.div>
   );
 }
 
-function MobileMenu() {
+/****************************
+ * MobileMenu (slide-in panel)
+ ***************************/
+interface MobileMenuProps {
+  pathname: string | null;
+
+}
+
+function MobileMenu({ pathname }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
 
-  // Focus trap and Escape key handler
+  // Close on Esc & trap focus
   function handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setIsOpen(false);
-    } else if (e.key === 'Tab' && menuRef.current) {
-      // Trap focus within the menu
+    } else if (e.key === "Tab" && menuRef.current) {
       const focusableEls = menuRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        "a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])"
       );
       const firstEl = focusableEls[0];
       const lastEl = focusableEls[focusableEls.length - 1];
       if (!e.shiftKey && document.activeElement === lastEl) {
         e.preventDefault();
-        (firstEl as HTMLElement).focus();
+        firstEl.focus();
       } else if (e.shiftKey && document.activeElement === firstEl) {
         e.preventDefault();
-        (lastEl as HTMLElement).focus();
+        lastEl.focus();
       }
     }
   }
 
-  // Focus the first link when menu opens
+  // Focus first link when panel opens
   useEffect(() => {
-    if (isOpen && firstLinkRef.current) {
-      firstLinkRef.current.focus();
-    }
+    if (isOpen && firstLinkRef.current) firstLinkRef.current.focus();
   }, [isOpen]);
 
+  // Prevent body scroll when open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   const menuVariants = {
-    closed: { opacity: 0, x: '100%' },
-    open: { opacity: 1, x: 0 }
-  };
+    closed: { opacity: 0, x: "100%" },
+    open: { opacity: 1, x: 0 },
+  } as const;
+
+  const navItems = [
+    { href: "/about", label: "About" },
+    { href: "/agents", label: "Agent League" },
+    { href: "/features", label: "Features" },
+    { href: "/contact", label: "Contact" },
+    { href: "/pricing", label: "Pricing" },
+    { href: "/services", label: "Services" },
+    { href: "/sports", label: "Sports" },
+  ];
 
   return (
     <>
       <motion.button
-         onClick={() => setIsOpen(true)}
-         className="relative p-2.5 rounded-xl bg-slate-800/60 border border-cyan-400/40 text-cyan-400 hover:bg-slate-700/60 transition-colors min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
-         whileHover={{ scale: 1.1 }}
-         whileTap={{ scale: 0.9 }}
-         aria-label="Open menu"
-         aria-expanded={isOpen}
-         aria-controls="mobile-nav-menu"
-       >
-        <Menu className="w-5 h-5" />
+        aria-label="Open menu"
+        aria-expanded={isOpen}
+        aria-controls="mobile-nav-menu"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsOpen(true)}
+        className="relative min-h-[44px] min-w-[44px] rounded-xl border border-cyan-400/40 bg-slate-800/60 p-2.5 text-cyan-400 transition-colors hover:bg-slate-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
+      >
+        <Menu className="h-5 w-5" />
       </motion.button>
 
       <AnimatePresence>
@@ -196,72 +215,63 @@ function MobileMenu() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
             />
 
-            {/* Mobile Menu Panel */}
+            {/* Slide-in panel */}
             <motion.div
-               ref={menuRef}
-               id="mobile-nav-menu"
-               role="dialog"
-               aria-modal="true"
-               initial="closed"
-               animate="open"
-               exit="closed"
-               variants={menuVariants}
-               transition={{ type: "spring", stiffness: 200, damping: 25 }}
-               className="fixed top-0 right-0 h-full w-80 max-w-[85vw] z-50 overflow-hidden"
-               tabIndex={-1}
-               onKeyDown={handleKeyDown}
-             >
-              {/* Panel Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-900/95 via-gray-900/95 to-slate-900/95 backdrop-blur-xl border-l border-cyan-400/30">
+              ref={menuRef}
+              id="mobile-nav-menu"
+              role="dialog"
+              aria-modal="true"
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={menuVariants}
+              transition={{ type: "spring", stiffness: 200, damping: 25 }}
+              className="fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] overflow-hidden"
+              tabIndex={-1}
+              onKeyDown={handleKeyDown}
+            >
+              {/* Panel background */}
+              <div className="absolute inset-0 border-l border-cyan-400/30 bg-gradient-to-br from-slate-900/95 via-gray-900/95 to-slate-900/95 backdrop-blur-xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5" />
               </div>
 
-              {/* Panel Content */}
-              <div className="relative h-full flex flex-col p-6">
-                {/* Header - Single brand display */}
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex flex-col">
-                    <div className="text-2xl font-bold tracking-tight whitespace-nowrap bg-clip-text text-transparent bg-gradient-to-r from-white via-cyan-200 to-white drop-shadow-[0_0_4px_rgba(255,182,255,0.4)]">SKRBL AI</div>
-                    <div className="text-xs text-white font-medium -mt-1 ml-0.5 tracking-wide whitespace-nowrap drop-shadow-[0_0_5px_rgba(45,212,191,0.6)]">
-                      pronounced like scribble, just without the vowels
-                    </div>
-                  </div>
+              {/* Content */}
+              <div className="relative flex h-full flex-col p-6">
+                {/* Header */}
+                <div className="mb-8 flex items-center justify-end">
+
+
                   <motion.button
-                    onClick={() => setIsOpen(false)}
-                    className="p-2 rounded-lg bg-slate-800/50 border border-cyan-400/30 text-cyan-400 hover:bg-slate-700/50 transition-colors min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     aria-label="Close menu"
+                    onClick={() => setIsOpen(false)}
+                    className="min-h-[44px] min-w-[44px] rounded-lg border border-cyan-400/30 bg-slate-800/50 p-2 text-cyan-400 transition-colors hover:bg-slate-700/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="h-5 w-5" />
                   </motion.button>
                 </div>
 
-                {/* Navigation Links */}
-                <nav className="flex flex-col space-y-3 mb-8">
-                  {[
-                    { href: '/about', label: 'About' },
-                    { href: '/agents', label: 'Agent League' },
-                    { href: '/features', label: 'Features' },
-                    { href: '/contact', label: 'Contact' },
-                    { href: '/pricing', label: 'Pricing' },
-                    { href: '/services', label: 'Services' }
-                  ].map((item, index) => (
+                {/* Links */}
+                <nav className="mb-8 flex flex-col space-y-3">
+                  {navItems.map((item, idx) => (
                     <motion.div
                       key={item.href}
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: idx * 0.05 }}
                     >
                       <Link
-                        ref={index === 0 ? firstLinkRef : undefined}
+                        ref={idx === 0 ? firstLinkRef : undefined}
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="block px-4 py-3.5 text-base font-medium text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-cyan-500/10 hover:to-blue-500/10 rounded-lg transition-all border border-slate-700/50 hover:border-cyan-400/30 min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
+                        className={`block min-h-[44px] min-w-[44px] rounded-lg border border-slate-700/50 px-4 py-3.5 text-base font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 hover:border-cyan-400/30 hover:bg-gradient-to-r hover:from-cyan-500/10 hover:to-blue-500/10 hover:text-white ${
+                          pathname === item.href ? "text-white" : "text-gray-300"
+                        }`}
                       >
                         {item.label}
                       </Link>
@@ -269,27 +279,23 @@ function MobileMenu() {
                   ))}
                 </nav>
 
-                {/* Mobile CTA */}
+                {/* CTA */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.3 }}
                   className="mt-auto"
                 >
                   <Link href="/sign-up" onClick={() => setIsOpen(false)}>
-                    <button className="w-full relative px-6 py-4 font-bold text-white overflow-hidden rounded-xl group shadow-lg min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                      {/* Background gradient */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 group-hover:from-blue-600 group-hover:to-cyan-500 transition-all duration-300" />
-                      
-                      {/* Glow effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 rounded-xl blur opacity-60 group-hover:opacity-90 transition-opacity" />
-                      
-                      {/* Shimmer effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                      
-                      {/* Button content */}
+                    <button className="relative w-full min-h-[44px] min-w-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                      {/* Gradient */}
+                      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500" />
+                      {/* Glow */}
+                      <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 blur opacity-60 transition-opacity group-hover:opacity-90" />
+                      {/* Shimmer */}
+                      <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
                       <div className="relative flex items-center justify-center space-x-2">
-                        <Sparkles className="w-5 h-5" />
+                        <Sparkles className="h-5 w-5" />
                         <span>Get Started</span>
                       </div>
                     </button>

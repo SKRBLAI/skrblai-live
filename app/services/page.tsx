@@ -185,7 +185,7 @@ export default function ServicesPage() {
             
             <div className="flex items-center justify-center gap-4 mb-8">
               <Image
-                src="/images/Agents-percy-Buttons.png"
+                src="/images/agents-percy-nobg-skrblai.webp"
                 alt="Percy the AI Concierge"
                 width={80}
                 height={80}
@@ -296,7 +296,7 @@ export default function ServicesPage() {
                 <GlassmorphicCard className="p-8 border-2 border-cyan-400/50 shadow-2xl">
                   <div className="flex items-start gap-4">
                     <Image
-                      src="/images/Agents-percy-Buttons.png"
+                      src="/images/agents-percy-nobg-skrblai.webp"
                       alt="Percy"
                       width={60}
                       height={60}

@@ -269,7 +269,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 className="agent-image object-contain w-full h-full rounded-full"
                 style={{ 
                   imageRendering: 'crisp-edges',
-                  transform: 'scale(0.85)'
+                  transform: 'scale(0.95)',
+                  objectFit: 'contain',
+                  objectPosition: 'center center'
                 }}
                 loading="lazy"
                 width={112}

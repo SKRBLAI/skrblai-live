@@ -11,6 +11,7 @@ import { getAgentImagePath } from '@/utils/agentUtils';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import CosmicButton from '@/components/shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface AgentServiceClientProps {
   agent: Agent | undefined;
@@ -121,6 +122,18 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   };
 
   const handleStartChat = () => {
+    // MMM Protocol: Remove chat functionality for workflow-only agents (n8n limits)
+    // Publishing agent chat restored per user request
+    const workflowOnlyAgents = ['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'];
+    
+    if (workflowOnlyAgents.includes(agent.id)) {
+      toast.success(`${agent.name} excels at automated workflows! Click the Launch button for instant results! ⚡`, {
+        duration: 4000,
+        icon: '🚀'
+      });
+      return;
+    }
+    
     router.push(`/agents/${agent.id}/chat`);
   };
 
@@ -175,7 +188,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                     height={120}
                     className="rounded-2xl shadow-2xl border-4 border-cyan-400/30"
                     onError={(e) => {
-                      e.currentTarget.src = '/images/Agents-Default-Buttons.png';
+                      e.currentTarget.src = '/images/agents-default-nobg-skrblai.webp';
                     }}
                   />
                   <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-cyan-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
@@ -258,10 +271,20 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                 <div className="flex gap-3">
                   <button
                     onClick={handleStartChat}
-                    className="flex items-center gap-2 px-6 py-4 bg-purple-600/20 text-purple-300 rounded-xl border border-purple-500/30 hover:bg-purple-600/30 transition-all duration-200 font-semibold"
+                    className={`flex items-center gap-2 px-6 py-4 rounded-xl border transition-all duration-200 font-semibold ${
+                      ['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id)
+                        ? 'bg-gradient-to-r from-blue-600/20 to-teal-600/20 text-blue-300 border-blue-500/40 hover:from-blue-600/30 hover:to-teal-600/30 cursor-default'
+                        : 'bg-purple-600/20 text-purple-300 border-purple-500/30 hover:bg-purple-600/30'
+                    }`}
+                    disabled={['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id)}
+                    title={['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id) 
+                      ? 'This agent specializes in automated workflows. Click Launch for instant results!' 
+                      : 'Start a conversation with this agent'}
                   >
                     <MessageCircle className="w-5 h-5" />
-                    Chat
+                    {['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id) 
+                      ? 'Auto Mode' 
+                      : 'Chat'}
                   </button>
                   <button
                     onClick={handleViewBackstory}

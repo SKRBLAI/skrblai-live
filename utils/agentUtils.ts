@@ -186,17 +186,19 @@ export function getAgentImageSlug(agent: Agent): string {
 /**
  * Get the image path for an agent using the standardized naming convention
  * @param agent - The agent object or string ID
- * @param type - Image type: "card" (Buttons.png) or "nobg" (transparent WebP)
+ * @param type - Image type: "nobg" (clean WebP - default), "legacy" (Buttons.png - deprecated), or "card" (alias of nobg for card displays)
  */
+type AgentImageType = "nobg" | "legacy" | "card";
+
 export function getAgentImagePath(
   agent: any,
-  type: "card" | "nobg" = "card"
+  type: AgentImageType = "nobg"
 ): string {
   /*
-   * Agent Image Policy v2 - SKRBL AI
+   * Agent Image Policy v3 - SKRBL AI (MMM Protocol Update)
    * --------------------------------------------------
-   * CARD: /images/Agents-{Slug}-Buttons.png (for League, Preview, Dashboard)
-   * NOBG: /images/agents-{slug}-nobg-skrblai.webp (for Backstory, Bio, Onboarding)
+   * NOBG: /images/agents-{slug}-nobg-skrblai.webp (DEFAULT - for all League, Dashboard, Backstory)
+   * LEGACY: /images/Agents-{Slug}-Buttons.png (DEPRECATED - only for specific legacy components)
    */
 
   // Determine ID from either a string or an agent object
@@ -204,7 +206,7 @@ export function getAgentImagePath(
 
   if (!rawId) {
     console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
-    return type === "card" 
+    return type === "legacy"
       ? '/images/Agents-Default-Buttons.png'
       : '/images/agents-default-nobg-skrblai.webp';
   }
@@ -221,38 +223,43 @@ export function getAgentImagePath(
     'proposal': 'proposal',
     'social': 'social', 
     'social-bot': 'social',
-    'sitegen': 'Sitegen',
-    'site': 'Sitegen',
+    'sitegen': 'sitegen',
+    'site': 'sitegen',
     'sync': 'sync',
     'percy': 'percy',
-    'clientsuccess': 'Clientsuccess',
-    'client-success': 'Clientsuccess',
+    'clientsuccess': 'clientsuccess',
+    'client-success': 'clientsuccess',
     'payments': 'payments',
     'payment': 'payments',
     'publishing': 'publishing',
     'book-publishing': 'publishing',
-    'videocontent': 'VideoContent',
-    'video-content': 'VideoContent',
-    'video': 'VideoContent',
-    'contentcreation': 'ContentCreation',
-    'content-creation': 'ContentCreation',
-    'content': 'ContentCreation',
-    'biz': 'Biz',
-    'business': 'Biz',
-    'analytics': 'Analytics',
-    'branding': 'Branding',
-    'brand': 'Branding',
-    'adcreative': 'AdCreative',
-    'ad-creative': 'AdCreative',
-    'ad': 'AdCreative'
+    'videocontent': 'videocontent',
+    'video-content': 'videocontent',
+    'video': 'videocontent',
+    'contentcreation': 'contentcreation',
+    'content-creation': 'contentcreation',
+    'content': 'contentcreation',
+    'biz': 'biz',
+    'business': 'biz',
+    'analytics': 'analytics',
+    'branding': 'branding',
+    'brand': 'branding',
+    'adcreative': 'adcreative',
+    'ad-creative': 'adcreative',
+    'ad': 'adcreative',
+    'skillsmith': 'skillsmith',
+    'skill-smith': 'skillsmith'
   };
 
-  const slug = slugMapping[cleanId] || cleanId;
+  const slug = slugMapping[cleanId] || cleanId.toLowerCase();
   
-  if (type === "nobg") {
-    return `/images/agents-${slug.toLowerCase()}-nobg-skrblai.webp`;
+  if (type === "legacy") {
+    // Legacy format - deprecated, only for specific old components
+    const legacySlug = slug.charAt(0).toUpperCase() + slug.slice(1);
+    return `/images/Agents-${legacySlug}-Buttons.png`;
   } else {
-    return `/images/Agents-${slug}-Buttons.png`;
+    // Modern format - clean nobg images (DEFAULT)
+    return `/images/agents-${slug}-nobg-skrblai.webp`;
   }
 }
 
@@ -303,7 +310,7 @@ export function getOptimizedImageProps(agent: any, context: string = 'default') 
   const settings = contextSettings[context as keyof typeof contextSettings] || contextSettings.default;
   
   return {
-    src: getAgentImagePath(agent, "card"),
+    src: getAgentImagePath(agent, "nobg"), // Now uses clean nobg format by default
     alt: agent?.role || agent?.name || 'AI Agent',
     loading: context === 'hero' ? 'eager' as const : 'lazy' as const,
     priority: context === 'hero',
