@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles } from "lucide-react";
+import CosmicBrandLogo from "@/components/ui/CosmicBrandLogo";
 
 /**
  * Premium animated Navbar with single video logo (desktop & mobile).
@@ -39,23 +40,15 @@ export default function Navbar() {
         {/* NAV CONTENT */}
         <div className="relative py-3 px-4">
           <div className="flex h-16 md:h-20 items-center justify-between">
-            {/* Brand */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="-mb-1 flex flex-shrink-0 items-center space-x-3"
-            >
-              <Link href="/" className="group relative flex items-center focus:outline-none">
-                <video
-                  src="/Static%20assets/SkrblAI-brandlogo-tag.mp4"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  poster="/Static%20assets/skrblai-brandlogo-tag.png"
-                  className="h-auto w-36 max-h-16 sm:w-48 sm:max-h-20"
-                />
-              </Link>
-            </motion.div>
+            {/* Cosmic Brand Logo with Tagline */}
+            <Link href="/" className="group relative flex items-center focus:outline-none">
+              <CosmicBrandLogo 
+                size="md" 
+                animate={true} 
+                showTagline={true}
+                className="flex-shrink-0"
+              />
+            </Link>
 
             {/* Desktop Nav & CTA */}
             <div className="flex items-center space-x-6">

@@ -660,4 +660,45 @@
   .agent-image {
     transition: none;
   }
-} 
+}
+
+/* ✨ COSMIC BRAND LOGO ENHANCEMENTS */
+.drop-shadow-cosmic {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6)) 
+          drop-shadow(0 0 16px rgba(56, 189, 248, 0.3));
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.drop-shadow-glow {
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.8)) 
+          drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+
+.text-cosmic-gradient {
+  background: linear-gradient(135deg, #38bdf8, #06b6d4, #3b82f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Cosmic shimmer effect for brand logo */
+@keyframes cosmic-shimmer {
+  0% {
+    transform: translateX(-200%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+  }
+}
