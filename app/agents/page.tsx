@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import useUsageBasedPricing from '@/hooks/useUsageBasedPricing';
 import RevenuePulseWidget from '@/components/ui/RevenuePulseWidget';
 import { toast } from 'react-hot-toast';
+import ErrorBoundary from '@/components/layout/ErrorBoundary';
 
 // Enhanced Agent type with usage-based properties
 interface EnhancedAgent extends Agent {
@@ -226,8 +227,9 @@ export default function AgentsPage() {
   }
 
   return (
-    <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <ErrorBoundary>
+      <PageLayout>
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
         
         {/* ✨ NEW: Enhanced Usage Banner with dynamic messaging */}
         {showUsageBanner && currentTier === 'free' && (
@@ -440,5 +442,6 @@ export default function AgentsPage() {
         />
       </div>
     </PageLayout>
+    </ErrorBoundary>
   );
 }

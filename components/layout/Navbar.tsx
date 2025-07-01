@@ -46,12 +46,12 @@ export default function Navbar() {
             >
               <Link href="/" className="group relative flex items-center focus:outline-none">
                 <video
-                  src="/static/SkrblAI-brandlogo-tag.mp4"
+                  src="/Static%20assets/SkrblAI-brandlogo-tag.mp4"
                   autoPlay
                   loop
                   muted
                   playsInline
-                  poster="/static/SkrblAI-brandlogo-tag.png"
+                  poster="/Static%20assets/skrblai-brandlogo-tag.png"
                   className="h-auto w-36 max-h-16 sm:w-48 sm:max-h-20"
                 />
               </Link>

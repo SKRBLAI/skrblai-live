@@ -51,11 +51,26 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Add security headers
+  // Add security headers with Next.js-compatible CSP
   const response = NextResponse.next();
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  
+  // Fix CSP to allow Next.js while maintaining security
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.googleapis.com *.gstatic.com *.cloudflare.com *.stripe.com", 
+    "style-src 'self' 'unsafe-inline' *.googleapis.com *.gstatic.com",
+    "img-src 'self' data: blob: *.googleapis.com *.gstatic.com *.supabase.co *.cloudflare.com *.stripe.com",
+    "font-src 'self' *.googleapis.com *.gstatic.com",
+    "connect-src 'self' *.supabase.co *.stripe.com *.n8n.io",
+    "frame-src 'self' *.stripe.com",
+    "object-src 'none'",
+    "base-uri 'self'"
+  ].join('; ');
+  
+  response.headers.set('Content-Security-Policy', csp);
   
   return response;
 }
