@@ -33,31 +33,32 @@ export default function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 p-3"
     >
       <nav className="relative mx-auto max-w-7xl">
-        {/* Fancy glass + glow container */}
-        <div className="absolute inset-0 rounded-2xl border-2 border-[#0066FF]/30 bg-gradient-to-r from-slate-900/95 via-gray-900/98 to-slate-900/95 backdrop-blur-xl shadow-2xl" />
+        {/* Cosmic Enhanced Glass Container */}
+        <div className="absolute inset-0 rounded-2xl border-2 border-[#0066FF]/30 bg-gradient-to-r from-slate-900/95 via-gray-900/98 to-slate-900/95 backdrop-blur-xl navbar-cosmic navbar-glow navbar-rim-glow navbar-soft-shadow" />
         {/* Subtle blue glow */}
         
 
         {/* NAV CONTENT */}
         <div className="relative py-3 px-4">
-          <div className="flex h-16 md:h-20 items-center justify-between">
+          <div className="flex h-16 md:h-24 lg:h-28 items-center justify-between">
             {/* SKRBL AI Animated Logo with Tagline */}
-            <Link href="/" className="group relative flex items-center focus:outline-none">
+            <Link href="/" className="group relative flex items-center focus:outline-none logo-cosmic-glow">
               <SkrblAiLogo 
-                size="md" 
+                size="lg" 
                 variant="premium" 
                 showTagline={true}
-                className="flex-shrink-0"
+                className="flex-shrink-0 md:scale-110 lg:scale-125 navbar-element-3d"
               />
             </Link>
 
             {/* Desktop Nav & CTAs */}
             <div className="flex items-center space-x-6">
-              {/* Minimal 3 Links (Desktop Only) */}
+              {/* Enhanced Navigation Links (Desktop Only) */}
               <div className="hidden items-center space-x-3 py-1 lg:flex">
                 <NavLink href="/about">About</NavLink>
                 <NavLink href="/features">Features</NavLink>
                 <NavLink href="/pricing">Pricing</NavLink>
+                <MoreNavDropdown pathname={pathname} />
               </div>
 
               {/* Dual CTAs (Desktop) */}
@@ -78,13 +79,13 @@ export default function Navbar() {
                   </Link>
                 </motion.div>
 
-                {/* Try Percy Free Button */}
+                {/* User Dashboard Button */}
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="flex-shrink-0"
                 >
-                  <Link href="/sign-up" className="focus:outline-none">
+                  <Link href="/dashboard" className="focus:outline-none">
                     <button className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
                       {/* Animated gradient */}
                       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
@@ -94,7 +95,7 @@ export default function Navbar() {
                       <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
                       <div className="relative flex items-center space-x-2">
                         <Sparkles className="h-4 w-4" />
-                        <span className="text-sm font-semibold">Try Percy Free</span>
+                        <span className="text-sm font-semibold">User Dashboard</span>
                       </div>
                     </button>
                   </Link>
@@ -138,6 +139,83 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
         />
       </Link>
     </motion.div>
+  );
+}
+
+/****************************
+ * MoreNavDropdown (desktop dropdown menu)
+ ***************************/
+function MoreNavDropdown({ pathname }: { pathname: string | null }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const moreNavItems = [
+    { href: "/agents", label: "Agent League" },
+    { href: "/services", label: "Services" },
+    { href: "/sports", label: "Sports" },
+    { href: "/contact", label: "Contact" },
+  ];
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <motion.button
+        whileHover={{ y: -2 }}
+        transition={{ type: "spring", stiffness: 300, damping: 10 }}
+        onClick={() => setIsOpen(!isOpen)}
+        className="group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg px-4 py-2 text-base font-medium transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 text-gray-300 hover:bg-[#0066FF]/20 hover:text-white flex items-center space-x-1"
+      >
+        <span>More</span>
+        <motion.div
+          animate={{ rotate: isOpen ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="w-4 h-4"
+        >
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.div>
+        {/* glow ring */}
+        <div className="absolute inset-0 rounded-lg transition-shadow duration-300 group-hover:shadow-[0_0_15px_2px_rgba(0,102,255,0.4)] group-focus-visible:shadow-[0_0_15px_2px_rgba(0,102,255,0.5)]" />
+      </motion.button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full right-0 mt-2 w-48 rounded-xl border border-cyan-400/30 bg-gradient-to-br from-slate-900/95 via-gray-900/95 to-slate-900/95 backdrop-blur-xl shadow-2xl dropdown-cosmic"
+          >
+            <div className="py-2">
+              {moreNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-4 py-3 text-sm font-medium transition-colors duration-200 hover:bg-[#0066FF]/20 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 ${
+                    pathname === item.href ? "bg-[#0066FF]/30 text-white" : "text-gray-300"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -314,13 +392,13 @@ function MobileMenu({ pathname }: MobileMenuProps) {
                     </Link>
                   </motion.div>
 
-                  {/* Try Percy Free Button */}
+                  {/* User Dashboard Button */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.35 }}
                   >
-                    <Link href="/sign-up" onClick={() => setIsOpen(false)}>
+                    <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                       <button className="group relative w-full min-h-[44px] min-w-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
                         {/* Gradient */}
                         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500" />
@@ -330,7 +408,7 @@ function MobileMenu({ pathname }: MobileMenuProps) {
                         <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
                         <div className="relative flex items-center justify-center space-x-2">
                           <Sparkles className="h-5 w-5" />
-                          <span>Try Percy Free</span>
+                          <span>User Dashboard</span>
                         </div>
                       </button>
                     </Link>

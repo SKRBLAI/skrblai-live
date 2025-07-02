@@ -40,41 +40,41 @@ const useLiveContactMetrics = () => {
 const urgentContactOptions = [
   {
     title: 'Enterprise & Custom Solutions',
-    description: 'Ready to scale? Custom AI automation architecture for enterprise needs.',
-    icon: <Rocket className="w-8 h-8" />,
+    description: 'Custom AI automation for enterprise.',
+    icon: <Rocket className="w-6 h-6 sm:w-8 sm:h-8" />,
     action: 'enterprise',
-    urgency: 'Response within 2 hours',
-    valueProposition: 'ROI typically 300%+ within 90 days',
+    urgency: '< 2 hours',
+    valueProposition: 'ROI 300%+ in 90 days',
     color: 'from-green-400 to-emerald-600',
     priority: 'URGENT'
   },
   {
     title: 'Partnership & Integration',
-    description: 'Join the AI revolution. Strategic partnerships that disrupt markets.',
-    icon: <Users className="w-8 h-8" />,
+    description: 'Strategic partnerships that disrupt.',
+    icon: <Users className="w-6 h-6 sm:w-8 sm:h-8" />,
     action: 'partnership',
-    urgency: 'Response within 4 hours', 
-    valueProposition: 'Exclusive access to cutting-edge AI',
+    urgency: '< 4 hours', 
+    valueProposition: 'Exclusive AI access',
     color: 'from-purple-400 to-pink-600',
     priority: 'HIGH'
   },
   {
-    title: 'Media & Press Inquiries',
-    description: 'Cover the story reshaping business automation and AI adoption.',
-    icon: <Star className="w-8 h-8" />,
+    title: 'Media & Press',
+    description: 'Cover the AI automation story.',
+    icon: <Star className="w-6 h-6 sm:w-8 sm:h-8" />,
     action: 'media',
-    urgency: 'Response within 1 hour',
-    valueProposition: 'Exclusive insights & interviews',
+    urgency: '< 1 hour',
+    valueProposition: 'Exclusive insights',
     color: 'from-orange-400 to-red-600',
     priority: 'IMMEDIATE'
   },
   {
     title: 'Investment & Funding',
-    description: 'Invest in the platform generating real AI automation revenue.',
-    icon: <DollarSign className="w-8 h-8" />,
+    description: 'Invest in proven AI revenue.',
+    icon: <DollarSign className="w-6 h-6 sm:w-8 sm:h-8" />,
     action: 'investment',
-    urgency: 'Response within 2 hours',
-    valueProposition: 'Proven revenue model & growth',
+    urgency: '< 2 hours',
+    valueProposition: 'Proven revenue model',
     color: 'from-yellow-400 to-orange-600',
     priority: 'URGENT'
   }
@@ -84,22 +84,22 @@ const quickContactMethods = [
   {
     method: "Direct Email",
     contact: "contact@skrblai.io",
-    description: "For immediate assistance",
-    icon: <Mail className="w-6 h-6" />,
+    description: "Immediate assistance",
+    icon: <Mail className="w-5 h-5 sm:w-6 sm:h-6" />,
     responseTime: "< 2 hours"
   },
   {
     method: "Enterprise Hotline",
     contact: "(844) 426-2860",
-    description: "Enterprise & partnership calls",
-    icon: <Phone className="w-6 h-6" />,
-    responseTime: "< 30 minutes"
+    description: "Enterprise calls",
+    icon: <Phone className="w-5 h-5 sm:w-6 sm:h-6" />,
+    responseTime: "< 30 min"
   },
   {
-    method: "Schedule a Demo",
+    method: "Schedule Demo",
     contact: "contact@skrblai.io",
-    description: "See the platform in action",
-    icon: <Calendar className="w-6 h-6" />,
+    description: "Platform demo",
+    icon: <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />,
     responseTime: "Same day"
   }
 ];
@@ -188,81 +188,82 @@ export default function ContactPage() {
             <FloatingParticles />
           </div>
           
-          <div className="container mx-auto px-4 py-24 relative z-10">
-            <div className="max-w-3xl mx-auto text-center">
+          <div className="container mx-auto px-4 sm:px-6 py-20 sm:py-24 relative z-10">
+            <div className="max-w-2xl sm:max-w-3xl mx-auto text-center">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6 }}
+                className="px-4"
               >
-                <div className="w-24 h-24 mx-auto mb-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
-                  <Rocket className="w-12 h-12 text-white" />
+                <div className="w-16 h-16 sm:w-24 sm:h-24 mx-auto mb-6 sm:mb-8 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                  <Rocket className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
                 </div>
 
                 <motion.div
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full border border-green-400/30 mb-8"
+                  className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full border border-green-400/30 mb-6 sm:mb-8"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Target className="w-5 h-5 text-green-400" />
-                  <span className="text-green-300 font-bold">MISSION RECEIVED - PROCESSING</span>
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+                  <span className="text-green-300 font-bold text-sm sm:text-base">MISSION RECEIVED</span>
                 </motion.div>
 
-                <CosmicHeading level={1} className="mb-6">
+                <CosmicHeading level={1} className="text-3xl sm:text-4xl lg:text-5xl mb-4 sm:mb-6">
                   Your Message is <span className="text-green-400">Launched!</span>
                 </CosmicHeading>
                 
-                <p className="text-2xl text-green-400 mb-6 font-bold">
+                <p className="text-lg sm:text-xl lg:text-2xl text-green-400 mb-4 sm:mb-6 font-bold px-2">
                   <span className="text-cyan-400 font-bold">Percy</span> and the <SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> team are analyzing your request.
                 </p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                  <GlassmorphicCard className="p-6 border-green-400/30">
-                    <Clock className="w-8 h-8 text-green-400 mx-auto mb-3" />
-                    <div className="text-sm text-gray-300">Response Time</div>
-                    <div className="text-xl font-bold text-green-400">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
+                  <GlassmorphicCard className="p-4 sm:p-6 border-green-400/30">
+                    <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-green-400 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-300">Response Time</div>
+                    <div className="text-lg sm:text-xl font-bold text-green-400">
                       {selectedOption === 'media' ? '< 1 hour' : 
                        selectedOption === 'enterprise' || selectedOption === 'investment' ? '< 2 hours' : 
                        '< 24 hours'}
                     </div>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard className="p-6 border-cyan-400/30">
-                    <MessageCircle className="w-8 h-8 text-cyan-400 mx-auto mb-3" />
-                    <div className="text-sm text-gray-300">Priority Level</div>
-                    <div className="text-xl font-bold text-cyan-400">
+                  <GlassmorphicCard className="p-4 sm:p-6 border-cyan-400/30">
+                    <MessageCircle className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-300">Priority Level</div>
+                    <div className="text-lg sm:text-xl font-bold text-cyan-400">
                       {selectedOption === 'media' ? 'IMMEDIATE' :
                        selectedOption === 'enterprise' || selectedOption === 'investment' ? 'URGENT' : 'HIGH'}
                     </div>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard className="p-6 border-purple-400/30">
-                    <Star className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                    <div className="text-sm text-gray-300">Next Steps</div>
-                    <div className="text-xl font-bold text-purple-400">
+                  <GlassmorphicCard className="p-4 sm:p-6 border-purple-400/30">
+                    <Star className="w-6 h-6 sm:w-8 sm:h-8 text-purple-400 mx-auto mb-2 sm:mb-3" />
+                    <div className="text-xs sm:text-sm text-gray-300">Next Steps</div>
+                    <div className="text-lg sm:text-xl font-bold text-purple-400">
                       {selectedOption === 'enterprise' ? 'Demo Prep' : 'Analysis'}
                     </div>
                   </GlassmorphicCard>
                 </div>
 
-                <p className="text-gray-300 mb-8 leading-relaxed">
-                  For immediate assistance, contact us directly at{' '}
-                  <a href="mailto:contact@skrblai.io" className="text-electric-blue hover:text-teal-400 underline font-semibold">
+                <p className="text-sm sm:text-base text-gray-300 mb-6 sm:mb-8 leading-relaxed px-2">
+                  For immediate assistance:{' '}
+                  <a href="mailto:contact@skrblai.io" className="text-electric-blue hover:text-teal-400 underline font-semibold break-all">
                     contact@skrblai.io
                   </a>
-                  {' '}or call our enterprise hotline at{' '}
-                  <a href="tel:8444262860" className="text-electric-blue hover:text-teal-400 underline font-semibold">
+                  {' '}or call{' '}
+                  <a href="tel:8444262860" className="text-electric-blue hover:text-teal-400 underline font-semibold whitespace-nowrap">
                     (844) 426-2860
-                  </a>.
+                  </a>
                 </p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <CosmicButton href="/" variant="primary" size="lg">
-                    <Rocket className="w-5 h-5 mr-2" />
+                <div className="flex flex-col gap-3 sm:gap-4 items-center">
+                  <CosmicButton href="/" variant="primary" size="lg" className="w-full sm:w-auto">
+                    <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Return to Mission Control
                   </CosmicButton>
-                  <CosmicButton href="/agents" variant="secondary" size="lg">
-                    <Users className="w-5 h-5 mr-2" />
+                  <CosmicButton href="/agents" variant="secondary" size="lg" className="w-full sm:w-auto">
+                    <Users className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     Explore Agent League
                   </CosmicButton>
                 </div>
@@ -281,67 +282,73 @@ export default function ContactPage() {
           <FloatingParticles />
         </div>
         
-        <div className="container mx-auto px-4 py-20 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 relative z-10">
           {/* Hero Section */}
-          <div className="max-w-5xl mx-auto text-center mb-16">
+          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
+              className="px-2"
             >
-              {/* Live Contact Metrics */}
+              {/* Live Contact Metrics - Mobile Optimized */}
               <motion.div
-                className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8"
+                className="inline-flex flex-col sm:flex-row items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-6 sm:mb-8 max-w-full"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <TrendingUp className="w-5 h-5 text-cyan-400" />
-                <span className="text-cyan-300 font-bold">
-                  LIVE: {metrics.inquiriesToday} inquiries today • Avg response: {metrics.responseTime} minutes
-                </span>
-                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-cyan-400 flex-shrink-0" />
+                <div className="text-cyan-300 font-bold text-sm sm:text-base text-center">
+                  <span className="block sm:inline">LIVE: {metrics.inquiriesToday} inquiries today</span>
+                  <span className="hidden sm:inline"> • </span>
+                  <span className="block sm:inline">Avg response: {metrics.responseTime} min</span>
+                </div>
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse flex-shrink-0"></div>
               </motion.div>
 
-              <CosmicHeading level={1} className="text-5xl md:text-7xl mb-8">
+              <CosmicHeading level={1} className="text-3xl sm:text-5xl lg:text-7xl mb-6 sm:mb-8">
                 Ready to <span className="text-electric-blue">Dominate</span> Your Market?
               </CosmicHeading>
               
               <motion.p
-                className="text-2xl text-electric-blue leading-relaxed mb-6 font-bold max-w-4xl mx-auto"
+                className="text-lg sm:text-xl lg:text-2xl text-electric-blue leading-relaxed mb-4 sm:mb-6 font-bold max-w-3xl mx-auto px-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                Whether you're ready to scale, disrupt, or just want to see what all the AI automation buzz is about.
+                Whether you're ready to scale, disrupt, or explore AI automation.
               </motion.p>
               
               <motion.p
-                className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto mb-10"
+                className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto mb-8 sm:mb-10 px-2"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Join the {metrics.dealsClosedThisWeek} companies that chose <SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> this week. 
-                Average project value: <span className="text-green-400 font-bold">${metrics.avgProjectValue.toLocaleString()}</span>
+                Join {metrics.dealsClosedThisWeek} companies that chose <SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> this week. 
+                <br className="sm:hidden" />
+                <span className="block sm:inline mt-1 sm:mt-0">
+                  Avg project: <span className="text-green-400 font-bold">${metrics.avgProjectValue.toLocaleString()}</span>
+                </span>
               </motion.p>
 
-              {/* Quick Contact Methods */}
+              {/* Quick Contact Methods - Mobile Optimized */}
               <motion.div
-                className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
+                className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto mb-10 sm:mb-12"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
                 {quickContactMethods.map((method, index) => (
-                  <GlassmorphicCard key={method.method} className="p-6 text-center hover:border-cyan-400/50 transition-all duration-300">
-                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white mx-auto mb-4">
+                  <GlassmorphicCard key={method.method} className="p-4 sm:p-6 text-center hover:border-cyan-400/50 transition-all duration-300 min-h-[180px] sm:min-h-[200px]">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white mx-auto mb-3 sm:mb-4">
                       {method.icon}
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{method.method}</h3>
-                    <p className="text-electric-blue font-semibold mb-2">{method.contact}</p>
-                    <p className="text-gray-300 text-sm mb-3">{method.description}</p>
+                    <h3 className="text-base sm:text-lg font-bold text-white mb-2">{method.method}</h3>
+                    <p className="text-electric-blue font-semibold mb-2 text-sm sm:text-base break-all">{method.contact}</p>
+                    <p className="text-gray-300 text-xs sm:text-sm mb-3">{method.description}</p>
                     <div className="flex items-center justify-center gap-2">
-                      <Clock className="w-3 h-3 text-green-400" />
+                      <Clock className="w-3 h-3 text-green-400 flex-shrink-0" />
                       <span className="text-xs text-green-400 font-bold">{method.responseTime}</span>
                     </div>
                   </GlassmorphicCard>
@@ -350,21 +357,21 @@ export default function ContactPage() {
             </motion.div>
           </div>
 
-          {/* Priority Contact Options */}
+          {/* Priority Contact Options - Mobile Optimized */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-7xl mx-auto mb-16"
+            className="max-w-6xl mx-auto mb-12 sm:mb-16"
           >
-            <div className="text-center mb-12">
-              <CosmicHeading className="text-3xl md:text-4xl mb-4">
+            <div className="text-center mb-8 sm:mb-12 px-2">
+              <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-3 sm:mb-4">
                 Choose Your <span className="text-electric-blue">Mission</span>
               </CosmicHeading>
-              <p className="text-gray-300 text-lg">Select your priority level for fastest response</p>
+              <p className="text-gray-300 text-base sm:text-lg">Select priority level for fastest response</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-2">
               {urgentContactOptions.map((option, index) => (
                 <motion.div
                   key={option.action}
@@ -374,38 +381,38 @@ export default function ContactPage() {
                   className="relative"
                 >
                   <GlassmorphicCard 
-                    className={`p-6 h-full cursor-pointer transition-all duration-300 hover:scale-105 ${
+                    className={`p-4 sm:p-6 h-full cursor-pointer transition-all duration-300 hover:scale-105 min-h-[280px] sm:min-h-[320px] ${
                       selectedOption === option.action ? 'border-cyan-400 bg-cyan-400/10' : 'hover:border-cyan-400/50'
                     }`}
                     onClick={() => handleQuickContact(option)}
                   >
-                    {/* Priority Badge */}
-                    <div className={`absolute -top-2 -right-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${option.color} text-white`}>
+                    {/* Priority Badge - Mobile Optimized */}
+                    <div className={`absolute -top-2 -right-2 px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${option.color} text-white`}>
                       {option.priority}
                     </div>
 
-                    <div className={`w-16 h-16 bg-gradient-to-r ${option.color} rounded-lg flex items-center justify-center text-white mb-6 mx-auto`}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${option.color} rounded-lg flex items-center justify-center text-white mb-4 sm:mb-6 mx-auto`}>
                       {option.icon}
                     </div>
                     
-                    <h3 className="text-xl font-bold text-white mb-3 text-center">{option.title}</h3>
-                    <p className="text-gray-300 mb-4 text-center leading-relaxed">{option.description}</p>
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-3 text-center leading-tight">{option.title}</h3>
+                    <p className="text-gray-300 mb-4 text-center leading-relaxed text-sm sm:text-base">{option.description}</p>
                     
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <Clock className="w-4 h-4 text-green-400" />
-                        <span className="text-sm text-green-400 font-bold">{option.urgency}</span>
+                        <Clock className="w-4 h-4 text-green-400 flex-shrink-0" />
+                        <span className="text-sm text-green-400 font-bold text-right">{option.urgency}</span>
                       </div>
                       
                       <div className="flex items-center justify-between">
-                        <Star className="w-4 h-4 text-yellow-400" />
-                        <span className="text-sm text-yellow-400 font-bold">{option.valueProposition}</span>
+                        <Star className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                        <span className="text-sm text-yellow-400 font-bold text-right">{option.valueProposition}</span>
                       </div>
                     </div>
 
                     {selectedOption === option.action && (
                       <div className="mt-4 p-3 bg-cyan-400/20 rounded-lg border border-cyan-400/30">
-                        <p className="text-sm text-cyan-300 font-bold text-center">SELECTED - Complete form below</p>
+                        <p className="text-sm text-cyan-300 font-bold text-center">SELECTED</p>
                       </div>
                     )}
                   </GlassmorphicCard>
@@ -414,23 +421,23 @@ export default function ContactPage() {
             </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* Contact Form - Mobile Optimized */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="max-w-3xl mx-auto"
+            className="max-w-2xl mx-auto"
           >
-            <GlassmorphicCard className="p-8 md:p-12">
-              <div className="text-center mb-8">
-                <CosmicHeading className="text-3xl md:text-4xl mb-4">
+            <GlassmorphicCard className="p-6 sm:p-8 lg:p-12">
+              <div className="text-center mb-6 sm:mb-8">
+                <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-3 sm:mb-4">
                   Launch Your <span className="text-electric-blue">Transformation</span>
                 </CosmicHeading>
-                <p className="text-gray-300">Fill out the form below and our team will contact you within hours</p>
+                <p className="text-gray-300 text-sm sm:text-base">Fill out the form - our team will contact you within hours</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <motion.div custom={0} variants={fieldVariants} initial="hidden" animate="visible">
                     <label className="block text-sm font-bold text-electric-blue mb-2">
                       Full Name *
@@ -441,7 +448,7 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors text-base"
                       placeholder="Your name"
                     />
                   </motion.div>
@@ -456,13 +463,13 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors text-base"
                       placeholder="your@email.com"
                     />
                   </motion.div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <motion.div custom={2} variants={fieldVariants} initial="hidden" animate="visible">
                     <label className="block text-sm font-bold text-electric-blue mb-2">
                       Company Name
@@ -472,7 +479,7 @@ export default function ContactPage() {
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors text-base"
                       placeholder="Your company"
                     />
                   </motion.div>
@@ -486,7 +493,7 @@ export default function ContactPage() {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors text-base"
                       placeholder="+1 (555) 123-4567"
                     />
                   </motion.div>
@@ -501,7 +508,7 @@ export default function ContactPage() {
                     name="projectTimeline"
                     value={formData.projectTimeline}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white focus:border-electric-blue focus:outline-none transition-colors"
+                    className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white focus:border-electric-blue focus:outline-none transition-colors text-base"
                   >
                     <option value="immediate">Immediate (ASAP)</option>
                     <option value="1-month">Within 1 month</option>
@@ -517,9 +524,11 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-3 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors resize-none"
+                    className="w-full px-4 py-3 sm:py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors resize-none text-base"
                     placeholder="Describe your project, goals, and how SKRBL AI can help transform your business..."
                   />
                 </motion.div>
@@ -529,14 +538,14 @@ export default function ContactPage() {
                   variants={fieldVariants} 
                   initial="hidden" 
                   animate="visible"
-                  className="text-center"
+                  className="text-center pt-2"
                 >
                   <CosmicButton
                     type="submit"
                     variant="primary"
                     size="lg"
                     disabled={isSubmitting}
-                    className="w-full md:w-auto"
+                    className="w-full sm:w-auto min-h-[48px]"
                   >
                     {isSubmitting ? (
                       <>
@@ -551,10 +560,10 @@ export default function ContactPage() {
                     )}
                   </CosmicButton>
 
-                  <p className="text-sm text-gray-400 mt-4">
-                    Expected response time: {selectedOption === 'media' ? '< 1 hour' : 
-                                            selectedOption === 'enterprise' || selectedOption === 'investment' ? '< 2 hours' : 
-                                            '< 24 hours'}
+                  <p className="text-sm text-gray-400 mt-3 sm:mt-4">
+                    Expected response: {selectedOption === 'media' ? '< 1 hour' : 
+                                      selectedOption === 'enterprise' || selectedOption === 'investment' ? '< 2 hours' : 
+                                      '< 24 hours'}
                   </p>
                 </motion.div>
               </form>
