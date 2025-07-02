@@ -151,9 +151,14 @@ export default function SignUpPage() {
         }
       }
 
-      // Redirect to dashboard on success (will happen automatically via effect)
+      // Redirect to dashboard on success
       setSuccess('Account created! Redirecting to dashboard...');
       toast.success('Account created successfully!');
+      
+      // Immediate redirect to dashboard
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
       
     } catch (err: any) {
       console.error('[AUTH] Sign-up exception:', err);

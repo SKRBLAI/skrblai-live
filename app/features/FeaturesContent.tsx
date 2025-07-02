@@ -164,24 +164,24 @@ export default function FeaturesContent(): JSX.Element {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 max-w-6xl mx-auto"
+          className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto justify-items-center px-4 sm:px-6"
         >
-          <GlassmorphicCard className="p-6 text-center border border-green-500/30">
+          <GlassmorphicCard className="w-full p-6 text-center border border-green-500/30">
             <div className="text-3xl font-bold text-green-400 mb-2">${(revenueGenerated / 1000000).toFixed(1)}M+</div>
             <div className="text-gray-400">Revenue Generated Today</div>
             <div className="text-green-300 text-sm mt-1">+247% vs competitors</div>
           </GlassmorphicCard>
-          <GlassmorphicCard className="p-6 text-center border border-cyan-500/30">
+          <GlassmorphicCard className="w-full p-6 text-center border border-cyan-500/30">
             <div className="text-3xl font-bold text-cyan-400 mb-2">{companiesTransformed.toLocaleString()}</div>
             <div className="text-gray-400">Businesses Transformed</div>
             <div className="text-cyan-300 text-sm mt-1">This week alone</div>
           </GlassmorphicCard>
-          <GlassmorphicCard className="p-6 text-center border border-purple-500/30">
+          <GlassmorphicCard className="w-full p-6 text-center border border-purple-500/30">
             <div className="text-3xl font-bold text-purple-400 mb-2">97.8%</div>
             <div className="text-gray-400">Market Domination Rate</div>
             <div className="text-purple-300 text-sm mt-1">vs manual methods</div>
           </GlassmorphicCard>
-          <GlassmorphicCard className="p-6 text-center border border-orange-500/30">
+          <GlassmorphicCard className="w-full p-6 text-center border border-orange-500/30">
             <div className="text-3xl font-bold text-orange-400 mb-2">3.7hrs</div>
             <div className="text-gray-400">Average ROI Time</div>
             <div className="text-orange-300 text-sm mt-1">From zero to profit</div>
@@ -193,7 +193,7 @@ export default function FeaturesContent(): JSX.Element {
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16 justify-items-center px-4 sm:px-6"
         >
           {features.map((feature, index) => (
             <motion.div
@@ -205,9 +205,9 @@ export default function FeaturesContent(): JSX.Element {
             >
               <GlassmorphicCard
                 hoverEffect
-                className="flex flex-col h-full transform transition-all duration-300 border border-gradient-to-r border-purple-500/30 hover:border-cyan-400/50"
+                className="w-full flex flex-col h-full transform transition-all duration-300 border border-gradient-to-r border-purple-500/30 hover:border-cyan-400/50"
               >
-                <Link href={feature.href} className="flex flex-col h-full p-6 group">
+                <Link href={feature.href} className="w-full flex flex-col h-full p-6 group">
                   {/* Live Performance Badge */}
                   <div className="flex justify-between items-start mb-4">
                     <div className={`w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gradient-to-r ${feature.color} shadow-glow transform hover:rotate-12 transition-transform duration-300`}>
@@ -255,13 +255,13 @@ export default function FeaturesContent(): JSX.Element {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="max-w-6xl mx-auto mb-16"
+          className="max-w-7xl mx-auto mb-16 px-4 sm:px-6"
         >
           <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">
             Why Competitors Can't Keep Up
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <GlassmorphicCard className="p-8 border border-red-500/30">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+            <GlassmorphicCard className="w-full p-8 border border-red-500/30">
               <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
                 <Clock className="w-6 h-6" />
                 Your Competition (Manual Hell)
@@ -269,28 +269,28 @@ export default function FeaturesContent(): JSX.Element {
               <ul className="space-y-3 text-gray-300">
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">❌</span>
-                  <span>Weeks to create basic branding materials</span>
+                  <span className="text-gray-300">Weeks to create basic branding materials</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">❌</span>
-                  <span>Months to write and publish content</span>
+                  <span className="text-gray-300">Months to write and publish content</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">❌</span>
-                  <span>Expensive agencies and freelancers</span>
+                  <span className="text-gray-300">Expensive agencies and freelancers</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">❌</span>
-                  <span>Inconsistent quality and messaging</span>
+                  <span className="text-gray-300">Inconsistent quality and messaging</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-400 font-bold">❌</span>
-                  <span>Limited scalability and automation</span>
+                  <span className="text-gray-300">Limited scalability and automation</span>
                 </li>
               </ul>
             </GlassmorphicCard>
             
-            <GlassmorphicCard className="p-8 border border-green-500/30">
+            <GlassmorphicCard className="w-full p-8 border border-green-500/30">
               <h3 className="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
                 <Rocket className="w-6 h-6" />
                 You (AI-Powered Dominance)
@@ -314,7 +314,7 @@ export default function FeaturesContent(): JSX.Element {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-green-400 font-bold">✅</span>
-                  <span className="text-gray-200">Infinite scalability and automation</span>
+                  <span className="text-teal-200">Infinite scalability and automation</span>
                 </li>
               </ul>
             </GlassmorphicCard>

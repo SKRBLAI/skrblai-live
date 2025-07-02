@@ -33,13 +33,16 @@ export default function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 p-3"
     >
       <nav className="relative mx-auto max-w-7xl">
-        {/* Cosmic Enhanced Glass Container */}
-        <div className="absolute inset-0 rounded-2xl border-2 border-[#0066FF]/30 bg-gradient-to-r from-slate-900/95 via-gray-900/98 to-slate-900/95 backdrop-blur-xl navbar-cosmic navbar-glow navbar-rim-glow navbar-soft-shadow" />
-        {/* Subtle blue glow */}
+        {/* Enhanced 3D Cosmic Glass Container */}
+        <div className="absolute inset-0 rounded-2xl border-[3px] border-[#0066FF]/40 bg-gradient-to-r from-slate-900/98 via-gray-900/100 to-slate-900/98 backdrop-blur-2xl navbar-cosmic navbar-glow navbar-rim-glow navbar-3d-shadow" />
+        {/* Pseudo-3D Shadow Layer */}
+        <div className="absolute inset-x-0 top-0 h-full rounded-2xl bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none" />
+        {/* Enhanced shadow casting over page content */}
+        <div className="absolute inset-x-0 top-full h-4 bg-gradient-to-b from-black/25 via-black/10 to-transparent pointer-events-none" />
         
 
         {/* NAV CONTENT */}
-        <div className="relative py-3 px-4">
+        <div className="relative py-4 px-5">
           <div className="flex h-16 md:h-24 lg:h-28 items-center justify-between">
             {/* SKRBL AI Animated Logo with Tagline */}
             <Link href="/" className="group relative flex items-center focus:outline-none logo-cosmic-glow">
@@ -125,17 +128,20 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
       <Link
         href={href}
-        className={`group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg px-4 py-2 text-base font-medium transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 ${
+        className={`group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg border px-4 py-2 text-base font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 flex items-center justify-center ${
           isActive
-            ? "bg-[#0066FF]/30 text-white shadow-[0_0_30px_rgba(0,102,255,0.6)]"
-            : "text-gray-300 hover:bg-[#0066FF]/20 hover:text-white"
+            ? "border-cyan-400/60 bg-slate-700/80 text-white shadow-[0_0_20px_rgba(56,189,248,0.5)]"
+            : "border-gray-600/40 bg-slate-800/50 text-gray-300 hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white"
         }`}
       >
-        
-          {children}
-        {/* glow ring */}
+        <span className="relative z-10">{children}</span>
+        {/* Cosmic glow effect */}
         <div
-          className="absolute inset-0 rounded-lg transition-shadow duration-300 group-hover:shadow-[0_0_15px_2px_rgba(0,102,255,0.4)] group-focus-visible:shadow-[0_0_15px_2px_rgba(0,102,255,0.5)]"
+          className={`absolute inset-0 rounded-lg transition-all duration-300 ${
+            isActive 
+              ? "shadow-[0_0_25px_rgba(56,189,248,0.4)] bg-gradient-to-r from-cyan-500/10 via-blue-600/10 to-purple-600/10"
+              : "group-hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] group-hover:bg-gradient-to-r group-hover:from-cyan-500/5 group-hover:via-blue-600/5 group-hover:to-purple-600/5"
+          }`}
         />
       </Link>
     </motion.div>
@@ -173,20 +179,20 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
         whileHover={{ y: -2 }}
         transition={{ type: "spring", stiffness: 300, damping: 10 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg px-4 py-2 text-base font-medium transition-colors duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 text-gray-300 hover:bg-[#0066FF]/20 hover:text-white flex items-center space-x-1"
+        className="group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg border border-gray-600/40 bg-slate-800/50 px-4 py-2 text-base font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 text-gray-300 hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white flex items-center justify-center space-x-1"
       >
-        <span>More</span>
+        <span className="relative z-10">More</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
-          className="w-4 h-4"
+          className="w-4 h-4 relative z-10"
         >
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </motion.div>
-        {/* glow ring */}
-        <div className="absolute inset-0 rounded-lg transition-shadow duration-300 group-hover:shadow-[0_0_15px_2px_rgba(0,102,255,0.4)] group-focus-visible:shadow-[0_0_15px_2px_rgba(0,102,255,0.5)]" />
+        {/* Cosmic glow effect */}
+        <div className="absolute inset-0 rounded-lg transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(56,189,248,0.3)] group-hover:bg-gradient-to-r group-hover:from-cyan-500/5 group-hover:via-blue-600/5 group-hover:to-purple-600/5" />
       </motion.button>
 
       <AnimatePresence>

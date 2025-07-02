@@ -1,0 +1,43 @@
+
+🏃‍♂️ SKILL SMITH N8N SETUP INSTRUCTIONS
+======================================
+
+1. IMPORT WORKFLOW:
+   - Go to your N8N dashboard
+   - Click "Import" or "Import Workflow"  
+   - Upload: C:\Users\baked\Documents\SKRBL_AI_DEPLOY_2025\scripts\skill-smith-workflow-import.json
+   - Activate the workflow
+
+2. ADD ENVIRONMENT VARIABLE:
+   N8N_WEBHOOK_SKILL_SMITH=https://skrblai.app.n8n.cloud/webhook/sports-performance-master
+
+3. TEST THE WORKFLOW:
+   curl -X POST "https://skrblai.app.n8n.cloud/webhook/sports-performance-master" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userPrompt": "Create a training program for marathon running",
+    "sport": "running",
+    "experience_level": "intermediate", 
+    "goals": ["improve_endurance", "prevent_injury"],
+    "timeframe": "16_weeks",
+    "executionId": "test_skill_smith_123"
+  }'
+
+4. WEBHOOK URL:
+   https://skrblai.app.n8n.cloud/webhook/sports-performance-master
+
+🎯 INSPIRED BY GREAT MINDS:
+- Strategic thinking: Vince Lombardi + Bill Belichick
+- Motivational psychology: Tony Robbins
+- Performance science: Dr. Andy Galpin  
+- Mental toughness: Navy SEAL protocols
+
+🚀 CAPABILITIES:
+   - athletic performance analysis
+   - training program generation
+   - nutrition optimization
+   - injury prevention strategy
+   - mental performance coaching
+   - sports business strategy
+
+✅ Ready for sports performance optimization!

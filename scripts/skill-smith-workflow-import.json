@@ -1,0 +1,157 @@
+{
+  "name": "Skill Smith the Sports Performance Forger - sports-performance-master",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sports-performance-master",
+        "options": {}
+      },
+      "id": "webhook-trigger-skillsmith",
+      "name": "Sports Performance Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "sports-performance-master"
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Extract and validate sports performance input data\nconst inputData = $input.first().json;\n\n// Ensure required fields exist\nif (!inputData.userPrompt) {\n  throw new Error('userPrompt is required for sports performance analysis');\n}\n\n// Process the input for enhanced sports analysis\nconst processedData = {\n  ...inputData,\n  agentId: 'skill-smith-agent',\n  superheroName: 'Skill Smith the Sports Performance Forger',\n  capabilities: [\"athletic_performance_analysis\",\"training_program_generation\",\"nutrition_optimization\",\"injury_prevention_strategy\",\"mental_performance_coaching\",\"sports_business_strategy\"],\n  timestamp: new Date().toISOString(),\n  \n  // Enhanced sports context\n  sportsContext: {\n    analysisType: inputData.analysisType || 'general_performance',\n    sport: inputData.sport || 'general_fitness',\n    experience_level: inputData.experience_level || 'intermediate',\n    goals: inputData.goals || ['improve_performance'],\n    current_metrics: inputData.current_metrics || null,\n    timeframe: inputData.timeframe || '12_weeks'\n  },\n  \n  // Great minds inspiration context\n  inspiration: {\n    strategic_approach: 'Lombardi + Belichick strategic thinking',\n    mental_framework: 'Tony Robbins motivational psychology',\n    scientific_method: 'Dr. Andy Galpin performance science',\n    resilience_training: 'Navy SEAL mental toughness protocols'\n  }\n};\n\nreturn { json: processedData };\n"
+      },
+      "id": "sports-data-processor",
+      "name": "Sports Performance Data Processor",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "message",
+        "model": "gpt-4",
+        "messages": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are Skill Smith the Sports Performance Forger, modeled after the greatest athletic minds and coaches in history.\n\nYour persona embodies:\n- The strategic brilliance of Vince Lombardi\n- The analytical precision of Bill Belichick  \n- The motivational power of Tony Robbins\n- The performance science of Dr. Andy Galpin\n- The mental toughness training of Navy SEALs\n\nYour superpower is forging peak athletic performance through:\n1. **Performance Analysis**: Deep dive into current athletic capabilities\n2. **Custom Training Programs**: Personalized workout regimens for any sport/goal\n3. **Nutrition Optimization**: Fuel strategies for peak performance\n4. **Injury Prevention**: Proactive health and safety protocols\n5. **Mental Coaching**: Sports psychology and confidence building\n6. **Business Strategy**: For athletes building their brand/career\n\nAlways respond with:\n- Specific, actionable recommendations\n- Scientific backing for your suggestions\n- Motivational language that inspires peak performance\n- Detailed implementation steps\n- Follow-up tracking methods\n\nRemember: \"Forge your victory, one skill at a time!\""
+            },
+            {
+              "role": "user",
+              "content": "Sports Performance Request: {{ $json.userPrompt }}\n\nContext Information:\n- Sport/Activity: {{ $json.sportsContext.sport }}\n- Experience Level: {{ $json.sportsContext.experience_level }}\n- Goals: {{ $json.sportsContext.goals }}\n- Analysis Type: {{ $json.sportsContext.analysisType }}\n- Timeframe: {{ $json.sportsContext.timeframe }}\n- Current Metrics: {{ $json.sportsContext.current_metrics }}\n\nPlease provide a comprehensive sports performance analysis and actionable recommendations."
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 3000
+        }
+      },
+      "id": "openai-sports-processor",
+      "name": "Sports Performance AI Engine",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-credentials",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "\n// Get the sports performance analysis\nconst sportsResponse = $input.first().json.message.content;\nconst inputData = $('sports-data-processor').first().json;\n\n// Format the response for SKRBL AI with sports-specific enhancements\nconst formattedResponse = {\n  success: true,\n  executionId: inputData.executionId || `workout_${Date.now()}_skill-smith`,\n  agentId: 'skill-smith-agent',\n  superheroName: 'Skill Smith the Sports Performance Forger',\n  result: {\n    type: 'sports_performance_analysis',\n    output: sportsResponse,\n    metadata: {\n      processingTime: Date.now() - new Date(inputData.timestamp).getTime(),\n      confidence: 95,\n      model: 'gpt-4',\n      capabilities: [\"athletic_performance_analysis\",\"training_program_generation\",\"nutrition_optimization\",\"injury_prevention_strategy\",\"mental_performance_coaching\",\"sports_business_strategy\"],\n      sportsContext: inputData.sportsContext,\n      inspiration: inputData.inspiration\n    }\n  },\n  handoffSuggestions: [\n    {\n      agentId: 'analytics-agent',\n      reason: 'Track and analyze your performance metrics over time',\n      confidence: 90,\n      nextSteps: ['Set up performance tracking dashboard', 'Create baseline measurements']\n    },\n    {\n      agentId: 'content-creator-agent',\n      reason: 'Create content about your athletic journey for social media',\n      confidence: 85,\n      nextSteps: ['Document training progress', 'Share success stories']\n    },\n    {\n      agentId: 'branding-agent',\n      reason: 'Build your personal athletic brand and sponsorship opportunities',\n      confidence: 80,\n      nextSteps: ['Develop athlete personal brand', 'Create sponsorship materials']\n    },\n    {\n      agentId: 'social-bot-agent',\n      reason: 'Share your athletic achievements and inspire others',\n      confidence: 75,\n      nextSteps: ['Create motivational content', 'Build athletic community']\n    }\n  ],\n  sportsSpecific: {\n    performanceCategories: ['strength', 'endurance', 'flexibility', 'mental_toughness'],\n    recommendedFollowUp: '2_week_progress_check',\n    injuryRisk: 'low_moderate',\n    motivationalQuote: 'Forge your victory, one skill at a time!'\n  },\n  timestamp: new Date().toISOString(),\n  status: 'completed'\n};\n\nreturn { json: formattedResponse };\n"
+      },
+      "id": "sports-response-formatter",
+      "name": "Sports Performance Response Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "sports-webhook-response",
+      "name": "Sports Performance Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Sports Performance Webhook": {
+      "main": [
+        [
+          {
+            "node": "Sports Performance Data Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sports Performance Data Processor": {
+      "main": [
+        [
+          {
+            "node": "Sports Performance AI Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sports Performance AI Engine": {
+      "main": [
+        [
+          {
+            "node": "Sports Performance Response Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sports Performance Response Formatter": {
+      "main": [
+        [
+          {
+            "node": "Sports Performance Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": null,
+  "tags": [
+    "sports",
+    "performance",
+    "skill-smith",
+    "athletics"
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-07-02T12:13:58.411Z",
+  "versionId": "1"
+}
