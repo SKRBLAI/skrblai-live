@@ -702,3 +702,74 @@
     transform: translateX(200%) skewX(-12deg);
   }
 }
+
+/* ✨ PREMIUM SKRBL AI LOGO ANIMATIONS */
+@keyframes gradient-wave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes premium-shine {
+  0% { 
+    background-position: -200% 50%; 
+    filter: drop-shadow(0 0 12px rgba(56,189,248,0.6));
+  }
+  50% { 
+    background-position: 200% 50%; 
+    filter: drop-shadow(0 0 20px rgba(168,85,247,0.8));
+  }
+  100% { 
+    background-position: -200% 50%; 
+    filter: drop-shadow(0 0 12px rgba(56,189,248,0.6));
+  }
+}
+
+.animate-gradient-wave {
+  animation: gradient-wave 3s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+.animate-premium-shine {
+  animation: premium-shine 2.5s ease-in-out infinite;
+}
+
+/* ✨ HERO SECTION BLUR FIXES */
+.hero-text-crisp {
+  text-shadow: 0 0 0 transparent;
+  filter: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hero-competition-heading {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  text-rendering: optimizeLegibility;
+  /* Remove excessive blur/glow */
+  filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)) !important;
+}
+
+/* Reduce excessive glow effects that cause blur */
+.reduced-glow {
+  text-shadow: 0 0 8px rgba(56,189,248,0.4) !important;
+  filter: drop-shadow(0 0 6px rgba(56,189,248,0.3)) !important;
+}
+
+/* Clean crisp text for important headings */
+.text-crisp {
+  text-shadow: none !important;
+  filter: none !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

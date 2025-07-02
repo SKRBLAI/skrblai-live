@@ -146,10 +146,10 @@ export default function PricingPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-full border border-orange-400/30 mb-6">
+              <div className="inline-flex flex-wrap sm:flex-nowrap items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 rounded-full border border-orange-400/30 mb-6 max-w-full">
                 <span className="text-2xl animate-pulse">🔥</span>
-                <span className="text-orange-300 font-bold">INDUSTRY DISRUPTION IN PROGRESS</span>
-                <span className="text-orange-400 font-mono">{formatTime(urgencyTimer)}</span>
+                <span className="text-orange-300 font-bold whitespace-nowrap">INDUSTRY DISRUPTION IN PROGRESS</span>
+                <span className="text-orange-400 font-mono whitespace-nowrap">{formatTime(urgencyTimer)}</span>
               </div>
             </motion.div>
 

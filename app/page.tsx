@@ -9,11 +9,10 @@ import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import ConversationalPercyOnboarding from '@/components/home/ConversationalPercyOnboarding';
+import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
-import AgentsGrid from '@/components/agents/AgentsGrid';
+
 import SkrblAiText from '@/components/shared/SkrblAiText';
-import { IntegratedFloatingPercy } from '@/components/home/ConversationalPercyOnboarding';
 import AgentPreviewSection from '@/components/home/AgentPreviewSection';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { ArrowRight, Sparkles, Zap, Target, Users, TrendingUp, Globe, Building, User } from 'lucide-react';
@@ -109,12 +108,12 @@ export default function HomePage() {
         {/* Hero Section */}
         <section className="min-h-[85vh] flex flex-col items-center">
           <div className="flex flex-col items-center justify-center w-full">
-            {/* Welcome headline */}
+            {/* Welcome headline - CRISP & POWERFUL */}
             <motion.h1 
               initial={{ opacity: 0, y: -20 }} 
               animate={{ opacity: 1, y: 0 }} 
               transition={{ duration: 0.6 }}
-              className="skrblai-heading text-center text-3xl sm:text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent drop-shadow-glow mobile-text-safe no-text-cutoff"
+              className="hero-competition-heading text-crisp text-center text-3xl sm:text-4xl md:text-6xl lg:text-7xl max-w-5xl mx-auto mb-4 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent mobile-text-safe no-text-cutoff"
             >
               Your Competition Just Became <span className="bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">Extinct</span>
             </motion.h1>
@@ -130,141 +129,7 @@ export default function HomePage() {
               <span className="text-gray-300 font-normal">47,000+ businesses have already left their competition in the dust. <span className="text-cyan-400 font-semibold">Your turn starts now.</span></span>
             </motion.p>
             
-            {/* ✨ NEW: Instant Value Demo Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-center mb-12 max-w-4xl mx-auto"
-            >
-              <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-lg rounded-3xl border border-cyan-400/30 p-8 mb-8 shadow-[0_0_50px_rgba(56,189,248,0.3)]">
-                <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
-                  🎯 <span className="bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Instant Business Analysis</span>
-                </h2>
-                <p className="text-gray-300 text-lg mb-6">
-                  See exactly how <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> will dominate your competition in <span className="text-cyan-400 font-bold">under 30 seconds</span>
-                </p>
-                
-                {/* Quick Value Demo Options */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <motion.div 
-                    className="bg-gradient-to-br from-blue-900/40 to-cyan-900/40 rounded-xl p-4 border border-blue-400/20 cursor-pointer hover:border-blue-400/40 transition-all"
-                    whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
-                    onClick={() => {
-                      const input = document.getElementById('instant-demo-input') as HTMLInputElement;
-                      if (input) {
-                        input.placeholder = 'Enter your website URL...';
-                        input.focus();
-                      }
-                    }}
-                  >
-                    <div className="text-2xl mb-2">🌐</div>
-                    <h3 className="text-white font-bold mb-1">Website Analysis</h3>
-                    <p className="text-gray-400 text-sm">Instant SEO, conversion & competition insights</p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 rounded-xl p-4 border border-purple-400/20 cursor-pointer hover:border-purple-400/40 transition-all"
-                    whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(168, 85, 247, 0.3)' }}
-                    onClick={() => {
-                      const input = document.getElementById('instant-demo-input') as HTMLInputElement;
-                      if (input) {
-                        input.placeholder = 'Describe your business or industry...';
-                        input.focus();
-                      }
-                    }}
-                  >
-                    <div className="text-2xl mb-2">🏢</div>
-                    <h3 className="text-white font-bold mb-1">Business Strategy</h3>
-                    <p className="text-gray-400 text-sm">AI agent recommendations & automation plan</p>
-                  </motion.div>
-                  
-                  <motion.div 
-                    className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 rounded-xl p-4 border border-green-400/20 cursor-pointer hover:border-green-400/40 transition-all"
-                    whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(34, 197, 94, 0.3)' }}
-                    onClick={() => {
-                      const input = document.getElementById('instant-demo-input') as HTMLInputElement;
-                      if (input) {
-                        input.placeholder = 'Enter your LinkedIn profile URL...';
-                        input.focus();
-                      }
-                    }}
-                  >
-                    <div className="text-2xl mb-2">💼</div>
-                    <h3 className="text-white font-bold mb-1">Profile Optimization</h3>
-                    <p className="text-gray-400 text-sm">Personal brand & content strategy analysis</p>
-                  </motion.div>
-                </div>
-                
-                {/* Instant Demo Input */}
-                <div className="relative max-w-2xl mx-auto">
-                  <input
-                    id="instant-demo-input"
-                    type="text"
-                    placeholder="Enter your website, business idea, or LinkedIn profile..."
-                    className="w-full px-6 py-4 pr-36 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-lg"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        const input = e.target as HTMLInputElement;
-                        if (input.value.trim()) {
-                          // Trigger Percy onboarding with the input
-                          const percyOnboardingElement = document.querySelector('[data-percy-onboarding]');
-                          if (percyOnboardingElement) {
-                            percyOnboardingElement.scrollIntoView({ behavior: 'smooth' });
-                            // Simulate the input to Percy
-                            setTimeout(() => {
-                              const percyInput = document.querySelector('[data-percy-input]') as HTMLInputElement;
-                              if (percyInput) {
-                                percyInput.value = input.value;
-                                percyInput.focus();
-                                const event = new KeyboardEvent('keydown', { key: 'Enter' });
-                                percyInput.dispatchEvent(event);
-                              }
-                            }, 500);
-                          }
-                        }
-                      }
-                    }}
-                  />
-                  <motion.button
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold rounded-lg hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg hover:shadow-xl"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      const input = document.getElementById('instant-demo-input') as HTMLInputElement;
-                      if (input?.value.trim()) {
-                        const percyOnboardingElement = document.querySelector('[data-percy-onboarding]');
-                        if (percyOnboardingElement) {
-                          percyOnboardingElement.scrollIntoView({ behavior: 'smooth' });
-                          setTimeout(() => {
-                            const percyInput = document.querySelector('[data-percy-input]') as HTMLInputElement;
-                            if (percyInput) {
-                              percyInput.value = input.value;
-                              percyInput.focus();
-                              const event = new KeyboardEvent('keydown', { key: 'Enter' });
-                              percyInput.dispatchEvent(event);
-                            }
-                          }, 500);
-                        }
-                      }
-                    }}
-                  >
-                    Analyze Now
-                  </motion.button>
-                </div>
-                
-                <div className="mt-4 flex items-center justify-center space-x-4 text-sm text-gray-400">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span>No signup required</span>
-                  </div>
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  <span>Results in 15 seconds</span>
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  <span className="text-cyan-400 font-semibold">3 free scans daily</span>
-                </div>
-              </div>
-            </motion.div>
+
 
             {/* Percy Introduction */}
             <motion.div
@@ -315,8 +180,8 @@ export default function HomePage() {
               </div>
             </motion.div>
             
-            {/* Conversational Percy Onboarding */}
-            <ConversationalPercyOnboarding />
+            {/* Percy Onboarding Revolution */}
+            <PercyOnboardingRevolution />
           </div>
 
           {/* ✨ NEW: Prominent Social Proof Section */}
@@ -466,11 +331,11 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               className="mt-4 mb-2 max-w-2xl mx-auto"
             >
-              <div className="bg-gradient-to-r from-red-900/30 to-orange-900/30 border border-red-500/40 rounded-lg p-3">
-                <div className="flex items-center justify-center gap-2 text-sm">
+              <div className="bg-gradient-to-r from-red-900/30 to-orange-900/30 border border-red-500/40 rounded-lg p-3 max-w-full">
+                <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-2 text-sm">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                  <span className="text-red-400 font-semibold">LIVE:</span>
-                  <span className="text-white">{Math.floor(Math.random() * 156) + 67} businesses gained competitive advantage in the last hour</span>
+                  <span className="text-red-400 font-semibold whitespace-nowrap">LIVE:</span>
+                  <span className="text-white whitespace-nowrap">{Math.floor(Math.random() * 156) + 67} businesses gained competitive advantage in the last hour</span>
                 </div>
                 <div className="text-center text-xs text-orange-300 mt-1">
                   Your competitors don't know what's coming • Average time to industry dominance: 72 hours
@@ -488,53 +353,121 @@ export default function HomePage() {
               </motion.p>
             )}
             
-            {/* Agent Backstory Links for Testing */}
-            <div className="mt-8 p-4 bg-gray-800/50 rounded-xl max-w-2xl mx-auto">
-              <h4 className="text-lg font-semibold text-white mb-3">Agent Backstory Pages</h4>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <Link href="/agent-backstory/percy-agent" className="px-3 py-2 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 rounded-lg transition-colors">
-                  Percy Backstory
-                </Link>
-                <Link href="/agent-backstory/branding-agent" className="px-3 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 rounded-lg transition-colors">
-                  Branding Agent
-                </Link>
-                <Link href="/agent-backstory/content-creator-agent" className="px-3 py-2 bg-green-600/30 hover:bg-green-600/50 text-green-300 rounded-lg transition-colors">
-                  Content Creator
-                </Link>
-                <Link href="/agent-backstory/social-bot-agent" className="px-3 py-2 bg-pink-600/30 hover:bg-pink-600/50 text-pink-300 rounded-lg transition-colors">
-                  Social Bot
-                </Link>
-                <Link href="/agent-backstory/analytics-agent" className="px-3 py-2 bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 rounded-lg transition-colors">
-                  Analytics Agent
-                </Link>
-                <Link href="/agent-backstory/sitegen-agent" className="px-3 py-2 bg-teal-600/30 hover:bg-teal-600/50 text-teal-300 rounded-lg transition-colors">
-                  SiteGen Agent
-                </Link>
+            {/* Live Agent Domination Dashboard */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-8 mb-12"
+            >
+              <AgentPreviewSection />
+            </motion.div>
+
+            {/* Agent Backstory Navigation */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="mt-8 mb-12 max-w-4xl mx-auto"
+            >
+              <div className="text-center mb-6">
+                <h4 className="text-xl font-bold text-white mb-2">🎭 Agent Origin Stories</h4>
+                <p className="text-gray-400">Discover the epic backstories of your AI champions</p>
               </div>
-              <p className="text-xs text-gray-400 mt-3">These links are for testing the new agent backstory pages</p>
-            </div>
-          </div>
-          
-          {/* Agent Constellation - RE-ENABLED WITH MOBILE ROTATION FIX */}
-          <div className="mb-16 relative">
-            <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-              <FloatingParticles particleCount={20} />
-            </div>
-            <div className="relative z-10">
-              <AgentsGrid />
-            </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/percy-agent" className="block p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-blue-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">P</div>
+                      <div>
+                        <h5 className="text-blue-300 font-semibold group-hover:text-blue-200">Percy's Origin</h5>
+                        <p className="text-xs text-gray-400">Cosmic Concierge</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/branding-agent" className="block p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold">B</div>
+                      <div>
+                        <h5 className="text-purple-300 font-semibold group-hover:text-purple-200">Brand Alexander</h5>
+                        <p className="text-xs text-gray-400">Design Overlord</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/content-creator-agent" className="block p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 border border-green-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold">C</div>
+                      <div>
+                        <h5 className="text-green-300 font-semibold group-hover:text-green-200">Content Carltig</h5>
+                        <p className="text-xs text-gray-400">Content Wizard</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/social-bot-agent" className="block p-4 bg-gradient-to-br from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center text-white font-bold">S</div>
+                      <div>
+                        <h5 className="text-pink-300 font-semibold group-hover:text-pink-200">Social Nino</h5>
+                        <p className="text-xs text-gray-400">Viral Master</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/analytics-agent" className="block p-4 bg-gradient-to-br from-amber-600/20 to-orange-600/20 hover:from-amber-600/30 hover:to-orange-600/30 border border-amber-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+                      <div>
+                        <h5 className="text-amber-300 font-semibold group-hover:text-amber-200">Analytics Agent</h5>
+                        <p className="text-xs text-gray-400">Data Oracle</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Link href="/agent-backstory/sitegen-agent" className="block p-4 bg-gradient-to-br from-teal-600/20 to-cyan-600/20 hover:from-teal-600/30 hover:to-cyan-600/30 border border-teal-500/30 rounded-xl transition-all group">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold">W</div>
+                      <div>
+                        <h5 className="text-teal-300 font-semibold group-hover:text-teal-200">Website Agent</h5>
+                        <p className="text-xs text-gray-400">Site Builder</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              </div>
+            </motion.div>
           </div>
           
           <div className="mt-8 mb-12 text-center">
-            <Link 
-              href="/services" 
-              className="cosmic-btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-xl"
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
             >
-              <span>View All Agents</span>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </Link>
+              <Link 
+                href="/services" 
+                className="cosmic-btn-secondary inline-flex items-center gap-2 px-8 py-4 rounded-xl text-lg font-semibold hover:scale-105 transition-all"
+              >
+                <span>View All Services</span>
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <p className="text-gray-400 text-sm mt-3">
+                Explore our complete AI agent ecosystem and find your perfect automation solution
+              </p>
+            </motion.div>
           </div>
         </section>
 
@@ -571,9 +504,6 @@ export default function HomePage() {
         </section>
       </div>
       </main>
-      
-      {/* Integrated FloatingPercy for additional assistance */}
-      <IntegratedFloatingPercy />
     </div>
   );
 }

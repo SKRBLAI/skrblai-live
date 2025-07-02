@@ -4,14 +4,15 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
-import CosmicBrandLogo from "@/components/ui/CosmicBrandLogo";
+import { Menu, X, Sparkles, LogIn } from "lucide-react";
+import SkrblAiLogo from "@/components/ui/SkrblAiLogo";
 
 /**
- * Premium animated Navbar with single video logo (desktop & mobile).
- * - Responsive, accessible, and mobile-first.
- * - Uses Framer Motion for subtle motion flourishes.
- * - Removes all legacy duplicated logos / taglines.
+ * Premium minimal Navbar with clean 3-link design + hamburger menu.
+ * - Only 3 visible links: About | Features | Pricing
+ * - Hamburger menu: Agent League, Services, Sports, Contact
+ * - Dual CTAs: Login + Try Percy Free
+ * - Premium gradient animations with glass morphism.
  */
 export default function Navbar() {
   const pathname = usePathname();
@@ -40,50 +41,65 @@ export default function Navbar() {
         {/* NAV CONTENT */}
         <div className="relative py-3 px-4">
           <div className="flex h-16 md:h-20 items-center justify-between">
-            {/* Cosmic Brand Logo with Tagline */}
+            {/* SKRBL AI Animated Logo with Tagline */}
             <Link href="/" className="group relative flex items-center focus:outline-none">
-              <CosmicBrandLogo 
+              <SkrblAiLogo 
                 size="md" 
-                animate={true} 
+                variant="premium" 
                 showTagline={true}
                 className="flex-shrink-0"
               />
             </Link>
 
-            {/* Desktop Nav & CTA */}
+            {/* Desktop Nav & CTAs */}
             <div className="flex items-center space-x-6">
-              {/* Links */}
+              {/* Minimal 3 Links (Desktop Only) */}
               <div className="hidden items-center space-x-3 py-1 lg:flex">
                 <NavLink href="/about">About</NavLink>
-                <NavLink href="/agents">Agent League</NavLink>
                 <NavLink href="/features">Features</NavLink>
-                <NavLink href="/contact">Contact</NavLink>
                 <NavLink href="/pricing">Pricing</NavLink>
-                <NavLink href="/services">Services</NavLink>
-                <NavLink href="/sports">Sports</NavLink>
               </div>
 
-              {/* CTA */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="hidden flex-shrink-0 py-1 md:flex"
-              >
-                <Link href="/sign-up" className="focus:outline-none">
-                  <button className="relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-1.5 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                    {/* Animated gradient */}
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
-                    {/* Outer glow */}
-                    <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
-                    {/* Shimmer */}
-                    <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-                    <div className="relative flex items-center space-x-2">
-                      <Sparkles className="h-4 w-4" />
-                      <span className="text-sm font-semibold">Get Started</span>
-                    </div>
-                  </button>
-                </Link>
-              </motion.div>
+              {/* Dual CTAs (Desktop) */}
+              <div className="hidden items-center space-x-3 lg:flex">
+                {/* Login Button */}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex-shrink-0"
+                >
+                  <Link href="/sign-in" className="focus:outline-none">
+                    <button className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                      <div className="relative flex items-center space-x-2">
+                        <LogIn className="h-4 w-4" />
+                        <span className="text-sm">Login</span>
+                      </div>
+                    </button>
+                  </Link>
+                </motion.div>
+
+                {/* Try Percy Free Button */}
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="flex-shrink-0"
+                >
+                  <Link href="/sign-up" className="focus:outline-none">
+                    <button className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                      {/* Animated gradient */}
+                      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
+                      {/* Outer glow */}
+                      <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
+                      {/* Shimmer */}
+                      <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+                      <div className="relative flex items-center space-x-2">
+                        <Sparkles className="h-4 w-4" />
+                        <span className="text-sm font-semibold">Try Percy Free</span>
+                      </div>
+                    </button>
+                  </Link>
+                </motion.div>
+              </div>
 
               {/* Mobile Hamburger */}
               <div className="flex-shrink-0 lg:hidden">
@@ -126,7 +142,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 }
 
 /****************************
- * MobileMenu (slide-in panel)
+ * MobileMenu (slide-in panel with hamburger items)
  ***************************/
 interface MobileMenuProps {
   pathname: string | null;
@@ -176,14 +192,17 @@ function MobileMenu({ pathname }: MobileMenuProps) {
     open: { opacity: 1, x: 0 },
   } as const;
 
+  // Mobile menu items (hamburger menu + main nav items)
   const navItems = [
+    // Main nav items for mobile
     { href: "/about", label: "About" },
-    { href: "/agents", label: "Agent League" },
     { href: "/features", label: "Features" },
-    { href: "/contact", label: "Contact" },
     { href: "/pricing", label: "Pricing" },
-    { href: "/services", label: "Services" },
-    { href: "/sports", label: "Sports" },
+    // Hamburger menu items
+    { href: "/agents", label: "Agent League", section: "More" },
+    { href: "/services", label: "Services", section: "More" },
+    { href: "/sports", label: "Sports", section: "More" },
+    { href: "/contact", label: "Contact", section: "More" },
   ];
 
   return (
@@ -236,8 +255,6 @@ function MobileMenu({ pathname }: MobileMenuProps) {
               <div className="relative flex h-full flex-col p-6">
                 {/* Header */}
                 <div className="mb-8 flex items-center justify-end">
-
-
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -258,6 +275,13 @@ function MobileMenu({ pathname }: MobileMenuProps) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05 }}
                     >
+                      {item.section && idx === 3 && (
+                        <div className="mb-3 mt-4 border-t border-gray-700/50 pt-3">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                            {item.section}
+                          </p>
+                        </div>
+                      )}
                       <Link
                         ref={idx === 0 ? firstLinkRef : undefined}
                         href={item.href}
@@ -272,28 +296,46 @@ function MobileMenu({ pathname }: MobileMenuProps) {
                   ))}
                 </nav>
 
-                {/* CTA */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="mt-auto"
-                >
-                  <Link href="/sign-up" onClick={() => setIsOpen(false)}>
-                    <button className="relative w-full min-h-[44px] min-w-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                      {/* Gradient */}
-                      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500" />
-                      {/* Glow */}
-                      <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 blur opacity-60 transition-opacity group-hover:opacity-90" />
-                      {/* Shimmer */}
-                      <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-                      <div className="relative flex items-center justify-center space-x-2">
-                        <Sparkles className="h-5 w-5" />
-                        <span>Get Started</span>
-                      </div>
-                    </button>
-                  </Link>
-                </motion.div>
+                {/* Mobile CTAs */}
+                <div className="mt-auto space-y-3">
+                  {/* Login Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <Link href="/sign-in" onClick={() => setIsOpen(false)}>
+                      <button className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-3 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                        <div className="flex items-center justify-center space-x-2">
+                          <LogIn className="h-4 w-4" />
+                          <span>Login</span>
+                        </div>
+                      </button>
+                    </Link>
+                  </motion.div>
+
+                  {/* Try Percy Free Button */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35 }}
+                  >
+                    <Link href="/sign-up" onClick={() => setIsOpen(false)}>
+                      <button className="group relative w-full min-h-[44px] min-w-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                        {/* Gradient */}
+                        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500" />
+                        {/* Glow */}
+                        <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 blur opacity-60 transition-opacity group-hover:opacity-90" />
+                        {/* Shimmer */}
+                        <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+                        <div className="relative flex items-center justify-center space-x-2">
+                          <Sparkles className="h-5 w-5" />
+                          <span>Try Percy Free</span>
+                        </div>
+                      </button>
+                    </Link>
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           </>

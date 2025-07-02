@@ -205,7 +205,7 @@ export default function AboutPage(): JSX.Element {
               transition={{ delay: 0.5 }}
             >
               <GlassmorphicCard className="text-center p-6 border-cyan-400/20">
-                <div className="text-3xl font-bold text-cyan-400 mb-2">
+                <div className="text-3xl font-bold text-cyan-400 mb-2 whitespace-nowrap leading-none">
                   {metrics.companiesTransformed.toLocaleString()}+
                 </div>
                 <div className="text-gray-300 text-sm">Companies Transformed</div>
@@ -213,7 +213,7 @@ export default function AboutPage(): JSX.Element {
               </GlassmorphicCard>
 
               <GlassmorphicCard className="text-center p-6 border-green-400/20">
-                <div className="text-3xl font-bold text-green-400 mb-2">
+                <div className="text-3xl font-bold text-green-400 mb-2 whitespace-nowrap leading-none">
                   ${(metrics.revenueGenerated / 1000000).toFixed(1)}M+
                 </div>
                 <div className="text-gray-300 text-sm">Revenue Generated</div>
@@ -221,7 +221,7 @@ export default function AboutPage(): JSX.Element {
               </GlassmorphicCard>
 
               <GlassmorphicCard className="text-center p-6 border-purple-400/20">
-                <div className="text-3xl font-bold text-purple-400 mb-2">
+                <div className="text-3xl font-bold text-purple-400 mb-2 whitespace-nowrap leading-none">
                   {metrics.activeAgents}
                 </div>
                 <div className="text-gray-300 text-sm">Active AI Agents</div>
@@ -229,7 +229,7 @@ export default function AboutPage(): JSX.Element {
               </GlassmorphicCard>
 
               <GlassmorphicCard className="text-center p-6 border-orange-400/20">
-                <div className="text-3xl font-bold text-orange-400 mb-2">
+                <div className="text-3xl font-bold text-orange-400 mb-2 whitespace-nowrap leading-none">
                   {metrics.dailyTasks.toLocaleString()}+
                 </div>
                 <div className="text-gray-300 text-sm">Daily Tasks Automated</div>
@@ -293,7 +293,7 @@ export default function AboutPage(): JSX.Element {
               viewport={{ once: true }}
             >
               <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                Why <span className="text-electric-blue">Businesses Choose</span> <SkrblAiText variant="glow" size="xl">SKRBL AI</SkrblAiText>
+                Why <span className="text-electric-blue">Businesses Choose</span> <SkrblAiText variant="glow" size="inherit">SKRBL AI</SkrblAiText>
               </CosmicHeading>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                 We don't just compete - we redefine what AI automation can achieve.
