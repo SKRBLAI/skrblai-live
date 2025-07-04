@@ -2,6 +2,8 @@ import { supabase } from '@/utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
+// Enhanced Percy with global memory and orchestration capabilities
+
 // Define input interface for Percy Agent
 interface PercyAgentInput extends Omit<BaseAgentInput, 'goal'> {
   type: 'text' | 'form';
@@ -233,7 +235,7 @@ const percyAgent: Agent = {
   canConverse: true,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'percy-agent',
+  id: 'percy',
   name: 'Percy',
   category: 'Assistant',
   description: 'AI assistant that handles user inquiries and form intake',

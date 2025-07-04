@@ -233,7 +233,7 @@ function generateAuditCSV(exportData: any): string {
     rows.push([
       'Percy Contact',
       item.timestamp,
-      'percy-agent',
+      'percy',
       'Percy',
       'contact_' + item.contact_method,
       item.user_id || '',

@@ -57,7 +57,7 @@ export async function GET(req: Request) {
     const featuredAgents = agentRegistry
       .filter(a => {
         // Exclude Percy from featured agents
-        if (a.id === 'percy-agent' || a.id === 'percy' || a.name === 'Percy') {
+        if (a.id === 'percy' || a.id === 'percy' || a.name === 'Percy') {
           return false;
         }
         return a.displayInOrbit === true;

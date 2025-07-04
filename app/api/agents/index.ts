@@ -74,7 +74,7 @@ export async function GET(req: Request) {
     // Filter agents by role gating AND exclude Percy AND premium gating
     const visibleAgents = agentRegistry.filter(a => {
       // Exclude Percy from all agent listings
-      if (a.id === 'percy-agent' || a.id === 'percy' || a.name === 'Percy') {
+      if (a.id === 'percy' || a.id === 'percy' || a.name === 'Percy') {
         return false;
       }
       

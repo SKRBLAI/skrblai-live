@@ -242,7 +242,7 @@ export default function ConversationalPercyOnboarding() {
       setCompetitiveInsights([competitiveMessage]);
 
       // Simplified agent recommendation
-      const recommendedAgentIds = ['contentcreator-agent'];
+      const recommendedAgentIds = ['contentcreation'];
 
       recommendedAgentIds.forEach((agentId, index) => {
         const backstory = agentBackstories[agentId];
@@ -334,7 +334,7 @@ export default function ConversationalPercyOnboarding() {
           // If returning user, add welcome back message
           if (onboardingState.conversationHistory.length === 0) {
             addPercyMessage(
-              `🔥 ${profile?.display_name || 'Industry disruptor'}! You're back! I've analyzed 2,847 businesses this week alone. Ready to see how far ahead of your competition you can get? ${agentBackstories['percy-agent'].catchphrase}`,
+              `🔥 ${profile?.display_name || 'Industry disruptor'}! You're back! I've analyzed 2,847 businesses this week alone. Ready to see how far ahead of your competition you can get? ${agentBackstories['percy'].catchphrase}`,
               [
                 { id: 'continue', label: 'Show me the competitive advantage ⚡', icon: '⚡', action: 'continue' },
                 { id: 'restart', label: 'I want to dominate a new area 🎯', icon: '🎯', action: 'restart' }
@@ -345,7 +345,7 @@ export default function ConversationalPercyOnboarding() {
           // New user greeting
           if (onboardingState.conversationHistory.length === 0) {
             addPercyMessage(
-              `✨ Welcome to the SKRBL AI universe! I'm Percy, your cosmic concierge. ${agentBackstories['percy-agent'].catchphrase} Ready to find your perfect AI superhero?`,
+              `✨ Welcome to the SKRBL AI universe! I'm Percy, your cosmic concierge. ${agentBackstories['percy'].catchphrase} Ready to find your perfect AI superhero?`,
               [
                 { id: 'start', label: "I want to dominate my industry! 🚀", icon: '🚀', action: 'start' },
                 { id: 'learn', label: "Tell me about your agents 🤖", icon: '🤖', action: 'learn' },
@@ -359,7 +359,7 @@ export default function ConversationalPercyOnboarding() {
         // Default greeting if error
         if (onboardingState.conversationHistory.length === 0) {
           addPercyMessage(
-            `✨ Welcome to the SKRBL AI universe! I'm Percy, your cosmic concierge. ${agentBackstories['percy-agent'].catchphrase} Ready to find your perfect AI superhero?`
+            `✨ Welcome to the SKRBL AI universe! I'm Percy, your cosmic concierge. ${agentBackstories['percy'].catchphrase} Ready to find your perfect AI superhero?`
           );
         }
       }
@@ -936,7 +936,7 @@ Based on this analysis, here are my cosmic recommendations:`
                     `}>
                       {/* Intelligence badge for competitive messages */}
                       {message.metadata?.competitiveMode && (
-                        <div className="absolute -top-2 -left-2 bg-orange-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                        <div className="absolute -top-2 -left-2 bg-orange-400 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg border border-white/20">
                           🎯 COMPETITIVE
                         </div>
                       )}

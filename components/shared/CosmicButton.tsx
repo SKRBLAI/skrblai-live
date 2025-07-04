@@ -34,10 +34,10 @@ export default function CosmicButton({
   };
 
   const sizeStyles = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2',
-    lg: 'px-6 py-3 text-lg',
-    xl: 'px-8 py-4 text-xl font-bold'
+    sm: 'px-4 py-2 text-sm',
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg',
+    xl: 'px-10 py-5 text-xl font-bold'
   };
 
   const buttonStyles = `

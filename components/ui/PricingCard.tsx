@@ -35,7 +35,7 @@ export default function PricingCard({
       aria-label={badge ? `${badge} Plan` : `${title} Plan`}
     >
       {badge && (
-        <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold z-10 ${highlight ? 'bg-[#1E90FF] text-white shadow-[0_0_10px_#1E90FF80]' : 'bg-[#30D5C8] text-black shadow-[0_0_6px_#30D5C880]'}`}>
+        <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold z-10 ${highlight ? 'bg-[#1E90FF] text-white shadow-[0_0_10px_#1E90FF80]' : 'bg-[#30D5C8] text-white shadow-[0_0_6px_#30D5C880] border border-white/20'}`}>
           {badge}
         </span>
       )}

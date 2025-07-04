@@ -615,7 +615,7 @@ function generatePostSchedule(platforms: string[], postCount: number): ScheduleI
 }
 
 const socialBotAgent: Agent = {
-  id: 'social-bot-agent',
+  id: 'social',
   name: 'Social Bot',
   category: 'Marketing',
   description: 'AI-powered social media content generation and management',
@@ -641,7 +641,7 @@ const socialBotAgent: Agent = {
   ],
   roleRequired: "any",
   canConverse: false,
-  recommendedHelpers: ['ad-creative-agent', 'content-creator-agent', 'analytics-agent'],
+  recommendedHelpers: ['adcreative', 'contentcreation', 'analytics'],
   handoffTriggers: ['analytics', 'advertising', 'content writing', 'blog content'],
   usageCount: undefined,
   lastRun: undefined,

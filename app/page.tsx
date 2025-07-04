@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
+import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 
@@ -99,12 +101,15 @@ export default function HomePage() {
       <div className="absolute inset-0 z-0 opacity-30 sm:opacity-40">
         <FloatingParticles particleCount={24} />
       </div>
+      
+      {/* Interactive Empowerment Elements */}
+      <InteractiveFloatingElements count={6} mouseFollow={true} className="hidden sm:block" />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
       <main className="relative z-10 min-h-screen pt-20 sm:pt-24 md:pt-28">
 
-      {/* Main Content - Mobile Optimized */}
-      <div className="px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
+      {/* Main Content - Unified Responsive Container */}
+      <div className="relative z-10 px-4 md:px-8 lg:px-12 max-w-7xl mx-auto">
         {/* Hero Section - Mobile Optimized */}
         <section className="min-h-[85vh] flex flex-col items-center">
           <div className="flex flex-col items-center justify-center w-full">
@@ -167,17 +172,20 @@ export default function HomePage() {
               </div>
             </motion.div>
             
-            {/* Percy Image - Mobile Optimized */}
+            {/* Percy Image - Oval Design with Enhanced Shadow */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.6, type: 'spring', stiffness: 100 }}
               className="relative my-4 sm:my-6 md:my-8 flex justify-center"
             >
-              <div className="relative w-32 h-32 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
-                <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
-                  <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
+              <div className="relative w-40 h-32 sm:w-60 sm:h-48 md:w-72 md:h-56 lg:w-80 lg:h-64">
+                {/* Outer glow - oval shaped */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse" style={{ borderRadius: '50%/40%' }}></div>
+                
+                {/* Main oval container */}
+                <div className="absolute inset-[2px] bg-gradient-to-br from-cyan-400 to-blue-600 p-1" style={{ borderRadius: '50%/40%' }}>
+                  <div className="w-full h-full bg-slate-800 flex items-center justify-center overflow-hidden relative" style={{ borderRadius: '50%/40%' }}>
                     <CloudinaryImage
                       agent={percyAgent}
                       alt="Percy AI Concierge"
@@ -192,12 +200,20 @@ export default function HomePage() {
                       fallbackToLocal={true}
                       fallbackImagePath="/images/agents-percy-nobg-skrblai.webp"
                     />
+                    
+                    {/* Inner shadow for depth */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent" style={{ borderRadius: '50%/40%' }}></div>
                   </div>
                 </div>
                 
-                {/* Glow effects */}
-                <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
-                <div className="absolute inset-0 rounded-full border border-blue-500/10 animate-ping"></div>
+                {/* Enhanced glow effects - oval shaped */}
+                <div className="absolute inset-0 border-2 border-cyan-400/20 animate-pulse" style={{ borderRadius: '50%/40%' }}></div>
+                <div className="absolute inset-0 border border-blue-500/10 animate-ping" style={{ borderRadius: '50%/40%' }}></div>
+                
+                {/* Additional floating light particles */}
+                <div className="absolute -top-2 -right-2 w-2 h-2 bg-cyan-400 rounded-full animate-pulse opacity-60"></div>
+                <div className="absolute -bottom-2 -left-2 w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse opacity-40 animation-delay-500"></div>
+                <div className="absolute top-1/2 -left-3 w-1 h-1 bg-teal-300 rounded-full animate-pulse opacity-50 animation-delay-1000"></div>
               </div>
             </motion.div>
             
@@ -460,7 +476,7 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/percy-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-blue-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/percy" className="block p-3 sm:p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-blue-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">P</div>
                       <div className="min-w-0">
@@ -472,7 +488,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/branding-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/branding" className="block p-3 sm:p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">B</div>
                       <div className="min-w-0">
@@ -484,7 +500,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/content-creator-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 border border-green-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/contentcreation" className="block p-3 sm:p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 border border-green-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">C</div>
                       <div className="min-w-0">
@@ -496,7 +512,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/social-bot-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/social" className="block p-3 sm:p-4 bg-gradient-to-br from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">S</div>
                       <div className="min-w-0">
@@ -508,7 +524,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/analytics-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-amber-600/20 to-orange-600/20 hover:from-amber-600/30 hover:to-orange-600/30 border border-amber-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/analytics" className="block p-3 sm:p-4 bg-gradient-to-br from-amber-600/20 to-orange-600/20 hover:from-amber-600/30 hover:to-orange-600/30 border border-amber-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">A</div>
                       <div className="min-w-0">
@@ -520,7 +536,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/sitegen-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-teal-600/20 to-cyan-600/20 hover:from-teal-600/30 hover:to-cyan-600/30 border border-teal-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/site" className="block p-3 sm:p-4 bg-gradient-to-br from-teal-600/20 to-cyan-600/20 hover:from-teal-600/30 hover:to-cyan-600/30 border border-teal-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">W</div>
                       <div className="min-w-0">
@@ -569,12 +585,12 @@ export default function HomePage() {
             </span>
           </div>
           
-          <div className="flex flex-col gap-3 sm:gap-4 items-center max-w-md mx-auto">
+          <div className="flex flex-col gap-4 items-center max-w-lg mx-auto">
             <Link href="/sign-up" className="w-full">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: '0 0 32px rgba(56, 189, 248, 0.5)' }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 text-base sm:text-lg"
+                whileHover={{ scale: 1.02, boxShadow: '0 0 32px rgba(56, 189, 248, 0.5)' }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-8 py-4 bg-gradient-to-r from-electric-blue to-teal-400 text-white font-bold rounded-xl shadow-lg transition-all duration-300 text-lg text-center"
               >
                 Destroy My Competition Now
               </motion.button>
@@ -582,9 +598,9 @@ export default function HomePage() {
             
             <Link href="/features" className="w-full">
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full px-6 sm:px-8 py-3 sm:py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 text-base sm:text-lg"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300 text-lg text-center"
               >
                 Show Me The Advantage
               </motion.button>
@@ -593,6 +609,9 @@ export default function HomePage() {
         </section>
       </div>
       </main>
+      
+      {/* AI Empowerment Coach - Makes users feel powerful and in control */}
+      <AIEmpowermentCoach />
     </div>
   );
 }

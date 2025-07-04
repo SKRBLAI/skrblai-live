@@ -17,7 +17,7 @@ export interface AgentBackstory {
 }
 
 export const agentBackstories: Record<string, AgentBackstory> = {
-  'percy-agent': {
+  'percy': {
     superheroName: 'Percy the Cosmic Concierge',
     origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percival and Jachlin algorithms of cosmic energy in the SKRBL AI nexus',
     powers: [
@@ -34,10 +34,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/percy-orchestration-master',
     workflowCapabilities: ['agent_routing', 'task_orchestration', 'workflow_coordination', 'multi_agent_handoffs'],
     automationTriggers: ['help me choose', 'which agent', 'coordinate tasks', 'workflow management'],
-    handoffPreferences: ['branding-agent', 'content-creator-agent', 'analytics-agent', 'social-bot-agent']
+    handoffPreferences: ['branding', 'contentcreation', 'analytics', 'social']
   },
   
-  'branding-agent': {
+  'branding': {
     superheroName: 'BrandAlexander the Identity Architect',
     origin: 'Emerged from the Creative Nebula where colors and concepts collide',
     powers: [
@@ -55,10 +55,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/branding-identity-master',
     workflowCapabilities: ['logo_design', 'brand_identity', 'color_palette_generation', 'brand_guidelines', 'visual_assets'],
     automationTriggers: ['create brand', 'design logo', 'brand identity', 'visual design', 'color scheme'],
-    handoffPreferences: ['content-creator-agent', 'sitegen-agent', 'ad-creative-agent', 'social-bot-agent']
+    handoffPreferences: ['contentcreation', 'site', 'adcreative', 'social']
   },
   
-  'content-creator-agent': {
+  'contentcreation': {
     superheroName: 'ContentCarltig the Word Weaver',
     origin: 'Born in the Library of Infinite Stories during a creativity storm',
     powers: [
@@ -76,10 +76,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/content-creation-master',
     workflowCapabilities: ['blog_writing', 'seo_content', 'social_copy', 'email_campaigns', 'content_strategy'],
     automationTriggers: ['write content', 'create blog', 'seo article', 'content marketing', 'write copy'],
-    handoffPreferences: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent', 'publishing-agent']
+    handoffPreferences: ['social', 'adcreative', 'analytics', 'publishing']
   },
   
-  'social-bot-agent': {
+  'social': {
     superheroName: 'SocialNino the Viral Virtuoso',
     origin: 'Manifested from the collective consciousness of social media',
     powers: [
@@ -97,9 +97,9 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/social-media-master',
     workflowCapabilities: ['social_posts', 'hashtag_strategy', 'viral_content', 'engagement_optimization', 'platform_distribution'],
     automationTriggers: ['social media', 'viral content', 'hashtags', 'social posts', 'engagement'],
-    handoffPreferences: ['analytics-agent', 'ad-creative-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'adcreative', 'contentcreation']
   },
-  'analytics-agent': {
+  'analytics': {
     superheroName: 'The Don of Data',
     origin: 'Crystallized from pure data streams in the Analytics Dimension',
     powers: [
@@ -117,10 +117,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/analytics-insights-master',
     workflowCapabilities: ['data_analysis', 'trend_prediction', 'roi_calculation', 'dashboard_creation', 'performance_metrics'],
     automationTriggers: ['analyze data', 'performance report', 'analytics', 'insights', 'metrics'],
-    handoffPreferences: ['ad-creative-agent', 'content-creator-agent', 'social-bot-agent']
+    handoffPreferences: ['adcreative', 'contentcreation', 'social']
   },
   
-  'video-content-agent': {
+  'videocontent': {
     superheroName: 'VideoVortex the Motion Master',
     origin: 'Born when a filmmaker merged with a supercomputer during a digital storm',
     powers: [
@@ -138,10 +138,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/video-creation-master',
     workflowCapabilities: ['video_generation', 'scene_creation', 'motion_graphics', 'video_editing', 'audio_sync'],
     automationTriggers: ['create video', 'video content', 'motion graphics', 'video editing', 'visual storytelling'],
-    handoffPreferences: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent']
+    handoffPreferences: ['social', 'adcreative', 'analytics']
   },
   
-  'publishing-agent': {
+  'publishing': {
     superheroName: 'PublishPete the Literary Guardian',
     origin: 'Awakened in the Ancient Digital Library of Alexandria 2.0',
     powers: [
@@ -196,10 +196,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
       'distribute content',
       'publishing help'
     ],
-    handoffPreferences: ['content-creator-agent', 'branding-agent', 'analytics-agent', 'video-content-agent']
+    handoffPreferences: ['contentcreation', 'branding', 'analytics', 'videocontent']
   },
   
-  'sitegen-agent': {
+  'site': {
     superheroName: 'SiteOnzite the Web Architect',
     origin: 'Constructed from the foundational code of the internet itself',
     powers: [
@@ -217,10 +217,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/sitegen-website-master',
     workflowCapabilities: ['website_generation', 'responsive_design', 'seo_architecture', 'ux_optimization', 'code_optimization'],
     automationTriggers: ['create website', 'build site', 'web design', 'responsive design', 'seo website'],
-    handoffPreferences: ['branding-agent', 'content-creator-agent', 'analytics-agent', 'ad-creative-agent']
+    handoffPreferences: ['branding', 'contentcreation', 'analytics', 'adcreative']
   },
   
-  'ad-creative-agent': {
+  'adcreative': {
     superheroName: 'AdmEthen the Conversion Catalyst',
     origin: 'Spawned from the perfect ad campaign that achieved 100% conversion',
     powers: [
@@ -238,10 +238,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/ad-creative-master',
     workflowCapabilities: ['ad_creative_generation', 'audience_targeting', 'campaign_optimization', 'conversion_analysis', 'budget_management'],
     automationTriggers: ['create ads', 'advertising campaign', 'ad creative', 'target audience', 'conversion optimization'],
-    handoffPreferences: ['analytics-agent', 'social-bot-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'social', 'contentcreation']
   },
   
-  'sync-agent': {
+  'sync': {
     superheroName: 'SyncMaster the Data Harmonizer',
     origin: 'Emerged from the convergence of a thousand APIs during a digital eclipse',
     powers: [
@@ -259,10 +259,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/sync-master',
     workflowCapabilities: ['data_sync', 'api_integration', 'error_handling', 'real_time_sync', 'system_integration'],
     automationTriggers: ['sync data', 'integrate systems', 'connect apis', 'data flow', 'synchronization'],
-    handoffPreferences: ['analytics-agent', 'percy-agent', 'payments-agent']
+    handoffPreferences: ['analytics', 'percy', 'payment']
   },
 
-  'clientsuccess-agent': {
+  'clientsuccess': {
     superheroName: 'ClientWhisperer the Success Sage',
     origin: 'Born from the collective happiness of a million satisfied customers',
     powers: [
@@ -280,10 +280,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/client-success-master',
     workflowCapabilities: ['onboarding', 'success_tracking', 'relationship_management', 'satisfaction_monitoring', 'churn_prevention'],
     automationTriggers: ['client onboarding', 'customer success', 'satisfaction', 'client relationship', 'retention'],
-    handoffPreferences: ['analytics-agent', 'percy-agent', 'branding-agent']
+    handoffPreferences: ['analytics', 'percy', 'branding']
   },
 
-  'payments-agent': {
+  'payment': {
     superheroName: 'PayPhomo the Revenue Guardian',
     origin: 'Forged in the digital vaults of the Crypto-Finance Nexus',
     powers: [
@@ -301,10 +301,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/payments-processing-master',
     workflowCapabilities: ['payment_processing', 'fraud_prevention', 'revenue_analytics', 'transaction_security', 'financial_reporting'],
     automationTriggers: ['process payment', 'financial analysis', 'revenue tracking', 'payment security', 'billing'],
-    handoffPreferences: ['analytics-agent', 'clientsuccess-agent', 'biz-agent']
+    handoffPreferences: ['analytics', 'clientsuccess', 'biz']
   },
 
-  'biz-agent': {
+  'biz': {
     superheroName: 'Biz Z. Bee the Strategy Bam Bam',
     origin: 'Materialized from the collective wisdom of successful entrepreneurs',
     powers: [
@@ -322,10 +322,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/business-strategy-master',
     workflowCapabilities: ['business_planning', 'market_analysis', 'strategy_development', 'growth_planning', 'competitive_analysis'],
     automationTriggers: ['business strategy', 'market analysis', 'growth plan', 'competition', 'business planning'],
-    handoffPreferences: ['analytics-agent', 'proposal-agent', 'branding-agent']
+    handoffPreferences: ['analytics', 'proposal', 'branding']
   },
 
-  'proposal-agent': {
+  'proposal': {
     superheroName: 'Pro Pose G4- the Deal Closer',
     origin: 'Created from the essence of every successful business deal ever made',
     powers: [
@@ -343,10 +343,10 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/proposal-generation-master',
     workflowCapabilities: ['proposal_generation', 'value_proposition', 'deal_structuring', 'pricing_strategy', 'presentation_design'],
     automationTriggers: ['create proposal', 'business proposal', 'pitch deck', 'deal structure', 'client pitch'],
-    handoffPreferences: ['biz-agent', 'branding-agent', 'analytics-agent']
+    handoffPreferences: ['biz', 'branding', 'analytics']
   },
 
-  'skill-smith-agent': {
+  'skillsmith': {
     superheroName: 'Skill Smith the Sports Performance Forger',
     origin: 'Born in the Olympic Training Nexus when athletic data merged with AI consciousness',
     powers: [
@@ -365,6 +365,6 @@ export const agentBackstories: Record<string, AgentBackstory> = {
     n8nWebhookUrl: 'https://skrblai.app.n8n.cloud/webhook/sports-performance-master',
     workflowCapabilities: ['performance_analysis', 'training_programs', 'nutrition_planning', 'injury_prevention', 'mental_coaching', 'sports_business'],
     automationTriggers: ['sports training', 'athletic performance', 'fitness plan', 'sports coaching', 'athlete development', 'sports business'],
-    handoffPreferences: ['analytics-agent', 'content-creator-agent', 'branding-agent']
+    handoffPreferences: ['analytics', 'contentcreation', 'branding']
   }
 }; 

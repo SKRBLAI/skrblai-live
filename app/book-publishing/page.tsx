@@ -203,7 +203,7 @@ export default function BookPublishingPage(): JSX.Element {
 
                   {/* SKRBL AI Domination */}
                   <GlassmorphicCard className="p-8 border-green-500/30 bg-green-500/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-green-500 text-black px-3 py-1 text-sm font-bold">
+                    <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-sm font-bold shadow-lg border border-white/20">
                       DOMINATION MODE
                     </div>
                     <h3 className="text-2xl font-bold text-green-400 mb-6 text-center"><SkrblAiText variant="pulse" size="md">SKRBL AI</SkrblAiText> Publishing</h3>
@@ -383,7 +383,7 @@ export default function BookPublishingPage(): JSX.Element {
                   </CosmicButton>
                   <div className="text-center">
                     <p className="text-sm text-gray-400">or</p>
-                    <Link href="/services/publishing-agent" className="text-orange-400 hover:text-orange-300 font-semibold underline">
+                    <Link href="/services/publishing" className="text-orange-400 hover:text-orange-300 font-semibold underline">
                       Learn About Our Publishing Agent
                     </Link>
                   </div>

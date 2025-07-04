@@ -1,0 +1,182 @@
+{
+  "name": "Skill Mastery Mentor",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "skill-mastery-mentor",
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [180, 300],
+      "webhookId": "skill-mastery-mentor"
+    },
+    {
+      "parameters": {
+        "functionCode": "const input = $input.first().json;\nconst skillType = input.skillType || 'fitness';\nconst analysisType = input.analysisType || 'quick-wins';\nconst currentLevel = input.currentLevel || 'beginner';\nconst goals = input.goals || [];\n\nconst videoAnalysisPrompt = `Analyze a ${skillType} performance for a ${currentLevel} level practitioner. Goals: ${goals.join(', ')}. Provide specific feedback on technique, form, and improvement areas.`;\n\nconst trainingPlanPrompt = `Create a comprehensive training plan for ${skillType} improvement for a ${currentLevel} practitioner. Include phases, exercises, and milestones.`;\n\nconst quickWinsPrompt = `Provide 5-7 quick wins for immediate improvement in ${skillType} for a ${currentLevel} practitioner.`;\n\nlet selectedPrompt;\nswitch(analysisType) {\n  case 'video-analysis': selectedPrompt = videoAnalysisPrompt; break;\n  case 'training-plan': selectedPrompt = trainingPlanPrompt; break;\n  case 'quick-wins': selectedPrompt = quickWinsPrompt; break;\n  default: selectedPrompt = quickWinsPrompt;\n}\n\nreturn [{ json: { ...input, aiPrompt: selectedPrompt, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "skill-analyzer",
+      "name": "Skill Analysis Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are SkillSmith the Mastery Mentor, an AI-powered skill development expert. Provide detailed, actionable feedback for skill improvement across sports, music, dance, public speaking, cooking, and other disciplines."
+            },
+            {
+              "role": "user",
+              "content": "={{ $json.aiPrompt }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 600,
+          "temperature": 0.7
+        }
+      },
+      "id": "openai-processor",
+      "name": "OpenAI Skill Processor",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [620, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-main",
+          "name": "OpenAI Main"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const skillData = $('skill-analyzer').item.json;\nconst aiResponse = $input.first().json;\n\nconst handoffSuggestions = [];\nif (skillData.analysisType === 'training-plan') {\n  handoffSuggestions.push({\n    agentId: 'video-content-agent',\n    reason: 'Create instructional videos for training plan',\n    confidence: 85\n  });\n}\n\nconst result = {\n  success: true,\n  agentId: 'skill-smith-agent',\n  superheroName: 'SkillSmith the Mastery Mentor',\n  result: {\n    type: skillData.analysisType,\n    skillType: skillData.skillType,\n    currentLevel: skillData.currentLevel,\n    analysis: aiResponse.choices?.[0]?.message?.content || aiResponse.message?.content,\n    metadata: {\n      confidence: 90,\n      processingTime: Date.now() - new Date(skillData.timestamp).getTime()\n    }\n  },\n  handoffSuggestions,\n  timestamp: new Date().toISOString(),\n  status: 'completed'\n};\n\nreturn [{ json: result }];"
+      },
+      "id": "response-formatter",
+      "name": "Response Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [840, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "skill_sessions",
+        "records": "={{ [$json] }}"
+      },
+      "id": "session-logger",
+      "name": "Session Logger",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1060, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-main",
+          "name": "Supabase Main"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1280, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Skill Analysis Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skill Analysis Engine": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Skill Processor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Skill Processor": {
+      "main": [
+        [
+          {
+            "node": "Response Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response Formatter": {
+      "main": [
+        [
+          {
+            "node": "Session Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session Logger": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "mmm-ultimate-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "skill-mastery-mentor"
+  },
+  "id": "skill-mastery-mentor",
+  "tags": [
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "skill-smith",
+      "name": "Skill Smith"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "mmm-ultimate",
+      "name": "MMM Ultimate"
+    }
+  ]
+}

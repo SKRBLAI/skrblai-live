@@ -14,14 +14,11 @@ import {
   getAgentConversationCapabilities,
   getAgent
 } from '@/lib/agents/agentLeague';
-import { createClient } from '@supabase/supabase-js';
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 import { callOpenAI } from '@/utils/agentUtils';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Initialize Supabase client with safe fallback
+const supabase = createSafeSupabaseClient();
 
 // =============================================================================
 // CHAT API ROUTE HANDLERS
@@ -324,7 +321,7 @@ async function handlePercyFallback(
   conversationHistory: any[],
   context: any
 ): Promise<any> {
-  const percyAgent = getAgent('percy-agent');
+  const percyAgent = getAgent('percy');
   if (!percyAgent) {
     throw new Error('Percy agent not available for fallback');
   }
@@ -354,7 +351,7 @@ async function handlePercyFallback(
       userBenefit: 'Get better results through their optimized workflow'
     }],
     conversationAnalytics: generateConversationAnalytics(conversationHistory, message, response),
-    agentId: 'percy-agent',
+    agentId: 'percy',
     agentName: 'Percy',
     fallbackUsed: true
   };

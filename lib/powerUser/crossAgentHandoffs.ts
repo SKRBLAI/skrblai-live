@@ -277,7 +277,7 @@ function checkTierCompatibility(userTier: string, requiredTier: string): boolean
 function getHistoricalSuccessRate(agentId: string): number {
   // Placeholder - would query agent_performance_metrics table
   const successRates: Record<string, number> = {
-    'percy-agent': 95,
+    'percy': 95,
     'content-creator': 88,
     'social-media-manager': 92,
     'email-marketer': 85,

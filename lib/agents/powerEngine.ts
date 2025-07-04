@@ -417,9 +417,9 @@ export class PowerEngine {
     const suggestions: HandoffSuggestion[] = [];
     
     // Example: If branding agent created a brand, suggest content creation
-    if (agentId === 'branding-agent' && executionResult.powerId === 'brand-identity-creation') {
+    if (agentId === 'branding' && executionResult.powerId === 'brand-identity-creation') {
       suggestions.push({
-        targetAgentId: 'content-creator-agent',
+        targetAgentId: 'contentcreation',
         targetAgentName: 'ContentCarltig the Word Weaver',
         suggestion: "Your brand identity looks amazing! Ready to create content that tells your brand story?",
         confidence: 85,
@@ -432,9 +432,9 @@ export class PowerEngine {
     }
     
     // Example: If content created, suggest social media distribution
-    if (agentId === 'content-creator-agent' && executionResult.powerId === 'article-generation') {
+    if (agentId === 'contentcreation' && executionResult.powerId === 'article-generation') {
       suggestions.push({
-        targetAgentId: 'social-bot-agent',
+        targetAgentId: 'social',
         targetAgentName: 'SocialNino the Viral Virtuoso',
         suggestion: "Great content! Want me to help you distribute this across social media channels?",
         confidence: 75,
@@ -640,7 +640,7 @@ export class PowerEngine {
     const startTime = Date.now();
     
     // Test cache performance
-    const testAgentId = 'percy-agent';
+    const testAgentId = 'percy';
     const powers = this.getAgentPowers(testAgentId);
     
     const responseTime = Date.now() - startTime;

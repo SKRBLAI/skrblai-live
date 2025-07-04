@@ -241,7 +241,7 @@ export default function FeaturesContent(): JSX.Element {
                     </div>
                   </div>
 
-                  <div className="mt-auto flex items-center text-cyan-400 group-hover:text-white font-bold transition-colors duration-300">
+                  <div className="mt-auto flex items-center justify-center text-cyan-400 group-hover:text-white font-bold transition-colors duration-300 text-base py-2">
                     <span>Dominate With This →</span>
                   </div>
                 </Link>

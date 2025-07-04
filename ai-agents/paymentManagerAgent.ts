@@ -451,7 +451,7 @@ const paymentManagerAgent: Agent = {
   canConverse: false,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'payment-manager-agent',
+  id: 'payment',
   name: 'Payment Manager',
   category: 'Finance',
   description: 'Handles payment processing and management',

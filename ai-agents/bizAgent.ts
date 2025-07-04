@@ -299,7 +299,7 @@ The ${businessType} market is experiencing steady growth with increasing demand 
 }
 
 const bizAgent: Agent = {
-  id: 'biz-agent',
+  id: 'biz',
   name: 'Business Agent',
   category: 'Business',
   description: 'Helps with business strategy and operations.',
@@ -366,7 +366,7 @@ const bizAgent: Agent = {
     return runBizAgent(bizInput);
   },
   canConverse: true,
-  recommendedHelpers: ['analytics-agent', 'proposal-generator-agent', 'client-success-agent'],
+  recommendedHelpers: ['analytics', 'proposal', 'clientsuccess'],
   handoffTriggers: ['analyze data', 'create proposal', 'client management', 'analytics', 'proposal generation'],
   conversationCapabilities: {
     supportedLanguages: ['English'],

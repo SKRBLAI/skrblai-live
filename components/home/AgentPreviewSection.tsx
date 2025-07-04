@@ -39,7 +39,7 @@ const generateLiveActivity = () => {
 // Define the three featured agents with live activity data
 const FEATURED_AGENTS = [
   {
-    id: 'branding-agent',
+    id: 'branding',
     name: 'BrandAlexander',
     freeTip: 'Update your logo background color to create more contrast—it\'ll make your brand pop on social media!',
     upsell: 'Want a full brand kit with style guide, logos, and color palette? Unlock all my superpowers.',
@@ -47,7 +47,7 @@ const FEATURED_AGENTS = [
     dominanceMetric: 'Brand Identity Domination'
   },
   {
-    id: 'social-bot-agent',
+    id: 'social',
     name: 'SocialNino',
     freeTip: 'Posting at 8pm can double your Instagram engagement based on typical audience behavior patterns.',
     upsell: 'Want me to schedule posts and track analytics for maximum growth? Unlock my full toolkit!',
@@ -55,7 +55,7 @@ const FEATURED_AGENTS = [
     dominanceMetric: 'Social Media Conquest'
   },
   {
-    id: 'content-creator-agent',
+    id: 'contentcreation',
     name: 'ContentCarltig',
     freeTip: 'Try this headline format for your next blog: "How [Your Industry] Experts Are [Achieving Result] Without [Common Method]"',
     upsell: 'Want a month of content ideas and SEO-optimized articles? Unlock more capabilities.',

@@ -124,7 +124,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   const handleStartChat = () => {
     // MMM Protocol: Remove chat functionality for workflow-only agents (n8n limits)
     // Publishing agent chat restored per user request
-    const workflowOnlyAgents = ['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'];
+    const workflowOnlyAgents = ['site', 'clientsuccess', 'payment', 'proposal-agent'];
     
     if (workflowOnlyAgents.includes(agent.id)) {
       toast.success(`${agent.name} excels at automated workflows! Click the Launch button for instant results! ⚡`, {
@@ -272,17 +272,17 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                   <button
                     onClick={handleStartChat}
                     className={`flex items-center gap-2 px-6 py-4 rounded-xl border transition-all duration-200 font-semibold ${
-                      ['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id)
+                      ['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id)
                         ? 'bg-gradient-to-r from-blue-600/20 to-teal-600/20 text-blue-300 border-blue-500/40 hover:from-blue-600/30 hover:to-teal-600/30 cursor-default'
                         : 'bg-purple-600/20 text-purple-300 border-purple-500/30 hover:bg-purple-600/30'
                     }`}
-                    disabled={['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id)}
-                    title={['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id) 
+                    disabled={['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id)}
+                    title={['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id) 
                       ? 'This agent specializes in automated workflows. Click Launch for instant results!' 
                       : 'Start a conversation with this agent'}
                   >
                     <MessageCircle className="w-5 h-5" />
-                    {['sitegen-agent', 'clientsuccess-agent', 'payments-agent', 'proposal-agent'].includes(agent.id) 
+                    {['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id) 
                       ? 'Auto Mode' 
                       : 'Chat'}
                   </button>

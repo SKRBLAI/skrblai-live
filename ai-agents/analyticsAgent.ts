@@ -775,7 +775,7 @@ function generateRandomDimensionValue(dimension: DimensionKey): string {
 }
 
 const analyticsAgent: Agent = {
-  id: 'analytics-agent',
+  id: 'analytics',
   name: 'Analytics',
   category: 'Marketing',
   description: 'Analyzes your marketing performance and provides actionable insights',
@@ -836,7 +836,7 @@ const analyticsAgent: Agent = {
     return runAnalytics(analyticsInput);
   },
   canConverse: true,
-  recommendedHelpers: ['ad-creative-agent', 'content-creator-agent', 'social-bot-agent'],
+  recommendedHelpers: ['adcreative', 'contentcreation', 'social'],
   handoffTriggers: ['create ads', 'ad creative', 'content creation', 'social media', 'campaign optimization'],
   conversationCapabilities: {
     supportedLanguages: ['English'],

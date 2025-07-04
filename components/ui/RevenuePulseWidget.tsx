@@ -216,87 +216,82 @@ export default function RevenuePulseWidget({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, x: 300 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 300 }}
-        className={`fixed bottom-4 right-4 z-40 max-w-sm ${className}`}
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 100 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className={`fixed bottom-0 left-0 right-0 ${className}`}
       >
-        <motion.div
-          className={`bg-gradient-to-r ${getUrgencyColor(currentOpportunity.urgency)} p-[2px] rounded-xl ${getUrgencyPulse(currentOpportunity.urgency)}`}
-          whileHover={{ scale: 1.02 }}
-        >
-          <div className="bg-gray-900 rounded-xl p-4 backdrop-blur-xl">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{currentOpportunity.icon}</span>
-                <div>
-                  <h3 className="font-bold text-white text-sm leading-tight">
-                    {currentOpportunity.title}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      currentOpportunity.urgency === 'critical' ? 'bg-red-500/20 text-red-400' :
-                      currentOpportunity.urgency === 'high' ? 'bg-orange-500/20 text-orange-400' :
-                      'bg-blue-500/20 text-blue-400'
-                    }`}>
-                      {currentOpportunity.urgency.toUpperCase()}
-                    </span>
-                    <span className="text-xs text-gray-400">
-                      {currentOpportunity.confidence}% match
-                    </span>
+        <div className={`bg-gradient-to-r ${getUrgencyColor(currentOpportunity.urgency)} p-[1px]`}>
+          <div className="bg-[#0d1117]/95 backdrop-blur-xl border-t border-cyan-400/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+              <div className="flex items-center justify-between">
+                {/* Left side - Icon and message */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <span className="text-xl sm:text-2xl flex-shrink-0">{currentOpportunity.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
+                      {currentOpportunity.title}
+                    </h3>
+                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed truncate sm:whitespace-normal">
+                      {currentOpportunity.message}
+                    </p>
                   </div>
                 </div>
+
+                {/* Center - Urgency badge (mobile hidden) */}
+                <div className="hidden sm:flex items-center gap-2 mx-4">
+                  <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                    currentOpportunity.urgency === 'critical' ? 'bg-red-500/20 text-red-400' :
+                    currentOpportunity.urgency === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                    'bg-blue-500/20 text-blue-400'
+                  }`}>
+                    {currentOpportunity.urgency.toUpperCase()}
+                  </span>
+                  {currentOpportunity.timeLeft && (
+                    <div className="text-xs text-yellow-400 flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      {currentOpportunity.timeLeft}
+                    </div>
+                  )}
+                </div>
+
+                {/* Right side - CTA and close */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <button
+                    onClick={handleUpgradeClick}
+                    className={`px-4 sm:px-6 py-2 sm:py-3 rounded-lg bg-gradient-to-r ${getUrgencyColor(currentOpportunity.urgency)} text-white font-bold text-sm sm:text-base hover:shadow-lg transition-all flex items-center gap-2 touch-target-mobile ${getUrgencyPulse(currentOpportunity.urgency)}`}
+                  >
+                    <DollarSign className="w-4 h-4" />
+                    <span className="hidden sm:inline">{currentOpportunity.cta}</span>
+                    <span className="sm:hidden">Join Leaders</span>
+                  </button>
+                  <button
+                    onClick={handleDismiss}
+                    className="text-gray-400 hover:text-white text-xl leading-none p-2 touch-target-mobile"
+                    aria-label="Dismiss banner"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={handleDismiss}
-                className="text-gray-400 hover:text-white text-lg leading-none"
-              >
-                ×
-              </button>
-            </div>
 
-            <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-              {currentOpportunity.message}
-            </p>
-
-            {currentOpportunity.timeLeft && (
-              <div className="text-xs text-yellow-400 mb-3 flex items-center gap-1">
-                <Zap className="w-3 h-3" />
-                {currentOpportunity.timeLeft}
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <button
-                onClick={handleUpgradeClick}
-                className={`flex-1 px-4 py-2 rounded-lg bg-gradient-to-r ${getUrgencyColor(currentOpportunity.urgency)} text-white font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2`}
-              >
-                <DollarSign className="w-4 h-4" />
-                {currentOpportunity.cta}
-              </button>
-            </div>
-
-            {/* Revenue Impact Indicator */}
-            <div className="mt-3 pt-3 border-t border-gray-700">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-gray-400">Potential Monthly Value:</span>
+              {/* Mobile urgency indicator */}
+              <div className="sm:hidden mt-2 flex items-center justify-between text-xs">
+                <span className={`px-2 py-1 rounded-full font-bold ${
+                  currentOpportunity.urgency === 'critical' ? 'bg-red-500/20 text-red-400' :
+                  currentOpportunity.urgency === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                  'bg-blue-500/20 text-blue-400'
+                }`}>
+                  {currentOpportunity.urgency.toUpperCase()}
+                </span>
                 <span className="text-green-400 font-bold">
-                  ${currentOpportunity.potentialRevenue}/mo
+                  ${currentOpportunity.potentialRevenue}/mo value
                 </span>
               </div>
             </div>
           </div>
-        </motion.div>
-
-        {/* Minimized state toggle */}
-        <motion.button
-          onClick={() => setShowFullWidget(!showFullWidget)}
-          className="absolute -top-2 -left-2 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          {showFullWidget ? '−' : '$'}
-        </motion.button>
+        </div>
       </motion.div>
     </AnimatePresence>
   );

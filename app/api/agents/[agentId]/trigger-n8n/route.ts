@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { triggerN8nWorkflow, getWorkflowStatus } from '@/lib/n8nClient';
 import { agentDashboardList } from '@/lib/agents/agentRegistry';
-import { createClient } from '@supabase/supabase-js';
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 
-// Initialize Supabase client for execution logging
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Initialize Supabase client for execution logging with safe fallback
+const supabase = createSafeSupabaseClient();
 
 export async function POST(request: NextRequest, { params }: { params: { agentId: string } }) {
   try {

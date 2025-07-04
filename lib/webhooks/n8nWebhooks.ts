@@ -218,7 +218,7 @@ export async function testWebhookConnectivity(): Promise<{ success: boolean; res
     agentLaunch: await fireWebhook('skrbl-agent-launch', {
       ...testPayload,
       event: 'agent_launch',
-      agent: { id: 'percy-agent', name: 'Percy', superheroName: 'Percy the Cosmic Concierge' }
+      agent: { id: 'percy', name: 'Percy', superheroName: 'Percy the Cosmic Concierge' }
     })
   };
 

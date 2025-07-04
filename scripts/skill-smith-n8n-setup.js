@@ -15,7 +15,7 @@ const path = require('path');
 // =============================================================================
 
 const SKILL_SMITH_CONFIG = {
-  agentId: 'skill-smith-agent',
+  agentId: 'skillsmith',
   name: 'Skill Smith',
   superheroName: 'Skill Smith the Sports Performance Forger',
   workflowId: 'sports-performance-master',
@@ -52,7 +52,7 @@ Always respond with:
 - Follow-up tracking methods
 
 Remember: "Forge your victory, one skill at a time!"`,
-  handoffPreferences: ['analytics-agent', 'content-creator-agent', 'branding-agent', 'social-bot-agent']
+  handoffPreferences: ['analytics', 'contentcreation', 'branding', 'social']
 };
 
 // =============================================================================
@@ -202,25 +202,25 @@ const formattedResponse = {
   },
   handoffSuggestions: [
     {
-      agentId: 'analytics-agent',
+      agentId: 'analytics',
       reason: 'Track and analyze your performance metrics over time',
       confidence: 90,
       nextSteps: ['Set up performance tracking dashboard', 'Create baseline measurements']
     },
     {
-      agentId: 'content-creator-agent',
+      agentId: 'contentcreation',
       reason: 'Create content about your athletic journey for social media',
       confidence: 85,
       nextSteps: ['Document training progress', 'Share success stories']
     },
     {
-      agentId: 'branding-agent',
+      agentId: 'branding',
       reason: 'Build your personal athletic brand and sponsorship opportunities',
       confidence: 80,
       nextSteps: ['Develop athlete personal brand', 'Create sponsorship materials']
     },
     {
-      agentId: 'social-bot-agent',
+      agentId: 'social',
       reason: 'Share your athletic achievements and inspire others',
       confidence: 75,
       nextSteps: ['Create motivational content', 'Build athletic community']

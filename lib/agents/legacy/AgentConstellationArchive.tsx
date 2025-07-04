@@ -63,7 +63,7 @@ interface AgentConstellationProps {
 
 // All Percy-related ids/names for filtering (preserved for gamification)
 const PERCY_IDS = [
-  'PercyAgent', 'PercySyncAgent', 'percy', 'percy-agent', 'percySync', 'percy-sync'
+  'PercyAgent', 'PercySyncAgent', 'percy', 'percy', 'percySync', 'percy-sync'
 ];
 const PERCY_NAMES = ['percy', 'Percy'];
 

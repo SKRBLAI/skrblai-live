@@ -65,19 +65,19 @@ export default function HandoffSuggestionsPanel({
 
   const getAgentEmoji = (agentId: string) => {
     const emojiMap: Record<string, string> = {
-      'percy-agent': '🎭',
-      'branding-agent': '🎨',
-      'content-creator-agent': '✍️',
-      'social-bot-agent': '📱',
-      'analytics-agent': '📊',
-      'ad-creative-agent': '🎯',
-      'video-content-agent': '🎬',
-      'publishing-agent': '📚',
-      'sitegen-agent': '🌐',
-      'proposal-generator-agent': '📋',
-      'payment-manager-agent': '💳',
-      'client-success-agent': '🤝',
-      'biz-agent': '📈'
+      'percy': '🎭',
+      'branding': '🎨',
+      'contentcreation': '✍️',
+      'social': '📱',
+      'analytics': '📊',
+      'adcreative': '🎯',
+      'videocontent': '🎬',
+      'publishing': '📚',
+      'site': '🌐',
+      'proposal': '📋',
+      'payment': '💳',
+      'clientsuccess': '🤝',
+      'biz': '📈'
     };
     return emojiMap[agentId] || '🤖';
   };

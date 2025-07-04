@@ -76,6 +76,16 @@ const itemVariants = {
 
 
 export default function Dashboard() {
+  // Check for VIP status and redirect if needed
+  // In production, this would check user's actual VIP status from database
+  const isVIP = false; // Replace with actual VIP check logic
+  
+  // If user is VIP, redirect to VIP dashboard
+  // useEffect(() => {
+  //   if (isVIP) {
+  //     window.location.href = '/dashboard/vip';
+  //   }
+  // }, [isVIP]);
   const router = useRouter();
   const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth();
 
@@ -416,7 +426,7 @@ export default function Dashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="space-y-6 md:space-y-8 p-4 md:p-6"
+        className="space-y-6 md:space-y-8 p-4 md:p-6 dashboard-content"
       >
         <motion.div variants={itemVariants}>
           <DashboardHeader />
@@ -478,12 +488,13 @@ export default function Dashboard() {
         </motion.div>
       </motion.div>
 
-      {/* ✨ NEW: Revenue Pulse Widget - Contextual upgrade opportunities */}
+      {/* ✨ NEW: Friday Competition Alert - Fixed Bottom Banner */}
       <RevenuePulseWidget 
         currentTier={currentTier}
         agentsUsedToday={usage.agentsUsedToday}
         scansUsedToday={usage.scansUsedToday}
-        className="dashboard-revenue-pulse"
+        showOnPages={['dashboard']}
+        className="dashboard-banner"
       />
     </PageLayout>
   );

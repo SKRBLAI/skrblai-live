@@ -29,7 +29,7 @@ const logAgentActivity = async (activityData: any) => {
 };
 
 const proposalGeneratorAgent: Agent = {
-  id: 'proposal-generator-agent',
+  id: 'proposal',
   name: 'Proposal Generator',
   category: 'Business',
   description: 'AI-powered business proposal generation',
@@ -53,7 +53,7 @@ const proposalGeneratorAgent: Agent = {
   ],
   roleRequired: "any",
   canConverse: false,
-  recommendedHelpers: ['biz-agent', 'client-success-agent'],
+  recommendedHelpers: ['biz', 'clientsuccess'],
   handoffTriggers: ['business strategy', 'client support', 'business analysis'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for proposal fields

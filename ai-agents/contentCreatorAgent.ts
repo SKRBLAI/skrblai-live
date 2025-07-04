@@ -468,7 +468,7 @@ const contentCreatorAgent: Agent = {
   canConverse: false,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'content-creator-agent',
+  id: 'contentcreation',
   name: 'Content Creator',
   category: 'Content',
   description: 'AI-powered content generation for various platforms',

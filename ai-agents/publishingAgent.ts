@@ -4,13 +4,19 @@ import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse 
 
 interface PublishingAgentInput extends BaseAgentInput {
   manuscriptUrl: string;
-  publishingPlatform: "Amazon" | "Apple Books" | "Google Play Books" | "Other";
+  publishingPlatform: "Amazon" | "Apple Books" | "Google Play Books" | "Shopify" | "Custom" | "Other";
   genre: string;
   bookTitle: string;
   authorName: string;
   description: string;
   coverImageUrl: string;
   keywords: string[];
+  // Enhanced MMM capabilities
+  interactiveElements?: ('flipbook' | 'video' | 'audio' | 'quiz' | 'animation' | 'ar')[];
+  targetAge?: string; // e.g., "5-8", "adult", "teen"
+  templateType?: string; // rapid template selection
+  multiPlatform?: boolean; // simultaneous multi-platform publishing
+  contentType?: 'standard' | 'interactive' | 'multimedia' | 'educational';
 }
 
 /**
@@ -91,7 +97,7 @@ const runPublishing = async (input: PublishingAgentInput): Promise<AgentResponse
 };
 
 const publishingAgent: Agent = {
-  id: 'publishing-agent',
+  id: 'publishing',
   name: 'Publishing Agent',
   category: 'Publishing',
   description: 'AI-powered universal publishing platform for all book genres including interactive and multimedia content',
@@ -140,7 +146,7 @@ const publishingAgent: Agent = {
   ],
   roleRequired: "any",
   canConverse: false,
-  recommendedHelpers: ['content-creator-agent'],
+  recommendedHelpers: ['contentcreation'],
   handoffTriggers: ['content creation', 'editing', 'marketing'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for publishing fields

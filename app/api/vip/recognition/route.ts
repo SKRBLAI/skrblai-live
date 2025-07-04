@@ -69,31 +69,31 @@ const VIP_AGENT_SQUADS = {
   'enterprise-growth': {
     name: 'Enterprise Growth Squad',
     description: 'Complete business scaling solution',
-    agents: ['biz-agent', 'analytics-agent', 'branding-agent', 'content-creator-agent', 'social-bot-agent'],
+    agents: ['biz', 'analytics', 'branding', 'contentcreation', 'social'],
     focus: 'Strategic growth, data-driven decisions, market expansion'
   },
   'content-powerhouse': {
     name: 'Content Powerhouse Squad',
     description: 'End-to-end content marketing automation',
-    agents: ['content-creator-agent', 'ad-creative-agent', 'social-bot-agent', 'publishing-agent', 'video-content-agent'],
+    agents: ['contentcreation', 'adcreative', 'social', 'publishing', 'videocontent'],
     focus: 'Content creation, distribution, and optimization'
   },
   'tech-startup': {
     name: 'Tech Startup Squad',
     description: 'Perfect for scaling tech companies',
-    agents: ['biz-agent', 'ad-creative-agent', 'analytics-agent', 'sitegen-agent', 'payment-manager-agent'],
+    agents: ['biz', 'adcreative', 'analytics', 'site', 'payment'],
     focus: 'Product marketing, user acquisition, conversion optimization'
   },
   'enterprise-automation': {
     name: 'Enterprise Automation Squad',
     description: 'Complete workflow automation',
-    agents: ['percy-sync-agent', 'client-success-agent', 'payment-manager-agent', 'analytics-agent', 'proposal-generator-agent'],
+    agents: ['percy-sync', 'clientsuccess', 'payment', 'analytics', 'proposal'],
     focus: 'Process automation, client management, operations'
   },
   'consulting-firm': {
     name: 'Consulting Firm Squad',
     description: 'Professional services optimization',
-    agents: ['proposal-generator-agent', 'client-success-agent', 'branding-agent', 'content-creator-agent', 'analytics-agent'],
+    agents: ['proposal', 'clientsuccess', 'branding', 'contentcreation', 'analytics'],
     focus: 'Client acquisition, proposal automation, thought leadership'
   }
 };

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     // Find the social media agent
     const socialAgent = agentRegistry.find(agent => 
-      agent.id === 'social-bot-agent' || agent.name?.toLowerCase().includes('social')
+      agent.id === 'social' || agent.name?.toLowerCase().includes('social')
     );
 
     if (!socialAgent) {

@@ -282,9 +282,9 @@ export default function ContactPage() {
           <FloatingParticles />
         </div>
         
-        <div className="container mx-auto px-4 sm:px-6 py-16 sm:py-20 relative z-10">
+        <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
           {/* Hero Section */}
-          <div className="max-w-4xl mx-auto text-center mb-12 sm:mb-16">
+          <div className="text-center mb-16">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -362,7 +362,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-6xl mx-auto mb-12 sm:mb-16"
+            className="max-w-7xl mx-auto mb-16"
           >
             <div className="text-center mb-8 sm:mb-12 px-2">
               <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-3 sm:mb-4">
@@ -426,7 +426,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="max-w-2xl mx-auto"
+            className="max-w-4xl mx-auto"
           >
             <GlassmorphicCard className="p-6 sm:p-8 lg:p-12">
               <div className="text-center mb-6 sm:mb-8">

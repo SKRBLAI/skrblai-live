@@ -42,20 +42,20 @@ export default function AgentLeagueDashboard() {
 
   // Phase 3: Mock user data for demonstration
   const [userAgentData] = useState({
-    recommended: ['social-agent', 'analytics-agent', 'branding-agent'],
+    recommended: ['social', 'analytics', 'branding'],
     progress: {
-      'social-agent': 75,
-      'analytics-agent': 45,
-      'branding-agent': 90,
-      'content-creation-agent': 60,
-      'proposal-generator-agent': 30,
+      'social': 75,
+      'analytics': 45,
+      'branding': 90,
+      'contentcreation': 60,
+      'proposal': 30,
     } as Record<string, number>,
     mastery: {
-      'social-agent': 3,
-      'analytics-agent': 2,
-      'branding-agent': 3,
-      'content-creation-agent': 2,
-      'proposal-generator-agent': 1,
+      'social': 3,
+      'analytics': 2,
+      'branding': 3,
+      'contentcreation': 2,
+      'proposal': 1,
     } as Record<string, number>
   });
 
@@ -87,8 +87,8 @@ export default function AgentLeagueDashboard() {
   }, [session]);
 
   // Percy centerpiece logic: filter out Percy from agent display
-  const percy = agents.find(a => a.id === 'percy-agent' || a.name === 'Percy');
-  const otherAgents = agents.filter(a => a.id !== 'percy-agent' && a.name !== 'Percy');
+  const percy = agents.find(a => a.id === 'percy' || a.name === 'Percy');
+  const otherAgents = agents.filter(a => a.id !== 'percy' && a.name !== 'Percy');
 
   // Mobile slider controls
   const agentsPerPage = isMobile ? 1 : otherAgents.length;

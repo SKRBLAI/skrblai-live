@@ -800,7 +800,7 @@ const clientSuccessAgent: Agent = {
   canConverse: false,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'client-success-agent',
+  id: 'clientsuccess',
   name: 'Client Success',
   category: 'Support',
   description: 'Handles client support requests and ticket management',

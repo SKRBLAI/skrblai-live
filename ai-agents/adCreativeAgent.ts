@@ -609,7 +609,7 @@ const adCreativeAgent: Agent = {
   canConverse: false,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'ad-creative-agent',
+  id: 'adcreative',
   name: 'Ad Creative Agent',
   category: 'Marketing',
   description: 'Helps generate engaging ad copy and visuals.',
