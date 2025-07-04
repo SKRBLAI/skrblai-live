@@ -76,6 +76,16 @@ const itemVariants = {
 
 
 export default function Dashboard() {
+  // Check for VIP status and redirect if needed
+  // In production, this would check user's actual VIP status from database
+  const isVIP = false; // Replace with actual VIP check logic
+  
+  // If user is VIP, redirect to VIP dashboard
+  // useEffect(() => {
+  //   if (isVIP) {
+  //     window.location.href = '/dashboard/vip';
+  //   }
+  // }, [isVIP]);
   const router = useRouter();
   const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth();
 

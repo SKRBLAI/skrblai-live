@@ -2,15 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Brain, Target, TrendingUp, Zap, MessageCircle, X } from 'lucide-react';
+import { Brain, Target, TrendingUp, Zap, MessageCircle, X, Crown } from 'lucide-react';
 
 interface AIEmpowermentCoachProps {
   triggerEvents?: string[];
+  vipTier?: 'gold' | 'platinum' | 'diamond' | null;
   className?: string;
 }
 
 export default function AIEmpowermentCoach({ 
-  triggerEvents = ['scroll', 'hover', 'click'], 
+  triggerEvents = ['scroll', 'hover', 'click'],
+  vipTier = null,
   className = '' 
 }: AIEmpowermentCoachProps) {
   const [isActive, setIsActive] = useState(false);
@@ -18,38 +20,72 @@ export default function AIEmpowermentCoach({
   const [userInteractions, setUserInteractions] = useState(0);
   const [showCoach, setShowCoach] = useState(false);
 
-  const empowermentMessages = [
-    {
-      trigger: 'welcome',
-      message: "🚀 You're now in control of an AI empire that your competitors can only dream of!",
-      icon: <Brain className="w-5 h-5" />,
-      mood: 'excited'
-    },
-    {
-      trigger: 'interaction',
-      message: "💪 Every click makes you more powerful! You're mastering AI dominance.",
-      icon: <Target className="w-5 h-5" />,
-      mood: 'confident'
-    },
-    {
-      trigger: 'scroll',
-      message: "🎯 You're exploring like a true AI commander! Knowledge equals power.",
-      icon: <TrendingUp className="w-5 h-5" />,
-      mood: 'analytical'
-    },
-    {
-      trigger: 'engagement',
-      message: "⚡ Your AI instincts are sharp! You're thinking 10 steps ahead of the competition.",
-      icon: <Zap className="w-5 h-5" />,
-      mood: 'energetic'
-    },
-    {
-      trigger: 'mastery',
-      message: "👑 You're becoming unstoppable! This level of AI mastery is exactly what wins markets.",
-      icon: <Brain className="w-5 h-5" />,
-      mood: 'triumphant'
+  // VIP-specific empowerment messages
+  const getEmpowermentMessages = () => {
+    const baseMessages = [
+      {
+        trigger: 'welcome',
+        message: vipTier 
+          ? `🚀 Welcome back, VIP ${vipTier.toUpperCase()}! Your exclusive AI empire is expanding beyond your competitors' wildest dreams!`
+          : "🚀 You're now in control of an AI empire that your competitors can only dream of!",
+        icon: <Brain className="w-5 h-5" />,
+        mood: 'excited'
+      },
+      {
+        trigger: 'interaction',
+        message: vipTier
+          ? `💎 Each action you take amplifies your VIP advantage! You're not just using AI—you're commanding it at the highest level.`
+          : "💪 Every click makes you more powerful! You're mastering AI dominance.",
+        icon: <Target className="w-5 h-5" />,
+        mood: 'confident'
+      },
+      {
+        trigger: 'scroll',
+        message: vipTier
+          ? `🎯 Your VIP access gives you insights others can't see. You're operating at a level of AI mastery that's truly elite.`
+          : "🎯 You're exploring like a true AI commander! Knowledge equals power.",
+        icon: <TrendingUp className="w-5 h-5" />,
+        mood: 'analytical'
+      },
+      {
+        trigger: 'engagement',
+        message: vipTier
+          ? `⚡ Your VIP-level AI instincts are razor-sharp! While others struggle, you're orchestrating victory 20 steps ahead.`
+          : "⚡ Your AI instincts are sharp! You're thinking 10 steps ahead of the competition.",
+        icon: <Zap className="w-5 h-5" />,
+        mood: 'energetic'
+      },
+      {
+        trigger: 'mastery',
+        message: vipTier
+          ? `👑 You've achieved VIP mastery that puts you in the top 1% of AI commanders. This is what true digital dominance looks like!`
+          : "👑 You're becoming unstoppable! This level of AI mastery is exactly what wins markets.",
+        icon: <Brain className="w-5 h-5" />,
+        mood: 'triumphant'
+      }
+    ];
+
+    // Add VIP-exclusive messages
+    if (vipTier) {
+      const vipMessages = [
+        {
+          trigger: 'vip-exclusive',
+          message: vipTier === 'diamond' 
+            ? "💎 DIAMOND ELITE: You have unlimited access to features others only dream of. Your AI empire knows no bounds!"
+            : vipTier === 'platinum'
+            ? "🔥 PLATINUM POWER: Your white-glove AI experience is reshaping entire industries. You're unstoppable!"
+            : "🥇 GOLD STANDARD: Your priority access puts you ahead of 99% of users. Excellence is your default state!",
+          icon: <Crown className="w-5 h-5" />,
+          mood: 'elite'
+        }
+      ];
+      return [...baseMessages, ...vipMessages];
     }
-  ];
+
+    return baseMessages;
+  };
+
+  const empowermentMessages = getEmpowermentMessages();
 
   const [currentMessageData, setCurrentMessageData] = useState(empowermentMessages[0]);
 
