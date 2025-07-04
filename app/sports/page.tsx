@@ -154,6 +154,7 @@ export default function SportsPage(): JSX.Element {
                     variant="primary"
                     size="lg"
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                    initialPrompt="I want to optimize my athletic performance. Please analyze my current fitness level and create a personalized training and nutrition plan."
                   />
                   <Link href="/services/skill-smith-agent" className="text-orange-400 hover:text-orange-300 font-semibold underline">
                     Meet Skill Smith →
@@ -235,13 +236,19 @@ export default function SportsPage(): JSX.Element {
                           ))}
                         </div>
                         
-                        <CosmicButton 
-                          size="sm" 
+                        <WorkflowLaunchButton
+                          agentId="skill-smith-agent"
+                          agentName="Skill Smith"
+                          superheroName="Skill Smith the Sports Performance Forger"
+                          hasWorkflow={true}
+                          requiresPremium={win.price !== "FREE"}
+                          workflowCapabilities={[win.title.toLowerCase().replace(/\s+/g, '_')]}
+                          variant="primary"
+                          size="sm"
                           className={`w-full bg-gradient-to-r ${win.color} group-hover:scale-105 transition-transform`}
-                        >
-                          <Zap className="w-4 h-4 mr-2" />
-                          Get Started
-                        </CosmicButton>
+                          initialPrompt={`I need help with ${win.title.toLowerCase()}: ${win.description}`}
+                          requiredTier={win.price === "FREE" ? "starter" : "star"}
+                        />
                       </GlassmorphicCard>
                     </motion.div>
                   ))}
@@ -264,10 +271,12 @@ export default function SportsPage(): JSX.Element {
                     </p>
                     
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                      <CosmicButton size="lg" className="bg-gradient-to-r from-orange-500 to-red-500">
-                        <Target className="w-6 h-6 mr-2" />
-                        Upload Training Data
-                      </CosmicButton>
+                      <Link href="/sports/upload">
+                        <CosmicButton size="lg" className="bg-gradient-to-r from-orange-500 to-red-500">
+                          <Target className="w-6 h-6 mr-2" />
+                          Upload Training Data
+                        </CosmicButton>
+                      </Link>
                       <div className="text-sm text-gray-400">
                         Supports: CSV, PDF, Images, Videos
                       </div>
@@ -386,6 +395,7 @@ export default function SportsPage(): JSX.Element {
                     variant="primary"
                     size="xl"
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                    initialPrompt="I'm ready to dominate my sport! Help me create a comprehensive performance optimization plan including training, nutrition, and mental coaching."
                   />
                   <div className="text-center">
                     <p className="text-sm text-gray-400">or</p>
