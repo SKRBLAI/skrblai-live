@@ -2,7 +2,7 @@ import { supabase } from '@/utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
-// Define input interface for Site Generation Agent
+// Enhanced Site Generation Agent with multi-platform building and automated monitoring
 interface SiteGenInput extends BaseAgentInput {
   businessName: string;
   industry: string;
@@ -13,6 +13,17 @@ interface SiteGenInput extends BaseAgentInput {
   targetAudience?: string;
   logoUrl?: string;
   customInstructions?: string;
+  // Enhanced MMM capabilities
+  platformType?: 'static' | 'nextjs' | 'web3' | 'shopify' | 'wordpress';
+  ecommerce?: boolean; // full shopping cart and payment integration
+  autoMonitoring?: boolean; // real-time health scans
+  autoFix?: boolean; // instant repairs and optimizations
+  seoOptimization?: boolean; // automatic SEO enhancement
+  performanceTargets?: {
+    loadTime?: number; // target load time in seconds
+    mobileScore?: number; // target mobile performance score
+    seoScore?: number; // target SEO score
+  };
 }
 
 /**

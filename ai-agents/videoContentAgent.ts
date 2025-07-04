@@ -2,7 +2,7 @@ import { supabase } from '@/utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
-// Define input interface for Video Content Agent
+// Enhanced Video Content Agent with 60s processing and multi-platform optimization
 interface VideoAgentInput extends Omit<BaseAgentInput, 'goal'> {
   title: string;
   topic: string;
@@ -18,6 +18,13 @@ interface VideoAgentInput extends Omit<BaseAgentInput, 'goal'> {
     logoPlacement?: string;
   };
   customInstructions?: string;
+  // Enhanced MMM capabilities
+  videoUploadUrl?: string; // URL to uploaded 60s video for processing
+  repurposeTargets?: ('tiktok' | 'instagram' | 'youtube' | 'linkedin' | 'facebook')[];
+  processingType?: 'create' | 'repurpose' | 'edit' | 'optimize';
+  collaborateWith?: ('content-creator' | 'branding' | 'ad-creative')[];
+  autoEdit?: boolean; // automatic cuts, transitions, captions
+  voiceSynthesis?: boolean; // AI-generated narration
 }
 
 interface ScriptSection {

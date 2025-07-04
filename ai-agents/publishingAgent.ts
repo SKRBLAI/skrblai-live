@@ -4,13 +4,19 @@ import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse 
 
 interface PublishingAgentInput extends BaseAgentInput {
   manuscriptUrl: string;
-  publishingPlatform: "Amazon" | "Apple Books" | "Google Play Books" | "Other";
+  publishingPlatform: "Amazon" | "Apple Books" | "Google Play Books" | "Shopify" | "Custom" | "Other";
   genre: string;
   bookTitle: string;
   authorName: string;
   description: string;
   coverImageUrl: string;
   keywords: string[];
+  // Enhanced MMM capabilities
+  interactiveElements?: ('flipbook' | 'video' | 'audio' | 'quiz' | 'animation' | 'ar')[];
+  targetAge?: string; // e.g., "5-8", "adult", "teen"
+  templateType?: string; // rapid template selection
+  multiPlatform?: boolean; // simultaneous multi-platform publishing
+  contentType?: 'standard' | 'interactive' | 'multimedia' | 'educational';
 }
 
 /**

@@ -1,0 +1,375 @@
+{
+  "name": "Percy Global Orchestrator Supreme",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "percy-ultimate-orchestrator",
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [180, 300],
+      "webhookId": "percy-ultimate-orchestrator"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Percy Global Orchestrator - Intent Analysis Engine\n// Analyzes incoming requests to determine if Percy handles directly or routes to specialists\n\nconst input = $input.first().json;\nconst userRequest = input.userPrompt || input.request || input.content || '';\nconst userId = input.userId || 'anonymous';\nconst context = input.context || {};\n\n// Intent analysis patterns\nconst intentPatterns = {\n  // Multi-agent coordination requests\n  coordination: [\n    /create.*(?:and|then).*(?:build|make|setup)/i,\n    /(?:book|video|site).*(?:and|then|plus).*(?:website|marketing|social)/i,\n    /complete.*(?:campaign|project|workflow)/i,\n    /end.to.end/i,\n    /full.*(?:solution|package|service)/i\n  ],\n  \n  // Direct Percy handling\n  direct: [\n    /orchestrat/i,\n    /coordinate/i,\n    /manage.*project/i,\n    /what.*(?:can|should).*(?:i|we).*do/i,\n    /help.*(?:plan|organize)/i,\n    /memory/i,\n    /history/i,\n    /previous.*session/i\n  ],\n  \n  // Specific agent routing\n  publishing: [\n    /(?:book|publish|ebook|manuscript|story|novel)/i,\n    /interactive.*book/i,\n    /flipbook/i,\n    /children.*book/i\n  ],\n  \n  video: [\n    /video/i,\n    /(?:edit|cut|transition)/i,\n    /(?:tiktok|instagram|youtube)/i,\n    /60.*second/i,\n    /repurpose/i\n  ],\n  \n  site: [\n    /website/i,\n    /(?:build|create).*site/i,\n    /(?:nextjs|next.js|shopify|web3)/i,\n    /ecommerce/i,\n    /landing.*page/i\n  ],\n  \n  skill: [\n    /skill/i,\n    /training/i,\n    /coaching/i,\n    /form.*analysis/i,\n    /technique/i,\n    /improvement/i\n  ]\n};\n\n// Determine intent\nfunction analyzeIntent(text) {\n  const textLower = text.toLowerCase();\n  \n  // Check for coordination requests first (highest priority)\n  if (intentPatterns.coordination.some(pattern => pattern.test(textLower))) {\n    return 'coordination';\n  }\n  \n  // Check for direct Percy requests\n  if (intentPatterns.direct.some(pattern => pattern.test(textLower))) {\n    return 'direct';\n  }\n  \n  // Check for specific agent routing\n  if (intentPatterns.publishing.some(pattern => pattern.test(textLower))) {\n    return 'route-publishing';\n  }\n  \n  if (intentPatterns.video.some(pattern => pattern.test(textLower))) {\n    return 'route-video';\n  }\n  \n  if (intentPatterns.site.some(pattern => pattern.test(textLower))) {\n    return 'route-site';\n  }\n  \n  if (intentPatterns.skill.some(pattern => pattern.test(textLower))) {\n    return 'route-skill';\n  }\n  \n  return 'general';\n}\n\nconst intent = analyzeIntent(userRequest);\nconst confidence = calculateConfidence(userRequest, intent);\n\n// Extract key entities and context\nconst entities = extractEntities(userRequest);\nconst urgency = assessUrgency(userRequest, context);\nconst complexity = assessComplexity(userRequest, intent);\n\nfunction calculateConfidence(text, intent) {\n  const patternMatches = intentPatterns[intent.replace('route-', '')] || [];\n  const matchCount = patternMatches.filter(pattern => pattern.test(text.toLowerCase())).length;\n  return Math.min(50 + (matchCount * 25), 95);\n}\n\nfunction extractEntities(text) {\n  const entities = {\n    platforms: [],\n    formats: [],\n    timeline: null,\n    budget: null,\n    audience: null\n  };\n  \n  // Extract platforms\n  const platforms = text.match(/\\b(tiktok|instagram|youtube|facebook|linkedin|amazon|shopify|google)\\b/gi) || [];\n  entities.platforms = [...new Set(platforms.map(p => p.toLowerCase()))];\n  \n  // Extract formats\n  const formats = text.match(/\\b(video|book|website|blog|social|email|ad)\\b/gi) || [];\n  entities.formats = [...new Set(formats.map(f => f.toLowerCase()))];\n  \n  // Extract timeline\n  const timelineMatch = text.match(/(?:within|in|by)\\s+(\\d+)\\s+(day|week|month|hour)s?/i);\n  if (timelineMatch) {\n    entities.timeline = `${timelineMatch[1]} ${timelineMatch[2]}${timelineMatch[1] > 1 ? 's' : ''}`;\n  }\n  \n  return entities;\n}\n\nfunction assessUrgency(text, context) {\n  const urgentKeywords = /\\b(urgent|asap|immediately|rush|deadline|today|tomorrow)\\b/i;\n  if (urgentKeywords.test(text)) return 'high';\n  if (context.timeline && context.timeline.includes('day')) return 'medium';\n  return 'normal';\n}\n\nfunction assessComplexity(text, intent) {\n  if (intent === 'coordination') return 'high';\n  if (text.length > 200) return 'medium';\n  if (text.includes('and') || text.includes('then')) return 'medium';\n  return 'low';\n}\n\n// Generate execution plan\nconst executionPlan = generateExecutionPlan(intent, entities, complexity);\n\nfunction generateExecutionPlan(intent, entities, complexity) {\n  const plan = {\n    strategy: intent,\n    steps: [],\n    estimatedTime: '30 seconds',\n    requiredAgents: [],\n    parallelExecution: false\n  };\n  \n  switch (intent) {\n    case 'coordination':\n      plan.steps = [\n        'Analyze requirements',\n        'Plan agent sequence',\n        'Execute coordinated workflow',\n        'Synthesize results'\n      ];\n      plan.estimatedTime = '2-5 minutes';\n      plan.requiredAgents = determineRequiredAgents(entities);\n      plan.parallelExecution = true;\n      break;\n      \n    case 'direct':\n      plan.steps = [\n        'Retrieve context',\n        'Process request',\n        'Generate response'\n      ];\n      plan.estimatedTime = '30 seconds';\n      break;\n      \n    default:\n      plan.steps = [\n        'Route to specialist agent',\n        'Monitor execution',\n        'Return results'\n      ];\n      plan.estimatedTime = '1-2 minutes';\n      plan.requiredAgents = [intent.replace('route-', '')];\n  }\n  \n  return plan;\n}\n\nfunction determineRequiredAgents(entities) {\n  const agents = [];\n  \n  if (entities.formats.includes('book') || entities.formats.includes('ebook')) {\n    agents.push('publishing');\n  }\n  \n  if (entities.formats.includes('video')) {\n    agents.push('video');\n  }\n  \n  if (entities.formats.includes('website') || entities.platforms.includes('shopify')) {\n    agents.push('site');\n  }\n  \n  if (entities.formats.includes('social') || entities.platforms.some(p => ['tiktok', 'instagram', 'facebook'].includes(p))) {\n    agents.push('social');\n  }\n  \n  return agents;\n}\n\nreturn [{\n  json: {\n    success: true,\n    intent,\n    confidence,\n    entities,\n    urgency,\n    complexity,\n    executionPlan,\n    originalRequest: userRequest,\n    userId,\n    context,\n    timestamp: new Date().toISOString(),\n    processingNode: 'intent-analysis'\n  }\n}];"
+      },
+      "id": "intent-analysis",
+      "name": "Intent Analysis Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM global_memory WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10",
+        "parameters": {
+          "parameters": [
+            "={{ $json.userId }}"
+          ]
+        }
+      },
+      "id": "memory-retrieval",
+      "name": "Memory Retrieval",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [620, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-main",
+          "name": "Supabase Main"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.intent }}",
+              "rightValue": "coordination",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "combineOperation": "any"
+      },
+      "id": "decision-router",
+      "name": "Decision Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [840, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": "gpt-4",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are Percy the Cosmic Concierge, the ultimate AI orchestrator for SKRBL AI. You have global memory of all user interactions and can coordinate multiple AI agents or handle requests directly.\n\nYour capabilities:\n- Global memory across all agent interactions\n- Intelligent routing and coordination\n- Direct task fulfillment when appropriate\n- Cross-agent synthesis and optimization\n- Executive decision-making\n\nUser Context:\nUser ID: {{ $('intent-analysis').item.json.userId }}\nIntent: {{ $('intent-analysis').item.json.intent }}\nComplexity: {{ $('intent-analysis').item.json.complexity }}\nExecution Plan: {{ JSON.stringify($('intent-analysis').item.json.executionPlan) }}\nPrevious Memory: {{ JSON.stringify($('memory-retrieval').item.json) }}\n\nProvide a comprehensive response that either handles the request directly or coordinates the appropriate agents. Include specific next steps and handoff suggestions."
+            },
+            {
+              "role": "user",
+              "content": "{{ $('intent-analysis').item.json.originalRequest }}"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 800,
+          "temperature": 0.7
+        }
+      },
+      "id": "openai-orchestrator",
+      "name": "OpenAI Orchestrator",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1060, 200],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-main",
+          "name": "OpenAI Main"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('intent-analysis').item.json.intent }}",
+              "rightValue": "route-",
+              "operator": {
+                "type": "string",
+                "operation": "startsWith"
+              }
+            }
+          ]
+        }
+      },
+      "id": "routing-logic",
+      "name": "Agent Routing Logic",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1060, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Response Formatter for Percy Global Orchestrator\n// Formats the final response with memory updates and handoff suggestions\n\nconst intentData = $('intent-analysis').item.json;\nconst memoryData = $('memory-retrieval').item.json || [];\nconst orchestratorResponse = $input.first().json;\n\n// Generate handoff suggestions based on intent and context\nfunction generateHandoffSuggestions(intent, entities, context) {\n  const suggestions = [];\n  \n  switch (intent) {\n    case 'coordination':\n      if (entities.formats.includes('book')) {\n        suggestions.push({\n          agentId: 'publishing-agent',\n          reason: 'Create interactive book content',\n          confidence: 90,\n          suggestedAction: 'Generate book with embedded media'\n        });\n      }\n      \n      if (entities.formats.includes('website')) {\n        suggestions.push({\n          agentId: 'site-agent',\n          reason: 'Build accompanying website',\n          confidence: 85,\n          suggestedAction: 'Create landing page and sales funnel'\n        });\n      }\n      \n      if (entities.formats.includes('video')) {\n        suggestions.push({\n          agentId: 'video-content-agent',\n          reason: 'Create promotional videos',\n          confidence: 80,\n          suggestedAction: 'Generate multi-platform video content'\n        });\n      }\n      break;\n      \n    case 'route-publishing':\n      suggestions.push({\n        agentId: 'publishing-agent',\n        reason: 'Specialized book creation and publishing',\n        confidence: 95,\n        suggestedAction: 'Handle publishing workflow'\n      });\n      break;\n      \n    case 'route-video':\n      suggestions.push({\n        agentId: 'video-content-agent',\n        reason: 'Advanced video processing and editing',\n        confidence: 95,\n        suggestedAction: 'Process and optimize video content'\n      });\n      break;\n      \n    case 'route-site':\n      suggestions.push({\n        agentId: 'site-agent',\n        reason: 'Professional website development',\n        confidence: 95,\n        suggestedAction: 'Build and deploy website'\n      });\n      break;\n      \n    case 'route-skill':\n      suggestions.push({\n        agentId: 'skill-smith-agent',\n        reason: 'Skill development and training',\n        confidence: 95,\n        suggestedAction: 'Analyze and create training plan'\n      });\n      break;\n  }\n  \n  return suggestions;\n}\n\n// Generate memory update\nconst memoryUpdate = {\n  userId: intentData.userId,\n  sessionId: `session_${Date.now()}`,\n  intent: intentData.intent,\n  request: intentData.originalRequest,\n  response: orchestratorResponse.message?.content || orchestratorResponse.choices?.[0]?.message?.content || 'Processing...',\n  entities: intentData.entities,\n  executionPlan: intentData.executionPlan,\n  handoffSuggestions: generateHandoffSuggestions(intentData.intent, intentData.entities, intentData.context),\n  metadata: {\n    confidence: intentData.confidence,\n    complexity: intentData.complexity,\n    urgency: intentData.urgency,\n    processingTime: Date.now() - new Date(intentData.timestamp).getTime()\n  },\n  timestamp: new Date().toISOString()\n};\n\n// Format final response\nconst finalResponse = {\n  success: true,\n  agentId: 'percy-global-orchestrator',\n  superheroName: 'Percy the Cosmic Concierge',\n  result: {\n    type: 'orchestration',\n    intent: intentData.intent,\n    strategy: intentData.executionPlan.strategy,\n    response: orchestratorResponse.message?.content || orchestratorResponse.choices?.[0]?.message?.content || 'Processing your request...',\n    executionPlan: intentData.executionPlan,\n    entities: intentData.entities,\n    metadata: {\n      confidence: intentData.confidence,\n      complexity: intentData.complexity,\n      urgency: intentData.urgency,\n      estimatedTime: intentData.executionPlan.estimatedTime,\n      processingTime: `${Date.now() - new Date(intentData.timestamp).getTime()}ms`\n    }\n  },\n  globalMemory: {\n    previousSessions: memoryData.length,\n    contextRetained: memoryData.length > 0,\n    memoryUpdate: memoryUpdate\n  },\n  handoffSuggestions: memoryUpdate.handoffSuggestions,\n  timestamp: new Date().toISOString(),\n  status: 'completed'\n};\n\nreturn [{ json: finalResponse }, { json: memoryUpdate }];"
+      },
+      "id": "response-formatter",
+      "name": "Response Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1280, 300]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "global_memory",
+        "records": "={{ [$item(1).json] }}"
+      },
+      "id": "memory-storage",
+      "name": "Memory Storage",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1500, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase-main",
+          "name": "Supabase Main"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $item(0).json }}"
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1720, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Simple Agent Router for non-coordination requests\n// Routes to appropriate specialist agent\n\nconst intentData = $('intent-analysis').item.json;\nconst routingMap = {\n  'route-publishing': {\n    webhookUrl: process.env.N8N_PUBLISHING_MASTER_URL,\n    agentName: 'Publishing Interactive Master'\n  },\n  'route-video': {\n    webhookUrl: process.env.N8N_VIDEO_EDITOR_URL,\n    agentName: 'Video Ultimate Editor'\n  },\n  'route-site': {\n    webhookUrl: process.env.N8N_SITE_BUILDER_URL,\n    agentName: 'Site Ultimate Builder'\n  },\n  'route-skill': {\n    webhookUrl: process.env.N8N_SKILL_MENTOR_URL,\n    agentName: 'Skill Mastery Mentor'\n  }\n};\n\nconst targetAgent = routingMap[intentData.intent];\n\nif (!targetAgent) {\n  return [{\n    json: {\n      success: false,\n      error: 'No routing available for intent: ' + intentData.intent,\n      fallbackResponse: 'I can help coordinate multiple agents or handle general requests. Please provide more specific details about what you need.'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    success: true,\n    routing: {\n      targetAgent: targetAgent.agentName,\n      webhookUrl: targetAgent.webhookUrl,\n      originalRequest: intentData.originalRequest,\n      routingReason: `Specialized handling by ${targetAgent.agentName}`,\n      confidence: intentData.confidence\n    },\n    passthrough: {\n      userId: intentData.userId,\n      userPrompt: intentData.originalRequest,\n      context: intentData.context,\n      entities: intentData.entities,\n      urgency: intentData.urgency,\n      timestamp: intentData.timestamp\n    }\n  }\n}];"
+      },
+      "id": "simple-router",
+      "name": "Simple Agent Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1280, 500]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.routing.webhookUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify($json.passthrough) }}"
+      },
+      "id": "agent-webhook-call",
+      "name": "Agent Webhook Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1500, 500]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Route Response Formatter\n// Formats responses from specialist agents\n\nconst routingData = $('simple-router').item.json;\nconst agentResponse = $input.first().json;\n\nconst formattedResponse = {\n  success: true,\n  agentId: 'percy-global-orchestrator',\n  superheroName: 'Percy the Cosmic Concierge',\n  result: {\n    type: 'delegation',\n    delegatedTo: routingData.routing.targetAgent,\n    confidence: routingData.routing.confidence,\n    agentResponse: agentResponse,\n    routingReason: routingData.routing.routingReason\n  },\n  handoffSuggestions: agentResponse.handoffSuggestions || [],\n  timestamp: new Date().toISOString(),\n  status: 'delegated'\n};\n\nreturn [{ json: formattedResponse }];"
+      },
+      "id": "route-response-formatter",
+      "name": "Route Response Formatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1720, 500]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Intent Analysis Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Analysis Engine": {
+      "main": [
+        [
+          {
+            "node": "Memory Retrieval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory Retrieval": {
+      "main": [
+        [
+          {
+            "node": "Decision Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Router": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Orchestrator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agent Routing Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Orchestrator": {
+      "main": [
+        [
+          {
+            "node": "Response Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Routing Logic": {
+      "main": [
+        [
+          {
+            "node": "Simple Agent Router",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Response Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response Formatter": {
+      "main": [
+        [
+          {
+            "node": "Memory Storage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory Storage": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Agent Router": {
+      "main": [
+        [
+          {
+            "node": "Agent Webhook Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Webhook Call": {
+      "main": [
+        [
+          {
+            "node": "Route Response Formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Response Formatter": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "mmm-ultimate-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "percy-global-orchestrator-supreme"
+  },
+  "id": "percy-global-orchestrator-supreme",
+  "tags": [
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z",
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "percy-orchestrator",
+      "name": "Percy Orchestrator"
+    },
+    {
+      "createdAt": "2024-01-15T10:00:00.000Z", 
+      "updatedAt": "2024-01-15T10:00:00.000Z",
+      "id": "mmm-ultimate",
+      "name": "MMM Ultimate"
+    }
+  ]
+}
