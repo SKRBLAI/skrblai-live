@@ -603,7 +603,7 @@ function generateBrandGuidelines(
 }
 
 const brandingAgent: Agent = {
-  id: 'branding-agent',
+  id: 'branding',
   name: 'Branding',
   category: 'Branding',
   description: 'AI-powered brand identity and guidelines generation',
@@ -668,7 +668,7 @@ const brandingAgent: Agent = {
     return runBranding(brandingInput);
   },
   canConverse: true,
-  recommendedHelpers: ['content-creator-agent', 'sitegen-agent', 'ad-creative-agent'],
+  recommendedHelpers: ['contentcreation', 'site', 'adcreative'],
   handoffTriggers: ['create content', 'build website', 'design ads', 'content creation', 'web design'],
   conversationCapabilities: {
     supportedLanguages: ['English'],

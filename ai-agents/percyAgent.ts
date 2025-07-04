@@ -233,7 +233,7 @@ const percyAgent: Agent = {
   canConverse: true,
   recommendedHelpers: [],
   handoffTriggers: [],
-  id: 'percy-agent',
+  id: 'percy',
   name: 'Percy',
   category: 'Assistant',
   description: 'AI assistant that handles user inquiries and form intake',

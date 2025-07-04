@@ -243,7 +243,7 @@ export default function FloatingPercy() {
         isProactive: true,
         intelligence: {
           confidence: 87,
-          agentSuggestion: 'analytics-agent',
+          agentSuggestion: 'analytics',
           predictiveInsight: 'User behavior indicates readiness for next step'
         }
       }]);
@@ -344,13 +344,13 @@ export default function FloatingPercy() {
     // Competitive, industry-disruptor responses
     if (userInput.toLowerCase().includes('pricing') || userInput.toLowerCase().includes('cost')) {
       response = `💰 Here's the thing - while you're asking about pricing, your competitors are already using AI to crush their competition. Our Gateway plan starts FREE, but honestly? The businesses dominating their industries are on our Industry Crusher plan at $147/month. They're making 10x that back in the first week. Want to see the ROI calculator that'll shock you?`;
-      intelligence.agentSuggestion = 'analytics-agent';
+      intelligence.agentSuggestion = 'analytics';
     } else if (userInput.toLowerCase().includes('trial')) {
       response = `🔥 YES! But here's what most people don't know - our 7-day trial users who activate 3+ agents see an average revenue increase of $15,000 in their first month. The question isn't whether you should try it - it's whether you can afford NOT to. Ready to start your domination today?`;
       intelligence.confidence = 95;
     } else if (userInput.toLowerCase().includes('book') || userInput.toLowerCase().includes('publish')) {
       response = `📚 Publishing just got unfair. While other authors spend 2 years struggling, our users publish bestsellers in 3 months. PublishPete has helped create 47 Amazon #1 bestsellers THIS MONTH. Your book idea is either going to make you an authority... or someone else is going to beat you to it. Which will it be?`;
-      intelligence.agentSuggestion = 'publishing-agent';
+      intelligence.agentSuggestion = 'publishing';
     } else if (userInput.toLowerCase().includes('dashboard')) {
       response = `🚀 Your dashboard is your war room. I've seen businesses go from struggling to industry-leading using these exact tools. There are 3 specific workflows that separate winners from losers - want me to show you the one that fits your business? It'll take 2 minutes and could change everything.`;
       intelligence.predictiveInsight = 'User ready for workflow optimization';

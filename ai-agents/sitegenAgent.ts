@@ -215,7 +215,7 @@ function generatePageSections(pageName: string, businessName: string, industry: 
 }
 
 const sitegenAgent: Agent = {
-  id: 'sitegen-agent',
+  id: 'site',
   name: 'Site Generator',
   category: 'Web',
   description: 'AI-powered website structure and content generation',
@@ -240,7 +240,7 @@ const sitegenAgent: Agent = {
     'landing pages'
   ],
   canConverse: false,
-  recommendedHelpers: ['content-creator-agent', 'branding-agent'],
+  recommendedHelpers: ['contentcreation', 'branding'],
   handoffTriggers: ['content creation', 'branding', 'copy writing'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for site generator fields

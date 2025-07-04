@@ -460,7 +460,7 @@ export default function HomePage() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/percy-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-blue-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/percy" className="block p-3 sm:p-4 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 hover:from-blue-600/30 hover:to-cyan-600/30 border border-blue-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">P</div>
                       <div className="min-w-0">
@@ -472,7 +472,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/branding-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/branding" className="block p-3 sm:p-4 bg-gradient-to-br from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30 border border-purple-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">B</div>
                       <div className="min-w-0">
@@ -484,7 +484,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/content-creator-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 border border-green-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/contentcreation" className="block p-3 sm:p-4 bg-gradient-to-br from-green-600/20 to-emerald-600/20 hover:from-green-600/30 hover:to-emerald-600/30 border border-green-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">C</div>
                       <div className="min-w-0">
@@ -496,7 +496,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/social-bot-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/social" className="block p-3 sm:p-4 bg-gradient-to-br from-pink-600/20 to-rose-600/20 hover:from-pink-600/30 hover:to-rose-600/30 border border-pink-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">S</div>
                       <div className="min-w-0">
@@ -508,7 +508,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/analytics-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-amber-600/20 to-orange-600/20 hover:from-amber-600/30 hover:to-orange-600/30 border border-amber-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/analytics" className="block p-3 sm:p-4 bg-gradient-to-br from-amber-600/20 to-orange-600/20 hover:from-amber-600/30 hover:to-orange-600/30 border border-amber-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">A</div>
                       <div className="min-w-0">
@@ -520,7 +520,7 @@ export default function HomePage() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link href="/agent-backstory/sitegen-agent" className="block p-3 sm:p-4 bg-gradient-to-br from-teal-600/20 to-cyan-600/20 hover:from-teal-600/30 hover:to-cyan-600/30 border border-teal-500/30 rounded-xl transition-all group">
+                  <Link href="/agent-backstory/site" className="block p-3 sm:p-4 bg-gradient-to-br from-teal-600/20 to-cyan-600/20 hover:from-teal-600/30 hover:to-cyan-600/30 border border-teal-500/30 rounded-xl transition-all group">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0">W</div>
                       <div className="min-w-0">

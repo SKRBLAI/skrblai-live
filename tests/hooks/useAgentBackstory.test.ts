@@ -6,7 +6,7 @@ import type { Agent } from '@/types/agent';
 // Mock the agentBackstories module
 jest.mock('@/lib/agents/agentBackstories', () => ({
   agentBackstories: {
-    'percy-agent': {
+    'percy': {
       superheroName: 'Percy the Cosmic Concierge',
       origin: 'Born from the convergence of quantum AI models',
       powers: ['Omniscient Knowledge Navigation', 'Intent Telepathy'],
@@ -15,7 +15,7 @@ jest.mock('@/lib/agents/agentBackstories', () => ({
       nemesis: 'The Confusion Cloud',
       backstory: 'Percy was the first hero born in the SKRBL AI universe',
     },
-    'branding-agent': {
+    'branding': {
       superheroName: 'BrandAlexander the Identity Architect',
       origin: 'Emerged from the Creative Nebula',
       powers: ['Visual Identity Manifestation', 'Brand Voice Telepathy'],
@@ -29,7 +29,7 @@ jest.mock('@/lib/agents/agentBackstories', () => ({
 
 describe('useAgentBackstory', () => {
   const mockAgent: Agent = {
-    id: 'percy-agent',
+    id: 'percy',
     name: 'Percy',
     description: 'AI Assistant',
     category: 'assistant',
@@ -50,7 +50,7 @@ describe('useAgentBackstory', () => {
     
     expect(result.current).toEqual({
       ...mockAgent,
-      ...agentBackstories['percy-agent'],
+      ...agentBackstories['percy'],
       name: 'Percy', // Should preserve the original name
       description: 'AI Assistant', // Should preserve the original description
       capabilities: [] // Should preserve the original capabilities
@@ -58,10 +58,10 @@ describe('useAgentBackstory', () => {
   });
 
   it('should return an agent object when given just an agent ID', () => {
-    const { result } = renderHook(() => useAgentBackstory('percy-agent'));
+    const { result } = renderHook(() => useAgentBackstory('percy'));
     
     expect(result.current).toEqual({
-      id: 'percy-agent',
+      id: 'percy',
       name: 'Percy the Cosmic Concierge',
       description: 'Percy was the first hero born in the SKRBL AI universe',
       category: '',
@@ -70,7 +70,7 @@ describe('useAgentBackstory', () => {
       canConverse: false,
       recommendedHelpers: [],
       handoffTriggers: [],
-      ...agentBackstories['percy-agent']
+      ...agentBackstories['percy']
     });
   });
 
@@ -104,7 +104,7 @@ describe('useAgentBackstory', () => {
 describe('useAgentBackstories', () => {
   const mockAgents: Agent[] = [
     {
-      id: 'percy-agent',
+      id: 'percy',
       name: 'Percy',
       description: 'AI Assistant',
       category: 'assistant',
@@ -115,7 +115,7 @@ describe('useAgentBackstories', () => {
       handoffTriggers: []
     },
     {
-      id: 'branding-agent',
+      id: 'branding',
       name: 'Branding',
       description: 'Branding Assistant',
       category: 'branding',
@@ -137,11 +137,11 @@ describe('useAgentBackstories', () => {
     
     expect(result.current).toHaveLength(2);
     expect(result.current[0]).toEqual(expect.objectContaining({
-      id: 'percy-agent',
+      id: 'percy',
       superheroName: 'Percy the Cosmic Concierge'
     }));
     expect(result.current[1]).toEqual(expect.objectContaining({
-      id: 'branding-agent',
+      id: 'branding',
       superheroName: 'BrandAlexander the Identity Architect'
     }));
   });

@@ -25,7 +25,7 @@ const MOCK_ANALYTICS: PercyAnalytics = {
     count: 128,
     lastUsed: new Date().toISOString()
   },
-  'content-agent': {
+  'contentcreation': {
     count: 18,
     lastUsed: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
   },

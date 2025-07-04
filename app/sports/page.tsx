@@ -145,7 +145,7 @@ export default function SportsPage(): JSX.Element {
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                   <WorkflowLaunchButton
-                    agentId="skill-smith-agent"
+                    agentId="skillsmith"
                     agentName="Skill Smith"
                     superheroName="Skill Smith the Sports Performance Forger"
                     hasWorkflow={true}
@@ -156,7 +156,7 @@ export default function SportsPage(): JSX.Element {
                     className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                     initialPrompt="I want to optimize my athletic performance. Please analyze my current fitness level and create a personalized training and nutrition plan."
                   />
-                  <Link href="/services/skill-smith-agent" className="text-orange-400 hover:text-orange-300 font-semibold underline">
+                  <Link href="/services/skillsmith" className="text-orange-400 hover:text-orange-300 font-semibold underline">
                     Meet Skill Smith →
                   </Link>
                 </div>
@@ -237,7 +237,7 @@ export default function SportsPage(): JSX.Element {
                         </div>
                         
                         <WorkflowLaunchButton
-                          agentId="skill-smith-agent"
+                          agentId="skillsmith"
                           agentName="Skill Smith"
                           superheroName="Skill Smith the Sports Performance Forger"
                           hasWorkflow={true}
@@ -386,7 +386,7 @@ export default function SportsPage(): JSX.Element {
                 
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-8">
                   <WorkflowLaunchButton
-                    agentId="skill-smith-agent"
+                    agentId="skillsmith"
                     agentName="Skill Smith"
                     superheroName="Skill Smith the Sports Performance Forger"
                     hasWorkflow={true}
@@ -399,7 +399,7 @@ export default function SportsPage(): JSX.Element {
                   />
                   <div className="text-center">
                     <p className="text-sm text-gray-400">or</p>
-                    <Link href="/services/skill-smith-agent" className="text-orange-400 hover:text-orange-300 font-semibold underline">
+                    <Link href="/services/skillsmith" className="text-orange-400 hover:text-orange-300 font-semibold underline">
                       Explore All Sports Features
                     </Link>
                   </div>

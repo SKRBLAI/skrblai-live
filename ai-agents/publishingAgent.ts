@@ -91,7 +91,7 @@ const runPublishing = async (input: PublishingAgentInput): Promise<AgentResponse
 };
 
 const publishingAgent: Agent = {
-  id: 'publishing-agent',
+  id: 'publishing',
   name: 'Publishing Agent',
   category: 'Publishing',
   description: 'AI-powered universal publishing platform for all book genres including interactive and multimedia content',
@@ -140,7 +140,7 @@ const publishingAgent: Agent = {
   ],
   roleRequired: "any",
   canConverse: false,
-  recommendedHelpers: ['content-creator-agent'],
+  recommendedHelpers: ['contentcreation'],
   handoffTriggers: ['content creation', 'editing', 'marketing'],
   runAgent: async (input: BaseAgentInput) => {
     // Use the validateAgentInput helper for publishing fields

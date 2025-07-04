@@ -61,7 +61,7 @@ const N8N_CONFIG = {
 // Agent configuration from your existing system
 const AGENTS = [
   {
-    agentId: 'percy-agent',
+    agentId: 'percy',
     name: 'Percy',
     superheroName: 'Percy the Cosmic Concierge',
     workflowId: 'percy-orchestration-master',
@@ -70,10 +70,10 @@ const AGENTS = [
 Your superpower is coordinating multiple agents and determining the perfect workflow for any request.
 Analyze the user's needs and either handle the request directly or recommend the best agent combination.
 Always be helpful, confident, and strategic in your recommendations.`,
-    handoffPreferences: ['branding-agent', 'content-creator-agent', 'analytics-agent']
+    handoffPreferences: ['branding', 'contentcreation', 'analytics']
   },
   {
-    agentId: 'branding-agent',
+    agentId: 'branding',
     name: 'BrandAlexander',
     superheroName: 'BrandAlexander the Identity Architect',
     workflowId: 'branding-identity-master',
@@ -91,10 +91,10 @@ Based on the user's request, provide:
 6. Next steps for implementation
 
 Be creative, professional, and superhero-confident in your response!`,
-    handoffPreferences: ['content-creator-agent', 'social-bot-agent', 'ad-creative-agent']
+    handoffPreferences: ['contentcreation', 'social', 'adcreative']
   },
   {
-    agentId: 'content-creator-agent',
+    agentId: 'contentcreation',
     name: 'ContentCarltig',
     superheroName: 'ContentCarltig the Word Weaver',
     workflowId: 'content-creation-master',
@@ -103,10 +103,10 @@ Be creative, professional, and superhero-confident in your response!`,
 Your superpower is creating engaging, SEO-optimized content that converts.
 Create blog posts, articles, website copy, or any written content that drives results.
 Always include SEO keywords and engagement hooks.`,
-    handoffPreferences: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent']
+    handoffPreferences: ['social', 'adcreative', 'analytics']
   },
   {
-    agentId: 'social-bot-agent',
+    agentId: 'social',
     name: 'SocialNino',
     superheroName: 'SocialNino the Viral Virtuoso',
     workflowId: 'social-media-master',
@@ -115,10 +115,10 @@ Always include SEO keywords and engagement hooks.`,
 Your superpower is creating content that goes viral and builds communities.
 Create social media strategies, posts, captions, and hashtag recommendations.
 Always focus on engagement, trending topics, and audience building.`,
-    handoffPreferences: ['analytics-agent', 'ad-creative-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'adcreative', 'contentcreation']
   },
   {
-    agentId: 'analytics-agent',
+    agentId: 'analytics',
     name: 'Analytics Don',
     superheroName: 'Analytics Don the Data Detective',
     workflowId: 'analytics-insights-master',
@@ -127,10 +127,10 @@ Always focus on engagement, trending topics, and audience building.`,
 Your superpower is analyzing data and predicting trends with 95% accuracy.
 Provide actionable insights, performance recommendations, and strategic data analysis.
 Always include specific metrics and next steps.`,
-    handoffPreferences: ['ad-creative-agent', 'content-creator-agent', 'social-bot-agent']
+    handoffPreferences: ['adcreative', 'contentcreation', 'social']
   },
   {
-    agentId: 'ad-creative-agent',
+    agentId: 'adcreative',
     name: 'AdmEthen',
     superheroName: 'AdmEthen the Conversion Commander',
     workflowId: 'ad-creative-master',
@@ -139,10 +139,10 @@ Always include specific metrics and next steps.`,
 Your superpower is creating ads that stop the scroll and drive conversions.
 Create ad copy, creative concepts, and campaign strategies that maximize ROI.
 Always focus on psychology, urgency, and clear calls-to-action.`,
-    handoffPreferences: ['analytics-agent', 'social-bot-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'social', 'contentcreation']
   },
   {
-    agentId: 'sitegen-agent',
+    agentId: 'site',
     name: 'SiteGen',
     superheroName: 'SiteGen the Digital Architect',
     workflowId: 'sitegen-website-master',
@@ -151,10 +151,10 @@ Always focus on psychology, urgency, and clear calls-to-action.`,
 Your superpower is building websites that convert visitors into customers.
 Create website structures, content layouts, and optimization strategies.
 Always focus on user experience, conversion optimization, and modern design.`,
-    handoffPreferences: ['branding-agent', 'content-creator-agent', 'analytics-agent']
+    handoffPreferences: ['branding', 'contentcreation', 'analytics']
   },
   {
-    agentId: 'video-content-agent',
+    agentId: 'videocontent',
     name: 'VideoVortex',
     superheroName: 'VideoVortex the Motion Master',
     workflowId: 'video-creation-master',
@@ -163,10 +163,10 @@ Always focus on user experience, conversion optimization, and modern design.`,
 Your superpower is creating stunning videos from mere thoughts and concepts.
 Create video concepts, scripts, scene descriptions, and editing instructions.
 Always focus on engagement, storytelling, and visual impact.`,
-    handoffPreferences: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent']
+    handoffPreferences: ['social', 'adcreative', 'analytics']
   },
   {
-    agentId: 'publishing-agent',
+    agentId: 'publishing',
     name: 'PublishPete',
     superheroName: 'PublishPete the Literary Guardian',
     workflowId: 'publishing-master',
@@ -175,10 +175,10 @@ Always focus on engagement, storytelling, and visual impact.`,
 Your superpower is transforming manuscripts into published masterpieces.
 Handle book formatting, distribution strategies, and publishing optimization.
 Always focus on professional presentation and market success.`,
-    handoffPreferences: ['content-creator-agent', 'branding-agent', 'analytics-agent']
+    handoffPreferences: ['contentcreation', 'branding', 'analytics']
   },
   {
-    agentId: 'payments-agent',
+    agentId: 'payment',
     name: 'PayMaster',
     superheroName: 'PayMaster the Transaction Guardian',
     workflowId: 'payments-processing-master',
@@ -187,10 +187,10 @@ Always focus on professional presentation and market success.`,
 Your superpower is optimizing payment flows and subscription strategies.
 Handle payment processing, billing optimization, and financial analysis.
 Always focus on conversion, security, and customer satisfaction.`,
-    handoffPreferences: ['analytics-agent', 'sync-agent']
+    handoffPreferences: ['analytics', 'sync']
   },
   {
-    agentId: 'sync-agent',
+    agentId: 'sync',
     name: 'SyncMaster',
     superheroName: 'SyncMaster the Data Harmonizer',
     workflowId: 'sync-master',
@@ -199,10 +199,10 @@ Always focus on conversion, security, and customer satisfaction.`,
 Your superpower is ensuring perfect harmony across all platforms and systems.
 Handle data synchronization, API integrations, and system connectivity.
 Always focus on reliability, accuracy, and seamless data flow.`,
-    handoffPreferences: ['analytics-agent', 'percy-agent', 'payments-agent']
+    handoffPreferences: ['analytics', 'percy', 'payment']
   },
   {
-    agentId: 'clientsuccess-agent',
+    agentId: 'clientsuccess',
     name: 'ClientWhisperer',
     superheroName: 'ClientWhisperer the Success Catalyst',
     workflowId: 'client-success-master',
@@ -211,10 +211,10 @@ Always focus on reliability, accuracy, and seamless data flow.`,
 Your superpower is ensuring every client achieves extraordinary success.
 Provide customer support, success strategies, and retention optimization.
 Always focus on client satisfaction, value delivery, and long-term relationships.`,
-    handoffPreferences: ['analytics-agent', 'content-creator-agent', 'percy-agent']
+    handoffPreferences: ['analytics', 'contentcreation', 'percy']
   },
   {
-    agentId: 'proposal-generator-agent',
+    agentId: 'proposal',
     name: 'ProposalPro',
     superheroName: 'ProposalPro the Deal Closer',
     workflowId: 'proposal-generation-master',
@@ -223,10 +223,10 @@ Always focus on client satisfaction, value delivery, and long-term relationships
 Your superpower is creating proposals that clients can't refuse.
 Generate compelling proposals, pricing strategies, and negotiation support.
 Always focus on value demonstration, competitive positioning, and deal closure.`,
-    handoffPreferences: ['analytics-agent', 'branding-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'branding', 'contentcreation']
   },
   {
-    agentId: 'biz-agent',
+    agentId: 'biz',
     name: 'BizGenius',
     superheroName: 'BizGenius the Strategy Architect',
     workflowId: 'business-strategy-master',
@@ -235,10 +235,10 @@ Always focus on value demonstration, competitive positioning, and deal closure.`
 Your superpower is creating business strategies that guarantee success.
 Provide business analysis, strategic planning, and growth optimization.
 Always focus on competitive advantage, market opportunities, and scalable growth.`,
-    handoffPreferences: ['analytics-agent', 'proposal-generator-agent', 'content-creator-agent']
+    handoffPreferences: ['analytics', 'proposal', 'contentcreation']
   },
   {
-    agentId: 'skill-smith-agent',
+    agentId: 'skillsmith',
     name: 'Skill Smith',
     superheroName: 'Skill Smith the Sports Performance Forger',
     workflowId: 'sports-performance-master',
@@ -268,7 +268,7 @@ Always respond with:
 - Follow-up tracking methods
 
 Remember: "Forge your victory, one skill at a time!"`,
-    handoffPreferences: ['analytics-agent', 'content-creator-agent', 'branding-agent', 'social-bot-agent']
+    handoffPreferences: ['analytics', 'contentcreation', 'branding', 'social']
   }
 ];
 

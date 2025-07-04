@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     // Find the branding agent
     const brandingAgent = agentRegistry.find(agent => 
-      agent.id === 'branding-agent' || agent.name?.toLowerCase().includes('brand')
+      agent.id === 'branding' || agent.name?.toLowerCase().includes('brand')
     );
 
     if (!brandingAgent) {

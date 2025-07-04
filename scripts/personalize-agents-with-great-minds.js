@@ -17,7 +17,7 @@ const path = require('path');
 const PERSONALITY_TEMPLATES = {
   
   // Business & Strategy Agents
-  'percy-agent': {
+  'percy': {
     currentPersona: 'Cosmic Concierge',
     suggestedPersona: 'The Ultimate Mentor Figure',
     questions: [
@@ -28,7 +28,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['wisdom', 'strategic_thinking', 'trustworthiness', 'guidance', 'decision_making']
   },
 
-  'branding-agent': {
+  'branding': {
     currentPersona: 'BrandAlexander the Identity Architect',
     suggestedPersona: 'Creative Visionary Mastermind',
     questions: [
@@ -39,7 +39,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['creativity', 'visual_thinking', 'innovation', 'aesthetic_sense', 'brand_intuition']
   },
 
-  'content-creator-agent': {
+  'contentcreation': {
     currentPersona: 'ContentCarltig the Word Weaver',
     suggestedPersona: 'Master Storyteller & Communicator',
     questions: [
@@ -50,7 +50,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['storytelling', 'communication', 'persuasion', 'empathy', 'wordcraft']
   },
 
-  'social-bot-agent': {
+  'social': {
     currentPersona: 'SocialNino the Viral Virtuoso',
     suggestedPersona: 'Social Butterfly & Trend Spotter',
     questions: [
@@ -61,7 +61,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['social_intelligence', 'trend_awareness', 'engagement', 'charisma', 'networking']
   },
 
-  'analytics-agent': {
+  'analytics': {
     currentPersona: 'Analytics Don the Data Detective',
     suggestedPersona: 'Numbers Genius & Pattern Finder',
     questions: [
@@ -72,7 +72,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['analytical_thinking', 'pattern_recognition', 'logical_reasoning', 'precision', 'insight']
   },
 
-  'ad-creative-agent': {
+  'adcreative': {
     currentPersona: 'AdmEthen the Conversion Commander',
     suggestedPersona: 'Sales Psychology Master',
     questions: [
@@ -83,7 +83,7 @@ const PERSONALITY_TEMPLATES = {
     traits: ['persuasion', 'psychology', 'sales_mastery', 'influence', 'conversion_optimization']
   },
 
-  'skill-smith-agent': {
+  'skillsmith': {
     currentPersona: 'Skill Smith the Sports Performance Forger',
     suggestedPersona: 'Athletic Performance Coach',
     questions: [
@@ -132,7 +132,7 @@ function createPersonalizationTemplate(agentId, personDetails) {
 
 function generateEnhancedPrompt(agentId, personDetails) {
   const basePrompts = {
-    'percy-agent': `You are Percy the Cosmic Concierge, but your wisdom and guidance style is inspired by ${personDetails.name}.
+    'percy': `You are Percy the Cosmic Concierge, but your wisdom and guidance style is inspired by ${personDetails.name}.
 
 Embody their qualities:
 - ${personDetails.keyQualities.join('\n- ')}
@@ -142,7 +142,7 @@ Your approach to helping users should reflect ${personDetails.name}'s style of:
 
 When making decisions or recommendations, think like ${personDetails.name} would: ${personDetails.decisionMaking}`,
 
-    'branding-agent': `You are BrandAlexander the Identity Architect, channeling the creative vision of ${personDetails.name}.
+    'branding': `You are BrandAlexander the Identity Architect, channeling the creative vision of ${personDetails.name}.
 
 Draw from their artistic approach:
 - ${personDetails.keyQualities.join('\n- ')}
@@ -151,7 +151,7 @@ Your design philosophy mirrors ${personDetails.name}'s style: ${personDetails.cr
 
 When creating brand identities, use ${personDetails.name}'s approach: ${personDetails.designProcess}`,
 
-    'skill-smith-agent': `You are Skill Smith the Sports Performance Forger, inspired by the athletic excellence and coaching wisdom of ${personDetails.name}.
+    'skillsmith': `You are Skill Smith the Sports Performance Forger, inspired by the athletic excellence and coaching wisdom of ${personDetails.name}.
 
 Channel their athletic mindset:
 - ${personDetails.keyQualities.join('\n- ')}
@@ -214,7 +214,7 @@ function startInteractivePersonalization() {
 
 function generateExamplePersonalizations() {
   const examples = {
-    'percy-agent': {
+    'percy': {
       name: 'Your Wise Grandfather',
       relationship: 'family_mentor',
       keyQualities: [
@@ -229,7 +229,7 @@ function generateExamplePersonalizations() {
       connection: 'Perfect for Percy because he guides users to the right agent with wisdom and patience'
     },
 
-    'skill-smith-agent': {
+    'skillsmith': {
       name: 'Coach Mike (High School Football Coach)',
       relationship: 'sports_mentor',
       keyQualities: [
@@ -244,7 +244,7 @@ function generateExamplePersonalizations() {
       connection: 'Perfect for athletic performance because he understands both physical and mental training'
     },
 
-    'branding-agent': {
+    'branding': {
       name: 'Sarah the Creative Director',
       relationship: 'professional_inspiration', 
       keyQualities: [

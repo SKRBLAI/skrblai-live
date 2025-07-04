@@ -351,7 +351,7 @@ export default function SocialMediaPage(): JSX.Element {
                   </CosmicButton>
                   <div className="text-center">
                     <p className="text-sm text-gray-400">or</p>
-                    <Link href="/services/social-bot-agent" className="text-blue-400 hover:text-blue-300 font-semibold underline">
+                    <Link href="/services/social" className="text-blue-400 hover:text-blue-300 font-semibold underline">
                       Meet Our Social Bot Agent
                     </Link>
                   </div>

@@ -113,7 +113,7 @@ export interface AgentConfiguration {
 // =============================================================================
 
 const AGENT_POWERS: Record<string, AgentPower[]> = {
-  'percy-agent': [
+  'percy': [
     {
       id: 'orchestrate-workflow',
       name: 'Workflow Orchestration',
@@ -136,7 +136,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'branding-agent': [
+  'branding': [
     {
       id: 'brand-identity-creation',
       name: 'Brand Identity Manifestation',
@@ -159,7 +159,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'content-creator-agent': [
+  'contentcreation': [
     {
       id: 'article-generation',
       name: 'Instant Article Generation',
@@ -182,7 +182,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'ad-creative-agent': [
+  'adcreative': [
     {
       id: 'ad-creative-generation',
       name: 'Perfect Targeting',
@@ -195,7 +195,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'social-bot-agent': [
+  'social': [
     {
       id: 'viral-content-creation',
       name: 'Viral Content Generation',
@@ -218,7 +218,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
   
-  'publishing-agent': [
+  'publishing': [
     {
       id: 'book-publishing',
       name: 'Book Publishing Mastery',
@@ -241,7 +241,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'sitegen-agent': [
+  'site': [
     {
       id: 'website-generation',
       name: 'Website Generation',
@@ -264,7 +264,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'sync-agent': [
+  'sync': [
     {
       id: 'data-sync',
       name: 'Data Synchronization',
@@ -277,7 +277,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'clientsuccess-agent': [
+  'clientsuccess': [
     {
       id: 'client-onboarding',
       name: 'Client Onboarding',
@@ -300,7 +300,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'payments-agent': [
+  'payment': [
     {
       id: 'payment-processing',
       name: 'Payment Processing',
@@ -323,7 +323,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'skill-smith-agent': [
+  'skillsmith': [
     {
       id: 'performance-analysis',
       name: 'Athletic Performance Analysis',
@@ -376,7 +376,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'analytics-agent': [
+  'analytics': [
     {
       id: 'data-analysis',
       name: 'Data Analysis',
@@ -399,7 +399,7 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
     }
   ],
 
-  'biz-agent': [
+  'biz': [
     {
       id: 'business-planning',
       name: 'Business Planning',
@@ -452,27 +452,27 @@ const AGENT_POWERS: Record<string, AgentPower[]> = {
 
 const CROSS_AGENT_HANDOFFS: Record<string, CrossAgentHandoff[]> = {
   // Demo Workflow: BrandBot -> SocialBot -> ClientSuccess -> PaymentManager
-  'branding-agent': [
+  'branding': [
     {
-      targetAgentId: 'social-bot-agent',
+      targetAgentId: 'social',
       triggerConditions: ['social', 'promote', 'share', 'post'],
       handoffMessage: 'Your new branding is ready! Shall we get SocialBot to create a social media campaign to show it off?',
       autoTrigger: false,
       confidence: 95
     }
   ],
-  'social-bot-agent': [
+  'social': [
     {
-      targetAgentId: 'client-success-agent',
+      targetAgentId: 'clientsuccess',
       triggerConditions: ['customer', 'client', 'engagement', 'feedback', 'community'],
       handoffMessage: 'Great, your social campaign is underway. Now, let\'s connect you with the Client Success Agent to manage engagement and gather feedback.',
       autoTrigger: false,
       confidence: 90
     }
   ],
-  'client-success-agent': [
+  'clientsuccess': [
     {
-      targetAgentId: 'payment-manager-agent',
+      targetAgentId: 'payment',
       triggerConditions: ['payment', 'upgrade', 'subscribe', 'purchase', 'buy'],
       handoffMessage: 'It looks like you\'re ready to upgrade your plan. I\'ll hand you over to the Payment Manager to complete the process securely.',
       autoTrigger: true,
@@ -481,43 +481,43 @@ const CROSS_AGENT_HANDOFFS: Record<string, CrossAgentHandoff[]> = {
   ],
 
   // Other general handoffs
-  'percy-agent': [
+  'percy': [
     {
-      targetAgentId: 'biz-agent',
+      targetAgentId: 'biz',
       triggerConditions: ['business plan', 'strategy', 'model'],
       handoffMessage: 'For a detailed business strategy, I recommend consulting with Biz. Would you like me to connect you?',
       autoTrigger: false,
       confidence: 90
     }
   ],
-  'content-creator-agent': [
+  'contentcreation': [
     {
-      targetAgentId: 'social-bot-agent',
+      targetAgentId: 'social',
       triggerConditions: ['promote', 'share', 'social media', 'post this'],
       handoffMessage: 'Now that your content is ready, shall I have Social Bot draft some posts to promote it?',
       autoTrigger: true,
       confidence: 95
     },
     {
-      targetAgentId: 'publishing-agent',
+      targetAgentId: 'publishing',
       triggerConditions: ['publish', 'distribute', 'go live'],
       handoffMessage: 'Ready to publish this content across your channels? Publishing Agent can handle that.',
       autoTrigger: false,
       confidence: 90
     }
   ],
-  'ad-creative-agent': [
+  'adcreative': [
     {
-      targetAgentId: 'analytics-agent',
+      targetAgentId: 'analytics',
       triggerConditions: ['track', 'performance', 'metrics', 'results', 'analytics'],
       handoffMessage: 'Once your ad campaign is live, Analytics Agent can track its performance. Want me to set that up?',
       autoTrigger: false,
       confidence: 88
     }
   ],
-  'biz-agent': [
+  'biz': [
     {
-      targetAgentId: 'proposal-generator-agent',
+      targetAgentId: 'proposal',
       triggerConditions: ['proposal', 'pitch', 'investors', 'funding'],
       handoffMessage: 'Now that the business plan is solid, the Proposal Generator can create a compelling pitch deck.',
       autoTrigger: false,
@@ -551,13 +551,13 @@ export class AgentLeague {
   private initializeAgents(): void {
     const agentConfigs: AgentConfiguration[] = [
       {
-        id: 'percy-agent',
+        id: 'percy',
         name: 'Percy',
         category: 'Concierge',
         description: 'Your cosmic AI concierge and workflow orchestrator',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('percy-agent'),
-        powers: AGENT_POWERS['percy-agent'] || [],
+        personality: this.mapBackstoryToPersonality('percy'),
+        powers: AGENT_POWERS['percy'] || [],
         capabilities: [{
           category: 'Orchestration',
           skills: ['Intent Analysis', 'Agent Routing', 'Workflow Coordination'],
@@ -565,7 +565,7 @@ export class AgentLeague {
           supportedFormats: ['text', 'json', 'workflow'],
           integrations: ['all-agents', 'n8n', 'supabase']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['percy-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['percy'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'percy-orchestration-workflow',
         primaryWorkflow: 'agent-orchestration',
@@ -578,7 +578,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['handoff_success_rate', 'user_satisfaction', 'routing_accuracy'],
         canConverse: true,
-        recommendedHelpers: ['branding-agent', 'content-creator-agent', 'analytics-agent'],
+        recommendedHelpers: ['branding', 'contentcreation', 'analytics'],
         handoffTriggers: ['need help with', 'can you find someone', 'who should I talk to', 'recommend an agent'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -589,13 +589,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'branding-agent',
+        id: 'branding',
         name: 'BrandAlexander',
         category: 'Creative',
         description: 'The Identity Architect who manifests perfect brand identities',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('branding-agent'),
-        powers: AGENT_POWERS['branding-agent'] || [],
+        personality: this.mapBackstoryToPersonality('branding'),
+        powers: AGENT_POWERS['branding'] || [],
         capabilities: [{
           category: 'Brand Design',
           skills: ['Visual Identity', 'Logo Design', 'Color Psychology', 'Brand Strategy'],
@@ -603,7 +603,7 @@ export class AgentLeague {
           supportedFormats: ['svg', 'png', 'pdf', 'brand-guidelines'],
           integrations: ['figma', 'canva', 'adobe-creative-suite']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['branding-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['branding'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'branding-workflow',
         primaryWorkflow: 'brand-identity-creation',
@@ -616,7 +616,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['brand_assets_created', 'client_satisfaction', 'design_iterations'],
         canConverse: true,
-        recommendedHelpers: ['content-creator-agent', 'ad-creative-agent', 'sitegen-agent'],
+        recommendedHelpers: ['contentcreation', 'adcreative', 'site'],
         handoffTriggers: ['need website', 'create content', 'marketing materials', 'launch campaign'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr'],
@@ -627,13 +627,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'content-creator-agent',
+        id: 'contentcreation',
         name: 'ContentCarltig',
         category: 'Content',
         description: 'The Word Weaver who crafts compelling content at light speed',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('content-creator-agent'),
-        powers: AGENT_POWERS['content-creator-agent'] || [],
+        personality: this.mapBackstoryToPersonality('contentcreation'),
+        powers: AGENT_POWERS['contentcreation'] || [],
         capabilities: [{
           category: 'Content Creation',
           skills: ['SEO Writing', 'Blog Posts', 'Social Copy', 'Email Campaigns'],
@@ -641,7 +641,7 @@ export class AgentLeague {
           supportedFormats: ['markdown', 'html', 'docx', 'pdf'],
           integrations: ['wordpress', 'contentful', 'hubspot', 'mailchimp']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['content-creator-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['contentcreation'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'content-creation-workflow',
         primaryWorkflow: 'content-generation',
@@ -654,7 +654,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['words_generated', 'seo_score', 'engagement_prediction'],
         canConverse: true,
-        recommendedHelpers: ['social-bot-agent', 'branding-agent', 'analytics-agent'],
+        recommendedHelpers: ['social', 'branding', 'analytics'],
         handoffTriggers: ['social media', 'brand guidelines', 'performance data', 'analytics'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de', 'it'],
@@ -665,13 +665,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'social-bot-agent',
+        id: 'social',
         name: 'SocialNino',
         category: 'Social Media',
         description: 'The Viral Virtuoso who creates engaging social content',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('social-bot-agent'),
-        powers: AGENT_POWERS['social-bot-agent'] || [],
+        personality: this.mapBackstoryToPersonality('social'),
+        powers: AGENT_POWERS['social'] || [],
         capabilities: [{
           category: 'Social Media',
           skills: ['Content Scheduling', 'Hashtag Strategy', 'Engagement Optimization', 'Trend Analysis'],
@@ -679,7 +679,7 @@ export class AgentLeague {
           supportedFormats: ['text', 'image', 'video', 'carousel'],
           integrations: ['twitter', 'instagram', 'facebook', 'linkedin', 'tiktok']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['social-bot-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['social'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'social-media-workflow',
         primaryWorkflow: 'social-content-creation',
@@ -692,7 +692,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['posts_created', 'engagement_rate', 'viral_potential'],
         canConverse: true,
-        recommendedHelpers: ['content-creator-agent', 'analytics-agent', 'ad-creative-agent'],
+        recommendedHelpers: ['contentcreation', 'analytics', 'adcreative'],
         handoffTriggers: ['long form content', 'data analysis', 'advertising', 'campaign performance'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -703,13 +703,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'analytics-agent',
+        id: 'analytics',
         name: 'The Don of Data',
         category: 'Analytics',
         description: 'Master of data insights and predictive analytics',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('analytics-agent'),
-        powers: AGENT_POWERS['analytics-agent'] || [],
+        personality: this.mapBackstoryToPersonality('analytics'),
+        powers: AGENT_POWERS['analytics'] || [],
         capabilities: [{
           category: 'Data Analytics',
           skills: ['Data Analysis', 'Predictive Modeling', 'Dashboard Creation', 'ROI Calculation'],
@@ -717,7 +717,7 @@ export class AgentLeague {
           supportedFormats: ['json', 'csv', 'pdf', 'dashboard'],
           integrations: ['google-analytics', 'mixpanel', 'amplitude', 'tableau']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['analytics-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['analytics'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'analytics-workflow',
         primaryWorkflow: 'data-analysis',
@@ -730,7 +730,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['insights_generated', 'prediction_accuracy', 'dashboard_usage'],
         canConverse: true,
-        recommendedHelpers: ['content-creator-agent', 'social-bot-agent', 'ad-creative-agent'],
+        recommendedHelpers: ['contentcreation', 'social', 'adcreative'],
         handoffTriggers: ['content optimization', 'social strategy', 'ad performance', 'creative testing'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'de', 'fr'],
@@ -741,13 +741,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'ad-creative-agent',
+        id: 'adcreative',
         name: 'AdmEthen',
         category: 'Advertising',
         description: 'The Conversion Catalyst who creates perfect ad campaigns',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('ad-creative-agent'),
-        powers: AGENT_POWERS['ad-creative-agent'] || [],
+        personality: this.mapBackstoryToPersonality('adcreative'),
+        powers: AGENT_POWERS['adcreative'] || [],
         capabilities: [{
           category: 'Ad Creation',
           skills: ['Ad Copy', 'Creative Design', 'Audience Targeting', 'A/B Testing'],
@@ -755,7 +755,7 @@ export class AgentLeague {
           supportedFormats: ['text', 'image', 'video', 'carousel'],
           integrations: ['facebook-ads', 'google-ads', 'linkedin-ads', 'twitter-ads']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['ad-creative-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['adcreative'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'ad-creative-workflow',
         primaryWorkflow: 'ad-campaign-creation',
@@ -768,7 +768,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['conversion_rate', 'ctr_improvement', 'roas'],
         canConverse: true,
-        recommendedHelpers: ['analytics-agent', 'branding-agent', 'social-bot-agent'],
+        recommendedHelpers: ['analytics', 'branding', 'social'],
         handoffTriggers: ['performance data', 'brand assets', 'social content', 'optimization insights'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr'],
@@ -779,13 +779,13 @@ export class AgentLeague {
       },
       
       {
-        id: 'video-content-agent',
+        id: 'videocontent',
         name: 'VideoVortex',
         category: 'Video',
         description: 'The Motion Master who creates stunning video content',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('video-content-agent'),
-        powers: AGENT_POWERS['video-content-agent'] || [],
+        personality: this.mapBackstoryToPersonality('videocontent'),
+        powers: AGENT_POWERS['videocontent'] || [],
         capabilities: [{
           category: 'Video Creation',
           skills: ['Video Generation', 'Motion Graphics', 'Scene Creation', 'Audio Sync'],
@@ -793,7 +793,7 @@ export class AgentLeague {
           supportedFormats: ['mp4', 'mov', 'gif', 'webm'],
           integrations: ['adobe-premiere', 'after-effects', 'davinci-resolve']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['video-content-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['videocontent'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'video-creation-master',
         primaryWorkflow: 'video-content-creation',
@@ -806,7 +806,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['videos_created', 'render_time', 'viewer_engagement'],
         canConverse: true,
-        recommendedHelpers: ['social-bot-agent', 'ad-creative-agent', 'analytics-agent'],
+        recommendedHelpers: ['social', 'adcreative', 'analytics'],
         handoffTriggers: ['social media', 'advertising', 'performance data'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr'],
@@ -817,13 +817,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'publishing-agent',
+        id: 'publishing',
         name: 'PublishPete',
         category: 'Publishing',
         description: 'The Literary Guardian who masters the publishing process',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('publishing-agent'),
-        powers: AGENT_POWERS['publishing-agent'] || [],
+        personality: this.mapBackstoryToPersonality('publishing'),
+        powers: AGENT_POWERS['publishing'] || [],
         capabilities: [{
           category: 'Book Publishing',
           skills: ['Book Formatting', 'ISBN Generation', 'Distribution', 'Copyright Protection'],
@@ -831,7 +831,7 @@ export class AgentLeague {
           supportedFormats: ['epub', 'pdf', 'mobi', 'paperback'],
           integrations: ['amazon-kdp', 'ingramspark', 'draft2digital']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['publishing-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['publishing'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'publishing-master',
         primaryWorkflow: 'book-publishing',
@@ -844,7 +844,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['books_published', 'distribution_reach', 'author_satisfaction'],
         canConverse: true,
-        recommendedHelpers: ['content-creator-agent', 'branding-agent', 'analytics-agent'],
+        recommendedHelpers: ['contentcreation', 'branding', 'analytics'],
         handoffTriggers: ['content creation', 'brand identity', 'sales data'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -855,13 +855,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'sitegen-agent',
+        id: 'site',
         name: 'SiteOnzite',
         category: 'Web Development',
         description: 'The Web Architect who builds perfect websites',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('sitegen-agent'),
-        powers: AGENT_POWERS['sitegen-agent'] || [],
+        personality: this.mapBackstoryToPersonality('site'),
+        powers: AGENT_POWERS['site'] || [],
         capabilities: [{
           category: 'Website Creation',
           skills: ['Website Generation', 'Responsive Design', 'SEO Architecture', 'UX Optimization'],
@@ -869,7 +869,7 @@ export class AgentLeague {
           supportedFormats: ['html', 'css', 'js', 'react', 'next.js'],
           integrations: ['vercel', 'netlify', 'wordpress', 'webflow']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['sitegen-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['site'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'sitegen-web-master',
         primaryWorkflow: 'website-generation',
@@ -882,7 +882,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['sites_created', 'performance_score', 'seo_ranking'],
         canConverse: true,
-        recommendedHelpers: ['branding-agent', 'content-creator-agent', 'analytics-agent'],
+        recommendedHelpers: ['branding', 'contentcreation', 'analytics'],
         handoffTriggers: ['brand assets', 'content creation', 'analytics data'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -893,13 +893,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'sync-agent',
+        id: 'sync',
         name: 'SyncMaster',
         category: 'Integration',
         description: 'The Data Harmonizer who perfects system integrations',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('sync-agent'),
-        powers: AGENT_POWERS['sync-agent'] || [],
+        personality: this.mapBackstoryToPersonality('sync'),
+        powers: AGENT_POWERS['sync'] || [],
         capabilities: [{
           category: 'Data Synchronization',
           skills: ['Data Sync', 'API Integration', 'Error Handling', 'Real-time Sync'],
@@ -907,7 +907,7 @@ export class AgentLeague {
           supportedFormats: ['json', 'xml', 'csv', 'api'],
           integrations: ['zapier', 'n8n', 'make', 'workato']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['sync-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['sync'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'sync-master',
         primaryWorkflow: 'data-synchronization',
@@ -920,7 +920,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['sync_success_rate', 'data_accuracy', 'system_uptime'],
         canConverse: true,
-        recommendedHelpers: ['analytics-agent', 'percy-agent', 'payments-agent'],
+        recommendedHelpers: ['analytics', 'percy', 'payment'],
         handoffTriggers: ['data analysis', 'workflow coordination', 'payment processing'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'de'],
@@ -931,13 +931,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'clientsuccess-agent',
+        id: 'clientsuccess',
         name: 'ClientWhisperer',
         category: 'Client Success',
         description: 'The Success Sage who ensures client satisfaction',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('clientsuccess-agent'),
-        powers: AGENT_POWERS['clientsuccess-agent'] || [],
+        personality: this.mapBackstoryToPersonality('clientsuccess'),
+        powers: AGENT_POWERS['clientsuccess'] || [],
         capabilities: [{
           category: 'Client Success',
           skills: ['Onboarding', 'Success Tracking', 'Relationship Management', 'Churn Prevention'],
@@ -945,7 +945,7 @@ export class AgentLeague {
           supportedFormats: ['text', 'pdf', 'dashboard'],
           integrations: ['salesforce', 'hubspot', 'intercom', 'zendesk']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['clientsuccess-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['clientsuccess'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'client-success-master',
         primaryWorkflow: 'client-success-management',
@@ -958,7 +958,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['client_satisfaction', 'retention_rate', 'response_time'],
         canConverse: true,
-        recommendedHelpers: ['analytics-agent', 'percy-agent', 'branding-agent'],
+        recommendedHelpers: ['analytics', 'percy', 'branding'],
         handoffTriggers: ['performance data', 'workflow help', 'brand updates'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -969,13 +969,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'payments-agent',
+        id: 'payment',
         name: 'PayPhomo',
         category: 'Finance',
         description: 'The Revenue Guardian who manages payment processes',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('payments-agent'),
-        powers: AGENT_POWERS['payments-agent'] || [],
+        personality: this.mapBackstoryToPersonality('payment'),
+        powers: AGENT_POWERS['payment'] || [],
         capabilities: [{
           category: 'Payment Processing',
           skills: ['Payment Integration', 'Revenue Management', 'Subscription Handling', 'Fraud Prevention'],
@@ -983,7 +983,7 @@ export class AgentLeague {
           supportedFormats: ['json', 'csv', 'dashboard'],
           integrations: ['stripe', 'paypal', 'square', 'wise']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['payments-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['payment'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'payments-master',
         primaryWorkflow: 'payment-processing',
@@ -996,7 +996,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['transaction_success_rate', 'revenue_processed', 'fraud_prevention'],
         canConverse: true,
-        recommendedHelpers: ['analytics-agent', 'sync-agent', 'clientsuccess-agent'],
+        recommendedHelpers: ['analytics', 'sync', 'clientsuccess'],
         handoffTriggers: ['data analysis', 'system integration', 'client support'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr', 'de'],
@@ -1007,13 +1007,13 @@ export class AgentLeague {
       },
 
       {
-        id: 'skill-smith-agent',
+        id: 'skillsmith',
         name: 'Skill Smith',
         category: 'Sports & Fitness',
         description: 'The Sports Performance Forger who optimizes athletic potential',
         version: '2.0.0',
-        personality: this.mapBackstoryToPersonality('skill-smith-agent'),
-        powers: AGENT_POWERS['skill-smith-agent'] || [],
+        personality: this.mapBackstoryToPersonality('skillsmith'),
+        powers: AGENT_POWERS['skillsmith'] || [],
         capabilities: [{
           category: 'Sports Performance',
           skills: ['Performance Analysis', 'Training Programs', 'Nutrition Planning', 'Injury Prevention', 'Mental Coaching'],
@@ -1021,7 +1021,7 @@ export class AgentLeague {
           supportedFormats: ['pdf', 'json', 'text', 'dashboard'],
           integrations: ['fitness_trackers', 'nutrition_apps', 'sports_analytics']
         }],
-        handoffTargets: CROSS_AGENT_HANDOFFS['skill-smith-agent'] || [],
+        handoffTargets: CROSS_AGENT_HANDOFFS['skillsmith'] || [],
         canReceiveHandoffs: true,
         n8nWorkflowId: 'sports-performance-master',
         primaryWorkflow: 'sports-performance-optimization',
@@ -1034,7 +1034,7 @@ export class AgentLeague {
         usageTracking: true,
         performanceMetrics: ['training_plans_created', 'performance_improvements', 'user_satisfaction'],
         canConverse: true,
-        recommendedHelpers: ['analytics-agent', 'content-creator-agent', 'branding-agent'],
+        recommendedHelpers: ['analytics', 'contentcreation', 'branding'],
         handoffTriggers: ['performance data', 'content creation', 'brand development', 'marketing'],
         conversationCapabilities: {
           supportedLanguages: ['en', 'es', 'fr'],
@@ -1384,7 +1384,7 @@ Respond as ${personality.superheroName}:`;
     conversationHistory: any[],
     context: any
   ): Promise<any> {
-    const percyAgent = this.getAgent('percy-agent');
+    const percyAgent = this.getAgent('percy');
     if (!percyAgent) {
       throw new Error('Percy agent not available for fallback');
     }
@@ -1404,7 +1404,7 @@ Respond as ${personality.superheroName}:`;
         userBenefit: 'Get better results through their optimized workflow'
       }],
       conversationAnalytics: this.generateConversationAnalytics(conversationHistory, message, ''),
-      agentId: 'percy-agent',
+      agentId: 'percy',
       agentName: 'Percy',
       fallbackUsed: true
     };

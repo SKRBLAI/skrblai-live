@@ -47,7 +47,7 @@ export const TRIAL_CONFIG: TrialLimits = {
 
 // Free agents that don't count toward limits
 export const FREE_AGENTS = [
-  'percy-agent'
+  'percy'
 ];
 
 export class TrialManager {

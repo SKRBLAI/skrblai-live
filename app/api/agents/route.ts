@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
     const visibleAgents = agentDashboardList.filter(
       agent => agent.visible !== false && agent.id && agent.name &&
       // Exclude Percy from all agent listings
-      agent.id !== 'percy-agent' && agent.id !== 'percy' && agent.name !== 'Percy'
+      agent.id !== 'percy' && agent.id !== 'percy' && agent.name !== 'Percy'
     );
 
     return NextResponse.json({ 

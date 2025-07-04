@@ -414,74 +414,74 @@ function generateAgentRecommendations(analysis: any, scanType: string) {
   
   // Always recommend Percy first
   recommendations.push({
-    agentId: 'percy-agent',
-    superheroName: agentBackstories['percy-agent'].superheroName,
+    agentId: 'percy',
+    superheroName: agentBackstories['percy'].superheroName,
     reason: 'Perfect starting point to coordinate your entire strategy',
     confidence: 95,
     capabilities: ['Strategy Coordination', 'Agent Orchestration', 'Task Management'],
-    catchphrase: agentBackstories['percy-agent'].catchphrase
+    catchphrase: agentBackstories['percy'].catchphrase
   });
 
   // Add specific recommendations based on scan type and analysis
   if (scanType === 'website' || analysis.businessType?.includes('Business')) {
     recommendations.push({
-      agentId: 'branding-agent',
-      superheroName: agentBackstories['branding-agent'].superheroName,
+      agentId: 'branding',
+      superheroName: agentBackstories['branding'].superheroName,
       reason: 'Enhance your brand identity and visual presence',
       confidence: 88,
       capabilities: ['Brand Identity', 'Visual Design', 'Logo Creation'],
-      catchphrase: agentBackstories['branding-agent'].catchphrase
+      catchphrase: agentBackstories['branding'].catchphrase
     });
 
     recommendations.push({
-      agentId: 'sitegen-agent',
-      superheroName: agentBackstories['sitegen-agent'].superheroName,
+      agentId: 'site',
+      superheroName: agentBackstories['site'].superheroName,
       reason: 'Optimize your website for better performance and conversions',
       confidence: 85,
       capabilities: ['Website Optimization', 'SEO', 'User Experience'],
-      catchphrase: agentBackstories['sitegen-agent'].catchphrase
+      catchphrase: agentBackstories['site'].catchphrase
     });
   }
 
   if (scanType === 'youtube' || analysis.content_focus) {
     recommendations.push({
-      agentId: 'video-content-agent',
-      superheroName: agentBackstories['video-content-agent'].superheroName,
+      agentId: 'videocontent',
+      superheroName: agentBackstories['videocontent'].superheroName,
       reason: 'Create compelling video content that engages your audience',
       confidence: 92,
       capabilities: ['Video Creation', 'Content Strategy', 'Audience Engagement'],
-      catchphrase: agentBackstories['video-content-agent'].catchphrase
+      catchphrase: agentBackstories['videocontent'].catchphrase
     });
 
     recommendations.push({
-      agentId: 'social-bot-agent',
-      superheroName: agentBackstories['social-bot-agent'].superheroName,
+      agentId: 'social',
+      superheroName: agentBackstories['social'].superheroName,
       reason: 'Amplify your content across all social media platforms',
       confidence: 87,
       capabilities: ['Social Media Strategy', 'Content Distribution', 'Engagement'],
-      catchphrase: agentBackstories['social-bot-agent'].catchphrase
+      catchphrase: agentBackstories['social'].catchphrase
     });
   }
 
   if (scanType === 'linkedin' || analysis.businessType?.includes('Professional')) {
     recommendations.push({
-      agentId: 'content-creator-agent',
-      superheroName: agentBackstories['content-creator-agent'].superheroName,
+      agentId: 'contentcreation',
+      superheroName: agentBackstories['contentcreation'].superheroName,
       reason: 'Create professional content that establishes thought leadership',
       confidence: 89,
       capabilities: ['Professional Content', 'Thought Leadership', 'LinkedIn Strategy'],
-      catchphrase: agentBackstories['content-creator-agent'].catchphrase
+      catchphrase: agentBackstories['contentcreation'].catchphrase
     });
   }
 
   // Always suggest analytics for business insights
   recommendations.push({
-    agentId: 'analytics-agent',
-    superheroName: agentBackstories['analytics-agent'].superheroName,
+    agentId: 'analytics',
+    superheroName: agentBackstories['analytics'].superheroName,
     reason: 'Track performance and optimize your strategy with data insights',
     confidence: 83,
     capabilities: ['Performance Analytics', 'Data Insights', 'ROI Tracking'],
-    catchphrase: agentBackstories['analytics-agent'].catchphrase
+    catchphrase: agentBackstories['analytics'].catchphrase
   });
 
   return recommendations.slice(0, 4); // Limit to top 4 recommendations

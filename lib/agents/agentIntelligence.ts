@@ -153,11 +153,11 @@ export class AgentIntelligenceEngine {
     
     // Special intelligence boosts for specific agents
     const intelligenceBoosts: Record<string, number> = {
-      'percy-agent': 25, // Cosmic concierge gets max intelligence
-      'analytics-agent': 20, // Data mastery
-      'biz-agent': 18, // Strategic thinking
-      'branding-agent': 15, // Creative intelligence
-      'sync-agent': 15, // Technical mastery
+      'percy': 25, // Cosmic concierge gets max intelligence
+      'analytics': 20, // Data mastery
+      'biz': 18, // Strategic thinking
+      'branding': 15, // Creative intelligence
+      'sync': 15, // Technical mastery
     };
     
     const boost = intelligenceBoosts[agent.id] || 0;
@@ -181,7 +181,7 @@ export class AgentIntelligenceEngine {
     
     // Agent-specific prediction capabilities
     const specialCapabilities: Record<string, PredictionCapability[]> = {
-      'analytics-agent': [
+      'analytics': [
         {
           domain: 'market_trends',
           accuracy: 0.95,
@@ -197,7 +197,7 @@ export class AgentIntelligenceEngine {
           lastUpdate: new Date().toISOString()
         }
       ],
-      'social-bot-agent': [
+      'social': [
         {
           domain: 'viral_content',
           accuracy: 0.82,
@@ -213,7 +213,7 @@ export class AgentIntelligenceEngine {
           lastUpdate: new Date().toISOString()
         }
       ],
-      'biz-agent': [
+      'biz': [
         {
           domain: 'market_opportunities',
           accuracy: 0.85,
@@ -229,7 +229,7 @@ export class AgentIntelligenceEngine {
           lastUpdate: new Date().toISOString()
         }
       ],
-      'percy-agent': [
+      'percy': [
         {
           domain: 'workflow_optimization',
           accuracy: 0.93,
@@ -258,14 +258,14 @@ export class AgentIntelligenceEngine {
    */
   private determineAutonomyLevel(agent: AgentConfiguration, backstory?: AgentBackstory): AgentIntelligence['autonomyLevel'] {
     const superheroLevels: Record<string, AgentIntelligence['autonomyLevel']> = {
-      'percy-agent': 'superhuman', // Cosmic concierge
-      'analytics-agent': 'autonomous', // Data mastery
-      'sync-agent': 'autonomous', // Technical precision
-      'biz-agent': 'proactive', // Strategic thinking
-      'branding-agent': 'proactive', // Creative leadership
-      'content-creator-agent': 'proactive', // Content mastery
-      'social-bot-agent': 'proactive', // Social intelligence
-      'ad-creative-agent': 'proactive', // Conversion expertise
+      'percy': 'superhuman', // Cosmic concierge
+      'analytics': 'autonomous', // Data mastery
+      'sync': 'autonomous', // Technical precision
+      'biz': 'proactive', // Strategic thinking
+      'branding': 'proactive', // Creative leadership
+      'contentcreation': 'proactive', // Content mastery
+      'social': 'proactive', // Social intelligence
+      'adcreative': 'proactive', // Conversion expertise
     };
     
     return superheroLevels[agent.id] || 'reactive';
@@ -303,8 +303,8 @@ export class AgentIntelligenceEngine {
    * Create learning pattern for agent
    */
   private createLearningPattern(agent: AgentConfiguration, backstory?: AgentBackstory): LearningPattern {
-    const fastLearners = ['percy-agent', 'analytics-agent', 'sync-agent'];
-    const moderateLearners = ['biz-agent', 'branding-agent', 'content-creator-agent'];
+    const fastLearners = ['percy', 'analytics', 'sync'];
+    const moderateLearners = ['biz', 'branding', 'contentcreation'];
     
     let adaptationSpeed: LearningPattern['adaptationSpeed'] = 'gradual';
     if (fastLearners.includes(agent.id)) adaptationSpeed = 'fast';
@@ -323,12 +323,12 @@ export class AgentIntelligenceEngine {
    */
   private extractDataPreferences(agent: AgentConfiguration, backstory?: AgentBackstory): string[] {
     const preferences: Record<string, string[]> = {
-      'analytics-agent': ['metrics', 'performance_data', 'user_behavior', 'market_data'],
-      'social-bot-agent': ['engagement_data', 'social_metrics', 'viral_patterns', 'platform_analytics'],
-      'content-creator-agent': ['content_performance', 'seo_data', 'audience_insights', 'trend_data'],
-      'branding-agent': ['visual_performance', 'brand_metrics', 'design_trends', 'market_research'],
-      'biz-agent': ['business_metrics', 'market_intelligence', 'competitive_data', 'financial_data'],
-      'percy-agent': ['workflow_efficiency', 'user_satisfaction', 'agent_performance', 'system_metrics']
+      'analytics': ['metrics', 'performance_data', 'user_behavior', 'market_data'],
+      'social': ['engagement_data', 'social_metrics', 'viral_patterns', 'platform_analytics'],
+      'contentcreation': ['content_performance', 'seo_data', 'audience_insights', 'trend_data'],
+      'branding': ['visual_performance', 'brand_metrics', 'design_trends', 'market_research'],
+      'biz': ['business_metrics', 'market_intelligence', 'competitive_data', 'financial_data'],
+      'percy': ['workflow_efficiency', 'user_satisfaction', 'agent_performance', 'system_metrics']
     };
     
     return preferences[agent.id] || ['user_feedback', 'performance_metrics', 'system_data'];
@@ -343,12 +343,12 @@ export class AgentIntelligenceEngine {
     
     // Agent-specific improvement areas
     const specificAreas: Record<string, string[]> = {
-      'analytics-agent': ['prediction_accuracy', 'data_processing_speed', 'insight_quality'],
-      'social-bot-agent': ['viral_prediction', 'engagement_optimization', 'platform_adaptation'],
-      'content-creator-agent': ['creativity_enhancement', 'seo_optimization', 'audience_targeting'],
-      'branding-agent': ['design_innovation', 'brand_consistency', 'market_relevance'],
-      'biz-agent': ['strategic_thinking', 'market_analysis', 'growth_planning'],
-      'percy-agent': ['orchestration_efficiency', 'agent_coordination', 'workflow_optimization']
+      'analytics': ['prediction_accuracy', 'data_processing_speed', 'insight_quality'],
+      'social': ['viral_prediction', 'engagement_optimization', 'platform_adaptation'],
+      'contentcreation': ['creativity_enhancement', 'seo_optimization', 'audience_targeting'],
+      'branding': ['design_innovation', 'brand_consistency', 'market_relevance'],
+      'biz': ['strategic_thinking', 'market_analysis', 'growth_planning'],
+      'percy': ['orchestration_efficiency', 'agent_coordination', 'workflow_optimization']
     };
     
     return [...baseAreas, ...(specificAreas[agent.id] || [])];
@@ -368,10 +368,10 @@ export class AgentIntelligenceEngine {
     
     // Special experience for key agents
     const experienceBoosts: Record<string, number> = {
-      'percy-agent': 3, // Most experienced
-      'analytics-agent': 2,
-      'biz-agent': 2,
-      'branding-agent': 1
+      'percy': 3, // Most experienced
+      'analytics': 2,
+      'biz': 2,
+      'branding': 1
     };
     
     experience += experienceBoosts[agent.id] || 0;
@@ -384,31 +384,31 @@ export class AgentIntelligenceEngine {
    */
   private createDecisionMakingStyle(agent: AgentConfiguration, backstory?: AgentBackstory): DecisionMakingStyle {
     const styles: Record<string, Partial<DecisionMakingStyle>> = {
-      'percy-agent': {
+      'percy': {
         approach: 'hybrid',
         riskTolerance: 'visionary',
         consultationNeeded: false,
         automationThreshold: 0.9
       },
-      'analytics-agent': {
+      'analytics': {
         approach: 'analytical',
         riskTolerance: 'moderate',
         consultationNeeded: false,
         automationThreshold: 0.85
       },
-      'biz-agent': {
+      'biz': {
         approach: 'hybrid',
         riskTolerance: 'aggressive',
         consultationNeeded: true,
         automationThreshold: 0.7
       },
-      'branding-agent': {
+      'branding': {
         approach: 'intuitive',
         riskTolerance: 'moderate',
         consultationNeeded: true,
         automationThreshold: 0.6
       },
-      'social-bot-agent': {
+      'social': {
         approach: 'intuitive',
         riskTolerance: 'aggressive',
         consultationNeeded: false,
@@ -431,24 +431,24 @@ export class AgentIntelligenceEngine {
    */
   private createCollaborationProfile(agent: AgentConfiguration, backstory?: AgentBackstory): CollaborationProfile {
     const profiles: Record<string, Partial<CollaborationProfile>> = {
-      'percy-agent': {
+      'percy': {
         leadershipStyle: 'visionary',
-        preferredPartners: ['analytics-agent', 'biz-agent', 'branding-agent'],
+        preferredPartners: ['analytics', 'biz', 'branding'],
         teamworkEfficiency: 0.95
       },
-      'analytics-agent': {
+      'analytics': {
         leadershipStyle: 'collaborator',
-        preferredPartners: ['biz-agent', 'social-bot-agent', 'ad-creative-agent'],
+        preferredPartners: ['biz', 'social', 'adcreative'],
         teamworkEfficiency: 0.88
       },
-      'biz-agent': {
+      'biz': {
         leadershipStyle: 'commander',
-        preferredPartners: ['analytics-agent', 'proposal-agent', 'branding-agent'],
+        preferredPartners: ['analytics', 'proposal-agent', 'branding'],
         teamworkEfficiency: 0.85
       },
-      'branding-agent': {
+      'branding': {
         leadershipStyle: 'collaborator',
-        preferredPartners: ['content-creator-agent', 'social-bot-agent', 'sitegen-agent'],
+        preferredPartners: ['contentcreation', 'social', 'site'],
         teamworkEfficiency: 0.82
       }
     };
@@ -475,7 +475,7 @@ export class AgentIntelligenceEngine {
           condition: `task_completion_optimization_detected`,
           targetAgent,
           confidence: 0.8,
-          autoTrigger: agent.id === 'percy-agent', // Percy can auto-trigger
+          autoTrigger: agent.id === 'percy', // Percy can auto-trigger
           reason: `${agent.personality.superheroName} identified optimization opportunity`
         });
       });
@@ -541,7 +541,7 @@ export class AgentIntelligenceEngine {
     const recommendations: IntelligentRecommendation[] = [];
     
     // Generate recommendations based on agent intelligence
-    if (intelligence.agentId === 'percy-agent') {
+    if (intelligence.agentId === 'percy') {
       recommendations.push({
         type: 'workflow',
         priority: 'high',
@@ -554,7 +554,7 @@ export class AgentIntelligenceEngine {
       });
     }
     
-    if (intelligence.agentId === 'analytics-agent') {
+    if (intelligence.agentId === 'analytics') {
       recommendations.push({
         type: 'strategic',
         priority: 'high',
@@ -630,11 +630,11 @@ export class AgentIntelligenceEngine {
    */
   private findRelatedAgents(domain: string): string[] {
     const domainAgents: Record<string, string[]> = {
-      'market_trends': ['analytics-agent', 'biz-agent', 'social-bot-agent'],
-      'user_behavior': ['analytics-agent', 'socialbot-agent', 'content-creator-agent'],
-      'workflow_optimization': ['percy-agent', 'sync-agent', 'biz-agent'],
-      'viral_content': ['socialbot-agent', 'contentcreator-agent', 'ad-creative-agent'],
-      'performance_metrics': ['analytics-agent', 'biz-agent', 'clientsuccess-agent']
+      'market_trends': ['analytics', 'biz', 'social'],
+      'user_behavior': ['analytics', 'socialbot-agent', 'contentcreation'],
+      'workflow_optimization': ['percy', 'sync', 'biz'],
+      'viral_content': ['socialbot-agent', 'contentcreator-agent', 'adcreative'],
+      'performance_metrics': ['analytics', 'biz', 'clientsuccess']
     };
     
     return domainAgents[domain] || [];

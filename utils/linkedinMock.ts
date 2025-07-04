@@ -91,12 +91,12 @@ export async function scanBusinessFromLinkedIn(profile: LinkedInProfile): Promis
   
   // Generate mock insights based on profile
   const industryAgentMap: Record<string, string[]> = {
-    'Technology': ['branding-agent', 'sitegen-agent', 'analytics-agent', 'content-creator-agent'],
-    'Marketing': ['social-bot-agent', 'ad-creative-agent', 'analytics-agent', 'content-creator-agent'],
-    'Finance': ['analytics-agent', 'proposal-generator-agent', 'biz-agent'],
-    'Healthcare': ['content-creator-agent', 'sitegen-agent', 'client-success-agent'],
-    'Retail': ['ad-creative-agent', 'social-bot-agent', 'payment-manager-agent'],
-    'default': ['content-creator-agent', 'branding-agent', 'analytics-agent']
+    'Technology': ['branding', 'site', 'analytics', 'contentcreation'],
+    'Marketing': ['social', 'adcreative', 'analytics', 'contentcreation'],
+    'Finance': ['analytics', 'proposal', 'biz'],
+    'Healthcare': ['contentcreation', 'site', 'clientsuccess'],
+    'Retail': ['adcreative', 'social', 'payment'],
+    'default': ['contentcreation', 'branding', 'analytics']
   };
   
   const suggestedAgents = industryAgentMap[profile.industry] || industryAgentMap['default'];
@@ -139,17 +139,17 @@ export async function scanWebsite(url: string): Promise<BusinessScanResult> {
   await new Promise(resolve => setTimeout(resolve, 2500));
   
   // Generate mock insights based on URL patterns
-  let suggestedAgents = ['content-creator-agent', 'branding-agent', 'analytics-agent'];
+  let suggestedAgents = ['contentcreation', 'branding', 'analytics'];
   let industryGuess = 'General Business';
   
   if (url.includes('shop') || url.includes('store')) {
-    suggestedAgents = ['ad-creative-agent', 'social-bot-agent', 'payment-manager-agent', 'analytics-agent'];
+    suggestedAgents = ['adcreative', 'social', 'payment', 'analytics'];
     industryGuess = 'E-commerce';
   } else if (url.includes('blog') || url.includes('news')) {
-    suggestedAgents = ['content-creator-agent', 'publishing-agent', 'social-bot-agent'];
+    suggestedAgents = ['contentcreation', 'publishing', 'social'];
     industryGuess = 'Publishing/Media';
   } else if (url.includes('saas') || url.includes('app')) {
-    suggestedAgents = ['sitegen-agent', 'content-creator-agent', 'analytics-agent', 'proposal-generator-agent'];
+    suggestedAgents = ['site', 'contentcreation', 'analytics', 'proposal'];
     industryGuess = 'SaaS/Technology';
   }
   

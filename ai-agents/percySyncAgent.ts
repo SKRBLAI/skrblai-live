@@ -210,7 +210,7 @@ const _typeCheck: Record<IntentMappingKeys, string> = intentToDashboardMap as Re
 
 // Add the percySyncAgent export
 const percySyncAgent: Agent = {
-  id: 'percy-sync',
+  id: 'sync',
   name: 'Percy Sync',
   category: 'System',
   description: 'Handles synchronization and routing of Percy chat interactions',

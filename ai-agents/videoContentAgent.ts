@@ -434,7 +434,7 @@ const calculateTotalWordCount = (sections: ScriptSection[]): number => {
 }
 
 const videoContentAgent: Agent = {
-  id: 'video-content-agent',
+  id: 'videocontent',
   name: 'Video Content',
   category: 'Content',
   description: 'AI-powered video script and storyboard generation',
@@ -461,7 +461,7 @@ const videoContentAgent: Agent = {
   ],
   roleRequired: 'any',
   canConverse: false,
-  recommendedHelpers: ['content-creator-agent', 'social-bot-agent'],
+  recommendedHelpers: ['contentcreation', 'social'],
   handoffTriggers: ['social media', 'blog content', 'written content'],
   usageCount: undefined,
   lastRun: undefined,

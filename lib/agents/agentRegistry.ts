@@ -52,72 +52,72 @@ const allAgents: Agent[] = [
   
   // N8N integration mapping - primary capabilities and outputs
   const n8nMapping = {
-    'ad-creative-agent': {
+    'adcreative': {
       primaryCapability: 'Ad Creative Generation',
       primaryOutput: 'High-converting ad creatives and copy',
       n8nWorkflowId: 'ad-creative-workflow'
     },
-    'analytics-agent': {
+    'analytics': {
       primaryCapability: 'Data Analysis & Insights',
       primaryOutput: 'Analytics reports and performance insights',
       n8nWorkflowId: 'analytics-workflow'
     },
-    'biz-agent': {
+    'biz': {
       primaryCapability: 'Business Strategy Development',
       primaryOutput: 'Strategic business plans and recommendations',
       n8nWorkflowId: 'business-strategy-workflow'
     },
-    'branding-agent': {
+    'branding': {
       primaryCapability: 'Brand Identity Creation',
       primaryOutput: 'Complete brand identity packages',
       n8nWorkflowId: 'branding-workflow'
     },
-    'client-success-agent': {
+    'clientsuccess': {
       primaryCapability: 'Client Relationship Management',
       primaryOutput: 'Client success strategies and communications',
       n8nWorkflowId: 'client-success-workflow'
     },
-    'content-creator-agent': {
+    'contentcreation': {
       primaryCapability: 'Content Creation & SEO',
       primaryOutput: 'SEO-optimized content and articles',
       n8nWorkflowId: 'content-creation-workflow'
     },
-    'payments-agent': {
+    'payment': {
       primaryCapability: 'Payment Processing & Analytics',
       primaryOutput: 'Payment processing and revenue insights',
       n8nWorkflowId: 'payments-workflow'
     },
-    'percy-agent': {
+    'percy': {
       primaryCapability: 'AI Concierge & Orchestration',
       primaryOutput: 'Coordinated agent responses and workflows',
       n8nWorkflowId: 'percy-orchestration-workflow'
     },
-    'proposal-agent': {
+    'proposal': {
       primaryCapability: 'Business Proposal Generation',
       primaryOutput: 'Professional business proposals',
       n8nWorkflowId: 'proposal-workflow'
     },
-    'publishing-agent': {
+    'publishing': {
       primaryCapability: 'Content Publishing & Distribution',
       primaryOutput: 'Published content across platforms',
       n8nWorkflowId: 'publishing-workflow'
     },
-    'sitegen-agent': {
+    'site': {
       primaryCapability: 'Website Generation & Optimization',
       primaryOutput: 'Complete website builds and optimizations',
       n8nWorkflowId: 'sitegen-workflow'
     },
-    'social-bot-agent': {
+    'social': {
       primaryCapability: 'Social Media Management',
       primaryOutput: 'Social media content and engagement',
       n8nWorkflowId: 'social-media-workflow'
     },
-    'sync-agent': {
+    'sync': {
       primaryCapability: 'Data Synchronization',
       primaryOutput: 'Synchronized data across platforms',
       n8nWorkflowId: 'sync-workflow'
     },
-    'videocontent-agent': {
+    'videocontent': {
       primaryCapability: 'Video Content Creation',
       primaryOutput: 'Video content and multimedia assets',
       n8nWorkflowId: 'video-content-workflow'
