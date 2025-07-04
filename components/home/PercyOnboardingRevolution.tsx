@@ -16,10 +16,11 @@ interface OnboardingStep {
   percyMessage: string;
   options?: { id: string; label: string; icon: string; action: string; data?: any }[];
   showInput?: boolean;
-  inputType?: 'email' | 'text' | 'password' | 'url';
+  inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code';
   inputPlaceholder?: string;
   showSkip?: boolean;
   analysisMode?: 'website' | 'business' | 'linkedin' | 'sports' | 'content' | 'book-publishing' | 'custom';
+  vipCodeEntry?: boolean;
 }
 
 export default function PercyOnboardingRevolution() {
@@ -36,6 +37,9 @@ export default function PercyOnboardingRevolution() {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [userInput, setUserInput] = useState('');
+  const [vipCode, setVipCode] = useState('');
+  const [isVIPUser, setIsVIPUser] = useState(false);
+  const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
   
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
@@ -44,6 +48,30 @@ export default function PercyOnboardingRevolution() {
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
   const chatRef = useRef<HTMLDivElement>(null);
+
+  // VIP Code validation
+  const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
+    // VIP code patterns
+    const vipCodes = {
+      'SKRBL-VIP-GOLD-2024': 'gold',
+      'SKRBL-VIP-PLATINUM-2024': 'platinum', 
+      'SKRBL-VIP-DIAMOND-2024': 'diamond',
+      'PERCY-EXCLUSIVE-GOLD': 'gold',
+      'PERCY-EXCLUSIVE-PLATINUM': 'platinum',
+      'PERCY-EXCLUSIVE-DIAMOND': 'diamond',
+      'DOMINATE-VIP-ACCESS': 'platinum',
+      'COMPETITIVE-EDGE-VIP': 'diamond'
+    };
+
+    const upperCode = code.toUpperCase().trim();
+    const tier = vipCodes[upperCode as keyof typeof vipCodes];
+    
+    if (tier) {
+      return { isValid: true, tier: tier as 'gold' | 'platinum' | 'diamond' };
+    }
+    
+    return { isValid: false, tier: null };
+  };
 
   const onboardingSteps: Record<string, OnboardingStep> = {
     greeting: {
@@ -150,7 +178,33 @@ export default function PercyOnboardingRevolution() {
       percyMessage: `🚀 **PERFECT CHOICE!** I've seen **${Math.floor(Math.random() * 50) + 200}** businesses succeed with this exact strategy.\n\n**Let's get you set up for domination**. I need your email to:\n✅ Deploy your personalized AI agent team\n✅ Send you competitor intelligence reports\n✅ Track your progress toward industry leadership\n\n*Your email stays private and I'll never spam you. I'm too smart for that.*`,
       showInput: true,
       inputType: 'email',
-      inputPlaceholder: 'your.email@company.com'
+      inputPlaceholder: 'your.email@company.com',
+      options: [
+        { id: 'vip-code', label: '👑 I have a VIP access code', icon: '🔑', action: 'vip-code-entry' }
+      ]
+    },
+    'vip-code-entry': {
+      id: 'vip-code-entry',
+      type: 'signup',
+      percyMessage: `👑 **VIP ACCESS DETECTED!** You're clearly someone who recognizes excellence when you see it.\n\n🔑 **Enter your VIP code** and I'll unlock your white-glove treatment:\n✨ Priority agent deployment\n🎯 Exclusive competitive intelligence\n👑 VIP-only features and insights\n🚀 Direct line to our success team\n\n**This is how champions are made. Enter your code below:**`,
+      showInput: true,
+      inputType: 'vip-code',
+      inputPlaceholder: 'SKRBL-VIP-CODE-HERE',
+      vipCodeEntry: true,
+      options: [
+        { id: 'back-regular', label: '← Back to regular signup', icon: '👤', action: 'back-to-signup' }
+      ]
+    },
+    'vip-welcome': {
+      id: 'vip-welcome',
+      type: 'welcome',
+      percyMessage: `🏆 **VIP STATUS CONFIRMED!** Welcome to the **${vipTier?.toUpperCase()} TIER** - the absolute elite.\n\n👑 **Your VIP advantages are now active:**\n${vipTier === 'diamond' ? '💎 DIAMOND: Unlimited everything + Personal AI consultant\n🎯 Priority queue (skip all waiting)\n🔥 Advanced agent abilities unlocked' : 
+        vipTier === 'platinum' ? '⚡ PLATINUM: 5x faster deployment + Premium support\n🎯 Advanced analytics and insights\n🚀 Beta access to new features' :
+        '🥇 GOLD: Priority support + Enhanced features\n📈 Advanced reporting dashboard\n✨ Early access to updates'}\n\n**You're now in the top 1% of SKRBL AI users. Your competition doesn't stand a chance.**`,
+      options: [
+        { id: 'launch-vip', label: '🚀 Launch VIP Dashboard', icon: '👑', action: 'launch-vip-dashboard' },
+        { id: 'explore-vip', label: '🎯 Explore VIP Features', icon: '✨', action: 'explore-vip-features' }
+      ]
     },
     'email-verification': {
       id: 'email-verification',
@@ -308,6 +362,31 @@ export default function PercyOnboardingRevolution() {
       return;
     }
 
+    if (option.action === 'vip-code-entry') {
+      setCurrentStep('vip-code-entry');
+      setPercyMood('scanning');
+      await handlePercyThinking(1000);
+      return;
+    }
+
+    if (option.action === 'back-to-signup') {
+      setCurrentStep('signup');
+      setPercyMood('excited');
+      return;
+    }
+
+    if (option.action === 'launch-vip-dashboard') {
+      trackBehavior('vip_dashboard_navigation', { from: 'vip_onboarding', vipTier, userGoal });
+      router.push('/dashboard?vip=true');
+      return;
+    }
+
+    if (option.action === 'explore-vip-features') {
+      trackBehavior('vip_features_navigation', { from: 'vip_onboarding', vipTier });
+      router.push('/features?vip=true');
+      return;
+    }
+
     // Handle analysis mode selections
     if (option.action.startsWith('instant-')) {
       setCurrentStep(option.action);
@@ -333,6 +412,37 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (step.type === 'signup') {
+      // Handle VIP code entry
+      if (step.vipCodeEntry) {
+        const vipValidation = await validateVIPCode(inputValue);
+        if (vipValidation.isValid && vipValidation.tier) {
+          setVipCode(inputValue);
+          setIsVIPUser(true);
+          setVipTier(vipValidation.tier);
+          setInputValue('');
+          setPercyMood('celebrating');
+          
+          await handlePercyThinking(2000);
+          setCurrentStep('vip-welcome');
+          toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
+            icon: '👑',
+            duration: 4000,
+          });
+          
+          // Track VIP activation
+          trackBehavior('vip_activated', { 
+            vipTier: vipValidation.tier, 
+            code: inputValue,
+            userGoal 
+          });
+        } else {
+          toast.error('Invalid VIP code. Please check and try again.');
+          setPercyMood('confident');
+        }
+        return;
+      }
+
+      // Handle regular email signup
       if (!inputValue.includes('@')) {
         toast.error('Please enter a valid email address');
         return;
@@ -342,7 +452,7 @@ export default function PercyOnboardingRevolution() {
       
       try {
         await handlePercyThinking(3000);
-        setCurrentStep('email-verification');
+        setCurrentStep(isVIPUser ? 'vip-welcome' : 'email-verification');
         toast.success('🚀 Verification email sent! Check your inbox.');
       } catch (error) {
         toast.error('Something went wrong. Please try again.');

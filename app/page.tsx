@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import FloatingParticles from '@/components/ui/FloatingParticles';
+import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 
@@ -99,6 +100,9 @@ export default function HomePage() {
       <div className="absolute inset-0 z-0 opacity-30 sm:opacity-40">
         <FloatingParticles particleCount={24} />
       </div>
+      
+      {/* Interactive Empowerment Elements */}
+      <InteractiveFloatingElements count={6} mouseFollow={true} className="hidden sm:block" />
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
       <main className="relative z-10 min-h-screen pt-20 sm:pt-24 md:pt-28">
