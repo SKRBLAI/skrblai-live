@@ -577,7 +577,7 @@ export default function FloatingPercy() {
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs px-2 py-1 rounded-full font-bold"
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg border border-white/20"
                   >
                     💡 NEW
                   </motion.div>
@@ -615,7 +615,7 @@ export default function FloatingPercy() {
                   >
                     {/* Proactive message indicator */}
                     {message.isProactive && (
-                      <div className="absolute -top-2 -left-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                      <div className="absolute -top-2 -left-2 bg-yellow-400 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg border border-white/20">
                         🔮 INSIGHT
                       </div>
                     )}
@@ -765,7 +765,7 @@ export default function FloatingPercy() {
             {/* Conversion score indicator for high-value users */}
             {conversionScore > 70 && (
               <motion.div
-                className="absolute -bottom-1 -left-1 bg-green-400 text-black text-xs px-1 rounded-full font-bold"
+                                  className="absolute -bottom-1 -left-1 bg-green-400 text-white text-xs px-1 rounded-full font-bold shadow-lg border border-white/20"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ repeat: Infinity, duration: 2 }}
               >
@@ -778,7 +778,7 @@ export default function FloatingPercy() {
         {/* Active notification badge */}
         {activeNotification && !isOpen && (
           <motion.div
-            className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs px-2 py-1 rounded-full font-bold shadow-lg"
+                              className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg border border-white/20"
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0 }}

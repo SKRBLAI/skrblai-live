@@ -936,7 +936,7 @@ Based on this analysis, here are my cosmic recommendations:`
                     `}>
                       {/* Intelligence badge for competitive messages */}
                       {message.metadata?.competitiveMode && (
-                        <div className="absolute -top-2 -left-2 bg-orange-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                        <div className="absolute -top-2 -left-2 bg-orange-400 text-white text-xs px-2 py-1 rounded-full font-bold shadow-lg border border-white/20">
                           🎯 COMPETITIVE
                         </div>
                       )}

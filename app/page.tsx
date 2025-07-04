@@ -10,6 +10,7 @@ import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { heroConfig } from '@/lib/config/heroConfig';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
+import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import CloudinaryImage from '@/components/ui/CloudinaryImage';
 
@@ -608,6 +609,9 @@ export default function HomePage() {
         </section>
       </div>
       </main>
+      
+      {/* AI Empowerment Coach - Makes users feel powerful and in control */}
+      <AIEmpowermentCoach />
     </div>
   );
 }
