@@ -5,7 +5,19 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
-const client = twilio(accountSid, authToken);
+// Only initialize Twilio client when actually needed, not at build time
+let client: any = null;
+
+function getTwilioClient() {
+  if (!client && accountSid && authToken) {
+    try {
+      client = twilio(accountSid, authToken);
+    } catch (error) {
+      console.error('Failed to initialize Twilio client:', error);
+    }
+  }
+  return client;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +45,12 @@ export async function POST(request: NextRequest) {
       : `+1${cleanPhoneNumber}`;
 
     // Send SMS via Twilio
-    const twilioMessage = await client.messages.create({
+    const twilioClient = getTwilioClient();
+    if (!twilioClient) {
+      throw new Error('Twilio client not available');
+    }
+    
+    const twilioMessage = await twilioClient.messages.create({
       body: message,
       from: fromNumber,
       to: formattedNumber,
