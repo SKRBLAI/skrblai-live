@@ -56,7 +56,7 @@ export default function AIEmpowermentCoach({
   // Track user interactions to provide contextual encouragement
   useEffect(() => {
     const handleUserInteraction = () => {
-      setUserInteractions(prev => prev + 1);
+      setUserInteractions((prev: number) => prev + 1);
       
       // Show encouraging message based on interaction count
       if (userInteractions === 3) {
