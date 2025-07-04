@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Brain, Zap, Shield, Crown, ArrowRight, Mail, CheckCircle, BarChart3, Globe, Users, Target, TrendingUp } from 'lucide-react';
+import { Sparkles, Brain, Zap, Shield, Crown, ArrowRight, Mail, CheckCircle, BarChart3, Globe, Users, Target, TrendingUp, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { supabase } from '@/utils/supabase';
@@ -267,6 +267,13 @@ export default function PercyOnboardingRevolution() {
       return;
     }
 
+    if (option.action === 'back-to-business') {
+      setCurrentStep('greeting');
+      setPercyMood('excited');
+      await handlePercyThinking(1000);
+      return;
+    }
+
     if (option.action === 'select-goal' && option.data?.goal) {
       setUserGoal(option.data.goal);
       setCurrentStep('signup');
@@ -416,7 +423,42 @@ export default function PercyOnboardingRevolution() {
                 <span className="text-green-400 capitalize">{percyMood}</span>
               </div>
             </div>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-2">
+              <motion.button
+                onClick={() => {
+                  // Reset onboarding state and clear localStorage
+                  setCurrentStep('greeting');
+                  setUserGoal('');
+                  setUserEmail('');
+                  setUserPassword('');
+                  setInputValue('');
+                  setUserInput('');
+                  setAnalysisResults(null);
+                  setCompetitiveInsights([]);
+                  setCompletedSteps([]);
+                  setPercyMood('excited');
+                  // Clear localStorage
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('percyOnboardingState');
+                    localStorage.removeItem('onboardingComplete');
+                    localStorage.removeItem('userGoal');
+                    localStorage.removeItem('recommendedAgents');
+                  }
+                  // Track reset for analytics
+                  trackBehavior('percy_onboarding_reset', { from: currentStep });
+                  toast.success('🔄 Percy reset! Ready to start fresh!', { 
+                    icon: '✨',
+                    duration: 3000 
+                  });
+                }}
+                className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 rounded-lg border border-orange-500/30 text-orange-400 hover:text-orange-300 transition-all text-xs font-medium"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Reset onboarding and start over"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Reset
+              </motion.button>
               <div className="text-right text-xs text-gray-400">
                 <div>Businesses Transformed</div>
                 <div className="text-cyan-400 font-bold">{businessesTransformed.toLocaleString()}</div>

@@ -583,11 +583,54 @@ export default function ConversationalPercyOnboarding() {
         break;
       }
 
+      case 'skip': {
+        // ADDED: Skip to agent selection functionality  
+        addPercyMessage(
+          "⚡ **SPEED MODE ACTIVATED!** You want the fast track to AI domination? Perfect! Here are our top-performing agents that are crushing it for businesses like yours:",
+          [
+            { id: 'go-agents', label: '🤖 View All AI Agents', icon: '🤖', action: 'navigate-agents' },
+            { id: 'go-sports', label: '🏆 Sports Performance (Skill Smith)', icon: '🏆', action: 'navigate-sports' },
+            { id: 'go-dashboard', label: '🎯 Launch Dashboard', icon: '🎯', action: 'navigate-dashboard' }
+          ]
+        );
+        break;
+      }
+
+      case 'navigate-agents': {
+        // ADDED: Direct navigation to agents page
+        router.push('/agents?source=percy_skip');
+        trackBehavior('agents_navigation', { 
+          source: 'percy_skip',
+          conversationLength: onboardingState.conversationHistory.length 
+        });
+        break;
+      }
+
+      case 'navigate-sports': {
+        // ADDED: Direct navigation to sports page  
+        router.push('/sports?source=percy_onboarding');
+        trackBehavior('sports_navigation', { 
+          source: 'percy_onboarding',
+          conversationLength: onboardingState.conversationHistory.length 
+        });
+        break;
+      }
+
+      case 'navigate-dashboard': {
+        // ADDED: Direct navigation to dashboard
+        router.push('/dashboard?source=percy_skip');
+        trackBehavior('dashboard_navigation', { 
+          source: 'percy_skip',
+          conversationLength: onboardingState.conversationHistory.length 
+        });
+        break;
+      }
+
       default: {
         console.log('Unknown action:', option.action);
       }
     }
-  }, [onboardingState, addPercyMessage, addUserMessage, generateAgentRecommendations, navigateToDashboard, saveOnboardingComplete, router]);
+  }, [onboardingState, addPercyMessage, addUserMessage, generateAgentRecommendations, navigateToDashboard, saveOnboardingComplete, router, trackBehavior]);
 
   // Declare this later after handleQuickScan is defined
 
@@ -832,14 +875,54 @@ Based on this analysis, here are my cosmic recommendations:`
     }
   }, [handleQuickScan]);
 
+  // ✨ NEW: Reset onboarding function
   const resetOnboarding = useCallback(() => {
+    // Reset all state
     setOnboardingState({
       currentStep: 'greeting',
       conversationHistory: []
     });
-    localStorage.removeItem('percyOnboardingState');
-    window.location.reload();
-  }, []);
+    setInputValue('');
+    setIsLoading(false);
+    setIsScanning(false);
+    setIsMinimized(false);
+    setPercyState('idle');
+    setUserEngagementLevel(0);
+    
+    // Clear localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('percyOnboardingState');
+      localStorage.removeItem('onboardingComplete');
+      localStorage.removeItem('userGoal');
+      localStorage.removeItem('recommendedAgents');
+    }
+    
+    // Track reset for analytics
+    if (session?.user?.id) {
+      trackBehavior('percy_onboarding_reset', { 
+        source: 'conversational_onboarding',
+        previousStep: onboardingState.currentStep,
+        conversationLength: onboardingState.conversationHistory.length
+      });
+    }
+    
+    // Add fresh greeting message
+    setTimeout(() => {
+      addPercyMessage(
+        `✨ **FRESH START ACTIVATED!** I'm Percy, your cosmic concierge, and I just cleared my memory banks. Ready to dominate your industry with a clean slate? Let's find you the perfect AI advantage!`,
+        [
+          { id: 'start', label: "Let's crush the competition! 🚀", icon: '🚀', action: 'start' },
+          { id: 'learn', label: "Show me your AI capabilities 🤖", icon: '🤖', action: 'learn' },
+          { id: 'skip', label: "Take me straight to the agents ⚡", icon: '⚡', action: 'skip' }
+        ]
+      );
+    }, 500);
+    
+    toast.success('🔄 Percy reset! Ready for a fresh start!', { 
+      icon: '✨',
+      duration: 3000 
+    });
+  }, [onboardingState.currentStep, onboardingState.conversationHistory.length, session, trackBehavior, addPercyMessage]);
 
   return (
     <div className="w-full max-w-6xl mx-auto relative" data-percy-onboarding>
@@ -866,6 +949,48 @@ Based on this analysis, here are my cosmic recommendations:`
       {/* Chat Interface - Moved up to fill the space */}
       <div className="bg-gray-900/50 backdrop-blur-lg rounded-2xl border border-cyan-500/30 shadow-2xl p-6">
         <div className="flex flex-col h-96">
+          {/* Chat Header */}
+          <div className="bg-gradient-to-r from-slate-800/80 to-slate-900/80 backdrop-blur-md p-4 rounded-t-2xl border-b border-cyan-400/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <PercyAvatar 
+                  className="w-10 h-10"
+                />
+                <div>
+                  <h3 className="text-white font-bold">Percy AI</h3>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-cyan-400">IQ: {intelligenceScore}</span>
+                    <span className="text-gray-500">•</span>
+                    <span className="text-green-400 capitalize">{percyState}</span>
+                    {isTyping && <span className="text-yellow-400">• Thinking...</span>}
+                  </div>
+                </div>
+              </div>
+              {/* ADDED: Reset button for conversational onboarding */}
+              <div className="flex items-center gap-2">
+                <motion.button
+                  onClick={resetOnboarding}
+                  className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 rounded-lg border border-orange-500/30 text-orange-400 hover:text-orange-300 transition-all text-xs font-medium"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  title="Reset conversation and start over"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  Reset
+                </motion.button>
+                {isMinimized && (
+                  <motion.button
+                    onClick={() => setIsMinimized(false)}
+                    className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <Zap className="w-5 h-5" />
+                  </motion.button>
+                )}
+              </div>
+            </div>
+          </div>
           {/* Messages Area */}
           <div 
             ref={chatContainerRef}
