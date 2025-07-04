@@ -14,14 +14,11 @@ import {
   getAgentConversationCapabilities,
   getAgent
 } from '@/lib/agents/agentLeague';
-import { createClient } from '@supabase/supabase-js';
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 import { callOpenAI } from '@/utils/agentUtils';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Initialize Supabase client with safe fallback
+const supabase = createSafeSupabaseClient();
 
 // =============================================================================
 // CHAT API ROUTE HANDLERS

@@ -17,7 +17,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   
   // Exit Intent System
   const { isExitIntent, resetExitIntent } = useExitIntent({
-    enabled: pathname !== '/sign-up' && pathname !== '/login', // Don't show on auth pages
+    enabled: pathname ? (pathname !== '/sign-up' && pathname !== '/login') : false, // Don't show on auth pages
     delay: 5000, // Wait 5 seconds before enabling
     threshold: 15
   });
@@ -55,7 +55,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
               </motion.h1>
             )}
             {/* 3-Day Trial Button — show on all pages except homepage, contact, and dashboard */}
-            {pathname !== "/" && pathname !== "/contact" && !pathname.startsWith("/dashboard") && (
+            {pathname && pathname !== "/" && pathname !== "/contact" && !pathname.startsWith("/dashboard") && (
               <div className="flex justify-center py-4">
                 <TrialButton />
               </div>
