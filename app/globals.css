@@ -7,6 +7,30 @@
 }
 
 @layer utilities {
+  /* Global typography improvements */
+  * {
+    hyphens: none !important;
+    -webkit-hyphens: none !important;
+    -ms-hyphens: none !important;
+  }
+  
+  /* Enhanced readability for all text */
+  h1, h2, h3, h4, h5, h6, p, span, div {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: none;
+  }
+  
+  /* Ensure high contrast on dark backgrounds */
+  .bg-slate-800, .bg-slate-900, .bg-gray-800, .bg-gray-900, .bg-black {
+    color: #ffffff;
+  }
+  
+  /* Prevent any low contrast text */
+  .text-black {
+    color: #ffffff !important;
+  }
+  
   .bg-deep-navy {
     background-color: #0D1117;
   }
@@ -57,13 +81,26 @@
     padding-bottom: 4rem; /* Extra bottom padding */
   }
 
-  /* Mobile-optimized text containers */
+  /* Mobile-optimized text containers - No hyphens */
   .mobile-text-safe {
     padding: 0 0.75rem;
     line-height: 1.5;
     word-break: break-word;
     overflow-wrap: break-word;
-    hyphens: auto;
+    hyphens: none;
+  }
+  
+  /* Animation delay utilities */
+  .animation-delay-500 {
+    animation-delay: 0.5s;
+  }
+  
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+  
+  .animation-delay-1500 {
+    animation-delay: 1.5s;
   }
 
   /* Mobile-specific spacing utilities */
@@ -91,11 +128,11 @@
 
   /* 🚀 COMPREHENSIVE MOBILE TYPOGRAPHY SYSTEM */
   
-  /* Prevent text cutoff on all devices */
+  /* Prevent text cutoff on all devices - No hyphens */
   .text-safe {
     word-break: break-word;
     overflow-wrap: break-word;
-    hyphens: auto;
+    hyphens: none;
     line-height: 1.5;
     max-width: 100%;
   }
@@ -254,11 +291,24 @@
     gap: 0.75rem;
   }
   
-  /* Mobile text wrapping utilities */
+  /* Mobile text wrapping utilities - No hyphens */
   .wrap-anywhere {
     word-break: break-word;
     overflow-wrap: anywhere;
-    hyphens: auto;
+    hyphens: none;
+  }
+  
+  /* Enhanced text contrast for dark backgrounds */
+  .text-high-contrast {
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Remove hyphens globally from headings and text */
+  .no-hyphens {
+    hyphens: none;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
   
   .no-wrap-mobile {

@@ -355,7 +355,7 @@ export default function ServicesPage() {
 
           {/* CTA Section */}
           <motion.div
-            className="max-w-4xl mx-auto text-center mb-24"
+            className="max-w-5xl mx-auto text-center mb-24"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
