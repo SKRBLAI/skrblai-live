@@ -13,15 +13,14 @@ import SkrblAiText from '@/components/shared/SkrblAiText';
 const plans = [
   {
     title: 'Gateway',
-    price: 'FREE TRIAL',
+    price: 'FREE',
     period: '3-Days',
-    description: 'Taste the power with 3 strategic agents. See what industry domination feels like.',
+    description: 'Taste the power. See what domination feels like.',
     features: [
-      '3 Strategic Agents (AdCreative, Analytics, Biz)',
+      '3 Strategic Agents',
       'Percy Concierge Access',
-      '10 Tasks per Agent/Month',
-      'Community Support',
-      'Taste the Revolution'
+      '10 Tasks/Agent/Month',
+      'Community Support'
     ],
     gradient: 'from-gray-600 to-gray-500',
     cta: 'Start Your Domination',
@@ -34,13 +33,12 @@ const plans = [
     title: 'Starter Hustler',
     price: '$27',
     period: 'per month',
-    description: 'Content creators & solo entrepreneurs: Your automation empire starts here.',
+    description: 'Content creators & entrepreneurs: automation empire starts here.',
     features: [
       '6 Content Creator Agents',
       'Percy Basic Access',
-      '50 Tasks per Agent/Month',
+      '50 Tasks/Agent/Month',
       'Social Media Automation',
-      'Brand Development Kit',
       'Priority Support'
     ],
     gradient: 'from-blue-600 to-cyan-500',
@@ -55,15 +53,13 @@ const plans = [
     title: 'Business Dominator',
     price: '$69',
     period: 'per month',
-    description: 'Growing businesses: Deploy the arsenal that makes competitors cry.',
+    description: 'Growing businesses: deploy the arsenal that makes competitors cry.',
     features: [
       '10 Growth Business Agents',
       'Percy + Advanced Analytics',
-      '200 Tasks per Agent/Month',
+      '200 Tasks/Agent/Month',
       'Client Success Automation',
-      'Payment Processing Engine',
-      'Video Content Machine',
-      'Dedicated Success Support'
+      'Video Content Machine'
     ],
     gradient: 'from-yellow-500 to-orange-500',
     cta: 'Dominate Your Market',
@@ -76,16 +72,14 @@ const plans = [
     title: 'Industry Crusher',
     price: '$269',
     period: 'per month',
-    description: 'Enterprise disruptors: The complete arsenal for market domination.',
+    description: 'Enterprise: complete arsenal for market domination.',
     features: [
-      'Complete Agent Arsenal (14+ Agents)',
+      'Complete Agent Arsenal (14+)',
       'Percy + Predictive Intelligence',
       'Unlimited Tasks & Processing',
-      'Custom Agent Builder Consultation',
+      'Custom Agent Builder',
       'White-label Options',
-      'API Integration Access',
-      'Dedicated Success Manager',
-      'Revenue Guarantee Program'
+      'Dedicated Success Manager'
     ],
     gradient: 'from-purple-600 to-pink-600',
     cta: 'Crush Your Industry',
@@ -243,40 +237,40 @@ export default function PricingPage() {
                 )}
                 
                 <GlassmorphicCard
-                  className={`p-8 text-center h-full relative overflow-hidden ${
+                  className={`p-4 sm:p-6 text-center h-full relative overflow-hidden ${
                     plan.popular ? 'border-2 border-yellow-400/50 shadow-2xl' : 
                     plan.enterprise ? 'border-2 border-purple-400/50' : ''
                   }`}
                 >
                   {/* Agent Count Indicator */}
-                  <div className="absolute top-4 right-4">
-                    <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-3 py-1 rounded-full border border-cyan-400/30">
-                      <span className="text-cyan-400 text-sm font-bold">{plan.agentCount} Agents</span>
+                  <div className="absolute top-2 right-2">
+                    <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-2 py-1 rounded-full border border-cyan-400/30">
+                      <span className="text-cyan-400 text-xs font-bold">{plan.agentCount} Agents</span>
                     </div>
                   </div>
 
                   {plan.badge && (
-                    <div className="mb-4">
-                      <span className="inline-flex items-center gap-2 px-3 py-1 text-sm text-electric-blue bg-electric-blue/10 rounded-full border border-electric-blue/30">
-                        <span className="text-lg">{plan.icon}</span>
+                    <div className="mb-3">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-electric-blue bg-electric-blue/10 rounded-full border border-electric-blue/30">
+                        <span className="text-sm">{plan.icon}</span>
                         {plan.badge}
                       </span>
                     </div>
                   )}
                   
-                  <h3 className="text-3xl font-bold text-electric-blue mb-2">{plan.title}</h3>
-                  <div className="mb-4">
-                    <span className="text-5xl font-bold text-white">{plan.price}</span>
-                    {plan.price !== 'FREE' && <span className="text-gray-400 ml-1 text-lg">/{plan.period.split(' ')[1]}</span>}
+                  <h3 className="text-xl sm:text-2xl font-bold text-electric-blue mb-2">{plan.title}</h3>
+                  <div className="mb-3">
+                    <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">{plan.price}</span>
+                    {plan.price !== 'FREE' && <span className="text-gray-400 ml-1 text-sm">/{plan.period.split(' ')[1]}</span>}
                   </div>
                   
-                  <p className="text-gray-300 mb-6 font-semibold">{plan.description}</p>
+                  <p className="text-sm text-gray-300 mb-4 font-medium leading-tight">{plan.description}</p>
                   
-                  <ul className="space-y-3 mb-8 text-left">
+                  <ul className="space-y-1.5 mb-6 text-left">
                     {plan.features.map((feature, idx) => (
-                      <li key={feature} className="flex items-start text-gray-300">
-                        <span className="text-green-400 mr-3 text-lg font-bold">✓</span>
-                        <span className="flex-1">{feature}</span>
+                      <li key={feature} className="flex items-start text-gray-300 text-sm">
+                        <span className="text-green-400 mr-2 text-base font-bold">✓</span>
+                        <span className="flex-1 leading-tight">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -284,8 +278,8 @@ export default function PricingPage() {
                   <CosmicButton
                     href={plan.href}
                     variant={plan.enterprise ? 'outline' : plan.popular ? 'primary' : 'secondary'}
-                    size="lg"
-                    className={`w-full font-bold ${
+                    size="md"
+                    className={`w-full font-bold text-sm ${
                       plan.popular ? 'animate-pulse' : ''
                     } ${plan.enterprise ? 'hover:bg-purple-500/20 border-purple-400' : ''}`}
                   >
@@ -293,16 +287,16 @@ export default function PricingPage() {
                   </CosmicButton>
                   
                   {plan.popular && (
-                    <div className="mt-4">
-                      <span className="inline-block px-3 py-1 text-sm text-yellow-400 bg-yellow-400/10 rounded-full border border-yellow-400/30">
+                    <div className="mt-2">
+                      <span className="inline-block px-2 py-1 text-xs text-yellow-400 bg-yellow-400/10 rounded-full border border-yellow-400/30">
                         💰 Revenue Accelerator
                       </span>
                     </div>
                   )}
 
                   {plan.enterprise && (
-                    <div className="mt-4">
-                      <span className="inline-block px-3 py-1 text-sm text-purple-400 bg-purple-400/10 rounded-full border border-purple-400/30">
+                    <div className="mt-2">
+                      <span className="inline-block px-2 py-1 text-xs text-purple-400 bg-purple-400/10 rounded-full border border-purple-400/30">
                         👑 Enterprise Arsenal
                       </span>
                     </div>
