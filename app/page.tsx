@@ -4,7 +4,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import ConversationalPercyOnboarding from '@/components/home/ConversationalPercyOnboarding';
 import OnboardingSection from '@/components/home/OnboardingSection';
 import PercyFigure from '@/components/home/PercyFigure';
 import FloatingParticles from '@/components/ui/FloatingParticles';
