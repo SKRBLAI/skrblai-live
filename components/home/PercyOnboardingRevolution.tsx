@@ -9,6 +9,7 @@ import { usePercyContext } from '@/components/assistant/PercyProvider';
 import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import SkrblAiText from '@/components/ui/SkrblAiText';
+import { sendSms, sendWelcomeSms } from '@/utils/twilioSms';
 
 interface OnboardingStep {
   id: string;
@@ -22,6 +23,23 @@ interface OnboardingStep {
   analysisMode?: 'website' | 'business' | 'linkedin' | 'sports' | 'content' | 'book-publishing' | 'custom';
   vipCodeEntry?: boolean;
 }
+
+const VIP_CODES = {
+  // Gold Tier VIP Codes
+  'SKRBL-VIP-GOLD-2024': { tier: 'gold', name: 'Gold Elite Access' },
+  'PERCY-GOLDEN-KEY': { tier: 'gold', name: 'Percy Golden Key' },
+  'ELITE-ACCESS-2024': { tier: 'gold', name: 'Elite Access Pass' },
+  
+  // Platinum Tier VIP Codes
+  'PERCY-EXCLUSIVE-PLATINUM': { tier: 'platinum', name: 'Percy Platinum Exclusive' },
+  'SKRBL-PREMIUM-2024': { tier: 'platinum', name: 'Premium Business Dominator' },
+  'VIP-PLATINUM-PERCY': { tier: 'platinum', name: 'VIP Platinum Percy' },
+  
+  // Diamond Tier VIP Codes
+  'SKRBL-DIAMOND-ELITE': { tier: 'diamond', name: 'Diamond Elite Mastery' },
+  'PERCY-DIAMOND-2024': { tier: 'diamond', name: 'Percy Diamond 2024' },
+  'ULTIMATE-VIP-ACCESS': { tier: 'diamond', name: 'Ultimate VIP Access' }
+} as const;
 
 export default function PercyOnboardingRevolution() {
   const router = useRouter();

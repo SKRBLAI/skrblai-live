@@ -7,41 +7,103 @@
 //  - TWILIO_PHONE_NUMBER (the verified / purchased From number)
 //  - VIP_SMS_WHITELIST (comma-separated E.164 numbers, optional)
 
-import twilio, { Twilio } from 'twilio';
+import twilio from 'twilio';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID as string | undefined;
-const authToken = process.env.TWILIO_AUTH_TOKEN as string | undefined;
-const fromNumber = process.env.TWILIO_PHONE_NUMBER as string | undefined;
+// Twilio configuration
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
 if (!accountSid || !authToken || !fromNumber) {
-  console.warn('[twilioSms] – Twilio env vars missing; SMS functionality will be disabled.');
+  console.warn('Twilio credentials not configured. SMS features will not work.');
 }
 
-// Export a shared Twilio client instance – lazily initialised so tests/builds without creds don’t crash
-let _client: Twilio | null = null;
-function getClient(): Twilio {
-  if (_client) return _client;
-  if (!accountSid || !authToken) {
-    throw new Error('Twilio credentials not configured.');
-  }
-  _client = twilio(accountSid, authToken);
-  return _client;
-}
+const client = accountSid && authToken ? twilio(accountSid, authToken) : null;
 
 export interface SendSmsOptions {
   to: string;
-  body: string;
+  /**
+   * Preferred field for SMS content. If not provided, `message` will be used for backward-compatibility.
+   */
+  body?: string;
+  /**
+   * Deprecated: use `body` moving forward. Still supported so existing callers keep working.
+   */
+  message?: string;
+  vipTier?: 'gold' | 'platinum' | 'diamond';
 }
 
-/**
- * Send an SMS using Twilio REST API
- */
-export async function sendSms({ to, body }: SendSmsOptions) {
-  const client = getClient();
-  return client.messages.create({
-    from: fromNumber,
-    to,
-    body,
+export async function sendSms({ to, body, message, vipTier = 'gold' }: SendSmsOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  if (!client) {
+    return {
+      success: false,
+      error: 'Twilio not configured'
+    };
+  }
+
+  try {
+    // Format phone number
+    const formattedNumber = to.startsWith('+') ? to : `+1${to.replace(/\D/g, '')}`;
+
+    // VIP-specific message formatting
+    const vipEmojis = {
+      gold: '🥇',
+      platinum: '🔥', 
+      diamond: '💎'
+    };
+
+    const smsText = body ?? message;
+    if (!smsText) {
+      return { success: false, error: 'SMS body is required' };
+    }
+    const formattedMessage = vipTier
+      ? `${vipEmojis[vipTier]} SKRBL AI VIP ${vipTier.toUpperCase()}: ${smsText}`
+      : `🚀 SKRBL AI: ${smsText}`;
+
+    const result = await client.messages.create({
+      body: formattedMessage,
+      from: fromNumber,
+      to: formattedNumber,
+    });
+
+    return {
+      success: true,
+      messageId: result.sid
+    };
+  } catch (error: any) {
+    console.error('Twilio SMS Error:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to send SMS'
+    };
+  }
+}
+
+export async function sendVerificationCode(phoneNumber: string, code: string, vipTier: 'gold' | 'platinum' | 'diamond' = 'gold'): Promise<{ success: boolean; error?: string }> {
+  const vipMessages = {
+    gold: `Your VIP Gold verification code: ${code}. Welcome to exclusive AI dominance! 🥇`,
+    platinum: `Your VIP Platinum verification code: ${code}. Premium AI mastery awaits! 🔥`, 
+    diamond: `Your VIP Diamond verification code: ${code}. Ultimate AI power unlocked! 💎`
+  };
+
+  return sendSms({
+    to: phoneNumber,
+    message: vipMessages[vipTier],
+    vipTier
+  });
+}
+
+export async function sendWelcomeSms(phoneNumber: string, vipTier: 'gold' | 'platinum' | 'diamond'): Promise<{ success: boolean; error?: string }> {
+  const welcomeMessages = {
+    gold: "🥇 VIP Gold activated! You now have priority access to SKRBL AI's most powerful features. Your competitors won't know what hit them!",
+    platinum: "🔥 VIP Platinum unlocked! White-glove AI service is now yours. Experience automation beyond imagination!", 
+    diamond: "💎 VIP Diamond achieved! Ultimate AI mastery with unlimited access. You're now operating at the highest level of digital dominance!"
+  };
+
+  return sendSms({
+    to: phoneNumber,
+    message: welcomeMessages[vipTier],
+    vipTier
   });
 }
 

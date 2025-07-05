@@ -13,7 +13,7 @@
  */
 
 import OpenAI from 'openai';
-import { Anthropic } from '@anthropic-ai/sdk';
+import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
 
 // =============================================================================

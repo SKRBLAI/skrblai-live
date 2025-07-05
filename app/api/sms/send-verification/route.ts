@@ -1,114 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
-import twilio from 'twilio';
+import { supabase } from '@/utils/supabase';
+import { sendSms } from '@/utils/twilioSms';
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-// Only initialize Twilio client when actually needed, not at build time
-let client: any = null;
-
-function getTwilioClient() {
-  if (!client && accountSid && authToken) {
-    try {
-      client = twilio(accountSid, authToken);
-    } catch (error) {
-      console.error('Failed to initialize Twilio client:', error);
-    }
-  }
-  return client;
-}
-
-// Store verification codes temporarily (in production, use Redis or database)
-const verificationCodes = new Map<string, { code: string; expires: number; vipTier: string }>();
-
-// Generate 6-digit verification code
-function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { phoneNumber, vipTier, message } = await request.json();
+    const { phoneNumber, vipTier = 'gold', message } = await req.json();
 
-    if (!phoneNumber || !vipTier) {
+    if (!phoneNumber) {
       return NextResponse.json(
-        { error: 'Phone number and VIP tier are required' },
+        { success: false, error: 'Phone number is required' },
         { status: 400 }
       );
     }
 
-    if (!accountSid || !authToken || !fromNumber) {
-      console.error('Twilio credentials not configured');
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Store verification code in database with expiration
+    const { error: dbError } = await supabase
+      .from('sms_verifications')
+      .insert({
+        phone_number: phoneNumber,
+        verification_code: verificationCode,
+        vip_tier: vipTier,
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
+        verified: false
+      });
+
+    if (dbError) {
+      console.error('Failed to store verification code:', dbError);
       return NextResponse.json(
-        { error: 'SMS service not configured' },
+        { success: false, error: 'Failed to store verification code' },
         { status: 500 }
       );
     }
 
-    // Generate verification code
-    const code = generateCode();
-    const expires = Date.now() + (10 * 60 * 1000); // 10 minutes
+    // Send SMS with verification code
+    const smsMessage = message 
+      ? message.replace('{CODE}', verificationCode)
+      : `Your SKRBL AI VIP verification code is: ${verificationCode}. Valid for 5 minutes.`;
 
-    // Store verification code
-    verificationCodes.set(phoneNumber, { code, expires, vipTier });
-
-    // Clean phone number for Twilio
-    const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
-    const formattedNumber = cleanPhoneNumber.startsWith('1') 
-      ? `+${cleanPhoneNumber}` 
-      : `+1${cleanPhoneNumber}`;
-
-    // Prepare SMS message with VIP branding
-    const smsMessage = message ? message.replace('{CODE}', code) : 
-      `Welcome to SKRBL AI VIP ${vipTier.toUpperCase()}! Your verification code is: ${code}. Your exclusive AI empire awaits! 🚀`;
-
-    // Send SMS via Twilio
-    const twilioClient = getTwilioClient();
-    if (!twilioClient) {
-      throw new Error('Twilio client not available');
-    }
-    
-    const twilioMessage = await twilioClient.messages.create({
-      body: smsMessage,
-      from: fromNumber,
-      to: formattedNumber,
+    const smsResult = await sendSms({
+      to: phoneNumber,
+      body: smsMessage
     });
 
-    console.log(`SMS sent to ${formattedNumber}: ${twilioMessage.sid}`);
+    if (!smsResult.success) {
+      return NextResponse.json(
+        { success: false, error: 'Failed to send SMS verification' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      messageSid: twilioMessage.sid,
-      phoneNumber: formattedNumber
+      message: 'Verification code sent successfully',
+      messageId: smsResult.messageId
     });
 
-  } catch (error) {
-    console.error('Error sending SMS:', error);
-    
-    // Handle specific Twilio errors
-    if (error instanceof Error) {
-      if (error.message.includes('phone number')) {
-        return NextResponse.json(
-          { error: 'Invalid phone number format' },
-          { status: 400 }
-        );
-      }
-    }
-
+  } catch (error: any) {
+    console.error('SMS verification error:', error);
     return NextResponse.json(
-      { error: 'Failed to send verification code' },
+      { success: false, error: error.message || 'SMS verification failed' },
       { status: 500 }
     );
   }
 }
-
-// Clean up expired codes periodically
-setInterval(() => {
-  const now = Date.now();
-  verificationCodes.forEach((data, phone) => {
-    if (data.expires < now) {
-      verificationCodes.delete(phone);
-    }
-  });
-}, 5 * 60 * 1000); // Clean every 5 minutes

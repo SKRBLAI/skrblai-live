@@ -15,6 +15,7 @@
     "validate:agents": "ts-node scripts/validateAgents.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.56.0",
     "@fontsource/inter": "^5.2.5",
     "@pinecone-database/pinecone": "^6.1.1",
     "@stripe/stripe-js": "^2.2.0",

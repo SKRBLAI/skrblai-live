@@ -155,7 +155,7 @@ async function triggerScan(url: string, phone: string, name?: string) {
       const fullProject = 'Deploy a personalised AI-powered conversion chatbot across the site';
       await sendSms({
         to: phone,
-        body: `Scan complete! Here are suggestions:\n1️⃣ Quick Win – ${quickWin}\n2️⃣ Full Project – ${fullProject}\nReply 1 to start the Quick Win or 2 for the Full Project idea.`,
+        message: `Scan complete! Here are suggestions:\n1️⃣ Quick Win – ${quickWin}\n2️⃣ Full Project – ${fullProject}\nReply 1 to start the Quick Win or 2 for the Full Project idea.`,
       });
       // Update session stage so follow-ups route correctly
       const sess = sessions.get(phone);

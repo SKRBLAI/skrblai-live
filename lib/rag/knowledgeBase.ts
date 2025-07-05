@@ -18,7 +18,7 @@ import { createClient } from '@supabase/supabase-js';
 // Initialize services
 const pinecone = new Pinecone({
   apiKey: process.env.PINECONE_API_KEY!,
-  environment: process.env.PINECONE_ENVIRONMENT || 'gcp-starter'
+  controllerHostUrl: process.env.PINECONE_CONTROLLER_HOST_URL
 });
 
 const openai = new OpenAI({
@@ -135,7 +135,7 @@ export class RAGKnowledgeBase {
               podType: VECTOR_CONFIG.podType,
               replicas: VECTOR_CONFIG.replicas,
               shards: VECTOR_CONFIG.shards,
-              metadata_config: {
+              metadataConfig: {
                 indexed: ['type', 'agentId', 'userId', 'tags']
               }
             }
@@ -180,8 +180,10 @@ export class RAGKnowledgeBase {
       this.embeddingCache.set(cacheKey, embedding);
       if (this.embeddingCache.size > 1000) {
         // Clear oldest entries if cache gets too large
-        const firstKey = this.embeddingCache.keys().next().value;
-        this.embeddingCache.delete(firstKey);
+        const firstEntry = this.embeddingCache.keys().next();
+        if (!firstEntry.done && firstEntry.value) {
+          this.embeddingCache.delete(firstEntry.value);
+        }
       }
       
       return embedding;

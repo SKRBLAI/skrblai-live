@@ -1,75 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/utils/supabase';
 
 // This would be shared with send-verification in production
 const verificationCodes = new Map<string, { code: string; expires: number; vipTier: string }>();
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { phoneNumber, code, vipTier } = await request.json();
+    const { phoneNumber, code, vipTier } = await req.json();
 
     if (!phoneNumber || !code) {
       return NextResponse.json(
-        { error: 'Phone number and verification code are required' },
+        { success: false, error: 'Phone number and verification code are required' },
         { status: 400 }
       );
     }
 
-    // Clean phone number
-    const cleanPhoneNumber = phoneNumber.replace(/\D/g, '');
-    const formattedNumber = cleanPhoneNumber.startsWith('1') 
-      ? `+${cleanPhoneNumber}` 
-      : `+1${cleanPhoneNumber}`;
+    // Look up verification code in database
+    const { data: verificationData, error: lookupError } = await supabase
+      .from('sms_verifications')
+      .select('*')
+      .eq('phone_number', phoneNumber)
+      .eq('verification_code', code)
+      .eq('verified', false)
+      .gte('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-    // Get stored verification data
-    const storedData = verificationCodes.get(phoneNumber) || verificationCodes.get(formattedNumber);
-
-    if (!storedData) {
+    if (lookupError || !verificationData) {
       return NextResponse.json(
-        { error: 'No verification code found for this number' },
+        { success: false, error: 'Invalid or expired verification code' },
         { status: 400 }
       );
     }
 
-    // Check if code has expired
-    if (Date.now() > storedData.expires) {
-      verificationCodes.delete(phoneNumber);
-      verificationCodes.delete(formattedNumber);
+    // Mark as verified
+    const { error: updateError } = await supabase
+      .from('sms_verifications')
+      .update({ 
+        verified: true, 
+        verified_at: new Date().toISOString() 
+      })
+      .eq('id', verificationData.id);
+
+    if (updateError) {
+      console.error('Failed to update verification status:', updateError);
       return NextResponse.json(
-        { error: 'Verification code has expired' },
-        { status: 400 }
+        { success: false, error: 'Failed to complete verification' },
+        { status: 500 }
       );
     }
 
-    // Verify the code
-    if (storedData.code !== code) {
-      return NextResponse.json(
-        { error: 'Invalid verification code' },
-        { status: 400 }
-      );
+    // Store verified phone number for VIP user
+    const { error: vipError } = await supabase
+      .from('vip_phone_numbers')
+      .upsert({
+        phone_number: phoneNumber,
+        vip_tier: vipTier || verificationData.vip_tier,
+        verified: true,
+        verified_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      });
+
+    if (vipError) {
+      console.error('Failed to store VIP phone number:', vipError);
+      // Continue anyway - verification was successful
     }
-
-    // Clean up used code
-    verificationCodes.delete(phoneNumber);
-    verificationCodes.delete(formattedNumber);
-
-    // Here you would typically:
-    // 1. Update user's VIP status in database
-    // 2. Enable SMS preferences
-    // 3. Log the successful verification
-
-    console.log(`SMS verification successful for ${formattedNumber} with VIP tier: ${storedData.vipTier}`);
 
     return NextResponse.json({
       success: true,
-      phoneNumber: formattedNumber,
-      vipTier: storedData.vipTier,
-      message: 'SMS access activated successfully'
+      message: 'Phone number verified successfully',
+      vipTier: verificationData.vip_tier
     });
 
-  } catch (error) {
-    console.error('Error verifying SMS code:', error);
+  } catch (error: any) {
+    console.error('SMS verification error:', error);
     return NextResponse.json(
-      { error: 'Failed to verify code' },
+      { success: false, error: error.message || 'Verification failed' },
       { status: 500 }
     );
   }
