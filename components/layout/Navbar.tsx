@@ -338,7 +338,11 @@ function MobileMenu({ pathname }: MobileMenuProps) {
               {/* Content */}
               <div className="relative flex h-full flex-col p-6">
                 {/* Header */}
-                <div className="mb-8 flex items-center justify-end">
+                <div className="mb-8 flex items-center justify-between">
+                  {/* Small logo */}
+                  <Link href="/" onClick={() => setIsOpen(false)} className="focus:outline-none">
+                    <SkrblAiLogo size="sm" variant="premium" className="h-8 w-auto" />
+                  </Link>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}

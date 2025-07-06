@@ -78,7 +78,7 @@ export default function AnimatedBackground() {
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 bg-gradient-to-b from-[#0d1117] to-[#161b22]"
+      className="fixed inset-0 -z-10 pointer-events-none bg-gradient-to-b from-[#0d1117] to-[#161b22]"
     />
   );
 } 

@@ -54,9 +54,10 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/node": "^20.19.0",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/next": "^8.0.7",
+    "@types/node": "^20.19.4",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "@types/uuid": "^9.0.7",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",

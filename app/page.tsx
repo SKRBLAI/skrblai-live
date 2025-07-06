@@ -1,22 +1,16 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
-import OnboardingSection from '@/components/home/OnboardingSection';
 import PercyFigure from '@/components/home/PercyFigure';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import StatCounter from '@/components/features/StatCounter';
-import CloudinaryImage from '@/components/ui/CloudinaryImage';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
-import AgentPreviewSection from '@/components/home/AgentPreviewSection';
+import AgentsGrid from '@/components/agents/AgentsGrid';
 import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
-import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
+import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
-import { usePercyContext } from '@/contexts/PercyContext';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { ArrowRight, Sparkles, Zap, Target, Users, TrendingUp, Globe, Building, User } from 'lucide-react';
 
 const percyAgent = {
   name: 'Percy',
@@ -30,10 +24,6 @@ export default function HomePage() {
   const [agentsDeployed, setAgentsDeployed] = useState(92);
   const [revenueGenerated, setRevenueGenerated] = useState(2849718);
   
-  const heroRef = useRef<HTMLDivElement>(null);
-  const percyContext = usePercyContext();
-  const { setPercyIntent, closePercy, setIsOnboardingActive: setGlobalOnboardingActive } = percyContext;
-
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
 
@@ -168,16 +158,13 @@ export default function HomePage() {
             </motion.div>
           </section>
 
-          {/* Agent Showcase - Mobile Optimized */}
-          <AgentPreviewSection />
+          {/* Agent League – Dynamic Rendering */}
+          <AgentsGrid />
         </motion.div>
       </main>
       
-      {/* AI Empowerment Coach - Now properly positioned */}
-      <AIEmpowermentCoach 
-        triggerEvents={['scroll', 'hover', 'click']}
-        className="z-50"
-      />
+      {/* Empowerment Banner */}
+      <EmpowermentBanner />
 
       {/* Animated Background */}
       <AnimatedBackground />

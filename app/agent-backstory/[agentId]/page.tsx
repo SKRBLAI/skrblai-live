@@ -8,9 +8,23 @@ import { agentBackstories } from '@/lib/agents/agentBackstories';
 import { getAgent } from '@/lib/agents/agentLeague';
 import { getAgentImagePath } from '@/utils/agentUtils';
 
+interface AgentDisplay {
+  id: string;
+  name: string;
+  category?: string;
+  superheroName?: string;
+  origin?: string;
+  powers?: string[];
+  weakness?: string;
+  catchphrase?: string;
+  nemesis?: string;
+  backstory?: string;
+  workflowCapabilities?: string[];
+}
+
 export default function AgentBackstoryPage({ params }: { params: { agentId: string } }) {
   const router = useRouter();
-  const [agent, setAgent] = useState<any>(null);
+  const [agent, setAgent] = useState<AgentDisplay | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,10 +56,7 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
       }
 
       // Combine agent data with backstory
-      setAgent({
-        ...agentData,
-        ...backstory
-      });
+      setAgent({ ...agentData, ...backstory });
       
       setLoading(false);
     } catch (err) {
@@ -169,11 +180,11 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
                   <p className="text-gray-400 text-sm">Category</p>
                   <p className="text-white">{agent.category || 'Uncategorized'}</p>
                 </div>
-                {agent.workflowCapabilities && (
+                {('workflowCapabilities' in agent) && agent.workflowCapabilities && (
                   <div>
                     <p className="text-gray-400 text-sm">Capabilities</p>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {agent.workflowCapabilities.slice(0, 3).map((capability: string, idx: number) => (
+                      {(agent.workflowCapabilities as string[]).slice(0, 3).map((capability, idx) => (
                         <span key={idx} className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded-full">
                           {capability.replace(/_/g, ' ')}
                         </span>
