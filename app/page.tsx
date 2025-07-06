@@ -9,7 +9,7 @@ import StatCounter from '@/components/features/StatCounter';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import AgentsGrid from '@/components/agents/AgentsGrid';
 import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
-import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
+import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
 
 const percyAgent = {
@@ -163,11 +163,8 @@ export default function HomePage() {
         </motion.div>
       </main>
       
-      {/* AI Empowerment Coach - Now properly positioned */}
-      <AIEmpowermentCoach 
-        triggerEvents={['scroll', 'hover', 'click']}
-        className="z-50"
-      />
+      {/* Empowerment Banner */}
+      <EmpowermentBanner />
 
       {/* Animated Background */}
       <AnimatedBackground />
