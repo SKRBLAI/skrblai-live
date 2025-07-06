@@ -7,6 +7,7 @@ import PercyProvider from '@/components/assistant/PercyProvider';
 import { BannerProvider } from '@/components/context/BannerContext';
 import { AuthProvider } from '@/components/context/AuthContext';
 import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
 import CosmicBackground from '@/components/ui/CosmicBackground';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
@@ -50,6 +51,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               {mounted ? children : null}
             </PageTransition>
           </div>
+
+          {/* Site Footer */}
+          <Footer />
 
           {/* Percy Widget removed - now integrated into ConversationalPercyOnboarding */}
                   </BannerProvider>
