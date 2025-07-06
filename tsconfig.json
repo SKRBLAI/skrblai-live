@@ -18,12 +18,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "types": [
-      "node",
-      "react",
-      "react-dom",
-      "next"
-    ],
     "plugins": [
       {
         "name": "next"
