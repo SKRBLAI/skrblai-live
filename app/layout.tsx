@@ -9,6 +9,7 @@ import { AuthProvider } from '@/components/context/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CosmicBackground from '@/components/ui/CosmicBackground';
+import ParticleGlowBackground from '@/components/ui/ParticleGlowBackground';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { useState, useEffect, useCallback } from 'react';
@@ -39,8 +40,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
-          {/* Global Cosmic Background */}
+          {/* Global Cosmic Background + Particle Glow */}
           <CosmicBackground />
+          <ParticleGlowBackground />
 
           {/* Global Navigation */}
           <Navbar />
