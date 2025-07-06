@@ -1,4 +1,4 @@
-// @ts-nocheck
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import type { Agent } from '@/types/agent';
 
