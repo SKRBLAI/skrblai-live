@@ -798,7 +798,7 @@ export default function PercyOnboardingRevolution() {
             </motion.div>
           </AnimatePresence>
         </div>
-      </motion.div>
+      {/* End of Chat Messages wrapper */}
 
       {/* Floating Widget Preview */}
       {showFloatingWidget && (
@@ -812,7 +812,6 @@ export default function PercyOnboardingRevolution() {
           </div>
         </motion.div>
       )}
-    </div>
     </div>
   );
 }

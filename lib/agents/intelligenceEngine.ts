@@ -105,6 +105,10 @@ export const PERCY_INTELLIGENCE_MODES = {
   SUPERHUMAN: 'superhuman'
 } as const;
 
+// Convenience union types
+type ConversationPhase = typeof CONVERSATION_PHASES[keyof typeof CONVERSATION_PHASES];
+type IntelligenceMode = typeof PERCY_INTELLIGENCE_MODES[keyof typeof PERCY_INTELLIGENCE_MODES];
+
 export const INDUSTRY_AUTOMATION_PATTERNS = {
   'e-commerce': {
     keyMetrics: ['conversion_rate', 'cart_abandonment', 'customer_lifetime_value'],
@@ -168,8 +172,8 @@ export class UnifiedIntelligenceEngine {
   private agentIntelligence: Map<string, AgentIntelligence> = new Map();
   
   // Percy-specific properties
-  private conversationPhase = CONVERSATION_PHASES.SUPERHERO;
-  private intelligenceMode = PERCY_INTELLIGENCE_MODES.SUPERHUMAN;
+  private conversationPhase: ConversationPhase = CONVERSATION_PHASES.SUPERHERO;
+  private intelligenceMode: IntelligenceMode = PERCY_INTELLIGENCE_MODES.SUPERHUMAN;
   private industryContext: string | null = null;
   private userAutomationProfile = new Map();
   private predictiveInsights = new Map();
@@ -344,7 +348,8 @@ export class UnifiedIntelligenceEngine {
       specializations.push(...agent.powers.map((power: any) => power.name || power));
     }
     
-    return [...new Set(specializations)]; // Remove duplicates
+    // Deduplicate without relying on Set iteration (avoids the ES2015 down-level error)
+    return specializations.filter((item, idx) => specializations.indexOf(item) === idx);
   }
 
   /**
