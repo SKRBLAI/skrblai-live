@@ -11,6 +11,7 @@ import AgentsGrid from '@/components/agents/AgentsGrid';
 import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
 import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
+import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
 
 const percyAgent = {
   name: 'Percy',
@@ -38,6 +39,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden">
+      {/* Floating Percy Help Bubble */}
+      <PercyHelpBubble />
       {/* Background Effects - Mobile Optimized */}
       <div className="absolute inset-0 z-0 opacity-30 sm:opacity-40">
         <FloatingParticles particleCount={24} />

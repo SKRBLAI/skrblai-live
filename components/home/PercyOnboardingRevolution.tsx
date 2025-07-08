@@ -648,90 +648,29 @@ export default function PercyOnboardingRevolution() {
   return (
     <div className="w-full max-w-4xl mx-auto" data-percy-onboarding>
       <div className="relative w-full max-w-2xl mx-auto px-2 md:px-0">
-        {/* Animated Percy Welcome Intro + Avatar */}
-        <div className="flex flex-col items-center gap-2 mb-4 select-none">
-          <PercyAvatar size="md" animate={!userInteracted} />
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="w-full"
-          >
-            <span
-              className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight"
-              style={{ minHeight: 32 }}
-              aria-live="polite"
-              <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${
-                percyMood === 'scanning' ? 'border-yellow-400 animate-pulse' :
-                percyMood === 'analyzing' ? 'border-purple-400 animate-spin' :
-                percyMood === 'celebrating' ? 'border-green-400 animate-bounce' :
-                'border-cyan-400'
-              }`}>
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center">
-                  <motion.div
-                    animate={{ rotate: isPercyThinking ? 360 : 0 }}
-                    transition={{ duration: 2, repeat: isPercyThinking ? Infinity : 0 }}
-                  >
-                    {percyMood === 'scanning' ? <BarChart3 className="w-6 h-6 text-white" /> :
-                     percyMood === 'analyzing' ? <Brain className="w-6 h-6 text-white" /> :
-                     percyMood === 'celebrating' ? <Crown className="w-6 h-6 text-white" /> :
-                     <Sparkles className="w-6 h-6 text-white" />}
-                  </motion.div>
-                </div>
-              </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-slate-800 animate-pulse"></div>
-            </div>
-            <div>
-              <h3 className="text-white font-bold">Percy AI</h3>
-              <div className="flex items-center space-x-2 text-xs">
-                <span className="text-cyan-400">IQ: {intelligenceScore}</span>
-                <span className="text-gray-400">•</span>
-                <span className="text-green-400 capitalize">{percyMood}</span>
-              </div>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <motion.button
-                onClick={() => {
-                  // Reset onboarding state and clear localStorage
-                  setCurrentStep('greeting');
-                  setUserGoal('');
-                  setUserEmail('');
-                  setUserPassword('');
-                  setInputValue('');
-                  setUserInput('');
-                  setAnalysisResults(null);
-                  setCompetitiveInsights([]);
-                  setCompletedSteps([]);
-                  setPercyMood('excited');
-                  // Clear localStorage
-                  if (typeof window !== 'undefined') {
-                    localStorage.removeItem('percyOnboardingState');
-                    localStorage.removeItem('onboardingComplete');
-                    localStorage.removeItem('userGoal');
-                    localStorage.removeItem('recommendedAgents');
-                  }
-                  // Track reset for analytics
-                  trackBehavior('percy_onboarding_reset', { from: currentStep });
-                  toast.success('🔄 Percy reset! Ready to start fresh!', { 
-                    icon: '✨',
-                    duration: 3000 
-                  });
-                }}
-                className="flex items-center gap-1 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 rounded-lg border border-orange-500/30 text-orange-400 hover:text-orange-300 transition-all text-xs font-medium"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Reset onboarding and start over"
-              >
-                <RefreshCw className="w-3 h-3" />
-                Reset
-              </motion.button>
-              <div className="text-right text-xs text-gray-400">
-                <div>Businesses Transformed</div>
-                <div className="text-cyan-400 font-bold">{businessesTransformed.toLocaleString()}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    {/* Animated Percy Welcome Intro + Avatar */}
+    <div className="flex flex-col items-center gap-2 mb-4 select-none">
+      <PercyAvatar size="md" animate={!userInteracted} />
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="w-full"
+      >
+        <span
+          className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight"
+          style={{ minHeight: 32 }}
+          aria-live="polite"
+        >
+          {typedText}
+        </span>
+      </motion.div>
+      <div className="text-right text-xs text-gray-400">
+        <div>Businesses Transformed</div>
+        <div className="text-cyan-400 font-bold">{businessesTransformed.toLocaleString()}</div>
+      </div>
+    </div>
+  </div>
 
         {/* Chat Messages */}
         <div ref={chatRef} className="p-6 min-h-[400px] max-h-[600px] overflow-y-auto">
@@ -873,6 +812,7 @@ export default function PercyOnboardingRevolution() {
           </div>
         </motion.div>
       )}
+    </div>
     </div>
   );
 }

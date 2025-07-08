@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import PercyAvatar from '@/components/home/PercyAvatar';
 import { motion } from 'framer-motion';
 import { uploadFileToStorage } from '@/utils/supabase-helpers';
 import { supabase } from '@/utils/supabase';
@@ -12,6 +13,8 @@ interface FileUploadCardProps {
   acceptedFileTypes: string;
   fileCategory: string;
   intentType: string;
+  onPercyGuideClick?: () => void; // Optional callback for badge click
+  showPercyGuideBadge?: boolean; // Controls badge visibility
 }
 
 export default function FileUploadCard({
@@ -20,7 +23,9 @@ export default function FileUploadCard({
   icon,
   acceptedFileTypes,
   fileCategory,
-  intentType
+  intentType,
+  onPercyGuideClick,
+  showPercyGuideBadge = true
 }: FileUploadCardProps) {
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -29,6 +34,29 @@ export default function FileUploadCard({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Percy Guide Badge: hide after user interacts with Percy onboarding (localStorage key)
+  const [showBadge, setShowBadge] = useState(showPercyGuideBadge);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const percyUsed = localStorage.getItem('percyOnboardingUsed');
+      if (percyUsed) setShowBadge(false);
+    }
+  }, [showPercyGuideBadge]);
+
+  const handlePercyBadgeClick = () => {
+    if (onPercyGuideClick) {
+      onPercyGuideClick();
+    } else {
+      // Emit a custom event for global handler (Percy onboarding scroll/open)
+      window.dispatchEvent(new CustomEvent('openPercyOnboarding'));
+    }
+    setShowBadge(false);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('percyOnboardingUsed', '1');
+    }
+  };
 
   const handleSelectFile = () => {
     if (fileInputRef.current) {
@@ -111,7 +139,26 @@ export default function FileUploadCard({
   };
 
   return (
-    <motion.div
+    <>
+      {/* Percy Guide Badge - Cosmic Glow, Avatar, Pulsing */}
+      {showBadge && (
+        <div className="flex flex-col items-center mb-2">
+          <motion.button
+            type="button"
+            className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-cyan-700/80 to-blue-700/80 border-2 border-cyan-400/40 shadow-lg shadow-cyan-400/20 ring-2 ring-cyan-400/30 hover:ring-4 focus:ring-4 transition-all animate-pulse-slow"
+            style={{ outline: 'none' }}
+            onClick={handlePercyBadgeClick}
+            tabIndex={0}
+            aria-label="Percy can guide you here!"
+          >
+            <PercyAvatar size="sm" animate={true} />
+            <span className="font-semibold text-cyan-200 text-sm tracking-tight drop-shadow-glow">
+              Percy can guide you here!
+            </span>
+          </motion.button>
+        </div>
+      )}
+      <motion.div
       className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic rounded-2xl p-6 transition-all duration-300 group hover:scale-105 hover:shadow-[0_0_48px_8px_#30D5C880] focus:scale-105 focus:shadow-[0_0_64px_12px_#1E90FF80]"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
@@ -224,5 +271,6 @@ export default function FileUploadCard({
         </div>
       )}
     </motion.div>
+  </>
   );
 }
