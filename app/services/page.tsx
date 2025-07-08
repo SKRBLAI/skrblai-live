@@ -224,38 +224,40 @@ export default function ServicesPage() {
                   </div>
                   
                   {/* Problem Header */}
-                  <div className="flex items-center mb-4">
-                    <div className={`p-3 rounded-lg bg-gradient-to-r ${solution.primaryColor} shadow-glow mr-4 group-hover:scale-110 transition-transform`}>
-                      {solution.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white mb-1">
-                        {solution.problem}
-                      </h3>
-                      <p className="text-gray-400 text-sm">{solution.subheading}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Description */}
-                  <p className="text-gray-300 mb-6 flex-grow leading-relaxed">
-                    {solution.description}
-                  </p>
-                  
-                  {/* Success Metrics */}
-                  <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-black/20 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-green-400 font-bold text-lg">{solution.metrics.successRate}%</div>
-                      <div className="text-xs text-gray-400">Success Rate</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-cyan-400 font-bold text-lg">{solution.metrics.avgIncrease}</div>
-                      <div className="text-xs text-gray-400">Avg Increase</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-purple-400 font-bold text-lg">{solution.metrics.timeToResults}</div>
-                      <div className="text-xs text-gray-400">To Results</div>
-                    </div>
-                  </div>
+                  <div className="flex flex-col items-center mb-2">
+  <div className={`p-3 rounded-lg bg-gradient-to-r ${solution.primaryColor} shadow-glow mb-2 group-hover:scale-110 transition-transform`}>
+    {solution.icon}
+  </div>
+  <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
+    {solution.problem}
+  </h3>
+  <p className="text-gray-400 text-sm text-center mb-2">
+    {solution.subheading}
+  </p>
+</div>
+
+{/* Description */}
+<p className="text-gray-300 mb-4 line-clamp-2 text-center">
+  {solution.description}
+</p>
+
+{/* Separated Stat Block (Premium Style) */}
+<div className="mt-auto pt-4 border-t border-cyan-400/20">
+  <div className="flex flex-row gap-6 justify-center">
+    <div className="flex flex-col items-center">
+      <span className="text-lg font-bold text-green-400">{solution.metrics.successRate}%</span>
+      <span className="text-xs text-gray-400">Success Rate</span>
+    </div>
+    <div className="flex flex-col items-center">
+      <span className="text-lg font-bold text-cyan-400">{solution.metrics.avgIncrease}</span>
+      <span className="text-xs text-gray-400">Avg Increase</span>
+    </div>
+    <div className="flex flex-col items-center">
+      <span className="text-lg font-bold text-purple-400">{solution.metrics.timeToResults}</span>
+      <span className="text-xs text-gray-400">To Results</span>
+    </div>
+  </div>
+</div>
                   
                   {/* Agent Team Preview */}
                   <div className="mb-4">

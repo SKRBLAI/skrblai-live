@@ -157,19 +157,19 @@ export default function SportsPage(): JSX.Element {
                   transition={{ delay: 0.7 + index * 0.1 }}
                 >
                   <GlassmorphicCard className={`p-6 border-2 border-transparent bg-gradient-to-br ${win.color} bg-opacity-10 hover:bg-opacity-20 transition-all duration-300 cursor-pointer group`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${win.color}`}>
+                    <div className="flex flex-col items-center mb-2">
+                      <div className={`p-3 rounded-xl bg-gradient-to-br ${win.color} mb-2`}>
                         {win.icon}
                       </div>
-                      <div className="text-right">
-                        <div className="text-2xl font-bold text-white">{win.price}</div>
-                        <div className="text-sm text-gray-400">{win.time}</div>
-                      </div>
+                      <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
+                        {win.title}
+                      </h3>
                     </div>
-                    
-                    <h3 className="text-xl font-bold text-white mb-2">{win.title}</h3>
-                    <p className="text-gray-300 mb-4">{win.description}</p>
-                    
+
+                    <p className="text-gray-300 mb-2 line-clamp-2 text-center">
+                      {win.description}
+                    </p>
+
                     <div className="space-y-2 mb-4">
                       {win.benefits.map((benefit, idx) => (
                         <div key={idx} className="flex items-center text-sm text-gray-400">
@@ -178,7 +178,19 @@ export default function SportsPage(): JSX.Element {
                         </div>
                       ))}
                     </div>
-                    
+
+                    {/* Separated Stat Block (Premium Style) */}
+                    <div className="mt-auto pt-4 border-t border-cyan-400/20 w-full flex flex-row gap-4 justify-center">
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg font-bold text-white">{win.price}</span>
+                        <span className="text-xs text-gray-400">Price</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-lg font-bold text-cyan-400">{win.time}</span>
+                        <span className="text-xs text-gray-400">Time</span>
+                      </div>
+                    </div>
+
                     <WorkflowLaunchButton
                       agentId="skillsmith"
                       agentName="Skill Smith"

@@ -245,32 +245,36 @@ export default function FeaturesContent(): JSX.Element {
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-electric-blue mb-3 transition-colors group-hover:text-teal-300">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-300 flex-grow mb-4">
-                    {feature.description}
-                  </p>
+                  <h3 className="text-2xl font-bold text-electric-blue mb-2 min-h-[2.5rem] break-words text-center transition-colors group-hover:text-teal-300">
+  {feature.title}
+</h3>
+<p className="text-gray-300 mb-4 line-clamp-2 text-center">
+  {feature.description}
+</p>
 
-                  {/* Performance Metrics */}
-                  <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-black/30 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-green-400">{feature.roi}</div>
-                      <div className="text-xs text-gray-400">ROI</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-cyan-400">{feature.timeframe}</div>
-                      <div className="text-xs text-gray-400">Deploy</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-purple-400">{feature.businesses}</div>
-                      <div className="text-xs text-gray-400">Users</div>
-                    </div>
-                  </div>
+{/* Separated Stat Block (Premium Style) */}
+<div className="mt-auto pt-4 border-t border-cyan-400/20">
+  <div className="flex flex-col gap-2 items-center justify-center">
+    <div className="flex flex-row gap-4 justify-center">
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-green-400">{feature.roi}</span>
+        <span className="text-xs text-gray-400">ROI</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-cyan-400">{feature.timeframe}</span>
+        <span className="text-xs text-gray-400">Deploy</span>
+      </div>
+      <div className="flex flex-col items-center">
+        <span className="text-lg font-bold text-purple-400">{feature.businesses}</span>
+        <span className="text-xs text-gray-400">Users</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-                  <div className="mt-auto flex items-center justify-center text-cyan-400 group-hover:text-white font-bold transition-colors duration-300 text-base py-2">
-                    <span>Dominate With This →</span>
-                  </div>
+<div className="flex items-center justify-center text-cyan-400 group-hover:text-white font-bold transition-colors duration-300 text-base py-2">
+  <span>Dominate With This →</span>
+</div>
                 </Link>
               </GlassmorphicCard>
             </motion.div>

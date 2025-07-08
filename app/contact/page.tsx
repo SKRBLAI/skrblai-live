@@ -391,23 +391,20 @@ export default function ContactPage() {
                       {option.priority}
                     </div>
 
-                    <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${option.color} rounded-lg flex items-center justify-center text-white mb-4 sm:mb-6 mx-auto`}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r ${option.color} rounded-lg flex items-center justify-center text-white mb-4 sm:mb-5 mx-auto`}>
                       {option.icon}
                     </div>
-                    
-                    <h3 className="text-lg sm:text-xl font-bold text-white mb-3 text-center leading-tight">{option.title}</h3>
-                    <p className="text-gray-300 mb-4 text-center leading-relaxed text-sm sm:text-base">{option.description}</p>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <Clock className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        <span className="text-sm text-green-400 font-bold text-right">{option.urgency}</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Star className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                        <span className="text-sm text-yellow-400 font-bold text-right">{option.valueProposition}</span>
-                      </div>
+
+                    <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-center min-h-[2.5rem] leading-tight whitespace-normal break-words">
+                      {option.title}
+                    </h3>
+                    <p className="text-gray-300 mb-2 text-center text-sm sm:text-base leading-normal line-clamp-2">
+                      {option.description}
+                    </p>
+
+                    <div className="border-t border-cyan-400/20 mt-4 pt-3 flex flex-col gap-1 items-center">
+                      <span className="text-cyan-400 font-bold text-xs sm:text-sm">{option.urgency}</span>
+                      <span className="text-yellow-400 font-bold text-xs sm:text-sm">{option.valueProposition}</span>
                     </div>
 
                     {selectedOption === option.action && (
