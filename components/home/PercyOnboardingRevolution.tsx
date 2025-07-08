@@ -41,6 +41,15 @@ const VIP_CODES = {
   'ULTIMATE-VIP-ACCESS': { tier: 'diamond', name: 'Ultimate VIP Access' }
 } as const;
 
+// --- Percy Onboarding Revolution with Animated Intro & Container Pulse ---
+import PercyAvatar from './PercyAvatar';
+
+const introMessages = [
+  "Hey, I'm Percy! What brings you to SKRBL AI today? 👋",
+  "Need help navigating SKRBL AI? Just ask Percy!",
+  "Percy here—ready to guide your AI journey!"
+];
+
 export default function PercyOnboardingRevolution() {
   const router = useRouter();
   const { session, signUp, signIn } = useAuth();
@@ -60,7 +69,7 @@ export default function PercyOnboardingRevolution() {
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneVerified, setPhoneVerified] = useState(false);
-  
+
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
   const [intelligenceScore] = useState(247); // Percy's enhanced IQ
@@ -68,6 +77,48 @@ export default function PercyOnboardingRevolution() {
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
   const chatRef = useRef<HTMLDivElement>(null);
+
+  // --- Animated Intro Message State ---
+  const [introIdx, setIntroIdx] = useState(0);
+  const [typedText, setTypedText] = useState('');
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [pulseActive, setPulseActive] = useState(false);
+
+  // Typewriter/cycling effect
+  useEffect(() => {
+    if (userInteracted) return;
+    setTypedText('');
+    let idx = 0;
+    let timeout: NodeJS.Timeout;
+    function typeChar() {
+      const msg = introMessages[introIdx];
+      if (idx < msg.length) {
+        setTypedText(msg.slice(0, idx + 1));
+        idx++;
+        timeout = setTimeout(typeChar, 28);
+      } else {
+        // After message, wait, then cycle
+        timeout = setTimeout(() => {
+          setIntroIdx((prev) => (prev + 1) % introMessages.length);
+        }, 1400);
+      }
+    }
+    typeChar();
+    return () => clearTimeout(timeout);
+  }, [introIdx, userInteracted]);
+
+  // Pulse highlight after a short delay
+  useEffect(() => {
+    if (userInteracted) return;
+    const t = setTimeout(() => setPulseActive(true), 2000);
+    return () => clearTimeout(t);
+  }, [userInteracted]);
+
+  // Mark user as interacted on any onboarding action
+  const handleAnyInteraction = useCallback(() => {
+    if (!userInteracted) setUserInteracted(true);
+    setPulseActive(false);
+  }, [userInteracted]);
 
   // VIP Code validation
   const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
@@ -596,17 +647,20 @@ export default function PercyOnboardingRevolution() {
 
   return (
     <div className="w-full max-w-4xl mx-auto" data-percy-onboarding>
-      {/* Percy Chat Interface */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-lg rounded-3xl border border-cyan-400/30 shadow-[0_0_50px_rgba(56,189,248,0.3)] overflow-hidden"
-      >
-        {/* Percy Intelligence Header */}
-        <div className="bg-gradient-to-r from-cyan-500/20 to-blue-600/20 p-4 border-b border-cyan-400/20">
-          <div className="flex items-center space-x-3">
-            <div className="relative">
+      <div className="relative w-full max-w-2xl mx-auto px-2 md:px-0">
+        {/* Animated Percy Welcome Intro + Avatar */}
+        <div className="flex flex-col items-center gap-2 mb-4 select-none">
+          <PercyAvatar size="md" animate={!userInteracted} />
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="w-full"
+          >
+            <span
+              className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight"
+              style={{ minHeight: 32 }}
+              aria-live="polite"
               <div className={`w-12 h-12 rounded-full border-2 transition-all duration-300 ${
                 percyMood === 'scanning' ? 'border-yellow-400 animate-pulse' :
                 percyMood === 'analyzing' ? 'border-purple-400 animate-spin' :

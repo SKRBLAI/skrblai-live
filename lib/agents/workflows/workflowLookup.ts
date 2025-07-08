@@ -8,8 +8,8 @@
  * @author SKRBL AI Team
  */
 
-import { agentBackstories, type AgentBackstory } from './agentBackstories';
-import { agentLeague, type AgentConfiguration } from './agentLeague';
+import { agentBackstories, type AgentBackstory } from '../agentBackstories';
+import { agentLeague, type AgentConfiguration } from '../agentLeague';
 
 // =============================================================================
 // WORKFLOW CONFIGURATION TYPES
