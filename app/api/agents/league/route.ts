@@ -28,8 +28,8 @@ import {
   handoffSystem,
   analyzeHandoffOpportunities,
   executeHandoff,
-  type HandoffContext
-} from '@/lib/agents/handoffSystem';
+  type HandoffContext 
+} from '@/lib/agents/handoffs/handoffSystem';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client

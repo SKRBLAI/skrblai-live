@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { triggerAgentWorkflow } from '@/lib/agents/powerEngine';
-import { getAgentWorkflowConfig, getHandoffSuggestions, type WorkflowExecutionContext } from '@/lib/agents/workflowLookup';
+import { getAgentWorkflowConfig, getHandoffSuggestions, type WorkflowExecutionContext } from '@/lib/agents/workflows/workflowLookup';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client
