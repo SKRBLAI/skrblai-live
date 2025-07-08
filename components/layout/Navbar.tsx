@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles, LogIn } from "lucide-react";
 import SkrblAiLogo from "@/components/ui/SkrblAiLogo";
+import { useAuth } from "@/components/context/AuthContext";
 
 /**
  * Premium minimal Navbar with clean 3-link design + hamburger menu.
@@ -17,6 +18,7 @@ import SkrblAiLogo from "@/components/ui/SkrblAiLogo";
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuth();
 
   // Prefetch heavy routes for a snappy UX.
   useEffect(() => {
@@ -64,45 +66,37 @@ export default function Navbar() {
                 <MoreNavDropdown pathname={pathname} />
               </div>
 
-              {/* Dual CTAs (Desktop) */}
+              {/* Auth-aware CTA */}
               <div className="hidden items-center space-x-3 lg:flex">
-                {/* Login Button */}
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex-shrink-0"
-                >
-                  <Link href="/sign-in" className="focus:outline-none">
-                    <button className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                      <div className="relative flex items-center space-x-2">
-                        <LogIn className="h-4 w-4" />
-                        <span className="text-sm">Login</span>
-                      </div>
-                    </button>
-                  </Link>
-                </motion.div>
-
-                {/* User Dashboard Button */}
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex-shrink-0"
-                >
-                  <Link href="/dashboard" className="focus:outline-none">
-                    <button className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                      {/* Animated gradient */}
-                      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
-                      {/* Outer glow */}
-                      <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
-                      {/* Shimmer */}
-                      <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-                      <div className="relative flex items-center space-x-2">
-                        <Sparkles className="h-4 w-4" />
-                        <span className="text-sm font-semibold">User Dashboard</span>
-                      </div>
-                    </button>
-                  </Link>
-                </motion.div>
+                {!user ? (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
+                    <Link href="/sign-in" className="focus:outline-none">
+                      <button className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                        <div className="relative flex items-center space-x-2">
+                          <LogIn className="h-4 w-4" />
+                          <span className="text-sm">Login</span>
+                        </div>
+                      </button>
+                    </Link>
+                  </motion.div>
+                ) : (
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
+                    <Link href="/dashboard" className="focus:outline-none">
+                      <button className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
+                        {/* Animated gradient */}
+                        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
+                        {/* Outer glow */}
+                        <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
+                        {/* Shimmer */}
+                        <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+                        <div className="relative flex items-center space-x-2">
+                          <Sparkles className="h-4 w-4" />
+                          <span className="text-sm font-semibold">Dashboard</span>
+                        </div>
+                      </button>
+                    </Link>
+                  </motion.div>
+                )}
               </div>
 
               {/* Mobile Hamburger */}

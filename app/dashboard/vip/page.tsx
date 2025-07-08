@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/components/context/AuthContext';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, Sparkles, Shield, Star, Zap, TrendingUp, Users, MessageCircle, Settings, ChevronRight } from 'lucide-react';
 // VIP Dashboard uses the standard dashboard layout from parent
@@ -37,6 +40,21 @@ const VIP_TIERS = {
 };
 
 export default function VIPDashboard() {
+  const { vipStatus, user, isLoading } = useAuth();
+  const router = useRouter();
+
+  // VIP Gatekeeper
+  useEffect(() => {
+    if (!isLoading) {
+      if (!user) {
+        router.replace('/sign-in');
+      } else if (!vipStatus?.isVIP) {
+        toast.error('VIP access required – upgrade to unlock.');
+        router.replace('/dashboard');
+      }
+    }
+  }, [vipStatus, user, isLoading, router]);
+
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond'>('diamond'); // Demo with Diamond
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');

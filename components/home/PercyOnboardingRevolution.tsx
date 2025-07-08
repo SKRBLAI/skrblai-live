@@ -17,7 +17,7 @@ interface OnboardingStep {
   percyMessage: string;
   options?: { id: string; label: string; icon: string; action: string; data?: any }[];
   showInput?: boolean;
-  inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code';
+  inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code' | 'phone' | 'sms-code';
   inputPlaceholder?: string;
   showSkip?: boolean;
   analysisMode?: 'website' | 'business' | 'linkedin' | 'sports' | 'content' | 'book-publishing' | 'custom';
@@ -58,6 +58,8 @@ export default function PercyOnboardingRevolution() {
   const [vipCode, setVipCode] = useState('');
   const [isVIPUser, setIsVIPUser] = useState(false);
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneVerified, setPhoneVerified] = useState(false);
   
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
@@ -212,6 +214,22 @@ export default function PercyOnboardingRevolution() {
       options: [
         { id: 'back-regular', label: '← Back to regular signup', icon: '👤', action: 'back-to-signup' }
       ]
+    },
+    'phone-entry': {
+      id: 'phone-entry',
+      type: 'signup',
+      percyMessage: `📱 **SECURE YOUR ACCOUNT & UNLOCK SMS UPDATES!**\n\nEnter your mobile number and I'll text you a 6-digit code. I use this to send instant performance alerts and VIP updates – no spam, just domination.`,
+      showInput: true,
+      inputType: 'phone',
+      inputPlaceholder: '+1 555-123-4567'
+    },
+    'code-entry': {
+      id: 'code-entry',
+      type: 'signup',
+      percyMessage: `🔐 **CODE SENT!** Check your phone and enter the 6-digit code below.`,
+      showInput: true,
+      inputType: 'sms-code',
+      inputPlaceholder: '123456'
     },
     'vip-welcome': {
       id: 'vip-welcome',
@@ -437,6 +455,65 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (step.type === 'signup') {
+      // Phone number entry
+      if (step.inputType === 'phone') {
+        const phone = inputValue.trim();
+        if (!phone) {
+          toast.error('Enter a valid phone number');
+          return;
+        }
+        try {
+          setPhoneNumber(phone);
+          setPercyMood('analyzing');
+          await handlePercyThinking(1500);
+          const res = await fetch('/api/sms/send-verification', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber: phone })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || 'Failed to send code');
+          toast.success('📲 Verification code sent!');
+          setInputValue('');
+          setCurrentStep('code-entry');
+          setPercyMood('scanning');
+        } catch (err: any) {
+          toast.error(err.message || 'SMS failed');
+          setPercyMood('confident');
+        }
+        return;
+      }
+
+      // SMS code entry
+      if (step.inputType === 'sms-code') {
+        const code = inputValue.trim();
+        if (code.length !== 6) {
+          toast.error('Enter the 6-digit code');
+          return;
+        }
+        try {
+          setPercyMood('analyzing');
+          await handlePercyThinking(1000);
+          const res = await fetch('/api/sms/verify-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phoneNumber, code })
+          });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.error || 'Invalid code');
+          toast.success('✅ Phone verified!');
+          setPhoneVerified(true);
+          setInputValue('');
+          setCurrentStep('signup'); // fall back to original email signup step
+          setPercyMood('celebrating');
+          return;
+        } catch (err: any) {
+          toast.error(err.message || 'Verification failed');
+          setPercyMood('confident');
+          return;
+        }
+      }
+
       // Handle VIP code entry
       if (step.vipCodeEntry) {
         const vipValidation = await validateVIPCode(inputValue);
@@ -464,6 +541,13 @@ export default function PercyOnboardingRevolution() {
           toast.error('Invalid VIP code. Please check and try again.');
           setPercyMood('confident');
         }
+        return;
+      }
+
+      // Require phone verified before email signup
+      if (!phoneVerified) {
+        setCurrentStep('phone-entry');
+        toast('📱 Let’s secure your account – phone first!', { icon: '📲' });
         return;
       }
 

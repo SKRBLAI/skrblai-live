@@ -13,6 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getCurrentUser } from '@/utils/supabase-helpers';
 import { userJourneyTracker } from '@/lib/analytics/userJourney';
 import RevenuePulseWidget from '@/components/ui/RevenuePulseWidget';
+import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
 import useUsageBasedPricing from '@/hooks/useUsageBasedPricing';
 
 import Spinner from '@/components/ui/Spinner';
@@ -389,6 +390,12 @@ export default function Dashboard() {
           </motion.div>
         )}
 
+        {/* Cosmic Divider */}
+        <div className="w-full flex justify-center my-8">
+          <div className="h-1 w-2/3 rounded-full bg-gradient-to-r from-electric-blue via-cyan-400 to-pink-400 shadow-glow animate-pulse-slow" aria-hidden="true"></div>
+        </div>
+
+
         {/* First-time celebration banner */}
         <AnimatePresence>
           {showCelebration && !checklistDismissed && (
@@ -628,6 +635,10 @@ export default function Dashboard() {
         </motion.div>
 
         {/* ✨ NEW: Friday Competition Alert - Fixed Bottom Banner */}
+        {/* Floating AI Empowerment Coach Widget */}
+        <div className="fixed bottom-8 right-4 sm:right-8 z-50 pointer-events-auto max-w-xs w-full sm:max-w-sm">
+          <AIEmpowermentCoach className="cosmic-glass shadow-glow rounded-2xl border border-cyan-400/40 backdrop-blur-lg bg-gradient-to-br from-black/70 to-cyan-900/30 p-4" />
+        </div>
         <RevenuePulseWidget 
           currentTier={currentTier}
           agentsUsedToday={usage.agentsUsedToday}

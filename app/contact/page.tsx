@@ -183,7 +183,7 @@ export default function ContactPage() {
   if (submitted) {
     return (
       <PageLayout>
-        <div className="relative min-h-screen overflow-hidden">
+        <div className="relative min-h-screen overflow-hidden transform-gpu will-change-transform">
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-green-900/20 to-emerald-900/20">
             <FloatingParticles />
           </div>
@@ -277,7 +277,7 @@ export default function ContactPage() {
 
   return (
     <PageLayout>
-      <div className="relative min-h-screen overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden transform-gpu will-change-transform">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900/20 to-purple-900/20">
           <FloatingParticles />
         </div>
@@ -381,13 +381,13 @@ export default function ContactPage() {
                   className="relative"
                 >
                   <GlassmorphicCard 
-                    className={`p-4 sm:p-6 h-full cursor-pointer transition-all duration-300 hover:scale-105 min-h-[280px] sm:min-h-[320px] ${
+                    className={`p-4 sm:p-6 h-full cursor-pointer transition-all duration-300 hover:scale-105 min-h-[280px] sm:min-h-[320px] rounded-2xl shadow-glow overflow-visible ${
                       selectedOption === option.action ? 'border-cyan-400 bg-cyan-400/10' : 'hover:border-cyan-400/50'
                     }`}
                     onClick={() => handleQuickContact(option)}
                   >
                     {/* Priority Badge - Mobile Optimized */}
-                    <div className={`absolute -top-2 -right-2 px-2 sm:px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${option.color} text-white`}>
+                    <div className={`mb-2 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${option.color} text-white whitespace-nowrap shadow-glow`} style={{ display: 'inline-block', alignSelf: 'center' }}>
                       {option.priority}
                     </div>
 

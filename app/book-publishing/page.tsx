@@ -11,6 +11,7 @@ import CosmicHeading from '@/components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, PenTool, Share2, Award } from 'lucide-react';
 import SkrblAiText from '@/components/shared/SkrblAiText';
+import PublishingAssistantPanel from '@/components/book-publishing/PublishingAssistantPanel';
 
 export default function BookPublishingPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({
@@ -272,6 +273,16 @@ export default function BookPublishingPage(): JSX.Element {
                     </div>
                   </div>
                 </GlassmorphicCard>
+              </motion.div>
+
+              {/* Interactive Publishing Assistant Panel */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.85 }}
+                className="mb-16"
+              >
+                <PublishingAssistantPanel className="max-w-5xl mx-auto" />
               </motion.div>
 
               {/* Urgency Section */}

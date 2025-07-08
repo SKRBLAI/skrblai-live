@@ -14,6 +14,7 @@ import { useAuth } from '@/components/context/AuthContext';
 import Link from 'next/link';
 import { supabase } from '@/utils/supabase';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import '@/styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
@@ -125,42 +126,49 @@ export default function BookPublishingDashboard() {
   });
 
   const handlePromptSubmit = async () => {
-    if (!state.prompt.trim() && !state.uploadedFile) return;
+    if (!state.prompt.trim() && !state.uploadedFileUrl) {
+      toast.error('Add a description or upload a manuscript first.');
+      return;
+    }
 
     setState(prev => ({ ...prev, isSubmitting: true }));
 
-    // Mock response - replace with actual API call
-    setTimeout(() => {
+    try {
+      const payload = {
+        manuscriptUrl: state.uploadedFileUrl,
+        description: state.prompt,
+        publishingPlatform: 'Amazon',
+        genre: 'Unknown',
+        bookTitle: 'Untitled',
+        authorName: user?.email || 'Author'
+      };
+
+      const res = await fetch('/api/agents/workflow/publishing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userPrompt: 'Generate publishing plan',
+          payload,
+          userId: user?.id
+        })
+      });
+
+      const data = await res.json();
+
+      if (!data.success) throw new Error(data.error || 'Publishing agent failed');
+
       setState(prev => ({
         ...prev,
         isSubmitting: false,
-        response: {
-          steps: [
-            {
-              title: 'Initial Review',
-              description: 'AI-powered analysis of your manuscript',
-              timeline: '1-2 days'
-            },
-            {
-              title: 'Content Enhancement',
-              description: 'Style and clarity improvements',
-              timeline: '3-5 days'
-            }
-          ],
-          recommendations: [
-            'Consider strengthening the opening chapter',
-            'Add more character development in chapter 3',
-            'Enhance dialogue authenticity'
-          ],
-          nextSteps: [
-            'Review AI suggestions',
-            'Schedule consultation',
-            'Begin cover design process'
-          ],
-          estimatedCompletion: '2 weeks'
-        }
+        response: data.data // expecting steps/recommendations etc.
       }));
-    }, 2000);
+      toast.success('📚 AI publishing plan ready!');
+
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Agent error');
+      setState(prev => ({ ...prev, isSubmitting: false }));
+    }
   };
 
   const removeFile = () => {
@@ -322,7 +330,7 @@ export default function BookPublishingDashboard() {
               <motion.button
                 className="action-button mt-6"
                 onClick={handlePromptSubmit}
-                disabled={!state.prompt.trim() && !state.uploadedFile}
+                disabled={!state.prompt.trim() && !state.uploadedFileUrl}
                 whileHover={{ scale: state.isSubmitting ? 1 : 1.02 }}
                 whileTap={{ scale: state.isSubmitting ? 1 : 0.98 }}
               >

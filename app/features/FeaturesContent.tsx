@@ -157,6 +157,33 @@ export default function FeaturesContent(): JSX.Element {
           <p className="text-gray-300 text-lg max-w-3xl mx-auto">
             While your competitors struggle with manual work, you'll be <span className="text-yellow-400 font-bold">10x ahead, automated, and unstoppable.</span>
           </p>
+
+          {/* CTA Subheading */}
+          <p className="text-lg font-semibold text-cyan-300 mb-2" id="cta-subheading">
+            Start your AI journey now
+          </p>
+          {/* CTA Button Group */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8" aria-labelledby="cta-subheading">
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0.85 }}
+              animate={{ scale: [1.04, 1], opacity: 1 }}
+              transition={{ duration: 0.7, type: 'spring', stiffness: 200, damping: 14 }}
+            >
+              <CosmicButton
+                size="lg"
+                className="bg-gradient-to-r from-electric-blue to-cyan-400 hover:from-electric-blue/80 hover:to-cyan-400/80 focus:ring-4 focus:ring-cyan-400/40"
+                href="/sign-up"
+                aria-label="Try SKRBL AI Free - Start your AI journey"
+              >
+                <Zap className="w-5 h-5 mr-2" />
+                Try SKRBL&nbsp;AI Free
+              </CosmicButton>
+            </motion.div>
+
+            <Link href="/pricing" className="inline-flex items-center justify-center px-6 py-3 border border-cyan-400 rounded-lg text-cyan-300 hover:text-white hover:border-cyan-300 transition-colors text-base font-bold" aria-label="View Pricing">
+              View Pricing&nbsp;→
+            </Link>
+          </div>
         </motion.div>
 
         {/* Competitive Disruption Stats */}
