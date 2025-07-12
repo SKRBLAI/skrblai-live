@@ -36,6 +36,13 @@ const introMessages = [
   "Percy here—ready to guide your AI journey!"
 ];
 
+// Type for competitive analysis result
+interface AnalysisResults {
+  mode: string;
+  input: string;
+  insights: string[];
+}
+
 export default function PercyOnboardingRevolution() {
   const router = useRouter();
   // We only need the session object for auth-related flows
@@ -47,9 +54,9 @@ export default function PercyOnboardingRevolution() {
   const [inputValue, setInputValue] = useState('');
   const [showFloatingWidget, setShowFloatingWidget] = useState(false);
   const [userGoal, setUserGoal] = useState('');
-  const [analysisResults, setAnalysisResults] = useState<any>(null);
-  const [userInput, setUserInput] = useState('');
-  const [vipCode, setVipCode] = useState('');
+  const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
+  const [userInput, setUserInput] = useState<string>('');
+  const [vipCode, setVipCode] = useState<string>('');
   const [isVIPUser, setIsVIPUser] = useState(false);
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -66,7 +73,7 @@ export default function PercyOnboardingRevolution() {
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
   // Typewriter effect for prompt bar
-  const [promptBarTypewriter, setPromptBarTypewriter] = useState('');
+  const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
   const [promptBarFocused, setPromptBarFocused] = useState(false);
   const [promptBarActive, setPromptBarActive] = useState(false);
 
