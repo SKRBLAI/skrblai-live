@@ -11,6 +11,8 @@ import toast from 'react-hot-toast';
 import SkrblAiText from '@/components/ui/SkrblAiText';
 import { sendSms, sendWelcomeSms } from '@/utils/twilioSms';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
+import PercyAvatar from './PercyAvatar';
+import StatCounter from '@/components/features/StatCounter';
 
 interface OnboardingStep {
   id: string;
@@ -43,7 +45,6 @@ const VIP_CODES = {
 } as const;
 
 // --- Percy Onboarding Revolution with Animated Intro & Container Pulse ---
-import PercyAvatar from './PercyAvatar';
 
 const introMessages = [
   "Hey, I'm Percy! What brings you to SKRBL AI today? 👋",
@@ -75,6 +76,10 @@ export default function PercyOnboardingRevolution() {
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
   const [intelligenceScore] = useState(247); // Percy's enhanced IQ
   const [businessesTransformed] = useState(47213);
+  // Business stats counters for unified section
+  const [liveUsers] = useState(1251);
+  const [agentsDeployed] = useState(92);
+  const [revenueGenerated] = useState(2849718);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
   // Typewriter effect for prompt bar
@@ -685,7 +690,7 @@ export default function PercyOnboardingRevolution() {
       <div className="relative w-full max-w-2xl mx-auto px-2 md:px-0">
     {/* Animated Percy Welcome Intro + Avatar */}
     <div className="flex flex-col items-center gap-2 mb-4 select-none">
-      <PercyAvatar size="md" animate={!userInteracted} />
+      <PercyAvatar size="lg" animate={!userInteracted} />
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -834,6 +839,33 @@ export default function PercyOnboardingRevolution() {
           </AnimatePresence>
         </div>
       {/* End of Chat Messages wrapper */}
+
+      {/* Unified Business Stats moved from HomePage */}
+      <div className="w-full mt-6 sm:mt-8" data-percy-stats>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
+            <div className="text-2xl sm:text-3xl font-bold text-electric-blue mb-1">
+              <StatCounter end={liveUsers} duration={2} />
+            </div>
+            <div className="text-xs sm:text-sm text-gray-400">Businesses Transformed Today</div>
+            <div className="text-xs text-teal-400 mt-1">▲ Still climbing</div>
+          </div>
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
+            <div className="text-2xl sm:text-3xl font-bold text-teal-400 mb-1">
+              <StatCounter end={agentsDeployed} duration={2} />
+            </div>
+            <div className="text-xs sm:text-sm text-gray-400">Competitors Eliminated</div>
+            <div className="text-xs text-electric-blue mt-1">▲ Per minute</div>
+          </div>
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
+            <div className="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">
+              $<StatCounter end={Math.floor(revenueGenerated/1000)} duration={2} />K+
+            </div>
+            <div className="text-xs sm:text-sm text-gray-400">Revenue Generated</div>
+            <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
+          </div>
+        </div>
+      </div>
 
       {/* Floating Widget Preview */}
       {showFloatingWidget && (
