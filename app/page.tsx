@@ -10,12 +10,6 @@ import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
 import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
 
-const percyAgent = {
-  name: 'Percy',
-  description: 'Your AI Concierge',
-  image: '/images/agents-percy-nobg-skrblai.webp'
-};
-
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   // Removed individual stats state; moved into unified Percy section

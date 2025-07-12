@@ -686,8 +686,9 @@ export default function PercyOnboardingRevolution() {
   const step = getCurrentStep();
 
   return (
-    <div className="w-full max-w-4xl mx-auto" data-percy-onboarding>
-      <div className="relative w-full max-w-2xl mx-auto px-2 md:px-0">
+    <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row md:items-start gap-8" data-percy-onboarding>
+      {/* Left Column – Percy Avatar & Intro */}
+      <div className="relative w-full md:w-1/3 max-w-xs mx-auto px-2 md:px-0 flex-shrink-0">
     {/* Animated Percy Welcome Intro + Avatar */}
     <div className="flex flex-col items-center gap-2 mb-4 select-none">
       <PercyAvatar size="lg" animate={!userInteracted} />
@@ -711,6 +712,9 @@ export default function PercyOnboardingRevolution() {
       </div>
     </div>
   </div>
+
+      {/* Right Column – Chat, Stats, PromptBar */}
+      <div className="flex-1">
 
         {/* Chat Messages */}
         <div ref={chatRef} className="p-6 min-h-[400px] max-h-[600px] overflow-y-auto">
@@ -947,6 +951,8 @@ export default function PercyOnboardingRevolution() {
           </div>
         </motion.div>
       </div>
+    </div> {/* End Right Column */}
+
     </div>
   );
 }
