@@ -28,19 +28,19 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden">
-      {/* Floating Percy Help Bubble */}
-      <PercyHelpBubble />
+      {/* Floating Percy Help Bubble - TEMPORARILY DISABLED FOR DEBUGGING */}
+      {/* <PercyHelpBubble /> */}
       {/* Background Effects - Mobile Optimized */}
       <div className="absolute inset-0 z-0 opacity-30 sm:opacity-40">
         <FloatingParticles particleCount={24} />
       </div>
       
-      {/* Interactive Empowerment Elements - Now properly integrated */}
-      <InteractiveFloatingElements 
+      {/* Interactive Empowerment Elements - TEMPORARILY DISABLED FOR DEBUGGING */}
+      {/* <InteractiveFloatingElements 
         count={6} 
         mouseFollow={true} 
         className="hidden sm:block pointer-events-auto"
-      />
+      /> */}
       
       <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />

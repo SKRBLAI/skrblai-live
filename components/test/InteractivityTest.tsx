@@ -84,7 +84,7 @@ export default function InteractivityTest({ onComplete }: InteractivityTestProps
                                 getComputedStyle(element).pointerEvents === 'auto';
 
         // Check if element is visible
-        const isVisible = element.offsetParent !== null;
+        const isVisible = (element as HTMLElement).offsetParent !== null;
 
         // Check if element is in viewport
         const rect = element.getBoundingClientRect();
