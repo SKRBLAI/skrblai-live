@@ -40,7 +40,7 @@ export default function PercyOnboardingRevolution() {
   const router = useRouter();
   // We only need the session object for auth-related flows
   const { session } = useAuth();
-  const { setPercyIntent, trackBehavior, setIsOnboardingActive } = usePercyContext();
+  const { trackBehavior, setIsOnboardingActive } = usePercyContext();
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [isPercyThinking, setIsPercyThinking] = useState(false);
   const [userEmail, setUserEmail] = useState('');
@@ -447,7 +447,7 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (option.action === 'select-goal' && option.data?.goal) {
-      setUserGoal(option.data.goal);
+      setUserGoal(option.data.goal as string);
       setCurrentStep('signup');
       await handlePercyThinking(1500);
       return;
