@@ -10,6 +10,7 @@ import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import SkrblAiText from '@/components/ui/SkrblAiText';
 import { sendSms, sendWelcomeSms } from '@/utils/twilioSms';
+import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 
 interface OnboardingStep {
   id: string;
@@ -76,7 +77,13 @@ export default function PercyOnboardingRevolution() {
   const [businessesTransformed] = useState(47213);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
+  // Typewriter effect for prompt bar
+  const [promptBarTypewriter, setPromptBarTypewriter] = useState('');
+  const [promptBarFocused, setPromptBarFocused] = useState(false);
+  const [promptBarActive, setPromptBarActive] = useState(false);
+
   const chatRef = useRef<HTMLDivElement>(null);
+  const typewriterMessages = ['Talk to Percy Here...', 'Ask me anything...', 'Let\'s dominate together...', 'Your AI concierge awaits...'];
 
   // --- Animated Intro Message State ---
   const [introIdx, setIntroIdx] = useState(0);
@@ -113,6 +120,34 @@ export default function PercyOnboardingRevolution() {
     const t = setTimeout(() => setPulseActive(true), 2000);
     return () => clearTimeout(t);
   }, [userInteracted]);
+
+  // Typewriter effect for prompt bar (loops when idle)
+  useEffect(() => {
+    if (promptBarFocused || promptBarActive) return;
+    
+    let messageIndex = 0;
+    let charIndex = 0;
+    let timeout: NodeJS.Timeout;
+    
+    const typeChar = () => {
+      const currentMessage = typewriterMessages[messageIndex];
+      if (charIndex < currentMessage.length) {
+        setPromptBarTypewriter(currentMessage.slice(0, charIndex + 1));
+        charIndex++;
+        timeout = setTimeout(typeChar, 100);
+      } else {
+        // Message complete, wait then move to next message
+        timeout = setTimeout(() => {
+          messageIndex = (messageIndex + 1) % typewriterMessages.length;
+          charIndex = 0;
+          setPromptBarTypewriter('');
+        }, 2000);
+      }
+    };
+    
+    typeChar();
+    return () => clearTimeout(timeout);
+  }, [promptBarFocused, promptBarActive, typewriterMessages]);
 
   // Mark user as interacted on any onboarding action
   const handleAnyInteraction = useCallback(() => {
@@ -812,6 +847,74 @@ export default function PercyOnboardingRevolution() {
           </div>
         </motion.div>
       )}
+
+      {/* Integrated Universal Prompt Bar with Typewriter Effect */}
+      <div className="mt-6 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="relative"
+        >
+          {/* Typewriter Effect Overlay */}
+          {!promptBarFocused && !promptBarActive && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center"
+            >
+              <motion.div 
+                className="cosmic-glass bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm rounded-xl px-4 py-3 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.3)]"
+                animate={{ 
+                  boxShadow: ['0_0_20px_rgba(56,189,248,0.3)', '0_0_30px_rgba(56,189,248,0.5)', '0_0_20px_rgba(56,189,248,0.3)']
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="text-transparent bg-gradient-to-r from-cyan-300 via-teal-400 to-cyan-300 bg-clip-text font-medium tracking-wide text-sm sm:text-base">
+                  {promptBarTypewriter}
+                  <span className="animate-pulse text-cyan-400">|</span>
+                </span>
+              </motion.div>
+            </motion.div>
+          )}
+          
+          <div
+            onFocus={() => setPromptBarFocused(true)}
+            onBlur={() => setPromptBarFocused(false)}
+            onClick={() => {
+              setPromptBarFocused(true);
+              setPromptBarActive(true);
+              handleAnyInteraction();
+            }}
+          >
+            <UniversalPromptBar
+              title="Chat with Percy"
+              description="Upload files, ask questions, or get AI assistance"
+              placeholder="What can I help you dominate today?"
+              theme="dark"
+              className="transition-all duration-300"
+              onPromptSubmit={(prompt) => {
+                setPromptBarActive(true);
+                handleAnyInteraction();
+                // Handle the prompt submission through Percy context
+                trackBehavior('percy_prompt_submitted', { 
+                  prompt, 
+                  source: 'onboarding_prompt_bar',
+                  currentStep 
+                });
+              }}
+              onComplete={(data) => {
+                setPromptBarActive(true);
+                handleAnyInteraction();
+                console.log('Percy interaction complete:', data);
+              }}
+              acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
+              fileCategory="onboarding"
+              intentType="percy_assistance"
+            />
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 }
