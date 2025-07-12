@@ -684,27 +684,29 @@ export default function PercyOnboardingRevolution() {
   const step = getCurrentStep();
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row md:items-start gap-8" data-percy-onboarding>
+    <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row md:items-start gap-8 pointer-events-auto touch-manipulation" data-percy-onboarding>
       {/* Left Column – Percy Avatar & Intro */}
-      <div className="relative w-full md:w-1/3 max-w-xs mx-auto px-2 md:px-0 flex-shrink-0">
+      <div className="relative w-full md:w-1/3 max-w-xs mx-auto px-2 md:px-0 flex-shrink-0 pointer-events-auto">
     {/* Animated Percy Welcome Intro + Avatar */}
-    <div className="flex flex-col items-center gap-2 mb-4 select-none">
-      <PercyAvatar size="lg" animate={!userInteracted} />
+    <div className="flex flex-col items-center gap-2 mb-4 select-none pointer-events-auto">
+      <div className="pointer-events-auto touch-manipulation">
+        <PercyAvatar size="lg" animate={!userInteracted} />
+      </div>
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        className="w-full"
+        className="w-full pointer-events-auto"
       >
         <span
-          className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight"
+          className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight pointer-events-auto"
           style={{ minHeight: 32 }}
           aria-live="polite"
         >
           {typedText}
         </span>
       </motion.div>
-      <div className="text-right text-xs text-gray-400">
+      <div className="text-right text-xs text-gray-400 pointer-events-auto">
         <div>Businesses Transformed</div>
         <div className="text-cyan-400 font-bold">{businessesTransformed.toLocaleString()}</div>
       </div>
@@ -712,10 +714,20 @@ export default function PercyOnboardingRevolution() {
   </div>
 
       {/* Right Column – Chat, Stats, PromptBar */}
-      <div className="flex-1">
+      <div className="flex-1 pointer-events-auto">
 
         {/* Chat Messages */}
-        <div ref={chatRef} className="p-6 min-h-[400px] max-h-[600px] overflow-y-auto">
+        <div 
+          ref={chatRef} 
+          className="p-4 sm:p-6 min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto pointer-events-auto"
+          style={{ 
+            scrollBehavior: 'smooth',
+            touchAction: 'pan-y',
+            overscrollBehavior: 'contain',
+            WebkitOverflowScrolling: 'touch'
+          }}
+          data-percy-chat-container
+        >
           <AnimatePresence>
             <motion.div
               key={currentStep}
@@ -723,18 +735,18 @@ export default function PercyOnboardingRevolution() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.5 }}
-              className="mb-6"
+              className="mb-6 pointer-events-auto"
             >
               {/* Percy Message */}
-              <div className="flex items-start space-x-3 mb-4">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+              <div className="flex items-start space-x-3 mb-4 pointer-events-auto">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0 pointer-events-auto">
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex-1">
-                  <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-xl p-4 border border-cyan-400/20">
-                    <div className="prose prose-invert prose-sm max-w-none">
+                <div className="flex-1 pointer-events-auto">
+                  <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-xl p-3 sm:p-4 border border-cyan-400/20 pointer-events-auto">
+                    <div className="prose prose-invert prose-sm max-w-none pointer-events-auto">
                       {step.percyMessage.split('\n').map((line, i) => (
-                        <p key={i} className="mb-2 last:mb-0">
+                        <p key={i} className="mb-2 last:mb-0 pointer-events-auto text-sm sm:text-base">
                           {line.includes('**') ? (
                             <span dangerouslySetInnerHTML={{
                               __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400">$1</strong>')
@@ -754,17 +766,17 @@ export default function PercyOnboardingRevolution() {
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-4 border border-green-400/20"
+                  className="mb-4 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-3 sm:p-4 border border-green-400/20 pointer-events-auto"
                 >
-                  <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2">
-                    <Target className="w-5 h-5" />
+                  <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2 pointer-events-auto text-sm sm:text-base">
+                    <Target className="w-4 h-4 sm:w-5 sm:h-5" />
                     Competitive Intelligence Report
                   </h4>
-                  <div className="space-y-2">
+                  <div className="space-y-2 pointer-events-auto">
                     {competitiveInsights.map((insight, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <TrendingUp className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-200 text-sm">{insight}</span>
+                      <div key={i} className="flex items-start gap-2 pointer-events-auto">
+                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-gray-200 text-xs sm:text-sm pointer-events-auto">{insight}</span>
                       </div>
                     ))}
                   </div>
@@ -776,41 +788,54 @@ export default function PercyOnboardingRevolution() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center space-x-2 mb-4 text-cyan-400"
+                  className="flex items-center space-x-2 mb-4 text-cyan-400 pointer-events-auto"
                 >
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
                     <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                     <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                   </div>
-                  <span className="text-sm">Percy is analyzing...</span>
+                  <span className="text-xs sm:text-sm">Percy is analyzing...</span>
                 </motion.div>
               )}
 
               {/* Input Field */}
               {step.showInput && (
-                <div className="mb-4">
-                  <div className="relative">
+                <div className="mb-4 pointer-events-auto">
+                  <div className="relative pointer-events-auto">
                     <input
                       type={step.inputType}
                       value={inputValue}
-                      onChange={(e) => setInputValue(e.target.value)}
+                      onChange={(e) => {
+                        setInputValue(e.target.value);
+                        handleAnyInteraction();
+                      }}
                       placeholder={step.inputPlaceholder}
-                      className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                      className="w-full px-3 sm:px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 pointer-events-auto text-sm sm:text-base"
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           handleInputSubmit();
                         }
                       }}
+                      onFocus={() => handleAnyInteraction()}
                       data-percy-input
+                      style={{ 
+                        touchAction: 'manipulation',
+                        fontSize: '16px' // Prevents zoom on iOS
+                      }}
                     />
                     <motion.button
-                      onClick={handleInputSubmit}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                      onClick={() => {
+                        handleInputSubmit();
+                        handleAnyInteraction();
+                      }}
+                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors pointer-events-auto min-w-[44px] min-h-[44px] flex items-center justify-center"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
+                      style={{ touchAction: 'manipulation' }}
+                      data-percy-submit-button
                     >
-                      <ArrowRight className="w-5 h-5" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </motion.button>
                   </div>
                 </div>
@@ -818,18 +843,23 @@ export default function PercyOnboardingRevolution() {
 
               {/* Options */}
               {step.options && (
-                <div className="space-y-2">
+                <div className="space-y-2 pointer-events-auto">
                   {step.options.map((option) => (
                     <motion.button
                       key={option.id}
-                      onClick={() => handleOptionClick(option)}
-                      className="w-full text-left p-3 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 transition-all group"
+                      onClick={() => {
+                        handleOptionClick(option);
+                        handleAnyInteraction();
+                      }}
+                      className="w-full text-left p-3 sm:p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group pointer-events-auto min-h-[44px] flex items-center"
                       whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
                       whileTap={{ scale: 0.98 }}
+                      style={{ touchAction: 'manipulation' }}
+                      data-percy-option={option.id}
                     >
-                      <div className="flex items-center space-x-3">
-                        <span className="text-2xl">{option.icon}</span>
-                        <span className="text-white font-medium group-hover:text-cyan-300 transition-colors">
+                      <div className="flex items-center space-x-3 pointer-events-auto w-full">
+                        <span className="text-xl sm:text-2xl pointer-events-none flex-shrink-0">{option.icon}</span>
+                        <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors pointer-events-none text-sm sm:text-base flex-1">
                           {option.label}
                         </span>
                       </div>
@@ -843,28 +873,43 @@ export default function PercyOnboardingRevolution() {
       {/* End of Chat Messages wrapper */}
 
       {/* Unified Business Stats moved from HomePage */}
-      <div className="w-full mt-6 sm:mt-8" data-percy-stats>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-            <div className="text-2xl sm:text-3xl font-bold text-electric-blue mb-1">
+      <div className="w-full mt-6 sm:mt-8 pointer-events-auto" data-percy-stats>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 pointer-events-auto">
+          <div 
+            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
+            onClick={() => handleAnyInteraction()}
+            style={{ touchAction: 'manipulation' }}
+            data-percy-stat="businesses-transformed"
+          >
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-electric-blue mb-1 pointer-events-auto">
               <StatCounter end={liveUsers} duration={2} />
             </div>
-            <div className="text-xs sm:text-sm text-gray-400">Businesses Transformed Today</div>
-            <div className="text-xs text-teal-400 mt-1">▲ Still climbing</div>
+            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Businesses Transformed Today</div>
+            <div className="text-xs text-teal-400 mt-1 pointer-events-auto">▲ Still climbing</div>
           </div>
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-            <div className="text-2xl sm:text-3xl font-bold text-teal-400 mb-1">
+          <div 
+            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
+            onClick={() => handleAnyInteraction()}
+            style={{ touchAction: 'manipulation' }}
+            data-percy-stat="competitors-eliminated"
+          >
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-400 mb-1 pointer-events-auto">
               <StatCounter end={agentsDeployed} duration={2} />
             </div>
-            <div className="text-xs sm:text-sm text-gray-400">Competitors Eliminated</div>
-            <div className="text-xs text-electric-blue mt-1">▲ Per minute</div>
+            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Competitors Eliminated</div>
+            <div className="text-xs text-electric-blue mt-1 pointer-events-auto">▲ Per minute</div>
           </div>
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-            <div className="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">
+          <div 
+            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
+            onClick={() => handleAnyInteraction()}
+            style={{ touchAction: 'manipulation' }}
+            data-percy-stat="revenue-generated"
+          >
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-fuchsia-400 mb-1 pointer-events-auto">
               $<StatCounter end={Math.floor(revenueGenerated/1000)} duration={2} />K+
             </div>
-            <div className="text-xs sm:text-sm text-gray-400">Revenue Generated</div>
-            <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
+            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Revenue Generated</div>
+            <div className="text-xs text-fuchsia-400 mt-1 pointer-events-auto">▲ This month</div>
           </div>
         </div>
       </div>
@@ -874,21 +919,22 @@ export default function PercyOnboardingRevolution() {
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: 50 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="fixed bottom-6 right-6 z-50"
+          className="fixed bottom-6 right-6 z-50 pointer-events-auto"
         >
-          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20">
-            <Sparkles className="w-8 h-8 text-white animate-pulse" />
+          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 pointer-events-auto cursor-pointer"
+               style={{ touchAction: 'manipulation' }}>
+            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-pulse" />
           </div>
         </motion.div>
       )}
 
       {/* Integrated Universal Prompt Bar with Typewriter Effect */}
-      <div className="mt-6 px-4">
+      <div className="mt-6 px-2 sm:px-4 pointer-events-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="relative"
+          className="relative pointer-events-auto"
         >
           {/* Typewriter Effect Overlay */}
           {!promptBarFocused && !promptBarActive && (
@@ -898,13 +944,13 @@ export default function PercyOnboardingRevolution() {
               className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center"
             >
               <motion.div 
-                className="cosmic-glass bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm rounded-xl px-4 py-3 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.3)]"
+                className="cosmic-glass bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm rounded-xl px-3 sm:px-4 py-3 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.3)] pointer-events-none"
                 animate={{ 
                   boxShadow: ['0_0_20px_rgba(56,189,248,0.3)', '0_0_30px_rgba(56,189,248,0.5)', '0_0_20px_rgba(56,189,248,0.3)']
                 }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <span className="text-transparent bg-gradient-to-r from-cyan-300 via-teal-400 to-cyan-300 bg-clip-text font-medium tracking-wide text-sm sm:text-base">
+                <span className="text-transparent bg-gradient-to-r from-cyan-300 via-teal-400 to-cyan-300 bg-clip-text font-medium tracking-wide text-xs sm:text-sm md:text-base pointer-events-none">
                   {promptBarTypewriter}
                   <span className="animate-pulse text-cyan-400">|</span>
                 </span>
@@ -913,20 +959,26 @@ export default function PercyOnboardingRevolution() {
           )}
           
           <div
-            onFocus={() => setPromptBarFocused(true)}
+            onFocus={() => {
+              setPromptBarFocused(true);
+              handleAnyInteraction();
+            }}
             onBlur={() => setPromptBarFocused(false)}
             onClick={() => {
               setPromptBarFocused(true);
               setPromptBarActive(true);
               handleAnyInteraction();
             }}
+            className="pointer-events-auto"
+            style={{ touchAction: 'manipulation' }}
+            data-percy-prompt-bar
           >
             <UniversalPromptBar
               title="Chat with Percy"
               description="Upload files, ask questions, or get AI assistance"
               placeholder="What can I help you dominate today?"
               theme="dark"
-              className="transition-all duration-300"
+              className="transition-all duration-300 pointer-events-auto"
               onPromptSubmit={(prompt) => {
                 setPromptBarActive(true);
                 handleAnyInteraction();
