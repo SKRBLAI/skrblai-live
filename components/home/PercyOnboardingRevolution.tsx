@@ -3,13 +3,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Brain, Zap, Shield, Crown, ArrowRight, Mail, CheckCircle, BarChart3, Globe, Users, Target, TrendingUp, RefreshCw } from 'lucide-react';
+// Import only the Lucide icons actively used in the UI
+import { Sparkles, ArrowRight, Target, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/components/context/AuthContext';
 import { usePercyContext } from '@/components/assistant/PercyProvider';
-import { supabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import SkrblAiText from '@/components/ui/SkrblAiText';
-import { sendSms, sendWelcomeSms } from '@/utils/twilioSms';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 import PercyAvatar from './PercyAvatar';
 import StatCounter from '@/components/features/StatCounter';
@@ -27,22 +26,7 @@ interface OnboardingStep {
   vipCodeEntry?: boolean;
 }
 
-const VIP_CODES = {
-  // Gold Tier VIP Codes
-  'SKRBL-VIP-GOLD-2024': { tier: 'gold', name: 'Gold Elite Access' },
-  'PERCY-GOLDEN-KEY': { tier: 'gold', name: 'Percy Golden Key' },
-  'ELITE-ACCESS-2024': { tier: 'gold', name: 'Elite Access Pass' },
-  
-  // Platinum Tier VIP Codes
-  'PERCY-EXCLUSIVE-PLATINUM': { tier: 'platinum', name: 'Percy Platinum Exclusive' },
-  'SKRBL-PREMIUM-2024': { tier: 'platinum', name: 'Premium Business Dominator' },
-  'VIP-PLATINUM-PERCY': { tier: 'platinum', name: 'VIP Platinum Percy' },
-  
-  // Diamond Tier VIP Codes
-  'SKRBL-DIAMOND-ELITE': { tier: 'diamond', name: 'Diamond Elite Mastery' },
-  'PERCY-DIAMOND-2024': { tier: 'diamond', name: 'Percy Diamond 2024' },
-  'ULTIMATE-VIP-ACCESS': { tier: 'diamond', name: 'Ultimate VIP Access' }
-} as const;
+// Removed legacy VIP_CODES constant – we now validate codes on-the-fly inside validateVIPCode
 
 // --- Percy Onboarding Revolution with Animated Intro & Container Pulse ---
 
@@ -54,16 +38,15 @@ const introMessages = [
 
 export default function PercyOnboardingRevolution() {
   const router = useRouter();
-  const { session, signUp, signIn } = useAuth();
+  // We only need the session object for auth-related flows
+  const { session } = useAuth();
   const { setPercyIntent, trackBehavior, setIsOnboardingActive } = usePercyContext();
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [isPercyThinking, setIsPercyThinking] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [showFloatingWidget, setShowFloatingWidget] = useState(false);
   const [userGoal, setUserGoal] = useState('');
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
   const [userInput, setUserInput] = useState('');
   const [vipCode, setVipCode] = useState('');
@@ -433,8 +416,16 @@ export default function PercyOnboardingRevolution() {
     setPercyMood('celebrating');
   };
 
-  // Handle option clicks with Percy context integration
-  const handleOptionClick = async (option: any) => {
+  // Narrow type for option actions for safer handling
+  type OnboardingOption = {
+    id: string;
+    label: string;
+    icon: string;
+    action: string;
+    data?: Record<string, unknown>;
+  };
+
+  const handleOptionClick = async (option: OnboardingOption) => {
     if (option.action === 'route-to-sports') {
       // Track behavior before navigation
       trackBehavior('sports_routing', { from: currentStep });
