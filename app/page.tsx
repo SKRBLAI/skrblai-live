@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
-import Image from 'next/image';
-import PercyFigure from '@/components/home/PercyFigure';
 import FloatingParticles from '@/components/ui/FloatingParticles';
-import StatCounter from '@/components/features/StatCounter';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import AgentsGrid from '@/components/agents/AgentsGrid';
 import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
@@ -13,17 +10,9 @@ import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
 import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
 
-const percyAgent = {
-  name: 'Percy',
-  description: 'Your AI Concierge',
-  image: '/images/agents-percy-nobg-skrblai.webp'
-};
-
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
-  const [liveUsers, setLiveUsers] = useState(1251);
-  const [agentsDeployed, setAgentsDeployed] = useState(92);
-  const [revenueGenerated, setRevenueGenerated] = useState(2849718);
+  // Removed individual stats state; moved into unified Percy section
   
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
@@ -94,71 +83,11 @@ export default function HomePage() {
                 </span>
               </motion.p>
 
-              {/* Percy Section */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.6, type: 'spring', stiffness: 100 }}
-                className="relative my-4 sm:my-6 md:my-8 flex justify-center"
-              >
-                <div className="relative w-32 h-32 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
-                  <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
-                    <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden relative">
-                      <Image
-                        src="/images/agents-percy-nobg-skrblai.webp"
-                        alt="Percy AI Concierge"
-                        width={300}
-                        height={300}
-                        priority={true}
-                        className="w-full h-full object-contain scale-90"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Glow effects */}
-                  <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
-                  <div className="absolute inset-0 rounded-full border border-blue-500/10 animate-ping"></div>
-                </div>
-              </motion.div>
-              
-              {/* Percy Onboarding Revolution */}
+              {/* Unified Percy Section now includes avatar, chat, stats, and prompt bar */}
               <PercyOnboardingRevolution />
             </div>
 
-            {/* Social Proof Section - Mobile Optimized */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.0 }}
-              className="w-full mt-8 sm:mt-12 md:mt-16"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-                <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-                  <div className="text-2xl sm:text-3xl font-bold text-electric-blue mb-1">
-                    <StatCounter end={liveUsers} duration={2} />
-                  </div>
-                  <div className="text-xs sm:text-sm text-gray-400">Businesses Transformed Today</div>
-                  <div className="text-xs text-teal-400 mt-1">▲ Still climbing</div>
-                </div>
-
-                <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-                  <div className="text-2xl sm:text-3xl font-bold text-teal-400 mb-1">
-                    <StatCounter end={agentsDeployed} duration={2} />
-                  </div>
-                  <div className="text-xs sm:text-sm text-gray-400">Competitors Eliminated</div>
-                  <div className="text-xs text-electric-blue mt-1">▲ Per minute</div>
-                </div>
-
-                <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10">
-                  <div className="text-2xl sm:text-3xl font-bold text-fuchsia-400 mb-1">
-                    $<StatCounter end={Math.floor(revenueGenerated/1000)} duration={2} />K+
-                  </div>
-                  <div className="text-xs sm:text-sm text-gray-400">Revenue Generated</div>
-                  <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
-                </div>
-              </div>
-            </motion.div>
+            {/* Social Proof Section removed – stats now live inside unified Percy component */}
           </section>
 
           {/* Agent League – Dynamic Rendering */}
