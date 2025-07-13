@@ -33,6 +33,26 @@ export async function middleware(request: NextRequest) {
     
     return NextResponse.redirect(redirectUrl);
   }
+
+  // NEW: Percy onboarding flow logic
+  if (session && path.startsWith('/dashboard')) {
+    const user = session.user;
+    
+    // Check if user email is verified
+    const isEmailVerified = user.email_confirmed_at != null;
+    
+    if (!isEmailVerified) {
+      console.log('[MIDDLEWARE] User not verified, redirecting to onboarding');
+      
+      // Redirect unverified users to homepage for Percy onboarding
+      const homeUrl = new URL('/', request.url);
+      homeUrl.searchParams.set('reason', 'email-not-verified');
+      
+      return NextResponse.redirect(homeUrl);
+    }
+    
+    console.log('[MIDDLEWARE] User is verified, allowing dashboard access');
+  }
   
   // Handle API routes without auth
   if (!session && path.startsWith('/api/') && 
@@ -51,26 +71,8 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Add security headers with Next.js-compatible CSP
-  const response = NextResponse.next();
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  // If we get here, user is authenticated (or accessing allowed routes)
+  console.log('[MIDDLEWARE] Request authorized for:', path);
   
-  // Fix CSP to allow Next.js while maintaining security
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' *.googleapis.com *.gstatic.com *.cloudflare.com *.stripe.com", 
-    "style-src 'self' 'unsafe-inline' *.googleapis.com *.gstatic.com",
-    "img-src 'self' data: blob: *.googleapis.com *.gstatic.com *.supabase.co *.cloudflare.com *.stripe.com",
-    "font-src 'self' *.googleapis.com *.gstatic.com",
-    "connect-src 'self' *.supabase.co *.stripe.com *.n8n.io",
-    "frame-src 'self' *.stripe.com",
-    "object-src 'none'",
-    "base-uri 'self'"
-  ].join('; ');
-  
-  response.headers.set('Content-Security-Policy', csp);
-  
-  return response;
+  return res;
 }

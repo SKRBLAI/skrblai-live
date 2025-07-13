@@ -45,8 +45,8 @@ interface AnalysisResults {
 
 export default function PercyOnboardingRevolution() {
   const router = useRouter();
-  // We only need the session object for auth-related flows
-  const { session } = useAuth();
+  // NEW: Use the auth context to check verification status
+  const { user, session, isEmailVerified, shouldShowOnboarding, setOnboardingComplete } = useAuth();
   const { trackBehavior, setIsOnboardingActive } = usePercyContext();
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [isPercyThinking, setIsPercyThinking] = useState(false);
@@ -86,7 +86,35 @@ export default function PercyOnboardingRevolution() {
   const [userInteracted, setUserInteracted] = useState(false);
   const [pulseActive, setPulseActive] = useState(false);
 
-  // Typewriter/cycling effect
+  // NEW: Early return if user is verified - no onboarding needed
+  useEffect(() => {
+    if (isEmailVerified) {
+      console.log('[PERCY] User is verified - hiding onboarding');
+      setIsOnboardingActive(false);
+      setOnboardingComplete(true);
+      return;
+    }
+    
+    // Only show onboarding for unverified users
+    if (shouldShowOnboarding) {
+      console.log('[PERCY] Showing onboarding for unverified user');
+      setIsOnboardingActive(true);
+    }
+  }, [isEmailVerified, shouldShowOnboarding, setIsOnboardingActive, setOnboardingComplete]);
+
+  // NEW: Hide onboarding completely if user is verified
+  if (isEmailVerified) {
+    console.log('[PERCY] User is verified - not rendering onboarding');
+    return null;
+  }
+
+  // NEW: Only show onboarding if shouldShowOnboarding is true
+  if (!shouldShowOnboarding) {
+    console.log('[PERCY] Should not show onboarding - not rendering');
+    return null;
+  }
+
+  // Typewriter/cycling effect for intro messages
   useEffect(() => {
     if (userInteracted) return;
     setTypedText('');
@@ -101,7 +129,7 @@ export default function PercyOnboardingRevolution() {
       } else {
         // After message, wait, then cycle
         timeout = setTimeout(() => {
-          setIntroIdx((prev) => (prev + 1) % introMessages.length);
+          setIntroIdx((prev: number) => (prev + 1) % introMessages.length);
         }, 1400);
       }
     }

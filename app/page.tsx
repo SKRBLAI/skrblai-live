@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
+import { useAuth } from '@/components/context/AuthContext';
+import { useRouter, useSearchParams } from 'next/navigation';
 import FloatingParticles from '@/components/ui/FloatingParticles';
 import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
 import AgentsGrid from '@/components/agents/AgentsGrid';
@@ -9,10 +11,13 @@ import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElem
 import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
 import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
+import toast from 'react-hot-toast';
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
-  // Removed individual stats state; moved into unified Percy section
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, session, isLoading, isEmailVerified, shouldShowOnboarding } = useAuth();
   
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
@@ -22,8 +27,38 @@ export default function HomePage() {
     setMounted(true);
   }, []);
 
+  // Handle redirects from middleware
+  useEffect(() => {
+    if (mounted && searchParams) {
+      const reason = searchParams.get('reason');
+      if (reason === 'email-not-verified') {
+        toast.error('Please verify your email to access the dashboard');
+      }
+    }
+  }, [mounted, searchParams]);
+
+  // Redirect verified users to dashboard if they try to access homepage
+  useEffect(() => {
+    if (!isLoading && user && session && isEmailVerified) {
+      console.log('[HOMEPAGE] Verified user accessing homepage - redirecting to dashboard');
+      router.replace('/dashboard');
+    }
+  }, [user, session, isLoading, isEmailVerified, router]);
+
   if (!mounted) {
     return null;
+  }
+
+  // Show loading state while auth is being checked
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-electric-blue mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -83,8 +118,21 @@ export default function HomePage() {
                 </span>
               </motion.p>
 
-              {/* Unified Percy Section now includes avatar, chat, stats, and prompt bar */}
-              <PercyOnboardingRevolution />
+              {/* Percy Onboarding Section - Only show for unverified users */}
+              {shouldShowOnboarding ? (
+                <PercyOnboardingRevolution />
+              ) : (
+                // Show alternative content for verified users or when onboarding is complete
+                <div className="text-center py-8">
+                  <p className="text-gray-400 mb-4">Welcome back to SKRBL AI</p>
+                  <button 
+                    onClick={() => router.push('/dashboard')}
+                    className="bg-electric-blue hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Go to Dashboard
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Social Proof Section removed – stats now live inside unified Percy component */}
