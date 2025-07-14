@@ -248,7 +248,7 @@ export default function Dashboard() {
       console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth IS STILL LOADING. localIsLoading set to true.');
       setLocalIsLoading(true);
     }
-  }, [authUser, authIsLoading, router, checkUserRole]);
+  }, [authUser, authLoading, router, checkUserRole]);
 
   // Data fetching effect
   useEffect(() => {
@@ -319,7 +319,7 @@ export default function Dashboard() {
     };
   }, [userId, authUser]); 
 
-  if (!authIsLoading && !authUser) {
+  if (!authLoading && !authUser) {
     console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Render: Auth loaded, no user. Showing spinner pending redirect.');
     return <Spinner />;
   }
