@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/components/context/AuthContext'; 
+import { useAuth } from '@/components/context/AuthContext';
+import { User } from '@supabase/supabase-js'; 
 import { supabase } from '@/utils/supabase';
 import { createClient } from '@supabase/supabase-js';
 import { getCurrentUser } from '@/utils/supabase-helpers';
@@ -84,7 +85,25 @@ export default function Dashboard() {
   const [vipCheckLoading, setVipCheckLoading] = useState(true);
   
   const router = useRouter();
-  const { user: authUser, session: authSession, isLoading: authIsLoading } = useAuth();
+  const { user: authUser, session, isLoading: authLoading, accessLevel, vipStatus, benefits, isEmailVerified } = useAuth();
+
+  // NEW: Redirect unverified users to onboarding
+  useEffect(() => {
+    if (authLoading) return;
+    
+    if (!authUser || !session) {
+      console.log('[DASHBOARD] No authenticated user, redirecting to sign-in');
+      router.replace('/sign-in');
+      return;
+    }
+
+    // NEW: Additional check for email verification
+    if (!isEmailVerified) {
+      console.log('[DASHBOARD] User not verified, redirecting to onboarding');
+      router.replace('/');
+      return;
+    }
+  }, [authUser, session, authLoading, isEmailVerified, router]);
 
   // ✨ NEW: Usage-based pricing integration
   const {
@@ -185,7 +204,7 @@ export default function Dashboard() {
 
   // ✨ NEW: Enhanced celebration/checklist effect with usage tracking
   useEffect(() => {
-    if (!authIsLoading && authUser) {
+    if (!authLoading && authUser) {
       const onboardingComplete = window.localStorage.getItem('skrbl_onboarding_complete');
       const dashboardFirstVisit = window.localStorage.getItem('skrbl_dashboard_first_visit');
       if (onboardingComplete && !dashboardFirstVisit) {
@@ -203,13 +222,13 @@ export default function Dashboard() {
         setShowUsagePressure(true);
       }
     }
-  }, [authIsLoading, authUser, currentTier, usage.agentsUsedToday, usage.scansUsedToday, trackUsage]);
+  }, [authLoading, authUser, currentTier, usage.agentsUsedToday, usage.scansUsedToday, trackUsage]);
 
   // Auth effect
   useEffect(() => {
-    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth useEffect triggered. AuthIsLoading:', authIsLoading, 'AuthUser:', !!authUser, 'AuthSession:', !!authSession);
-    if (!authIsLoading) {
-      if (!authUser || !authSession) {
+    console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth useEffect triggered. AuthIsLoading:', authLoading, 'AuthUser:', !!authUser, 'AuthSession:', !!session);
+    if (!authLoading) {
+      if (!authUser || !session) {
         console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth loaded: No user/session. Redirecting to /sign-in.');
         router.push('/sign-in');
       } else {

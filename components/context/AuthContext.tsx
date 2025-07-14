@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,11 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   error: string | null;
   validatePromoCode: (code: string) => Promise<{ isValid: boolean; type: 'PROMO' | 'VIP'; benefits: any; error?: string }>;
+  // NEW: Percy onboarding fields
+  isEmailVerified: boolean;
+  onboardingComplete: boolean;
+  setOnboardingComplete: (complete: boolean) => void;
+  shouldShowOnboarding: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +40,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
+  // NEW: Percy onboarding state
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [onboardingComplete, setOnboardingCompleteState] = useState(false);
+
+  // Computed property for whether to show onboarding
+  const shouldShowOnboarding = !isEmailVerified && !onboardingComplete;
+
+  // NEW: Function to update onboarding completion
+  const setOnboardingComplete = useCallback((complete: boolean) => {
+    setOnboardingCompleteState(complete);
+    // Store in localStorage for persistence
+    if (complete) {
+      localStorage.setItem('percyOnboardingComplete', 'true');
+    } else {
+      localStorage.removeItem('percyOnboardingComplete');
+    }
+  }, []);
+
+  // NEW: Function to check if user email is verified
+  const checkEmailVerification = useCallback((currentUser: User | null) => {
+    if (!currentUser) {
+      setIsEmailVerified(false);
+      return;
+    }
+    
+    // Check if user has email_confirmed_at (Supabase email verification)
+    const emailConfirmed = currentUser.email_confirmed_at != null;
+    setIsEmailVerified(emailConfirmed);
+    
+    // If email is verified, onboarding should be complete
+    if (emailConfirmed) {
+      setOnboardingComplete(true);
+    }
+  }, [setOnboardingComplete]);
+
+  // NEW: Initialize onboarding state from localStorage
+  useEffect(() => {
+    const savedOnboardingComplete = localStorage.getItem('percyOnboardingComplete');
+    if (savedOnboardingComplete === 'true') {
+      setOnboardingCompleteState(true);
+    }
+  }, []);
+
   useEffect(() => {
     const {
       data: { subscription },
@@ -43,9 +91,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (currentSession) {
         setUser(currentSession.user);
         setSession(currentSession);
+        // NEW: Check email verification status
+        checkEmailVerification(currentSession.user);
       } else {
         setUser(null);
         setSession(null);
+        setIsEmailVerified(false);
+        // Don't reset onboarding completion on logout - user might return
       }
       setIsLoading(false);
     });
@@ -64,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, checkEmailVerification]);
 
   // Add dashboard access check on auth state change
   useEffect(() => {
@@ -356,6 +408,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut,
         error,
         validatePromoCode,
+        isEmailVerified,
+        onboardingComplete,
+        setOnboardingComplete,
+        shouldShowOnboarding,
       }}
     >
       {children}

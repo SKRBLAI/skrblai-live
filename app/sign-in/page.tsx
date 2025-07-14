@@ -17,7 +17,7 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
-  const { user, session, isLoading, signIn, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
+  const { user, session, isLoading, signIn, signInWithOAuth, signInWithOtp, error: authError, isEmailVerified } = useAuth();
   const [error, setError] = useState('');
 
   // Show auth errors from context
@@ -39,9 +39,15 @@ export default function SignInPage() {
   useEffect(() => {
     if (user && session) {
       console.log('[SIGN-IN] User already authenticated, redirecting to dashboard');
-      router.replace('/dashboard');
+      // NEW: Verified users go directly to dashboard, unverified users may need onboarding
+      if (isEmailVerified) {
+        router.replace('/dashboard');
+      } else {
+        // Redirect to home for onboarding if not verified
+        router.replace('/');
+      }
     }
-  }, [user, session, router]);
+  }, [user, session, isEmailVerified, router]);
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
