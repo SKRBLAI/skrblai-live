@@ -229,7 +229,7 @@ export default function Dashboard() {
       console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Auth IS STILL LOADING. localIsLoading set to true.');
       setLocalIsLoading(true);
     }
-  }, [authUser, authSession, authIsLoading, router, checkUserRole]);
+  }, [authUser, authIsLoading, router, checkUserRole]);
 
   // Data fetching effect
   useEffect(() => {
