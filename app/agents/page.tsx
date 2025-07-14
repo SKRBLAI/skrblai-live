@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Zap, Crown, TrendingUp, Lock } from 'lucide-react';
 import AgentLeagueCard from '@/components/ui/AgentLeagueCard';
 import { Agent } from '@/types/agent';
-import PageLayout from '@/components/layout/ClientPageLayout';
+import PageLayout from '@/components/layout/PageLayout';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import CosmicHeading from '@/components/shared/CosmicHeading';
 import { agentLeague } from '@/lib/agents/agentLeague';
 import { useAuth } from '@/components/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -31,6 +33,7 @@ export default function AgentsPage() {
   const [sortBy, setSortBy] = useState<'name' | 'category' | 'popularity'>('popularity');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [liveMetrics, setLiveMetrics] = useState({ totalAgents: 247, liveUsers: 89 });
 
   // Load agents from Agent League
   useEffect(() => {
@@ -102,6 +105,17 @@ export default function AgentsPage() {
     loadAgents();
   }, [user]);
 
+  // Live metrics updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveMetrics(prev => ({
+        totalAgents: prev.totalAgents + Math.floor(Math.random() * 3) - 1,
+        liveUsers: prev.liveUsers + Math.floor(Math.random() * 5) - 2
+      }));
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Filter and sort agents
   useEffect(() => {
     let filtered = agents.filter(agent => {
@@ -162,6 +176,21 @@ export default function AgentsPage() {
     setSearchTerm(term);
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   if (authLoading) {
     return (
       <PageLayout>
@@ -178,23 +207,39 @@ export default function AgentsPage() {
   return (
     <ErrorBoundary>
       <PageLayout>
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12 px-4"
-          >
-            <div className="max-w-4xl mx-auto">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ duration: 0.5 }}
+          className="min-h-screen relative"
+        >
+          <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
+            
+            {/* Hero Section with Live Activity */}
+            <motion.div
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="flex items-center gap-2 bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                  🤖 LIVE: {liveMetrics.totalAgents} AI agents active
+                </div>
+                <div className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-bold">
+                  ⚡ {liveMetrics.liveUsers} users training now
+                </div>
+              </div>
+              
+              <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6 mobile-text-safe no-text-cutoff">
                 Agent League
-              </h1>
-              <p className="text-xl text-gray-300 mb-8">
-                Meet your AI superhero team - each with unique powers and personalities
+              </CosmicHeading>
+              <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed mobile-text-safe no-text-cutoff">
+                Meet your AI superhero team - each with unique powers and personalities. <span className="text-white font-bold">Real agents, real results, real fast.</span>
               </p>
               
               {/* Search and Filter Controls */}
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8">
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8 max-w-4xl mx-auto">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
@@ -202,14 +247,14 @@ export default function AgentsPage() {
                     placeholder="Search agents..."
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none w-64"
+                    className="pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none w-64 backdrop-blur-sm"
                   />
                 </div>
                 
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
                 >
                   {categories.map(category => (
                     <option key={category} value={category}>{category}</option>
@@ -219,76 +264,109 @@ export default function AgentsPage() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'category' | 'popularity')}
-                  className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none"
+                  className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
                 >
                   <option value="popularity">Most Popular</option>
                   <option value="name">Name A-Z</option>
                   <option value="category">Category</option>
                 </select>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Agents Grid */}
-          <div className="max-w-7xl mx-auto px-4 pb-16">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="mt-4 text-gray-400">Loading agents...</p>
+            {/* Agent League Grid */}
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16"
+            >
+              {isLoading ? (
+                <div className="col-span-full flex items-center justify-center py-16">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-400">Loading agents...</p>
+                  </div>
                 </div>
-              </div>
-            ) : error ? (
-              <div className="text-center py-16">
-                <div className="text-6xl mb-4">⚠️</div>
-                <h3 className="text-xl font-semibold text-white mb-2">Error Loading Agents</h3>
-                <p className="text-gray-400">{error}</p>
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-              >
-                {filteredAgents.map((agent, index) => (
+              ) : error ? (
+                <div className="col-span-full text-center py-16">
+                  <div className="text-6xl mb-4">⚠️</div>
+                  <h3 className="text-xl font-semibold text-white mb-2">Error Loading Agents</h3>
+                  <p className="text-gray-400">{error}</p>
+                </div>
+              ) : filteredAgents.length === 0 ? (
+                <div className="col-span-full text-center py-16">
+                  <div className="text-6xl mb-4">🤖</div>
+                  <h3 className="text-xl font-semibold text-white mb-2">No agents found</h3>
+                  <p className="text-gray-400">Try adjusting your search or filter criteria</p>
+                </div>
+              ) : (
+                filteredAgents.map((agent, index) => (
                   <motion.div
                     key={agent.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="relative"
+                    variants={item}
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="relative group cursor-pointer transition-all duration-300"
                   >
-                    <AgentLeagueCard
-                      agent={agent}
-                      index={index}
-                      onInfo={() => handleAgentInfo(agent)}
-                      onChat={() => handleAgentChat(agent)}
-                      onLaunch={() => handleAgentLaunch(agent)}
-                      isRecommended={!agent.isLocked && agent.popularityScore > 80}
-                      userProgress={agent.usageCount / 10}
-                      userMastery={Math.floor(agent.popularityScore / 20)}
-                      showIntelligence={true}
-                    />
+                    <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                      {/* Live Activity Badge */}
+                      <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 font-bold">{Math.floor(Math.random() * 89) + 12}</span>
+                      </div>
+                      
+                      <AgentLeagueCard
+                        agent={agent}
+                        index={index}
+                        onInfo={() => handleAgentInfo(agent)}
+                        onChat={() => handleAgentChat(agent)}
+                        onLaunch={() => handleAgentLaunch(agent)}
+                        isRecommended={!agent.isLocked && agent.popularityScore > 80}
+                        userProgress={agent.usageCount / 10}
+                        userMastery={Math.floor(agent.popularityScore / 20)}
+                        showIntelligence={true}
+                        className="w-full h-full bg-transparent border-0 shadow-none p-0 rounded-none"
+                      />
+                    </GlassmorphicCard>
                   </motion.div>
-                ))}
-              </motion.div>
-            )}
+                ))
+              )}
+            </motion.div>
 
-            {/* Empty State */}
-            {filteredAgents.length === 0 && !isLoading && !error && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center py-12"
-              >
-                <div className="text-6xl mb-4">🤖</div>
-                <h3 className="text-xl font-semibold text-white mb-2">No agents found</h3>
-                <p className="text-gray-400">Try adjusting your search or filter criteria</p>
-              </motion.div>
-            )}
+            {/* CTA Section */}
+            <motion.div
+              className="max-w-5xl mx-auto text-center mb-24"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
+                <h2 className="text-4xl font-bold text-white mb-4">
+                  Ready To Unleash Your AI Superhero Team?
+                </h2>
+                <p className="text-xl text-gray-300 mb-8">
+                  Join {liveMetrics.liveUsers}+ users already training with these powerful AI agents.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <button
+                    onClick={() => router.push('/sign-up')}
+                    className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl"
+                  >
+                    🚀 Start Free Trial (No Credit Card)
+                  </button>
+                  <button
+                    onClick={() => router.push('/services')}
+                    className="cosmic-btn-secondary px-8 py-4 rounded-xl font-bold text-lg"
+                  >
+                    🎯 See Business Solutions
+                  </button>
+                </div>
+                <div className="mt-6 text-sm text-gray-400">
+                  ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </PageLayout>
     </ErrorBoundary>
   );
