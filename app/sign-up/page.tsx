@@ -22,7 +22,7 @@ export default function SignUpPage() {
   const [magicSent, setMagicSent] = useState(false);
   const [providerLoading, setProviderLoading] = useState<string | null>(null);
   const [showFullForm, setShowFullForm] = useState(false);
-  const { user, session, isLoading, signUp, signInWithOAuth, signInWithOtp, error: authError } = useAuth();
+  const { user, session, isLoading, signUp, signInWithOAuth, signInWithOtp, error: authError, isEmailVerified } = useAuth();
 
   // Show auth errors from context and handle special offers
   useEffect(() => {
@@ -48,13 +48,19 @@ export default function SignUpPage() {
     }
   }, [authError]);
 
-  // Auto-redirect if user is already logged in
+  // NEW: Auto-redirect if user is already logged in
   useEffect(() => {
     if (user && session) {
-      console.log('[SIGN-UP] User already authenticated, redirecting to dashboard');
-      router.replace('/dashboard');
+      console.log('[SIGN-UP] User already authenticated, checking verification status');
+      // NEW: Verified users go directly to dashboard, unverified users may need onboarding
+      if (isEmailVerified) {
+        router.replace('/dashboard');
+      } else {
+        // Redirect to home for onboarding if not verified
+        router.replace('/');
+      }
     }
-  }, [user, session, router]);
+  }, [user, session, isEmailVerified, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
