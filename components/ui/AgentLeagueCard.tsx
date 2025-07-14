@@ -161,17 +161,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
       >
-        {/* Live Activity Badge */}
-        {showIntelligence && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-xs z-10">
-            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-green-400 font-bold">{liveUsers}</span>
-          </div>
-        )}
-
-        {/* Agent Image Section */}
-        <div className="relative flex-1 flex items-center justify-center mb-4">
-          <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36">
+        {/* Agent Header (Like Services) */}
+        <div className="flex flex-col items-center mb-4">
+          {/* Agent Image - Fixed size like Services */}
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 mb-3">
             <img
               src={agentImagePath}
               alt={`${agent.name} AI Agent`}
@@ -179,87 +172,82 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               onError={handleImageError}
               loading="lazy"
             />
-          </div>
-          
-          {/* Agent Intelligence Overlay */}
-          {showIntelligence && agentIntelligence && (
-            <motion.div
-              className="absolute top-2 left-2 z-10"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + 0.05 * index }}
-            >
-              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30 max-w-[160px]">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="text-purple-400 font-semibold flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                    IQ: {agentIntelligence.intelligenceLevel}
-                  </div>
-                </div>
-                <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
-                  {agentIntelligence.autonomyLevel}
-                </div>
-                <div className="text-xs text-gray-300 mt-1 truncate">
-                  {agentIntelligence.superheroName}
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Predictive Insights Overlay (on hover) */}
-          {showIntelligence && isHovered && predictiveInsights.length > 0 && (
-            <motion.div
-              className="absolute top-12 left-2 z-20"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[200px]">
-                <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
-                  🔮 Insights
-                </div>
-                {predictiveInsights.slice(0, 1).map((insight, idx) => (
-                  <div key={idx} className="text-xs text-gray-300 mb-1">
-                    <span className="text-yellow-400 font-medium capitalize">
-                      {insight.domain.replace('_', ' ')}:
-                    </span>
-                    <span className="ml-1 block">{insight.insight.slice(0, 40)}...</span>
-                    <div className="text-xs text-green-400 mt-0.5">
-                      {Math.round(insight.probability * 100)}% confidence
+            
+            {/* Agent Intelligence Overlay */}
+            {showIntelligence && agentIntelligence && (
+              <motion.div
+                className="absolute top-0 left-0 z-10"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + 0.05 * index }}
+              >
+                <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30 max-w-[120px]">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="text-purple-400 font-semibold flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                      IQ: {agentIntelligence.intelligenceLevel}
                     </div>
                   </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </div>
+                  <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
+                    {agentIntelligence.autonomyLevel}
+                  </div>
+                </div>
+              </motion.div>
+            )}
 
-        {/* Agent Name */}
-        <div className="text-center mb-4">
-          <h3 className="text-lg font-bold text-white mb-1 min-h-[2rem] flex items-center justify-center break-words">
+            {/* Predictive Insights Overlay (on hover) */}
+            {showIntelligence && isHovered && predictiveInsights.length > 0 && (
+              <motion.div
+                className="absolute top-0 right-0 z-20"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[180px]">
+                  <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
+                    🔮 Insights
+                  </div>
+                  {predictiveInsights.slice(0, 1).map((insight, idx) => (
+                    <div key={idx} className="text-xs text-gray-300 mb-1">
+                      <span className="text-yellow-400 font-medium capitalize">
+                        {insight.domain.replace('_', ' ')}:
+                      </span>
+                      <span className="ml-1 block">{insight.insight.slice(0, 35)}...</span>
+                      <div className="text-xs text-green-400 mt-0.5">
+                        {Math.round(insight.probability * 100)}% confidence
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Agent Name and Description */}
+          <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
             {agent.name}
           </h3>
           {agent.description && (
-            <p className="text-sm text-gray-400 line-clamp-2 mb-2">
+            <p className="text-gray-400 text-sm text-center mb-2">
               {agent.description}
             </p>
           )}
         </div>
 
-        {/* Agent Stats Section - Like Services Page */}
+        {/* Agent Stats Section - Matching Services Page Style */}
         {showIntelligence && agentIntelligence && (
-          <div className="mb-4 pt-4 border-t border-cyan-400/20">
-            <div className="flex gap-4 justify-center">
+          <div className="mt-auto pt-4 border-t border-cyan-400/20">
+            <div className="flex flex-row gap-6 justify-center">
               <div className="flex flex-col items-center">
-                <span className="text-sm font-bold text-purple-400">{agentIntelligence.intelligenceLevel}</span>
+                <span className="text-lg font-bold text-purple-400">{agentIntelligence.intelligenceLevel}</span>
                 <span className="text-xs text-gray-400">IQ Level</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-sm font-bold text-green-400">{liveUsers}</span>
-                <span className="text-xs text-gray-400">Active Users</span>
+                <span className="text-lg font-bold text-green-400">{liveUsers}</span>
+                <span className="text-xs text-gray-400">Users Active</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="text-sm font-bold text-cyan-400">{urgencySpots}</span>
+                <span className="text-lg font-bold text-cyan-400">{urgencySpots}</span>
                 <span className="text-xs text-gray-400">Tasks Queue</span>
               </div>
             </div>
@@ -267,7 +255,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 mt-auto">
+        <div className="flex gap-2 mt-4">
           <CosmicButton
             variant="secondary"
             size="sm"

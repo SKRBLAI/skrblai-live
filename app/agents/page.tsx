@@ -278,7 +278,7 @@ export default function AgentsPage() {
               variants={container}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16 agent-league-grid"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16"
             >
               {isLoading ? (
                 <div className="col-span-full flex items-center justify-center py-16">
@@ -304,9 +304,16 @@ export default function AgentsPage() {
                   <motion.div
                     key={agent.id}
                     variants={item}
-                    className="relative"
+                    whileHover={{ scale: 1.02, y: -5 }}
+                    className="relative group cursor-pointer transition-all duration-300"
                   >
                     <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                      {/* Live Activity Badge */}
+                      <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 font-bold">{Math.floor(Math.random() * 89) + 12}</span>
+                      </div>
+                      
                       <AgentLeagueCard
                         agent={agent}
                         index={index}
@@ -332,7 +339,7 @@ export default function AgentsPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <GlassmorphicCard className="p-12 border-2 border-purple-500/30">
+              <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
                 <h2 className="text-4xl font-bold text-white mb-4">
                   Ready To Unleash Your AI Superhero Team?
                 </h2>
@@ -356,7 +363,7 @@ export default function AgentsPage() {
                 <div className="mt-6 text-sm text-gray-400">
                   ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
                 </div>
-              </GlassmorphicCard>
+              </div>
             </motion.div>
           </div>
         </motion.div>
