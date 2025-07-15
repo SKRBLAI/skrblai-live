@@ -292,7 +292,6 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               LAUNCH
             </motion.button>
           </div>
-        </div>
       </motion.div>
 
       {/* Enhanced Backstory Modal */}
