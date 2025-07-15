@@ -1141,8 +1141,8 @@
   object-position: center center !important;
   transition: transform 0.3s ease;
   filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.3));
-  /* MMM Protocol: Improved scaling for better head visibility */
-  transform: scale(0.95) !important;
+  /* Fixed scaling for Agent League cards to prevent cutoff */
+  transform: scale(1.0) !important;
 }
 
 .constellation-agent-inner {
@@ -1219,9 +1219,9 @@
     box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2); /* Lighter shadows on mobile */
   }
 
-  /* MMM Protocol: Mobile agent image optimizations */
+  /* Fixed mobile agent image scaling to prevent cutoff */
   .agent-image {
-    transform: scale(0.90) !important; /* Slightly smaller on mobile for better fit */
+    transform: scale(1.0) !important; /* Full scale on mobile for better visibility */
   }
 
   .agent-image-container {
@@ -1236,6 +1236,18 @@
     max-width: 100%;
     max-height: 100%;
     object-fit: contain !important;
+  }
+
+  /* Agent League mobile responsive fixes */
+  .agent-league-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+    padding: 0 1rem !important;
+  }
+
+  /* Prevent horizontal scroll on mobile */
+  .min-h-screen {
+    overflow-x: hidden;
   }
 }
 

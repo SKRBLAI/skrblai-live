@@ -10,6 +10,7 @@ import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
+import CosmicButton from '@/components/shared/CosmicButton';
 
 interface AgentLeagueCardProps {
   agent: Agent;
@@ -24,15 +25,6 @@ interface AgentLeagueCardProps {
   userMastery?: number;
   showIntelligence?: boolean;
 }
-
-const glow = {
-  resting:
-    '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)',
-  hover:
-    '0 0 36px 8px rgba(0,245,212,0.70), 0 0 80px 20px rgba(0,102,255,0.38), 0 0 48px 12px rgba(232,121,249,0.28)',
-  recommended:
-    '0 0 40px 12px rgba(34,197,94,0.60), 0 0 80px 24px rgba(34,197,94,0.40), 0 0 60px 16px rgba(34,197,94,0.30)',
-};
 
 const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> = ({
   agent,
@@ -146,131 +138,128 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         initial={{ opacity: 0, y: 24, scale: 0.95 }}
         animate={{
           opacity: 1,
-          y: [0, -8, 0, 8, 0], // gentle levitation
+          y: [0, -4, 0, 4, 0], // gentle levitation
           scale: 1,
-          rotateY: [0, 3, 0, -3, 0], // subtle cosmic sway
+          rotateY: [0, 2, 0, -2, 0], // subtle cosmic sway
           transition: {
-            y: { duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
-            rotateY: { duration: 16, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
+            y: { duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
+            rotateY: { duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
             opacity: { duration: 0.6 },
             scale: { duration: 0.6 },
           }
         }}
         whileHover={{ 
-          scale: 1.08, 
+          scale: 1.02, 
           rotateY: 0, 
           rotateX: 0, 
-          boxShadow: isRecommended ? glow.recommended : glow.hover,
           transition: { duration: 0.3 }
         }}
-        whileFocus={{ scale: 1.05 }}
+        whileFocus={{ scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-full max-w-72 h-80 md:h-96 flex-shrink-0 mx-auto rounded-3xl shadow-xl overflow-hidden perspective-1000 ${selected ? 'ring-4 ring-fuchsia-400/80 ring-offset-2' : ''} ${className}`}
-        style={{ 
-          filter: 'drop-shadow(' + (isRecommended ? glow.recommended : glow.resting) + ')',
-          zIndex: isRecommended ? 10 : 1,
-          background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 50%, rgba(51, 65, 85, 0.9) 100%)',
-          border: '1px solid rgba(30, 144, 255, 0.2)'
-        }}
+        className={`relative w-full h-full flex flex-col ${className}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
       >
-        {/* Agent Image Container */}
-        <div className="relative w-full h-[60%] flex items-center justify-center p-4">
-          {/* Agent Image */}
-          <div className="agent-image-container w-32 h-32 md:w-40 md:h-40">
+        {/* Agent Header (Like Services) */}
+        <div className="flex flex-col items-center mb-4">
+          {/* Agent Image - Fixed size like Services */}
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 mb-3">
             <img
               src={agentImagePath}
               alt={`${agent.name} AI Agent`}
-              className="agent-image w-full h-full object-contain"
+              className="w-full h-full object-contain"
               onError={handleImageError}
               loading="lazy"
             />
-          </div>
-          
-          {/* Agent Intelligence Overlay */}
-          {showIntelligence && agentIntelligence && (
-            <motion.div
-              className="absolute top-2 left-2 right-2 z-10 max-w-xs md:max-w-sm overflow-auto"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + 0.05 * index }}
-            >
-              <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30">
-                <div className="flex items-center justify-between text-xs">
-                  <div className="text-purple-400 font-semibold flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                    IQ: {agentIntelligence.intelligenceLevel}
-                  </div>
-                  <div className="text-cyan-400 font-medium flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                    {liveUsers} live now
-                  </div>
-                </div>
-                <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
-                  {agentIntelligence.autonomyLevel} • {urgencySpots} urgent tasks
-                </div>
-                <div className="text-xs text-gray-300 mt-1">
-                  {agentIntelligence.superheroName} • {agentIntelligence.predictionCapabilities.length} prediction domains
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Predictive Insights Overlay (on hover) */}
-          {showIntelligence && isHovered && predictiveInsights.length > 0 && (
-            <motion.div
-              className="absolute top-16 left-2 right-2 z-20 max-w-xs md:max-w-sm overflow-auto"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl">
-                <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
-                  🔮 Predictive Insights
-                </div>
-                {predictiveInsights.slice(0, 2).map((insight, idx) => (
-                  <div key={idx} className="text-xs text-gray-300 mb-1">
-                    <span className="text-yellow-400 font-medium capitalize">
-                      {insight.domain.replace('_', ' ')}:
-                    </span>
-                    <span className="ml-1">{insight.insight.slice(0, 50)}...</span>
-                    <div className="text-xs text-green-400 mt-0.5">
-                      {Math.round(insight.probability * 100)}% confidence
+            
+            {/* Agent Intelligence Overlay */}
+            {showIntelligence && agentIntelligence && (
+              <motion.div
+                className="absolute top-0 left-0 z-10"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + 0.05 * index }}
+              >
+                <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30 max-w-[120px]">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="text-purple-400 font-semibold flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                      IQ: {agentIntelligence.intelligenceLevel}
                     </div>
                   </div>
-                ))}
-              </div>
-            </motion.div>
+                  <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
+                    {agentIntelligence.autonomyLevel}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Predictive Insights Overlay (on hover) */}
+            {showIntelligence && isHovered && predictiveInsights.length > 0 && (
+              <motion.div
+                className="absolute top-0 right-0 z-20"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[180px]">
+                  <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
+                    🔮 Insights
+                  </div>
+                  {predictiveInsights.slice(0, 1).map((insight, idx) => (
+                    <div key={idx} className="text-xs text-gray-300 mb-1">
+                      <span className="text-yellow-400 font-medium capitalize">
+                        {insight.domain.replace('_', ' ')}:
+                      </span>
+                      <span className="ml-1 block">{insight.insight.slice(0, 35)}...</span>
+                      <div className="text-xs text-green-400 mt-0.5">
+                        {Math.round(insight.probability * 100)}% confidence
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          {/* Agent Name and Description */}
+          <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
+            {agent.name}
+          </h3>
+          {agent.description && (
+            <p className="text-gray-400 text-sm text-center mb-2">
+              {agent.description}
+            </p>
           )}
         </div>
 
-        {/* Agent Info Section */}
-        <div className="relative w-full h-[40%] p-4 flex flex-col justify-between">
-          {/* Agent Name */}
-          <motion.div
-            className="text-center mb-3"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + 0.05 * index }}
-          >
-            <h3 className="text-lg md:text-xl font-bold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent text-center whitespace-normal break-words no-text-cutoff">
-              {agent.name}
-            </h3>
-            {agent.description && (
-              <p className="text-xs text-gray-300 mt-1 line-clamp-2">
-                {agent.description}
-              </p>
-            )}
-          </motion.div>
+        {/* Agent Stats Section - Matching Services Page Style */}
+        {showIntelligence && agentIntelligence && (
+          <div className="mt-auto pt-4 border-t border-cyan-400/20">
+            <div className="flex flex-row gap-6 justify-center">
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-purple-400">{agentIntelligence.intelligenceLevel}</span>
+                <span className="text-xs text-gray-400">IQ Level</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-green-400">{liveUsers}</span>
+                <span className="text-xs text-gray-400">Users Active</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-lg font-bold text-cyan-400">{urgencySpots}</span>
+                <span className="text-xs text-gray-400">Tasks Queue</span>
+              </div>
+            </div>
+          </div>
+        )}
 
           {/* Action Buttons */}
           <div className="flex gap-2 justify-center">
             {/* LEARN Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-600/80 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={(e) => handleLearnClick(e)}
+              onClick={handleLearnClick}
               aria-label={`Learn about ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
@@ -282,7 +271,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {/* CHAT Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={(e) => handleChatClick(e)}
+              onClick={handleChatClick}
               aria-label={`Chat with ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
@@ -294,7 +283,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {/* LAUNCH Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={(e) => handleLaunchClick(e)}
+              onClick={handleLaunchClick}
               aria-label={`Launch ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
@@ -306,7 +295,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         </div>
       </motion.div>
 
-      {/* Phase 3: Enhanced Backstory Modal (triggered by LEARN button only) */}
+      {/* Enhanced Backstory Modal */}
       <AnimatePresence>
         {showBackstoryModal && backstory && (
           <motion.div
@@ -364,28 +353,26 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <CosmicButton
+                    variant="primary"
                     onClick={() => {
                       setShowBackstoryModal(false);
                       handleChatClick({ stopPropagation: () => {} } as any);
                     }}
-                    className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold"
+                    className="flex-1"
                   >
                     Chat Now
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  </CosmicButton>
+                  <CosmicButton
+                    variant="accent"
                     onClick={() => {
                       setShowBackstoryModal(false);
                       handleLaunchClick({ stopPropagation: () => {} } as any);
                     }}
-                    className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm font-bold"
+                    className="flex-1"
                   >
                     Launch Agent
-                  </motion.button>
+                  </CosmicButton>
                 </div>
               </div>
             </motion.div>
