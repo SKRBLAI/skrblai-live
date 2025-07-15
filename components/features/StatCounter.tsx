@@ -1,53 +1,44 @@
-/** Stat Counter Component - April 2025 */
+/** Enhanced Stat Counter Component - Phase 1 3D/Interactive UX */
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import EnhancedStatCounter from '@/components/shared/EnhancedStatCounter';
 
 interface StatCounterProps {
   end: number;
   duration?: number;
   suffix?: string;
   prefix?: string;
+  /** Enhanced features for Phase 1 */
+  theme?: 'electric' | 'teal' | 'purple' | 'pink' | 'gold' | 'auto';
+  cosmicGlow?: boolean;
+  useSpring?: boolean;
+  delay?: number;
 }
 
-export default function StatCounter({ end, duration = 2000, suffix = '', prefix = '' }: StatCounterProps) {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    let startTime: number | null = null;
-    let animationFrame: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = timestamp - startTime;
-      const percentage = Math.min(progress / duration, 1);
-      
-      setCount(Math.floor(end * percentage));
-
-      if (progress < duration) {
-        animationFrame = requestAnimationFrame(animate);
-      }
-    };
-
-    animationFrame = requestAnimationFrame(animate);
-
-    return () => {
-      if (animationFrame) {
-        cancelAnimationFrame(animationFrame);
-      }
-    };
-  }, [end, duration]);
-
+export default function StatCounter({ 
+  end, 
+  duration = 2000, 
+  suffix = '', 
+  prefix = '',
+  theme = 'auto',
+  cosmicGlow = true,
+  useSpring = true,
+  delay = 0
+}: StatCounterProps) {
   return (
-    <motion.span
+    <EnhancedStatCounter
+      end={end}
+      duration={duration}
+      suffix={suffix}
+      prefix={prefix}
+      theme={theme}
+      cosmicGlow={cosmicGlow}
+      useSpring={useSpring}
+      delay={delay}
+      useCommas={true}
+      pulseOnComplete={true}
       className="stat-number"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      {prefix}{count}{suffix}
-    </motion.span>
+    />
   );
 }

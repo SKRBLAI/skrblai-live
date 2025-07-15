@@ -909,8 +909,14 @@ export default function PercyOnboardingRevolution() {
             style={{ touchAction: 'manipulation' }}
             data-percy-stat="businesses-transformed"
           >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-electric-blue mb-1 pointer-events-auto">
-              <StatCounter end={liveUsers} duration={2} />
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+              <StatCounter 
+                end={liveUsers} 
+                duration={2000} 
+                theme="electric"
+                cosmicGlow={true}
+                delay={300}
+              />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Businesses Transformed Today</div>
             <div className="text-xs text-teal-400 mt-1 pointer-events-auto">▲ Still climbing</div>
@@ -921,8 +927,14 @@ export default function PercyOnboardingRevolution() {
             style={{ touchAction: 'manipulation' }}
             data-percy-stat="competitors-eliminated"
           >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-teal-400 mb-1 pointer-events-auto">
-              <StatCounter end={agentsDeployed} duration={2} />
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+              <StatCounter 
+                end={agentsDeployed} 
+                duration={2000} 
+                theme="teal"
+                cosmicGlow={true}
+                delay={600}
+              />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Competitors Eliminated</div>
             <div className="text-xs text-electric-blue mt-1 pointer-events-auto">▲ Per minute</div>
@@ -933,8 +945,16 @@ export default function PercyOnboardingRevolution() {
             style={{ touchAction: 'manipulation' }}
             data-percy-stat="revenue-generated"
           >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-fuchsia-400 mb-1 pointer-events-auto">
-              $<StatCounter end={Math.floor(revenueGenerated/1000)} duration={2} />K+
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+              <StatCounter 
+                end={Math.floor(revenueGenerated/1000)} 
+                duration={2000} 
+                prefix="$"
+                suffix="K+"
+                theme="pink"
+                cosmicGlow={true}
+                delay={900}
+              />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Revenue Generated</div>
             <div className="text-xs text-fuchsia-400 mt-1 pointer-events-auto">▲ This month</div>

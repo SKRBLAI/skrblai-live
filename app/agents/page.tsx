@@ -222,6 +222,7 @@ export default function AgentsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
+              {/* Live Activity Badges */}
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="flex items-center gap-2 bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                   🤖 LIVE: {liveMetrics.totalAgents} AI agents active
@@ -230,28 +231,34 @@ export default function AgentsPage() {
                   ⚡ {liveMetrics.liveUsers} users training now
                 </div>
               </div>
-              
-              <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6 mobile-text-safe no-text-cutoff">
-                Agent League
+
+              {/* Animated Heading & Subcopy */}
+              <CosmicHeading className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-6 leading-tight bg-gradient-to-r from-cyan-300 via-purple-400 to-teal-300 bg-clip-text text-transparent">
+                Meet Your AI Superhero League&nbsp;— <span className="block sm:inline">Unleash Your Digital Dream Team</span>
               </CosmicHeading>
-              <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed mobile-text-safe no-text-cutoff">
-                Meet your AI superhero team - each with unique powers and personalities. <span className="text-white font-bold">Real agents, real results, real fast.</span>
+              <p className="text-lg sm:text-xl md:text-2xl text-teal-300 max-w-4xl mx-auto mb-4 md:mb-6 font-semibold leading-relaxed">
+                Unlock the power of SKRBL AI’s unique agents—each with their own personality, skills, and superpowers. 🦸‍♂️ Choose an agent to learn their backstory, chat live, or launch your next business transformation. <span className="text-white font-bold">Real agents. Real results. Real fast.</span>
               </p>
-              
+              <p className="text-sm sm:text-base text-gray-400 italic mb-8 animate-pulse">
+                Tip: Hover over an agent to see their cosmic stats. Click ‘Learn’ for their secret origin story!
+              </p>
+
               {/* Search and Filter Controls */}
               <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8 max-w-4xl mx-auto">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
                     type="text"
+                    aria-label="Search agents"
                     placeholder="Search agents..."
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
                     className="pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none w-64 backdrop-blur-sm"
                   />
                 </div>
-                
+
                 <select
+                  aria-label="Filter by category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
@@ -260,8 +267,9 @@ export default function AgentsPage() {
                     <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
-                
+
                 <select
+                  aria-label="Sort agents"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'category' | 'popularity')}
                   className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
