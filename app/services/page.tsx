@@ -90,7 +90,7 @@ const successStories = [
     quote: (<><SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> found $127K in hidden revenue opportunities we never knew existed.</>)
   },
   {
-    business: "Creative Studio Labs", 
+    business: "Rose Ladon Collective", 
     result: "156% brand recognition boost",
     solution: "Brand Confusion → Complete Identity Transformation",
     quote: "Our rebrand generated more leads in 30 days than the previous year combined."

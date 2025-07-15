@@ -270,7 +270,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {/* LEARN Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-600/80 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={handleLearnClick}
+              onClick={(e) => handleLearnClick(e)}
               aria-label={`Learn about ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
@@ -282,7 +282,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {/* CHAT Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={handleChatClick}
+              onClick={(e) => handleChatClick(e)}
               aria-label={`Chat with ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
@@ -294,7 +294,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             {/* LAUNCH Button */}
             <motion.button
               className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-              onClick={handleLaunchClick}
+              onClick={(e) => handleLaunchClick(e)}
               aria-label={`Launch ${agent.name}`}
               tabIndex={0}
               whileHover={{ scale: 1.02 }}
