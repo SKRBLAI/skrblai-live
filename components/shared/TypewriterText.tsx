@@ -66,8 +66,7 @@ export default function TypewriterText({
       scale: [1, 1.02, 1],
       transition: {
         duration: 1.5,
-        repeat: Infinity,
-        ease: 'easeInOut'
+        repeat: Infinity
       }
     }
   };
@@ -78,8 +77,7 @@ export default function TypewriterText({
       opacity: 1,
       y: 0,
       transition: {
-        duration: 0.8,
-        ease: 'easeOut'
+        duration: 0.8
       }
     }
   };

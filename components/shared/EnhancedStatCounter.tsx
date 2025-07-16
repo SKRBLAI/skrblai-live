@@ -109,16 +109,14 @@ export default function EnhancedStatCounter({
       y: 0,
       transition: {
         duration: 0.6,
-        delay: delay / 1000,
-        ease: "easeOut"
+        delay: delay / 1000
       }
     },
     pulse: {
       scale: [1, 1.05, 1],
       transition: {
         duration: 0.6,
-        repeat: 2,
-        ease: "easeInOut"
+        repeat: 2
       }
     }
   };
@@ -134,8 +132,7 @@ export default function EnhancedStatCounter({
       scale: [1, 1.2, 1],
       transition: {
         duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut"
+        repeat: Infinity
       }
     }
   };
