@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import { Agent } from '@/types/agent';
 import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
@@ -40,10 +40,13 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   userMastery = 0,
   showIntelligence = true
 }) => {
+  const shouldReduceMotion = useReducedMotion();
   const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
   const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
   const [showBackstoryModal, setShowBackstoryModal] = useState(false);
   const cardRef = React.useRef<HTMLDivElement>(null);
+  // Determines if we show the glow halo (VIP/unlocked highlight)
+  const showGlowHalo = isRecommended && !selected; // simple heuristic
   const backstory = agentBackstories[agent.id] || null;
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
@@ -77,6 +80,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     }, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  
 
   // Agent League Card now uses clean nobg-skrblai.webp images with modern UI
   const agentImagePath = getAgentImagePath(agent, "nobg");
@@ -130,6 +135,20 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
   return (
     <>
+      {showGlowHalo && (
+        <motion.div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(0,255,255,0.35) 0%, rgba(0,255,255,0.05) 70%, transparent 100%)',
+            filter: 'blur(12px)'
+          }}
+          initial={{ opacity: 0.6, scale: 0.95 }}
+          animate={{ opacity: isHovered ? 1 : 0.7, scale: isHovered ? 1 : 0.95 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+      )}
+
       <motion.div
         ref={cardRef}
         role="group"
@@ -148,15 +167,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             scale: { duration: 0.6 },
           }
         }}
-        whileHover={{ 
-          scale: 1.02, 
-          rotateY: 0, 
-          rotateX: 0, 
-          transition: { duration: 0.3 }
-        }}
+        whileHover={{ scale: 1.02, rotateY: shouldReduceMotion ? 0 : 180, transition: { duration: 0.6 } }}
         whileFocus={{ scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-full h-full flex flex-col ${className}`}
+        className={`relative w-full h-full flex flex-col ${className}`} style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={handleCardClick}
@@ -164,7 +178,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         {/* Agent Header (Like Services) */}
         <div className="flex flex-col items-center mb-4">
           {/* Agent Image - Fixed size like Services */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 mb-3">
+          <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 mb-3">
             <img
               src={agentImagePath}
               alt={`${agent.name} AI Agent`}
@@ -291,93 +305,92 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             >
               LAUNCH
             </motion.button>
-          </div>
-      </motion.div>
+          </div> {/* end action buttons */}
 
-      {/* Enhanced Backstory Modal */}
-      <AnimatePresence>
-        {showBackstoryModal && backstory && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowBackstoryModal(false)}
-          >
-            <motion.div
-              className="relative w-full max-w-md mx-4 p-6 rounded-2xl bg-gradient-to-br from-slate-800/95 to-purple-900/95 backdrop-blur-xl border border-purple-500/30 shadow-2xl"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close button */}
-              <button
+          <AnimatePresence>
+            {showBackstoryModal && (
+              <motion.div
+                className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
                 onClick={() => setShowBackstoryModal(false)}
-                className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl focus:outline-none"
-                aria-label="Close backstory"
               >
-                ×
-              </button>
+                <motion.div
+                  className="relative w-full max-w-md mx-4 p-6 rounded-2xl bg-gradient-to-br from-slate-800/95 to-purple-900/95 backdrop-blur-xl border border-purple-500/30 shadow-2xl"
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Close button */}
+                  <button
+                    onClick={() => setShowBackstoryModal(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl focus:outline-none"
+                    aria-label="Close backstory"
+                  >
+                    ×
+                  </button>
 
-              {/* Enhanced Backstory Content */}
-              <div className="text-center">
-                <h4 className="text-xl font-extrabold mb-2 bg-gradient-to-r from-fuchsia-400 via-electric-blue to-teal-400 bg-clip-text text-transparent">
-                  {backstory.superheroName}
-                </h4>
-                <div className="text-sm text-fuchsia-200 mb-3">{`"${backstory.catchphrase}"`}</div>
-                <div className="text-sm mb-3 text-gray-300">{backstory.origin}</div>
-                
-                {/* Powers */}
-                <div className="flex flex-wrap gap-2 justify-center mb-3">
-                  {backstory.powers.map((power, i) => (
-                    <span key={i} className="px-2 py-1 rounded-full bg-fuchsia-800/30 text-xs font-bold border border-fuchsia-400/30 text-fuchsia-200">
-                      {power}
-                    </span>
-                  ))}
-                </div>
-                
-                {/* Stats */}
-                <div className="text-xs text-fuchsia-300 mb-1">
-                  Weakness: <span className="font-semibold text-white">{backstory.weakness}</span>
-                </div>
-                <div className="text-xs text-teal-300 mb-3">
-                  Nemesis: <span className="font-semibold text-white">{backstory.nemesis}</span>
-                </div>
-                
-                {/* Backstory */}
-                <div className="text-xs text-gray-200 mb-4 max-h-32 overflow-y-auto">
-                  {backstory.backstory}
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <CosmicButton
-                    variant="primary"
-                    onClick={() => {
-                      setShowBackstoryModal(false);
-                      handleChatClick({ stopPropagation: () => {} } as any);
-                    }}
-                    className="flex-1"
-                  >
-                    Chat Now
-                  </CosmicButton>
-                  <CosmicButton
-                    variant="accent"
-                    onClick={() => {
-                      setShowBackstoryModal(false);
-                      handleLaunchClick({ stopPropagation: () => {} } as any);
-                    }}
-                    className="flex-1"
-                  >
-                    Launch Agent
-                  </CosmicButton>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  {/* Enhanced Backstory Content */}
+                  <div className="text-center">
+                    <h4 className="text-xl font-extrabold mb-2 bg-gradient-to-r from-fuchsia-400 via-electric-blue to-teal-400 bg-clip-text text-transparent">
+                      {backstory.superheroName}
+                    </h4>
+                    <div className="text-sm text-fuchsia-200 mb-3">{`"${backstory.catchphrase}"`}</div>
+                    <div className="text-sm mb-3 text-gray-300">{backstory.origin}</div>
+                    
+                    {/* Powers */}
+                    <div className="flex flex-wrap gap-2 justify-center mb-3">
+                      {backstory.powers.map((power, i) => (
+                        <span key={i} className="px-2 py-1 rounded-full bg-fuchsia-800/30 text-xs font-bold border border-fuchsia-400/30 text-fuchsia-200">
+                          {power}
+                        </span>
+                      ))}
+                    </div>
+                    
+                    {/* Stats */}
+                    <div className="text-xs text-fuchsia-300 mb-1">
+                      Weakness: <span className="font-semibold text-white">{backstory.weakness}</span>
+                    </div>
+                    <div className="text-xs text-teal-300 mb-3">
+                      Nemesis: <span className="font-semibold text-white">{backstory.nemesis}</span>
+                    </div>
+                    
+                    {/* Backstory */}
+                    <div className="text-xs text-gray-200 mb-4 max-h-32 overflow-y-auto">
+                      {backstory.backstory}
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <CosmicButton
+                        variant="primary"
+                        onClick={() => {
+                          setShowBackstoryModal(false);
+                          handleChatClick({ stopPropagation: () => {} } as any);
+                        }}
+                        className="flex-1"
+                      >
+                        Chat Now
+                      </CosmicButton>
+                      <CosmicButton
+                        variant="accent"
+                        onClick={() => {
+                          setShowBackstoryModal(false);
+                          handleLaunchClick({ stopPropagation: () => {} } as any);
+                        }}
+                        className="flex-1"
+                      >
+                        Launch Agent
+                      </CosmicButton>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+      </motion.div>
     </>
   );
 };

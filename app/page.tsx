@@ -11,6 +11,8 @@ import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElem
 import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
 import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
+import TypewriterText from '@/components/shared/TypewriterText';
+import CosmicStarfield from '@/components/background/CosmicStarfield';
 import toast from 'react-hot-toast';
 
 export default function HomePage() {
@@ -63,11 +65,22 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden">
+      {/* Enhanced Cosmic Starfield Background */}
+      <CosmicStarfield 
+        starCount={120}
+        parallax={true}
+        speed={0.8}
+        twinkling={true}
+        optimized={true}
+        className="z-0"
+      />
+      
       {/* Floating Percy Help Bubble - TEMPORARILY DISABLED FOR DEBUGGING */}
       {/* <PercyHelpBubble /> */}
-      {/* Background Effects - Mobile Optimized */}
-      <div className="absolute inset-0 z-0 opacity-30 sm:opacity-40">
-        <FloatingParticles particleCount={24} />
+      
+      {/* Enhanced Background Effects - Mobile Optimized */}
+      <div className="absolute inset-0 z-5 opacity-20 sm:opacity-30">
+        <FloatingParticles particleCount={18} />
       </div>
       
       {/* Interactive Empowerment Elements - TEMPORARILY DISABLED FOR DEBUGGING */}
@@ -77,8 +90,8 @@ export default function HomePage() {
         className="hidden sm:block pointer-events-auto"
       /> */}
       
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.15),transparent)]" />
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
+      <div className="absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.08),transparent)]" />
+      <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#0d1117]/60 via-[#0d1117]/80 to-[#0d1117]/90" />
       
       <main className="relative z-10 min-h-screen pt-20 sm:pt-24 md:pt-28">
         
@@ -90,17 +103,27 @@ export default function HomePage() {
           {/* Hero Section - Mobile Optimized */}
           <section className="min-h-[85vh] flex flex-col items-center">
             <div className="flex flex-col items-center justify-center w-full">
-              {/* Welcome headline - Mobile Safe */}
+              {/* Welcome headline with Typewriter Effect - Mobile Safe */}
               <motion.h1 
                 initial={{ opacity: 0, y: -20 }} 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2"
               >
-                Your Competition Just Became{' '}
-                <span className="block sm:inline bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent">
-                  Extinct
-                </span>
+                <TypewriterText
+                  words={[
+                    'Your Competition Just Became Extinct',
+                    'AI Automation That DOMINATES',
+                    'Business Intelligence UNLEASHED',
+                    'Your Empire Starts NOW'
+                  ]}
+                  typeSpeed={120}
+                  deleteSpeed={80}
+                  delaySpeed={3000}
+                  className="block"
+                  actionWords={['DOMINATES', 'Extinct', 'UNLEASHED', 'NOW']}
+                  cosmicMode={true}
+                />
               </motion.h1>
 
               {/* Subheading - Mobile Typography */}
