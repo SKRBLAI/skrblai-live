@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className={`${inter.variable} dark bg-[#0d1117] overflow-x-hidden`}>
+    <html lang="en" className={`${inter.variable} dark overflow-x-hidden`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
         <meta name="theme-color" content="#0d1117" />

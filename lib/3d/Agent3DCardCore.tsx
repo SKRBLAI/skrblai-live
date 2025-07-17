@@ -454,14 +454,17 @@ export class Agent3DCardCore {
     };
   }
 
+  /**
+   * Calculate card material properties with updated translucency
+   */
   private calculateMaterial(): CardMaterial {
     return {
-      color: '#ffffff',
-      metalness: 0.1,
-      roughness: 0.2,
+      color: 'rgba(13, 17, 23, 0.15)',  // Updated to match floating-container style
+      metalness: 0.2,
+      roughness: 0.8,
       emissive: this.config.glowColor,
       emissiveIntensity: this.state.glowIntensity,
-      opacity: 1
+      opacity: 0.85  // More translucent to match floating UI
     };
   }
 

@@ -8,9 +8,26 @@ interface GlassmorphicCardProps {
   className?: string;
   hoverEffect?: boolean;
   onClick?: () => void;
+  variant?: 'default' | 'floating'; // Added variant prop
 }
 
-export default function GlassmorphicCard({ children, className = '', hoverEffect = true, onClick }: GlassmorphicCardProps) {
+export default function GlassmorphicCard({ 
+  children, 
+  className = '', 
+  hoverEffect = true, 
+  onClick,
+  variant = 'floating' // Default to floating per requirements
+}: GlassmorphicCardProps) {
+  // Use appropriate CSS classes based on variant
+  const cardBaseClass = variant === 'floating' 
+    ? 'floating-card' 
+    : 'cosmic-glass';
+  
+  // Reduce shadow effects on mobile
+  const hoverClass = hoverEffect 
+    ? 'hover:border-electric-blue/50 hover:shadow-glow-intense transition-all duration-300' 
+    : '';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,15 +35,13 @@ export default function GlassmorphicCard({ children, className = '', hoverEffect
       transition={{ duration: 0.5 }}
       onClick={onClick}
       className={`
-        cosmic-glass
+        ${cardBaseClass}
         rounded-2xl
         backdrop-blur-md
         p-8 md:p-12
-        border
-        border-gray-800/50
-        shadow-glow
         overflow-hidden
-        ${hoverEffect ? 'hover:border-electric-blue/50 hover:shadow-glow-intense hover:scale-105 transition-all duration-300' : ''}
+        ${hoverEffect ? 'hover:scale-[1.02]' : ''}
+        ${hoverClass}
         ${className}
       `}
     >

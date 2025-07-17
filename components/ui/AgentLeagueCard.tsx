@@ -170,7 +170,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         whileHover={{ scale: 1.02, rotateY: shouldReduceMotion ? 0 : 180, transition: { duration: 0.6 } }}
         whileFocus={{ scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-full h-full flex flex-col ${className}`} 
+        className={`relative w-full h-full flex flex-col floating-card rounded-2xl p-4 ${className}`} 
         style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
