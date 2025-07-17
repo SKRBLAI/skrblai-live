@@ -391,7 +391,7 @@ export const Percy3DOrbProvider: React.FC<Percy3DOrbProps> = (props) => {
   if (!orbCore || !isLoaded('Canvas')) {
     // Loading state - could be styled by Windsurf
     return (
-      <div className={`percy-3d-orb-loading ${props.className || ''}`}>
+      <div className={`percy-3d-orb-loading bg-gradient-to-br from-slate-900/80 to-purple-900/90 backdrop-blur-xl shadow-glow rounded-2xl transition-all duration-300 focus-visible:ring-2 ring-electric-blue/60 w-full max-w-md md:max-w-lg ${props.className || ''}`}>
         <div>Loading Percy...</div>
       </div>
     );
@@ -401,11 +401,14 @@ export const Percy3DOrbProvider: React.FC<Percy3DOrbProps> = (props) => {
   // For now, return the render props for Windsurf to style
   return (
     <div 
-      className={`percy-3d-orb-container ${props.className || ''}`}
+      className={`percy-3d-orb-container bg-gradient-to-br from-slate-900/90 to-purple-900/95 backdrop-blur-xl shadow-glow rounded-2xl transition-all duration-300 focus-visible:ring-2 ring-electric-blue/60 w-full max-w-md md:max-w-lg ${props.enableGlow ? 'ring-4 ring-cyan-400/60 shadow-[0_0_24px_#00ffff77]' : ''} ${props.className || ''}`}
       data-render-props={JSON.stringify(orbCore.getRenderProps())}
     >
       {/* Windsurf will replace this with actual 3D canvas */}
-      <div>3D Orb Placeholder - Ready for Windsurf styling</div>
+      <div className="text-center py-8">
+  <span className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-lg animate-fade-in">3D Orb Placeholder</span>
+  <div className="text-sm text-gray-300 mt-2">Ready for Windsurf cosmic styling</div>
+</div>
     </div>
   );
 };

@@ -6,7 +6,8 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/api/:path*'
-  ]
+  ],
+  runtime: 'experimental-edge'
 };
 
 export async function middleware(request: NextRequest) {

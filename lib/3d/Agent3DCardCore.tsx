@@ -81,6 +81,9 @@ export interface Agent3DCardProps {
   // Performance tracking
   trackPerformance?: boolean;
   performanceId?: string;
+  
+  // React children to render inside the card container
+  children?: React.ReactNode;
 }
 
 export interface CardTransform {
@@ -419,7 +422,8 @@ export class Agent3DCardCore {
       ariaLabel: props.ariaLabel || '',
       tabIndex: props.tabIndex || 0,
       trackPerformance: props.trackPerformance ?? false,
-      performanceId: props.performanceId || `agent-card-${props.agent.id}`
+      performanceId: props.performanceId || `agent-card-${props.agent.id}`,
+      children: props.children ?? null
     };
   }
 
@@ -514,7 +518,7 @@ export const Agent3DCardProvider: React.FC<Agent3DCardProps> = (props) => {
   // Memoize render props for performance
   const renderProps = useMemo(() => {
     return cardCore?.getRenderProps() || null;
-  }, [cardCore?.state]);
+  }, [cardCore]);
 
   if (!cardCore || !renderProps) {
     return (
@@ -528,18 +532,25 @@ export const Agent3DCardProvider: React.FC<Agent3DCardProps> = (props) => {
   return (
     <div
       ref={componentRef}
-      className={`agent-3d-card-container ${props.className || ''}`}
-      style={props.style}
+      className={`agent-3d-card-container bg-gradient-to-br from-cyan-900/90 to-fuchsia-900/95 backdrop-blur-xl shadow-glow rounded-2xl transition-all duration-300 focus-visible:ring-2 ring-electric-blue/60 w-full max-w-md md:max-w-lg ${props.glowColor ? 'ring-4 ring-cyan-400/60 shadow-[0_0_24px_#30D5C877]' : ''} ${props.className || ''}`}
+
       data-render-props={JSON.stringify(renderProps)}
       data-agent-id={props.agent.id}
       data-should-render-3d={renderProps.shouldRender3D}
     >
-      {/* Windsurf will replace this with actual 3D card component */}
-      <div className="agent-3d-card-placeholder">
-        <h3>{props.agent.name}</h3>
-        <p>3D Card Ready for Windsurf styling</p>
-        <div>State: {JSON.stringify(renderProps.state, null, 2)}</div>
-      </div>
+      {props.children ? (
+        props.children
+      ) : (
+        <div className="agent-3d-card-placeholder text-center py-8">
+          <h3 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-fuchsia-400 bg-clip-text text-transparent drop-shadow-lg animate-fade-in">
+            {props.agent.name}
+          </h3>
+          <p className="text-base text-gray-300 mt-2">3D Card Ready for Windsurf styling</p>
+          <div className="text-xs text-gray-400 mt-2">
+            State: {JSON.stringify(renderProps?.state, null, 2)}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

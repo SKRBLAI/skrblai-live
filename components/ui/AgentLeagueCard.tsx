@@ -11,6 +11,8 @@ import { agentBackstories } from '@/lib/agents/agentBackstories';
 import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
 import CosmicButton from '@/components/shared/CosmicButton';
+import Image from 'next/image';
+import { Agent3DCardProvider } from '@/lib/3d/Agent3DCardCore';
 
 interface AgentLeagueCardProps {
   agent: Agent;
@@ -85,7 +87,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const agentImagePath = getAgentImagePath(agent, "nobg");
 
   // Image error handler
-  const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  const handleImageError = (event: any) => {
     console.error('[AgentLeagueCard] Failed to load agent image:', agentImagePath, 'for agent:', agent.id);
     event.currentTarget.onerror = null;
     event.currentTarget.src = '/images/agents-default-nobg-skrblai.webp';
@@ -178,13 +180,23 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         <div className="flex flex-col items-center mb-4">
           {/* Agent Image - Fixed size like Services */}
           <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 mb-3">
-            <img
-              src={agentImagePath}
-              alt={`${agent.name} AI Agent`}
-              className="w-full h-full object-contain"
-              onError={handleImageError}
-              loading="lazy"
-            />
+            <Agent3DCardProvider
+              agent={agent}
+              className="w-full h-full"
+              glowColor="#30D5C8"
+              enableFlip
+              flipTrigger="hover"
+            >
+              <Image
+                src={agentImagePath}
+                alt={`${agent.name} AI Agent`}
+                width={144}
+                height={144}
+                className="w-full h-full object-contain mx-auto rounded-2xl drop-shadow-lg"
+                onError={handleImageError}
+                loading="lazy"
+              />
+            </Agent3DCardProvider>
             
             {/* Agent Intelligence Overlay */}
             {showIntelligence && agentIntelligence && (
