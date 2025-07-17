@@ -119,7 +119,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     <div className="dashboard-wrapper">
       {/* Add access level indicator for debugging/admin purposes */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-0 right-0 z-50 bg-black/80 text-white text-xs p-2 rounded-bl max-w-xs">
+        <div className="fixed top-0 right-0 z-50 bg-gradient-to-br from-deep-navy via-purple-900/80 to-black/80 text-teal-200 text-xs p-2 rounded-bl max-w-xs">
           <div>Level: {accessLevel}</div>
           {vipStatus?.isVIP && <div>VIP: {vipStatus?.vipLevel}</div>}
           <div>Features: {Object.keys(vipStatus?.features || {}).length}</div>

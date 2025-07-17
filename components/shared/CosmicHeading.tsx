@@ -1,7 +1,8 @@
 'use client';
 
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ReactNode, JSX } from 'react';
+import { ReactNode } from 'react';
 
 interface CosmicHeadingProps {
   children: ReactNode;
@@ -34,8 +35,6 @@ export default function CosmicHeading({
     3: 'text-2xl md:text-4xl mb-3 leading-snug'
   };
 
-  const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,9 +42,11 @@ export default function CosmicHeading({
       transition={{ duration: 0.5 }}
       className="no-text-cutoff"
     >
-      <HeadingTag className={`${baseStyles} ${sizeStyles[level]} ${className}`}>
-        {children}
-      </HeadingTag>
+      {React.createElement(
+        `h${level}`,
+        { className: `${baseStyles} ${sizeStyles[level]} ${className}` },
+        children
+      )}
     </motion.div>
   );
 }

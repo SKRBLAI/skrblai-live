@@ -16,7 +16,7 @@ export default function SportsUploadPage() {
 
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-6">
+          <h1 className="text-5xl font-extrabold text-white mb-6">
             UPLOAD YOUR <span className="text-orange-400">TRAINING DATA</span>
           </h1>
           <p className="text-xl text-gray-300 max-w-4xl mx-auto">
