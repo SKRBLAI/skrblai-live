@@ -21,19 +21,19 @@ export default function BrandLogo({ className = '', animate = true }: BrandLogoP
     >
       <span className="relative inline-block font-inter" aria-label="SKRBL logo text">
         {/* SKRBL with glow effect */}
-        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none z-0">
+        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-extrabold text-2xl tracking-tight select-none pointer-events-none z-0">
           SKRBL
         </span>
-        <span className="relative text-white font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased z-10">
+        <span className="relative text-white font-extrabold text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased z-10">
           SKRBL
         </span>
       </span>
       <span className="relative inline-block font-inter" aria-label="AI logo text">
         {/* AI with matching glow effect */}
-        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-black text-2xl tracking-tight select-none pointer-events-none z-0">
+        <span className="absolute inset-0 blur-[1px] text-teal-400/80 font-extrabold text-2xl tracking-tight select-none pointer-events-none z-0">
           AI
         </span>
-        <span className="relative text-teal-400 font-black text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased z-10">
+        <span className="relative text-teal-400 font-extrabold text-2xl tracking-tight animate-pulse-subtle shadow-glow drop-shadow-cosmic antialiased subpixel-antialiased z-10">
           AI
         </span>
       </span>

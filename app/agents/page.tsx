@@ -342,36 +342,55 @@ export default function AgentsPage() {
 
             {/* CTA Section */}
             <motion.div
-              className="max-w-5xl mx-auto text-center mb-24"
-              initial={{ opacity: 0, y: 20 }}
+              className="relative max-w-5xl mx-auto text-center mb-24"
+              initial={{ opacity: 0, y: 32 }}
               whileInView={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 90, damping: 18 }}
               viewport={{ once: true }}
             >
-              <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
-                <h2 className="text-4xl font-bold text-white mb-4">
+              {/* Cosmic background (subtle, behind card) */}
+              <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-cyan-900/40 to-transparent rounded-2xl blur-2xl opacity-70"></div>
+                <div className="absolute left-1/4 top-0 w-48 h-48 bg-fuchsia-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
+                <div className="absolute right-1/4 bottom-0 w-60 h-40 bg-cyan-400/20 rounded-full blur-2xl animate-pulse-slow"></div>
+              </div>
+              {/* CTA Card */}
+              <motion.div
+                className="relative z-10 bg-gradient-to-r from-purple-700/30 to-cyan-700/20 rounded-2xl px-4 py-10 sm:px-12 sm:py-16 border border-purple-500/30 shadow-2xl flex flex-col items-center"
+                initial={{ scale: 0.98, opacity: 0.8 }}
+                whileHover={{ scale: 1.01, boxShadow: '0 0 64px 0 #7f1fff55' }}
+                transition={{ type: 'spring', stiffness: 220, damping: 24 }}
+              >
+                <h2 className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent mb-4 antialiased drop-shadow-lg">
                   Ready To Unleash Your AI Superhero Team?
                 </h2>
-                <p className="text-xl text-gray-300 mb-8">
-                  Join {liveMetrics.liveUsers}+ users already training with these powerful AI agents.
+                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                  Join <span className="text-electric-blue font-bold">{liveMetrics.liveUsers}+</span> users already training with these powerful AI agents.
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-lg mx-auto mb-4">
+                  <motion.button
                     onClick={() => router.push('/sign-up')}
-                    className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl"
+                    className="flex-1 px-6 py-4 rounded-xl font-bold text-lg shadow-glow bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-400 hover:to-blue-400 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    aria-label="Start Free Trial (No Credit Card)"
                   >
                     🚀 Start Free Trial (No Credit Card)
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
                     onClick={() => router.push('/services')}
-                    className="cosmic-btn-secondary px-8 py-4 rounded-xl font-bold text-lg"
+                    className="flex-1 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-fuchsia-600/80 to-purple-600/80 hover:from-fuchsia-400 hover:to-purple-400 text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.97 }}
+                    aria-label="See Business Solutions"
                   >
                     🎯 See Business Solutions
-                  </button>
+                  </motion.button>
                 </div>
-                <div className="mt-6 text-sm text-gray-400">
+                <div className="mt-2 text-xs sm:text-sm text-gray-400">
                   ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>

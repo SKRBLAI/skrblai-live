@@ -79,7 +79,7 @@ export default function HomePage() {
       {/* <PercyHelpBubble /> */}
       
       {/* Enhanced Background Effects - Mobile Optimized */}
-      <div className="absolute inset-0 z-5 opacity-20 sm:opacity-30">
+      <div className="absolute inset-0 z-5 opacity-10 sm:opacity-15">
         <FloatingParticles particleCount={18} />
       </div>
       
@@ -108,7 +108,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: -20 }} 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2"
+                className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 antialiased"
               >
                 <TypewriterText
                   words={[
