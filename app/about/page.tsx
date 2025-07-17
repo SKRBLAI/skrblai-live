@@ -78,22 +78,34 @@ const competitiveAdvantages = [
     proof: "$18.5M+ Generated"
   },
   {
-    advantage: "Multi-Agent Intelligence",
-    description: "14 specialized agents that work together seamlessly",
-    icon: <Users className="w-6 h-6" />,
-    proof: "Cross-Agent Handoffs"
+    advantage: "No-Code Accessibility",
+    description: "Complex automation made simple through intuitive interfaces",
+    icon: <Target className="w-6 h-6" />,
+    proof: "94% User Success Rate"
   },
   {
     advantage: "Enterprise-Grade Security",
-    description: "Built with security and scalability from day one",
+    description: "Bank-level security with complete data privacy and control",
     icon: <Shield className="w-6 h-6" />,
-    proof: "SOC 2 Compliant"
+    proof: "SOC 2 Certified"
+  },
+  {
+    advantage: "24/7 AI Orchestration",
+    description: "Percy coordinates agent workflows around the clock",
+    icon: <Brain className="w-6 h-6" />,
+    proof: "99.9% Uptime"
+  },
+  {
+    advantage: "Rapid ROI Delivery",
+    description: "Most customers see positive ROI within their first week",
+    icon: <Clock className="w-6 h-6" />,
+    proof: "7-Day Average ROI"
   }
 ];
 
 const testimonials = [
   {
-    quote: (<><SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> transformed our content strategy. What used to take our team 40 hours now takes 4 hours with better results.</>),
+    quote: "SKRBL AI transformed our content strategy completely. Percy's automation saved us 40+ hours per week.",
     author: "Sarah Chen",
     role: "Marketing Director",
     company: "TechFlow Dynamics",
@@ -132,8 +144,8 @@ export default function AboutPage(): JSX.Element {
         </div>
 
         {/* Hero Section */}
-        <section className="relative z-10 pt-20 pb-16 px-4 md:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative z-10 pt-20 pb-16">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <motion.div
               className="text-center mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -197,51 +209,54 @@ export default function AboutPage(): JSX.Element {
               </motion.div>
             </motion.div>
 
-            {/* Live Metrics Dashboard */}
+            {/* Live Metrics Dashboard - Single Floating Container */}
             <motion.div
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-20"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <GlassmorphicCard className="text-center p-6 border-cyan-400/20">
-                <div className="text-3xl font-bold text-cyan-400 mb-2 whitespace-nowrap leading-none">
-                  {metrics.companiesTransformed.toLocaleString()}+
-                </div>
-                <div className="text-gray-300 text-sm">Companies Transformed</div>
-                <div className="w-2 h-2 bg-cyan-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-              </GlassmorphicCard>
+              <GlassmorphicCard variant="floating" className="border-cyan-400/20">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-cyan-400 mb-2 whitespace-nowrap leading-none">
+                      {metrics.companiesTransformed.toLocaleString()}+
+                    </div>
+                    <div className="text-gray-300 text-sm">Companies Transformed</div>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full mx-auto mt-2 animate-pulse"></div>
+                  </div>
 
-              <GlassmorphicCard className="text-center p-6 border-green-400/20">
-                <div className="text-3xl font-bold text-green-400 mb-2 whitespace-nowrap leading-none">
-                  ${(metrics.revenueGenerated / 1000000).toFixed(1)}M+
-                </div>
-                <div className="text-gray-300 text-sm">Revenue Generated</div>
-                <div className="w-2 h-2 bg-green-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-              </GlassmorphicCard>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-green-400 mb-2 whitespace-nowrap leading-none">
+                      ${(metrics.revenueGenerated / 1000000).toFixed(1)}M+
+                    </div>
+                    <div className="text-gray-300 text-sm">Revenue Generated</div>
+                    <div className="w-2 h-2 bg-green-400 rounded-full mx-auto mt-2 animate-pulse"></div>
+                  </div>
 
-              <GlassmorphicCard className="text-center p-6 border-purple-400/20">
-                <div className="text-3xl font-bold text-purple-400 mb-2 whitespace-nowrap leading-none">
-                  {metrics.activeAgents}
-                </div>
-                <div className="text-gray-300 text-sm">Active AI Agents</div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-              </GlassmorphicCard>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-purple-400 mb-2 whitespace-nowrap leading-none">
+                      {metrics.activeAgents}
+                    </div>
+                    <div className="text-gray-300 text-sm">Active AI Agents</div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full mx-auto mt-2 animate-pulse"></div>
+                  </div>
 
-              <GlassmorphicCard className="text-center p-6 border-orange-400/20">
-                <div className="text-3xl font-bold text-orange-400 mb-2 whitespace-nowrap leading-none">
-                  {metrics.dailyTasks.toLocaleString()}+
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-orange-400 mb-2 whitespace-nowrap leading-none">
+                      {metrics.dailyTasks.toLocaleString()}+
+                    </div>
+                    <div className="text-gray-300 text-sm">Daily Tasks Automated</div>
+                    <div className="w-2 h-2 bg-orange-400 rounded-full mx-auto mt-2 animate-pulse"></div>
+                  </div>
                 </div>
-                <div className="text-gray-300 text-sm">Daily Tasks Automated</div>
-                <div className="w-2 h-2 bg-orange-400 rounded-full mx-auto mt-2 animate-pulse"></div>
               </GlassmorphicCard>
             </motion.div>
           </div>
         </section>
 
         {/* Disruption Story */}
-        <section className="relative z-10 py-20 px-4 md:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative z-10 py-20">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <motion.div
               className="text-center mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -265,7 +280,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
                 >
-                  <GlassmorphicCard className="h-full p-8 hover:border-cyan-400/50 transition-all duration-300">
+                  <GlassmorphicCard variant="floating" className="h-full hover:border-cyan-400/50 transition-all duration-300">
                     <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${story.color} mb-6`}>
                       <span className="text-2xl">{story.icon}</span>
                     </div>
@@ -284,8 +299,8 @@ export default function AboutPage(): JSX.Element {
         </section>
 
         {/* Competitive Advantages */}
-        <section className="relative z-10 py-20 px-4 md:px-8 bg-gradient-to-b from-transparent to-slate-900/50">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative z-10 py-20 bg-gradient-to-b from-transparent to-slate-900/50">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <motion.div
               className="text-center mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -309,7 +324,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <GlassmorphicCard className="p-8 h-full hover:border-electric-blue/50 transition-all duration-300">
+                  <GlassmorphicCard variant="floating" className="h-full hover:border-electric-blue/50 transition-all duration-300">
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
                         {advantage.icon}
@@ -331,8 +346,8 @@ export default function AboutPage(): JSX.Element {
         </section>
 
         {/* Success Stories */}
-        <section className="relative z-10 py-20 px-4 md:px-8">
-          <div className="max-w-7xl mx-auto">
+        <section className="relative z-10 py-20">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <motion.div
               className="text-center mb-16"
               initial={{ opacity: 0, y: 30 }}
@@ -356,7 +371,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
                 >
-                  <GlassmorphicCard className="p-8 h-full">
+                  <GlassmorphicCard variant="floating" className="h-full">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-2xl">
                         {testimonial.avatar}
@@ -382,14 +397,14 @@ export default function AboutPage(): JSX.Element {
         </section>
 
         {/* CTA Section */}
-        <section className="relative z-10 py-20 px-4 md:px-8">
-          <div className="max-w-4xl mx-auto text-center">
+        <section className="relative z-10 py-20">
+          <div className="max-w-4xl mx-auto px-4 md:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <GlassmorphicCard className="p-12 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-400/30">
+              <GlassmorphicCard variant="floating" className="text-center bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-400/30">
                 <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8">
                   <Crown className="w-5 h-5 text-yellow-400" />
                   <span className="text-cyan-300 font-bold">JOIN THE REVOLUTION</span>
@@ -399,24 +414,20 @@ export default function AboutPage(): JSX.Element {
                   Ready to <span className="text-electric-blue">Transform</span> Your Business?
                 </CosmicHeading>
 
-                <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
-                  Don't watch the AI revolution from the sidelines. Join the platform that's actually delivering results.
+                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                  Join thousands of businesses already using SKRBL AI to automate, scale, and dominate their markets.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <CosmicButton href="/pricing" variant="primary" size="lg">
+                  <CosmicButton href="/agents" variant="primary" size="lg">
                     <Rocket className="w-5 h-5 mr-2" />
-                    Start Your Transformation
+                    Start Free Trial
                   </CosmicButton>
-                  <CosmicButton href="/agents" variant="secondary" size="lg">
+                  <CosmicButton href="/contact" variant="secondary" size="lg">
                     <Users className="w-5 h-5 mr-2" />
-                    Meet Your AI Team
+                    Schedule Demo
                   </CosmicButton>
                 </div>
-
-                <p className="text-lg text-gray-300 mb-8">
-                  Join 2,847+ companies already transforming with <SkrblAiText variant="pulse" size="md">SKRBL AI</SkrblAiText>
-                </p>
               </GlassmorphicCard>
             </motion.div>
           </div>
