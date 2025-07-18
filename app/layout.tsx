@@ -36,7 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
+      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden page-layout">
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>

@@ -28,9 +28,11 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      {/* Background Effects - Only necessary floating particles */}
-      <div className="absolute inset-0 z-0 opacity-100">
+
+    <div className="relative min-h-screen overflow-hidden ClientPageLayout">
+      {/* Background Effects - RE-ENABLED FOR PHASE 2 TESTING */}
+      <div className="absolute inset-0 z-0 opacity-40">
+        
         <FloatingParticles />
       </div>
 
