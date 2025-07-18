@@ -4,19 +4,21 @@ import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-interface GlassmorphicCardProps {
+interface GlassmorphicPanelProps {
   children: ReactNode;
   className?: string;
+  title?: string;
   hoverEffect?: boolean;
   onClick?: () => void;
 }
 
-export default function GlassmorphicCard({
+export default function GlassmorphicPanel({
   children,
   className = '',
-  hoverEffect = true,
+  title,
+  hoverEffect = false,
   onClick,
-}: GlassmorphicCardProps) {
+}: GlassmorphicPanelProps) {
   return (
     <motion.div
       onClick={onClick}
@@ -27,15 +29,22 @@ export default function GlassmorphicCard({
         bg-transparent
         backdrop-blur-xl
         border-2 border-teal-400/70
-        rounded-3xl
+        rounded-2xl
         shadow-[0_8px_32px_rgba(0,212,255,0.18)]
         ${hoverEffect ? 'hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)]' : ''}
         transition-all duration-300
-        p-6 md:p-8 mx-4 md:mx-6 lg:mx-8
+        overflow-hidden
         ${className}
       `)}
     >
-      {children}
+      {title && (
+        <div className="border-b border-teal-400/30 px-6 py-4 bg-teal-500/10 backdrop-blur-md">
+          <h3 className="text-lg font-medium text-white">{title}</h3>
+        </div>
+      )}
+      <div className="p-6">
+        {children}
+      </div>
     </motion.div>
   );
-}
+} 

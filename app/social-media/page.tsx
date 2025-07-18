@@ -103,7 +103,7 @@ export default function SocialMediaPage(): JSX.Element {
                 transition={{ delay: 0.4 }}
                 className="mb-16"
               >
-                <GlassmorphicCard variant="floating" className="border-blue-500/20">
+                <GlassmorphicCard className="border-blue-500/20">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-blue-400 mb-2">{liveMetrics.postsGenerated.toLocaleString()}</div>
@@ -145,7 +145,7 @@ export default function SocialMediaPage(): JSX.Element {
                 
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Manual Posting Hell */}
-                  <GlassmorphicCard variant="floating" className="border-red-500/30 bg-red-500/5">
+                  <GlassmorphicCard className="border-red-500/30 bg-red-500/5">
                     <h3 className="text-2xl font-bold text-red-400 mb-6 text-center">Manual Posting Hell</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-red-300">
@@ -172,7 +172,7 @@ export default function SocialMediaPage(): JSX.Element {
                   </GlassmorphicCard>
 
                   {/* Social Media Agencies */}
-                  <GlassmorphicCard variant="floating" className="border-yellow-500/30 bg-yellow-500/5">
+                  <GlassmorphicCard className="border-yellow-500/30 bg-yellow-500/5">
                     <h3 className="text-2xl font-bold text-yellow-400 mb-6 text-center">Social Media Agencies</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-yellow-300">
@@ -199,7 +199,7 @@ export default function SocialMediaPage(): JSX.Element {
                   </GlassmorphicCard>
 
                   {/* SKRBL AI Domination */}
-                  <GlassmorphicCard variant="floating" className="border-green-500/30 bg-green-500/5 relative overflow-hidden">
+                  <GlassmorphicCard className="border-green-500/30 bg-green-500/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-sm font-bold shadow-lg border border-white/20">
                       DOMINATION MODE
                     </div>
@@ -242,7 +242,7 @@ export default function SocialMediaPage(): JSX.Element {
                 </CosmicHeading>
                 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <GlassmorphicCard variant="floating" className="text-center border-blue-600/20 hover:border-blue-400/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-blue-600/20 hover:border-blue-400/40 transition-colors">
                     <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white font-bold text-xl">f</span>
                     </div>
@@ -250,7 +250,7 @@ export default function SocialMediaPage(): JSX.Element {
                     <p className="text-gray-400 text-sm">Algorithm-beating posts that dominate newsfeeds</p>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating" className="text-center border-pink-500/20 hover:border-pink-400/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-pink-500/20 hover:border-pink-400/40 transition-colors">
                     <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white font-bold text-xl">📷</span>
                     </div>
@@ -258,7 +258,7 @@ export default function SocialMediaPage(): JSX.Element {
                     <p className="text-gray-400 text-sm">Visual content that stops scrolling and drives sales</p>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating" className="text-center border-blue-400/20 hover:border-blue-300/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-blue-400/20 hover:border-blue-300/40 transition-colors">
                     <div className="w-16 h-16 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white font-bold text-xl">🐦</span>
                     </div>
@@ -266,7 +266,7 @@ export default function SocialMediaPage(): JSX.Element {
                     <p className="text-gray-400 text-sm">Viral threads that establish thought leadership</p>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating" className="text-center border-blue-700/20 hover:border-blue-600/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-blue-700/20 hover:border-blue-600/40 transition-colors">
                     <div className="w-16 h-16 bg-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white font-bold text-xl">in</span>
                     </div>
@@ -274,7 +274,7 @@ export default function SocialMediaPage(): JSX.Element {
                     <p className="text-gray-400 text-sm">Professional content that converts connections to clients</p>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating" className="text-center border-red-600/20 hover:border-red-500/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-red-600/20 hover:border-red-500/40 transition-colors">
                     <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                       <PlayCircle className="w-8 h-8 text-white" />
                     </div>
@@ -282,7 +282,7 @@ export default function SocialMediaPage(): JSX.Element {
                     <p className="text-gray-400 text-sm">Video scripts and thumbnails for maximum watch time</p>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating" className="text-center border-black/40 hover:border-gray-600/40 transition-colors">
+                  <GlassmorphicCard className="text-center border-black/40 hover:border-gray-600/40 transition-colors">
                     <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
                       <span className="text-white font-bold text-xl">🎵</span>
                     </div>
@@ -299,7 +299,7 @@ export default function SocialMediaPage(): JSX.Element {
                 transition={{ delay: 1.0 }}
                 className="mb-16"
               >
-                <GlassmorphicCard variant="floating" className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/30">
+                <GlassmorphicCard className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-blue-500/30">
                   <div className="grid md:grid-cols-2 gap-8 items-center">
                     <div>
                       <h3 className="text-3xl font-bold text-blue-400 mb-4">SOCIAL ROI CALCULATOR</h3>

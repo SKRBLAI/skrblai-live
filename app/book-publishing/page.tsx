@@ -111,7 +111,7 @@ export default function BookPublishingPage(): JSX.Element {
                 transition={{ delay: 0.4 }}
                 className="mobile-metrics-container md:grid md:grid-cols-4 gap-4 md:gap-6 mb-12 md:mb-16"
               >
-              <GlassmorphicCard variant="floating" className="border-orange-500/20">
+              <GlassmorphicCard className="border-orange-500/20">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-2xl md:text-3xl font-bold text-orange-400 mb-1 md:mb-2 no-text-cutoff">{liveMetrics.booksPublished.toLocaleString()}</div>
@@ -153,7 +153,7 @@ export default function BookPublishingPage(): JSX.Element {
                 
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Traditional Publishing Hell */}
-                  <GlassmorphicCard variant="floating" className="border-red-500/30 bg-red-500/5">
+                  <GlassmorphicCard className="border-red-500/30 bg-red-500/5">
                     <h3 className="text-2xl font-bold text-red-400 mb-6 text-center">Traditional Publishing</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-red-300">
@@ -180,7 +180,7 @@ export default function BookPublishingPage(): JSX.Element {
                   </GlassmorphicCard>
 
                   {/* Manual Self-Publishing Struggle */}
-                  <GlassmorphicCard variant="floating" className="border-yellow-500/30 bg-yellow-500/5">
+                  <GlassmorphicCard className="border-yellow-500/30 bg-yellow-500/5">
                     <h3 className="text-2xl font-bold text-yellow-400 mb-6 text-center">Manual Self-Publishing</h3>
                     <div className="space-y-4">
                       <div className="flex items-center text-yellow-300">
@@ -207,7 +207,7 @@ export default function BookPublishingPage(): JSX.Element {
                   </GlassmorphicCard>
 
                   {/* SKRBL AI Domination */}
-                  <GlassmorphicCard variant="floating" className="border-green-500/30 bg-green-500/5 relative overflow-hidden">
+                  <GlassmorphicCard className="border-green-500/30 bg-green-500/5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 text-sm font-bold shadow-lg border border-white/20">
                       DOMINATION MODE
                     </div>
@@ -245,7 +245,7 @@ export default function BookPublishingPage(): JSX.Element {
                 transition={{ delay: 0.8 }}
                 className="mb-16"
               >
-                <GlassmorphicCard variant="floating" className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/30">
+                <GlassmorphicCard className="bg-gradient-to-r from-orange-500/10 to-red-500/10 border-orange-500/30">
                   <div className="grid md:grid-cols-2 gap-8 items-center">
                     <div>
                       <h3 className="text-3xl font-bold text-orange-400 mb-4">ROI CALCULATION</h3>
@@ -296,7 +296,7 @@ export default function BookPublishingPage(): JSX.Element {
                 transition={{ delay: 1.0 }}
                 className="text-center mb-16"
               >
-                <GlassmorphicCard variant="floating" className="border-red-500/30 bg-red-500/5">
+                <GlassmorphicCard className="border-red-500/30 bg-red-500/5">
                   <h3 className="text-2xl font-bold text-red-400 mb-4">⚠️ COMPETITIVE REALITY CHECK</h3>
                   <p className="text-xl text-gray-300 mb-6">
                     Every day you wait, <span className="text-red-400 font-bold">{Math.floor(Math.random() * 15 + 25)} more authors</span> launch their books and capture market share in your niche.
@@ -333,7 +333,7 @@ export default function BookPublishingPage(): JSX.Element {
                 </CosmicHeading>
                 
                 <div className="grid md:grid-cols-3 gap-8">
-                  <GlassmorphicCard variant="floating">
+                  <GlassmorphicCard >
                     <div className="flex items-center mb-4">
                       <Award className="w-8 h-8 text-yellow-400 mr-3" />
                       <div>
@@ -348,7 +348,7 @@ export default function BookPublishingPage(): JSX.Element {
                     </div>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating">
+                  <GlassmorphicCard >
                     <div className="flex items-center mb-4">
                       <Award className="w-8 h-8 text-yellow-400 mr-3" />
                       <div>
@@ -363,7 +363,7 @@ export default function BookPublishingPage(): JSX.Element {
                     </div>
                   </GlassmorphicCard>
 
-                  <GlassmorphicCard variant="floating">
+                  <GlassmorphicCard >
                     <div className="flex items-center mb-4">
                       <Award className="w-8 h-8 text-yellow-400 mr-3" />
                       <div>

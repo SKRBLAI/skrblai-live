@@ -216,9 +216,9 @@ export default function FeaturesContent(): JSX.Element {
                   selectedFeature === index ? 'ring-4 ring-cyan-400/50' : ''
                 }`}
               >
-                <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                <GlassmorphicCard className="h-full p-6 relative overflow-hidden border-teal-400/70 backdrop-blur-xl">
                   {/* Live Activity Badge */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
+                  <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full text-xs border border-teal-400/30">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     <span className="text-green-400 font-bold">{feature.liveActivity.users}</span>
                   </div>
@@ -273,7 +273,7 @@ export default function FeaturesContent(): JSX.Element {
                   
                   {/* Action Button */}
                   <CosmicButton 
-                    variant="primary" 
+                    variant="glass" 
                     className="w-full group-hover:shadow-xl transition-all"
                   >
                     🎯 Activate This Feature
@@ -295,7 +295,7 @@ export default function FeaturesContent(): JSX.Element {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto mb-16"
               >
-                <GlassmorphicCard className="p-8 border-2 border-cyan-400/50 shadow-2xl">
+                <GlassmorphicCard className="p-8 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,212,255,0.28)]">
                   <div className="flex items-start gap-4">
                     <Image
                       src="/images/agents-percy-nobg-skrblai.webp"
@@ -308,12 +308,12 @@ export default function FeaturesContent(): JSX.Element {
                       <div className="text-cyan-400 font-bold mb-2">Percy's Feature Analysis:</div>
                       <p className="text-white text-lg leading-relaxed mb-4">{percyResponse}</p>
                       <div className="flex gap-4">
-                        <Link href="/agents" className="cosmic-btn-primary px-6 py-3 rounded-xl font-bold">
+                        <CosmicButton href="/agents" variant="glass">
                           Meet The Agent Team
-                        </Link>
-                        <Link href="/sign-up" className="cosmic-btn-secondary px-6 py-3 rounded-xl font-bold">
+                        </CosmicButton>
+                        <CosmicButton href="/sign-up" variant="glass">
                           Start Free Trial
-                        </Link>
+                        </CosmicButton>
                       </div>
                     </div>
                   </div>
@@ -340,7 +340,7 @@ export default function FeaturesContent(): JSX.Element {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.5 }}
               >
-                <GlassmorphicCard className="p-8 text-center">
+                <GlassmorphicCard className="p-8 text-center backdrop-blur-xl">
                   <div className="text-green-400 font-bold text-2xl mb-2">
                     {successStories[currentTestimonial].result}
                   </div>
@@ -366,7 +366,7 @@ export default function FeaturesContent(): JSX.Element {
               Why Competitors Can't Keep Up
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <GlassmorphicCard className="p-8 border border-red-500/30">
+              <GlassmorphicCard className="p-8 backdrop-blur-xl border-red-500/30">
                 <h3 className="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
                   <Clock className="w-6 h-6" />
                   Your Competition (Manual Hell)
@@ -395,7 +395,7 @@ export default function FeaturesContent(): JSX.Element {
                 </ul>
               </GlassmorphicCard>
               
-              <GlassmorphicCard className="p-8 border border-green-500/30">
+              <GlassmorphicCard className="p-8 backdrop-blur-xl border-green-500/30">
                 <h3 className="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
                   <Rocket className="w-6 h-6" />
                   You (AI-Powered Dominance)
@@ -433,7 +433,7 @@ export default function FeaturesContent(): JSX.Element {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
+            <div className="bg-transparent backdrop-blur-xl rounded-2xl p-12 border-2 border-teal-400/70 shadow-[0_8px_32px_rgba(0,212,255,0.18)]">
               <h2 className="text-4xl font-bold text-white mb-4">
                 Ready To Activate Your Arsenal?
               </h2>
@@ -441,12 +441,12 @@ export default function FeaturesContent(): JSX.Element {
                 Join {liveMetrics.totalUsers}+ businesses already using <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> features to dominate their industries.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/sign-up" className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl">
+                <CosmicButton href="/sign-up" variant="glass" size="lg" className="shadow-[0_8px_32px_rgba(0,212,255,0.28)]">
                   🚀 Start Free Trial (No Credit Card)
-                </Link>
-                <Link href="/agents" className="cosmic-btn-secondary px-8 py-4 rounded-xl font-bold text-lg">
+                </CosmicButton>
+                <CosmicButton href="/agents" variant="glass" size="lg">
                   👥 Meet Your Agent League
-                </Link>
+                </CosmicButton>
               </div>
               <div className="mt-6 text-sm text-gray-400">
                 ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime

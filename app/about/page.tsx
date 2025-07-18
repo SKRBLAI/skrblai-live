@@ -215,7 +215,7 @@ export default function AboutPage(): JSX.Element {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <GlassmorphicCard variant="floating" className="border-cyan-400/20">
+              <GlassmorphicCard className="border-cyan-400/20">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-bold text-cyan-400 mb-2 whitespace-nowrap leading-none">
@@ -280,7 +280,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
                 >
-                  <GlassmorphicCard variant="floating" className="h-full hover:border-cyan-400/50 transition-all duration-300">
+                  <GlassmorphicCard className="h-full hover:border-cyan-400/50 transition-all duration-300">
                     <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${story.color} mb-6`}>
                       <span className="text-2xl">{story.icon}</span>
                     </div>
@@ -324,7 +324,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <GlassmorphicCard variant="floating" className="h-full hover:border-electric-blue/50 transition-all duration-300">
+                  <GlassmorphicCard className="h-full hover:border-electric-blue/50 transition-all duration-300">
                     <div className="flex items-start gap-4">
                       <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
                         {advantage.icon}
@@ -371,7 +371,7 @@ export default function AboutPage(): JSX.Element {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
                 >
-                  <GlassmorphicCard variant="floating" className="h-full">
+                  <GlassmorphicCard className="h-full">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-2xl">
                         {testimonial.avatar}
@@ -404,7 +404,7 @@ export default function AboutPage(): JSX.Element {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              <GlassmorphicCard variant="floating" className="text-center bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-400/30">
+              <GlassmorphicCard className="text-center bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-400/30">
                 <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8">
                   <Crown className="w-5 h-5 text-yellow-400" />
                   <span className="text-cyan-300 font-bold">JOIN THE REVOLUTION</span>

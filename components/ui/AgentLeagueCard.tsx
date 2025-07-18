@@ -11,6 +11,7 @@ import { agentBackstories } from '@/lib/agents/agentBackstories';
 import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
 import CosmicButton from '@/components/shared/CosmicButton';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import Image from 'next/image';
 import { Agent3DCardProvider } from '@/lib/3d/Agent3DCardCore';
 
@@ -94,8 +95,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   };
 
   // Button action handlers
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleCardClick = () => {
     // Card click goes to agent backstory by default
     router.push(`/agent-backstory/${agent.id}`);
   };
@@ -149,266 +149,216 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         />
       )}
 
-      <motion.div
-        ref={cardRef}
-        role="group"
-        aria-label={`${agent.name} agent card`}
-        tabIndex={0}
-        initial={{ opacity: 0, y: 24, scale: 0.95 }}
-        animate={{
-          opacity: 1,
-          y: [0, -4, 0, 4, 0], // gentle levitation
-          scale: 1,
-          rotateY: [0, 2, 0, -2, 0], // subtle cosmic sway
-          transition: {
-            y: { duration: 8, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
-            rotateY: { duration: 12, repeat: Infinity, repeatType: 'mirror', ease: 'easeInOut' as const },
-            opacity: { duration: 0.6 },
-            scale: { duration: 0.6 },
-          }
-        }}
-        whileHover={{ scale: 1.02, rotateY: shouldReduceMotion ? 0 : 180, transition: { duration: 0.6 } }}
-        whileFocus={{ scale: 1.01 }}
-        transition={{ type: 'spring', stiffness: 120, delay: 0.05 * index }}
-        className={`relative w-full h-full flex flex-col floating-card rounded-2xl p-4 ${className}`} 
-        style={{ transformStyle: 'preserve-3d', perspective: 1000 }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+      <GlassmorphicCard
+        className={`relative ${className}`}
         onClick={handleCardClick}
+        hoverEffect={true}
       >
-        {/* Agent Header (Like Services) */}
-        <div className="flex flex-col items-center mb-4">
-          {/* Agent Image - Fixed size like Services */}
-          <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 mb-3">
-            <Agent3DCardProvider
-              agent={agent}
-              className="w-full h-full"
-              glowColor="#30D5C8"
-              enableFlip
-              flipTrigger="hover"
-            >
-              <Image
-                src={agentImagePath}
-                alt={`${agent.name} AI Agent`}
-                width={144}
-                height={144}
-                className="w-full h-full object-contain mx-auto rounded-2xl drop-shadow-lg"
-                onError={handleImageError}
-                loading="lazy"
-              />
-            </Agent3DCardProvider>
-            
-            {/* Agent Intelligence Overlay */}
-            {showIntelligence && agentIntelligence && (
-              <motion.div
-                className="absolute top-0 left-0 z-10"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + 0.05 * index }}
+        <div
+          ref={cardRef}
+          role="group"
+          aria-label={`${agent.name} agent card`}
+          tabIndex={0}
+          className="w-full h-full p-4"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* Agent Header (Like Services) */}
+          <div className="flex flex-col items-center mb-4">
+            {/* Agent Image - Fixed size like Services */}
+            <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 mb-3">
+              <Agent3DCardProvider
+                agent={agent}
+                className="w-full h-full"
+                glowColor="#30D5C8"
+                enableFlip
+                flipTrigger="hover"
               >
-                <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-purple-500/30 max-w-[120px]">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="text-purple-400 font-semibold flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                      IQ: {agentIntelligence.intelligenceLevel}
-                    </div>
-                  </div>
-                  <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
-                    {agentIntelligence.autonomyLevel}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Predictive Insights Overlay (on hover) */}
-            {showIntelligence && isHovered && predictiveInsights.length > 0 && (
-              <motion.div
-                className="absolute top-0 right-0 z-20"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-              >
-                <div className="bg-gradient-to-br from-gray-900/95 to-purple-900/95 backdrop-blur-sm rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[180px]">
-                  <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
-                    🔮 Insights
-                  </div>
-                  {predictiveInsights.slice(0, 1).map((insight, idx) => (
-                    <div key={idx} className="text-xs text-gray-300 mb-1">
-                      <span className="text-yellow-400 font-medium capitalize">
-                        {insight.domain.replace('_', ' ')}:
-                      </span>
-                      <span className="ml-1 block">{insight.insight.slice(0, 35)}...</span>
-                      <div className="text-xs text-green-400 mt-0.5">
-                        {Math.round(insight.probability * 100)}% confidence
+                <Image
+                  src={agentImagePath}
+                  alt={`${agent.name} AI Agent`}
+                  width={144}
+                  height={144}
+                  className="w-full h-full object-contain mx-auto rounded-2xl drop-shadow-lg"
+                  onError={handleImageError}
+                  loading="lazy"
+                />
+              </Agent3DCardProvider>
+              
+              {/* Agent Intelligence Overlay */}
+              {showIntelligence && agentIntelligence && (
+                <motion.div
+                  className="absolute top-0 left-0 z-10"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + 0.05 * index }}
+                >
+                  <div className="bg-transparent backdrop-blur-md rounded-lg p-2 border border-purple-500/30 max-w-[120px]">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="text-purple-400 font-semibold flex items-center gap-1">
+                        <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                        IQ: {agentIntelligence.intelligenceLevel}
                       </div>
                     </div>
-                  ))}
+                    <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
+                      {agentIntelligence.autonomyLevel}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Predictive Insights Overlay (on hover) */}
+              {showIntelligence && isHovered && predictiveInsights.length > 0 && (
+                <motion.div
+                  className="absolute top-0 right-0 z-20"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                >
+                  <div className="bg-transparent backdrop-blur-md rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[180px]">
+                    <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
+                      🔮 Insights
+                    </div>
+                    {predictiveInsights.slice(0, 1).map((insight, idx) => (
+                      <div key={idx} className="text-xs text-gray-300 mb-1">
+                        <span className="text-yellow-400 font-medium capitalize">
+                          {insight.domain.replace('_', ' ')}:
+                        </span>
+                        <span className="ml-1 block">{insight.insight.slice(0, 35)}...</span>
+                        <div className="text-xs text-green-400 mt-0.5">
+                          {Math.round(insight.probability * 100)}% confidence
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </div>
+
+            {/* Agent Name & Category */}
+            <div className="text-center mb-2">
+              <h3 className="text-lg font-bold bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
+                {agent.name}
+              </h3>
+              <div className="text-sm text-gray-300 capitalize">{agent.category}</div>
+            </div>
+
+            {/* Agent Stats */}
+            <div className="w-full flex justify-center items-center gap-2 mb-3">
+              {/* Live Users */}
+              <div className="flex items-center gap-1 text-xs text-cyan-400">
+                <Users className="w-3 h-3" />
+                <span>{liveUsers}</span>
+              </div>
+              
+              {/* User Progress */}
+              {userProgress > 0 && (
+                <div className="flex items-center gap-1 text-xs text-emerald-400">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>{userProgress}%</span>
                 </div>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Agent Name and Description */}
-          <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
-            {agent.name}
-          </h3>
-          {agent.description && (
-            <p className="text-gray-400 text-sm text-center mb-2">
-              {agent.description}
-            </p>
-          )}
-        </div>
-
-        {/* Agent Stats Section - Matching Services Page Style */}
-        {showIntelligence && agentIntelligence && (
-          <div className="mt-auto pt-4 border-t border-cyan-400/20">
-            <div className="flex flex-row gap-6 justify-center">
-              <div className="flex flex-col items-center">
-                <span className="text-lg font-bold text-purple-400">{agentIntelligence.intelligenceLevel}</span>
-                <span className="text-xs text-gray-400">IQ Level</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-lg font-bold text-green-400">{liveUsers}</span>
-                <span className="text-xs text-gray-400">Users Active</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-lg font-bold text-cyan-400">{urgencySpots}</span>
-                <span className="text-xs text-gray-400">Tasks Queue</span>
-              </div>
+              )}
+              
+              {/* Mastery Level */}
+              {userMastery > 0 && (
+                <div className="flex items-center gap-1 text-xs text-amber-400">
+                  <Star className="w-3 h-3" />
+                  <span>Lvl {userMastery}</span>
+                </div>
+              )}
+              
+              {/* Urgency */}
+              {urgencySpots < 30 && (
+                <div className="flex items-center gap-1 text-xs text-rose-400">
+                  <Zap className="w-3 h-3" />
+                  <span>{urgencySpots} left</span>
+                </div>
+              )}
             </div>
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 justify-center mt-4">
-          {/* LEARN Button */}
-          <motion.button
-            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-600/80 to-blue-600/80 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold border border-cyan-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-            onClick={handleLearnClick}
-            aria-label={`Learn about ${agent.name}`}
-            tabIndex={0}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-          >
-            LEARN
-          </motion.button>
           
-          {/* CHAT Button */}
-          <motion.button
-            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-600/80 to-pink-600/80 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-bold border border-purple-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-            onClick={handleChatClick}
-            aria-label={`Chat with ${agent.name}`}
-            tabIndex={0}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-          >
-            CHAT
-          </motion.button>
+          {/* Agent Description */}
+          <div className="text-sm text-gray-300 mb-4 text-center line-clamp-2">
+            {agent.description?.slice(0, 80) || `AI-powered ${agent.category} assistant`}
+          </div>
           
-          {/* LAUNCH Button */}
-          <motion.button
-            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-green-600/80 to-emerald-600/80 hover:from-green-500 hover:to-emerald-500 text-white text-xs font-bold border border-green-400/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-            onClick={handleLaunchClick}
-            aria-label={`Launch ${agent.name}`}
-            tabIndex={0}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 22 }}
-          >
-            LAUNCH
-          </motion.button>
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLearnClick}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-cyan-500/50 text-cyan-400 text-xs font-medium agent-button-learn"
+            >
+              <Info className="w-3 h-3" />
+              Learn
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleChatClick}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-purple-500/50 text-purple-400 text-xs font-medium agent-button-chat"
+            >
+              <MessageCircle className="w-3 h-3" />
+              Chat
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleLaunchClick}
+              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-emerald-500/50 text-emerald-400 text-xs font-medium agent-button-launch"
+            >
+              <Rocket className="w-3 h-3" />
+              Launch
+            </motion.button>
+          </div>
         </div>
-      </motion.div>
+      </GlassmorphicCard>
 
       {/* Backstory Modal */}
       <AnimatePresence>
         {showBackstoryModal && backstory && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowBackstoryModal(false)}
-          >
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
-              className="relative w-full max-w-md mx-2 sm:mx-4 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-800/95 to-purple-900/95 backdrop-blur-xl border border-purple-500/30 shadow-2xl min-h-[300px] max-h-[90vh] overflow-y-auto focus:outline-none"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              tabIndex={-1}
-              role="dialog"
-              aria-modal="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              onClick={() => setShowBackstoryModal(false)}
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              className="relative w-full max-w-2xl max-h-[80vh] overflow-auto"
             >
-              {/* Close button */}
-              <button
-                onClick={() => setShowBackstoryModal(false)}
-                className="absolute top-2 right-2 sm:top-4 sm:right-4 flex items-center justify-center bg-black/60 w-9 h-9 sm:w-10 sm:h-10 rounded-full text-xl shadow-lg ring-1 ring-electric-blue/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/60"
-                aria-label="Close modal"
-              >
-                ×
-              </button>
-
-              <div className="text-center">
-                {/* Agent Name */}
-                <h2 className="text-2xl font-bold text-white mb-2">{agent.name}</h2>
+              <GlassmorphicCard className="p-6">
+                <button
+                  onClick={() => setShowBackstoryModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                >
+                  &times;
+                </button>
                 
-                {/* Catchphrase */}
-                <div className="text-sm text-fuchsia-200 mb-3">{`"${backstory.catchphrase}"`}</div>
+                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
+                  {agent.name} Backstory
+                </h2>
                 
-                {/* Origin */}
-                <div className="text-sm mb-3 text-gray-300">{backstory.origin}</div>
-                
-                {/* Powers */}
-                <div className="flex flex-wrap gap-2 justify-center mb-3">
-                  {backstory.powers.map((power, i) => (
-                    <span key={i} className="px-2 py-1 rounded-full bg-fuchsia-800/30 text-xs font-bold border border-fuchsia-400/30 text-fuchsia-200">
-                      {power}
-                    </span>
-                  ))}
-                </div>
-                  
-                {/* Stats */}
-                <div className="text-xs text-fuchsia-300 mb-1">
-                  Weakness: <span className="font-semibold text-white">{backstory.weakness}</span>
-                </div>
-                <div className="text-xs text-teal-300 mb-3">
-                  Nemesis: <span className="font-semibold text-white">{backstory.nemesis}</span>
-                </div>
-                
-                {/* Backstory */}
-                <div className="text-xs text-gray-200 mb-4 max-h-32 overflow-y-auto">
+                <div className="prose prose-invert max-w-none">
                   {backstory.backstory}
                 </div>
                 
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <CosmicButton
-                    variant="primary"
-                    onClick={() => {
-                      setShowBackstoryModal(false);
-                      handleChatClick({ stopPropagation: () => {} } as any);
-                    }}
-                    className="flex-1"
-                  >
-                    Chat Now
-                  </CosmicButton>
-                  <CosmicButton
-                    variant="accent"
-                    onClick={() => {
-                      setShowBackstoryModal(false);
-                      handleLaunchClick({ stopPropagation: () => {} } as any);
-                    }}
-                    className="flex-1"
-                  >
-                    Launch Agent
+                <div className="mt-6 flex justify-end">
+                  <CosmicButton onClick={() => setShowBackstoryModal(false)}>
+                    Close
                   </CosmicButton>
                 </div>
-              </div>
+              </GlassmorphicCard>
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

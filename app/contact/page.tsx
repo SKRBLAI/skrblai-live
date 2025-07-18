@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PageLayout from '@/components/layout/PageLayout';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import GlassmorphicForm from '@/components/shared/GlassmorphicForm';
 import CosmicButton from '@/components/shared/CosmicButton';
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, DollarSign, Target, Phone, Mail, Calendar } from 'lucide-react';
@@ -456,15 +457,18 @@ export default function ContactPage() {
             transition={{ delay: 0.8 }}
             className="max-w-4xl mx-auto mb-16"
           >
-            <GlassmorphicCard className="p-8">
-              <div className="text-center mb-8">
-                <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-4">
-                  Launch Your <span className="text-electric-blue">Transformation</span>
-                </CosmicHeading>
-                <p className="text-gray-300">Fill out the form - our team will contact you within hours</p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="text-center mb-8">
+              <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-4">
+                Launch Your <span className="text-electric-blue">Transformation</span>
+              </CosmicHeading>
+              <p className="text-gray-300">Fill out the form - our team will contact you within hours</p>
+            </div>
+            
+            <GlassmorphicForm 
+              onSubmit={handleSubmit} 
+              loading={isSubmitting}
+              className="space-y-6"
+            >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-electric-blue mb-2">
@@ -564,7 +568,7 @@ export default function ContactPage() {
                 <div className="text-center pt-2">
                   <CosmicButton
                     type="submit"
-                    variant="primary"
+                    variant="glass"
                     size="lg"
                     disabled={isSubmitting}
                     className="w-full sm:w-auto"
@@ -588,8 +592,7 @@ export default function ContactPage() {
                                       '< 24 hours'}
                   </p>
                 </div>
-              </form>
-            </GlassmorphicCard>
+              </GlassmorphicForm>
           </motion.div>
 
           {/* CTA Section - Matching Services Style */}
