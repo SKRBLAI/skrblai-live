@@ -1469,3 +1469,11 @@
     transform: translateY(0px) translateX(0px);
   }
 }
+
+/* 🌌 Global transparency overrides for page/layout wrappers */
+.page-layout,
+.ClientPageLayout,
+html,
+body {
+  background: transparent !important;
+}

@@ -28,12 +28,11 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0d1117]">
+    <div className="relative min-h-screen overflow-hidden ClientPageLayout">
       {/* Background Effects - RE-ENABLED FOR PHASE 2 TESTING */}
       <div className="absolute inset-0 z-0 opacity-40">
         <FloatingParticles />
       </div>
-      <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0d1117] via-[#0d1117]/90 to-[#0d1117]/80" />
 
       {/* Main Content */}
       <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
@@ -41,7 +40,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="backdrop-blur-lg bg-white/5 rounded-2xl shadow-xl border border-white/10 overflow-hidden"
+          className="backdrop-blur-lg rounded-2xl shadow-xl border border-white/10 overflow-hidden"
         >
           <div className="p-6 md:p-8 lg:p-10">
             {title && (

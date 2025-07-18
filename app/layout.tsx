@@ -29,14 +29,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className={`${inter.variable} dark bg-[#0d1117] overflow-x-hidden`}>
+    <html lang="en" className={`${inter.variable} dark overflow-x-hidden`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
         <meta name="theme-color" content="#0d1117" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden">
+      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden page-layout">
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
