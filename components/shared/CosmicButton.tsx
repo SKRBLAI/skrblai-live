@@ -14,6 +14,7 @@ interface CosmicButtonProps {
   className?: string;
   disabled?: boolean;
   type?: 'submit' | 'button' | 'reset';
+  glowColor?: string;
 }
 
 export default function CosmicButton({
@@ -24,7 +25,8 @@ export default function CosmicButton({
   size = 'md',
   className = '',
   disabled = false,
-  type = 'button'
+  type = 'button',
+  glowColor = 'teal-400'
 }: CosmicButtonProps) {
   const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-all duration-300';
   
@@ -33,7 +35,7 @@ export default function CosmicButton({
     secondary: 'bg-gray-800 hover:bg-gray-700 text-white',
     outline: 'border-2 border-gray-700 hover:border-electric-blue text-gray-300 hover:text-electric-blue',
     accent: 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-glow-sm hover:shadow-glow',
-    glass: 'bg-transparent backdrop-blur-md border-2 border-teal-400/70 text-white hover:shadow-[0_8px_32px_rgba(0,212,255,0.28)] hover:border-teal-300'
+    glass: `bg-transparent backdrop-blur-md border-2 border-${glowColor}/70 text-white hover:shadow-[0_0_25px_rgba(45,212,191,0.5),0_0_40px_rgba(56,189,248,0.3)] hover:border-teal-400/90 shadow-[0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]`
   };
 
   const sizeStyles = {
@@ -45,16 +47,17 @@ export default function CosmicButton({
 
   const buttonStyles = cn(`
     ${baseStyles}
-    ${variantStyles[variant]}
+    ${variant === 'glass' ? variantStyles.glass : variantStyles[variant]}
     ${sizeStyles[size]}
     ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
     ${className}
   `);
 
   const motionProps = {
-    whileHover: disabled ? {} : { scale: 1.02 },
+    whileHover: disabled ? {} : { scale: 1.02, y: variant === 'glass' ? -3 : 0 },
     whileTap: disabled ? {} : { scale: 0.98 },
-    transition: { duration: 0.2 }
+    transition: { duration: 0.2 },
+    style: variant === 'glass' ? { background: 'transparent', boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)' } : {}
   };
 
   if (href) {

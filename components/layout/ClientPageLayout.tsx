@@ -28,21 +28,22 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   };
 
   return (
-
     <div className="relative min-h-screen overflow-hidden ClientPageLayout">
-      {/* Background Effects - RE-ENABLED FOR PHASE 2 TESTING */}
-      <div className="absolute inset-0 z-0 opacity-40">
-        
-        <FloatingParticles />
+      {/* Enhanced Cosmic Background with high visibility */}
+      <div className="absolute inset-0 z-0 opacity-90">
+        <FloatingParticles particleCount={100} speed={0.3} />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content with fully transparent container */}
       <main className="relative z-10 max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl"
+          className="bg-transparent backdrop-blur-md rounded-2xl overflow-hidden border-2 border-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.4),0_0_30px_rgba(56,189,248,0.3)]"
+          style={{
+            background: 'transparent',
+          }}
         >
           <div className="p-6 md:p-8 lg:p-10">
             {title && (

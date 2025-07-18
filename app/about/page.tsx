@@ -138,9 +138,9 @@ export default function AboutPage(): JSX.Element {
   return (
     <PageLayout>
       <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-900/20 to-purple-900/20">
-          <FloatingParticles />
+        {/* Animated Background - Remove opaque gradient */}
+        <div className="absolute inset-0 z-0">
+          <FloatingParticles particleCount={80} speed={0.4} />
         </div>
 
         {/* Hero Section */}
@@ -154,7 +154,7 @@ export default function AboutPage(): JSX.Element {
             >
               {/* Live Revenue Banner */}
               <motion.div
-                className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-full border border-green-400/30 mb-8"
+                className="inline-flex items-center gap-3 px-6 py-3 cosmic-glass-teal rounded-full mb-8"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >

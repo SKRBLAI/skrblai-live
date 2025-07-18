@@ -11,6 +11,7 @@ interface GlassmorphicModalProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  glowColor?: string;
 }
 
 export default function GlassmorphicModal({
@@ -19,6 +20,7 @@ export default function GlassmorphicModal({
   isOpen,
   onClose,
   title,
+  glowColor = 'teal-400',
 }: GlassmorphicModalProps) {
   return (
     <AnimatePresence>
@@ -47,17 +49,21 @@ export default function GlassmorphicModal({
               className={cn(`
                 bg-transparent
                 backdrop-blur-xl
-                border-2 border-teal-400/70
-                rounded-2xl
-                shadow-[0_8px_32px_rgba(0,212,255,0.28)]
+                border-2 border-${glowColor}/70
+                rounded-3xl
+                shadow-[0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]
                 max-w-md w-full
                 max-h-[90vh]
                 overflow-hidden
                 ${className}
               `)}
+              style={{
+                background: 'transparent',
+                boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'
+              }}
             >
               {/* Header */}
-              <div className="flex justify-between items-center border-b border-teal-400/30 px-6 py-4 bg-teal-500/10 backdrop-blur-md">
+              <div className="flex justify-between items-center border-b border-teal-400/40 px-6 py-4 bg-transparent backdrop-blur-md">
                 {title && <h3 className="text-lg font-medium text-white">{title}</h3>}
                 <button 
                   onClick={onClose}
@@ -68,7 +74,7 @@ export default function GlassmorphicModal({
               </div>
               
               {/* Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)] bg-transparent">
                 {children}
               </div>
             </div>

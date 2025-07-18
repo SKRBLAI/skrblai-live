@@ -9,6 +9,7 @@ interface Particle {
   speedX: number;
   speedY: number;
   opacity: number;
+  color: string;
 }
 
 export default function CosmicBackground() {
@@ -22,21 +23,31 @@ export default function CosmicBackground() {
     if (!ctx) return;
 
     const particles: Particle[] = [];
-    const particleCount = 50;
+    const particleCount = 75; // Increased particle count
+    const colors = [
+      'rgba(56, 189, 248, 1)', // Electric blue
+      'rgba(45, 212, 191, 1)', // Teal
+      'rgba(129, 140, 248, 1)', // Indigo
+      'rgba(244, 114, 182, 1)', // Pink
+    ];
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
-    const createParticle = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 0.5,
-      speedX: (Math.random() - 0.5) * 0.3,
-      speedY: (Math.random() - 0.5) * 0.3,
-      opacity: Math.random() * 0.5 + 0.2
-    });
+    const createParticle = (): Particle => {
+      const colorIndex = Math.floor(Math.random() * colors.length);
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 0.5, // Slightly larger particles
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.7 + 0.3, // Higher opacity
+        color: colors[colorIndex]
+      };
+    };
 
     const initParticles = () => {
       particles.length = 0;
@@ -64,14 +75,18 @@ export default function CosmicBackground() {
         ctx.beginPath();
         const gradient = ctx.createRadialGradient(
           particle.x, particle.y, 0,
-          particle.x, particle.y, particle.size
+          particle.x, particle.y, particle.size * 2 // Larger gradient for enhanced glow
         );
-        gradient.addColorStop(0, `rgba(56, 189, 248, ${particle.opacity})`);
+        gradient.addColorStop(0, particle.color);
         gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
         
         ctx.fillStyle = gradient;
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
         ctx.fill();
+        
+        // Add glow effect
+        ctx.shadowBlur = particle.size * 5;
+        ctx.shadowColor = particle.color;
       });
     };
 
@@ -99,7 +114,7 @@ export default function CosmicBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
-      style={{ opacity: 0.3 }}
+      style={{ opacity: 0.5 }} // Increased opacity for better visibility
     />
   );
 }

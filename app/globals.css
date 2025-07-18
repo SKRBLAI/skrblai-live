@@ -1483,3 +1483,77 @@ html,
 body {
   background: transparent !important;
 }
+
+/* CRITICAL GLASSMORPHISM OVERRIDES - Must be at end of file to ensure it overrides all other styles */
+.bg-white, 
+.bg-white\/10, 
+.bg-white\/20, 
+.bg-white\/30, 
+.bg-white\/40, 
+.bg-white\/50, 
+.bg-white\/60, 
+.bg-white\/70, 
+.bg-white\/80, 
+.bg-white\/90, 
+.bg-white\/100 {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+.bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300, .bg-gray-400, .bg-gray-500, .bg-gray-600, .bg-gray-700, .bg-gray-800, .bg-gray-900,
+.bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-slate-300, .bg-slate-400, .bg-slate-500, .bg-slate-600, .bg-slate-700, .bg-slate-800, .bg-slate-900 {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* Force glassmorphism on ALL cards */
+.card, 
+div[class*="card"], 
+section[class*="container"],
+div[class*="container"],
+div[class*="panel"], 
+div[class*="box"], 
+div[class*="modal"],
+div[class*="dialog"] {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* Enhanced hover effects for all interactive elements */
+.card:hover, 
+div[class*="card"]:hover, 
+section[class*="container"]:hover,
+div[class*="container"]:hover,
+div[class*="panel"]:hover, 
+div[class*="box"]:hover, 
+button:hover,
+a[class*="btn"]:hover,
+div[role="button"]:hover {
+  box-shadow: 0 0 25px rgba(45, 212, 191, 0.5), 0 0 50px rgba(56, 189, 248, 0.3) !important;
+  border-color: rgba(45, 212, 191, 0.6) !important;
+  transform: translateY(-2px) !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Page layout specific transparency */
+.page-layout,
+.min-h-screen,
+div[class*="page"],
+div[class*="layout"],
+.ClientPageLayout {
+  background-color: transparent !important;
+}
+
+/* Default text color */
+body, p, div, span, h1, h2, h3, h4, h5, h6 {
+  color: #ffffff !important;
+}

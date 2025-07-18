@@ -106,13 +106,17 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="relative w-full max-w-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-2xl p-8 border border-cyan-400/30 shadow-2xl"
+            className="relative w-full max-w-2xl bg-transparent backdrop-blur-xl rounded-3xl p-8 border-2 border-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]"
+            style={{
+              background: 'transparent',
+              boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-gray-400 hover:text-white"
+              className="absolute top-4 right-4 p-2 rounded-full bg-transparent hover:bg-white/10 transition-colors text-gray-400 hover:text-white border border-teal-400/30"
             >
               <X className="w-5 h-5" />
             </button>
@@ -122,7 +126,10 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 rounded-full text-white text-sm font-bold shadow-lg"
+              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-transparent backdrop-blur-xl border border-orange-400/50 rounded-full text-white text-sm font-bold shadow-[0_0_15px_rgba(255,100,50,0.4)]"
+              style={{
+                boxShadow: '0 0 15px rgba(255,100,50,0.4)'
+              }}
             >
               <Timer className="w-4 h-4 inline mr-1" />
               {offer.urgency}
@@ -134,9 +141,12 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3, type: 'spring' }}
-                className="inline-flex p-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 mb-4"
+                className="inline-flex p-4 rounded-full bg-transparent backdrop-blur-xl border-2 border-cyan-400/50 mb-4 shadow-[0_0_15px_rgba(56,189,248,0.3)]"
+                style={{
+                  boxShadow: '0 0 15px rgba(56,189,248,0.3)'
+                }}
               >
-                <Gift className="w-8 h-8 text-white" />
+                <Gift className="w-8 h-8 text-cyan-300" />
               </motion.div>
 
               <motion.h2
@@ -163,7 +173,10 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 }}
-              className="flex items-center justify-center gap-3 mb-8 p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-xl"
+              className="flex items-center justify-center gap-3 mb-8 p-4 bg-transparent backdrop-blur-xl border border-green-400/40 rounded-xl shadow-[0_0_15px_rgba(74,222,128,0.2)]"
+              style={{
+                boxShadow: '0 0 15px rgba(74,222,128,0.2)'
+              }}
             >
               <Star className="w-5 h-5 text-green-400" />
               <span className="text-green-300 font-semibold">{offer.incentive}</span>
@@ -184,7 +197,10 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-4 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg"
+                  className="w-full px-4 py-4 bg-transparent border border-teal-400/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg backdrop-blur-md"
+                  style={{
+                    background: 'transparent'
+                  }}
                 />
               </div>
 
