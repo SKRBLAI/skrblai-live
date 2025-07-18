@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { X } from 'lucide-react';
 
 interface GlassmorphicModalProps {
   children: ReactNode;
@@ -63,7 +63,7 @@ export default function GlassmorphicModal({
                   onClick={onClose}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
-                  <XMarkIcon className="w-5 h-5" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
               
