@@ -61,7 +61,7 @@ export default function WaitlistPopup() {
               <motion.a
                 whileHover={{ scale: 1.07 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-5 py-2 rounded-lg bg-white text-electric-blue font-semibold shadow hover:bg-teal-50 transition-all focus:outline-none focus:ring-2 focus:ring-electric-blue/40"
+                className="px-5 py-2 rounded-lg glass-card text-electric-blue font-semibold hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-electric-blue/40"
               >
                 Join Waitlist
               </motion.a>
@@ -70,7 +70,7 @@ export default function WaitlistPopup() {
               <motion.a
                 whileHover={{ scale: 1.07 }}
                 whileTap={{ scale: 0.97 }}
-                className="px-5 py-2 rounded-lg bg-white text-teal-500 font-semibold shadow hover:bg-electric-blue/10 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400/40"
+                className="px-5 py-2 rounded-lg glass-card text-teal-200 font-semibold hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400/40"
               >
                 Request Access
               </motion.a>

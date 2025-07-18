@@ -70,7 +70,7 @@ export default function UniversalPromptBar({
 
   const isListening = focused || prompt.length > 0 || uploading;
   const themeCls = {
-    container: theme === 'dark' ? 'cosmic-glass cosmic-gradient p-4 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20]' : 'bg-white shadow-lg',
+    container: theme === 'dark' ? 'cosmic-glass cosmic-gradient p-4 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20]' : 'glass-card p-4 sm:p-6 shadow-xl',
     input: theme === 'dark' ? 'bg-white/5 border border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900',
     button: theme === 'dark' ? 'cosmic-btn-primary' : 'bg-blue-600 text-white',
     text: theme === 'dark' ? 'text-white' : 'text-gray-900',

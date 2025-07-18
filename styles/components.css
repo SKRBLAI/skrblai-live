@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Floating Particles */
 .particles-canvas {
   position: absolute;
@@ -43,3 +47,11 @@
 
 /* Import profile settings styles */
 @import url('./components/ProfileSettings.css');
+
+/* Glassmorphic Card Utility */
+@layer utilities {
+  .glass-card {
+  @apply bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl;
+  }
+
+}

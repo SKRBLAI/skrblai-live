@@ -53,13 +53,13 @@ export default function WorkflowTemplateCard({ template }: WorkflowTemplateCardP
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-teal-400">
+    <div className="glass-card p-6 border-l-4 border-teal-400">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">{template.name}</h3>
           <p className="text-gray-600 text-sm mt-1">{template.description}</p>
         </div>
-        <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
+        <span className="bg-white/5 backdrop-blur-sm border border-white/10 text-white/90 px-2 py-1 rounded text-xs">
           ~{template.estimatedDuration}min
         </span>
       </div>
@@ -68,7 +68,7 @@ export default function WorkflowTemplateCard({ template }: WorkflowTemplateCardP
         {template.steps.map((step, index) => (
           <span 
             key={step.id}
-            className="bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs"
+            className="bg-electric-blue/20 text-electric-blue px-2 py-1 rounded-full text-xs"
           >
             {index + 1}. {step.name}
           </span>

@@ -40,7 +40,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="rounded-2xl overflow-hidden"
+          className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl"
         >
           <div className="p-6 md:p-8 lg:p-10">
             {title && (
