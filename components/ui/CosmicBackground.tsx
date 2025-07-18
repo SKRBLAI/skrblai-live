@@ -67,9 +67,8 @@ export default function CosmicBackground() {
           transition={p.transition}
         />
       ))}
-      {/* Grid and gradient overlays */}
+      {/* Grid overlay with subtle pattern */}
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:60px_60px]" />
-      <div className="absolute inset-0 bg-gradient-to-b from-deep-navy via-deep-navy/90 to-deep-navy" />
     </div>
   );
 }

@@ -9,6 +9,59 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* NEW: Cosmic Glass Teal - Transparent glass with teal border */
+.cosmic-glass-teal {
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  border: 2px solid rgba(45, 212, 191, 0.7);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 212, 255, 0.18);
+  transition: all 0.3s ease;
+}
+
+.cosmic-glass-teal:hover {
+  box-shadow: 0 16px 48px rgba(0, 212, 255, 0.28);
+}
+
+/* Updated: Floating Container - Ultra-transparent like the navbar */
+.floating-container {
+  background-color: rgba(13, 17, 23, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(48, 213, 200, 0.1);
+  transition: all 0.3s ease;
+}
+
+.floating-container:hover {
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(48, 213, 200, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Updated: Floating Card - For content cards that need to float */
+.floating-card {
+  background-color: rgba(13, 17, 23, 0.15);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    0 0 15px rgba(30, 144, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.floating-card:hover {
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.2),
+    0 0 25px rgba(30, 144, 255, 0.2);
+  border: 1px solid rgba(48, 213, 200, 0.25);
+}
+
 /* Cosmic Gradient - Subtle background gradient for containers */
 .cosmic-gradient {
   background: radial-gradient(

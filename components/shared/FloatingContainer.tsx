@@ -1,41 +1,40 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, MotionProps } from 'framer-motion';
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-interface GlassmorphicCardProps {
+interface FloatingContainerProps {
   children: ReactNode;
   className?: string;
   hoverEffect?: boolean;
   onClick?: () => void;
+  motionProps?: MotionProps;
 }
 
-export default function GlassmorphicCard({
-  children,
-  className = '',
-  hoverEffect = true,
+export default function FloatingContainer({ 
+  children, 
+  className = '', 
+  hoverEffect = true, 
   onClick,
-}: GlassmorphicCardProps) {
+  motionProps = {}
+}: FloatingContainerProps) {
   return (
     <motion.div
-      onClick={onClick}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
+      onClick={onClick}
+      {...motionProps}
       className={cn(`
-        bg-transparent
-        backdrop-blur-xl
-        border-2 border-teal-400/70
-        rounded-3xl
-        shadow-[0_8px_32px_rgba(0,212,255,0.18)]
+        cosmic-glass-teal
+        overflow-hidden
+        p-6 md:p-8 lg:p-10
         ${hoverEffect ? 'hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)]' : ''}
-        transition-all duration-300
-        p-6 md:p-8 mx-4 md:mx-6 lg:mx-8
         ${className}
       `)}
     >
       {children}
     </motion.div>
   );
-}
+} 

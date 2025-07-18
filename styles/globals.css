@@ -48,7 +48,7 @@
   
   /* Percy-themed components */
   .percy-card {
-    background: rgba(8, 8, 16, 0.6);
+    background: transparent;
     border: 1px solid rgba(56, 189, 248, 0.2);
     box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
     backdrop-filter: blur(12px);
@@ -94,11 +94,13 @@
   }
 
   .glass-card {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg;
+    @apply bg-transparent backdrop-blur-lg border-2 border-teal-400/70 shadow-[0_8px_32px_rgba(0,212,255,0.18)];
   }
+  
   .drop-shadow-glow {
     text-shadow: 0 0 8px #14ffe9, 0 0 4px #fff;
   }
+  
   .hover\:bg-teal-100\/10:hover {
     background-color: rgb(204 251 241 / 0.1);
   }
@@ -146,4 +148,25 @@
       transform: translateY(-10px);
     }
   }
+}
+
+/* Global glassmorphic overrides */
+.bg-white, .bg-white\/10, .bg-white\/20, .bg-white\/5, .bg-white\/8 {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+}
+
+.bg-gray-800, .bg-gray-900, .bg-gray-700, .bg-slate-800, .bg-slate-900, .bg-slate-700 {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+}
+
+/* Hover states for glassmorphic elements */
+.hover\:bg-white\/10:hover, .hover\:bg-white\/20:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-600:hover {
+  background-color: rgba(45, 212, 191, 0.1) !important;
+  border-color: rgba(45, 212, 191, 0.5) !important;
 }

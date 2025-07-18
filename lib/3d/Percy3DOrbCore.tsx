@@ -90,11 +90,12 @@ export interface OrbGeometry {
 // DEFAULT CONFIGURATIONS
 // =============================================================================
 
+// Enhanced theme for better floating effect matching navbar's style
 export const DEFAULT_THEME: Percy3DOrbTheme = {
   primary: '#30D5C8',
   secondary: '#1E90FF', 
   accent: '#e879f9',
-  glow: '#00ffff',
+  glow: '#30D5C8',  // Enhanced glow to match floating UI
   particles: '#ffffff',
   rotationSpeed: 1,
   pulseSpeed: 2,
@@ -109,10 +110,11 @@ export const SIZE_CONFIGS = {
   xl: { width: 200, height: 200, radius: 2.5 }
 } as const;
 
+// Enhanced particles for better floating effect
 export const COMPLEXITY_CONFIGS = {
-  low: { segments: 8, rings: 6, particles: 20, effects: false },
-  medium: { segments: 16, rings: 12, particles: 50, effects: true },
-  high: { segments: 32, rings: 24, particles: 100, effects: true }
+  low: { segments: 8, rings: 6, particles: 30, effects: true },
+  medium: { segments: 16, rings: 12, particles: 60, effects: true },
+  high: { segments: 32, rings: 24, particles: 120, effects: true }
 } as const;
 
 // =============================================================================

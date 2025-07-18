@@ -216,7 +216,7 @@ export default function ServicesPage() {
                   selectedSolution === index ? 'ring-4 ring-cyan-400/50' : ''
                 }`}
               >
-                <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                <GlassmorphicCard className="h-full relative overflow-hidden">
                   {/* Live Activity Badge */}
                   <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -295,7 +295,7 @@ export default function ServicesPage() {
                 exit={{ opacity: 0, y: -20 }}
                 className="max-w-4xl mx-auto mb-16"
               >
-                <GlassmorphicCard className="p-8 border-2 border-cyan-400/50 shadow-2xl">
+                <GlassmorphicCard className="border-2 border-cyan-400/50 shadow-2xl">
                   <div className="flex items-start gap-4">
                     <Image
                       src="/images/agents-percy-nobg-skrblai.webp"
@@ -340,7 +340,7 @@ export default function ServicesPage() {
                 exit={{ opacity: 0, x: -50 }}
                 transition={{ duration: 0.5 }}
               >
-                <GlassmorphicCard className="p-8 text-center">
+                <GlassmorphicCard className="text-center">
                   <div className="text-green-400 font-bold text-2xl mb-2">
                     {successStories[currentTestimonial].result}
                   </div>
