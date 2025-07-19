@@ -1,132 +1,93 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import type { JSX } from 'react';
-import PageLayout from '@/components/layout/PageLayout';
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
-import FloatingParticles from '@/components/ui/FloatingParticles';
+import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
-import { TrendingUp, DollarSign, Clock, Users, Zap, Target, Star, Crown, Rocket, Shield, Brain } from 'lucide-react';
+import { 
+  TrendingUp, Rocket, DollarSign, Users, Clock, Target, 
+  Zap, Award, Lightbulb, Shield, ArrowRight 
+} from 'lucide-react';
+
+import ClientPageLayout from '@/components/layout/ClientPageLayout';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
+import CosmicHeading from '@/components/shared/CosmicHeading';
+import CosmicButton from '@/components/shared/CosmicButton';
 import SkrblAiText from '@/components/shared/SkrblAiText';
+import { useLiveMetrics } from '@/hooks/useLiveMetrics';
 
-// Live metrics simulation
-const useLiveMetrics = () => {
-  const [metrics, setMetrics] = useState({
-    companiesTransformed: 2847,
-    revenueGenerated: 18500000,
-    activeAgents: 14,
-    dailyTasks: 156789
-  });
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics(prev => ({
-        companiesTransformed: prev.companiesTransformed + Math.floor(Math.random() * 3),
-        revenueGenerated: prev.revenueGenerated + Math.floor(Math.random() * 50000),
-        activeAgents: 14,
-        dailyTasks: prev.dailyTasks + Math.floor(Math.random() * 200)
-      }));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return metrics;
-};
-
-const disruptionStory = [
+// Company story milestones
+const storyMilestones = [
   {
-    phase: "The Vision",
-    title: "AI Automation for Everyone",
-    description: "While others built complex enterprise tools, we created Percy - an AI concierge that makes automation accessible to creators, entrepreneurs, and businesses of all sizes.",
-    icon: "🎯",
-    metric: "14 AI Agents",
-    color: "from-cyan-400 to-blue-600"
+    year: "2023",
+    title: "The Vision",
+    description: "Started with a simple question: Why are businesses still doing manual work when AI can handle it all?",
+    icon: <Lightbulb className="w-6 h-6" />,
+    color: "from-yellow-500 to-orange-500"
   },
   {
-    phase: "The Revolution",
-    title: "N8N-Powered Intelligence",
-    description: "Real workflows, real results. Our agents don't just chat - they execute. From content creation to analytics, every agent delivers measurable business impact.",
-    icon: "⚡",
-    metric: "2000+ Workflows",
-    color: "from-purple-400 to-pink-600"
+    year: "2024", 
+    title: "AI Agent League",
+    description: "Assembled 14 specialized AI agents, each designed to dominate specific business functions.",
+    icon: <Users className="w-6 h-6" />,
+    color: "from-blue-500 to-purple-500"
   },
   {
-    phase: "The Future",
-    title: "Revenue-First Platform",
-    description: "Built for businesses that need results, not just conversations. Every feature designed to drive growth, increase efficiency, and generate real ROI.",
-    icon: "🚀",
-    metric: "$18.5M+ Generated",
-    color: "from-green-400 to-emerald-600"
+    year: "2024",
+    title: "Market Disruption", 
+    description: "Launched Percy the Cosmic Concierge and revolutionized how businesses interact with AI automation.",
+    icon: <Rocket className="w-6 h-6" />,
+    color: "from-green-500 to-teal-500"
+  },
+  {
+    year: "2025",
+    title: "Global Scale",
+    description: "Empowering thousands of businesses worldwide to automate, scale, and dominate their industries.",
+    icon: <Award className="w-6 h-6" />,
+    color: "from-purple-500 to-pink-500"
   }
 ];
 
-const competitiveAdvantages = [
+// Core values
+const coreValues = [
   {
-    advantage: "Real Workflow Execution",
-    description: "While others offer chatbots, we deliver actual business automation",
-    icon: <Zap className="w-6 h-6" />,
-    proof: "2000+ Live Workflows"
+    title: "Automation First",
+    description: "Every feature built to eliminate manual work and maximize efficiency.",
+    icon: <Zap className="w-8 h-8" />
   },
   {
-    advantage: "Revenue-Focused Design",
-    description: "Every feature built to drive measurable business results",
-    icon: <DollarSign className="w-6 h-6" />,
-    proof: "$18.5M+ Generated"
+    title: "Results Driven",
+    description: "Focus on measurable business outcomes, not just pretty interfaces.",
+    icon: <Target className="w-8 h-8" />
   },
   {
-    advantage: "No-Code Accessibility",
-    description: "Complex automation made simple through intuitive interfaces",
-    icon: <Target className="w-6 h-6" />,
-    proof: "94% User Success Rate"
-  },
-  {
-    advantage: "Enterprise-Grade Security",
-    description: "Bank-level security with complete data privacy and control",
-    icon: <Shield className="w-6 h-6" />,
-    proof: "SOC 2 Certified"
-  },
-  {
-    advantage: "24/7 AI Orchestration",
-    description: "Percy coordinates agent workflows around the clock",
-    icon: <Brain className="w-6 h-6" />,
-    proof: "99.9% Uptime"
-  },
-  {
-    advantage: "Rapid ROI Delivery",
-    description: "Most customers see positive ROI within their first week",
-    icon: <Clock className="w-6 h-6" />,
-    proof: "7-Day Average ROI"
+    title: "Enterprise Security",
+    description: "Bank level security standards with enterprise grade reliability.",
+    icon: <Shield className="w-8 h-8" />
   }
 ];
 
-const testimonials = [
+// Team achievements
+const achievements = [
   {
-    quote: "SKRBL AI transformed our content strategy completely. Percy's automation saved us 40+ hours per week.",
-    author: "Sarah Chen",
-    role: "Marketing Director",
-    company: "TechFlow Dynamics",
-    results: "90% Time Reduction",
-    avatar: "👩‍💼"
+    metric: "14",
+    label: "AI Agents",
+    description: "Specialized automation experts"
   },
   {
-    quote: "The ROI is incredible. Percy's agent orchestration helped us automate our entire sales funnel.",
-    author: "Marcus Rodriguez",
-    role: "CEO",
-    company: "GrowthLab Solutions",
-    results: "300% Revenue Increase",
-    avatar: "👨‍💼"
+    metric: "500+",
+    label: "Businesses",
+    description: "Successfully transformed"
   },
   {
-    quote: "Finally, an AI platform that actually delivers on its promises. Real automation, real results.",
-    author: "Dr. Amanda Foster",
-    role: "Operations Director",
-    company: "Innovation Institute",
-    results: "85% Process Efficiency",
-    avatar: "👩‍🔬"
+    metric: "97%",
+    label: "Success Rate",
+    description: "Client satisfaction score"
+  },
+  {
+    metric: "127%",
+    label: "Avg Growth",
+    description: "Revenue increase"
   }
 ];
 
@@ -136,303 +97,231 @@ export default function AboutPage(): JSX.Element {
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
 
   return (
-    <PageLayout>
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Background - Remove opaque gradient */}
-        <div className="absolute inset-0 z-0">
-          <FloatingParticles particleCount={80} speed={0.4} />
-        </div>
-
+    <ClientPageLayout>
+      <div className="space-y-16">
         {/* Hero Section */}
-        <section className="relative z-10 pt-20 pb-16">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <Pseudo3DHero className="text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Live Revenue Banner */}
             <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
+              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full mb-8"
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <TrendingUp className="w-5 h-5 text-green-400" />
+              <span className="text-green-300 font-bold">
+                LIVE: ${metrics.revenueGenerated.toLocaleString()}+ Revenue Generated
+              </span>
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            </motion.div>
+
+            <CosmicHeading className="text-4xl md:text-6xl lg:text-7xl mb-8">
+              The AI Revolution
+              <br />
+              <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Starts Here
+              </span>
+            </CosmicHeading>
+
+            <motion.p
+              className="text-xl md:text-2xl text-electric-blue mb-6 font-bold max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ delay: 0.2 }}
             >
-              {/* Live Revenue Banner */}
-              <motion.div
-                className="inline-flex items-center gap-3 px-6 py-3 cosmic-glass-teal rounded-full mb-8"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <TrendingUp className="w-5 h-5 text-green-400" />
-                <span className="text-green-300 font-bold">
-                  LIVE: ${metrics.revenueGenerated.toLocaleString()}+ Revenue Generated
-                </span>
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              </motion.div>
+              While others talk about AI, we deliver it. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> is the platform disrupting how businesses automate, create, and scale.
+            </motion.p>
 
-              <CosmicHeading className="text-5xl md:text-7xl lg:text-8xl mb-8">
-                The AI Revolution
-                <br />
-                <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                  Starts Here
-                </span>
-              </CosmicHeading>
-
-              <motion.p
-                className="text-2xl text-electric-blue mb-6 font-bold max-w-4xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                While others talk about AI, we deliver it. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> is the platform disrupting how businesses automate, create, and scale.
-              </motion.p>
-
-              <motion.p
-                className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                Built by entrepreneurs, for entrepreneurs. Led by Percy the Cosmic Concierge and powered by 14 specialized AI agents, 
-                we're not just another AI tool - we're your business transformation partner.
-              </motion.p>
-
-              <motion.div
-                className="flex flex-col sm:flex-row gap-4 justify-center"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <CosmicButton href="/agents" variant="primary" size="lg">
-                  <Rocket className="w-5 h-5 mr-2" />
-                  Meet The Agent League
-                </CosmicButton>
-                <CosmicButton href="/pricing" variant="secondary" size="lg">
-                  <DollarSign className="w-5 h-5 mr-2" />
-                  See Pricing & ROI
-                </CosmicButton>
-              </motion.div>
-            </motion.div>
-
-            {/* Live Metrics Dashboard - Single Floating Container */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
+            <motion.p
+              className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.3 }}
             >
-              <GlassmorphicCard className="border-cyan-400/20">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-cyan-400 mb-2 whitespace-nowrap leading-none">
-                      {metrics.companiesTransformed.toLocaleString()}+
-                    </div>
-                    <div className="text-gray-300 text-sm">Companies Transformed</div>
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-                  </div>
+              Built by entrepreneurs, for entrepreneurs. Led by Percy the Cosmic Concierge and powered by 14 specialized AI agents, 
+              we are not just another AI tool - we are your business transformation partner.
+            </motion.p>
 
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-400 mb-2 whitespace-nowrap leading-none">
-                      ${(metrics.revenueGenerated / 1000000).toFixed(1)}M+
-                    </div>
-                    <div className="text-gray-300 text-sm">Revenue Generated</div>
-                    <div className="w-2 h-2 bg-green-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-400 mb-2 whitespace-nowrap leading-none">
-                      {metrics.activeAgents}
-                    </div>
-                    <div className="text-gray-300 text-sm">Active AI Agents</div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-orange-400 mb-2 whitespace-nowrap leading-none">
-                      {metrics.dailyTasks.toLocaleString()}+
-                    </div>
-                    <div className="text-gray-300 text-sm">Daily Tasks Automated</div>
-                    <div className="w-2 h-2 bg-orange-400 rounded-full mx-auto mt-2 animate-pulse"></div>
-                  </div>
-                </div>
-              </GlassmorphicCard>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Disruption Story */}
-        <section className="relative z-10 py-20">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
             <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
             >
-              <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                How We're <span className="text-electric-blue">Disrupting</span> AI
-              </CosmicHeading>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                While the industry builds chatbots, we build business transformation tools.
-              </p>
+              <CosmicButton href="/agents" variant="primary" size="lg">
+                <Rocket className="w-5 h-5 mr-2" />
+                Meet The Agent League
+              </CosmicButton>
+              <CosmicButton href="/pricing" variant="secondary" size="lg">
+                <DollarSign className="w-5 h-5 mr-2" />
+                See Pricing and ROI
+              </CosmicButton>
             </motion.div>
+          </motion.div>
+        </Pseudo3DHero>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-              {disruptionStory.map((story, index) => (
-                <motion.div
-                  key={story.phase}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <GlassmorphicCard className="h-full hover:border-cyan-400/50 transition-all duration-300">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${story.color} mb-6`}>
-                      <span className="text-2xl">{story.icon}</span>
-                    </div>
-                    <div className="text-sm text-cyan-400 font-bold mb-2">{story.phase}</div>
-                    <h3 className="text-2xl font-bold text-white mb-4">{story.title}</h3>
-                    <p className="text-gray-300 mb-6 leading-relaxed">{story.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-electric-blue">{story.metric}</span>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                    </div>
-                  </GlassmorphicCard>
-                </motion.div>
-              ))}
-            </div>
+        {/* Live Metrics */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          {achievements.map((achievement, index) => (
+            <Pseudo3DStats key={achievement.label} className="text-center p-4">
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2">{achievement.metric}</div>
+              <div className="text-sm md:text-base font-semibold text-teal-400 mb-1">{achievement.label}</div>
+              <div className="text-xs md:text-sm text-gray-400">{achievement.description}</div>
+            </Pseudo3DStats>
+          ))}
+        </motion.div>
+
+        {/* Our Story Section */}
+        <Pseudo3DFeature className="text-center">
+          <CosmicHeading className="text-3xl md:text-5xl mb-8">
+            Our Story
+          </CosmicHeading>
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-12">
+            From a simple idea to revolutionizing business automation - here is how we are changing the game.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {storyMilestones.map((milestone, index) => (
+              <motion.div
+                key={milestone.year}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+              >
+                <Pseudo3DStats className="h-full text-center">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${milestone.color} mb-6`}>
+                    {milestone.icon}
+                  </div>
+                  <div className="text-2xl font-bold text-teal-400 mb-2">{milestone.year}</div>
+                  <h3 className="text-lg font-bold text-white mb-3">{milestone.title}</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">{milestone.description}</p>
+                </Pseudo3DStats>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </Pseudo3DFeature>
 
-        {/* Competitive Advantages */}
-        <section className="relative z-10 py-20 bg-gradient-to-b from-transparent to-slate-900/50">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                Why <span className="text-electric-blue">Businesses Choose</span> <SkrblAiText variant="glow" size="inherit">SKRBL AI</SkrblAiText>
-              </CosmicHeading>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                We don't just compete - we redefine what AI automation can achieve.
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {competitiveAdvantages.map((advantage, index) => (
-                <motion.div
-                  key={advantage.advantage}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <GlassmorphicCard className="h-full hover:border-electric-blue/50 transition-all duration-300">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white">
-                        {advantage.icon}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">{advantage.advantage}</h3>
-                        <p className="text-gray-300 mb-4">{advantage.description}</p>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 text-yellow-400" />
-                          <span className="text-sm font-bold text-electric-blue">{advantage.proof}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </GlassmorphicCard>
-                </motion.div>
-              ))}
-            </div>
+        {/* Core Values */}
+        <Pseudo3DFeature className="text-center">
+          <CosmicHeading className="text-3xl md:text-5xl mb-8">
+            What Drives Us
+          </CosmicHeading>
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-12">
+            Our core values guide every decision, every feature, and every interaction.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {coreValues.map((value, index) => (
+              <motion.div
+                key={value.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 * index }}
+              >
+                <Pseudo3DStats className="text-center h-full">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white mx-auto mb-4">
+                    {value.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{value.title}</h3>
+                  <p className="text-gray-300 leading-relaxed">{value.description}</p>
+                </Pseudo3DStats>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </Pseudo3DFeature>
 
-        {/* Success Stories */}
-        <section className="relative z-10 py-20">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                Real Results, <span className="text-electric-blue">Real Revenue</span>
-              </CosmicHeading>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Don't just take our word for it - see the measurable impact we're delivering.
-              </p>
-            </motion.div>
+        {/* Platform Benefits */}
+        <Pseudo3DFeature className="text-center">
+          <CosmicHeading className="text-3xl md:text-5xl mb-8">
+            Why <SkrblAiText variant="glow">SKRBL AI</SkrblAiText> Works
+          </CosmicHeading>
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-12">
+            We built the platform we wished existed when we were scaling our own businesses.
+          </p>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <motion.div
-                  key={testimonial.author}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.2 }}
-                >
-                  <GlassmorphicCard className="h-full">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-2xl">
-                        {testimonial.avatar}
-                      </div>
-                      <div>
-                        <div className="font-bold text-white">{testimonial.author}</div>
-                        <div className="text-sm text-gray-400">{testimonial.role}</div>
-                        <div className="text-sm text-electric-blue">{testimonial.company}</div>
-                      </div>
-                    </div>
-                    <blockquote className="text-gray-300 italic mb-6">
-                      "{testimonial.quote}"
-                    </blockquote>
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-green-400" />
-                      <span className="text-sm font-bold text-green-400">{testimonial.results}</span>
-                    </div>
-                  </GlassmorphicCard>
-                </motion.div>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {[
+              {
+                title: "No Learning Curve",
+                description: "Percy guides you through everything. No technical expertise required.",
+                metric: "5 min setup"
+              },
+              {
+                title: "Immediate Results", 
+                description: "See productivity gains and revenue impact within the first week.",
+                metric: "7 day ROI"
+              },
+              {
+                title: "Scales With You",
+                description: "From startup to enterprise, our agents grow with your business.",
+                metric: "Unlimited scale"
+              },
+              {
+                title: "Real Support",
+                description: "Percy and our team ensure you succeed, not just sell you software.",
+                metric: "24/7 support"
+              }
+            ].map((benefit, index) => (
+              <motion.div
+                key={benefit.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * index }}
+              >
+                <Pseudo3DStats className="text-left h-full">
+                  <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                    {index + 1}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-3">{benefit.title}</h3>
+                  <p className="text-gray-300 mb-4 leading-relaxed">{benefit.description}</p>
+                  <div className="text-teal-400 font-bold">{benefit.metric}</div>
+                </Pseudo3DStats>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </Pseudo3DFeature>
 
         {/* CTA Section */}
-        <section className="relative z-10 py-20">
-          <div className="max-w-4xl mx-auto px-4 md:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <GlassmorphicCard className="text-center bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border-cyan-400/30">
-                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8">
-                  <Crown className="w-5 h-5 text-yellow-400" />
-                  <span className="text-cyan-300 font-bold">JOIN THE REVOLUTION</span>
-                </div>
+        <Pseudo3DHero className="text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+          >
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8">
+              <Clock className="w-5 h-5 text-cyan-400" />
+              <span className="text-cyan-300 font-bold">Join The Revolution Today</span>
+            </div>
 
-                <CosmicHeading className="text-4xl md:text-5xl mb-6">
-                  Ready to <span className="text-electric-blue">Transform</span> Your Business?
-                </CosmicHeading>
+            <CosmicHeading className="text-3xl md:text-5xl mb-6">
+              Ready to Transform Your Business?
+            </CosmicHeading>
+            
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-8">
+              Stop doing manual work. Start dominating your industry with AI automation that actually works.
+            </p>
 
-                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Join thousands of businesses already using SKRBL AI to automate, scale, and dominate their markets.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <CosmicButton href="/agents" variant="primary" size="lg">
-                    <Rocket className="w-5 h-5 mr-2" />
-                    Start Free Trial
-                  </CosmicButton>
-                  <CosmicButton href="/contact" variant="secondary" size="lg">
-                    <Users className="w-5 h-5 mr-2" />
-                    Schedule Demo
-                  </CosmicButton>
-                </div>
-              </GlassmorphicCard>
-            </motion.div>
-          </div>
-        </section>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <CosmicButton href="/sign-up" size="lg" className="text-lg px-8 py-4">
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </CosmicButton>
+              <CosmicButton href="/services" variant="secondary" size="lg" className="text-lg px-8 py-4">
+                See Solutions
+              </CosmicButton>
+            </div>
+          </motion.div>
+        </Pseudo3DHero>
       </div>
-    </PageLayout>
+    </ClientPageLayout>
   );
 }

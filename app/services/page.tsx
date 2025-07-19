@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import PageLayout from 'components/layout/PageLayout';
+import ClientPageLayout from '@/components/layout/ClientPageLayout';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
 import CosmicButton from '@/components/shared/CosmicButton';
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import Image from 'next/image';
@@ -16,7 +17,7 @@ const businessSolutions = [
   {
     problem: "Revenue Stalling",
     subheading: "Break through growth plateaus",
-    description: "AI-powered analytics and marketing automation that identifies hidden revenue opportunities and converts them into profit.",
+    description: "AI powered analytics and marketing automation that identifies hidden revenue opportunities and converts them into profit.",
     agents: ['analytics', 'adcreative', 'social'],
     icon: <TrendingUp className="w-8 h-8" />,
     metrics: { successRate: 94, avgIncrease: "127%", timeToResults: "14 days" },
@@ -26,8 +27,8 @@ const businessSolutions = [
   },
   {
     problem: "Brand Confusion", 
-    subheading: "Customers don't 'get' your brand",
-    description: "Complete brand identity transformation with AI-powered logo design, voice development, and positioning strategy.",
+    subheading: "Customers dont get your brand",
+    description: "Complete brand identity transformation with AI powered logo design, voice development, and positioning strategy.",
     agents: ['branding', 'contentcreation', 'book-publishing'],
     icon: <Palette className="w-8 h-8" />,
     metrics: { successRate: 89, avgIncrease: "156%", timeToResults: "21 days" },
@@ -48,110 +49,74 @@ const businessSolutions = [
   },
   {
     problem: "Content Drought",
-    subheading: "Can't keep up with content demands",
-    description: "AI content engine that creates engaging posts, articles, books, and campaigns across all platforms.",
-    agents: ['contentcreation', 'social', 'book-publishing'],
+    subheading: "Running out of content ideas",
+    description: "AI powered content engine that creates unlimited engaging content across all platforms and formats.",
+    agents: ['contentcreation', 'social', 'videocontent'],
     icon: <FilePenLine className="w-8 h-8" />,
-    metrics: { successRate: 91, avgIncrease: "189%", timeToResults: "3 days" },
+    metrics: { successRate: 92, avgIncrease: "189%", timeToResults: "10 days" },
     href: '/content-automation',
     primaryColor: 'from-orange-600 to-red-500',
-    liveActivity: { users: 29, status: "📝 Creating" }
+    liveActivity: { users: 78, status: "📈 Growing" }
   },
   {
-    problem: "Marketing Chaos",
-    subheading: "Campaigns that don't convert",
-    description: "Data-driven marketing automation with AI audience targeting and campaign optimization for maximum ROI.",
-    agents: ['adcreative', 'analytics', 'social'],
-    icon: <Megaphone className="w-8 h-8" />,
-    metrics: { successRate: 87, avgIncrease: "198%", timeToResults: "10 days" },
-    href: '/marketing',
-    primaryColor: 'from-fuchsia-600 to-purple-500',
-    liveActivity: { users: 42, status: "🚀 Converting" }
-  },
-  {
-    problem: "Authority Deficit",
-    subheading: "No one sees you as the expert",
-    description: "Publish a professional book, establish thought leadership, and become the go-to authority in your industry.",
-    agents: ['book-publishing', 'contentcreation', 'branding'],
+    problem: "Authority Absence",
+    subheading: "Nobody knows you exist",
+    description: "Complete thought leadership strategy with book publishing, speaking opportunities, and industry recognition.",
+    agents: ['publishing', 'contentcreation', 'proposal'],
     icon: <BookOpen className="w-8 h-8" />,
-    metrics: { successRate: 93, avgIncrease: "312%", timeToResults: "45 days" },
+    metrics: { successRate: 87, avgIncrease: "167%", timeToResults: "30 days" },
     href: '/book-publishing',
-    primaryColor: 'from-indigo-600 to-blue-500',
-    liveActivity: { users: 18, status: "📚 Publishing" }
+    primaryColor: 'from-indigo-600 to-purple-500',
+    liveActivity: { users: 29, status: "📚 Expert" }
+  },
+  {
+    problem: "Sales Chaos",
+    subheading: "Leads falling through cracks",
+    description: "Complete sales automation with lead nurturing, proposal generation, and client success management.",
+    agents: ['proposal', 'clientsuccess', 'analytics'],
+    icon: <DollarSign className="w-8 h-8" />,
+    metrics: { successRate: 91, avgIncrease: "198%", timeToResults: "14 days" },
+    href: '/dashboard/analytics',
+    primaryColor: 'from-green-600 to-teal-500',
+    liveActivity: { users: 52, status: "💰 Profitable" }
   }
 ];
 
-// Success Stories (rotating testimonials)
-const successStories = [
-  {
-    business: "TechFlow Solutions",
-    result: "$127K revenue increase in 90 days",
-    solution: "Revenue Stalling → Analytics + Marketing Automation",
-    quote: (<><SkrblAiText variant="pulse" size="sm">SKRBL AI</SkrblAiText> found $127K in hidden revenue opportunities we never knew existed.</>)
-  },
-  {
-    business: "Rose Ladon Collective", 
-    result: "156% brand recognition boost",
-    solution: "Brand Confusion → Complete Identity Transformation",
-    quote: "Our rebrand generated more leads in 30 days than the previous year combined."
-  },
-  {
-    business: "Nexus Consulting",
-    result: "40 hours/week saved on automation",
-    solution: "Manual Overwhelm → Complete Workflow Automation", 
-    quote: "We went from drowning in busywork to focusing on what actually grows the business."
-  }
-];
+// Live metrics data
+const globalMetrics = {
+  totalProblems: 147,
+  problemsSolved: 139,
+  avgTimeToSolution: "12 days",
+  clientSatisfaction: "97.3%"
+};
 
 export default function ServicesPage() {
-  const [selectedSolution, setSelectedSolution] = useState<number | null>(null);
-  const [percyResponse, setPercyResponse] = useState<string>("");
-  const [liveMetrics, setLiveMetrics] = useState({ totalUsers: 247, urgentSpots: 23 });
-  const [currentTestimonial, setCurrentTestimonial] = useState(0);
-  
-  // Live activity updates
+  const [liveMetrics, setLiveMetrics] = useState({
+    totalUsers: 187,
+    urgentSpots: 12,
+    activeSolutions: 6
+  });
+
+  // Simulate live metrics updates
   useEffect(() => {
     const interval = setInterval(() => {
       setLiveMetrics(prev => ({
-        totalUsers: prev.totalUsers + Math.floor(Math.random() * 3) - 1,
-        urgentSpots: Math.max(5, prev.urgentSpots + Math.floor(Math.random() * 2) - 1)
+        totalUsers: prev.totalUsers + Math.floor(Math.random() * 3),
+        urgentSpots: Math.max(5, prev.urgentSpots - Math.floor(Math.random() * 2)),
+        activeSolutions: businessSolutions.length
       }));
-    }, 15000);
+    }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Rotating testimonials
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTestimonial((prev) => (prev + 1) % successStories.length);
-    }, 6000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Percy Quiz Logic
-  const handlePercyQuiz = (problemIndex: number) => {
-    setSelectedSolution(problemIndex);
-    const solution = businessSolutions[problemIndex];
-    setPercyResponse(`🎯 Perfect match! Based on your "${solution.problem}" challenge, I've assembled the ideal agent team: ${solution.agents.map(id => id.replace('-agent', '').replace('-', ' ')).join(', ')}. Ready to see ${solution.metrics.avgIncrease} average results in ${solution.metrics.timeToResults}?`);
-  };
-
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
+  const handleSolutionClick = (solution: typeof businessSolutions[0]) => {
+    console.log(`User selected solution: ${solution.problem}`);
+    // You can add tracking here
   };
 
   return (
-    <PageLayout>
+    <ClientPageLayout>
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -161,229 +126,206 @@ export default function ServicesPage() {
         <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
           
           {/* Hero Section with Live Activity */}
+          <Pseudo3DHero className="text-center mb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="flex items-center justify-center gap-2 mb-4 flex-wrap">
+                <div className="flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                  🔥 LIVE: {liveMetrics.totalUsers} businesses transforming now
+                </div>
+                <div className="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-bold">
+                  ⚡ {liveMetrics.urgentSpots} urgent spots left this week
+                </div>
+              </div>
+              
+              <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6">
+                What Is Your Biggest Business Challenge?
+              </CosmicHeading>
+              <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed">
+                Percy analyzes your challenge and assembles the perfect AI agent team to solve it. <span className="text-white font-bold">Real solutions, real results, real fast.</span>
+              </p>
+            </motion.div>
+          </Pseudo3DHero>
+
+          {/* Global Success Metrics */}
           <motion.div
-            className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
           >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                🔥 LIVE: {liveMetrics.totalUsers} businesses transforming now
-              </div>
-              <div className="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-bold">
-                ⚡ {liveMetrics.urgentSpots} urgent spots left this week
-              </div>
-            </div>
-            
-            <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6 mobile-text-safe no-text-cutoff">
-              What's Your Biggest Business Challenge?
-            </CosmicHeading>
-            <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed mobile-text-safe no-text-cutoff">
-              Percy analyzes your challenge and assembles the perfect AI agent team to solve it. <span className="text-white font-bold">Real solutions, real results, real fast.</span>
-            </p>
-            
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <Image
-                src="/images/agents-percy-nobg-skrblai.webp"
-                alt="Percy the AI Concierge"
-                width={80}
-                height={80}
-                className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30"
-                priority
-              />
-              <div className="text-left">
-                <div className="text-white font-bold">Percy's Business Intelligence</div>
-                <div className="text-cyan-400 text-sm">🧠 Analyzing your perfect solution...</div>
-              </div>
-            </div>
+            {Object.entries(globalMetrics).map(([key, value], index) => (
+              <Pseudo3DStats key={key} className="text-center p-4">
+                <div className="text-2xl md:text-3xl font-bold text-white mb-1">{value}</div>
+                <div className="text-sm text-gray-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</div>
+              </Pseudo3DStats>
+            ))}
           </motion.div>
-
-          {/* Problem-Solution Grid */}
+          
+          {/* Business Solutions Grid */}
           <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16"
           >
             {businessSolutions.map((solution, index) => (
-              <motion.div
+              <Pseudo3DFeature
                 key={solution.problem}
-                variants={item}
-                whileHover={{ scale: 1.02, y: -5 }}
-                onClick={() => handlePercyQuiz(index)}
-                className={`relative group cursor-pointer transition-all duration-300 ${
-                  selectedSolution === index ? 'ring-4 ring-cyan-400/50' : ''
-                }`}
+                className="group cursor-pointer relative overflow-hidden"
+                onClick={() => handleSolutionClick(solution)}
               >
-                <GlassmorphicCard className="h-full relative overflow-hidden">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="relative z-10"
+                >
                   {/* Live Activity Badge */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 font-bold">{solution.liveActivity.users}</span>
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1 text-xs">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-300">{solution.liveActivity.users}</span>
+                    </div>
                   </div>
-                  
-                  {/* Problem Header */}
-                  <div className="flex flex-col items-center mb-2">
-  <div className={`p-3 rounded-lg bg-gradient-to-r ${solution.primaryColor} shadow-glow mb-2 group-hover:scale-110 transition-transform`}>
-    {solution.icon}
-  </div>
-  <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
-    {solution.problem}
-  </h3>
-  <p className="text-gray-400 text-sm text-center mb-2">
-    {solution.subheading}
-  </p>
-</div>
 
-{/* Description */}
-<p className="text-gray-300 mb-4 line-clamp-2 text-center">
-  {solution.description}
-</p>
+                  {/* Icon with gradient background */}
+                  <div className={`p-3 rounded-lg bg-gradient-to-r ${solution.primaryColor} shadow-glow mb-2 group-hover:scale-110 transition-transform`}>
+                    {solution.icon}
+                  </div>
 
-{/* Separated Stat Block (Premium Style) */}
-<div className="mt-auto pt-4 border-t border-cyan-400/20">
-  <div className="flex flex-row gap-6 justify-center">
-    <div className="flex flex-col items-center">
-      <span className="text-lg font-bold text-green-400">{solution.metrics.successRate}%</span>
-      <span className="text-xs text-gray-400">Success Rate</span>
-    </div>
-    <div className="flex flex-col items-center">
-      <span className="text-lg font-bold text-cyan-400">{solution.metrics.avgIncrease}</span>
-      <span className="text-xs text-gray-400">Avg Increase</span>
-    </div>
-    <div className="flex flex-col items-center">
-      <span className="text-lg font-bold text-purple-400">{solution.metrics.timeToResults}</span>
-      <span className="text-xs text-gray-400">To Results</span>
-    </div>
-  </div>
-</div>
-                  
-                  {/* Agent Team Preview */}
+                  {/* Problem Title */}
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-teal-300 transition-colors">
+                    {solution.problem}
+                  </h3>
+
+                  {/* Subheading */}
+                  <p className="text-sm text-gray-400 mb-3">
+                    {solution.subheading}
+                  </p>
+
+                  {/* Description */}
+                  <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                    {solution.description}
+                  </p>
+
+                  {/* Metrics */}
+                  <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
+                    <div className="text-center">
+                      <div className="text-green-400 font-bold">{solution.metrics.successRate}%</div>
+                      <div className="text-gray-500">Success</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-teal-400 font-bold">{solution.metrics.avgIncrease}</div>
+                      <div className="text-gray-500">Growth</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-blue-400 font-bold">{solution.metrics.timeToResults}</div>
+                      <div className="text-gray-500">Results</div>
+                    </div>
+                  </div>
+
+                  {/* Agent Team */}
                   <div className="mb-4">
-                    <div className="text-sm text-gray-400 mb-2">AI Agent Team:</div>
-                    <div className="flex gap-2 flex-wrap">
-                      {solution.agents.map((agentId) => (
-                        <span key={agentId} className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-xs">
-                          {agentId.replace('-agent', '').replace('-', ' ')}
+                    <div className="text-xs text-gray-400 mb-2">AI Agent Team:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {solution.agents.map(agent => (
+                        <span 
+                          key={agent}
+                          className="px-2 py-1 bg-teal-500/20 text-teal-300 rounded text-xs border border-teal-500/30"
+                        >
+                          {agent}
                         </span>
                       ))}
                     </div>
                   </div>
-                  
-                  {/* Action Button */}
-                  <CosmicButton 
-                    variant="primary" 
-                    className="w-full group-hover:shadow-xl transition-all"
-                  >
-                    🎯 Solve This Problem
-                  </CosmicButton>
-                  
-                  {/* Hover Glow Effect */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${solution.primaryColor} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none`}></div>
-                </GlassmorphicCard>
-              </motion.div>
+
+                  {/* CTA */}
+                  <Link href={solution.href}>
+                    <CosmicButton size="sm" className="w-full group-hover:scale-105 transition-transform">
+                      Solve This Problem
+                    </CosmicButton>
+                  </Link>
+                </motion.div>
+
+                {/* Hover gradient overlay */}
+                <div className={`absolute inset-0 bg-gradient-to-r ${solution.primaryColor} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none`}></div>
+              </Pseudo3DFeature>
             ))}
           </motion.div>
 
-          {/* Percy's Analysis Response */}
-          <AnimatePresence>
-            {percyResponse && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-4xl mx-auto mb-16"
-              >
-                <GlassmorphicCard className="border-2 border-cyan-400/50 shadow-2xl">
-                  <div className="flex items-start gap-4">
-                    <Image
-                      src="/images/agents-percy-nobg-skrblai.webp"
-                      alt="Percy"
-                      width={60}
-                      height={60}
-                      className="rounded-full border-2 border-cyan-400/50"
-                    />
-                    <div className="flex-1">
-                      <div className="text-cyan-400 font-bold mb-2">Percy's Analysis:</div>
-                      <p className="text-white text-lg leading-relaxed mb-4">{percyResponse}</p>
-                      <div className="flex gap-4">
-                        <Link href="/agents" className="cosmic-btn-primary px-6 py-3 rounded-xl font-bold">
-                          Meet The Agent Team
-                        </Link>
-                        <Link href="/sign-up" className="cosmic-btn-secondary px-6 py-3 rounded-xl font-bold">
-                          Start Free Trial
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </GlassmorphicCard>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Live Success Stories */}
-          <motion.div
-            className="max-w-6xl mx-auto mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          {/* Why Choose Us Section */}
+          <Pseudo3DFeature className="text-center mb-16">
             <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-              Live Success Stories
+              Why Businesses Choose <SkrblAiText variant="glow">SKRBL AI</SkrblAiText>
             </h2>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentTestimonial}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.5 }}
-              >
-                <GlassmorphicCard className="text-center">
-                  <div className="text-green-400 font-bold text-2xl mb-2">
-                    {successStories[currentTestimonial].result}
-                  </div>
-                  <div className="text-gray-400 mb-4">
-                    {successStories[currentTestimonial].business} • {successStories[currentTestimonial].solution}
-                  </div>
-                  <blockquote className="text-white text-lg italic">
-                    "{successStories[currentTestimonial].quote}"
-                  </blockquote>
-                </GlassmorphicCard>
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
+            <p className="text-gray-300 max-w-2xl mx-auto mb-8">
+              We do not just compete - we redefine what AI automation can achieve.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {[
+                {
+                  title: "Real Workflow Execution",
+                  description: "While others offer workflows, we deliver entire business operations that run themselves.",
+                  metric: "10x faster execution"
+                },
+                {
+                  title: "Revenue Focused Design", 
+                  description: "Every feature built to drive measurable business results.",
+                  metric: "ROI within 14 days"
+                },
+                {
+                  title: "No Code Accessibility",
+                  description: "Advanced AI that requires zero technical expertise.",
+                  metric: "99% user success rate"
+                },
+                {
+                  title: "Enterprise Grade Security",
+                  description: "Bank level security with enterprise level capability.",
+                  metric: "SOC2 compliant"
+                }
+              ].map((feature, index) => (
+                <Pseudo3DStats
+                  key={feature.title}
+                  className="text-left"
+                >
+                  <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-300 text-sm mb-3">{feature.description}</p>
+                  <div className="text-teal-400 font-bold text-sm">{feature.metric}</div>
+                </Pseudo3DStats>
+              ))}
+            </div>
+          </Pseudo3DFeature>
 
-          {/* CTA Section */}
-          <motion.div
-            className="max-w-5xl mx-auto text-center mb-24"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          {/* Final CTA Section */}
+          <Pseudo3DHero className="text-center">
             <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
               <h2 className="text-4xl font-bold text-white mb-4">
                 Ready To Transform Your Business?
               </h2>
-              <p className="text-xl text-gray-300 mb-8">
-                Join {liveMetrics.totalUsers}+ businesses already using <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> to dominate their industries.
+              <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Join thousands of businesses already using <SkrblAiText variant="wave">SKRBL</SkrblAiText> to automate, scale, and dominate their industries.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/sign-up" className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl">
-                  🚀 Start Free Trial (No Credit Card)
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Link href="/sign-up">
+                  <CosmicButton size="lg" className="text-lg px-8 py-4">
+                    Start Free Trial
+                  </CosmicButton>
                 </Link>
-                <Link href="/agents" className="cosmic-btn-secondary px-8 py-4 rounded-xl font-bold text-lg">
-                  👥 Meet Your Agent League
+                <Link href="/about">
+                  <CosmicButton variant="secondary" size="lg" className="text-lg px-8 py-4">
+                    Learn More
+                  </CosmicButton>
                 </Link>
-              </div>
-              <div className="mt-6 text-sm text-gray-400">
-                ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
               </div>
             </div>
-          </motion.div>
+          </Pseudo3DHero>
         </div>
       </motion.div>
-    </PageLayout>
+    </ClientPageLayout>
   );
 }

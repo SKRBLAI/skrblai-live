@@ -2,6 +2,7 @@
 import './globals.css';
 import '../styles/components.css';
 import '../styles/cosmic-theme.css';
+import '../styles/pseudo-3d-effects.css';
 import PageTransition from '@/components/ui/PageTransition';
 import PercyProvider from '@/components/assistant/PercyProvider';
 import { BannerProvider } from '@/components/context/BannerContext';
@@ -13,6 +14,7 @@ import ParticleGlowBackground from '@/components/ui/ParticleGlowBackground';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { useState, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 import { validateHomepageUI } from '@/utils/agentUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -22,11 +24,17 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export default function RootLayout({ children }: { children: ReactNode }) {
   // Core state for app
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
   
   // Set mounted on client-side
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Pages that use ClientPageLayout and should have their own cosmic background
+  const clientPageLayoutPages = ['/about', '/features', '/content-automation', '/branding', '/book-publishing', '/academy', '/services', '/contact', '/pricing'];
+  const isClientPageLayoutPage = pathname && clientPageLayoutPages.some(page => pathname.startsWith(page));
+  const isHomepage = pathname === '/';
 
   return (
     <html lang="en" className={`${inter.variable} dark overflow-x-hidden`}>
@@ -40,9 +48,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
-          {/* Global Cosmic Background + Particle Glow */}
-          <CosmicBackground />
-          <ParticleGlowBackground />
+          {/* Only show global cosmic backgrounds on homepage and non-ClientPageLayout pages */}
+          {(isHomepage || !isClientPageLayoutPage) && (
+            <>
+              <CosmicBackground />
+              <ParticleGlowBackground />
+            </>
+          )}
 
           {/* Global Navigation */}
           <Navbar />

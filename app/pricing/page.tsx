@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PageLayout from '@/components/layout/PageLayout';
-import CosmicBackground from '@/components/shared/CosmicBackground';
+
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import CosmicButton from '@/components/shared/CosmicButton';
@@ -130,7 +130,7 @@ export default function PricingPage() {
   return (
     <PageLayout>
       <div className="relative min-h-screen">
-        <CosmicBackground />
+  
         
         <div className="container mx-auto px-4 py-24 relative z-10">
           {/* Disruption Hero Section */}

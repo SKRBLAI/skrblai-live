@@ -1,0 +1,187 @@
+/* Pseudo-3D Effects System - Based on Navbar Implementation */
+
+/* Base 3D Container Classes */
+.pseudo-3d-base {
+  position: relative;
+  border-radius: 16px;
+  background: rgba(45, 212, 191, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid rgba(45, 212, 191, 0.3);
+  transform-style: preserve-3d;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Size Variants */
+.pseudo-3d-sm {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border-width: 1px;
+}
+
+.pseudo-3d-md {
+  padding: 20px 24px;
+  border-radius: 16px;
+  border-width: 2px;
+}
+
+.pseudo-3d-lg {
+  padding: 32px 40px;
+  border-radius: 20px;
+  border-width: 3px;
+}
+
+.pseudo-3d-xl {
+  padding: 48px 56px;
+  border-radius: 24px;
+  border-width: 3px;
+}
+
+.pseudo-3d-hero {
+  padding: 64px 72px;
+  border-radius: 32px;
+  border-width: 4px;
+}
+
+/* Intensity Levels */
+.pseudo-3d-subtle {
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(45, 212, 191, 0.15);
+}
+
+.pseudo-3d-medium {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(45, 212, 191, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pseudo-3d-strong {
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(45, 212, 191, 0.35),
+    0 0 80px rgba(56, 189, 248, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Shadow Layers - Based on Navbar Implementation */
+.pseudo-3d-shadow-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), transparent, rgba(0, 0, 0, 0.2));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pseudo-3d-rim-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(45deg, rgba(45, 212, 191, 0.4), rgba(56, 189, 248, 0.3));
+  filter: blur(4px);
+  opacity: 0.6;
+  z-index: -1;
+}
+
+.pseudo-3d-cast-shadow {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.05), transparent);
+  pointer-events: none;
+  z-index: -2;
+}
+
+/* Hover Effects */
+.pseudo-3d-hover:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(45, 212, 191, 0.5);
+}
+
+.pseudo-3d-hover:hover .pseudo-3d-rim-glow {
+  opacity: 0.8;
+  filter: blur(6px);
+}
+
+.pseudo-3d-hover:hover.pseudo-3d-subtle {
+  box-shadow: 
+    0 8px 16px rgba(0, 0, 0, 0.15),
+    0 0 30px rgba(45, 212, 191, 0.25);
+}
+
+.pseudo-3d-hover:hover.pseudo-3d-medium {
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.2),
+    0 0 40px rgba(45, 212, 191, 0.35),
+    0 0 60px rgba(56, 189, 248, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.pseudo-3d-hover:hover.pseudo-3d-strong {
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.25),
+    0 0 50px rgba(45, 212, 191, 0.45),
+    0 0 100px rgba(56, 189, 248, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+  .pseudo-3d-hero {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
+  
+  .pseudo-3d-xl {
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+  
+  .pseudo-3d-lg {
+    padding: 20px 16px;
+    border-radius: 12px;
+  }
+  
+  /* Reduce shadow intensity on mobile for performance */
+  .pseudo-3d-strong {
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.15),
+      0 0 30px rgba(45, 212, 191, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Reduce hover effects on touch devices */
+  .pseudo-3d-hover:hover {
+    transform: translateY(-2px) scale(1.01);
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .pseudo-3d-hover:hover {
+    transform: none;
+  }
+  
+  .pseudo-3d-hover:active {
+    transform: translateY(-2px) scale(1.01);
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .pseudo-3d-base,
+  .pseudo-3d-hover:hover,
+  .pseudo-3d-hover:active {
+    transition: none;
+    transform: none;
+  }
+  
+  .pseudo-3d-rim-glow {
+    filter: none;
+  }
+} 

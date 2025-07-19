@@ -1485,16 +1485,19 @@ body {
 }
 
 /* CRITICAL GLASSMORPHISM OVERRIDES - Must be at end of file to ensure it overrides all other styles */
-.bg-white, 
-.bg-white\/10, 
-.bg-white\/20, 
-.bg-white\/30, 
-.bg-white\/40, 
-.bg-white\/50, 
-.bg-white\/60, 
-.bg-white\/70, 
-.bg-white\/80, 
-.bg-white\/90, 
+/* FIXED: Properly escaped Tailwind opacity classes */
+.bg-white,
+.bg-white\/5,
+.bg-white\/8,
+.bg-white\/10,
+.bg-white\/20,
+.bg-white\/30,
+.bg-white\/40,
+.bg-white\/50,
+.bg-white\/60,
+.bg-white\/70,
+.bg-white\/80,
+.bg-white\/90,
 .bg-white\/100 {
   background-color: transparent !important;
   backdrop-filter: blur(12px) !important;
@@ -1503,8 +1506,19 @@ body {
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
+/* Alternative approach using attribute selectors - catches ALL Tailwind bg classes */
+[class*="bg-white/"] {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* Gray/Slate overrides */
 .bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300, .bg-gray-400, .bg-gray-500, .bg-gray-600, .bg-gray-700, .bg-gray-800, .bg-gray-900,
-.bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-slate-300, .bg-slate-400, .bg-slate-500, .bg-slate-600, .bg-slate-700, .bg-slate-800, .bg-slate-900 {
+.bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-slate-300, .bg-slate-400, .bg-slate-500, .bg-slate-600, .bg-slate-700, .bg-slate-800, .bg-slate-900,
+.bg-neutral-50, .bg-neutral-100, .bg-neutral-200, .bg-neutral-300, .bg-neutral-400, .bg-neutral-500, .bg-neutral-600, .bg-neutral-700, .bg-neutral-800, .bg-neutral-900 {
   background-color: transparent !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
@@ -1512,15 +1526,13 @@ body {
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
-/* Force glassmorphism on ALL cards */
-.card, 
-div[class*="card"], 
-section[class*="container"],
-div[class*="container"],
-div[class*="panel"], 
-div[class*="box"], 
-div[class*="modal"],
-div[class*="dialog"] {
+/* Target specific page content cards only - avoid navbar/header interference */
+.ClientPageLayout .card, 
+.ClientPageLayout div[class*="card"], 
+.page-content .card,
+.page-content div[class*="card"],
+.features-section div[class*="card"],
+.about-section div[class*="card"] {
   background-color: transparent !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
@@ -1528,32 +1540,142 @@ div[class*="dialog"] {
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
-/* Enhanced hover effects for all interactive elements */
-.card:hover, 
-div[class*="card"]:hover, 
-section[class*="container"]:hover,
-div[class*="container"]:hover,
-div[class*="panel"]:hover, 
-div[class*="box"]:hover, 
-button:hover,
-a[class*="btn"]:hover,
-div[role="button"]:hover {
+/* Enhanced hover effects for page content elements only */
+.ClientPageLayout .card:hover, 
+.ClientPageLayout div[class*="card"]:hover, 
+.page-content .card:hover,
+.page-content div[class*="card"]:hover,
+.features-section div[class*="card"]:hover,
+.about-section div[class*="card"]:hover {
   box-shadow: 0 0 25px rgba(45, 212, 191, 0.5), 0 0 50px rgba(56, 189, 248, 0.3) !important;
   border-color: rgba(45, 212, 191, 0.6) !important;
   transform: translateY(-2px) !important;
   transition: all 0.3s ease !important;
 }
 
-/* Page layout specific transparency */
-.page-layout,
-.min-h-screen,
-div[class*="page"],
-div[class*="layout"],
-.ClientPageLayout {
+/* Page layout specific transparency - ONLY target page content, NOT navigation */
+.ClientPageLayout main,
+.page-content,
+div[class*="page-content"] {
   background-color: transparent !important;
 }
 
-/* Default text color */
-body, p, div, span, h1, h2, h3, h4, h5, h6 {
-  color: #ffffff !important;
+/* COMPREHENSIVE BACKGROUND OVERRIDES - Target all problematic backgrounds */
+
+/* Handle custom background colors like bg-deep-navy, bg-deep-space, etc. */
+[class*="bg-deep"],
+[class*="bg-gradient"]:not([class*="bg-clip-text"]),
+.bg-gray-900,
+.bg-slate-900,
+.bg-slate-800,
+.bg-gray-800,
+.min-h-screen[class*="bg-"],
+main[class*="bg-"],
+div[class*="bg-gradient"]:not([class*="bg-clip-text"]),
+.min-h-screen.bg-[#0d1117],
+.min-h-screen.bg-[#0D1117],
+[class*="from-gray"],
+[class*="to-gray"],
+[class*="via-gray"],
+[class*="from-slate"],
+[class*="to-slate"],
+[class*="via-slate"] {
+  background: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
+
+/* UNIVERSAL FALLBACK - Override Tailwind's background system but more targeted */
+.ClientPageLayout *,
+main *:not(nav):not(header):not(.navbar):not([role="navigation"]):not(.nav-item):not(button):not(.percy-widget):not(.floating-percy) {
+  --tw-bg-opacity: 0 !important;
+}
+
+/* Restore essential UI elements that need backgrounds */
+nav, 
+nav *,
+header, 
+header *,
+.navbar,
+.navbar *,
+[role="navigation"],
+[role="navigation"] *,
+.nav-item,
+button,
+.percy-widget,
+.floating-percy,
+input,
+select,
+textarea,
+.modal,
+.dropdown,
+.tooltip {
+  --tw-bg-opacity: 1 !important;
+}
+
+/* TARGET HIGH-IMPACT COMPONENTS - Override specific problematic elements */
+.upgrade-modal,
+.agent-modal,
+.pricing-card,
+.agent-stats-panel,
+.workflow-template-card,
+.percy-onboarding-auth,
+.percy-sms-onboarding,
+.branding-card,
+.dashboard-home,
+.file-upload-card,
+.publishing-assistant-panel,
+.floating-percy,
+.agent-modal,
+.trial-status {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* Override any remaining white backgrounds in page content areas */
+main [class*="bg-white"],
+.ClientPageLayout [class*="bg-white"],
+.page-content [class*="bg-white"],
+section [class*="bg-white"] {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* TARGET SLATE AND GRAY GRADIENTS - These appear white due to opacity */
+[class*="bg-gradient-to-b"][class*="slate"],
+[class*="bg-gradient-to-r"][class*="slate"],
+[class*="bg-gradient-to-l"][class*="slate"],
+[class*="bg-gradient-to-t"][class*="slate"],
+[class*="from-slate"],
+[class*="to-slate"],
+[class*="via-slate"] {
+  background: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
+/* TARGET GRAY GRADIENTS */
+[class*="bg-gradient-to-b"][class*="gray"],
+[class*="bg-gradient-to-r"][class*="gray"],
+[class*="bg-gradient-to-l"][class*="gray"],
+[class*="bg-gradient-to-t"][class*="gray"],
+[class*="from-gray"],
+[class*="to-gray"],
+[class*="via-gray"] {
+  background: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
+}
+
