@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Zap, Crown, TrendingUp, Lock } from 'lucide-react';
 import AgentLeagueCard from '@/components/ui/AgentLeagueCard';
 import { Agent } from '@/types/agent';
-import PageLayout from '@/components/layout/PageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import ClientPageLayout from '@/components/layout/ClientPageLayout';
+import CosmicCard, { CosmicCardGlow, CosmicCardGlass } from '@/components/shared/CosmicCard';
 import CosmicHeading from '@/components/shared/CosmicHeading';
 import { agentLeague } from '@/lib/agents/agentLeague';
 import { useAuth } from '@/components/context/AuthContext';
@@ -193,20 +193,20 @@ export default function AgentsPage() {
 
   if (authLoading) {
     return (
-      <PageLayout>
+      <ClientPageLayout>
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
             <p className="mt-4 text-gray-400">Loading...</p>
           </div>
         </div>
-      </PageLayout>
+      </ClientPageLayout>
     );
   }
 
   return (
     <ErrorBoundary>
-      <PageLayout>
+      <ClientPageLayout>
         <motion.div 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
@@ -215,33 +215,33 @@ export default function AgentsPage() {
         >
           <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
             
-            {/* Hero Section with Live Activity */}
-            <motion.div
-              className="text-center mb-16"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              {/* Live Activity Badges */}
-              <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="flex items-center gap-2 bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                  🤖 LIVE: {liveMetrics.totalAgents} AI agents active
+            {/* Hero Section */}
+            <CosmicCardGlow size="xl" className="text-center mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-400/30 rounded-full mb-8">
+                  <TrendingUp className="w-5 h-5 text-green-400" />
+                  <span className="text-green-300 font-bold">
+                    LIVE: {liveMetrics.totalAgents} AI Agents • {liveMetrics.liveUsers} Active Users
+                  </span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
-                <div className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-bold">
-                  ⚡ {liveMetrics.liveUsers} users training now
-                </div>
-              </div>
 
-              {/* Animated Heading & Subcopy */}
-              <CosmicHeading className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-6 leading-tight bg-gradient-to-r from-cyan-300 via-purple-400 to-teal-300 bg-clip-text text-transparent">
-                Meet Your AI Superhero League&nbsp;— <span className="block sm:inline">Unleash Your Digital Dream Team</span>
-              </CosmicHeading>
-              <p className="text-lg sm:text-xl md:text-2xl text-teal-300 max-w-4xl mx-auto mb-4 md:mb-6 font-semibold leading-relaxed">
-                Unlock the power of SKRBL AI’s unique agents—each with their own personality, skills, and superpowers. 🦸‍♂️ Choose an agent to learn their backstory, chat live, or launch your next business transformation. <span className="text-white font-bold">Real agents. Real results. Real fast.</span>
-              </p>
-              <p className="text-sm sm:text-base text-gray-400 italic mb-8 animate-pulse">
-                Tip: Hover over an agent to see their cosmic stats. Click ‘Learn’ for their secret origin story!
-              </p>
+                <CosmicHeading className="text-4xl md:text-6xl lg:text-7xl mb-8">
+                  Meet Your AI
+                  <br />
+                  <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    Superhero League
+                  </span>
+                </CosmicHeading>
+
+                <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto">
+                  14 specialized AI agents, each with unique superpowers designed to automate, 
+                  optimize, and dominate every aspect of your business.
+                </p>
 
               {/* Search and Filter Controls */}
               <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8 max-w-4xl mx-auto">
@@ -279,7 +279,8 @@ export default function AgentsPage() {
                   <option value="category">Category</option>
                 </select>
               </div>
-            </motion.div>
+              </motion.div>
+            </CosmicCardGlow>
 
             {/* Agent League Grid */}
             <motion.div
@@ -315,7 +316,7 @@ export default function AgentsPage() {
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="relative group cursor-pointer transition-all duration-300"
                   >
-                    <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                    <CosmicCardGlass className="h-full p-6 relative overflow-hidden">
                       {/* Live Activity Badge */}
                       <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -334,7 +335,7 @@ export default function AgentsPage() {
                         showIntelligence={true}
                         className="w-full h-full bg-transparent border-0 shadow-none p-0 rounded-none"
                       />
-                    </GlassmorphicCard>
+                    </CosmicCardGlass>
                   </motion.div>
                 ))
               )}
@@ -394,7 +395,7 @@ export default function AgentsPage() {
             </motion.div>
           </div>
         </motion.div>
-      </PageLayout>
+      </ClientPageLayout>
     </ErrorBoundary>
   );
 }

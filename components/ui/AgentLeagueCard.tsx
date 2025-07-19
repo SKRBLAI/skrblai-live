@@ -9,7 +9,7 @@ import { Agent } from '@/types/agent';
 import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
-import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
+import { agentIntelligenceEngine, type AgentIntelligence } from '@/lib/agents/agentIntelligence';
 import CosmicButton from '@/components/shared/CosmicButton';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
@@ -67,11 +67,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
   useEffect(() => {
     if (showIntelligence && agent) {
-      agentIntelligenceEngine.analyzeAgent(agent.id).then(intelligence => {
-        setAgentIntelligence(intelligence);
-      }).catch(error => {
-        console.error('Failed to analyze agent intelligence:', error);
-      });
+      const intelligence = agentIntelligenceEngine.getAgentIntelligence(agent.id);
+      setAgentIntelligence(intelligence);
     }
   }, [agent?.id, showIntelligence]);
 
@@ -92,31 +89,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     }
   };
 
-  const cardVariants = {
-    initial: { 
-      opacity: 0, 
-      y: shouldReduceMotion ? 0 : 30,
-      scale: shouldReduceMotion ? 1 : 0.95
-    },
-    animate: { 
-      opacity: 1, 
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: shouldReduceMotion ? 0.1 : 0.5,
-        delay: shouldReduceMotion ? 0 : index * 0.1,
-        ease: 'easeOut'
-      }
-    },
-    hover: {
-      y: shouldReduceMotion ? 0 : -8,
-      scale: shouldReduceMotion ? 1 : 1.03,
-      transition: { 
-        duration: shouldReduceMotion ? 0.1 : 0.3,
-        ease: 'easeInOut'
-      }
-    }
-  };
+
 
   if (!agent || !agent.name) {
     return (
@@ -127,14 +100,33 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   }
 
   return (
-    <Agent3DCardProvider enabled={!shouldReduceMotion}>
+    <Agent3DCardProvider 
+      agent={agent}
+      enable3D={!shouldReduceMotion}
+      enableFlip={false}
+      enableHover={true}
+    >
       <motion.div
         ref={cardRef}
         className={`relative ${className}`}
-        variants={cardVariants}
-        initial="initial"
-        animate="animate"
-        whileHover="hover"
+        initial={{ 
+          opacity: 0, 
+          y: shouldReduceMotion ? 0 : 30,
+          scale: shouldReduceMotion ? 1 : 0.95
+        }}
+        animate={{ 
+          opacity: 1, 
+          y: 0,
+          scale: 1
+        }}
+        whileHover={{
+          y: shouldReduceMotion ? 0 : -8,
+          scale: shouldReduceMotion ? 1 : 1.03
+        }}
+        transition={{
+          duration: shouldReduceMotion ? 0.1 : 0.5,
+          delay: shouldReduceMotion ? 0 : index * 0.1
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -203,7 +195,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
             {/* Agent Category/Specialty */}
             <p className="text-sm text-gray-400 mb-3 text-center">
-              {backstory?.specialty || 'AI Specialist'}
+              {backstory?.superheroName || agent.category || 'AI Specialist'}
             </p>
 
             {/* Progress Bar (if user has progress) */}
@@ -246,21 +238,21 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
                   <div className="text-green-400 font-bold text-sm">
-                    {agentIntelligence.performance.successRate}%
+                    {agentIntelligence.intelligenceLevel}
                   </div>
-                  <div className="text-xs text-gray-500">Success</div>
+                  <div className="text-xs text-gray-500">IQ Level</div>
                 </div>
                 <div>
                   <div className="text-cyan-400 font-bold text-sm">
-                    {agentIntelligence.performance.efficiency}
+                    {agentIntelligence.predictionCapabilities?.length || 0}
                   </div>
-                  <div className="text-xs text-gray-500">Speed</div>
+                  <div className="text-xs text-gray-500">Skills</div>
                 </div>
                 <div>
                   <div className="text-purple-400 font-bold text-sm">
-                    {agentIntelligence.insights?.length || 0}
+                    {agentIntelligence.specializations?.length || 0}
                   </div>
-                  <div className="text-xs text-gray-500">Insights</div>
+                  <div className="text-xs text-gray-500">Specs</div>
                 </div>
               </div>
             </Pseudo3DStats>
@@ -272,10 +264,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               <CosmicButton
                 variant="primary"
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAgentAction('chat');
-                }}
+                onClick={() => handleAgentAction('chat')}
                 className="text-xs"
               >
                 <MessageCircle className="w-3 h-3 mr-1" />
@@ -284,10 +273,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               <CosmicButton
                 variant="secondary"
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAgentAction('info');
-                }}
+                onClick={() => handleAgentAction('info')}
                 className="text-xs"
               >
                 <Info className="w-3 h-3 mr-1" />
@@ -298,10 +284,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             <CosmicButton
               variant="primary"
               size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAgentAction('launch');
-              }}
+              onClick={() => handleAgentAction('launch')}
               className="w-full text-xs"
             >
               <Rocket className="w-3 h-3 mr-1" />
@@ -326,17 +309,17 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               <Pseudo3DStats className="p-4">
                 <h4 className="text-white font-bold mb-2">Agent Details</h4>
                 <p className="text-gray-300 text-sm mb-3">
-                  {backstory?.description || 'Specialized AI agent for business automation'}
+                  {backstory?.backstory?.slice(0, 120) || agent.description || 'Specialized AI agent for business automation'}...
                 </p>
                 
-                {agentIntelligence?.insights && agentIntelligence.insights.length > 0 && (
+                {agentIntelligence?.specializations && agentIntelligence.specializations.length > 0 && (
                   <div className="mb-3">
-                    <h5 className="text-cyan-400 font-bold text-sm mb-2">Latest Insights</h5>
+                    <h5 className="text-cyan-400 font-bold text-sm mb-2">Specializations</h5>
                     <div className="space-y-1">
-                      {agentIntelligence.insights.slice(0, 2).map((insight, i) => (
+                      {agentIntelligence.specializations.slice(0, 2).map((spec: string, i: number) => (
                         <div key={i} className="text-xs text-gray-400 flex items-start gap-2">
                           <TrendingUp className="w-3 h-3 mt-0.5 text-green-400 flex-shrink-0" />
-                          <span>{insight.message}</span>
+                          <span>{spec}</span>
                         </div>
                       ))}
                     </div>
