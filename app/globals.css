@@ -1560,7 +1560,6 @@ div[class*="page-content"] {
   background-color: transparent !important;
 }
 
-<<<<<<< HEAD
 /* COMPREHENSIVE BACKGROUND OVERRIDES - Target all problematic backgrounds */
 
 /* Handle custom background colors like bg-deep-navy, bg-deep-space, etc. */
@@ -1680,7 +1679,7 @@ section [class*="bg-white"] {
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
-=======
+
 /* Default text color */
 body, p, div, span, h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
@@ -1719,4 +1718,3 @@ body, p, div, span, h1, h2, h3, h4, h5, h6 {
   border: none !important;
   box-shadow: none !important;
 }
->>>>>>> 7ca0894fe3748ee2ef1334fd56018a449ecec5fc
