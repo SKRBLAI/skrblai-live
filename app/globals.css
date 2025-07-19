@@ -1005,7 +1005,7 @@
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
@@ -1556,4 +1556,38 @@ div[class*="layout"],
 /* Default text color */
 body, p, div, span, h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
+}
+
+/* --- NEW: Deep Navy Background Overrides (ensure cosmic backdrop remains visible) --- */
+.bg-\[\#0d1117\],
+.bg-\[\#0D1117\],
+.bg-\[\#0d1117\]\/5,
+.bg-\[\#0d1117\]\/10,
+.bg-\[\#0d1117\]\/20,
+.bg-\[\#0d1117\]\/30,
+.bg-\[\#0d1117\]\/40,
+.bg-\[\#0d1117\]\/50,
+.bg-\[\#0d1117\]\/60,
+.bg-\[\#0d1117\]\/70,
+.bg-\[\#0d1117\]\/80,
+.bg-\[\#0d1117\]\/90,
+.bg-\[\#0d1117\]\/95,
+.bg-\[\#0d1117\]\/100,
+.bg-\[\#0D1117\]\/5,
+.bg-\[\#0D1117\]\/10,
+.bg-\[\#0D1117\]\/20,
+.bg-\[\#0D1117\]\/30,
+.bg-\[\#0D1117\]\/40,
+.bg-\[\#0D1117\]\/50,
+.bg-\[\#0D1117\]\/60,
+.bg-\[\#0D1117\]\/70,
+.bg-\[\#0D1117\]\/80,
+.bg-\[\#0D1117\]\/90,
+.bg-\[\#0D1117\]\/95,
+.bg-\[\#0D1117\]\/100 {
+  background-color: transparent !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
