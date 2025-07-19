@@ -1,3 +1,38 @@
+/*
+=================================================================================
+SKRBL AI GLOBAL CSS - COSMIC GLASSMORPHIC BACKGROUND SYSTEM
+=================================================================================
+
+UNIVERSAL BACKGROUND OVERRIDE SYSTEM:
+This file contains a universal override system designed to enforce a consistent
+cosmic glassmorphic background across all pages while preserving essential UI 
+functionality.
+
+KEY FEATURES:
+1. Universal transparent background enforcement for cosmic starfield visibility
+2. Comprehensive navbar protection (lines ~1590-1650)
+3. Essential UI element exclusions (buttons, dropdowns, inputs, etc.)
+4. Framer Motion component protection for animated elements
+5. Mobile and desktop navbar compatibility
+
+NAVBAR PROTECTION STRATEGY:
+The universal selectors exclude ALL navbar-related elements including:
+- nav, .navbar, and [class*="navbar"] elements
+- button elements and their children  
+- motion.div wrappers from Framer Motion
+- Custom navbar classes (.navbar-cosmic, .logo-cosmic-glow, etc.)
+- Mobile menu components and dropdowns
+
+MAINTENANCE NOTES:
+- The universal override is CRITICAL for cosmic background visibility
+- Always test navbar functionality when modifying these selectors
+- Add new UI components to the exclusion list if they need backgrounds
+- Navbar classes must be properly protected to maintain visibility
+
+Last Updated: January 2025 - Fixed navbar button visibility regression
+=================================================================================
+*/
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -1587,13 +1622,26 @@ div[class*="bg-gradient"]:not([class*="bg-clip-text"]),
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
-/* UNIVERSAL FALLBACK - Override Tailwind's background system but more targeted */
-.ClientPageLayout *,
-main *:not(nav):not(header):not(.navbar):not([role="navigation"]):not(.nav-item):not(button):not(.percy-widget):not(.floating-percy) {
-  --tw-bg-opacity: 0 !important;
+/* CRITICAL: UNIVERSAL WHITE BACKGROUND OVERRIDE - HIGHEST PRIORITY */
+/* 
+COMPREHENSIVE NAVBAR PROTECTION:
+- Fixed overly broad selectors that were hiding navbar buttons
+- Added motion.div and framer-motion wrapper exclusions
+- Included all navbar-specific classes and custom elements
+- Protected both desktop and mobile navbar components
+*/
+*:not(nav):not(nav *):not(.navbar):not(.navbar *):not(button):not(button *):not(.dropdown):not(.dropdown *):not([class*="navbar"]):not([class*="navbar"] *):not(motion-div):not(.motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *) {
+  background-color: transparent !important;
 }
 
-/* Restore essential UI elements that need backgrounds */
+/* UNIVERSAL FALLBACK - Override Tailwind's background system but more targeted */
+.ClientPageLayout *:not(nav):not(nav *):not(header):not(header *):not(.navbar):not(.navbar *):not([role="navigation"]):not([role="navigation"] *):not(.nav-item):not(.nav-item *):not(button):not(button *):not(.percy-widget):not(.percy-widget *):not(.floating-percy):not(.floating-percy *):not([class*="navbar"]):not([class*="navbar"] *):not(.motion-div):not(motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *),
+main *:not(nav):not(nav *):not(header):not(header *):not(.navbar):not(.navbar *):not([role="navigation"]):not([role="navigation"] *):not(.nav-item):not(.nav-item *):not(button):not(button *):not(.percy-widget):not(.percy-widget *):not(.floating-percy):not(.floating-percy *):not([class*="navbar"]):not([class*="navbar"] *):not(.motion-div):not(motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *) {
+  --tw-bg-opacity: 0 !important;
+  background-color: transparent !important;
+}
+
+/* COMPREHENSIVE UI ELEMENTS PROTECTION - Restore essential UI elements that need backgrounds */
 nav, 
 nav *,
 header, 
@@ -1603,16 +1651,58 @@ header *,
 [role="navigation"],
 [role="navigation"] *,
 .nav-item,
+.nav-item *,
 button,
+button *,
 .percy-widget,
+.percy-widget *,
 .floating-percy,
+.floating-percy *,
 input,
+input *,
 select,
+select *,
 textarea,
+textarea *,
 .modal,
+.modal *,
 .dropdown,
-.tooltip {
+.dropdown *,
+.tooltip,
+.tooltip *,
+.cosmic-card,
+.cosmic-card *,
+.glassmorphic-card,
+.glassmorphic-card *,
+.floating-container,
+.floating-container *,
+[class*="navbar"],
+[class*="navbar"] *,
+.motion-div,
+motion-div,
+[data-framer-component],
+[data-framer-component] *,
+.logo-cosmic-glow,
+.logo-cosmic-glow *,
+.navbar-element-3d,
+.navbar-element-3d *,
+.navbar-cosmic,
+.navbar-cosmic *,
+.navbar-glow,
+.navbar-glow *,
+.navbar-rim-glow,
+.navbar-rim-glow *,
+.navbar-3d-shadow,
+.navbar-3d-shadow *,
+.dropdown-cosmic,
+.dropdown-cosmic * {
   --tw-bg-opacity: 1 !important;
+  background-color: revert !important;
+  color: revert !important;
+  border: revert !important;
+  box-shadow: revert !important;
+  backdrop-filter: revert !important;
+  -webkit-backdrop-filter: revert !important;
 }
 
 /* TARGET HIGH-IMPACT COMPONENTS - Override specific problematic elements */
@@ -1631,8 +1721,8 @@ textarea,
 .agent-modal,
 .trial-status {
   background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(45, 212, 191, 0.3) !important;
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
@@ -1643,8 +1733,8 @@ main [class*="bg-white"],
 .page-content [class*="bg-white"],
 section [class*="bg-white"] {
   background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(45, 212, 191, 0.3) !important;
   box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
@@ -1716,5 +1806,39 @@ body, p, div, span, h1, h2, h3, h4, h5, h6 {
   -webkit-backdrop-filter: blur(12px) !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+/* ========================================= */
+/* CRITICAL: WHITE BACKGROUND REGRESSION FIX */
+/* ========================================= */
+
+/* UNIVERSAL WHITE BACKGROUND OVERRIDE - HIGHEST PRIORITY */
+* {
+  background-color: transparent !important;
+}
+
+/* RESTORE ESSENTIAL UI ELEMENTS THAT NEED BACKGROUNDS */
+nav, nav *, 
+header, header *, 
+.navbar, .navbar *, 
+button, button *, 
+input, select, textarea, 
+.modal, .dropdown, .tooltip,
+.cosmic-card, .glassmorphic-card, .floating-container {
+  background-color: revert !important;
+  background: revert !important;
+}
+
+/* CRITICAL: Override all white/opaque backgrounds with glassmorphic style */
+[class*="bg-white"],
+[class*="bg-gray"],
+[class*="bg-slate"],
+[class*="bg-neutral"],
+.bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-slate-100 {
+  background-color: transparent !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(45, 212, 191, 0.3) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }
 
