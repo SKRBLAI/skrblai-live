@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Tailwind imports removed - handled in app/globals.css */
 
 /* Floating Particles */
 .particles-canvas {
@@ -49,9 +47,11 @@
 @import url('./components/ProfileSettings.css');
 
 /* Glassmorphic Card Utility */
-@layer utilities {
-  .glass-card {
-  @apply bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl;
-  }
-
+.glass-card {
+  background-color: transparent !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgba(45, 212, 191, 0.5) !important;
+  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
 }

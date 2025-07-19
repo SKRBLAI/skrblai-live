@@ -12,6 +12,7 @@ import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
 import CosmicButton from '@/components/shared/CosmicButton';
 import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
 import Image from 'next/image';
 import { Agent3DCardProvider } from '@/lib/3d/Agent3DCardCore';
 
@@ -48,320 +49,324 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
   const [showBackstoryModal, setShowBackstoryModal] = useState(false);
   const cardRef = React.useRef<HTMLDivElement>(null);
-  // Determines if we show the glow halo (VIP/unlocked highlight)
-  const showGlowHalo = isRecommended && !selected; // simple heuristic
-  const backstory = agentBackstories[agent.id] || null;
-  const router = useRouter();
-  const [isHovered, setIsHovered] = useState(false);
-
-  // Phase 4: Get agent intelligence
   const [agentIntelligence, setAgentIntelligence] = useState<AgentIntelligence | null>(null);
-  const [predictiveInsights, setPredictiveInsights] = useState<PredictiveInsight[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    if (showIntelligence) {
-      // Load agent intelligence
-      const intelligence = agentIntelligenceEngine.getAgentIntelligence(agent.id);
-      setAgentIntelligence(intelligence);
+  const backstory = agentBackstories[agent.id];
 
-      // Load predictive insights
-      const loadInsights = async () => {
-        const insights = await agentIntelligenceEngine.generatePredictiveInsights(agent.id, 7);
-        setPredictiveInsights(insights);
-      };
-      loadInsights();
-    }
-  }, [agent.id, showIntelligence]);
-
-  // Live metrics animation
   useEffect(() => {
     const interval = setInterval(() => {
-      setLiveUsers(prev => Math.max(1, prev + Math.floor(Math.random() * 3) - 1));
-      if (Math.random() > 0.7) {
-        setUrgencySpots(prev => Math.max(1, prev - 1));
-      }
-    }, 15000);
+      setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
+      setUrgencySpots(prev => Math.max(5, prev + Math.floor(Math.random() * 2) - 1));
+    }, 8000);
+
     return () => clearInterval(interval);
   }, []);
 
-  // Agent League Card now uses clean nobg-skrblai.webp images with modern UI
-  const agentImagePath = getAgentImagePath(agent, "nobg");
+  useEffect(() => {
+    if (showIntelligence && agent) {
+      agentIntelligenceEngine.analyzeAgent(agent.id).then(intelligence => {
+        setAgentIntelligence(intelligence);
+      }).catch(error => {
+        console.error('Failed to analyze agent intelligence:', error);
+      });
+    }
+  }, [agent?.id, showIntelligence]);
 
-  // Image error handler
-  const handleImageError = (event: any) => {
-    console.error('[AgentLeagueCard] Failed to load agent image:', agentImagePath, 'for agent:', agent.id);
-    event.currentTarget.onerror = null;
-    event.currentTarget.src = '/images/agents-default-nobg-skrblai.webp';
-  };
-
-  // Button action handlers
-  const handleCardClick = () => {
-    // Card click goes to agent backstory by default
-    router.push(`/agent-backstory/${agent.id}`);
-  };
-
-  const handleLearnClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (backstory) {
-      setShowBackstoryModal(true);
-    } else if (onInfo) {
-      onInfo(agent);
-    } else {
-      router.push(`/agent-backstory/${agent.id}`);
+  const handleAgentAction = (action: string) => {
+    switch (action) {
+      case 'chat':
+        if (onChat) onChat(agent);
+        break;
+      case 'info':
+        if (onInfo) onInfo(agent);
+        break;
+      case 'launch':
+        if (onLaunch) onLaunch(agent);
+        break;
+      case 'handoff':
+        if (onHandoff) onHandoff(agent);
+        break;
     }
   };
 
-  const handleChatClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onChat) {
-      onChat(agent);
-    } else {
-      // Navigate to agent backstory which has chat functionality
-      router.push(`/agent-backstory/${agent.id}`);
+  const cardVariants = {
+    initial: { 
+      opacity: 0, 
+      y: shouldReduceMotion ? 0 : 30,
+      scale: shouldReduceMotion ? 1 : 0.95
+    },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: shouldReduceMotion ? 0.1 : 0.5,
+        delay: shouldReduceMotion ? 0 : index * 0.1,
+        ease: 'easeOut'
+      }
+    },
+    hover: {
+      y: shouldReduceMotion ? 0 : -8,
+      scale: shouldReduceMotion ? 1 : 1.03,
+      transition: { 
+        duration: shouldReduceMotion ? 0.1 : 0.3,
+        ease: 'easeInOut'
+      }
     }
   };
 
-  const handleLaunchClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onLaunch) {
-      onLaunch(agent);
-    } else if (onHandoff) {
-      onHandoff(agent);
-    } else {
-      // Route to agent service page
-      router.push(`/services/${agent.id}`);
-    }
-  };
+  if (!agent || !agent.name) {
+    return (
+      <Pseudo3DFeature className="h-64 flex items-center justify-center">
+        <div className="text-gray-400">Agent data unavailable</div>
+      </Pseudo3DFeature>
+    );
+  }
 
   return (
-    <>
-      {showGlowHalo && (
-        <motion.div
-          className="absolute inset-0 rounded-2xl pointer-events-none"
-          style={{
-            background:
-              'radial-gradient(circle at center, rgba(0,255,255,0.35) 0%, rgba(0,255,255,0.05) 70%, transparent 100%)',
-            filter: 'blur(12px)'
-          }}
-          initial={{ opacity: 0.6, scale: 0.95 }}
-          animate={{ opacity: isHovered ? 1 : 0.7, scale: isHovered ? 1 : 0.95 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        />
-      )}
-
-      <GlassmorphicCard
+    <Agent3DCardProvider enabled={!shouldReduceMotion}>
+      <motion.div
+        ref={cardRef}
         className={`relative ${className}`}
-        onClick={handleCardClick}
-        hoverEffect={true}
+        variants={cardVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        <div
-          ref={cardRef}
-          role="group"
-          aria-label={`${agent.name} agent card`}
-          tabIndex={0}
-          className="w-full h-full p-4"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+        <Pseudo3DFeature 
+          className="h-full relative overflow-hidden group"
+          onClick={() => setIsExpanded(!isExpanded)}
         >
-          {/* Agent Header (Like Services) */}
-          <div className="flex flex-col items-center mb-4">
-            {/* Agent Image - Fixed size like Services */}
-            <div className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 mb-3">
-              <Agent3DCardProvider
-                agent={agent}
-                className="w-full h-full"
-                glowColor="#30D5C8"
-                enableFlip
-                flipTrigger="hover"
-              >
-                <Image
-                  src={agentImagePath}
-                  alt={`${agent.name} AI Agent`}
-                  width={144}
-                  height={144}
-                  className="w-full h-full object-contain mx-auto rounded-2xl drop-shadow-lg"
-                  onError={handleImageError}
-                  loading="lazy"
-                />
-              </Agent3DCardProvider>
-              
-              {/* Agent Intelligence Overlay */}
-              {showIntelligence && agentIntelligence && (
-                <motion.div
-                  className="absolute top-0 left-0 z-10"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + 0.05 * index }}
-                >
-                  <div className="bg-transparent backdrop-blur-md rounded-lg p-2 border border-purple-500/30 max-w-[120px]">
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="text-purple-400 font-semibold flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                        IQ: {agentIntelligence.intelligenceLevel}
-                      </div>
-                    </div>
-                    <div className="text-xs text-yellow-400 font-semibold mt-1 capitalize">
-                      {agentIntelligence.autonomyLevel}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Predictive Insights Overlay (on hover) */}
-              {showIntelligence && isHovered && predictiveInsights.length > 0 && (
-                <motion.div
-                  className="absolute top-0 right-0 z-20"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                >
-                  <div className="bg-transparent backdrop-blur-md rounded-lg p-3 border border-cyan-500/50 shadow-xl max-w-[180px]">
-                    <div className="text-xs text-cyan-400 font-semibold mb-2 flex items-center gap-1">
-                      🔮 Insights
-                    </div>
-                    {predictiveInsights.slice(0, 1).map((insight, idx) => (
-                      <div key={idx} className="text-xs text-gray-300 mb-1">
-                        <span className="text-yellow-400 font-medium capitalize">
-                          {insight.domain.replace('_', ' ')}:
-                        </span>
-                        <span className="ml-1 block">{insight.insight.slice(0, 35)}...</span>
-                        <div className="text-xs text-green-400 mt-0.5">
-                          {Math.round(insight.probability * 100)}% confidence
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Agent Name & Category */}
-            <div className="text-center mb-2">
-              <h3 className="text-lg font-bold bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
-                {agent.name}
-              </h3>
-              <div className="text-sm text-gray-300 capitalize">{agent.category}</div>
-            </div>
-
-            {/* Agent Stats */}
-            <div className="w-full flex justify-center items-center gap-2 mb-3">
-              {/* Live Users */}
-              <div className="flex items-center gap-1 text-xs text-cyan-400">
-                <Users className="w-3 h-3" />
-                <span>{liveUsers}</span>
+          {/* Recommended Badge */}
+          {isRecommended && (
+            <div className="absolute top-3 right-3 z-20">
+              <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                <Star className="w-3 h-3" />
+                RECOMMENDED
               </div>
-              
-              {/* User Progress */}
-              {userProgress > 0 && (
-                <div className="flex items-center gap-1 text-xs text-emerald-400">
-                  <TrendingUp className="w-3 h-3" />
+            </div>
+          )}
+
+          {/* Live Activity Indicators */}
+          <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
+            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-green-300 font-medium">{liveUsers}</span>
+            </div>
+            {urgencySpots < 30 && (
+              <div className="flex items-center gap-1 bg-red-500/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                <span className="text-red-300 font-medium">{urgencySpots} left</span>
+              </div>
+            )}
+          </div>
+
+          {/* Agent Image */}
+          <div className="flex flex-col items-center pt-6 pb-4">
+            <motion.div
+              className="relative w-20 h-20 mb-4"
+              whileHover={{ scale: shouldReduceMotion ? 1 : 1.1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 to-blue-600/30 rounded-full blur-sm"></div>
+              <Image
+                src={getAgentImagePath(agent.id)}
+                alt={`${agent.name} Avatar`}
+                width={80}
+                height={80}
+                className="relative z-10 rounded-full border-2 border-cyan-400/50 shadow-lg"
+                style={{ objectFit: 'cover' }}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLDivElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              <div 
+                className="hidden absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full items-center justify-center text-2xl text-white border-2 border-cyan-400/50"
+                style={{ display: 'none' }}
+              >
+                {getAgentEmoji(agent.id)}
+              </div>
+            </motion.div>
+
+            {/* Agent Name */}
+            <h3 className="text-lg font-bold text-white mb-1 text-center">
+              {agent.name}
+            </h3>
+
+            {/* Agent Category/Specialty */}
+            <p className="text-sm text-gray-400 mb-3 text-center">
+              {backstory?.specialty || 'AI Specialist'}
+            </p>
+
+            {/* Progress Bar (if user has progress) */}
+            {userProgress > 0 && (
+              <div className="w-full mb-3">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>Progress</span>
                   <span>{userProgress}%</span>
                 </div>
-              )}
-              
-              {/* Mastery Level */}
-              {userMastery > 0 && (
-                <div className="flex items-center gap-1 text-xs text-amber-400">
-                  <Star className="w-3 h-3" />
-                  <span>Lvl {userMastery}</span>
+                <div className="w-full bg-gray-700 rounded-full h-2">
+                  <motion.div
+                    className="bg-gradient-to-r from-cyan-400 to-blue-600 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${userProgress}%` }}
+                    transition={{ duration: 1, delay: 0.5 }}
+                  />
                 </div>
-              )}
-              
-              {/* Urgency */}
-              {urgencySpots < 30 && (
-                <div className="flex items-center gap-1 text-xs text-rose-400">
-                  <Zap className="w-3 h-3" />
-                  <span>{urgencySpots} left</span>
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Agent Description */}
-          <div className="text-sm text-gray-300 mb-4 text-center line-clamp-2">
-            {agent.description?.slice(0, 80) || `AI-powered ${agent.category} assistant`}
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLearnClick}
-              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-cyan-500/50 text-cyan-400 text-xs font-medium agent-button-learn"
-            >
-              <Info className="w-3 h-3" />
-              Learn
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleChatClick}
-              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-purple-500/50 text-purple-400 text-xs font-medium agent-button-chat"
-            >
-              <MessageCircle className="w-3 h-3" />
-              Chat
-            </motion.button>
-            
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleLaunchClick}
-              className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-full bg-transparent border border-emerald-500/50 text-emerald-400 text-xs font-medium agent-button-launch"
-            >
-              <Rocket className="w-3 h-3" />
-              Launch
-            </motion.button>
-          </div>
-        </div>
-      </GlassmorphicCard>
+              </div>
+            )}
 
-      {/* Backstory Modal */}
-      <AnimatePresence>
-        {showBackstoryModal && backstory && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={() => setShowBackstoryModal(false)}
-            />
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.9 }}
-              className="relative w-full max-w-2xl max-h-[80vh] overflow-auto"
-            >
-              <GlassmorphicCard className="p-6">
-                <button
-                  onClick={() => setShowBackstoryModal(false)}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-white"
-                >
-                  &times;
-                </button>
-                
-                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
-                  {agent.name} Backstory
-                </h2>
-                
-                <div className="prose prose-invert max-w-none">
-                  {backstory.backstory}
+            {/* Mastery Level */}
+            {userMastery > 0 && (
+              <div className="flex items-center gap-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < userMastery ? 'text-yellow-400 fill-current' : 'text-gray-600'
+                    }`}
+                  />
+                ))}
+                <span className="text-xs text-gray-400 ml-1">Level {userMastery}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Quick Stats */}
+          {agentIntelligence && (
+            <Pseudo3DStats className="mx-4 mb-4 p-3">
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <div className="text-green-400 font-bold text-sm">
+                    {agentIntelligence.performance.successRate}%
+                  </div>
+                  <div className="text-xs text-gray-500">Success</div>
                 </div>
+                <div>
+                  <div className="text-cyan-400 font-bold text-sm">
+                    {agentIntelligence.performance.efficiency}
+                  </div>
+                  <div className="text-xs text-gray-500">Speed</div>
+                </div>
+                <div>
+                  <div className="text-purple-400 font-bold text-sm">
+                    {agentIntelligence.insights?.length || 0}
+                  </div>
+                  <div className="text-xs text-gray-500">Insights</div>
+                </div>
+              </div>
+            </Pseudo3DStats>
+          )}
+
+          {/* Action Buttons */}
+          <div className="px-4 pb-4 space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <CosmicButton
+                variant="primary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAgentAction('chat');
+                }}
+                className="text-xs"
+              >
+                <MessageCircle className="w-3 h-3 mr-1" />
+                Chat
+              </CosmicButton>
+              <CosmicButton
+                variant="secondary"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAgentAction('info');
+                }}
+                className="text-xs"
+              >
+                <Info className="w-3 h-3 mr-1" />
+                Info
+              </CosmicButton>
+            </div>
+            
+            <CosmicButton
+              variant="primary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAgentAction('launch');
+              }}
+              className="w-full text-xs"
+            >
+              <Rocket className="w-3 h-3 mr-1" />
+              Launch Agent
+            </CosmicButton>
+          </div>
+
+          {/* Hover Glow Effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
+        </Pseudo3DFeature>
+
+        {/* Expanded Details */}
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2"
+            >
+              <Pseudo3DStats className="p-4">
+                <h4 className="text-white font-bold mb-2">Agent Details</h4>
+                <p className="text-gray-300 text-sm mb-3">
+                  {backstory?.description || 'Specialized AI agent for business automation'}
+                </p>
                 
-                <div className="mt-6 flex justify-end">
-                  <CosmicButton onClick={() => setShowBackstoryModal(false)}>
-                    Close
+                {agentIntelligence?.insights && agentIntelligence.insights.length > 0 && (
+                  <div className="mb-3">
+                    <h5 className="text-cyan-400 font-bold text-sm mb-2">Latest Insights</h5>
+                    <div className="space-y-1">
+                      {agentIntelligence.insights.slice(0, 2).map((insight, i) => (
+                        <div key={i} className="text-xs text-gray-400 flex items-start gap-2">
+                          <TrendingUp className="w-3 h-3 mt-0.5 text-green-400 flex-shrink-0" />
+                          <span>{insight.message}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex gap-2 mt-4">
+                  <CosmicButton
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => router.push(`/services/${agent.id}`)}
+                    className="text-xs flex-1"
+                  >
+                    Learn More
+                  </CosmicButton>
+                  <CosmicButton
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleAgentAction('handoff')}
+                    className="text-xs flex-1"
+                  >
+                    Get Started
                   </CosmicButton>
                 </div>
-              </GlassmorphicCard>
+              </Pseudo3DStats>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </Agent3DCardProvider>
   );
 };
 

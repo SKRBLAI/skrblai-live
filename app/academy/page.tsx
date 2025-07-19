@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import FloatingParticles from "@/components/ui/FloatingParticles";
+
 import PercyAvatar from "@/components/home/PercyAvatar";
 import PercyProvider from 'components/assistant/PercyProvider';
 import PageLayout from '@/components/layout/PageLayout';
@@ -80,11 +80,8 @@ export default function PercyAcademyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] relative overflow-x-hidden">
-      {/* FloatingParticles background */}
-      <div className="absolute inset-0 -z-10 pointer-events-none opacity-60">
-        <FloatingParticles />
-      </div>
+    <PageLayout>
+      <div className="min-h-screen relative">{/* Removed redundant background styling */}
       <div className="flex flex-col md:flex-row max-w-6xl mx-auto w-full min-h-screen">
         {/* Percy Sidebar Mentor */}
         <aside className="w-full md:w-64 flex flex-col items-center justify-start pt-16 md:pt-32 mb-8 md:mb-0">
@@ -185,6 +182,7 @@ export default function PercyAcademyPage() {
           )}
         </main>
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 } 

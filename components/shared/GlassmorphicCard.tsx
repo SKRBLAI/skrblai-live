@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/index';
+import Pseudo3DCard, { Pseudo3DSize, Pseudo3DIntensity } from './Pseudo3DCard';
 
 interface GlassmorphicCardProps {
   children: ReactNode;
@@ -10,6 +11,10 @@ interface GlassmorphicCardProps {
   hoverEffect?: boolean;
   onClick?: () => void;
   glowColor?: string;
+  // New 3D mode options
+  mode3D?: boolean;
+  pseudo3DSize?: Pseudo3DSize;
+  pseudo3DIntensity?: Pseudo3DIntensity;
 }
 
 export default function GlassmorphicCard({
@@ -18,7 +23,26 @@ export default function GlassmorphicCard({
   hoverEffect = true,
   onClick,
   glowColor = 'teal-400',
+  mode3D = false,
+  pseudo3DSize = 'md',
+  pseudo3DIntensity = 'medium',
 }: GlassmorphicCardProps) {
+  // If 3D mode is enabled, use Pseudo3DCard wrapper
+  if (mode3D) {
+    return (
+      <Pseudo3DCard
+        size={pseudo3DSize}
+        intensity={pseudo3DIntensity}
+        hover={hoverEffect}
+        onClick={onClick}
+        className={className}
+      >
+        {children}
+      </Pseudo3DCard>
+    );
+  }
+
+  // Traditional glassmorphic style
   return (
     <motion.div
       onClick={onClick}

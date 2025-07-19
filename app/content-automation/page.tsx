@@ -2,29 +2,35 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import ClientPageLayout from '@/components/layout/ClientPageLayout';
+import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import CosmicHeading from '@/components/shared/CosmicHeading';
+import CosmicButton from '@/components/shared/CosmicButton';
 import PercyAvatar from '@/components/ui/PercyAvatar';
 import TrialButton from '@/components/ui/TrialButton';
 
 export default function ContentAutomationPage() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen py-20"
-    >
-      <div className="absolute right-6 top-6 z-20 hidden md:block">
-        <PercyAvatar className="w-20 h-20" />
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+    <ClientPageLayout>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-16"
+      >
+        <div className="absolute right-6 top-6 z-20 hidden md:block">
+          <PercyAvatar className="w-20 h-20" />
+        </div>
+        
+        <div className="text-center">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-4xl md:text-5xl font-bold mb-4 text-white drop-shadow-[0_0_4px_rgba(138,43,226,0.7)]"
           >
-            Content Automation
+            <CosmicHeading className="text-4xl md:text-5xl mb-4">
+              Content Automation
+            </CosmicHeading>
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -37,14 +43,16 @@ export default function ContentAutomationPage() {
         </div>
 
         {/* Main feature section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col justify-center"
           >
-            <h2 className="text-3xl font-bold mb-6 text-white">Automate Your <span className="text-electric-blue">Entire Content Workflow</span></h2>
+            <CosmicHeading className="text-3xl mb-6">
+              Automate Your <span className="text-electric-blue">Entire Content Workflow</span>
+            </CosmicHeading>
             <p className="text-xl text-gray-300 mb-8">Our AI content platform handles every step of the content process, from idea generation to distribution and analytics.</p>
             
             <div className="space-y-4">
@@ -90,42 +98,43 @@ export default function ContentAutomationPage() {
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
-            className="glass-card p-8 rounded-2xl"
           >
-            <div className="space-y-6">
-              <div className="glass-card bg-white/5 p-4 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2 text-white">Content Types</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['Blog Posts', 'Social Media', 'Email', 'Ad Copy', 'Product Descriptions', 'SEO Content', 'Video Scripts'].map((type) => (
-                    <span key={type} className="px-3 py-1 rounded-full text-sm bg-electric-blue/20 text-electric-blue">
-                      {type}
-                    </span>
-                  ))}
+            <GlassmorphicCard>
+              <div className="space-y-6">
+                <div className="bg-white/5 p-4 rounded-xl">
+                  <h3 className="text-lg font-semibold mb-2 text-white">Content Types</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Blog Posts', 'Social Media', 'Email', 'Ad Copy', 'Product Descriptions', 'SEO Content', 'Video Scripts'].map((type) => (
+                      <span key={type} className="px-3 py-1 rounded-full text-sm bg-electric-blue/20 text-electric-blue">
+                        {type}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-white/5 p-4 rounded-xl">
+                  <h3 className="text-lg font-semibold mb-2 text-white">Distribution Channels</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['WordPress', 'Facebook', 'Twitter', 'LinkedIn', 'Instagram', 'Email Platforms', 'YouTube'].map((channel) => (
+                      <span key={channel} className="px-3 py-1 rounded-full text-sm bg-teal-400/20 text-teal-400">
+                        {channel}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-white/5 p-4 rounded-xl">
+                  <h3 className="text-lg font-semibold mb-2 text-white">Analytics & Optimization</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Engagement Tracking', 'Conversion Analysis', 'A/B Testing', 'Audience Insights', 'Performance Dashboards'].map((feature) => (
+                      <span key={feature} className="px-3 py-1 rounded-full text-sm bg-purple-400/20 text-purple-400">
+                        {feature}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
-              
-              <div className="glass-card bg-white/5 p-4 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2 text-white">Distribution Channels</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['WordPress', 'Facebook', 'Twitter', 'LinkedIn', 'Instagram', 'Email Platforms', 'YouTube'].map((channel) => (
-                    <span key={channel} className="px-3 py-1 rounded-full text-sm bg-teal-400/20 text-teal-400">
-                      {channel}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="glass-card bg-white/5 p-4 rounded-xl">
-                <h3 className="text-lg font-semibold mb-2 text-white">Analytics & Optimization</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['Engagement Tracking', 'Conversion Analysis', 'A/B Testing', 'Audience Insights', 'Performance Dashboards'].map((feature) => (
-                    <span key={feature} className="px-3 py-1 rounded-full text-sm bg-purple-400/20 text-purple-400">
-                      {feature}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            </GlassmorphicCard>
           </motion.div>
         </div>
         
@@ -134,9 +143,10 @@ export default function ContentAutomationPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
-          className="mb-16"
         >
-          <h2 className="text-3xl font-bold mb-8 text-center text-white">Your Content <span className="text-electric-blue">Workflow</span></h2>
+          <CosmicHeading className="text-3xl text-center mb-8">
+            Your Content <span className="text-electric-blue">Workflow</span>
+          </CosmicHeading>
           
           <div className="relative">
             <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-electric-blue to-teal-400 rounded-full"></div>
@@ -158,13 +168,15 @@ export default function ContentAutomationPage() {
                     initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, delay: 0.8 + (index * 0.1) }}
-                    className={`glass-card p-6 rounded-xl ${index % 2 === 0 ? 'mr-12' : 'ml-12'} max-w-md`}
+                    className={`${index % 2 === 0 ? 'mr-12' : 'ml-12'} max-w-md`}
                   >
-                    <div className="flex items-center mb-2">
-                      <span className="text-2xl mr-2">{step.icon}</span>
-                      <h3 className="text-xl font-semibold text-white">{step.title}</h3>
-                    </div>
-                    <p className="text-gray-400">{step.description}</p>
+                    <GlassmorphicCard>
+                      <div className="flex items-center mb-2">
+                        <span className="text-2xl mr-2">{step.icon}</span>
+                        <h3 className="text-xl font-semibold text-white">{step.title}</h3>
+                      </div>
+                      <p className="text-gray-400">{step.description}</p>
+                    </GlassmorphicCard>
                   </motion.div>
                 </div>
               ))}
@@ -179,31 +191,30 @@ export default function ContentAutomationPage() {
           transition={{ duration: 0.5, delay: 1 }}
           className="text-center"
         >
-          <h2 className="text-white text-3xl font-bold mb-6 drop-shadow-[0_0_6px_rgba(165,120,255,0.75)]">Ready to Automate Your Content?</h2>
+          <CosmicHeading className="text-3xl mb-6">Ready to Automate Your Content?</CosmicHeading>
           <Link href="/?intent=launch_website#percy">
-            <button className="bg-electric-blue hover:shadow-lg text-white font-semibold px-6 py-3 rounded-lg transition-all
-              duration-300 hover:drop-shadow-[0_0_8px_rgba(165,120,255,0.75)] transform hover:scale-105">
+            <CosmicButton variant="primary" size="lg">
               Get Started
-            </button>
+            </CosmicButton>
           </Link>
         </motion.div>
-        <div className="mt-16 flex flex-col items-center gap-6">
+        
+        <div className="flex flex-col items-center gap-6">
           <div className="flex flex-row gap-4 w-full justify-center">
             <Link href="/" aria-label="Back to Home">
-              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-fuchsia-500 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-fuchsia-400/70 transition-all">
+              <CosmicButton variant="secondary">
                 ← Back to Home
-              </button>
+              </CosmicButton>
             </Link>
             <Link href="/services/agents" aria-label="Meet Percy">
-              <button className="cosmic-btn-secondary px-5 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-cyan-400 to-teal-400 shadow-cosmic focus:outline-none focus:ring-2 focus:ring-cyan-400/70 transition-all">
+              <CosmicButton variant="secondary">
                 Meet Percy
-              </button>
+              </CosmicButton>
             </Link>
           </div>
           <TrialButton className="w-full max-w-xs" />
-          <div className="mt-6 w-full" aria-live="polite" aria-atomic="true"></div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </ClientPageLayout>
   );
 } 
