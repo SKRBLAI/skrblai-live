@@ -20,7 +20,7 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, session, isLoading, isEmailVerified, shouldShowOnboarding } = useAuth();
+  const { user, session, isLoading, isEmailVerified } = useAuth();
   
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
@@ -128,22 +128,10 @@ export default function HomePage() {
               </Pseudo3DHero>
 
               {/* Percy Onboarding Section - Enhanced with 3D */}
-              {shouldShowOnboarding ? (
-                <Pseudo3DFeature className="w-full max-w-4xl mx-auto">
-                  <PercyOnboardingRevolution />
-                </Pseudo3DFeature>
-              ) : (
-                // Show alternative content for verified users or when onboarding is complete
-                <Pseudo3DFeature className="text-center py-8">
-                  <p className="text-gray-400 mb-4">Welcome back to SKRBL AI</p>
-                  <button 
-                    onClick={() => router.push('/dashboard')}
-                    className="bg-electric-blue hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-                  >
-                    Go to Dashboard
-                  </button>
-                </Pseudo3DFeature>
-              )}
+              {/* FIXED: Percy onboarding now ALWAYS shows on homepage for ALL users */}
+              <Pseudo3DFeature className="w-full max-w-4xl mx-auto">
+                <PercyOnboardingRevolution />
+              </Pseudo3DFeature>
             </div>
 
             {/* Social Proof Section removed – stats now live inside unified Percy component */}

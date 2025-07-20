@@ -86,33 +86,13 @@ export default function PercyOnboardingRevolution() {
   const [userInteracted, setUserInteracted] = useState(false);
   const [pulseActive, setPulseActive] = useState(false);
 
-  // NEW: Early return if user is verified - no onboarding needed
+  // REMOVED: Early return logic that was hiding Percy for verified users
+  // Percy onboarding should ALWAYS show on homepage regardless of user status
   useEffect(() => {
-    if (isEmailVerified) {
-      console.log('[PERCY] User is verified - hiding onboarding');
-      setIsOnboardingActive(false);
-      setOnboardingComplete(true);
-      return;
-    }
-    
-    // Only show onboarding for unverified users
-    if (shouldShowOnboarding) {
-      console.log('[PERCY] Showing onboarding for unverified user');
-      setIsOnboardingActive(true);
-    }
-  }, [isEmailVerified, shouldShowOnboarding, setIsOnboardingActive, setOnboardingComplete]);
-
-  // NEW: Hide onboarding completely if user is verified
-  if (isEmailVerified) {
-    console.log('[PERCY] User is verified - not rendering onboarding');
-    return null;
-  }
-
-  // NEW: Only show onboarding if shouldShowOnboarding is true
-  if (!shouldShowOnboarding) {
-    console.log('[PERCY] Should not show onboarding - not rendering');
-    return null;
-  }
+    // Always activate Percy onboarding on homepage
+    console.log('[PERCY] Activating onboarding for all users on homepage');
+    setIsOnboardingActive(true);
+  }, [setIsOnboardingActive]);
 
   // Typewriter/cycling effect for intro messages
   useEffect(() => {
