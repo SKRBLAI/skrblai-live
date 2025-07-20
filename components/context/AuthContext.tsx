@@ -148,13 +148,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
-      // Get client IP and user agent for logging
-      const metadata = {
-        userAgent: window.navigator.userAgent,
-        ip: await fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => data.ip)
-      };
-
-      // Step 1: Authenticate with Supabase
+      // Step 1: Authenticate with Supabase only - no redundant dashboard call
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -166,53 +160,58 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: signInError.message };
       }
 
-      // Step 2: If authentication successful, handle dashboard-specific features
+      // Step 2: Update local state on successful authentication
       if (data.user) {
         console.log('[AUTH] Sign-in successful for:', data.user.email);
-        
-        // Update local state
         setUser(data.user);
         setSession(data.session);
-
-        // Call dashboard-signin endpoint for additional features
-        const dashboardResponse = await fetch('/api/auth/dashboard-signin', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${data.session?.access_token}`
-          },
-          body: JSON.stringify({
-            email,
-            password,
-            promoCode: options?.promoCode,
-            vipCode: options?.vipCode,
-            marketingConsent: options?.marketingConsent
-          })
-        });
-
-        const dashboardResult = await dashboardResponse.json();
         
-        if (dashboardResult.success) {
-          // Update context with dashboard access info
-          setAccessLevel(dashboardResult.accessLevel);
-          setVipStatus(dashboardResult.vipStatus);
-          setBenefits(dashboardResult.benefits);
-        } else {
-          console.warn('[AUTH] Dashboard features setup warning:', dashboardResult.error);
-          // Don't fail the sign-in if dashboard features fail
+        // Step 3: Handle promo/VIP codes asynchronously if provided - don't block sign-in
+        if (options?.promoCode || options?.vipCode) {
+          // Apply codes in background - don't block authentication
+          try {
+            const response = await fetch('/api/auth/apply-code', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${data.session?.access_token}`
+              },
+              body: JSON.stringify({
+                code: options.promoCode || options.vipCode,
+                codeType: options.promoCode ? 'promo' : 'vip'
+              })
+            });
+            
+            const codeResult = await response.json();
+            if (codeResult.success) {
+              console.log('[AUTH] Code applied successfully during sign-in');
+              toast.success('Code applied successfully!');
+            } else {
+              console.warn('[AUTH] Code application failed:', codeResult.error);
+              // Don't fail sign-in if code application fails
+            }
+          } catch (codeErr) {
+            console.warn('[AUTH] Code application error (non-blocking):', codeErr);
+            // Don't fail sign-in if code application fails
+          }
         }
         
-        // Log the sign-in event
-        await supabase.from('auth_events').insert({
-          user_id: data.user.id,
-          event_type: 'sign_in',
-          provider: 'email',
-          details: { 
-            email: data.user.email,
-            accessLevel: dashboardResult.accessLevel,
-            promoRedeemed: dashboardResult.promoRedeemed
-          }
-        });
+        // Step 4: Log the sign-in event asynchronously
+        try {
+          await supabase.from('auth_events').insert({
+            user_id: data.user.id,
+            event_type: 'sign_in',
+            provider: 'email',
+            details: { 
+              email: data.user.email,
+              hasPromoCode: !!options?.promoCode,
+              hasVipCode: !!options?.vipCode
+            }
+          });
+        } catch (logErr) {
+          console.warn('[AUTH] Failed to log sign-in event (non-critical):', logErr);
+          // Don't fail sign-in if logging fails
+        }
       }
 
       return { success: true };
