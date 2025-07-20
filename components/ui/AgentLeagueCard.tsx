@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap } from 'lucide-react';
 import { Agent } from '@/types/agent';
+import '@/styles/components/agent-card.css';
 import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
 import { agentBackstories } from '@/lib/agents/agentBackstories';
 import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
@@ -131,7 +132,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         onMouseLeave={() => setIsHovered(false)}
       >
         <Pseudo3DFeature 
-          className="h-full relative overflow-hidden group"
+          className="h-full relative overflow-hidden group agent-card-glow float-slow"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {/* Recommended Badge */}
@@ -166,6 +167,19 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               transition={{ duration: 0.2 }}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/30 to-blue-600/30 rounded-full blur-sm"></div>
+              {/* Neon rotating ring */}
+              <motion.div
+                className="absolute inset-0 rounded-full border-2 border-cyan-300/60"
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+              />
+              {/* Orbiting particle */}
+              <motion.span
+                className="absolute -top-1 left-1/2 h-1 w-1 bg-cyan-400 rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
+                style={{ originX: 0.5, originY: 2 }}
+              />
               <Image
                 src={getAgentImagePath(agent.id)}
                 alt={`${agent.name} Avatar`}
