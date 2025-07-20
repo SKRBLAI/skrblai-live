@@ -44,9 +44,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [onboardingComplete, setOnboardingCompleteState] = useState(false);
 
-  // Computed property for whether to show onboarding
-  const shouldShowOnboarding = user ? (!isEmailVerified && !onboardingComplete) : false;
-
   // NEW: Function to update onboarding completion
   const setOnboardingComplete = useCallback((complete: boolean) => {
     setOnboardingCompleteState(complete);
