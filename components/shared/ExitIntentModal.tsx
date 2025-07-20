@@ -79,15 +79,19 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
       
       // Redirect to appropriate page with the offer
       if (pathname?.includes('/pricing')) {
-        window.location.href = `/sign-up?offer=launch40&email=${encodeURIComponent(email)}`;
+        window.location.href = `/?offer=launch40&email=${encodeURIComponent(email)}`;
       } else {
-        window.location.href = `/sign-up?offer=exit_capture&email=${encodeURIComponent(email)}`;
+        window.location.href = `/?offer=exit_capture&email=${encodeURIComponent(email)}`;
       }
       
     } catch (error) {
       console.error('Exit intent capture error:', error);
       // Still redirect on error
-      window.location.href = `/sign-up?email=${encodeURIComponent(email)}`;
+      if (email) {
+        window.location.href = `/?email=${encodeURIComponent(email)}`;
+      } else {
+        window.location.href = `/?email=${encodeURIComponent(email)}`;
+      }
     }
   };
 

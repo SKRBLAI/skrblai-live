@@ -39,15 +39,11 @@ export default function SignInPage() {
   useEffect(() => {
     if (user && session) {
       console.log('[SIGN-IN] User already authenticated, redirecting to dashboard');
-      // NEW: Verified users go directly to dashboard, unverified users may need onboarding
-      if (isEmailVerified) {
-        router.replace('/dashboard');
-      } else {
-        // Redirect to home for onboarding if not verified
-        router.replace('/');
-      }
+      // SIMPLIFIED: Always redirect authenticated users to dashboard
+      // Let the middleware and AuthContext handle onboarding logic
+      router.replace('/dashboard');
     }
-  }, [user, session, isEmailVerified, router]);
+  }, [user, session, router]);
 
   // Google OAuth sign-in
   const handleGoogleSignIn = async () => {
@@ -180,10 +176,10 @@ export default function SignInPage() {
           <p className="mt-2 text-center text-sm text-gray-400">
             Or{' '}
             <Link
-              href="/sign-up"
+              href="/"
               className="font-medium text-electric-blue hover:text-electric-blue/80"
             >
-              create a new account
+              sign up for a new account
             </Link>
           </p>
         </div>

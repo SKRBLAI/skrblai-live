@@ -18,7 +18,26 @@ import { useAuth } from "@/components/context/AuthContext";
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isEmailVerified, isLoading } = useAuth();
+
+  // Smart login handler that routes based on authentication status
+  const handleSmartLogin = () => {
+    if (isLoading) return; // Wait for auth to load
+    
+    if (user && isEmailVerified) {
+      // Verified user - go directly to dashboard
+      console.log('[NAVBAR] Verified user clicking login - routing to dashboard');
+      router.push('/dashboard');
+    } else if (user && !isEmailVerified) {
+      // Unverified user - go to homepage for Percy onboarding
+      console.log('[NAVBAR] Unverified user clicking login - routing to Percy onboarding');
+      router.push('/');
+    } else {
+      // No user - go to sign-in page
+      console.log('[NAVBAR] Unauthenticated user clicking login - routing to sign-in');
+      router.push('/sign-in');
+    }
+  };
 
   // Prefetch heavy routes for a snappy UX.
   useEffect(() => {
@@ -70,14 +89,12 @@ export default function Navbar() {
               <div className="hidden items-center space-x-3 lg:flex">
                 {!user ? (
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
-                    <Link href="/sign-in" className="focus:outline-none">
-                      <button className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                        <div className="relative flex items-center space-x-2">
-                          <LogIn className="h-4 w-4" />
-                          <span className="text-sm">Login</span>
-                        </div>
-                      </button>
-                    </Link>
+                    <button onClick={handleSmartLogin} className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:outline-none">
+                      <div className="relative flex items-center space-x-2">
+                        <LogIn className="h-4 w-4" />
+                        <span className="text-sm">Login</span>
+                      </div>
+                    </button>
                   </motion.div>
                 ) : (
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
@@ -101,7 +118,7 @@ export default function Navbar() {
 
               {/* Mobile Hamburger */}
               <div className="flex-shrink-0 lg:hidden">
-                <MobileMenu pathname={pathname} />
+                <MobileMenu pathname={pathname} onSmartLogin={handleSmartLogin} />
               </div>
             </div>
           </div>
@@ -224,10 +241,10 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
  ***************************/
 interface MobileMenuProps {
   pathname: string | null;
-
+  onSmartLogin: () => void;
 }
 
-function MobileMenu({ pathname }: MobileMenuProps) {
+function MobileMenu({ pathname, onSmartLogin }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const firstLinkRef = useRef<HTMLAnchorElement>(null);
@@ -386,14 +403,18 @@ function MobileMenu({ pathname }: MobileMenuProps) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <Link href="/sign-in" onClick={() => setIsOpen(false)}>
-                      <button className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-3 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                        <div className="flex items-center justify-center space-x-2">
-                          <LogIn className="h-4 w-4" />
-                          <span>Login</span>
-                        </div>
-                      </button>
-                    </Link>
+                    <button 
+                      onClick={() => {
+                        setIsOpen(false);
+                        onSmartLogin();
+                      }}
+                      className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-3 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <LogIn className="h-4 w-4" />
+                        <span>Login</span>
+                      </div>
+                    </button>
                   </motion.div>
 
                   {/* User Dashboard Button */}

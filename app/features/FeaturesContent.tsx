@@ -311,7 +311,7 @@ export default function FeaturesContent(): JSX.Element {
                         <CosmicButton href="/agents" variant="glass">
                           Meet The Agent Team
                         </CosmicButton>
-                        <CosmicButton href="/sign-up" variant="glass">
+                        <CosmicButton href="/" variant="glass">
                           Start Free Trial
                         </CosmicButton>
                       </div>
@@ -441,7 +441,7 @@ export default function FeaturesContent(): JSX.Element {
                 Join {liveMetrics.totalUsers}+ businesses already using <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> features to dominate their industries.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <CosmicButton href="/sign-up" variant="glass" size="lg" className="shadow-[0_8px_32px_rgba(0,212,255,0.28)]">
+                <CosmicButton href="/" variant="glass" size="lg" className="shadow-[0_8px_32px_rgba(0,212,255,0.28)]">
                   🚀 Start Free Trial (No Credit Card)
                 </CosmicButton>
                 <CosmicButton href="/agents" variant="glass" size="lg">

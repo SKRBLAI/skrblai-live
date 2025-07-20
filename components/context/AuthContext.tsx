@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [onboardingComplete, setOnboardingCompleteState] = useState(false);
 
   // Computed property for whether to show onboarding
-  const shouldShowOnboarding = !isEmailVerified && !onboardingComplete;
+  const shouldShowOnboarding = user ? (!isEmailVerified && !onboardingComplete) : false;
 
   // NEW: Function to update onboarding completion
   const setOnboardingComplete = useCallback((complete: boolean) => {
@@ -67,13 +67,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     // Check if user has email_confirmed_at (Supabase email verification)
     const emailConfirmed = currentUser.email_confirmed_at != null;
-    setIsEmailVerified(emailConfirmed);
     
-    // If email is verified, onboarding should be complete
-    if (emailConfirmed) {
+    // IMPROVED: Also consider existing users as "verified" if they have:
+    // 1. A valid session (they successfully logged in)
+    // 2. Account created more than 24 hours ago (existing user, not new signup)
+    // 3. Any previous dashboard access or onboarding completion
+    const accountAge = currentUser.created_at ? 
+      Date.now() - new Date(currentUser.created_at).getTime() : 0;
+    const isExistingUser = accountAge > 24 * 60 * 60 * 1000; // 24 hours
+    
+    const hasCompletedOnboarding = localStorage.getItem('percyOnboardingComplete') === 'true';
+    const hasDashboardAccess = localStorage.getItem('skrbl_dashboard_access') === 'true';
+    
+    // Consider user "verified" if:
+    // - Email is confirmed, OR
+    // - They're an existing user with a valid session, OR  
+    // - They've previously completed onboarding/accessed dashboard
+    const isVerified = emailConfirmed || isExistingUser || hasCompletedOnboarding || hasDashboardAccess;
+    
+    setIsEmailVerified(isVerified);
+    
+    // If user is considered verified, mark onboarding as complete
+    if (isVerified) {
       setOnboardingComplete(true);
+      // Track dashboard access for future reference
+      localStorage.setItem('skrbl_dashboard_access', 'true');
     }
+    
+    console.log('[AUTH] Email verification check:', {
+      email: currentUser.email,
+      emailConfirmed,
+      isExistingUser,
+      accountAge: Math.round(accountAge / (60 * 60 * 1000)) + ' hours',
+      hasCompletedOnboarding,
+      hasDashboardAccess,
+      finalVerificationStatus: isVerified
+    });
   }, [setOnboardingComplete]);
+
+  // IMPROVED: Computed property for whether to show onboarding
+  // Only show onboarding for genuinely new users who haven't been verified
+  const shouldShowOnboarding = user ? (!isEmailVerified && !onboardingComplete) : false;
 
   // NEW: Initialize onboarding state from localStorage
   useEffect(() => {
@@ -134,14 +168,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setAccessLevel(result.accessLevel);
             setVipStatus(result.vipStatus);
             setBenefits(result.benefits);
+          } else {
+            // IMPROVED: Provide fallback access instead of failing
+            console.warn('[AUTH] Dashboard access check failed, providing fallback access:', result.error);
+            setAccessLevel('free');
+            setVipStatus({ isVIP: false, vipLevel: 'none' });
+            setBenefits({ features: [] });
           }
         } catch (err) {
-          console.error('[AUTH] Failed to check dashboard access:', err);
+          // IMPROVED: Always provide fallback access on error
+          console.warn('[AUTH] Failed to check dashboard access, providing fallback access:', err);
+          setAccessLevel('free');
+          setVipStatus({ isVIP: false, vipLevel: 'none' });
+          setBenefits({ features: [] });
         }
       }
     };
 
-    checkDashboardAccess();
+    // Only check dashboard access for existing users with sessions
+    if (user && session) {
+      checkDashboardAccess();
+    }
   }, [user, session]);
 
   const signIn = async (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => {
@@ -156,8 +203,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (signInError) {
         console.error('[AUTH] Sign-in error:', signInError);
-        setError(signInError.message);
-        return { success: false, error: signInError.message };
+        
+        // IMPROVED: Provide more specific error messages
+        let userFriendlyError = signInError.message;
+        
+        if (signInError.message?.includes('Invalid login credentials')) {
+          userFriendlyError = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (signInError.message?.includes('Email not confirmed')) {
+          userFriendlyError = 'Please check your email and click the confirmation link before signing in.';
+        } else if (signInError.message?.includes('Too many requests')) {
+          userFriendlyError = 'Too many sign-in attempts. Please wait a few minutes before trying again.';
+        } else if (signInError.message?.includes('User not found')) {
+          userFriendlyError = 'No account found with this email. Please check your email or sign up for a new account.';
+        } else if (signInError.message?.includes('Signup disabled')) {
+          userFriendlyError = 'Account registration is currently disabled. Please contact support.';
+        }
+        
+        setError(userFriendlyError);
+        return { success: false, error: userFriendlyError };
       }
 
       // Step 2: Update local state on successful authentication

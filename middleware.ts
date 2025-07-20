@@ -35,24 +35,42 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // NEW: Percy onboarding flow logic
+  // NEW: Percy onboarding flow logic - IMPROVED for existing users
   if (session && path.startsWith('/dashboard')) {
     const user = session.user;
     
     // Check if user email is verified
     const isEmailVerified = user.email_confirmed_at != null;
     
-    if (!isEmailVerified) {
-      console.log('[MIDDLEWARE] User not verified, redirecting to onboarding');
+    // IMPROVED: Also consider existing users as "verified" if they have:
+    // 1. A valid session (they successfully logged in)
+    // 2. Account created more than 24 hours ago (existing user, not new signup)
+    const accountAge = user.created_at ? 
+      Date.now() - new Date(user.created_at).getTime() : 0;
+    const isExistingUser = accountAge > 24 * 60 * 60 * 1000; // 24 hours
+    
+    // Allow dashboard access if:
+    // - Email is verified, OR
+    // - User is an existing user with valid session, OR
+    // - User has previously accessed dashboard (stored in user metadata)
+    const allowDashboardAccess = isEmailVerified || isExistingUser || user.user_metadata?.dashboard_access;
+    
+    if (!allowDashboardAccess) {
+      console.log('[MIDDLEWARE] New unverified user, redirecting to onboarding');
       
-      // Redirect unverified users to homepage for Percy onboarding
+      // Only redirect genuinely new, unverified users to homepage for Percy onboarding
       const homeUrl = new URL('/', request.url);
       homeUrl.searchParams.set('reason', 'email-not-verified');
       
       return NextResponse.redirect(homeUrl);
     }
     
-    console.log('[MIDDLEWARE] User is verified, allowing dashboard access');
+    console.log('[MIDDLEWARE] User verified or existing, allowing dashboard access:', {
+      email: user.email,
+      isEmailVerified,
+      isExistingUser,
+      accountAge: Math.round(accountAge / (60 * 60 * 1000)) + ' hours'
+    });
   }
   
   // Handle API routes without auth
