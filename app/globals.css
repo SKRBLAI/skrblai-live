@@ -294,13 +294,34 @@ html, body {
   box-shadow: 0 0 30px 0 rgba(45, 212, 191, 0.12), 0 0 60px 0 rgba(45, 212, 191, 0.08) !important;
 }
 
+/* Force root elements transparent - eliminate all grey/white backgrounds */
+html, body {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Cosmic starfield body background */
+.cosmic-starfield {
+  background: radial-gradient(ellipse at center, #0d1117 0%, #000000 100%);
+  background-attachment: fixed;
+}
+
+/* Cosmic gradient card background */
+.cosmic-gradient {
+  background: radial-gradient(circle at top left, rgba(0, 164, 255, 0.15), rgba(161, 0, 255, 0.12) 40%, rgba(0, 0, 0, 0.1) 100%);
+}
+
 /* Prevent bg-white/gray/slate and similar opaque backgrounds */
+/* Also target custom hex dark backgrounds like bg-[#0D1117] */
 [class*="bg-white"],
 [class*="bg-slate"],
 [class*="bg-gray"],
 [class*="bg-neutral"],
 [class*="bg-zinc"],
 [class*="bg-stone"],
-[class*="bg-black"] {
+[class*="bg-black"],
+.bg-\[\#0D1117\],
+.bg-\[\#0d1117\],
+.bg-deep-navy {
   background: transparent !important;
 }

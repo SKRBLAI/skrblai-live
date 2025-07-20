@@ -110,7 +110,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="relative w-full max-w-2xl bg-transparent backdrop-blur-xl rounded-3xl p-8 border-2 border-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]"
+            className="relative w-full max-w-2xl cosmic-gradient backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/50 shadow-[0_0_32px_rgba(45,212,191,0.25)]"
             style={{
               background: 'transparent',
               boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'

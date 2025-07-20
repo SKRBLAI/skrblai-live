@@ -44,17 +44,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="bg-transparent min-h-screen antialiased font-sans overflow-x-hidden page-layout">
+      <body className="cosmic-starfield min-h-screen antialiased font-sans overflow-x-hidden page-layout">
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
-          {/* Only show global cosmic backgrounds on homepage and non-ClientPageLayout pages */}
-          {(isHomepage || !isClientPageLayoutPage) && (
-            <>
-              <CosmicBackground />
-              <ParticleGlowBackground />
-            </>
-          )}
+          {/* Global cosmic backgrounds for all pages */}
+          <CosmicBackground />
+          <ParticleGlowBackground />
 
           {/* Global Navigation */}
           <Navbar />

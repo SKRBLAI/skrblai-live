@@ -30,7 +30,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen relative text-white bg-[#0d1117] overflow-hidden ClientPageLayout">
+    <div className="min-h-screen relative text-white overflow-hidden ClientPageLayout">
       {/* Enhanced Cosmic Starfield Background - Same as homepage */}
       <CosmicStarfield 
         starCount={120}

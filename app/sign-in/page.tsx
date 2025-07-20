@@ -148,7 +148,7 @@ export default function SignInPage() {
   // Show loading state while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0D1117]">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full border-4 border-electric-blue border-t-transparent animate-spin mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading...</p>
@@ -158,7 +158,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0D1117] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Toaster position="top-center" />
       <div className="w-full max-w-md mb-4">
         <SessionAlert />
@@ -167,7 +167,7 @@ export default function SignInPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 bg-gradient-to-br from-[#0d1117] via-[#161b22] to-[#0d1117] p-8 rounded-xl shadow-glow border border-electric-blue/30 backdrop-blur-xl"
+        className="max-w-md w-full space-y-8 cosmic-gradient p-8 rounded-xl shadow-glow border border-cyan-400/40 backdrop-blur-2xl"
       >
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
