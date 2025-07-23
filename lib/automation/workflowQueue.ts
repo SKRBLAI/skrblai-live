@@ -30,6 +30,12 @@ export interface WorkflowTemplate {
   requiredRole?: string;
   category: 'content' | 'automation' | 'analysis' | 'integration';
   estimatedDuration: number; // minutes
+  industry?: string; // New field for industry
+  demoPreview?: { // New field for demo preview
+    enabled: boolean;
+    sampleInput: string;
+    expectedOutput: string;
+  };
 }
 
 export interface WorkflowStep {
@@ -180,7 +186,7 @@ class WorkflowQueue {
 
 export const workflowQueue = new WorkflowQueue();
 
-// Workflow Templates
+// Enhanced Workflow Templates with Industry Specificity
 export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
   {
     id: 'content-creation-pipeline',
@@ -189,6 +195,12 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
     agentId: 'contentCreatorAgent',
     category: 'content',
     estimatedDuration: 15,
+    industry: 'general',
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'AI automation trends in 2025',
+      expectedOutput: 'Complete blog post with SEO optimization, social media snippets, and email newsletter version'
+    },
     steps: [
       {
         id: 'research',
@@ -216,14 +228,186 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       }
     ]
   },
+  
+  // NEW: E-commerce Industry Templates
+  {
+    id: 'ecommerce-product-launch',
+    name: 'E-commerce Product Launch Campaign',
+    description: 'Complete product launch with descriptions, ads, and social media',
+    agentId: 'marketingAgent',
+    category: 'automation',
+    industry: 'ecommerce',
+    estimatedDuration: 25,
+    requiredRole: 'pro',
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'Smart fitness tracker with heart rate monitoring',
+      expectedOutput: 'Product descriptions, Amazon listing, Facebook ads, Instagram campaign, email sequences'
+    },
+    steps: [
+      {
+        id: 'product_analysis',
+        name: 'Analyze Product Features',
+        type: 'ai_task',
+        config: { task: 'analyze_product', focus: 'benefits_features' }
+      },
+      {
+        id: 'descriptions',
+        name: 'Generate Product Descriptions',
+        type: 'parallel',
+        config: {
+          tasks: [
+            { platform: 'amazon', format: 'listing' },
+            { platform: 'shopify', format: 'description' },
+            { platform: 'website', format: 'hero_copy' }
+          ]
+        }
+      },
+      {
+        id: 'ad_creative',
+        name: 'Create Ad Campaigns',
+        type: 'ai_task',
+        config: { task: 'ad_creative', platforms: ['facebook', 'google', 'tiktok'] }
+      },
+      {
+        id: 'social_campaign',
+        name: 'Social Media Campaign',
+        type: 'ai_task',
+        config: { task: 'social_campaign', duration: '30_days' }
+      }
+    ]
+  },
+
+  // NEW: SaaS Industry Templates
+  {
+    id: 'saas-user-onboarding',
+    name: 'SaaS User Onboarding Automation',
+    description: 'Complete user onboarding with emails, tutorials, and support',
+    agentId: 'automationAgent',
+    category: 'automation',
+    industry: 'saas',
+    estimatedDuration: 30,
+    requiredRole: 'pro',
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'Project management software onboarding',
+      expectedOutput: 'Welcome email series, video tutorials, in-app notifications, support workflows'
+    },
+    steps: [
+      {
+        id: 'email_sequence',
+        name: 'Create Welcome Email Series',
+        type: 'ai_task',
+        config: { task: 'email_sequence', type: 'onboarding', count: 7 }
+      },
+      {
+        id: 'tutorial_content',
+        name: 'Generate Tutorial Content',
+        type: 'ai_task',
+        config: { task: 'tutorial_creation', format: 'step_by_step' }
+      },
+      {
+        id: 'automation_setup',
+        name: 'Setup Automation Triggers',
+        type: 'webhook',
+        config: { url: '/api/automation/user-onboarding', method: 'POST' }
+      }
+    ]
+  },
+
+  // NEW: Professional Services Templates
+  {
+    id: 'consulting-client-proposal',
+    name: 'Consulting Client Proposal Generator',
+    description: 'Generate professional proposals with pricing and timelines',
+    agentId: 'proposalAgent',
+    category: 'automation',
+    industry: 'consulting',
+    estimatedDuration: 20,
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'Digital transformation consultation for manufacturing company',
+      expectedOutput: 'Professional PDF proposal with executive summary, scope, timeline, pricing'
+    },
+    steps: [
+      {
+        id: 'client_analysis',
+        name: 'Analyze Client Needs',
+        type: 'ai_task',
+        config: { task: 'client_analysis', depth: 'comprehensive' }
+      },
+      {
+        id: 'proposal_generation',
+        name: 'Generate Proposal Content',
+        type: 'ai_task',
+        config: { task: 'proposal_writing', include_pricing: true }
+      },
+      {
+        id: 'pdf_creation',
+        name: 'Create Professional PDF',
+        type: 'ai_task',
+        config: { task: 'pdf_generation', template: 'professional' }
+      }
+    ]
+  },
+
+  // NEW: Real Estate Industry Templates
+  {
+    id: 'real-estate-listing-optimizer',
+    name: 'Real Estate Listing Optimizer',
+    description: 'Optimize property listings for maximum visibility and leads',
+    agentId: 'contentCreatorAgent',
+    category: 'content',
+    industry: 'real_estate',
+    estimatedDuration: 15,
+    demoPreview: {
+      enabled: true,
+      sampleInput: '3BR/2BA home in downtown area with updated kitchen',
+      expectedOutput: 'MLS listing, social media posts, virtual tour script, lead magnets'
+    },
+    steps: [
+      {
+        id: 'property_analysis',
+        name: 'Analyze Property Features',
+        type: 'ai_task',
+        config: { task: 'property_analysis', focus: 'selling_points' }
+      },
+      {
+        id: 'listing_optimization',
+        name: 'Optimize Listing Copy',
+        type: 'ai_task',
+        config: { task: 'listing_copy', seo_optimized: true }
+      },
+      {
+        id: 'marketing_materials',
+        name: 'Create Marketing Materials',
+        type: 'parallel',
+        config: {
+          tasks: [
+            { type: 'social_posts', platforms: ['facebook', 'instagram'] },
+            { type: 'email_templates', purpose: 'lead_nurturing' },
+            { type: 'virtual_tour_script', style: 'engaging' }
+          ]
+        }
+      }
+    ]
+  },
+
+  // Enhanced existing templates
   {
     id: 'social-media-campaign',
     name: 'Social Media Campaign',
     description: 'Multi-platform social content generation',
     agentId: 'socialMediaAgent',
     category: 'content',
+    industry: 'general',
     estimatedDuration: 10,
     requiredRole: 'pro',
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'Launching a new mobile app for fitness tracking',
+      expectedOutput: 'Instagram posts, Twitter threads, LinkedIn articles, TikTok scripts'
+    },
     steps: [
       {
         id: 'strategy',
@@ -245,14 +429,21 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       }
     ]
   },
+
   {
     id: 'lead-qualification',
     name: 'Lead Qualification Flow',
     description: 'Automated lead scoring and nurturing',
     agentId: 'salesAgent',
     category: 'automation',
+    industry: 'b2b',
     estimatedDuration: 5,
     requiredRole: 'pro',
+    demoPreview: {
+      enabled: true,
+      sampleInput: 'Software company with 50+ employees looking for automation tools',
+      expectedOutput: 'Lead score, personalized follow-up sequence, sales rep assignment'
+    },
     steps: [
       {
         id: 'score',
@@ -296,4 +487,141 @@ export function getTemplatesForRole(userRole: string): WorkflowTemplate[] {
     if (userRole === 'pro' && t.requiredRole === 'pro') return true;
     return false;
   });
+}
+
+// NEW: Enhanced template filtering functions
+export function getTemplatesByIndustry(industry: string, userRole: string = 'free'): WorkflowTemplate[] {
+  return getTemplatesForRole(userRole).filter(t => 
+    t.industry === industry || t.industry === 'general'
+  );
+}
+
+export function getTemplatesByCategory(category: WorkflowTemplate['category'], userRole: string = 'free'): WorkflowTemplate[] {
+  return getTemplatesForRole(userRole).filter(t => t.category === category);
+}
+
+export function getTemplatePreview(templateId: string): WorkflowTemplate['demoPreview'] | null {
+  const template = WORKFLOW_TEMPLATES.find(t => t.id === templateId);
+  return template?.demoPreview || null;
+}
+
+export function getAvailableIndustries(): string[] {
+  const industries = WORKFLOW_TEMPLATES
+    .map(t => t.industry)
+    .filter((industry): industry is string => industry !== undefined);
+  return [...new Set(industries)].sort();
+}
+
+export function getTemplatesByComplexity(maxDuration: number, userRole: string = 'free'): WorkflowTemplate[] {
+  return getTemplatesForRole(userRole).filter(t => t.estimatedDuration <= maxDuration);
+}
+
+export function generateTemplateRecommendations(
+  userInput: string, 
+  industry?: string, 
+  userRole: string = 'free'
+): WorkflowTemplate[] {
+  const input = userInput.toLowerCase();
+  let candidates = getTemplatesForRole(userRole);
+  
+  // Filter by industry if provided
+  if (industry) {
+    candidates = candidates.filter(t => t.industry === industry || t.industry === 'general');
+  }
+  
+  // Score templates based on keyword relevance
+  const scoredTemplates = candidates.map(template => {
+    let score = 0;
+    
+    // Check name and description
+    const templateText = `${template.name} ${template.description}`.toLowerCase();
+    
+    // Industry-specific keywords
+    const industryKeywords = {
+      ecommerce: ['product', 'shop', 'store', 'sell', 'listing', 'inventory'],
+      saas: ['software', 'app', 'user', 'onboarding', 'subscription', 'feature'],
+      consulting: ['client', 'proposal', 'strategy', 'consulting', 'advisory'],
+      real_estate: ['property', 'house', 'listing', 'real estate', 'home', 'rent'],
+      b2b: ['business', 'enterprise', 'lead', 'sales', 'corporate']
+    };
+    
+    // Score based on keyword matches
+    if (template.industry && industryKeywords[template.industry as keyof typeof industryKeywords]) {
+      const keywords = industryKeywords[template.industry as keyof typeof industryKeywords];
+      keywords.forEach(keyword => {
+        if (input.includes(keyword)) score += 10;
+      });
+    }
+    
+    // Score based on template content
+    if (templateText.includes(input)) score += 20;
+    
+    // Boost score for demo-enabled templates
+    if (template.demoPreview?.enabled) score += 5;
+    
+    return { template, score };
+  });
+  
+  // Return top 3 templates, sorted by score
+  return scoredTemplates
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3)
+    .map(item => item.template);
+}
+
+// NEW: Template execution analytics
+export function getTemplateAnalytics(templateId: string): {
+  executionCount: number;
+  averageDuration: number;
+  successRate: number;
+  popularityRank: number;
+} {
+  // This would typically query a database, but for now return mock data
+  const mockData = {
+    'content-creation-pipeline': { executionCount: 1247, averageDuration: 12, successRate: 94, popularityRank: 1 },
+    'ecommerce-product-launch': { executionCount: 892, averageDuration: 22, successRate: 91, popularityRank: 2 },
+    'social-media-campaign': { executionCount: 756, averageDuration: 8, successRate: 96, popularityRank: 3 },
+    'saas-user-onboarding': { executionCount: 634, averageDuration: 28, successRate: 89, popularityRank: 4 },
+    'lead-qualification': { executionCount: 523, averageDuration: 4, successRate: 97, popularityRank: 5 }
+  };
+  
+  return mockData[templateId as keyof typeof mockData] || 
+    { executionCount: 0, averageDuration: 0, successRate: 0, popularityRank: 999 };
+}
+
+// NEW: Template demo execution
+export async function executeTemplateDemo(
+  templateId: string, 
+  sampleInput?: string
+): Promise<{
+  success: boolean;
+  output: string;
+  executionTime: number;
+  steps: Array<{ name: string; status: 'completed' | 'running' | 'pending'; output?: string }>;
+}> {
+  const template = WORKFLOW_TEMPLATES.find(t => t.id === templateId);
+  if (!template || !template.demoPreview?.enabled) {
+    throw new Error('Template demo not available');
+  }
+  
+  const startTime = Date.now();
+  const input = sampleInput || template.demoPreview.sampleInput;
+  
+  // Simulate step execution
+  const steps = template.steps.map(step => ({
+    name: step.name,
+    status: 'completed' as const,
+    output: `Completed: ${step.name} for "${input}"`
+  }));
+  
+  // Simulate processing time
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  return {
+    success: true,
+    output: template.demoPreview.expectedOutput,
+    executionTime: Date.now() - startTime,
+    steps
+  };
 } 

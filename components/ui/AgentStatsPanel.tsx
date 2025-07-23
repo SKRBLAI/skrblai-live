@@ -70,7 +70,7 @@ export default function AgentStatsPanel() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex justify-between items-center p-2 hover:bg-white/5 bg-white/5 border border-white/5 rounded-lg transition-colors"
+              className="flex justify-between items-center p-2 cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] transition-colors"
             >
               <div className="flex items-center">
                 <span className="w-8 h-8 rounded-full bg-gradient-to-br from-electric-blue to-teal-400 flex items-center justify-center text-sm mr-2">
