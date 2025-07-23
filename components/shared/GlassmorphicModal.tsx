@@ -57,15 +57,11 @@ export default function GlassmorphicModal({
                 overflow-hidden
                 ${className}
               `)}
-              style={{
-                background: 'transparent',
-                boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'
-              }}
             >
               {/* Header */}
               <div className="flex justify-between items-center border-b border-teal-400/40 px-6 py-4 bg-transparent backdrop-blur-md">
                 {title && <h3 className="text-lg font-medium text-white">{title}</h3>}
-                <button 
+                <button aria-label={title ? `Close ${title}` : 'Close modal'} 
                   onClick={onClose}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
