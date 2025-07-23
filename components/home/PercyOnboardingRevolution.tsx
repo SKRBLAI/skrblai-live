@@ -66,10 +66,15 @@ export default function PercyOnboardingRevolution() {
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
   const [intelligenceScore] = useState(247); // Percy's enhanced IQ
   const [businessesTransformed] = useState(47213);
-  // Business stats counters for unified section
-  const [liveUsers] = useState(1251);
-  const [agentsDeployed] = useState(92);
-  const [revenueGenerated] = useState(2849718);
+  // Business stats counters for unified section - Enhanced with live data
+  const [liveMetrics, setLiveMetrics] = useState({
+    liveUsers: 1251,
+    agentsDeployed: 92,
+    revenueGenerated: 2849718,
+    businessesTransformed: 47213
+  });
+  const [socialProofMessages, setSocialProofMessages] = useState<any[]>([]);
+  const [currentSocialProof, setCurrentSocialProof] = useState<any>(null);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
   // Typewriter effect for prompt bar
@@ -689,6 +694,58 @@ export default function PercyOnboardingRevolution() {
     }
   }, [currentStep]);
 
+  // Live Social Proof Integration
+  useEffect(() => {
+    const fetchLiveSocialProof = async () => {
+      try {
+        const response = await fetch('/api/social-proof/live-feed?type=signup&count=5&includeActivity=true');
+        const result = await response.json();
+        
+        if (result.success) {
+          setLiveMetrics(prev => ({
+            ...prev,
+            liveUsers: result.data.metrics.live.totalUsers,
+            agentsDeployed: Math.floor(result.data.metrics.live.agentsLaunched / 1000),
+            revenueGenerated: result.data.metrics.live.revenueGenerated,
+            businessesTransformed: result.data.metrics.live.businessesTransformed
+          }));
+          
+          setSocialProofMessages(result.data.socialProof);
+          
+          // Update competitive insights
+          setCompetitiveInsights(result.data.metrics.competitive.recentAchievements);
+        }
+      } catch (error) {
+        console.error('[Percy] Failed to fetch live social proof:', error);
+      }
+    };
+
+    // Initial fetch
+    fetchLiveSocialProof();
+    
+    // Update every 45 seconds
+    const interval = setInterval(fetchLiveSocialProof, 45000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate social proof messages
+  useEffect(() => {
+    if (socialProofMessages.length === 0) return;
+
+    const interval = setInterval(() => {
+      const randomMessage = socialProofMessages[Math.floor(Math.random() * socialProofMessages.length)];
+      setCurrentSocialProof(randomMessage);
+      
+      // Hide after 6 seconds
+      setTimeout(() => {
+        setCurrentSocialProof(null);
+      }, 6000);
+    }, 12000 + Math.random() * 8000); // Random interval between 12-20 seconds
+
+    return () => clearInterval(interval);
+  }, [socialProofMessages]);
+
   const step = getCurrentStep();
 
   return (
@@ -891,7 +948,7 @@ export default function PercyOnboardingRevolution() {
           >
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
-                end={liveUsers} 
+                end={liveMetrics.liveUsers} 
                 duration={2000} 
                 theme="electric"
                 cosmicGlow={true}
@@ -909,7 +966,7 @@ export default function PercyOnboardingRevolution() {
           >
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
-                end={agentsDeployed} 
+                end={liveMetrics.agentsDeployed} 
                 duration={2000} 
                 theme="teal"
                 cosmicGlow={true}
@@ -927,7 +984,7 @@ export default function PercyOnboardingRevolution() {
           >
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
-                end={Math.floor(revenueGenerated/1000)} 
+                end={Math.floor(liveMetrics.revenueGenerated/1000)} 
                 duration={2000} 
                 prefix="$"
                 suffix="K+"
@@ -955,6 +1012,41 @@ export default function PercyOnboardingRevolution() {
           </div>
         </motion.div>
       )}
+
+      {/* Enhanced Main Component Container */}
+      <div className="relative w-full max-w-none mx-auto pointer-events-auto overflow-visible">
+        {/* Live Social Proof Notification */}
+        <AnimatePresence>
+          {currentSocialProof && (
+            <motion.div
+              initial={{ opacity: 0, x: 300, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -100, scale: 0.9 }}
+              className="absolute top-4 right-4 z-[60] max-w-xs bg-gradient-to-r from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-xl shadow-2xl border border-green-400/30 p-3"
+            >
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-400/20 flex items-center justify-center">
+                  <span className="text-green-400">🚀</span>
+                </div>
+                <div className="flex-1">
+                  <p className="text-white text-xs font-medium leading-tight">
+                    {currentSocialProof.message}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    Just now
+                  </p>
+                </div>
+                <motion.div
+                  className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Percy Container */}
 
       {/* Integrated Universal Prompt Bar with Typewriter Effect */}
       <div className="mt-6 px-2 sm:px-4 pointer-events-auto">
@@ -1030,7 +1122,6 @@ export default function PercyOnboardingRevolution() {
         </motion.div>
       </div>
     </div> {/* End Right Column */}
-
     </div>
   );
 }
