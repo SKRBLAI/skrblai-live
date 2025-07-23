@@ -152,7 +152,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90vh] mx-auto bg-gradient-to-b from-[#161b22] to-[#0d1117] rounded-2xl shadow-xl border border-blue-900/60 px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
+            className="relative w-full max-w-2xl max-h-[90vh] mx-auto cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -324,7 +324,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                 
                 {/* Conversation Capabilities */}
                 {conversationCapabilities && (
-                  <div className="mt-6 p-4 bg-green-900/20 rounded-lg border border-green-500/20">
+                  <div className="mt-6 p-4 cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)]">
                     <h4 className="text-lg font-bold text-green-300 mb-2 flex items-center gap-2">
                       💬 Conversation Abilities
                     </h4>
@@ -353,7 +353,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Backstory */}
             {enrichedAgent.backstory && (
-              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-cyan-400/30">
+              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] p-6">
                   {/* Cosmic Section Mapping: Origin Story - cyan, 📖 */}
                   <h3 className="text-2xl font-bold text-cyan-300 mb-4 flex items-center gap-2" aria-label="Origin Story Section">
                     <span className="text-3xl" aria-label="Origin Story Icon" title="Origin Story">📖</span> <span className="uppercase tracking-wider">Origin Story</span>

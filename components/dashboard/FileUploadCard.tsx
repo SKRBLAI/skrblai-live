@@ -159,7 +159,7 @@ export default function FileUploadCard({
         </div>
       )}
       <motion.div
-      className="bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic rounded-2xl p-6 transition-all duration-300 group hover:scale-105 hover:shadow-[0_0_48px_8px_#30D5C880] focus:scale-105 focus:shadow-[0_0_64px_12px_#1E90FF80]"
+      className="cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] p-6 transition-all duration-300 group hover:scale-105 hover:shadow-[0_0_48px_8px_#30D5C880] focus:scale-105 focus:shadow-[0_0_64px_12px_#1E90FF80]"
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}

@@ -17,7 +17,7 @@ const sections = [
 
 export default function SectionNavigation({ activeSection, onNavigate }: SectionNavigationProps) {
   return (
-    <nav className="bg-white/5 backdrop-blur-lg rounded-xl p-2 border border-white/10">
+    <nav className="cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] p-2">
       <div className="flex flex-wrap gap-2">
         {sections.map((section) => (
           <button
@@ -26,7 +26,7 @@ export default function SectionNavigation({ activeSection, onNavigate }: Section
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 ${
               activeSection === section.id
                 ? 'bg-electric-blue text-white'
-                : 'hover:bg-white/10 text-gray-300'
+                : 'hover:bg-electric-blue/10 text-gray-300'
             }`}
           >
             <span className="text-lg">{section.icon}</span>

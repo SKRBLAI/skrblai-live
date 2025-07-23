@@ -158,7 +158,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-transparent">
       <Toaster position="top-center" />
       <div className="w-full max-w-md mb-4">
         <SessionAlert />
@@ -167,7 +167,7 @@ export default function SignInPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="max-w-md w-full space-y-8 cosmic-gradient p-8 rounded-xl shadow-glow border border-cyan-400/40 backdrop-blur-2xl"
+        className="max-w-md w-full space-y-8 cosmic-gradient p-8 rounded-xl shadow-glow border border-cyan-400/40 backdrop-blur-2xl bg-transparent"
       >
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
@@ -203,7 +203,7 @@ export default function SignInPage() {
             <div className="w-full border-t border-gray-700"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-[#161B22] text-gray-400">Or continue with</span>
+            <span className="px-2 bg-transparent backdrop-blur-md text-gray-400">Or continue with</span>
           </div>
         </div>
 
@@ -244,7 +244,7 @@ export default function SignInPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700/50 placeholder-gray-400 text-white rounded-md bg-transparent backdrop-blur-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
                   placeholder="Email address"
                 />
               </div>
@@ -260,7 +260,7 @@ export default function SignInPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700/50 placeholder-gray-400 text-white rounded-md bg-transparent backdrop-blur-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
                   placeholder="Password"
                 />
               </div>
@@ -274,7 +274,7 @@ export default function SignInPage() {
                   type="text"
                   value={promoCode}
                   onChange={(e) => setPromoCode(e.target.value)}
-                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700 placeholder-gray-500 text-white rounded-md bg-[#0D1117] focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
+                  className="appearance-none relative block w-full px-3 py-3 border border-gray-700/50 placeholder-gray-400 text-white rounded-md bg-transparent backdrop-blur-md focus:outline-none focus:ring-electric-blue focus:border-electric-blue focus:z-10 sm:text-sm"
                   placeholder="Promo Code (Optional)"
                 />
               </div>
@@ -286,7 +286,7 @@ export default function SignInPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-electric-blue focus:ring-electric-blue border-gray-700 rounded bg-[#0D1117]"
+                  className="h-4 w-4 text-electric-blue focus:ring-electric-blue border-gray-600/50 rounded bg-transparent backdrop-blur-md"
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
                   Remember me
@@ -304,7 +304,7 @@ export default function SignInPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-electric-blue hover:bg-electric-blue/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue"
+                className="group relative w-full flex justify-center py-3 px-4 border border-electric-blue/30 text-sm font-medium rounded-md text-white bg-electric-blue/20 backdrop-blur-md hover:bg-electric-blue/30 hover:border-electric-blue/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-electric-blue transition-all duration-200"
               >
                 {loading ? (
                   <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin mx-auto"></div>

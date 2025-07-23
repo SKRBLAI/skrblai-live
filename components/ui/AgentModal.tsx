@@ -88,14 +88,14 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
           onClick={onClose}
         >
           <motion.div 
-            className="relative bg-gray-900/95 border border-teal-500/30 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="relative cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6"
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
             onClick={e => e.stopPropagation()}
           >
             <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:text-teal-400 hover:bg-white/10 focus:outline-none transition-colors"
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-teal-400 hover:bg-teal-400/20 transition-colors focus:outline-none"
               onClick={onClose}
               aria-label="Close"
             >

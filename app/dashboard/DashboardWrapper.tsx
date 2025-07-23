@@ -85,7 +85,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   // Show loading state
   if ((!isClient || isLoading) && !loadingTimeout) {
     return (
-      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-electric-blue mx-auto mb-4"></div>
           <p className="text-white">Loading dashboard...</p>
@@ -98,8 +98,8 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   // Error state - show error and redirect
   if (error) {
     return (
-      <div className="min-h-screen bg-deep-navy flex items-center justify-center">
-        <div className="text-center max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
+        <div className="text-center max-w-md p-8 bg-transparent rounded-lg shadow-lg">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-white text-2xl font-bold mb-4">Access Error</h2>
           <p className="text-gray-300 mb-6">{error}</p>
