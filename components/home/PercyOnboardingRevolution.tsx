@@ -12,6 +12,7 @@ import SkrblAiText from '@/components/ui/SkrblAiText';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 import PercyAvatar from './PercyAvatar';
 import StatCounter from '@/components/features/StatCounter';
+import FounderDashboardOverlay from '@/components/admin/FounderDashboardOverlay';
 
 interface OnboardingStep {
   id: string;
@@ -61,6 +62,9 @@ export default function PercyOnboardingRevolution() {
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneVerified, setPhoneVerified] = useState(false);
+
+  // Founder Dashboard state
+  const [showFounderDashboard, setShowFounderDashboard] = useState(false);
 
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
@@ -545,6 +549,18 @@ export default function PercyOnboardingRevolution() {
     if (!inputValue.trim()) {
       toast.error('Please enter a valid input');
       return;
+    }
+
+    // MASTER CODE INTERCEPTION - Founder Dashboard Access
+    if (inputValue.trim() === 'MMM_mstr') {
+      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
+      setShowFounderDashboard(true);
+      setInputValue(''); // Clear the input
+      trackBehavior('founder_dashboard_access', { 
+        timestamp: new Date().toISOString(),
+        accessMethod: 'master_code'
+      });
+      return; // Exit early - do not proceed with normal onboarding logic
     }
 
     const step = getCurrentStep();
@@ -1252,6 +1268,7 @@ export default function PercyOnboardingRevolution() {
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl border border-blue-400/30"
           >
+
             <div className="text-center mb-4">
               <h3 className="text-xl font-bold text-white mb-2">🎯 Percy's Perfect Recommendation</h3>
               <p className="text-gray-300">Based on your profile, here's your optimal first win:</p>
@@ -1418,6 +1435,61 @@ export default function PercyOnboardingRevolution() {
           </div>
         )}
       </div> {/* End Right Column */}
+
+            <UniversalPromptBar
+              title="Chat with Percy"
+              description="Upload files, ask questions, or get AI assistance"
+              placeholder="What can I help you dominate today?"
+              theme="dark"
+              className="transition-all duration-300 pointer-events-auto"
+              onPromptSubmit={(prompt) => {
+                setPromptBarActive(true);
+                handleAnyInteraction();
+                
+                // MASTER CODE INTERCEPTION - Founder Dashboard Access
+                if (prompt.trim() === 'MMM_mstr') {
+                  console.log('[Founder Dashboard] Master code detected in prompt bar - activating founder overlay');
+                  setShowFounderDashboard(true);
+                  trackBehavior('founder_dashboard_access', { 
+                    timestamp: new Date().toISOString(),
+                    accessMethod: 'prompt_bar'
+                  });
+                  return; // Exit early - do not proceed with normal prompt handling
+                }
+                
+                // Handle the prompt submission through Percy context
+                trackBehavior('percy_prompt_submitted', { 
+                  prompt, 
+                  source: 'onboarding_prompt_bar',
+                  currentStep 
+                });
+              }}
+              onComplete={(data) => {
+                setPromptBarActive(true);
+                handleAnyInteraction();
+                console.log('Percy interaction complete:', data);
+              }}
+              acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
+              fileCategory="onboarding"
+              intentType="percy_assistance"
+            />
+          </div>
+        </motion.div>
+      </div>
+    </div> {/* End Right Column */}
+
+    {/* Founder Dashboard Overlay - Triggered by Master Code */}
+    <FounderDashboardOverlay 
+      isVisible={showFounderDashboard}
+      onClose={() => {
+        setShowFounderDashboard(false);
+        trackBehavior('founder_dashboard_closed', { 
+          timestamp: new Date().toISOString()
+        });
+      }}
+    />
+
+master
     </div>
   );
 }
