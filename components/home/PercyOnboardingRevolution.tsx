@@ -746,6 +746,205 @@ export default function PercyOnboardingRevolution() {
     return () => clearInterval(interval);
   }, [socialProofMessages]);
 
+  // Enhanced Percy intelligence and recommendation engine
+  const [quickWinRecommendations, setQuickWinRecommendations] = useState<any[]>([]);
+  const [currentRecommendation, setCurrentRecommendation] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<any>({
+    industry: null,
+    experience: null,
+    urgency: null,
+    goals: []
+  });
+  const [onboardingStage, setOnboardingStage] = useState<'greeting' | 'profiling' | 'recommendations' | 'demo' | 'activation'>('greeting');
+  const [firstAgentDemo, setFirstAgentDemo] = useState<any>(null);
+  const [demoResults, setDemoResults] = useState<any>(null);
+
+  // Quick Win Templates for different user profiles
+  const quickWinTemplates = {
+    'content_creator': {
+      primaryAgent: 'contentcreation',
+      quickWin: 'Generate 5 blog post ideas in 30 seconds',
+      demoTemplate: 'content-creation-pipeline',
+      timeToValue: '2 minutes',
+      expectedResult: '5 SEO-optimized blog topics with outlines'
+    },
+    'ecommerce_owner': {
+      primaryAgent: 'adcreative',
+      quickWin: 'Create Facebook ad copy for your best product',
+      demoTemplate: 'ecommerce-product-launch',
+      timeToValue: '3 minutes',
+      expectedResult: 'High-converting ad copy with 3 variations'
+    },
+    'saas_founder': {
+      primaryAgent: 'branding',
+      quickWin: 'Generate your complete brand voice guide',
+      demoTemplate: 'saas-user-onboarding',
+      timeToValue: '5 minutes',
+      expectedResult: 'Brand voice, messaging, and tone guidelines'
+    },
+    'consultant': {
+      primaryAgent: 'proposal',
+      quickWin: 'Create a client proposal template',
+      demoTemplate: 'consulting-client-proposal',
+      timeToValue: '4 minutes',
+      expectedResult: 'Professional proposal with pricing structure'
+    },
+    'agency_owner': {
+      primaryAgent: 'social',
+      quickWin: 'Plan 30 days of social content',
+      demoTemplate: 'social-media-campaign',
+      timeToValue: '6 minutes',
+      expectedResult: 'Complete social media content calendar'
+    }
+  };
+
+  // Intelligent user profiling based on responses
+  const analyzeUserProfile = useCallback((responses: string[]) => {
+    const allText = responses.join(' ').toLowerCase();
+    
+    // Industry detection
+    let industry = 'general';
+    if (allText.includes('shop') || allText.includes('store') || allText.includes('product')) industry = 'ecommerce';
+    else if (allText.includes('content') || allText.includes('blog') || allText.includes('write')) industry = 'content';
+    else if (allText.includes('saas') || allText.includes('software') || allText.includes('app')) industry = 'saas';
+    else if (allText.includes('consult') || allText.includes('agency') || allText.includes('client')) industry = 'consulting';
+    else if (allText.includes('social') || allText.includes('instagram') || allText.includes('tiktok')) industry = 'social';
+
+    // Experience level detection
+    let experience = 'beginner';
+    if (allText.includes('expert') || allText.includes('advanced') || allText.includes('professional')) experience = 'advanced';
+    else if (allText.includes('some experience') || allText.includes('intermediate')) experience = 'intermediate';
+
+    // Urgency detection
+    let urgency = 'normal';
+    if (allText.includes('urgent') || allText.includes('asap') || allText.includes('immediately')) urgency = 'high';
+    else if (allText.includes('soon') || allText.includes('quickly')) urgency = 'medium';
+
+    return { industry, experience, urgency };
+  }, []);
+
+  // Generate personalized recommendations
+  const generateRecommendations = useCallback((profile: any) => {
+    const recommendations = [];
+    
+    // Primary recommendation based on industry
+    const profileKey = `${profile.industry}_${profile.experience === 'beginner' ? 'creator' : 'owner'}`;
+    const primaryTemplate = quickWinTemplates[profileKey as keyof typeof quickWinTemplates] || quickWinTemplates['content_creator'];
+    
+    recommendations.push({
+      type: 'primary',
+      title: 'Perfect First Win',
+      description: primaryTemplate.quickWin,
+      agent: primaryTemplate.primaryAgent,
+      template: primaryTemplate.demoTemplate,
+      timeToValue: primaryTemplate.timeToValue,
+      expectedResult: primaryTemplate.expectedResult,
+      confidence: 95
+    });
+
+    // Secondary recommendations
+    if (profile.urgency === 'high') {
+      recommendations.push({
+        type: 'urgent',
+        title: 'Immediate Impact',
+        description: 'Get results in under 60 seconds with our fastest agent',
+        agent: 'contentcreation',
+        template: 'content-creation-pipeline',
+        timeToValue: '45 seconds',
+        expectedResult: 'Instant content ideas',
+        confidence: 88
+      });
+    }
+
+    // Experience-based recommendations
+    if (profile.experience === 'advanced') {
+      recommendations.push({
+        type: 'advanced',
+        title: 'Power User Flow',
+        description: 'Chain multiple agents for complex automation',
+        agent: 'percy',
+        template: 'advanced-workflow',
+        timeToValue: '10 minutes',
+        expectedResult: 'Complete automated workflow',
+        confidence: 92
+      });
+    }
+
+    return recommendations;
+  }, [quickWinTemplates]);
+
+  // Enhanced Percy conversation handler
+  const handlePercyConversation = useCallback(async (userInput: string) => {
+    setIsPercyThinking(true);
+    
+    try {
+      // Analyze user input for profiling
+      const responses = [userInput, userGoal, inputValue].filter(Boolean);
+      const profile = analyzeUserProfile(responses);
+      setUserProfile(profile);
+
+      // Generate recommendations
+      const recommendations = generateRecommendations(profile);
+      setQuickWinRecommendations(recommendations);
+      setCurrentRecommendation(recommendations[0]);
+
+      // Move to recommendations stage
+      setOnboardingStage('recommendations');
+      
+      // Simulate Percy thinking time
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+    } catch (error) {
+      console.error('[Percy] Conversation analysis failed:', error);
+    } finally {
+      setIsPercyThinking(false);
+    }
+  }, [userGoal, inputValue, analyzeUserProfile, generateRecommendations]);
+
+  // Demo execution handler
+  const executeFirstAgentDemo = useCallback(async (recommendation: any) => {
+    setOnboardingStage('demo');
+    setFirstAgentDemo(recommendation);
+    
+    try {
+      // Simulate demo execution
+      setIsPercyThinking(true);
+      
+      const response = await fetch('/api/workflows/templates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({
+          templateId: recommendation.template,
+          action: 'demo',
+          sampleInput: `Demo for ${userGoal || 'business automation'}`
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setDemoResults(result.demo);
+        setOnboardingStage('activation');
+        
+        // Track successful demo
+        trackBehavior?.('demo_completed', {
+          agent: recommendation.agent,
+          template: recommendation.template,
+          userProfile,
+          timeToComplete: result.demo.executionTime
+        });
+      }
+      
+    } catch (error) {
+      console.error('[Percy] Demo execution failed:', error);
+    } finally {
+      setIsPercyThinking(false);
+    }
+  }, [session, userGoal, userProfile, trackBehavior]);
+
   const step = getCurrentStep();
 
   return (
@@ -1046,82 +1245,179 @@ export default function PercyOnboardingRevolution() {
           )}
         </AnimatePresence>
 
-        {/* Main Percy Container */}
-
-      {/* Integrated Universal Prompt Bar with Typewriter Effect */}
-      <div className="mt-6 px-2 sm:px-4 pointer-events-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="relative pointer-events-auto"
-        >
-          {/* Typewriter Effect Overlay */}
-          {!promptBarFocused && !promptBarActive && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center"
-            >
-              <motion.div 
-                className="cosmic-glass bg-gradient-to-r from-slate-800/95 to-slate-900/95 backdrop-blur-sm rounded-xl px-3 sm:px-4 py-3 border border-cyan-400/30 shadow-[0_0_20px_rgba(56,189,248,0.3)] pointer-events-none"
-                animate={{ 
-                  boxShadow: ['0_0_20px_rgba(56,189,248,0.3)', '0_0_30px_rgba(56,189,248,0.5)', '0_0_20px_rgba(56,189,248,0.3)']
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <span className="text-transparent bg-gradient-to-r from-cyan-300 via-teal-400 to-cyan-300 bg-clip-text font-medium tracking-wide text-xs sm:text-sm md:text-base pointer-events-none">
-                  {promptBarTypewriter}
-                  <span className="animate-pulse text-cyan-400">|</span>
-                </span>
-              </motion.div>
-            </motion.div>
-          )}
-          
-          <div
-            onFocus={() => {
-              setPromptBarFocused(true);
-              handleAnyInteraction();
-            }}
-            onBlur={() => setPromptBarFocused(false)}
-            onClick={() => {
-              setPromptBarFocused(true);
-              setPromptBarActive(true);
-              handleAnyInteraction();
-            }}
-            className="pointer-events-auto"
-            style={{ touchAction: 'manipulation' }}
-            data-percy-prompt-bar
+        {/* Enhanced Onboarding Stages */}
+        {onboardingStage === 'recommendations' && currentRecommendation && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl border border-blue-400/30"
           >
-            <UniversalPromptBar
-              title="Chat with Percy"
-              description="Upload files, ask questions, or get AI assistance"
-              placeholder="What can I help you dominate today?"
-              theme="dark"
-              className="transition-all duration-300 pointer-events-auto"
-              onPromptSubmit={(prompt) => {
-                setPromptBarActive(true);
-                handleAnyInteraction();
-                // Handle the prompt submission through Percy context
-                trackBehavior('percy_prompt_submitted', { 
-                  prompt, 
-                  source: 'onboarding_prompt_bar',
-                  currentStep 
-                });
-              }}
-              onComplete={(data) => {
-                setPromptBarActive(true);
-                handleAnyInteraction();
-                console.log('Percy interaction complete:', data);
-              }}
-              acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
-              fileCategory="onboarding"
-              intentType="percy_assistance"
-            />
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-white mb-2">🎯 Percy's Perfect Recommendation</h3>
+              <p className="text-gray-300">Based on your profile, here's your optimal first win:</p>
+            </div>
+            
+            <div className="bg-black/20 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-green-400 font-semibold">{currentRecommendation.title}</span>
+                <span className="text-blue-400 text-sm">{currentRecommendation.confidence}% match</span>
+              </div>
+              <p className="text-white font-medium mb-2">{currentRecommendation.description}</p>
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>⏱️ {currentRecommendation.timeToValue}</span>
+                <span>📊 {currentRecommendation.expectedResult}</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <motion.button
+                onClick={() => executeFirstAgentDemo(currentRecommendation)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold"
+              >
+                🚀 Try This Demo
+              </motion.button>
+              <motion.button
+                onClick={() => setOnboardingStage('greeting')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-4 py-3 border border-gray-600 text-gray-300 rounded-lg"
+              >
+                Different Option
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Demo Execution Stage */}
+        {onboardingStage === 'demo' && firstAgentDemo && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 p-6 bg-gradient-to-r from-purple-900/20 to-cyan-900/20 rounded-xl border border-purple-400/30"
+          >
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-white mb-2">⚡ Live Demo in Progress</h3>
+              <p className="text-gray-300">Percy is demonstrating: {firstAgentDemo.description}</p>
+            </div>
+            
+            {isPercyThinking ? (
+              <div className="bg-black/20 rounded-lg p-6 text-center">
+                <div className="animate-spin w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full mx-auto mb-3"></div>
+                <p className="text-cyan-400 font-medium">Processing your demo...</p>
+                <p className="text-gray-400 text-sm mt-1">ETA: {firstAgentDemo.timeToValue}</p>
+              </div>
+            ) : demoResults ? (
+              <div className="bg-black/20 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-green-400">✅</span>
+                  <span className="text-green-400 font-semibold">Demo Completed!</span>
+                  <span className="text-gray-400 text-sm">({demoResults.executionTime}ms)</span>
+                </div>
+                <p className="text-white mb-3">{demoResults.output}</p>
+                <div className="text-sm text-gray-400">
+                  <p><strong>Steps executed:</strong> {demoResults.steps.length}</p>
+                  <p><strong>Success rate:</strong> 100%</p>
+                </div>
+              </div>
+            ) : null}
+          </motion.div>
+        )}
+
+        {/* Activation Stage */}
+        {onboardingStage === 'activation' && demoResults && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 p-6 bg-gradient-to-r from-green-900/20 to-teal-900/20 rounded-xl border border-green-400/30"
+          >
+            <div className="text-center mb-4">
+              <h3 className="text-xl font-bold text-white mb-2">🎉 Ready to Dominate?</h3>
+              <p className="text-gray-300">You just experienced the power of SKRBL AI! Ready to unlock the full arsenal?</p>
+            </div>
+            
+            <div className="bg-black/20 rounded-lg p-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-green-400">{currentRecommendation?.timeToValue}</div>
+                  <div className="text-sm text-gray-400">Time to Value</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-400">97%</div>
+                  <div className="text-sm text-gray-400">Success Rate</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-400">14</div>
+                  <div className="text-sm text-gray-400">More Agents</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <motion.button
+                onClick={() => router.push('/dashboard')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex-1 bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 px-6 rounded-lg font-semibold"
+              >
+                🚀 Access Full Arsenal
+              </motion.button>
+              <motion.button
+                onClick={() => router.push('/agents')}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-4 py-3 border border-gray-600 text-gray-300 rounded-lg"
+              >
+                Browse All Agents
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Enhanced Prompt Bar Integration */}
+        {onboardingStage === 'greeting' && (
+          <div className="mt-6 px-2 sm:px-4 pointer-events-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="relative max-w-2xl mx-auto"
+            >
+              <input
+                ref={promptBarRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && inputValue.trim()) {
+                    handlePercyConversation(inputValue);
+                  }
+                }}
+                placeholder={promptBarTypewriter || "Tell me about your business goals..."}
+                className="w-full px-6 py-4 bg-black/30 backdrop-blur-lg border border-cyan-400/30 rounded-full text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
+                onFocus={() => setPromptBarFocused(true)}
+                onBlur={() => setPromptBarFocused(false)}
+              />
+              <motion.button
+                onClick={() => inputValue.trim() && handlePercyConversation(inputValue)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-2 rounded-full disabled:opacity-50"
+                disabled={!inputValue.trim() || isPercyThinking}
+              >
+                {isPercyThinking ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                )}
+              </motion.button>
+            </motion.div>
           </div>
-        </motion.div>
-      </div>
-    </div> {/* End Right Column */}
+        )}
+      </div> {/* End Right Column */}
     </div>
   );
 }
