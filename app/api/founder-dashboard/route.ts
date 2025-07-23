@@ -126,11 +126,10 @@ async function getAnalyticsStats() {
   try {
     const funnelMetrics = await getFunnelMetrics('30d');
     
-    const conversionRate = funnelMetrics.signups.total > 0 ? 
-      (funnelMetrics.upgrades.total / funnelMetrics.signups.total * 100) : 0;
-    
-    const engagementRate = funnelMetrics.visits.total > 0 ? 
-      (funnelMetrics.signups.total / funnelMetrics.visits.total * 100) : 0;
+    // Use the actual FunnelMetrics properties
+    const conversionRate = funnelMetrics.conversionRate || 0;
+    const signupRate = funnelMetrics.signupRate || 0;
+    const retentionRate = funnelMetrics.retentionRate || 0;
 
     // Determine status based on conversion metrics
     let status = 'green';
@@ -138,12 +137,12 @@ async function getAnalyticsStats() {
     else if (conversionRate < 15) status = 'yellow';
 
     return {
-      visits: funnelMetrics.visits,
-      signups: funnelMetrics.signups,
-      upgrades: funnelMetrics.upgrades,
+      totalUsers: funnelMetrics.totalUsers,
+      signupRate: Math.round(signupRate * 100) / 100,
       conversionRate: Math.round(conversionRate * 100) / 100,
-      engagementRate: Math.round(engagementRate * 100) / 100,
-      retention: funnelMetrics.retention || { weekly: 0, monthly: 0 },
+      retentionRate: Math.round(retentionRate * 100) / 100,
+      averageSessionDuration: funnelMetrics.averageSessionDuration,
+      topAgents: funnelMetrics.topAgents?.slice(0, 3) || [],
       status
     };
   } catch (error) {

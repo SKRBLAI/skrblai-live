@@ -12,6 +12,7 @@ import SkrblAiText from '@/components/ui/SkrblAiText';
 import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
 import PercyAvatar from './PercyAvatar';
 import StatCounter from '@/components/features/StatCounter';
+import FounderDashboardOverlay from '@/components/admin/FounderDashboardOverlay';
 
 interface OnboardingStep {
   id: string;
@@ -61,6 +62,9 @@ export default function PercyOnboardingRevolution() {
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneVerified, setPhoneVerified] = useState(false);
+
+  // Founder Dashboard state
+  const [showFounderDashboard, setShowFounderDashboard] = useState(false);
 
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
@@ -542,6 +546,18 @@ export default function PercyOnboardingRevolution() {
       return;
     }
 
+    // MASTER CODE INTERCEPTION - Founder Dashboard Access
+    if (inputValue.trim() === 'MMM_mstr') {
+      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
+      setShowFounderDashboard(true);
+      setInputValue(''); // Clear the input
+      trackBehavior('founder_dashboard_access', { 
+        timestamp: new Date().toISOString(),
+        accessMethod: 'master_code'
+      });
+      return; // Exit early - do not proceed with normal onboarding logic
+    }
+
     const step = getCurrentStep();
     
     if (step.type === 'instant-analysis' && step.analysisMode) {
@@ -1010,6 +1026,18 @@ export default function PercyOnboardingRevolution() {
               onPromptSubmit={(prompt) => {
                 setPromptBarActive(true);
                 handleAnyInteraction();
+                
+                // MASTER CODE INTERCEPTION - Founder Dashboard Access
+                if (prompt.trim() === 'MMM_mstr') {
+                  console.log('[Founder Dashboard] Master code detected in prompt bar - activating founder overlay');
+                  setShowFounderDashboard(true);
+                  trackBehavior('founder_dashboard_access', { 
+                    timestamp: new Date().toISOString(),
+                    accessMethod: 'prompt_bar'
+                  });
+                  return; // Exit early - do not proceed with normal prompt handling
+                }
+                
                 // Handle the prompt submission through Percy context
                 trackBehavior('percy_prompt_submitted', { 
                   prompt, 
@@ -1030,6 +1058,17 @@ export default function PercyOnboardingRevolution() {
         </motion.div>
       </div>
     </div> {/* End Right Column */}
+
+    {/* Founder Dashboard Overlay - Triggered by Master Code */}
+    <FounderDashboardOverlay 
+      isVisible={showFounderDashboard}
+      onClose={() => {
+        setShowFounderDashboard(false);
+        trackBehavior('founder_dashboard_closed', { 
+          timestamp: new Date().toISOString()
+        });
+      }}
+    />
 
     </div>
   );
