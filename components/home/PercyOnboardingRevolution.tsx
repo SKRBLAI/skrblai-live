@@ -1489,7 +1489,7 @@ export default function PercyOnboardingRevolution() {
       }}
     />
 
-master
+
     </div>
   );
 }
