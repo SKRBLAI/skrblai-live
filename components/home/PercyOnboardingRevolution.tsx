@@ -81,6 +81,9 @@ export default function PercyOnboardingRevolution() {
   const [currentSocialProof, setCurrentSocialProof] = useState<any>(null);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
+  // Fix: define promptBarRef
+  const promptBarRef = useRef<HTMLInputElement>(null);
+
   // Typewriter effect for prompt bar
   const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
   const [promptBarFocused, setPromptBarFocused] = useState(false);
@@ -108,7 +111,7 @@ export default function PercyOnboardingRevolution() {
     if (userInteracted) return;
     setTypedText('');
     let idx = 0;
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     function typeChar() {
       const msg = introMessages[introIdx];
       if (idx < msg.length) {
@@ -139,7 +142,7 @@ export default function PercyOnboardingRevolution() {
     
     let messageIndex = 0;
     let charIndex = 0;
-    let timeout: NodeJS.Timeout;
+    let timeout: ReturnType<typeof setTimeout>;
     
     const typeChar = () => {
       const currentMessage = typewriterMessages[messageIndex];
@@ -999,13 +1002,7 @@ export default function PercyOnboardingRevolution() {
         {/* Chat Messages */}
         <div 
           ref={chatRef} 
-          className="p-4 sm:p-6 min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto pointer-events-auto"
-          style={{ 
-            scrollBehavior: 'smooth',
-            touchAction: 'pan-y',
-            overscrollBehavior: 'contain',
-            WebkitOverflowScrolling: 'touch'
-          }}
+          className="p-4 sm:p-6 min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-scroll overscroll-contain touch-pan-y pointer-events-auto"
           data-percy-chat-container
         >
           <AnimatePresence>
@@ -1164,10 +1161,8 @@ export default function PercyOnboardingRevolution() {
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
                 end={liveMetrics.liveUsers} 
-                duration={2000} 
-                theme="electric"
-                cosmicGlow={true}
-                delay={300}
+                label="Live Users Online"
+                duration={2500}
               />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Businesses Transformed Today</div>
@@ -1182,10 +1177,8 @@ export default function PercyOnboardingRevolution() {
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
                 end={liveMetrics.agentsDeployed} 
-                duration={2000} 
-                theme="teal"
-                cosmicGlow={true}
-                delay={600}
+                label="Agents Deployed"
+                duration={2500}
               />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Competitors Eliminated</div>
@@ -1199,13 +1192,11 @@ export default function PercyOnboardingRevolution() {
           >
             <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
               <StatCounter 
-                end={Math.floor(liveMetrics.revenueGenerated/1000)} 
-                duration={2000} 
+                end={liveMetrics.revenueGenerated} 
                 prefix="$"
-                suffix="K+"
-                theme="pink"
-                cosmicGlow={true}
-                delay={900}
+                suffix="+"
+                label="Revenue Generated"
+                duration={3000}
               />
             </div>
             <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Revenue Generated</div>
@@ -1434,61 +1425,19 @@ export default function PercyOnboardingRevolution() {
             </motion.div>
           </div>
         )}
+      </div> {/* End Enhanced Main Component Container */}
       </div> {/* End Right Column */}
 
-            <UniversalPromptBar
-              title="Chat with Percy"
-              description="Upload files, ask questions, or get AI assistance"
-              placeholder="What can I help you dominate today?"
-              theme="dark"
-              className="transition-all duration-300 pointer-events-auto"
-              onPromptSubmit={(prompt) => {
-                setPromptBarActive(true);
-                handleAnyInteraction();
-                
-                // MASTER CODE INTERCEPTION - Founder Dashboard Access
-                if (prompt.trim() === 'MMM_mstr') {
-                  console.log('[Founder Dashboard] Master code detected in prompt bar - activating founder overlay');
-                  setShowFounderDashboard(true);
-                  trackBehavior('founder_dashboard_access', { 
-                    timestamp: new Date().toISOString(),
-                    accessMethod: 'prompt_bar'
-                  });
-                  return; // Exit early - do not proceed with normal prompt handling
-                }
-                
-                // Handle the prompt submission through Percy context
-                trackBehavior('percy_prompt_submitted', { 
-                  prompt, 
-                  source: 'onboarding_prompt_bar',
-                  currentStep 
-                });
-              }}
-              onComplete={(data) => {
-                setPromptBarActive(true);
-                handleAnyInteraction();
-                console.log('Percy interaction complete:', data);
-              }}
-              acceptedFileTypes=".pdf,.doc,.docx,.txt,.csv,.xlsx,.png,.jpg,.jpeg"
-              fileCategory="onboarding"
-              intentType="percy_assistance"
-            />
-          </div>
-        </motion.div>
-      </div>
-    </div> {/* End Right Column */}
-
-    {/* Founder Dashboard Overlay - Triggered by Master Code */}
-    <FounderDashboardOverlay 
-      isVisible={showFounderDashboard}
-      onClose={() => {
-        setShowFounderDashboard(false);
-        trackBehavior('founder_dashboard_closed', { 
-          timestamp: new Date().toISOString()
-        });
-      }}
-    />
-
+      {/* Founder Dashboard Overlay - Triggered by Master Code */}
+      <FounderDashboardOverlay 
+        isVisible={showFounderDashboard}
+        onClose={() => {
+          setShowFounderDashboard(false);
+          trackBehavior('founder_dashboard_closed', { 
+            timestamp: new Date().toISOString()
+          });
+        }}
+      />
 
     </div>
   );

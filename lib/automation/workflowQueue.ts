@@ -475,10 +475,6 @@ export function getWorkflowTemplate(templateId: string): WorkflowTemplate | null
   return WORKFLOW_TEMPLATES.find(t => t.id === templateId) || null;
 }
 
-export function getTemplatesByCategory(category: WorkflowTemplate['category']): WorkflowTemplate[] {
-  return WORKFLOW_TEMPLATES.filter(t => t.category === category);
-}
-
 export function getTemplatesForRole(userRole: string): WorkflowTemplate[] {
   return WORKFLOW_TEMPLATES.filter(t => {
     if (!t.requiredRole) return true;
@@ -509,7 +505,7 @@ export function getAvailableIndustries(): string[] {
   const industries = WORKFLOW_TEMPLATES
     .map(t => t.industry)
     .filter((industry): industry is string => industry !== undefined);
-  return [...new Set(industries)].sort();
+  return Array.from(new Set(industries)).sort();
 }
 
 export function getTemplatesByComplexity(maxDuration: number, userRole: string = 'free'): WorkflowTemplate[] {
