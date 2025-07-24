@@ -152,7 +152,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="relative w-full max-w-2xl max-h-[90vh] mx-auto cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto"
+            className="relative w-full max-w-2xl max-h-[90vh] mx-auto bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl px-2 sm:px-6 pt-8 pb-6 sm:pt-10 sm:pb-8 overflow-y-auto transition-all"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
@@ -161,7 +161,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             {/* --- Modal Content --- */}
             {/* Close Button */}
             <button
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-300 hover:text-white text-2xl sm:text-3xl focus:outline-none focus:ring-2 focus:ring-purple-400/40 rounded-lg p-1 transition-all duration-200 z-10"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white/60 hover:text-[#00F0FF] text-2xl sm:text-3xl focus:outline-none focus:ring-2 focus:ring-purple-400/40 rounded-lg p-1 transition-all duration-200 z-10 drop-shadow-glow"
               onClick={onClose}
               aria-label="Close agent backstory modal"
               autoFocus
@@ -174,7 +174,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
               {/* Agent Image */}
               <div className="relative w-48 h-48 md:w-64 md:h-64">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full animate-pulse blur-xl opacity-50"></div>
-                <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-purple-400/50 shadow-2xl agent-image-container">
+                <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-teal-400/50 shadow-2xl agent-image-container">
                   <Image
                     src={getAgentImagePath(agent, "nobg")}
                     alt={agent.superheroName || agent.name}
@@ -186,15 +186,15 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
               {/* Hero Info */}
               <div className="flex-1 text-center md:text-left">
-                <h2 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent" aria-label="Agent Superhero Name">
+                <h2 className="text-4xl md:text-5xl font-bold mb-2 text-[#00F0FF] drop-shadow-glow" aria-label="Agent Superhero Name">
                   {agent.superheroName || agent.name}
                 </h2>
-                <p className="text-xl text-gray-300 mb-4 italic" aria-label="Agent Origin Story">
+                <p className="text-xl text-white/90 mb-4 italic" aria-label="Agent Origin Story">
                   {agent.origin ? `Origin: ${agent.origin}` : `Forged in the cosmic cradle of the SKRBL AI universe, this hero's true beginnings are a swirling mystery!`}
                 </p>
                 {agent.catchphrase && (
                   <div className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full border border-purple-400/30" aria-label="Agent Catchphrase">
-                    <p className="text-lg font-bold text-purple-300">“{agent.catchphrase}” <span className="ml-2 text-fuchsia-300 animate-pulse">✨</span></p>
+                    <p className="text-lg font-bold text-orange-400">"{agent.catchphrase}" <span className="ml-2 text-cyan-300 animate-pulse">✨</span></p>
                   </div>
                 )}
               </div>
@@ -202,9 +202,9 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Chat Interface or Powers Section */}
             {chatMode ? (
-              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl p-6 border-2 border-green-400/30">
+              <div className="mb-8 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-green-400/30 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6 transition-all">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-green-300 flex items-center gap-2 break-words">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-300 drop-shadow-glow flex items-center gap-2 break-words">
                     <span className="text-2xl sm:text-3xl">💬</span> 
                     <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Chat with {enrichedAgent.superheroName}</span>
                   </h3>
@@ -274,13 +274,13 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                 </div>
               </div>
             ) : (
-              <div className="mb-6 sm:mb-8 cosmic-glass cosmic-glow rounded-2xl p-4 sm:p-6 border-2 border-fuchsia-400/30">
+              <div className="mb-6 sm:mb-8 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/30 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-4 sm:p-6 transition-all">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4">
-                   {/* Cosmic Section Mapping: Powers - fuchsia, ⚡/💫 */}
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-fuchsia-300 flex flex-wrap items-center gap-2" aria-label="Industry Domination Powers Section">
+                   {/* Cosmic Section Mapping: Powers - teal, ⚡/💫 */}
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#00F0FF] drop-shadow-glow flex flex-wrap items-center gap-2" aria-label="Industry Domination Powers Section">
                     <span className="text-2xl sm:text-3xl" aria-label="Domination Icon" title="Industry Domination">🔥</span> 
                     <span className="uppercase tracking-wider text-sm sm:text-base md:text-lg">Industry Domination Powers</span>
-                    <span className="px-2 sm:px-3 py-1 rounded-full bg-red-500/20 border border-red-400/30 text-red-200 text-xs font-bold shadow-[0_0_10px_#ef4444]" title="Competitive Advantage Certified">DISRUPTOR BADGE</span>
+                    <span className="px-2 sm:px-3 py-1 rounded-full bg-red-500/20 border border-red-400/30 text-orange-400 text-xs font-bold shadow-[0_0_10px_#ef4444]" title="Competitive Advantage Certified">DISRUPTOR BADGE</span>
                   </h3>
                   {conversationCapabilities?.canConverse && (
                     <button
@@ -297,13 +297,13 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                 <div className="mb-6 p-4 bg-gradient-to-r from-red-900/40 to-orange-900/40 border border-red-500/50 rounded-xl">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-red-400 font-bold text-sm">COMPETITIVE ANALYSIS:</span>
+                    <span className="text-orange-400 font-bold text-sm">COMPETITIVE ANALYSIS:</span>
                   </div>
-                  <p className="text-white text-sm">
-                    <span className="font-semibold">87% of businesses</span> using {enrichedAgent.superheroName} gained insurmountable market advantage within <span className="text-yellow-400 font-semibold">48 hours</span>. 
+                  <p className="text-white/90 text-sm">
+                    <span className="font-semibold">87% of businesses</span> using {enrichedAgent.superheroName} gained insurmountable market advantage within <span className="text-orange-400 font-semibold">48 hours</span>. 
                     Your competitors are still using manual methods—perfect timing to dominate.
                   </p>
-                  <div className="mt-2 text-xs text-orange-300">
+                  <div className="mt-2 text-xs text-cyan-300">
                     Average competitive gap created: <span className="font-bold">340%</span> • Industry disruption rate: <span className="font-bold">92%</span>
                   </div>
                 </div>
@@ -314,36 +314,36 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-3 p-3 bg-fuchsia-900/20 rounded-lg border border-fuchsia-500/20 shadow-[0_0_10px_#e879f9]"
+                      className="flex items-center gap-3 p-3 bg-teal-900/20 rounded-lg border border-teal-500/20 shadow-[0_0_10px_#14b8a6]"
                     >
-                      <span className="text-fuchsia-400 text-xl" aria-hidden="true">💫</span>
-                      <span className="text-gray-100 font-semibold" aria-label={`Superpower: ${power}`}>{power} <span className="ml-1 text-fuchsia-300">★</span></span>
+                      <span className="text-cyan-300 text-xl" aria-hidden="true">💫</span>
+                      <span className="text-white/90 font-semibold" aria-label={`Superpower: ${power}`}>{power} <span className="ml-1 text-cyan-300">★</span></span>
                     </motion.div>
                   ))}
                 </div>
                 
                 {/* Conversation Capabilities */}
                 {conversationCapabilities && (
-                  <div className="mt-6 p-4 cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)]">
-                    <h4 className="text-lg font-bold text-green-300 mb-2 flex items-center gap-2">
+                  <div className="mt-6 p-4 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
+                    <h4 className="text-lg font-bold text-cyan-300 drop-shadow-glow mb-2 flex items-center gap-2">
                       💬 Conversation Abilities
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                       <div>
-                        <span className="text-green-200 font-semibold">Specialized Topics:</span>
-                        <p className="text-gray-300">{conversationCapabilities.capabilities?.specializedTopics?.join(', ') || 'General assistance'}</p>
+                        <span className="text-cyan-300 font-semibold">Specialized Topics:</span>
+                        <p className="text-white/90">{conversationCapabilities.capabilities?.specializedTopics?.join(', ') || 'General assistance'}</p>
                       </div>
                       <div>
-                        <span className="text-green-200 font-semibold">Languages:</span>
-                        <p className="text-gray-300">{conversationCapabilities.capabilities?.supportedLanguages?.join(', ') || 'English'}</p>
+                        <span className="text-cyan-300 font-semibold">Languages:</span>
+                        <p className="text-white/90">{conversationCapabilities.capabilities?.supportedLanguages?.join(', ') || 'English'}</p>
                       </div>
                       <div>
-                        <span className="text-green-200 font-semibold">Recommended Helpers:</span>
-                        <p className="text-gray-300">{conversationCapabilities.recommendedHelpers?.join(', ') || 'None'}</p>
+                        <span className="text-cyan-300 font-semibold">Recommended Helpers:</span>
+                        <p className="text-white/90">{conversationCapabilities.recommendedHelpers?.join(', ') || 'None'}</p>
                       </div>
                       <div>
-                        <span className="text-green-200 font-semibold">Max Conversation Depth:</span>
-                        <p className="text-gray-300">{conversationCapabilities.capabilities?.maxConversationDepth || 20} messages</p>
+                        <span className="text-cyan-300 font-semibold">Max Conversation Depth:</span>
+                        <p className="text-white/90">{conversationCapabilities.capabilities?.maxConversationDepth || 20} messages</p>
                       </div>
                     </div>
                   </div>
@@ -353,13 +353,13 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Backstory */}
             {enrichedAgent.backstory && (
-              <div className="mb-8 cosmic-glass cosmic-glow rounded-2xl shadow-xl border-2 border-teal-400/40 backdrop-blur-lg bg-[rgba(28,32,64,0.65)] p-6">
+              <div className="mb-8 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6 transition-all">
                   {/* Cosmic Section Mapping: Origin Story - cyan, 📖 */}
-                  <h3 className="text-2xl font-bold text-cyan-300 mb-4 flex items-center gap-2" aria-label="Origin Story Section">
+                  <h3 className="text-2xl font-bold text-[#00F0FF] drop-shadow-glow mb-4 flex items-center gap-2" aria-label="Origin Story Section">
                     <span className="text-3xl" aria-label="Origin Story Icon" title="Origin Story">📖</span> <span className="uppercase tracking-wider">Origin Story</span>
                   </h3>
                 <div className="p-6 bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20">
-                  <p className="text-gray-300 leading-relaxed text-lg" aria-label="Agent Backstory">
+                  <p className="text-white/90 leading-relaxed text-lg" aria-label="Agent Backstory">
                     {enrichedAgent.backstory ? `${enrichedAgent.backstory} 🌌` : 'Every hero has a story written in the stars. This one is still unfolding!'}
                   </p>
                 </div>
@@ -370,18 +370,18 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {enrichedAgent.catchphrase && (
                 <div className="p-4 bg-yellow-900/20 rounded-xl border border-yellow-500/20">
-                  <h4 className="text-xl font-bold text-yellow-400 mb-2 flex items-center gap-2" aria-label="Catchphrase">
+                  <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2" aria-label="Catchphrase">
                     <span className="text-2xl" aria-label="Catchphrase Icon" title="Catchphrase">💫</span> Signature Catchphrase
                   </h4>
-                  <p className="text-gray-300 italic font-semibold">"{enrichedAgent.catchphrase}"</p>
+                  <p className="text-white/90 italic font-semibold">"{enrichedAgent.catchphrase}"</p>
                 </div>
               )}
               {enrichedAgent.origin && (
                 <div className="p-4 bg-indigo-900/20 rounded-xl border border-indigo-500/20">
-                  <h4 className="text-xl font-bold text-indigo-400 mb-2 flex items-center gap-2" aria-label="Origin">
+                  <h4 className="text-xl font-bold text-cyan-300 mb-2 flex items-center gap-2" aria-label="Origin">
                     <span className="text-2xl" aria-label="Origin Icon" title="Origin">🌟</span> Origin
                   </h4>
-                  <p className="text-gray-300">{enrichedAgent.origin}</p>
+                  <p className="text-white/90">{enrichedAgent.origin}</p>
                 </div>
               )}
             </div>
@@ -390,10 +390,10 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
             <div className="grid md:grid-cols-2 gap-6 mb-8">
               {enrichedAgent.weakness && (
                 <div className="p-4 bg-red-900/20 rounded-xl border border-red-500/20">
-                  <h4 className="text-xl font-bold text-red-400 mb-2 flex items-center gap-2" aria-label="Weakness">
+                  <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2" aria-label="Weakness">
                     <span className="text-2xl" aria-label="Weakness Icon" title="Weakness">🔻</span> Kryptonite
                   </h4>
-                  <p className="text-gray-300">{enrichedAgent.weakness}</p>
+                  <p className="text-white/90">{enrichedAgent.weakness}</p>
                 </div>
               )}
               {enrichedAgent.nemesis && (
@@ -401,7 +401,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                   <h4 className="text-xl font-bold text-orange-400 mb-2 flex items-center gap-2" aria-label="Nemesis">
                     <span className="text-2xl" aria-label="Nemesis Icon" title="Nemesis">👿</span> Arch-Nemesis
                   </h4>
-                  <p className="text-gray-300">{enrichedAgent.nemesis}</p>
+                  <p className="text-white/90">{enrichedAgent.nemesis}</p>
                 </div>
               )}
             </div>
@@ -454,7 +454,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 40 }}
                   transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-                  className="fixed left-1/2 bottom-8 z-[100] -translate-x-1/2 px-6 py-4 rounded-2xl shadow-xl bg-gradient-to-r from-fuchsia-500 via-blue-600 to-teal-400 text-white text-lg font-bold flex items-center gap-3 border-2 border-fuchsia-400/60 cosmic-glow backdrop-blur-md animate-glow-toast"
+                  className="fixed left-1/2 bottom-8 z-[100] -translate-x-1/2 px-6 py-4 rounded-2xl shadow-xl bg-gradient-to-r from-fuchsia-500 via-blue-600 to-teal-400 text-white text-lg font-bold flex items-center gap-3 border-2 border-fuchsia-400/60 backdrop-blur-md animate-glow-toast"
                   role="alert"
                   aria-live="polite"
                 >

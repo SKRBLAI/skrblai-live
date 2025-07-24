@@ -94,9 +94,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
   if (!agent || !agent.name) {
     return (
-      <Pseudo3DFeature className="h-64 flex items-center justify-center">
-        <div className="text-gray-400">Agent data unavailable</div>
-      </Pseudo3DFeature>
+      <div className="h-64 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
+        <div className="text-white/60">Agent data unavailable</div>
+      </div>
     );
   }
 
@@ -131,8 +131,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <Pseudo3DFeature 
-          className="h-full relative overflow-hidden group agent-card-glow float-slow"
+        <div 
+          className="h-full relative overflow-hidden group bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all agent-card-glow float-slow"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {/* Recommended Badge */}
@@ -149,12 +149,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
             <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-green-300 font-medium">{liveUsers}</span>
+              <span className="text-cyan-300 font-medium">{liveUsers}</span>
             </div>
             {urgencySpots < 30 && (
               <div className="flex items-center gap-1 bg-red-500/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
                 <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-                <span className="text-red-300 font-medium">{urgencySpots} left</span>
+                <span className="text-orange-400 font-medium">{urgencySpots} left</span>
               </div>
             )}
           </div>
@@ -203,19 +203,19 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             </motion.div>
 
             {/* Agent Name */}
-            <h3 className="text-lg font-bold text-white mb-1 text-center">
+            <h3 className="text-lg font-bold text-[#00F0FF] drop-shadow-glow mb-1 text-center">
               {agent.name}
             </h3>
 
             {/* Agent Category/Specialty */}
-            <p className="text-sm text-gray-400 mb-3 text-center">
+            <p className="text-sm text-cyan-300 mb-3 text-center">
               {backstory?.superheroName || agent.category || 'AI Specialist'}
             </p>
 
             {/* Progress Bar (if user has progress) */}
             {userProgress > 0 && (
               <div className="w-full mb-3">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                <div className="flex justify-between text-xs text-white/60 mb-1">
                   <span>Progress</span>
                   <span>{userProgress}%</span>
                 </div>
@@ -241,35 +241,35 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     }`}
                   />
                 ))}
-                <span className="text-xs text-gray-400 ml-1">Level {userMastery}</span>
+                <span className="text-xs text-white/60 ml-1">Level {userMastery}</span>
               </div>
             )}
           </div>
 
           {/* Quick Stats */}
           {agentIntelligence && (
-            <Pseudo3DStats className="mx-4 mb-4 p-3">
+            <div className="mx-4 mb-4 p-3 bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg border border-teal-400/20 rounded-xl">
               <div className="grid grid-cols-3 gap-3 text-center">
                 <div>
-                  <div className="text-green-400 font-bold text-sm">
+                  <div className="text-cyan-300 font-bold text-sm">
                     {agentIntelligence.intelligenceLevel}
                   </div>
-                  <div className="text-xs text-gray-500">IQ Level</div>
+                  <div className="text-xs text-white/50">IQ Level</div>
                 </div>
                 <div>
-                  <div className="text-cyan-400 font-bold text-sm">
+                  <div className="text-[#00F0FF] font-bold text-sm">
                     {agentIntelligence.predictionCapabilities?.length || 0}
                   </div>
-                  <div className="text-xs text-gray-500">Skills</div>
+                  <div className="text-xs text-white/50">Skills</div>
                 </div>
                 <div>
-                  <div className="text-purple-400 font-bold text-sm">
+                  <div className="text-orange-400 font-bold text-sm">
                     {agentIntelligence.specializations?.length || 0}
                   </div>
-                  <div className="text-xs text-gray-500">Specs</div>
+                  <div className="text-xs text-white/50">Specs</div>
                 </div>
               </div>
-            </Pseudo3DStats>
+            </div>
           )}
 
           {/* Action Buttons */}
@@ -308,7 +308,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
           {/* Hover Glow Effect */}
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl pointer-events-none"></div>
-        </Pseudo3DFeature>
+        </div>
 
         {/* Expanded Details */}
         <AnimatePresence>
@@ -320,19 +320,19 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               transition={{ duration: 0.3 }}
               className="mt-2"
             >
-              <Pseudo3DStats className="p-4">
-                <h4 className="text-white font-bold mb-2">Agent Details</h4>
-                <p className="text-gray-300 text-sm mb-3">
+              <div className="p-4 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
+                <h4 className="text-[#00F0FF] drop-shadow-glow font-bold mb-2">Agent Details</h4>
+                <p className="text-white/90 text-sm mb-3">
                   {backstory?.backstory?.slice(0, 120) || agent.description || 'Specialized AI agent for business automation'}...
                 </p>
                 
                 {agentIntelligence?.specializations && agentIntelligence.specializations.length > 0 && (
                   <div className="mb-3">
-                    <h5 className="text-cyan-400 font-bold text-sm mb-2">Specializations</h5>
+                    <h5 className="text-cyan-300 font-bold text-sm mb-2">Specializations</h5>
                     <div className="space-y-1">
                       {agentIntelligence.specializations.slice(0, 2).map((spec: string, i: number) => (
-                        <div key={i} className="text-xs text-gray-400 flex items-start gap-2">
-                          <TrendingUp className="w-3 h-3 mt-0.5 text-green-400 flex-shrink-0" />
+                        <div key={i} className="text-xs text-white/70 flex items-start gap-2">
+                          <TrendingUp className="w-3 h-3 mt-0.5 text-cyan-300 flex-shrink-0" />
                           <span>{spec}</span>
                         </div>
                       ))}
@@ -358,7 +358,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     Get Started
                   </CosmicButton>
                 </div>
-              </Pseudo3DStats>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

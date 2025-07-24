@@ -68,9 +68,9 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading agent backstory...</p>
         </div>
       </div>
@@ -79,14 +79,14 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-gray-800 rounded-xl p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-8 text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-white mb-4">Agent Not Found</h1>
-          <p className="text-gray-300 mb-6">{error || 'Unable to load agent details'}</p>
+          <h1 className="text-2xl font-bold text-[#00F0FF] drop-shadow-glow mb-4">Agent Not Found</h1>
+          <p className="text-white/90 mb-6">{error || 'Unable to load agent details'}</p>
           <button 
             onClick={() => router.back()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-teal-600 text-white rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-colors"
           >
             Go Back
           </button>
@@ -96,11 +96,11 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-violet-900 via-purple-900 to-indigo-900 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <button 
           onClick={() => router.back()} 
-          className="mb-8 flex items-center text-gray-400 hover:text-white transition-colors"
+          className="mb-8 flex items-center text-white/60 hover:text-[#00F0FF] transition-colors"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -113,7 +113,7 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
           {/* Agent Image */}
           <div className="relative w-48 h-48 md:w-64 md:h-64">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full animate-pulse blur-xl opacity-50"></div>
-            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-purple-400/50 shadow-2xl agent-image-container">
+            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-teal-400/50 shadow-2xl agent-image-container">
               <Image
                 src={getAgentImagePath(agent, "nobg")}
                 alt={agent.superheroName || agent.name}
@@ -130,15 +130,15 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
 
           {/* Hero Info */}
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-bold mb-2 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-2 text-[#00F0FF] drop-shadow-glow">
               {agent.superheroName || agent.name}
             </h1>
-            <p className="text-xl text-gray-300 mb-4 italic">
+            <p className="text-xl text-white/90 mb-4 italic">
               {agent.origin || 'Origin unknown'}
             </p>
             {agent.catchphrase && (
               <div className="inline-block px-6 py-3 bg-gradient-to-r from-purple-600/20 to-pink-600/20 rounded-full border border-purple-400/30">
-                <p className="text-lg font-bold text-purple-300">"{agent.catchphrase}" <span className="ml-2 text-fuchsia-300 animate-pulse">✨</span></p>
+                <p className="text-lg font-bold text-orange-400">"{agent.catchphrase}" <span className="ml-2 text-cyan-300 animate-pulse">✨</span></p>
               </div>
             )}
           </div>
@@ -147,12 +147,12 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
         {/* Backstory Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Main Backstory */}
-          <div className="md:col-span-2 bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-            <h2 className="text-2xl font-bold text-white mb-4">Backstory</h2>
-            <p className="text-gray-300 leading-relaxed mb-6">{agent.backstory}</p>
+          <div className="md:col-span-2 bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6">
+            <h2 className="text-2xl font-bold text-[#00F0FF] drop-shadow-glow mb-4">Backstory</h2>
+            <p className="text-white/90 leading-relaxed mb-6">{agent.backstory}</p>
             
             {/* Powers */}
-            <h3 className="text-xl font-semibold text-white mb-3">Powers</h3>
+            <h3 className="text-xl font-semibold text-cyan-300 mb-3">Powers</h3>
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-6">
               {agent.powers?.map((power: string, idx: number) => (
                 <li key={idx} className="flex items-center text-cyan-300">
@@ -162,30 +162,30 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
             </ul>
 
             {/* Weakness */}
-            <h3 className="text-xl font-semibold text-white mb-3">Weakness</h3>
-            <p className="text-red-300 mb-6">{agent.weakness || 'Unknown'}</p>
+            <h3 className="text-xl font-semibold text-orange-400 mb-3">Weakness</h3>
+            <p className="text-orange-400 mb-6">{agent.weakness || 'Unknown'}</p>
 
             {/* Nemesis */}
-            <h3 className="text-xl font-semibold text-white mb-3">Nemesis</h3>
-            <p className="text-orange-300 mb-6">{agent.nemesis || 'Unknown'}</p>
+            <h3 className="text-xl font-semibold text-orange-400 mb-3">Nemesis</h3>
+            <p className="text-orange-400 mb-6">{agent.nemesis || 'Unknown'}</p>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Agent Stats */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
-              <h3 className="text-xl font-semibold text-white mb-4">Agent Stats</h3>
+            <div className="bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6">
+              <h3 className="text-xl font-semibold text-cyan-300 mb-4">Agent Stats</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-gray-400 text-sm">Category</p>
-                  <p className="text-white">{agent.category || 'Uncategorized'}</p>
+                  <p className="text-white/60 text-sm">Category</p>
+                  <p className="text-white/90">{agent.category || 'Uncategorized'}</p>
                 </div>
                 {('workflowCapabilities' in agent) && agent.workflowCapabilities && (
                   <div>
-                    <p className="text-gray-400 text-sm">Capabilities</p>
+                    <p className="text-white/60 text-sm">Capabilities</p>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {(agent.workflowCapabilities as string[]).slice(0, 3).map((capability, idx) => (
-                        <span key={idx} className="px-2 py-1 bg-blue-900/30 text-blue-300 text-xs rounded-full">
+                        <span key={idx} className="px-2 py-1 bg-blue-900/30 text-cyan-300 text-xs rounded-full">
                           {capability.replace(/_/g, ' ')}
                         </span>
                       ))}
@@ -196,16 +196,16 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
             </div>
 
             {/* Action Buttons */}
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/50">
+            <div className="bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6">
               <button 
                 onClick={() => router.push(`/services/${agent.id}`)}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 mb-3"
+                className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all duration-200 mb-3"
               >
                 Launch Agent
               </button>
               <button 
                 onClick={() => router.back()}
-                className="w-full bg-gray-700 text-gray-300 font-medium py-2 px-4 rounded-lg border border-gray-600 hover:bg-gray-600 transition-all duration-200"
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white/90 font-medium py-2 px-4 rounded-lg border border-gray-600 hover:from-gray-500 hover:to-gray-600 transition-all duration-200"
               >
                 Go Back
               </button>

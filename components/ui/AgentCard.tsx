@@ -244,7 +244,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
       <motion.article
         ref={cardRef}
-        className={`relative group cursor-pointer select-none cosmic-card ${className}`}
+        className={`relative group cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
         variants={cardVariants}
         initial="initial"
         animate="animate"
@@ -257,9 +257,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
         onPointerLeave={handlePointerLeave}
         aria-label={agent.name}
       >
-        <div className="relative group/avatar">
+        <div className="relative group/avatar p-6">
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 via-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500" />
-          <div className="w-28 h-28 rounded-full object-contain cosmic-glass cosmic-glow border-2 border-[#30D5C8] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
+          <div className="w-28 h-28 rounded-full object-contain bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] flex items-center justify-center mx-auto mb-2 overflow-hidden relative z-10">
             {imgSrc && (
                               <img
                 src={imgSrc}
@@ -308,113 +308,113 @@ const AgentCard: React.FC<AgentCardProps> = ({
               </motion.span>
             )}
           </div>
-        </div>
         
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <motion.div 
-            className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-teal-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ 
-              type: 'spring' as const,
-              stiffness: 300,
-              damping: 15
-            }}
-          >
-            {agent.category}
-          </motion.div>
-          
-          {/* Chat capability badge */}
-          {agent.canConverse && (
-            <motion.div
-              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-300 backdrop-blur-sm border border-green-400/20 shadow-sm"
-              initial={{ scale: 0, opacity: 0 }}
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <motion.div 
+              className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-cyan-300 backdrop-blur-sm border border-teal-400/20 shadow-sm"
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ 
                 type: 'spring' as const,
-                stiffness: 400,
-                damping: 15,
-                delay: 0.1
+                stiffness: 300,
+                damping: 15
               }}
-              title="Conversational AI - Click to chat!"
             >
-              💬
+              {agent.category}
             </motion.div>
-          )}
-        </div>
-        
-        <motion.h3 
-          className="text-lg font-extrabold mb-1 text-center bg-gradient-to-r from-[#1E90FF] via-[#30D5C8] to-[#1E90FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_#1E90FF]"
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ 
-            delay: 0.3 + (index || 0) * 0.02,
-            ease: 'easeOut' as const
-          }}
-        >
-          {agent.name}
-        </motion.h3>
-        
-        <motion.div 
-          variants={contentVariants}
-          className="mt-2 text-gray-300/90 text-sm text-center min-h-[48px] leading-relaxed px-1"
-          initial="initial"
-          animate="animate"
-          whileHover="hover"
-        >
-          {agent.description}
-        </motion.div>
-        
-        <motion.div
-          variants={ctaVariants}
-          className="mt-5 flex justify-center w-full"
-        >
-          <motion.button
-            className={`cosmic-btn-primary w-full max-w-xs ${isLocked ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' : ''}`}
-            onClick={handleCtaClick}
-            disabled={isLocked}
-            tabIndex={0}
-            aria-label={isLocked ? 'Premium locked' : `Launch ${agent.name}`}
-            variants={ctaVariants}
-            type="button"
+            
+            {/* Chat capability badge */}
+            {agent.canConverse && (
+              <motion.div
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-cyan-300 backdrop-blur-sm border border-green-400/20 shadow-sm"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ 
+                  type: 'spring' as const,
+                  stiffness: 400,
+                  damping: 15,
+                  delay: 0.1
+                }}
+                title="Conversational AI - Click to chat!"
+              >
+                💬
+              </motion.div>
+            )}
+          </div>
+          
+          <motion.h3 
+            className="text-lg font-extrabold mb-1 text-center text-[#00F0FF] drop-shadow-glow"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              delay: 0.3 + (index || 0) * 0.02,
+              ease: 'easeOut' as const
+            }}
           >
-            {isLocked ? (
-              <motion.span 
-                className="flex items-center gap-2 justify-center"
-                animate={{
-                  x: [0, -2, 2, -1, 1, 0],
-                }}
-                transition={{
-                  duration: 0.6,
-                  repeat: Infinity,
-                  repeatType: 'loop',
-                }}
-              >
-                <Lock size={16} className="flex-shrink-0" /> Unlock Premium
-              </motion.span>
-            ) : (
-              <motion.span 
-                className="flex items-center justify-center gap-2"
-                whileHover={{ gap: '0.5rem' }}
-                transition={{ type: 'spring' as const, stiffness: 400, damping: 10 }}
-              >
-                Launch Agent 
+            {agent.name}
+          </motion.h3>
+          
+          <motion.div 
+            variants={contentVariants}
+            className="mt-2 text-white/90 text-sm text-center min-h-[48px] leading-relaxed px-1"
+            initial="initial"
+            animate="animate"
+            whileHover="hover"
+          >
+            {agent.description}
+          </motion.div>
+          
+          <motion.div
+            variants={ctaVariants}
+            className="mt-5 flex justify-center w-full"
+          >
+            <motion.button
+              className={`px-4 py-2 rounded-xl font-bold text-white transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 w-full max-w-xs ${isLocked ? 'bg-gradient-to-r from-gray-600 to-gray-700 cursor-not-allowed' : 'bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 focus:ring-cyan-400/40'}`}
+              onClick={handleCtaClick}
+              disabled={isLocked}
+              tabIndex={0}
+              aria-label={isLocked ? 'Premium locked' : `Launch ${agent.name}`}
+              variants={ctaVariants}
+              type="button"
+            >
+              {isLocked ? (
                 <motion.span 
-                  animate={{ x: [0, 4, 0] }}
+                  className="flex items-center gap-2 justify-center"
+                  animate={{
+                    x: [0, -2, 2, -1, 1, 0],
+                  }}
                   transition={{
-                    duration: 1.5,
+                    duration: 0.6,
                     repeat: Infinity,
                     repeatType: 'loop',
-                    ease: 'easeInOut' as const
                   }}
-                  aria-hidden
                 >
-                  🚀
+                  <Lock size={16} className="flex-shrink-0" /> Unlock Premium
                 </motion.span>
-              </motion.span>
-            )}
-          </motion.button>
-        </motion.div>
+              ) : (
+                <motion.span 
+                  className="flex items-center justify-center gap-2"
+                  whileHover={{ gap: '0.5rem' }}
+                  transition={{ type: 'spring' as const, stiffness: 400, damping: 10 }}
+                >
+                  Launch Agent 
+                  <motion.span 
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      repeatType: 'loop',
+                      ease: 'easeInOut' as const
+                    }}
+                    aria-hidden
+                  >
+                    🚀
+                  </motion.span>
+                </motion.span>
+              )}
+            </motion.button>
+          </motion.div>
+        </div>
         
         <motion.div 
           className="absolute inset-0 rounded-2xl pointer-events-none bg-gradient-to-br from-white/5 to-white/[0.02] backdrop-blur-sm z-10"
