@@ -138,7 +138,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
         {categories.map(category => (
           <button
             key={category}
-            className={`px-4 py-1 rounded-full font-medium text-sm border border-white/10 transition glass-card text-white/80 hover:text-white hover:bg-white/10 ${selectedCategory === category ? 'bg-white/10 text-white font-bold shadow' : ''}`}
+            className={`px-4 py-1 rounded-full font-medium text-sm border border-teal-400/20 transition bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg text-white/80 hover:text-cyan-300 hover:bg-teal-500/20 hover:border-teal-400/40 ${selectedCategory === category ? 'bg-teal-500/30 text-cyan-300 font-bold shadow-[0_0_12px_#14b8a6]' : ''}`}
             onClick={() => setSelectedCategory(category)}
           >
             {category}
@@ -151,7 +151,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
           id="sort-select"
           value={sort}
           onChange={e => setSort(e.target.value)}
-          className="rounded-lg px-3 py-2 bg-white/20 backdrop-blur text-sm text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="rounded-lg px-3 py-2 bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg border border-teal-400/30 text-cyan-300 focus:outline-none focus:ring-2 focus:ring-teal-400/40"
         >
           <option value="popular">Most Popular</option>
           <option value="new">Newest</option>

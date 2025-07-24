@@ -120,7 +120,7 @@ export default function WorkflowLaunchButton({
       primary: hasWorkflow 
         ? 'bg-gradient-to-r from-electric-blue to-teal text-white hover:from-electric-blue/90 hover:to-teal/90 shadow-lg hover:shadow-xl'
         : 'bg-gradient-to-r from-gray-500 to-gray-600 text-white hover:from-gray-400 hover:to-gray-500',
-      secondary: 'bg-white/10 text-electric-blue border border-electric-blue/30 hover:bg-electric-blue/10',
+      secondary: 'bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg text-cyan-300 border border-teal-400/30 hover:bg-teal-500/20',
       minimal: 'text-electric-blue hover:text-electric-blue/80 hover:bg-electric-blue/5'
     };
     
