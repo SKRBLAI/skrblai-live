@@ -12,7 +12,7 @@ export async function fetchPercyLogs({ sessionId, eventType }: { sessionId?: str
   const { data, error } = await query;
   if (error) throw error;
   // Validate completeness
-  const validLogs = (data || []).filter(log =>
+  const validLogs = (data || []).filter((log: any) =>
     log && log.sessionId && log.agentId && log.type && log.meta && log.timestamp
   );
   return validLogs;

@@ -60,7 +60,7 @@ export function usePercyAnalytics(): PercyAnalytics {
         const analyticsData: PercyAnalytics = {};
         
         if (data && Array.isArray(data)) {
-          data.forEach(item => {
+          data.forEach((item: any) => {
             if (item.intent) {
               analyticsData[item.intent] = {
                 count: item.count || 0,
@@ -80,7 +80,7 @@ export function usePercyAnalytics(): PercyAnalytics {
             
           if (!logsError && logsData) {
             // Count agent usage from logs
-            logsData.forEach(log => {
+            logsData.forEach((log: any) => {
               if (!log.agentId) return;
               
               if (!analyticsData[log.agentId]) {

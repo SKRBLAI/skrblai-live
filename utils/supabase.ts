@@ -1,12 +1,21 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-// Simple function to get a client component Supabase client
-export function getSupabase() {
-  return createClientComponentClient();
+// Supabase client instance, created lazily
+export let supabase: any = null;
+// Attempt initial instantiation, suppress errors during build
+try {
+  supabase = createClientComponentClient();
+} catch {
+  // Missing env vars during build; will instantiate at runtime
 }
 
-// Export a singleton instance for convenience
-export const supabase = getSupabase();
+// Function to get (or create) the Supabase client
+export function getSupabase() {
+  if (!supabase) {
+    supabase = createClientComponentClient();
+  }
+  return supabase;
+}
 
 // Helper functions to replace Firebase equivalents
 export const saveToSupabase = async (table: string, data: any) => {

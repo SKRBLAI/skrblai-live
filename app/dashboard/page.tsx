@@ -301,7 +301,7 @@ export default function Dashboard() {
             console.log('[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Realtime workflow log update:', payload);
             loadDashboardData(); 
           })
-      .subscribe((status, err) => {
+      .subscribe((status: any, err: any) => {
         if (status === 'SUBSCRIBED') {
           console.log(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Subscribed to workflowLogs for user ${userId}`);
         }
@@ -314,7 +314,7 @@ export default function Dashboard() {
       if (logsSubscription) {
         supabase.removeChannel(logsSubscription)
           .then(() => console.log(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Unsubscribed from workflowLogs for user ${userId}`))
-          .catch(err => console.error(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error unsubscribing from workflowLogs:`, err));
+          .catch((err: any) => console.error(`[SKRBL_AUTH_DEBUG_DASHBOARD_PAGE] Error unsubscribing from workflowLogs:`, err));
       }
     };
   }, [userId, authUser]); 

@@ -62,14 +62,14 @@ export default function GettingStartedDashboard() {
     // Real-time subscription for workflow logs
     const logsSub = supabase
       .channel('workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchLogs();
       })
       .subscribe();
     // Real-time subscription for onboarding status
     const onboardingSub = supabase
       .channel('user_settings')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_settings', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchOnboarding();
       })
       .subscribe();

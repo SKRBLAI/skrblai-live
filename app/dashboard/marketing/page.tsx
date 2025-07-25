@@ -57,14 +57,14 @@ export default function MarketingDashboard() {
     // Real-time subscription for workflow logs
     const logsSub = supabase
       .channel('workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchLogs();
       })
       .subscribe();
     // Real-time subscription for marketing-campaigns
     const campaignsSub = supabase
       .channel('marketing-campaigns')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'marketing-campaigns', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'marketing-campaigns', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchCampaigns();
       })
       .subscribe();

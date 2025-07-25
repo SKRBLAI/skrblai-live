@@ -56,14 +56,14 @@ export default function BrandingDashboard() {
     // Real-time subscription for workflow logs
     const logsSub = supabase
       .channel('workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchLogs();
       })
       .subscribe();
     // Real-time subscription for branding
     const brandingSub = supabase
       .channel('branding')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'branding', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'branding', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchBranding();
       })
       .subscribe();

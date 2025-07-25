@@ -63,14 +63,14 @@ export default function WebsiteDashboard() {
     // Real-time subscription for workflow logs
     const logsSub = supabase
       .channel('workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchLogs();
       })
       .subscribe();
     // Real-time subscription for websites
     const websitesSub = supabase
       .channel('websites')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'websites', filter: `userId=eq.${user.id}` }, payload => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'websites', filter: `userId=eq.${user.id}` }, (payload: any) => {
         fetchWebsites();
       })
       .subscribe();

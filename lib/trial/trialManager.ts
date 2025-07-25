@@ -446,21 +446,21 @@ export class TrialManager {
       // Process analytics data
       const analytics = {
         totalTrialUsers: data.length,
-        activeTrials: data.filter(t => t.current_trial_state === 'active').length,
-        expiredTrials: data.filter(t => t.current_trial_state === 'expired').length,
-        expiringTrials: data.filter(t => t.current_trial_state === 'expiring_soon').length,
+        activeTrials: data.filter((t: any) => t.current_trial_state === 'active').length,
+        expiredTrials: data.filter((t: any) => t.current_trial_state === 'expired').length,
+        expiringTrials: data.filter((t: any) => t.current_trial_state === 'expiring_soon').length,
         conversionRate: 0,
         averageUsage: 0
       };
 
       // Calculate conversion rate
-      const convertedUsers = data.filter(t => t.trial_status === 'converted').length;
+      const convertedUsers = data.filter((t: any) => t.trial_status === 'converted').length;
       analytics.conversionRate = analytics.totalTrialUsers > 0 
         ? (convertedUsers / analytics.totalTrialUsers) * 100 
         : 0;
 
       // Calculate average usage
-      const totalUsage = data.reduce((sum, user) => sum + (user.agents_used_today || 0), 0);
+      const totalUsage = data.reduce((sum: number, user: any) => sum + (user.agents_used_today || 0), 0);
       analytics.averageUsage = analytics.totalTrialUsers > 0 
         ? totalUsage / analytics.totalTrialUsers 
         : 0;

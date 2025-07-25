@@ -133,7 +133,7 @@ export const getProposals = async (): Promise<Array<Proposal & { id: string }>> 
     
     if (error) throw error;
     
-    return data.map(item => ({
+    return data.map((item: any) => ({
       ...item,
       id: item.id,
       projectName: item.project_name || '',
