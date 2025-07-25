@@ -256,9 +256,10 @@ export async function GET(request: NextRequest) {
       case 'available':
         return await getAvailableAchievements(user.id);
       
-      case 'unlock-check':
+      case 'unlock-check': {
         const agentId = searchParams.get('agentId');
         return await checkAgentUnlock(user.id, agentId);
+      }
       
       default:
         return NextResponse.json(

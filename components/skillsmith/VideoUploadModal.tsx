@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Play, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
@@ -46,7 +46,7 @@ export default function VideoUploadModal({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { canUseScan, useScan, scansRemaining } = useSkillSmithGuest();
+  const { canUseScan, useScan: triggerScan, scansRemaining } = useSkillSmithGuest();
 
   const MAX_DURATION = 30; // 30 seconds
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -185,7 +185,7 @@ export default function VideoUploadModal({
       // Simulate upload
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (!useScan()) {
+      if (!triggerScan()) {
         setError('No scans remaining. Please upgrade to continue.');
         return;
       }

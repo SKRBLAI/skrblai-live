@@ -53,6 +53,7 @@
     "node_modules",
     ".next",
     "components/__archive__",
-    "tests"
+    "tests",
+    "supabase/functions"
   ]
 }

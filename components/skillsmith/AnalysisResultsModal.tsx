@@ -41,7 +41,7 @@ export default function AnalysisResultsModal({
   onQuickWinDownload
 }: AnalysisResultsModalProps) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  const { canUseQuickWins, useQuickWin, quickWinsRemaining, usageStats } = useSkillSmithGuest();
+  const { canUseQuickWins, useQuickWin: triggerQuickWin, quickWinsRemaining, usageStats } = useSkillSmithGuest();
 
   if (!isOpen || !result) return null;
 
@@ -68,7 +68,7 @@ export default function AnalysisResultsModal({
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       if (userType === 'guest') {
-        useQuickWin();
+        triggerQuickWin();
       }
       
       onQuickWinDownload?.(quickWin);

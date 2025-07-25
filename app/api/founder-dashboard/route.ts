@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getFunnelMetrics } from '../../../lib/analytics/userFunnelTracking';

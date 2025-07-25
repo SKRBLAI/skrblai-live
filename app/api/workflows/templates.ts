@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
           userRole
         });
 
-      case 'recommendations':
+      case 'recommendations': {
         if (!search) {
           return NextResponse.json({ error: 'Search query required for recommendations' }, { status: 400 });
         }
@@ -63,8 +63,9 @@ export async function GET(req: NextRequest) {
           searchQuery: search,
           industry
         });
+      }
 
-      default:
+      default: {
         // Standard template listing with enhanced filtering
         let templates = getTemplatesForRole(userRole);
         
@@ -92,6 +93,7 @@ export async function GET(req: NextRequest) {
             search
           }
         });
+      }
     }
 
   } catch (error: any) {

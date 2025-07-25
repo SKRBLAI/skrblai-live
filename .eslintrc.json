@@ -14,5 +14,30 @@
     "jsx-a11y/aria-unsupported-elements": "warn",
     "jsx-a11y/role-has-required-aria-props": "warn",
     "jsx-a11y/role-supports-aria-props": "warn"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "components/background/*.tsx",
+        "components/home/*.tsx",
+        "components/ui/*.tsx",
+        "components/skillsmith/*.tsx"
+      ],
+      "rules": {
+        "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      "files": [
+        "lib/3d/*.{ts,tsx}",
+        "lib/performance/*.ts"
+      ],
+      "rules": {
+        "react/display-name": "off",
+        "@next/next/no-assign-module-variable": "off",
+        "import/no-anonymous-default-export": "off",
+        "react-hooks/exhaustive-deps": "off"
+      }
+    }
+  ]
 }

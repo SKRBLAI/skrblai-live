@@ -257,7 +257,7 @@ export class OrchestrationService {
 
     // Queue individual emails based on sequence type
     switch (sequence) {
-      case 'onboarding':
+      case 'onboarding': {
         // Welcome email (immediate)
         const welcomeJob = await this.queueService.addEmailJob({
           to: email,
@@ -277,8 +277,9 @@ export class OrchestrationService {
         emailJobs.push(featureJob.id!);
 
         break;
+      }
 
-      case 'trial_expiry':
+      case 'trial_expiry': {
         // Reminder emails at different intervals
         const intervals = [7, 3, 1]; // days before expiry
         for (const days of intervals) {
@@ -291,6 +292,7 @@ export class OrchestrationService {
           emailJobs.push(reminderJob.id!);
         }
         break;
+      }
     }
 
     return {
@@ -319,7 +321,7 @@ export class OrchestrationService {
     // Process sequence of actions
     for (const action of sequence) {
       switch (action.type) {
-        case 'queue':
+        case 'queue': {
           const job = await this.queueService.addJob(
             action.queueName,
             action.payload,
@@ -327,19 +329,22 @@ export class OrchestrationService {
           );
           if (job.id) queueJobs.push(job.id);
           break;
+        }
 
-        case 'workflow':
+        case 'workflow': {
           const result = await this.workflowService.triggerWorkflow(
             action.workflowId,
             { ...action.payload, orchestrationId }
           );
           if (result.executionId) workflowExecutions.push(result.executionId);
           break;
+        }
 
-        case 'delay':
+        case 'delay': {
           // Handle delays in custom sequences
           await new Promise(resolve => setTimeout(resolve, action.duration));
           break;
+        }
       }
     }
 
