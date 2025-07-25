@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { agentDashboardList } from '@/lib/agents/agentRegistry';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { agentDashboardList } from '../../../../lib/agents/agentRegistry';
+import { agentBackstories } from '../../../../lib/agents/agentBackstories';
 
 export async function GET(req: NextRequest) {
   try {

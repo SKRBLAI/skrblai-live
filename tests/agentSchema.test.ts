@@ -1,4 +1,4 @@
-import { agentDashboardList } from '@/lib/agents/agentRegistry';
+import { agentDashboardList } from '../lib/agents/agentRegistry';
 
 describe('Agent Dashboard Schema Compliance', () => {
   it('should export an array of agents', () => {

@@ -13,9 +13,9 @@ import {
   handleAgentChat, 
   getAgentConversationCapabilities,
   getAgent
-} from '@/lib/agents/agentLeague';
-import { createSafeSupabaseClient } from '@/lib/supabase/client';
-import { callOpenAI } from '@/utils/agentUtils';
+} from '../../../../../lib/agents/agentLeague';
+import { createSafeSupabaseClient } from '../../../../../lib/supabase/client';
+import { callOpenAI } from '../../../../../utils/agentUtils';
 
 // Initialize Supabase client with safe fallback
 const supabase = createSafeSupabaseClient();

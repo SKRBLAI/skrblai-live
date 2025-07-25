@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../../../utils/supabase';
 import { Resend } from 'resend';
 import twilio from 'twilio';
 

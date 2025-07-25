@@ -1,8 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../components/shared/CosmicButton';
 
 export default function ServicesNotFound() {
   return (

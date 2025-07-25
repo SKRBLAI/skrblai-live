@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { agentDashboardList } from '@/lib/agents/agentRegistry';
+import { agentDashboardList } from '../../../lib/agents/agentRegistry';
 
 export async function GET(req: NextRequest) {
   try {

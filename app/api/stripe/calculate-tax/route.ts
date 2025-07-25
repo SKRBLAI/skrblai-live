@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '@/utils/stripe';
-import { supabase } from '@/utils/supabase';
-import { saveTaxCalculation, parseStripeTaxCalculation } from '@/utils/tax';
+import { stripe } from '../../../../utils/stripe';
+import { supabase } from '../../../../utils/supabase';
+import { saveTaxCalculation, parseStripeTaxCalculation } from '../../../../utils/tax';
 
 export async function POST(req: NextRequest) {
   try {

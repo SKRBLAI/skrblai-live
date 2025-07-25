@@ -16,8 +16,8 @@ import {
   Star,
   Timer
 } from 'lucide-react';
-import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight, type IntelligentRecommendation } from '@/lib/agents/agentIntelligence';
-import { agentLeague } from '@/lib/agents/agentLeague';
+import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight, type IntelligentRecommendation } from '../../lib/agents/agentIntelligence';
+import { agentLeague } from '../../lib/agents/agentLeague';
 
 interface SuperheroIntelligenceDashboardProps {
   className?: string;

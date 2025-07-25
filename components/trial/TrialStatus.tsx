@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Clock, Zap, TrendingUp, ArrowRight } from 'lucide-react';
-import { TrialStatus as TrialStatusType } from '@/lib/trial/trialManager';
+import { TrialStatus as TrialStatusType } from '../../lib/trial/trialManager';
 
 interface TrialStatusProps {
   trialStatus: TrialStatusType;

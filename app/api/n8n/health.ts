@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import n8nClient from '@/lib/n8nClient';
-import agentRegistry from '@/lib/agents/agentRegistry';
-import { systemLog } from '@/utils/systemLog';
+import n8nClient from '../../../lib/n8nClient';
+import agentRegistry from '../../../lib/agents/agentRegistry';
+import { systemLog } from '../../../utils/systemLog';
 import { createClient } from '@supabase/supabase-js';
 
 export async function GET(req: Request) {

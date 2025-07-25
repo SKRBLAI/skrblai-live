@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/components/context/AuthContext';
-import { useSkillSmithGuest } from '@/lib/skillsmith/guestTracker';
+import { useAuth } from '../../components/context/AuthContext';
+import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import PageLayout from 'components/layout/PageLayout';
-import FloatingParticles from '@/components/ui/FloatingParticles';
-import SkillSmithStandaloneHero from '@/components/home/SkillSmithStandaloneHero';
-import VideoUploadModal from '@/components/skillsmith/VideoUploadModal';
-import EmailCaptureModal from '@/components/skillsmith/EmailCaptureModal';
-import AnalysisResultsModal from '@/components/skillsmith/AnalysisResultsModal';
-import UpgradeModal from '@/components/skillsmith/UpgradeModal';
+import FloatingParticles from '../../components/ui/FloatingParticles';
+import SkillSmithStandaloneHero from '../../components/home/SkillSmithStandaloneHero';
+import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
+import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
+import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
+import UpgradeModal from '../../components/skillsmith/UpgradeModal';
 import { Trophy, Zap, Target, Star, Users, BarChart3 } from 'lucide-react';
 
 interface AnalysisResult {

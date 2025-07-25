@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-import PercyAvatar from "@/components/home/PercyAvatar";
+import PercyAvatar from "../../components/home/PercyAvatar";
 import PercyProvider from 'components/assistant/PercyProvider';
-import PageLayout from '@/components/layout/PageLayout';
+import PageLayout from '../../components/layout/PageLayout';
 
 // Enhanced Academy Missions
 const MISSIONS = [

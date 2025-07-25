@@ -2,8 +2,8 @@
 
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { uploadFileToStorage } from '@/utils/supabase-helpers';
-import { supabase } from '@/utils/supabase';
+import { uploadFileToStorage } from '../../utils/supabase-helpers';
+import { supabase } from '../../utils/supabase';
 
 interface FileUploadProps {
   category: string;

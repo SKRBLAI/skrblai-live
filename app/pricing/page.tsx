@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import PageLayout from '@/components/layout/PageLayout';
+import PageLayout from '../../components/layout/PageLayout';
 
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
+import CosmicHeading from '../../components/shared/CosmicHeading';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../components/shared/CosmicButton';
 import Image from 'next/image';
-import SkrblAiText from '@/components/shared/SkrblAiText';
+import SkrblAiText from '../../components/shared/SkrblAiText';
 
 const plans = [
   {

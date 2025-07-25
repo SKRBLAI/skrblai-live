@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { usePercyContext } from '@/contexts/PercyContext';
+import { usePercyContext } from '../../contexts/PercyContext';
 
 interface BrandingCardProps {
   title: string;

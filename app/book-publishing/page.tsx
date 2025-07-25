@@ -4,13 +4,13 @@ import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
-import CosmicHeading from '@/components/shared/CosmicHeading';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../components/shared/CosmicButton';
+import CosmicHeading from '../../components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, PenTool, Share2, Award } from 'lucide-react';
-import SkrblAiText from '@/components/shared/SkrblAiText';
-import PublishingAssistantPanel from '@/components/book-publishing/PublishingAssistantPanel';
+import SkrblAiText from '../../components/shared/SkrblAiText';
+import PublishingAssistantPanel from '../../components/book-publishing/PublishingAssistantPanel';
 
 export default function BookPublishingPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({

@@ -8,7 +8,7 @@
  * @author SKRBL AI Team
  */
 
-import { triggerN8nWorkflow } from '@/lib/n8nClient';
+import { triggerN8nWorkflow } from '../n8nClient';
 import { agentLeague, type AgentPower, type AgentConfiguration } from './agentLeague';
 import { getAgentWorkflowConfig, type AgentWorkflowConfig, type WorkflowExecutionContext } from './workflowLookup';
 import { createClient } from '@supabase/supabase-js';

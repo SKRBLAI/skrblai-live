@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, DollarSign, Zap, Crown, Target, ArrowUp } from 'lucide-react';
-import { useAuth } from '@/components/context/AuthContext';
-import { trackFunnelEvent } from '@/lib/analytics/userFunnelTracking';
+import { useAuth } from '../context/AuthContext';
+import { trackFunnelEvent } from '../../lib/analytics/userFunnelTracking';
 
 interface RevenueOpportunity {
   id: string;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { systemLog } from '@/utils/systemLog';
+import { systemLog } from '../../utils/systemLog';
 
 /**
  * POST /api/onboarding

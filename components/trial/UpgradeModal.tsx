@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, Clock, CheckCircle, ArrowRight, Star, Sparkles } from 'lucide-react';
-import { UpgradePrompt } from '@/lib/trial/trialManager';
+import { UpgradePrompt } from '../../lib/trial/trialManager';
 
 interface UpgradeModalProps {
   isOpen: boolean;

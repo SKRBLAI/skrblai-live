@@ -3,9 +3,9 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useRouter } from 'next/navigation';
 
 // Import new Percy intelligence systems
-import percyIntelligence, { generatePercyResponse, checkAgentAccess as checkAgentAccessIntelligence } from '@/lib/agents/intelligenceEngine';
-import { agentAccessController, checkAgentAccess, filterAgentsByAccess } from '@/lib/agents/accessControl';
-import { percyContextManager, initializePercyContext, trackPercyBehavior, getPercyContext, BEHAVIOR_TYPES } from '@/lib/percy/contextManager';
+import percyIntelligence, { generatePercyResponse, checkAgentAccess as checkAgentAccessIntelligence } from '../../lib/agents/intelligenceEngine';
+import { agentAccessController, checkAgentAccess, filterAgentsByAccess } from '../../lib/agents/accessControl';
+import { percyContextManager, initializePercyContext, trackPercyBehavior, getPercyContext, BEHAVIOR_TYPES } from '../../lib/percy/contextManager';
 
 // Safely import agentRegistry with fallback
 let agentRegistry: any[] = [];

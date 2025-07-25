@@ -1,6 +1,6 @@
-import { supabase } from '@/utils/supabase';
-import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '@/utils/agentJobStatus';
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { supabase } from '../utils/supabase';
+import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '../utils/agentJobStatus';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 /**

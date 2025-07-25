@@ -2,7 +2,7 @@
 // Skill Smith SMS webhook handler – mirrors Percy but tailored to sports & fitness flows.
 import { NextRequest, NextResponse } from 'next/server';
 import { twiml } from 'twilio';
-import { isVipNumber, sendSms } from '@/utils/twilioSms';
+import { isVipNumber, sendSms } from '../../../../utils/twilioSms';
 
 interface Session {
   stage: 'init' | 'awaiting_name' | 'awaiting_goal' | 'processing' | 'suggesting';

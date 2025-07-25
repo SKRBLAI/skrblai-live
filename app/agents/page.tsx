@@ -3,16 +3,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Zap, Crown, TrendingUp, Lock } from 'lucide-react';
-import AgentLeagueCard from '@/components/ui/AgentLeagueCard';
-import { Agent } from '@/types/agent';
-import ClientPageLayout from '@/components/layout/ClientPageLayout';
-import CosmicCard, { CosmicCardGlow, CosmicCardGlass } from '@/components/shared/CosmicCard';
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import { agentLeague } from '@/lib/agents/agentLeague';
-import { useAuth } from '@/components/context/AuthContext';
+import AgentLeagueCard from '../../components/ui/AgentLeagueCard';
+import { Agent } from '../../types/agent';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
+import CosmicCard, { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
+import CosmicHeading from '../../components/shared/CosmicHeading';
+import { agentLeague } from '../../lib/agents/agentLeague';
+import { useAuth } from '../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import ErrorBoundary from '@/components/layout/ErrorBoundary';
+import ErrorBoundary from '../../components/layout/ErrorBoundary';
 
 // Enhanced Agent type with access control
 interface EnhancedAgent extends Agent {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { marketingAutomation } from '@/lib/marketing/MarketingAutomationManager';
+import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
 
 export async function GET(req: NextRequest) {
   try {

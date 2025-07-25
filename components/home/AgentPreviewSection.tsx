@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
-import { getCurrentUser } from '@/utils/supabase-helpers';
+import { usePercyContext } from '../assistant/PercyProvider';
+import { getCurrentUser } from '../../utils/supabase-helpers';
 import Link from 'next/link';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { getAgentImagePath } from '@/utils/agentUtils';
-import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '@/lib/agents/agentIntelligence';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
+import { getAgentImagePath } from '../../utils/agentUtils';
+import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '../../lib/agents/agentIntelligence';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => {

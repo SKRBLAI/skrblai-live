@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { emailAutomation } from '@/lib/email/simpleAutomation';
-import { EMAIL_SEQUENCES } from '@/lib/email/sequences';
-import { systemLog } from '@/utils/systemLog';
-import { getErrorMessage } from '@/utils/errorHandling';
+import { emailAutomation } from '../../../lib/email/simpleAutomation';
+import { EMAIL_SEQUENCES } from '../../../lib/email/sequences';
+import { systemLog } from '../../../utils/systemLog';
+import { getErrorMessage } from '../../../utils/errorHandling';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

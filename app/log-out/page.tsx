@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../../components/context/AuthContext';
 import toast from 'react-hot-toast';
 
 export default function LogoutPage() {

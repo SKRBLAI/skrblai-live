@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { systemLog } from '@/utils/systemLog';
+import { systemLog } from '../../utils/systemLog';
 
 // Helper to fetch internal endpoints
 async function fetchInternal(url: string, token: string) {

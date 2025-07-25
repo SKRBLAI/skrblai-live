@@ -1,22 +1,22 @@
-import { Agent } from '@/types/agent';
-import { getDefaultOrbitParams, getAgentImageSlug, validateAgents, validateOrbitAgentAvatars } from '@/utils/agentUtils';
+import { Agent } from '../../types/agent';
+import { getDefaultOrbitParams, getAgentImageSlug, validateAgents, validateOrbitAgentAvatars } from '../../utils/agentUtils';
 import { agentBackstories } from './agentBackstories';
 
 // Import all agents
-import adCreativeAgent from '@/ai-agents/adCreativeAgent';
-import analyticsAgent from '@/ai-agents/analyticsAgent';
-import bizAgent from '@/ai-agents/bizAgent';
-import brandingAgent from '@/ai-agents/brandingAgent';
-import clientSuccessAgent from '@/ai-agents/clientSuccessAgent';
-import contentCreatorAgent from '@/ai-agents/contentCreatorAgent';
-import paymentManagerAgent from '@/ai-agents/paymentManagerAgent';
-import percyAgent from '@/ai-agents/percyAgent';
-import percySyncAgent from '@/ai-agents/percySyncAgent';
-import proposalGeneratorAgent from '@/ai-agents/proposalGeneratorAgent';
-import publishingAgent from '@/ai-agents/publishingAgent';
-import sitegenAgent from '@/ai-agents/sitegenAgent';
-import socialBotAgent from '@/ai-agents/socialBotAgent';
-import videoContentAgent from '@/ai-agents/videoContentAgent';
+import adCreativeAgent from '../../ai-agents/adCreativeAgent';
+import analyticsAgent from '../../ai-agents/analyticsAgent';
+import bizAgent from '../../ai-agents/bizAgent';
+import brandingAgent from '../../ai-agents/brandingAgent';
+import clientSuccessAgent from '../../ai-agents/clientSuccessAgent';
+import contentCreatorAgent from '../../ai-agents/contentCreatorAgent';
+import paymentManagerAgent from '../../ai-agents/paymentManagerAgent';
+import percyAgent from '../../ai-agents/percyAgent';
+import percySyncAgent from '../../ai-agents/percySyncAgent';
+import proposalGeneratorAgent from '../../ai-agents/proposalGeneratorAgent';
+import publishingAgent from '../../ai-agents/publishingAgent';
+import sitegenAgent from '../../ai-agents/sitegenAgent';
+import socialBotAgent from '../../ai-agents/socialBotAgent';
+import videoContentAgent from '../../ai-agents/videoContentAgent';
 
 // Debug log on import (this executes during module initialization)
 console.log('AgentRegistry module initializing...');

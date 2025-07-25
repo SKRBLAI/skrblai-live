@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import { fireAgentLaunchWebhook } from '@/lib/webhooks/n8nWebhooks';
+import { fireAgentLaunchWebhook } from '../../lib/webhooks/n8nWebhooks';
 
 // =============================================================================
 // TYPES & INTERFACES

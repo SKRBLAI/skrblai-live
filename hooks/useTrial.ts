@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { TrialStatus, UpgradePrompt } from '@/lib/trial/trialManager';
-import { getCurrentUser } from '@/utils/supabase-helpers';
+import { TrialStatus, UpgradePrompt } from '../lib/trial/trialManager';
+import { getCurrentUser } from '../utils/supabase-helpers';
 
 interface UseTrialReturn {
   trialStatus: TrialStatus | null;

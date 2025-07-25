@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from "react";
-import WorkflowLaunchpadModal from "@/components/ui/WorkflowLaunchpadModal";
+import WorkflowLaunchpadModal from "../ui/WorkflowLaunchpadModal";
 
 interface DashboardOverviewProps {
   lastUsed: any[];

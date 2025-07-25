@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, ReactNode, useCallback } from "react";
-import ActionBanner, { BannerVariant } from "@/components/ui/ActionBanner";
+import ActionBanner, { BannerVariant } from "../ui/ActionBanner";
 
 interface BannerContextType {
   showBanner: (message: string, variant?: BannerVariant) => void;

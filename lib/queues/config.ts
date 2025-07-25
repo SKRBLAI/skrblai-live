@@ -9,7 +9,6 @@ export const redisConfig: ConnectionOptions = {
   maxRetriesPerRequest: 3,
   retryDelayOnFailover: 100,
   enableReadyCheck: false,
-  maxLoadingTimeout: 5000,
   lazyConnect: true,
 };
 

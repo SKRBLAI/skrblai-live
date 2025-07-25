@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../../components/context/AuthContext';
 import toast from 'react-hot-toast';
 
 interface DashboardWrapperProps {

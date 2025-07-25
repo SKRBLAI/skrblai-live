@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useUser, useSession } from '@supabase/auth-helpers-react';
-import { useAgentTracking, useUpgradeTracking } from '@/lib/hooks/useAnalytics';
+import { useAgentTracking, useUpgradeTracking } from '../../lib/hooks/useAnalytics';
 import type { Agent } from '@/types/agent';
 import { motion } from 'framer-motion';
 

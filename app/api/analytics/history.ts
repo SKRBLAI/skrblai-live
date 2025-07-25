@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { systemLog } from '@/utils/systemLog';
+import { systemLog } from '../../../utils/systemLog';
 
 // --- Simple in-memory rate limiter (per IP) ---
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes

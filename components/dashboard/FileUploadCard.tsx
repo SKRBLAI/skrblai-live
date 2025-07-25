@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import PercyAvatar from '@/components/home/PercyAvatar';
+import PercyAvatar from '../home/PercyAvatar';
 import { motion } from 'framer-motion';
-import { uploadFileToStorage } from '@/utils/supabase-helpers';
-import { supabase } from '@/utils/supabase';
+import { uploadFileToStorage } from '../../utils/supabase-helpers';
+import { supabase } from '../../utils/supabase';
 
 interface FileUploadCardProps {
   title: string;

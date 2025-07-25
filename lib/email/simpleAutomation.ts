@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { getErrorMessage } from '@/utils/errorHandling';
-import { EMAIL_SEQUENCES } from '@/lib/email/sequences';
+import { getErrorMessage } from '../../utils/errorHandling';
+import { EMAIL_SEQUENCES } from './sequences';
 
 // REMOVED: Client-side should not have Supabase client at all
 // This file should only be used server-side

@@ -3,13 +3,13 @@
 import React, { JSX, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
-import CosmicHeading from '@/components/shared/CosmicHeading';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../components/shared/CosmicButton';
+import CosmicHeading from '../../components/shared/CosmicHeading';
 import Image from 'next/image';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, Palette, FilePenLine, Megaphone, Crown } from 'lucide-react';
-import SkrblAiText from '@/components/shared/SkrblAiText';
+import SkrblAiText from '../../components/shared/SkrblAiText';
 
 // Business-Focused Features with metrics like Services page
 const businessFeatures = [

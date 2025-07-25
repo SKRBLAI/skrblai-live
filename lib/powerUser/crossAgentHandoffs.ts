@@ -5,8 +5,8 @@
  * user intent, and agent capabilities for seamless multi-agent workflows.
  */
 
-import { getAgent, getAllAgents } from '@/lib/agents/agentLeague';
-import { trackFunnelEvent } from '@/lib/analytics/userFunnelTracking';
+import { getAgent, getAllAgents } from '../agents/agentLeague';
+import { trackFunnelEvent } from '../analytics/userFunnelTracking';
 
 interface HandoffContext {
   sourceAgentId: string;

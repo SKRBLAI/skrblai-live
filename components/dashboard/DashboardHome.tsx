@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAgentStats } from "@/hooks/useAgentStats";
-import { useUser } from "@/hooks/useUser";
-import { Agent, AgentStats } from "@/types/agent";
+import { useAgentStats } from "../../hooks/useAgentStats";
+import { useUser } from "../../hooks/useUser";
+import { Agent, AgentStats } from "../../types/agent";
 import Link from "next/link";
 import { 
   TrendingUp, Activity, Clock, Users, Target, Zap, 
@@ -11,8 +11,8 @@ import {
   Settings, Rocket, MessageCircle, Star, Crown, Brain, AlertTriangle
 } from 'lucide-react';
 import AnalyticsDashboard from './AnalyticsDashboard';
-import AgentStatsPanel from '@/components/ui/AgentStatsPanel';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
+import AgentStatsPanel from '../ui/AgentStatsPanel';
+import { usePercyContext } from '../assistant/PercyProvider';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 24 },

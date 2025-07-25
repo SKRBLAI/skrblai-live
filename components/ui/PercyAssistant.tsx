@@ -3,9 +3,9 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState } from 'react';
-import PercyAvatar from '@/components/ui/PercyAvatar';
-import { ChatBubble } from '@/components/ui';
-import { routeToAgentFromIntent } from '@/ai-agents/percySyncAgent';
+import PercyAvatar from './PercyAvatar';
+import { ChatBubble } from './';
+import { routeToAgentFromIntent } from '../../ai-agents/percySyncAgent';
 
 const INTENT_MAPPING = {
   grow_social_media: 'Grow My Social Media',

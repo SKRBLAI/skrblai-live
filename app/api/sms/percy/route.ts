@@ -1,7 +1,7 @@
 // Windsurf: Skill Smith/Percy SMS Agent Flows [2025-07-02]
 import { NextRequest, NextResponse } from 'next/server';
 import { twiml } from 'twilio';
-import { isVipNumber, sendSms } from '@/utils/twilioSms';
+import { isVipNumber, sendSms } from '../../../../utils/twilioSms';
 
 // Very lightweight in-memory session store (resets on redeploy)
 interface Session {

@@ -6,7 +6,7 @@ import {
   simulateAuthFlow,
   resetUserAuthState,
   generateTestPromoCodes
-} from '@/lib/auth/integrationSupport';
+} from '../../../../lib/auth/integrationSupport';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -3,12 +3,12 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { supabase } from '@/utils/supabase';
-import PercyAvatar from '@/components/home/PercyAvatar';
+import { supabase } from '../../utils/supabase';
+import PercyAvatar from '../home/PercyAvatar';
 import type { BookPublishingState, FileUploadStatus, BookPublishingResponse } from '@/types/book-publishing';
 import classNames from 'classnames';
 import Link from 'next/link';
-import PageLayout from '@/components/layout/PageLayout';
+import PageLayout from '../layout/PageLayout';
 
 type StepType = BookPublishingResponse['steps'][number];
 

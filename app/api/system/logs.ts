@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
-import { systemLog } from '@/utils/systemLog';
+import { supabase } from '../../../utils/supabase';
+import { systemLog } from '../../../utils/systemLog';
 import { createClient } from '@supabase/supabase-js';
 
 // Strong type for log event

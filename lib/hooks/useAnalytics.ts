@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
-import { trackPageView, trackAgentInteraction, trackUpgradePrompt } from '@/lib/analytics/userJourney';
+import { trackPageView, trackAgentInteraction, trackUpgradePrompt } from '../analytics/userJourney';
 
 export function usePageTracking(source: string, pathname: string) {
   const user = useUser();

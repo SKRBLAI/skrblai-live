@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import PercyButton from './PercyButton';
-import agentRegistry from '@/lib/agents/agentRegistry';
-import FloatingParticles from '@/components/ui/FloatingParticles';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import agentRegistry from '../lib/agents/agentRegistry';
+import FloatingParticles from '../components/ui/FloatingParticles';
+import { getAgentImagePath } from '../utils/agentUtils';
 
 interface PercyChatProps {
   onComplete?: (data: { name: string; email: string; plan: string; intent: string }) => void;

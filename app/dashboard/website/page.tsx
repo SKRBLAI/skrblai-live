@@ -3,16 +3,16 @@
 export const dynamic = 'force-dynamic';
 
 import { motion } from 'framer-motion';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import FileUploadCard from '@/components/dashboard/FileUploadCard';
+import DashboardSidebar from '../../../components/dashboard/DashboardSidebar';
+import DashboardHeader from '../../../components/dashboard/DashboardHeader';
+import FileUploadCard from '../../../components/dashboard/FileUploadCard';
 import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser } from '@/utils/supabase-helpers';
-import { supabase } from '@/utils/supabase';
-import agentRegistry from '@/lib/agents/agentRegistry';
+import { getCurrentUser } from '../../../utils/supabase-helpers';
+import { supabase } from '../../../utils/supabase';
+import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
 export default function WebsiteDashboard() {

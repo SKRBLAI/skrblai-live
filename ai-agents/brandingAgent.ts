@@ -1,6 +1,6 @@
-import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
-import { Lead } from '@/types/supabase';
+import { supabase } from '../utils/supabase';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
+import { Lead } from '../types/supabase';
 import { createClient } from '@supabase/supabase-js';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';

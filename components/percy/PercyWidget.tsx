@@ -2,22 +2,22 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../utils/supabase';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
-import { usePercyRouter } from '@/contexts/PercyContext';
-import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { getCurrentUser } from '@/utils/supabase-helpers';
-import { sendEmailAction } from '@/actions/sendEmail';
-import { saveChatMemory } from '@/lib/percy/saveChatMemory';
-import { getRecentPercyMemory } from '@/lib/percy/getRecentMemory';
+import { usePercyRouter } from '../../contexts/PercyContext';
+import { runAgentWorkflow } from '../../lib/agents/runAgentWorkflow';
+import { getCurrentUser } from '../../utils/supabase-helpers';
+import { sendEmailAction } from '../../actions/sendEmail';
+import { saveChatMemory } from '../../lib/percy/saveChatMemory';
+import { getRecentPercyMemory } from '../../lib/percy/getRecentMemory';
 
 import UpsellModal from './UpsellModal';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { usePercyContext } from '../assistant/PercyProvider';
 import { usePathname } from 'next/navigation';
-import { saveIntentMemory, clearPercyMemory } from '@/utils/memory';
-import { logPercyMessage, getPercyMessageHistory } from '@/utils/percy/logPercyMessage';
-import styles from '@/styles/PercyWidget.module.css';
+import { saveIntentMemory, clearPercyMemory } from '../../utils/memory';
+import { logPercyMessage, getPercyMessageHistory } from '../../utils/percy/logPercyMessage';
+import styles from '../../styles/PercyWidget.module.css';
 import type { Agent } from '@/types/agent';
 
 const useApiAgents = () => {

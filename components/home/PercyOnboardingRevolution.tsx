@@ -5,14 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
 import { Sparkles, ArrowRight, Target, TrendingUp } from 'lucide-react';
-import { useAuth } from '@/components/context/AuthContext';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { useAuth } from '../context/AuthContext';
+import { usePercyContext } from '../assistant/PercyProvider';
 import toast from 'react-hot-toast';
-import SkrblAiText from '@/components/ui/SkrblAiText';
-import UniversalPromptBar from '@/components/ui/UniversalPromptBar';
+import SkrblAiText from '../ui/SkrblAiText';
+import UniversalPromptBar from '../ui/UniversalPromptBar';
 import PercyAvatar from './PercyAvatar';
-import StatCounter from '@/components/features/StatCounter';
-import FounderDashboardOverlay from '@/components/admin/FounderDashboardOverlay';
+import StatCounter from '../features/StatCounter';
+import FounderDashboardOverlay from '../admin/FounderDashboardOverlay';
 
 interface OnboardingStep {
   id: string;

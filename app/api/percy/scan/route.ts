@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { TrialManager } from '@/lib/trial/trialManager';
+import { supabase } from '../../../../utils/supabase';
+import { agentBackstories } from '../../../../lib/agents/agentBackstories';
+import { TrialManager } from '../../../../lib/trial/trialManager';
 
 interface ScanRequest {
   type: 'website' | 'linkedin' | 'youtube';

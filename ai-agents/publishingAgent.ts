@@ -1,5 +1,5 @@
-import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { supabase } from '../utils/supabase';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 interface PublishingAgentInput extends BaseAgentInput {

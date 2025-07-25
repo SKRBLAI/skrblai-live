@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, Star, Trophy, Target, Zap, Gift, ExternalLink, CheckCircle } from 'lucide-react';
-import { useSkillSmithGuest } from '@/lib/skillsmith/guestTracker';
-import CosmicButton from '@/components/shared/CosmicButton';
+import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
+import CosmicButton from '../shared/CosmicButton';
 
 interface AnalysisResult {
   feedback: string;

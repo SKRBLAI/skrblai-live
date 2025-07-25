@@ -6,8 +6,8 @@ import {
   X, ArrowRight, Zap, Clock, Star, CheckCircle, 
   AlertCircle, Users, Target, TrendingUp, Sparkles
 } from 'lucide-react';
-import { analyzeHandoffIntent, executeHandoff } from '@/lib/powerUser/crossAgentHandoffs';
-import { getAgent } from '@/lib/agents/agentLeague';
+import { analyzeHandoffIntent, executeHandoff } from '../../lib/powerUser/crossAgentHandoffs';
+import { getAgent } from '../../lib/agents/agentLeague';
 import toast from 'react-hot-toast';
 
 interface CrossAgentHandoffModalProps {

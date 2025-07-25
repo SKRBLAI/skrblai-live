@@ -1,5 +1,5 @@
-import { supabase } from '@/utils/supabase';
-import { getCurrentUser } from '@/utils/supabase-helpers';
+import { supabase } from '../../utils/supabase';
+import { getCurrentUser } from '../../utils/supabase-helpers';
 
 export async function checkUserRole(): Promise<'free' | 'premium'> {
   try {

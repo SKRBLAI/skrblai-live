@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Brain, Crown, TrendingUp, Target, Zap, Star, AlertTriangle, Sparkles } from 'lucide-react';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { usePercyContext } from '../assistant/PercyProvider';
 
 interface VIPUser {
   email: string;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { testWebhookConnectivity } from '@/lib/webhooks/n8nWebhooks';
+import { testWebhookConnectivity } from '../../../../lib/webhooks/n8nWebhooks';
 
 /**
  * Test webhook connectivity to n8n

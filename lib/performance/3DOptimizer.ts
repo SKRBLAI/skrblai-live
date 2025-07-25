@@ -9,7 +9,7 @@
  */
 
 import React from 'react';
-import { detect3DCapabilities } from '@/lib/3d/dynamicImports';
+import { detect3DCapabilities } from '../3d/dynamicImports';
 
 // =============================================================================
 // TYPES & INTERFACES

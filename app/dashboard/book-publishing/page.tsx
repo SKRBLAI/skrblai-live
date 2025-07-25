@@ -5,20 +5,20 @@
 export const dynamic = 'force-dynamic';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DownloadCenter from '@/components/dashboard/DownloadCenter';
-import FileUploadCard from '@/components/dashboard/FileUploadCard';
+import DashboardSidebar from '../../../components/dashboard/DashboardSidebar';
+import DashboardHeader from '../../../components/dashboard/DashboardHeader';
+import DownloadCenter from '../../../components/dashboard/DownloadCenter';
+import FileUploadCard from '../../../components/dashboard/FileUploadCard';
 import { useCallback, useEffect, useState, CSSProperties } from 'react';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../../../components/context/AuthContext';
 import Link from 'next/link';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../../utils/supabase';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
-import '@/styles/components/BookPublishing.css';
+import '../../../styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
-import agentRegistry from '@/lib/agents/agentRegistry';
+import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
 export default function BookPublishingDashboard() {

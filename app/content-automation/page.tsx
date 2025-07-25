@@ -2,12 +2,12 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import ClientPageLayout from '@/components/layout/ClientPageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import CosmicButton from '@/components/shared/CosmicButton';
-import PercyAvatar from '@/components/ui/PercyAvatar';
-import TrialButton from '@/components/ui/TrialButton';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import CosmicHeading from '../../components/shared/CosmicHeading';
+import CosmicButton from '../../components/shared/CosmicButton';
+import PercyAvatar from '../../components/ui/PercyAvatar';
+import TrialButton from '../../components/ui/TrialButton';
 
 export default function ContentAutomationPage() {
   return (

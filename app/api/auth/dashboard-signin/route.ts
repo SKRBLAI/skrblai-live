@@ -5,7 +5,7 @@ import {
   logAuthEvent,
   registerUserForDashboard,
   type DashboardAuthRequest 
-} from '@/lib/auth/dashboardAuth';
+} from '../../../../lib/auth/dashboardAuth';
 
 // Environment variable validation
 function validateEnvironment() {

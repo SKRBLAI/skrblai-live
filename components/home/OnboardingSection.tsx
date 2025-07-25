@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import UpgradeBanner from '@/components/ui/UpgradeBanner';
+import UpgradeBanner from '../ui/UpgradeBanner';
 
 const steps = [
   {

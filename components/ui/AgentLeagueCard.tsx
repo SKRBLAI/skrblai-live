@@ -5,17 +5,17 @@ import { useRouter } from 'next/navigation';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap } from 'lucide-react';
-import { Agent } from '@/types/agent';
-import '@/styles/components/agent-card.css';
-import { getAgentImagePath, getAgentEmoji } from '@/utils/agentUtils';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import AgentLaunchButton from '@/components/agents/AgentLaunchButton';
-import { agentIntelligenceEngine, type AgentIntelligence } from '@/lib/agents/agentIntelligence';
-import CosmicButton from '@/components/shared/CosmicButton';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
+import { Agent } from '../../types/agent';
+import '../../styles/components/agent-card.css';
+import { getAgentImagePath, getAgentEmoji } from '../../utils/agentUtils';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
+import AgentLaunchButton from '../agents/AgentLaunchButton';
+import { agentIntelligenceEngine, type AgentIntelligence } from '../../lib/agents/agentIntelligence';
+import CosmicButton from '../shared/CosmicButton';
+import GlassmorphicCard from '../shared/GlassmorphicCard';
+import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
-import { Agent3DCardProvider } from '@/lib/3d/Agent3DCardCore';
+import { Agent3DCardProvider } from '../../lib/3d/Agent3DCardCore';
 
 interface AgentLeagueCardProps {
   agent: Agent;

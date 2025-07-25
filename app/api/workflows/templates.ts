@@ -9,8 +9,8 @@ import {
   getTemplateAnalytics,
   executeTemplateDemo,
   WORKFLOW_TEMPLATES 
-} from '@/lib/automation/workflowQueue';
-import { checkPremiumAccess } from '@/lib/premiumGating';
+} from '../../../lib/automation/workflowQueue';
+import { checkPremiumAccess } from '../../../lib/premiumGating';
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');

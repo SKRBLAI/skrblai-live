@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import FloatingBackground from './FloatingBackground';
-import SkrblAiText from '@/components/shared/SkrblAiText';
+import SkrblAiText from '../shared/SkrblAiText';
 
 const emojiVariants: Variants = {
   animate: {

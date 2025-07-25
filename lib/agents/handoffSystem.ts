@@ -3,5 +3,5 @@
  */
 export * from '@/lib/agents/handoffs/handoffSystem';
 
-import { handoffSystem as defaultExport } from '@/lib/agents/handoffs/handoffSystem';
+import { handoffSystem as defaultExport } from './handoffs/handoffSystem';
 export default defaultExport; 

@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
-import { useAuth } from '@/components/context/AuthContext';
-import AuthProviderButton from '@/components/ui/AuthProviderButton';
-import SessionAlert from '@/components/alerts/SessionAlert';
+import { useAuth } from '../../components/context/AuthContext';
+import AuthProviderButton from '../../components/ui/AuthProviderButton';
+import SessionAlert from '../../components/alerts/SessionAlert';
 
 export default function SignInPage() {
   const router = useRouter();

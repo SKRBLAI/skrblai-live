@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react-hooks';
-import { useAgentBackstory, useAgentBackstories } from '@/hooks/useAgentBackstory';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { useAgentBackstory, useAgentBackstories } from '../../hooks/useAgentBackstory';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
 import type { Agent } from '@/types/agent';
 
 // Mock the agentBackstories module

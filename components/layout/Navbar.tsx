@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sparkles, LogIn } from "lucide-react";
-import SkrblAiLogo from "@/components/ui/SkrblAiLogo";
-import { useAuth } from "@/components/context/AuthContext";
+import SkrblAiLogo from "../ui/SkrblAiLogo";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * Premium minimal Navbar with clean 3-link design + hamburger menu.

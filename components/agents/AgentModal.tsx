@@ -1,12 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
 import { X, Zap, Star, Lock, Crown, TrendingUp } from 'lucide-react';
-import { Agent } from '@/types/agent';
+import { Agent } from '../../types/agent';
 import AgentBackstoryModal from './AgentBackstoryModal';
 import { useRouter } from 'next/navigation';
-import { trackFunnelEvent } from '@/lib/analytics/userFunnelTracking';
-import { useAuth } from '@/components/context/AuthContext';
-import useUsageBasedPricing from '@/hooks/useUsageBasedPricing';
+import { trackFunnelEvent } from '../../lib/analytics/userFunnelTracking';
+import { useAuth } from '../context/AuthContext';
+import useUsageBasedPricing from '../../hooks/useUsageBasedPricing';
 import { toast } from 'react-hot-toast';
 
 interface AgentModalProps {

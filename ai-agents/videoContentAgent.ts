@@ -1,5 +1,5 @@
-import { supabase } from '@/utils/supabase';
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { supabase } from '../utils/supabase';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Enhanced Video Content Agent with 60s processing and multi-platform optimization

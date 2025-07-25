@@ -1,4 +1,4 @@
-import DashboardWrapper from '@/app/dashboard/DashboardWrapper';
+import DashboardWrapper from '../DashboardWrapper';
 import { ReactNode } from 'react';
 import { metadata } from './metadata';
 

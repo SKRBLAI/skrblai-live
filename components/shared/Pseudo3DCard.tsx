@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils/index';
+import { cn } from '../../lib/utils/index';
 
 export type Pseudo3DSize = 'sm' | 'md' | 'lg' | 'xl' | 'hero';
 export type Pseudo3DIntensity = 'subtle' | 'medium' | 'strong';

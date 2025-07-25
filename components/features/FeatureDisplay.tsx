@@ -4,10 +4,10 @@ import React from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import CosmicBackground from '@/components/shared/CosmicBackground';
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
+import CosmicBackground from '../shared/CosmicBackground';
+import CosmicHeading from '../shared/CosmicHeading';
+import GlassmorphicCard from '../shared/GlassmorphicCard';
+import CosmicButton from '../shared/CosmicButton';
 
 interface Feature {
   title: string;

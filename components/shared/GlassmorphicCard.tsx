@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ReactNode } from 'react';
-import { cn } from '@/lib/utils/index';
+import { cn } from '../../lib/utils/index';
 import Pseudo3DCard, { Pseudo3DSize, Pseudo3DIntensity } from './Pseudo3DCard';
 
 interface GlassmorphicCardProps {

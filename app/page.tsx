@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, useTransform, useScroll } from 'framer-motion';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../components/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import FloatingParticles from '@/components/ui/FloatingParticles';
-import PercyOnboardingRevolution from '@/components/home/PercyOnboardingRevolution';
-import AgentsGrid from '@/components/agents/AgentsGrid';
-import InteractiveFloatingElements from '@/components/ui/InteractiveFloatingElements';
-import EmpowermentBanner from '@/components/ui/EmpowermentBanner';
+import FloatingParticles from '../components/ui/FloatingParticles';
+import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolution';
+import AgentsGrid from '../components/agents/AgentsGrid';
+import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
+import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
-import PercyHelpBubble from '@/components/ui/PercyHelpBubble';
-import TypewriterText from '@/components/shared/TypewriterText';
-import CosmicStarfield from '@/components/background/CosmicStarfield';
-import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature } from '@/components/shared/Pseudo3DCard';
+import PercyHelpBubble from '../components/ui/PercyHelpBubble';
+import TypewriterText from '../components/shared/TypewriterText';
+import CosmicStarfield from '../components/background/CosmicStarfield';
+import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
 import toast from 'react-hot-toast';
 
 export default function HomePage() {

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { downloadLeadsCSV } from '@/lib/utils/leadExport';
+import { downloadLeadsCSV } from '../../../lib/utils/leadExport';
 
 export default function PercyAdminDashboard() {
   const [metrics, setMetrics] = useState<any>(null);

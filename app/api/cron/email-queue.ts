@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processEmailQueue } from '@/lib/email/cronJobs';
-import { getErrorMessage } from '@/utils/errorHandling';
+import { processEmailQueue } from '../../../lib/email/cronJobs';
+import { getErrorMessage } from '../../../utils/errorHandling';
 
 export async function GET(req: NextRequest) {
   // Verify this is a legitimate cron job request

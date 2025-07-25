@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { agentBackstories } from '../lib/agents/agentBackstories';
 import type { Agent } from '@/types/agent';
 
 /**

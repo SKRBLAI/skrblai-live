@@ -3,5 +3,5 @@
  */
 export * from '@/lib/agents/workflows/workflowLookup';
 
-import * as workflowLookup from '@/lib/agents/workflows/workflowLookup';
+import * as workflowLookup from './workflows/workflowLookup';
 export default workflowLookup; 

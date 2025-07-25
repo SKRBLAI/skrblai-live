@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { marketingAutomation } from '@/lib/marketing/MarketingAutomationManager';
-import { systemLog } from '@/utils/systemLog';
+import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
+import { systemLog } from '../../../../utils/systemLog';
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import agentRegistry, { agentDashboardList } from '@/lib/agents/agentRegistry';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import agentRegistry, { agentDashboardList } from '../../../../lib/agents/agentRegistry';
+import { agentBackstories } from '../../../../lib/agents/agentBackstories';
+import { getAgentImagePath } from '../../../../utils/agentUtils';
 
 interface AuditIssue {
   severity: 'error' | 'warning' | 'info';

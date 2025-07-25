@@ -1,4 +1,4 @@
-import { supabase } from '@/utils/supabase';
+import { supabase } from './supabase';
 
 export async function submitPercyFeedback(agentId: string, message: string) {
   if (process.env.NODE_ENV === 'development') {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentImagePath } from '../../utils/agentUtils';
 import type { Agent } from '@/types/agent';
 
 interface CloudinaryImageProps {

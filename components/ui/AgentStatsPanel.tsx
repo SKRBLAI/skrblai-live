@@ -1,8 +1,8 @@
 'use client';
-import { usePercyAnalytics } from '@/components/hooks/usePercyAnalytics';
+import { usePercyAnalytics } from '../hooks/usePercyAnalytics';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import agentRegistry from '@/lib/agents/agentRegistry';
+import agentRegistry from '../../lib/agents/agentRegistry';
 
 export default function AgentStatsPanel() {
   const analytics = usePercyAnalytics();

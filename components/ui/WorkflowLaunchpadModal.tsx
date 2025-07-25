@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
 import Image from "next/image";
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentImagePath } from '../../utils/agentUtils';
 
 interface Workflow {
   id: string;

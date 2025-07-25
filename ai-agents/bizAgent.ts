@@ -1,4 +1,4 @@
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Business Agent Types

@@ -17,19 +17,19 @@ import {
   getAgentVisualConfig,
   findBestHandoff,
   DevHelpers
-} from '@/lib/agents/agentLeague';
+} from '../../../../lib/agents/agentLeague';
 import { 
   powerEngine, 
   executePower,
   getPowerExecutionStatus,
   type PowerExecutionRequest 
-} from '@/lib/agents/powerEngine';
+} from '../../../../lib/agents/powerEngine';
 import { 
   handoffSystem,
   analyzeHandoffOpportunities,
   executeHandoff,
   type HandoffContext 
-} from '@/lib/agents/handoffs/handoffSystem';
+} from '../../../../lib/agents/handoffs/handoffSystem';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client

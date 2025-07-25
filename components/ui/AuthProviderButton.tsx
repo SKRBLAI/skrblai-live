@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import Spinner from "@/components/ui/Spinner";
+import Spinner from "./Spinner";
 
 type Provider = "google" | "linkedin" | "magic";
 

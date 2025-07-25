@@ -2,7 +2,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import FloatingParticles from "@/components/ui/FloatingParticles";
+import FloatingParticles from "../../../components/ui/FloatingParticles";
 
 interface ProposalData {
   projectName: string;

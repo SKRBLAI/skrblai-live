@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { ReactNode, FormEvent } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
 interface GlassmorphicFormProps {
   children: ReactNode;

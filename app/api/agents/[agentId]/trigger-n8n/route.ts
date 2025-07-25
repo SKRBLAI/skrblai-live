@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { triggerN8nWorkflow, getWorkflowStatus } from '@/lib/n8nClient';
-import { agentDashboardList } from '@/lib/agents/agentRegistry';
-import { createSafeSupabaseClient } from '@/lib/supabase/client';
+import { triggerN8nWorkflow, getWorkflowStatus } from '../../../../../lib/n8nClient';
+import { agentDashboardList } from '../../../../../lib/agents/agentRegistry';
+import { createSafeSupabaseClient } from '../../../../../lib/supabase/client';
 
 // Initialize Supabase client for execution logging with safe fallback
 const supabase = createSafeSupabaseClient();

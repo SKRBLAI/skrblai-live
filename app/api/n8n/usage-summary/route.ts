@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getQuotaStatus } from '@/lib/n8nClient';
+import { getQuotaStatus } from '../../../../lib/n8nClient';
 
 // Initialize Supabase client
 const supabase = createClient(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exportLeadsToCSV } from '@/lib/utils/leadExport';
+import { exportLeadsToCSV } from '../../../../../lib/utils/leadExport';
 
 export async function GET(req: NextRequest) {
   try {

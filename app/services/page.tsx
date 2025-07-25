@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ClientPageLayout from '@/components/layout/ClientPageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature, Pseudo3DStats } from '@/components/shared/Pseudo3DCard';
-import CosmicButton from '@/components/shared/CosmicButton';
-import CosmicHeading from '@/components/shared/CosmicHeading';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature, Pseudo3DStats } from '../../components/shared/Pseudo3DCard';
+import CosmicButton from '../../components/shared/CosmicButton';
+import CosmicHeading from '../../components/shared/CosmicHeading';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BookOpen, Palette, FilePenLine, Megaphone, BarChart2, LayoutDashboard, Users, TrendingUp, Zap, Crown, DollarSign, Clock } from 'lucide-react';
-import SkrblAiText from '@/components/shared/SkrblAiText';
+import SkrblAiText from '../../components/shared/SkrblAiText';
 
 // Business Problem-Focused Services
 const businessSolutions = [

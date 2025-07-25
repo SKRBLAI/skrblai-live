@@ -4,13 +4,13 @@ import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import PageLayout from '@/components/layout/PageLayout';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import GlassmorphicForm from '@/components/shared/GlassmorphicForm';
-import CosmicButton from '@/components/shared/CosmicButton';
-import CosmicHeading from '@/components/shared/CosmicHeading';
+import PageLayout from '../../components/layout/PageLayout';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
+import GlassmorphicForm from '../../components/shared/GlassmorphicForm';
+import CosmicButton from '../../components/shared/CosmicButton';
+import CosmicHeading from '../../components/shared/CosmicHeading';
 import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, DollarSign, Target, Phone, Mail, Calendar } from 'lucide-react';
-import SkrblAiText from '@/components/shared/SkrblAiText';
+import SkrblAiText from '../../components/shared/SkrblAiText';
 
 // Live contact metrics simulation
 const useLiveContactMetrics = () => {

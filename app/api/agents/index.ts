@@ -1,10 +1,10 @@
-import agentRegistry from '@/lib/agents/agentRegistry';
+import agentRegistry from '../../../lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
-import { getAgentImagePath, getAgentSets, getAgentImageSlug } from '@/utils/agentUtils';
-import type { Agent } from '@/types/agent';
+import { getAgentImagePath, getAgentSets, getAgentImageSlug } from '../../../utils/agentUtils';
+import type { Agent } from '../../../types/agent';
 import { createClient } from '@supabase/supabase-js';
-import { systemLog } from '@/utils/systemLog';
-import { checkPremiumAccess, getAvailableFeatures } from '@/lib/premiumGating';
+import { systemLog } from '../../../utils/systemLog';
+import { checkPremiumAccess, getAvailableFeatures } from '../../../lib/premiumGating';
 
 const ORBIT_TIERS = ['inner', 'mid', 'outer'] as const;
 

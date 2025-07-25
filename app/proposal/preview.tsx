@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import FloatingParticles from "@/components/ui/FloatingParticles";
-import { checkUserRole } from "@/lib/auth/checkUserRole";
+import FloatingParticles from "../../components/ui/FloatingParticles";
+import { checkUserRole } from "../../lib/auth/checkUserRole";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 

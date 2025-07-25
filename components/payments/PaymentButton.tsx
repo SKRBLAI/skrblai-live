@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { createCheckoutSessionCall, redirectToCheckout } from '@/utils/stripe';
-import { useAuth } from '@/components/context/AuthContext';
+import { createCheckoutSessionCall, redirectToCheckout } from '../../utils/stripe';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 interface PaymentButtonProps {

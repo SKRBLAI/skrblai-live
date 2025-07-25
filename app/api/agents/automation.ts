@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getWorkflowIdForAgentTask } from '@/utils/agentAutomation';
-import { triggerN8nWorkflow } from '@/lib/n8nClient';
-import { systemLog } from '@/utils/systemLog';
+import { getWorkflowIdForAgentTask } from '../../../utils/agentAutomation';
+import { triggerN8nWorkflow } from '../../../lib/n8nClient';
+import { systemLog } from '../../../utils/systemLog';
 import { createClient } from '@supabase/supabase-js';
-import agentRegistry from '@/lib/agents/agentRegistry';
-import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
-import { checkFeatureAccess, getUserLimits, PREMIUM_FEATURES, checkPremiumAccess } from '@/lib/premiumGating';
-import { workflowQueue, getWorkflowTemplate } from '@/lib/automation/workflowQueue';
-import { getErrorMessage } from '@/utils/errorHandling';
+import agentRegistry from '../../../lib/agents/agentRegistry';
+import { runAgentWorkflow } from '../../../lib/agents/runAgentWorkflow';
+import { checkFeatureAccess, getUserLimits, PREMIUM_FEATURES, checkPremiumAccess } from '../../../lib/premiumGating';
+import { workflowQueue, getWorkflowTemplate } from '../../../lib/automation/workflowQueue';
+import { getErrorMessage } from '../../../utils/errorHandling';
 
 // --- Simple in-memory rate limiter (per IP) ---
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes

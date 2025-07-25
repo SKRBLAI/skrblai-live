@@ -3,10 +3,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import PercyAvatar from '@/components/home/PercyAvatar';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
-import { useAuth } from '@/components/context/AuthContext';
-import { getCurrentUser } from '@/utils/supabase-helpers';
+import PercyAvatar from '../home/PercyAvatar';
+import { usePercyContext } from './PercyProvider';
+import { useAuth } from '../context/AuthContext';
+import { getCurrentUser } from '../../utils/supabase-helpers';
 
 interface Message {
   role: 'assistant' | 'user';

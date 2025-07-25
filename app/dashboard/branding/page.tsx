@@ -3,16 +3,16 @@
 export const dynamic = 'force-dynamic';
 
 import { motion } from 'framer-motion';
-import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import FileUploadCard from '@/components/dashboard/FileUploadCard';
+import DashboardSidebar from '../../../components/dashboard/DashboardSidebar';
+import DashboardHeader from '../../../components/dashboard/DashboardHeader';
+import FileUploadCard from '../../../components/dashboard/FileUploadCard';
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/utils/supabase';
-import agentRegistry from '@/lib/agents/agentRegistry';
+import { supabase } from '../../../utils/supabase';
+import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
 export default function BrandingDashboard() {

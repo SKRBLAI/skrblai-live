@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { twiml } from 'twilio';
-import { isVipNumber, sendSms } from '@/utils/twilioSms';
+import { isVipNumber, sendSms } from '../../../utils/twilioSms';
 
 // ---------------------------------------------------------------------------
 // Shared types / utilities

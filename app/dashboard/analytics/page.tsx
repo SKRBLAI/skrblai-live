@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
-import AnalyticsDashboard from '@/components/dashboard/AnalyticsDashboard';
+import AnalyticsDashboard from '../../../components/dashboard/AnalyticsDashboard';
 import { createClient } from '@supabase/supabase-js';
 import { redirect } from 'next/navigation';
 

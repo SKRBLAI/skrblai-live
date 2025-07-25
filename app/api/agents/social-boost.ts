@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import agentRegistry from '@/lib/agents/agentRegistry';
+import agentRegistry from '../../../lib/agents/agentRegistry';
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,11 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
-import { authAuditLogger } from '@/lib/auth/authAuditLogger';
+import { authAuditLogger } from './authAuditLogger';
 import { 
   authenticateForDashboard,
   validatePromoCode,
   checkVIPStatus,
   getUserDashboardAccess
-} from '@/lib/auth/dashboardAuth';
+} from './dashboardAuth';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

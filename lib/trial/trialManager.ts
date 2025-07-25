@@ -3,7 +3,7 @@
  * Comprehensive trial management with access control and upgrade prompts
  */
 
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../utils/supabase';
 
 export interface TrialStatus {
   isTrialUser: boolean;

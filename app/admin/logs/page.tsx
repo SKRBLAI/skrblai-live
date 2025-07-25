@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { fetchPercyLogs, formatPercyLogs } from "@/utils/percyLogger";
+import { fetchPercyLogs, formatPercyLogs } from "../../../utils/percyLogger";
 
 // Simple dev/admin gate (replace with real auth as needed)
 const isAdmin = () => typeof window !== 'undefined' && (process.env.NODE_ENV === 'development' || localStorage.getItem('userRole') === 'admin');

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import PercyFigure from '@/components/home/PercyFigure';
-import { useAuth } from '@/components/context/AuthContext';
+import PercyFigure from '../home/PercyFigure';
+import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentLeagueCard from '../ui/AgentLeagueCard';

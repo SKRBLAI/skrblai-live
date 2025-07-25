@@ -3,8 +3,8 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import WorkflowLaunchButton from '@/components/agents/WorkflowLaunchButton';
-import CosmicHeading from '@/components/shared/CosmicHeading';
+import WorkflowLaunchButton from '../agents/WorkflowLaunchButton';
+import CosmicHeading from '../shared/CosmicHeading';
 
 export default function SkillSmithHero() {
   return (

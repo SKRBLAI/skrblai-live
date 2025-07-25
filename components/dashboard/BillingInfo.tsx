@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createCustomerPortalLink } from '@/utils/stripe';
+import { createCustomerPortalLink } from '../../utils/stripe';
 
 interface Subscription {
   plan: {

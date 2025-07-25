@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Upload, Play, Users, Trophy, Zap, Star } from 'lucide-react';
-import TypewriterText from '@/components/shared/TypewriterText';
-import CosmicButton from '@/components/shared/CosmicButton';
-import StatCounter from '@/components/features/StatCounter';
+import TypewriterText from '../shared/TypewriterText';
+import CosmicButton from '../shared/CosmicButton';
+import StatCounter from '../features/StatCounter';
 
 interface SkillSmithStandaloneHeroProps {
   userType?: 'guest' | 'auth' | 'platform';

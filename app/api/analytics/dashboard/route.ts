@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getFunnelMetrics } from '@/lib/analytics/userFunnelTracking';
+import { getFunnelMetrics } from '../../../../lib/analytics/userFunnelTracking';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(

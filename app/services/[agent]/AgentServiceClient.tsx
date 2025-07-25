@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Agent } from '@/types/agent';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { getAgentImagePath } from '@/utils/agentUtils';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
-import CosmicButton from '@/components/shared/CosmicButton';
+import { agentBackstories } from '../../../lib/agents/agentBackstories';
+import { getAgentImagePath } from '../../../utils/agentUtils';
+import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../../components/shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 

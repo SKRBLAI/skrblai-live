@@ -7,38 +7,38 @@ export const dynamic = 'force-dynamic';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../../components/context/AuthContext';
 import { User } from '@supabase/supabase-js'; 
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../utils/supabase';
 import { createClient } from '@supabase/supabase-js';
-import { getCurrentUser } from '@/utils/supabase-helpers';
-import { userJourneyTracker } from '@/lib/analytics/userJourney';
-import RevenuePulseWidget from '@/components/ui/RevenuePulseWidget';
-import AIEmpowermentCoach from '@/components/ui/AIEmpowermentCoach';
-import useUsageBasedPricing from '@/hooks/useUsageBasedPricing';
+import { getCurrentUser } from '../../utils/supabase-helpers';
+import { userJourneyTracker } from '../../lib/analytics/userJourney';
+import RevenuePulseWidget from '../../components/ui/RevenuePulseWidget';
+import AIEmpowermentCoach from '../../components/ui/AIEmpowermentCoach';
+import useUsageBasedPricing from '../../hooks/useUsageBasedPricing';
 
-import Spinner from '@/components/ui/Spinner';
-import ActionBanner from '@/components/ui/ActionBanner';
+import Spinner from '../../components/ui/Spinner';
+import ActionBanner from '../../components/ui/ActionBanner';
 
 // Import actual UI components - paths should be verified by USER
-import PageLayout from '@/components/layout/ClientPageLayout'; // Corrected from DashboardLayout
-import DashboardHeader from '@/components/dashboard/DashboardHeader'; // Corrected from DashboardWelcomeHeader
-import DashboardOverview from '@/components/dashboard/DashboardOverview'; // Corrected from OverviewSection
-import Notifications from '@/components/dashboard/Notifications'; // Corrected from NotificationsPanel
-import SectionNavigation from '@/components/dashboard/SectionNavigation';
+import PageLayout from '../../components/layout/ClientPageLayout'; // Corrected from DashboardLayout
+import DashboardHeader from '../../components/dashboard/DashboardHeader'; // Corrected from DashboardWelcomeHeader
+import DashboardOverview from '../../components/dashboard/DashboardOverview'; // Corrected from OverviewSection
+import Notifications from '../../components/dashboard/Notifications'; // Corrected from NotificationsPanel
+import SectionNavigation from '../../components/dashboard/SectionNavigation';
 import DashboardWrapper from './DashboardWrapper';
-import VIPStatusIndicator from '@/components/ui/VIPStatusIndicator';
+import VIPStatusIndicator from '../../components/ui/VIPStatusIndicator';
 
 // Missing component imports - commented out
-// import PremiumFeaturesPanel from '@/components/dashboard/PremiumFeaturesPanel'; 
-// import UpsellCard from '@/components/ui/UpsellCard'; 
-// import MyAgentsSection from '@/components/dashboard/MyAgentsSection'; 
-// import ActivityFeed from '@/components/dashboard/ActivityFeed'; 
-// import AgentDiscovery from '@/components/dashboard/AgentDiscovery'; 
-// import QuickActionPanel from '@/components/dashboard/QuickActionPanel'; 
-// import UsageStats from '@/components/dashboard/UsageStats'; 
-// import FeaturedAgent from '@/components/dashboard/FeaturedAgent'; 
-// import SuggestionModal from '@/components/ui/SuggestionModal'; 
+// import PremiumFeaturesPanel from '../../components/dashboard/PremiumFeaturesPanel'; 
+// import UpsellCard from '../../components/ui/UpsellCard'; 
+// import MyAgentsSection from '../../components/dashboard/MyAgentsSection'; 
+// import ActivityFeed from '../../components/dashboard/ActivityFeed'; 
+// import AgentDiscovery from '../../components/dashboard/AgentDiscovery'; 
+// import QuickActionPanel from '../../components/dashboard/QuickActionPanel'; 
+// import UsageStats from '../../components/dashboard/UsageStats'; 
+// import FeaturedAgent from '../../components/dashboard/FeaturedAgent'; 
+// import SuggestionModal from '../../components/ui/SuggestionModal'; 
 
 // Types
 export type Agent = {

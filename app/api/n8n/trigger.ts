@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { triggerN8nWorkflow, getWorkflowStatus } from '@/lib/n8nClient';
+import { triggerN8nWorkflow, getWorkflowStatus } from '../../../lib/n8nClient';
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize Supabase client for execution logging

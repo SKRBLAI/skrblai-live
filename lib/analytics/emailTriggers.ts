@@ -1,4 +1,4 @@
-import { trackConversion, trackUpgradePrompt } from '@/lib/analytics/userJourney';
+import { trackConversion, trackUpgradePrompt } from './userJourney';
 
 // Add to existing analytics system
 type EmailEventType = 'upgrade_prompt' | 'agent_launch' | 'workflow_complete' | 'conversion';

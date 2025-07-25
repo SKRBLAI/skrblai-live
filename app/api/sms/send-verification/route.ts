@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
-import { sendSms } from '@/utils/twilioSms';
+import { supabase } from '../../../../utils/supabase';
+import { sendSms } from '../../../../utils/twilioSms';
 
 export async function POST(req: NextRequest) {
   try {

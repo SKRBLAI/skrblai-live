@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { getAgentImagePath } from "@/utils/agentUtils";
-import LockOverlay from '@/components/ui/LockOverlay';
+import { getAgentImagePath } from "../../utils/agentUtils";
+import LockOverlay from '../ui/LockOverlay';
 
 // Agent interface, matching your type in agentUtils
 interface Agent {

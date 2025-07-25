@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../utils/supabase';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Area, AreaChart, LineChart, Line
@@ -11,7 +11,7 @@ import {
   TrendingUp, TrendingDown, Users, Activity, 
   Target, Clock, Zap, Award, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
-import { getFunnelMetrics } from '@/lib/analytics/userFunnelTracking';
+import { getFunnelMetrics } from '../../lib/analytics/userFunnelTracking';
 
 
 

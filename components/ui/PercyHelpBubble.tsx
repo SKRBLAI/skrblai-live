@@ -2,7 +2,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import PercyAvatar from '@/components/home/PercyAvatar';
+import PercyAvatar from '../home/PercyAvatar';
 
 export default function PercyHelpBubble() {
   const [visible, setVisible] = useState(false);

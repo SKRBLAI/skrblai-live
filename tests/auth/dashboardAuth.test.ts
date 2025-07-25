@@ -9,7 +9,7 @@ import {
   validatePromoCode, 
   checkVIPStatus,
   registerUserForDashboard 
-} from '@/lib/auth/dashboardAuth';
+} from '../../lib/auth/dashboardAuth';
 
 // Mock Supabase client
 jest.mock('@supabase/supabase-js', () => ({

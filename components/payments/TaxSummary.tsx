@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getUserTaxCalculations, formatTaxSummary, type TaxCalculation } from '@/utils/tax';
-import { useAuth } from '@/components/context/AuthContext';
+import { getUserTaxCalculations, formatTaxSummary, type TaxCalculation } from '../../utils/tax';
+import { useAuth } from '../context/AuthContext';
 
 interface TaxSummaryProps {
   className?: string;

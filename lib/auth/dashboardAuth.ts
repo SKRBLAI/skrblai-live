@@ -5,7 +5,7 @@ import {
   logSignInFailure,
   logPromoRedemption,
   logSecurityViolation
-} from '@/lib/auth/authAuditLogger';
+} from './authAuditLogger';
 
 // Initialize Supabase client with service role for admin operations
 const supabase = createClient(

@@ -287,8 +287,8 @@ export function createWorker(queueName: string, processor: Function): Worker {
   return new Worker(queueName, processor as any, {
     connection: queueConfig.connection,
     concurrency: process.env.NODE_ENV === 'production' ? 5 : 2,
-    removeOnComplete: 50,
-    removeOnFail: 20,
+    removeOnComplete: { count: 50 },
+    removeOnFail: { count: 20 },
   });
 }
 

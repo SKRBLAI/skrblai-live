@@ -20,7 +20,7 @@ const staggerContainer = {
 };
 import AgentCard from './AgentCard';
 import { usePercyContext } from '../assistant/PercyProvider';
-import { Agent } from '@/types/agent';
+import { Agent } from '../../types/agent';
 
 interface AgentGridProps {
   agents?: Agent[];

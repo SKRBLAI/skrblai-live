@@ -2,12 +2,12 @@
 import React, { ReactNode, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import FloatingParticles from '@/components/ui/FloatingParticles';
-import CosmicStarfield from '@/components/background/CosmicStarfield';
-import AnimatedBackground from '@/app/AnimatedBackground';
-import TrialButton from '@/components/ui/TrialButton';
-import ExitIntentModal from '@/components/shared/ExitIntentModal';
-import { useExitIntent } from '@/hooks/useExitIntent';
+import FloatingParticles from '../ui/FloatingParticles';
+import CosmicStarfield from '../background/CosmicStarfield';
+import AnimatedBackground from '../../app/AnimatedBackground';
+import TrialButton from '../ui/TrialButton';
+import ExitIntentModal from '../shared/ExitIntentModal';
+import { useExitIntent } from '../../hooks/useExitIntent';
 
 type PageLayoutProps = {
   children: ReactNode;

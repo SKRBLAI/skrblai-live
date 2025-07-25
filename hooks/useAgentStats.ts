@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
-import { AgentStats } from '@/types/agent';
-import { Database } from '@/types/supabase';
+import { supabase } from '../utils/supabase';
+import { AgentStats } from '../types/agent';
+import { Database } from '../types/supabase';
 
 export function useAgentStats() {
   const [topAgents, setTopAgents] = useState<AgentStats[]>([]);

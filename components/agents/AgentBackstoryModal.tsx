@@ -2,10 +2,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Agent } from '@/types/agent';
-import { getAgentImagePath } from '@/utils/agentUtils';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { getAgent, getAgentConversationCapabilities } from '@/lib/agents/agentLeague';
+import { Agent } from '../../types/agent';
+import { getAgentImagePath } from '../../utils/agentUtils';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
+import { getAgent, getAgentConversationCapabilities } from '../../lib/agents/agentLeague';
 
 interface AgentBackstoryModalProps {
   agent: Agent | null;

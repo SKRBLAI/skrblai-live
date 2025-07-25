@@ -1,13 +1,13 @@
-import { agentDb } from '@/utils/db';
-import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '@/utils/agentUtils';
+import { agentDb } from '../utils/db';
+import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Import agent implementations
-import { socialBotAgent } from '@/ai-agents/socialBotAgent';
-import { publishingAgent } from '@/ai-agents/publishingAgent';
-import { sitegenAgent } from '@/ai-agents/sitegenAgent';
-import { brandingAgent } from '@/ai-agents/brandingAgent';
-import { analyticsAgent } from '@/ai-agents/analyticsAgent';
+import { socialBotAgent } from './socialBotAgent';
+import { publishingAgent } from './publishingAgent';
+import { sitegenAgent } from './sitegenAgent';
+import { brandingAgent } from './brandingAgent';
+import { analyticsAgent } from './analyticsAgent';
 
 // Type-safe agent map
 const AGENT_HANDLERS = {

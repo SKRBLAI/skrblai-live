@@ -7,9 +7,9 @@
  * @version 1.0.0 - MAXIMUM DOMINATION
  */
 
-import { powerEngine, type PowerExecutionRequest, type PowerExecutionResult } from '@/lib/agents/powerEngine';
-import { ragKnowledgeBase, enhanceAgentContext } from '@/lib/rag/knowledgeBase';
-import { ingestSuccessfulCampaign } from '@/lib/rag/knowledgeBase';
+import { powerEngine, type PowerExecutionRequest, type PowerExecutionResult } from '../agents/powerEngine';
+import { ragKnowledgeBase, enhanceAgentContext } from './knowledgeBase';
+import { ingestSuccessfulCampaign } from './knowledgeBase';
 
 // =============================================================================
 // RAG-ENHANCED EXECUTION

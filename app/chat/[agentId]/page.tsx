@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import PercyChat from '@/app/PercyChat';
+import PercyChat from '../../PercyChat';
 
 export default function AgentChatPage({ params }: { params: { agentId: string } }) {
   // PercyChat will internally read search params or context to adapt; we can pass props if needed.

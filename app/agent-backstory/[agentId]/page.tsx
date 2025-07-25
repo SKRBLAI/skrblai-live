@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
-import { getAgent } from '@/lib/agents/agentLeague';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { agentBackstories } from '../../../lib/agents/agentBackstories';
+import { getAgent } from '../../../lib/agents/agentLeague';
+import { getAgentImagePath } from '../../../utils/agentUtils';
 
 interface AgentDisplay {
   id: string;

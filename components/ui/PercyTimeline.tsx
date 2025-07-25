@@ -1,11 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChatBubble } from '@/components/ui';
+import { ChatBubble } from './';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRef, useState } from 'react';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentImagePath } from '../../utils/agentUtils';
 dayjs.extend(relativeTime);
 
 export interface PercyTimelineItem {

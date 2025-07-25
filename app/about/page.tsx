@@ -9,12 +9,12 @@ import {
   Zap, Award, Lightbulb, Shield, ArrowRight 
 } from 'lucide-react';
 
-import ClientPageLayout from '@/components/layout/ClientPageLayout';
-import CosmicHeading from '@/components/shared/CosmicHeading';
-import CosmicButton from '@/components/shared/CosmicButton';
-import { CosmicCardGlow, CosmicCardGlass } from '@/components/shared/CosmicCard';
-import SkrblAiText from '@/components/shared/SkrblAiText';
-import { useLiveMetrics } from '@/hooks/useLiveMetrics';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
+import CosmicHeading from '../../components/shared/CosmicHeading';
+import CosmicButton from '../../components/shared/CosmicButton';
+import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
+import SkrblAiText from '../../components/shared/SkrblAiText';
+import { useLiveMetrics } from '../../hooks/useLiveMetrics';
 
 // Company story milestones
 const storyMilestones = [

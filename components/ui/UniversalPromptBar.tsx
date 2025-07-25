@@ -3,10 +3,10 @@
 import React, { useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { uploadFileToStorage } from '@/utils/supabase-helpers';
-import { supabase } from '@/utils/supabase';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
-import { BEHAVIOR_TYPES } from '@/lib/percy/contextManager';
+import { uploadFileToStorage } from '../../utils/supabase-helpers';
+import { supabase } from '../../utils/supabase';
+import { usePercyContext } from '../assistant/PercyProvider';
+import { BEHAVIOR_TYPES } from '../../lib/percy/contextManager';
 
 export interface UniversalPromptBarProps {
   title?: string;

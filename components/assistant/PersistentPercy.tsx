@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { Brain, Crown, Zap, TrendingUp } from 'lucide-react';
 
-import { ChatBubble } from '@/components/ui';
-import { usePercyContext } from '@/components/assistant/PercyProvider';
+import { ChatBubble } from '../ui';
+import { usePercyContext } from './PercyProvider';
 
 interface PercyContextType {
   isOpen: boolean;

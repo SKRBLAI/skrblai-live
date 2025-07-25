@@ -3,8 +3,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Play, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
-import { useSkillSmithGuest } from '@/lib/skillsmith/guestTracker';
-import CosmicButton from '@/components/shared/CosmicButton';
+import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
+import CosmicButton from '../shared/CosmicButton';
 
 interface VideoUploadModalProps {
   isOpen: boolean;

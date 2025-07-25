@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { runAgentWorkflow } from '@/lib/agents/runAgentWorkflow';
+import { runAgentWorkflow } from '../../../../../lib/agents/runAgentWorkflow';
 // import { getAuth } from '@clerk/nextjs/server'; // Removed Clerk
 import { createClient } from '@supabase/supabase-js';
 

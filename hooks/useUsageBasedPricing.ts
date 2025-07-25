@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/components/context/AuthContext';
-import { trackFunnelEvent } from '@/lib/analytics/userFunnelTracking';
+import { useAuth } from '../components/context/AuthContext';
+import { trackFunnelEvent } from '../lib/analytics/userFunnelTracking';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(

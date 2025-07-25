@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
-import { useAuth } from '@/components/context/AuthContext';
+import { supabase } from '../../utils/supabase';
+import { useAuth } from '../context/AuthContext';
 
 interface AgentStats {
   count: number;

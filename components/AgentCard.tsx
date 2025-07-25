@@ -1,12 +1,12 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
-import { Agent } from '@/types/agent';
+import { Agent } from '../types/agent';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
-import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentEmoji, getAgentImagePath } from '../utils/agentUtils';
 import AgentModal from './ui/AgentModal';
-import LockOverlay from '@/components/ui/LockOverlay';
-import GlassmorphicCard from '@/components/shared/GlassmorphicCard';
+import LockOverlay from './ui/LockOverlay';
+import GlassmorphicCard from './shared/GlassmorphicCard';
 
 // Cosmic Shadow Standard: Soft, premium, layered glow with teal, blue, and subtle fuchsia.
 const GLOW_COLOR = '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)';

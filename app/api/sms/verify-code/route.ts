@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../../../utils/supabase';
 
 // This would be shared with send-verification in production
 const verificationCodes = new Map<string, { code: string; expires: number; vipTier: string }>();

@@ -2,10 +2,10 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import AgentCard from '@/components/ui/AgentCard';
+import AgentCard from '../ui/AgentCard';
 import AgentInputModal from './AgentInputModal';
-import { Agent } from '@/types/agent';
-import { agentBackstories } from '@/lib/agents/agentBackstories';
+import { Agent } from '../../types/agent';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
 
 // Remove agentRegistry import and static usage
 

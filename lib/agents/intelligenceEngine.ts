@@ -11,7 +11,7 @@
  * @author SKRBL AI Team - Agent Intelligence Refactor
  */
 
-import { supabase } from '@/utils/supabase';
+import { supabase } from '../../utils/supabase';
 
 // =============================================================================
 // CORE INTELLIGENCE TYPES & INTERFACES

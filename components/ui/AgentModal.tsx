@@ -1,9 +1,9 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAgentEmoji, getAgentImagePath } from '@/utils/agentUtils';
-import { Agent } from '@/types/agent';
+import { getAgentEmoji, getAgentImagePath } from '../../utils/agentUtils';
+import { Agent } from '../../types/agent';
 import React, { useState, useCallback } from "react";
-import { submitPercyFeedback } from "@/utils/feedback";
+import { submitPercyFeedback } from "../../utils/feedback";
 
 const feedbackMotion = {
   initial: { scale: 1 },

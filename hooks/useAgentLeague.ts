@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/components/context/AuthContext';
+import { useAuth } from '../components/context/AuthContext';
 
 // =============================================================================
 // TYPES & INTERFACES

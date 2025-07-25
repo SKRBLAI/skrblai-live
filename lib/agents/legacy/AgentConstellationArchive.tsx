@@ -23,15 +23,15 @@ import type { Agent } from '@/types/agent';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { getAgentImagePath } from '@/utils/agentUtils';
+import { getAgentImagePath } from '../../../utils/agentUtils';
 // More archived imports - commented out to prevent build issues  
 // import FocusTrap from 'focus-trap-react';
 // import { createClient } from '@supabase/supabase-js';
 // Archived imports - commented out to prevent build issues
-// import { triggerEmailFromAnalytics } from '@/lib/analytics/emailTriggers';
-// import { emailAutomation } from '@/lib/email/simpleAutomation';
+// import { triggerEmailFromAnalytics } from '../../analytics/emailTriggers';
+// import { emailAutomation } from '../../email/simpleAutomation';
 // import AgentBackstoryModal from '../AgentBackstoryModal';
-// import CloudinaryImage from '@/components/ui/CloudinaryImage';
+// import CloudinaryImage from '../../../components/ui/CloudinaryImage';
 
 // =============================================================================
 // ARCHIVED CONSTELLATION CONSTANTS & TYPES

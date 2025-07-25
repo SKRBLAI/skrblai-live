@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { getErrorMessage } from '@/utils/errorHandling';
+import { getErrorMessage } from '../../../utils/errorHandling';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

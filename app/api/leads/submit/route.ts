@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { marketingAutomation } from '@/lib/marketing/MarketingAutomationManager';
+import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

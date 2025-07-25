@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
+import { Database } from './supabase';
 
 declare module '@/utils/feedback' {
   export function submitPercyFeedback(agentId: string, message: string): Promise<{ success: boolean; error?: any }>;
