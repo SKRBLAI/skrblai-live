@@ -229,7 +229,7 @@ export default function SuperheroIntelligenceDashboard({
                       </h4>
                       <div className="space-y-3">
                         {insights.map((insight, idx) => (
-                          <div key={idx} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                          <div key={idx} className="bg-gradient-to-br from-violet-800/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg border border-teal-400/20 rounded-lg p-4">
                             <div className="flex items-start gap-3">
                               {getImpactIcon(insight.impact)}
                               <div className="flex-1">
@@ -269,12 +269,12 @@ export default function SuperheroIntelligenceDashboard({
                       Superhero Capabilities
                     </h4>
                     <div className="space-y-4">
-                      <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                      <div className="bg-gradient-to-br from-violet-800/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg border border-teal-400/20 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-white font-medium">Intelligence Level</span>
-                          <span className="text-purple-400 font-bold">{intelligence.intelligenceLevel}/100</span>
+                          <span className="text-cyan-300 font-bold">{intelligence.intelligenceLevel}/100</span>
                         </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-gray-700/50 rounded-full h-2">
                           <div 
                             className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${intelligence.intelligenceLevel}%` }}
@@ -282,11 +282,11 @@ export default function SuperheroIntelligenceDashboard({
                         </div>
                       </div>
 
-                      <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                      <div className="bg-gradient-to-br from-violet-800/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg border border-teal-400/20 rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
                           {getAutonomyIcon(intelligence.autonomyLevel)}
                           <span className="text-white font-medium">Autonomy Level</span>
-                          <span className="text-blue-400 font-bold capitalize">{intelligence.autonomyLevel}</span>
+                          <span className="text-cyan-300 font-bold capitalize">{intelligence.autonomyLevel}</span>
                         </div>
                         <p className="text-gray-400 text-sm">
                           {intelligence.autonomyLevel === 'superhuman' ? 'Can operate independently and make strategic decisions' :
@@ -296,7 +296,7 @@ export default function SuperheroIntelligenceDashboard({
                         </p>
                       </div>
 
-                      <div className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                      <div className="bg-gradient-to-br from-violet-800/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg border border-teal-400/20 rounded-lg p-4">
                         <div className="flex items-center gap-3 mb-3">
                           <Star className="w-5 h-5 text-yellow-400" />
                           <span className="text-white font-medium">All Specializations</span>
@@ -336,7 +336,7 @@ export default function SuperheroIntelligenceDashboard({
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {intelligentRecommendations.map((recommendation, index) => (
-              <div key={index} className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-4">
+                                        <div key={index} className="bg-gradient-to-br from-violet-800/50 via-purple-900/50 to-indigo-900/50 backdrop-blur-lg border border-teal-400/20 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${
                     recommendation.priority === 'critical' ? 'bg-red-900/50' :

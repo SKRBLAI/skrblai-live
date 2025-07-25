@@ -241,14 +241,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
     <>
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
       
-      <GlassmorphicCard
-        className={`relative cursor-pointer select-none ${className}`}
+      <div
+        className={`relative cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
         onClick={handleCardClick}
-        hoverEffect={true}
       >
         <motion.div
           ref={cardRef}
-          className="relative w-full h-full"
+          className="relative w-full h-full p-6"
           variants={cardVariants}
           initial="initial"
           animate="animate"
@@ -271,7 +270,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               variants={avatarVariants}
               style={{ transformStyle: 'preserve-3d', zIndex: 10 }}
             >
-              <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-electric-blue/30 to-teal-500/30">
+              <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA]">
                 {imgSrc && (
                   <img
                     src={imgSrc}
@@ -291,7 +290,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               
               {/* Emoji Indicator */}
               <div 
-                className="absolute -bottom-2 -right-2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl bg-gradient-to-br from-electric-blue to-teal-500 shadow-lg border-2 border-white/10"
+                className="absolute -bottom-2 -right-2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-lg border-2 border-white/10"
                 style={{ transform: 'translateZ(20px)' }}
               >
                 {emoji}
@@ -303,10 +302,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
               className="text-center mb-4"
               variants={contentVariants}
             >
-              <h3 className="text-lg md:text-xl font-bold mb-1 bg-gradient-to-r from-electric-blue to-teal-500 bg-clip-text text-transparent">
+              <h3 className="text-lg md:text-xl font-bold mb-1 text-[#00F0FF] drop-shadow-glow">
                 {name}
               </h3>
-              <p className="text-sm md:text-base text-gray-300 line-clamp-2">
+              <p className="text-sm md:text-base text-white/90 line-clamp-2">
                 {agent.description || `AI-powered ${agent.category} assistant`}
               </p>
             </motion.div>
@@ -318,7 +317,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
             >
               <button
                 onClick={handleCtaClick}
-                className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gradient-to-r from-electric-blue to-teal-500 text-white font-medium text-sm md:text-base hover:shadow-glow transition-all duration-300"
+                className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-medium text-sm md:text-base hover:shadow-glow transition-all duration-300"
               >
                 {isLocked ? 'Unlock Agent' : 'Launch Agent'}
               </button>
@@ -330,7 +329,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
             <LockOverlay />
           )}
         </motion.div>
-      </GlassmorphicCard>
+      </div>
     </>
   );
 };
