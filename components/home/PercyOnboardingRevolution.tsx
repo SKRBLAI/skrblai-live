@@ -1027,7 +1027,7 @@ export default function PercyOnboardingRevolution() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-6"
           >
-            <PercyAvatar size="xl" animate={!userInteracted} />
+            <PercyAvatar size="lg" animate={!userInteracted} />
           </motion.div>
           
           <motion.div
