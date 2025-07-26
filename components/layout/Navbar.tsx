@@ -85,35 +85,22 @@ export default function Navbar() {
                 <MoreNavDropdown pathname={pathname} />
               </div>
 
-              {/* Auth-aware CTA */}
+              {/* Dashboard CTA */}
               <div className="hidden items-center space-x-3 lg:flex">
-                {!user ? (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
-                    <button onClick={handleSmartLogin} className="group relative min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-2 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:outline-none">
-                      <div className="relative flex items-center space-x-2">
-                        <LogIn className="h-4 w-4" />
-                        <span className="text-sm">Login</span>
-                      </div>
-                    </button>
-                  </motion.div>
-                ) : (
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
-                    <Link href="/dashboard" className="focus:outline-none">
-                      <button className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                        {/* Animated gradient */}
-                        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all duration-300 group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
-                        {/* Outer glow */}
-                        <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-500/50 to-purple-500/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
-                        {/* Shimmer */}
-                        <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-                        <div className="relative flex items-center space-x-2">
-                          <Sparkles className="h-4 w-4" />
-                          <span className="text-sm font-semibold">Dashboard</span>
-                        </div>
-                      </button>
-                    </Link>
-                  </motion.div>
-                )}
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
+                  <button onClick={handleSmartLogin} className="group relative min-h-[44px] min-w-[44px] overflow-hidden rounded-lg bg-[#0066FF] px-6 py-2 font-semibold text-white shadow-lg transition-colors hover:bg-[#0055DD] focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:outline-none">
+                    {/* Animated gradient */}
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 transition-all group-hover:from-blue-600 group-hover:via-cyan-500 group-hover:to-teal-500" />
+                    {/* Outer glow */}
+                    <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400/50 via-blue-400/50 to-purple-400/50 blur opacity-60 transition-opacity group-hover:opacity-80" />
+                    {/* Shimmer */}
+                    <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
+                    <div className="relative flex items-center space-x-2">
+                      <Sparkles className="h-4 w-4" />
+                      <span className="text-sm font-semibold">Dashboard</span>
+                    </div>
+                  </button>
+                </motion.div>
               </div>
 
               {/* Mobile Hamburger */}
@@ -397,46 +384,22 @@ function MobileMenu({ pathname, onSmartLogin }: MobileMenuProps) {
 
                 {/* Mobile CTAs */}
                 <div className="mt-auto space-y-3">
-                  {/* Login Button */}
+                  {/* Dashboard CTA */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    <button 
-                      onClick={() => {
-                        setIsOpen(false);
-                        onSmartLogin();
-                      }}
-                      className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-gray-600/50 bg-slate-800/60 px-4 py-3 font-medium text-gray-300 transition-all hover:border-cyan-400/50 hover:bg-slate-700/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
+                    <button
+                      onClick={() => { setIsOpen(false); onSmartLogin(); }}
+                      className="group relative w-full min-h-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg transition-colors hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                     >
-                      <div className="flex items-center justify-center space-x-2">
-                        <LogIn className="h-4 w-4" />
-                        <span>Login</span>
+                      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400" />
+                      <div className="relative flex items-center justify-center space-x-2">
+                        <Sparkles className="h-5 w-5" />
+                        <span>Dashboard</span>
                       </div>
                     </button>
-                  </motion.div>
-
-                  {/* User Dashboard Button */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.35 }}
-                  >
-                    <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-                      <button className="group relative w-full min-h-[44px] min-w-[44px] overflow-hidden rounded-xl px-6 py-4 font-bold text-white shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80">
-                        {/* Gradient */}
-                        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-cyan-500 via-blue-600 to-teal-400 transition-all duration-300 group-hover:from-blue-600 group-hover:to-cyan-500" />
-                        {/* Glow */}
-                        <div className="absolute -inset-1 -z-20 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-400 to-teal-300 blur opacity-60 transition-opacity group-hover:opacity-90" />
-                        {/* Shimmer */}
-                        <div className="absolute inset-0 -skew-x-12 translate-x-[-100%] bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-[100%]" />
-                        <div className="relative flex items-center justify-center space-x-2">
-                          <Sparkles className="h-5 w-5" />
-                          <span>User Dashboard</span>
-                        </div>
-                      </button>
-                    </Link>
                   </motion.div>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { useAuth } from '../../components/context/AuthContext';
 import toast from 'react-hot-toast';
 
 interface DashboardWrapperProps {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function DashboardWrapper({ children }: DashboardWrapperProps) {

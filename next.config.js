@@ -70,6 +70,14 @@ const nextConfig = {
     return config;
   },
   productionBrowserSourceMaps: true, // Enable source maps for debugging
+  async redirects() {
+    return [
+      { source: '/sign-in', destination: '/dashboard', permanent: false },
+      { source: '/sign-up', destination: '/dashboard', permanent: false },
+      { source: '/auth', destination: '/dashboard', permanent: false },
+      { source: '/login', destination: '/dashboard', permanent: false },
+    ];
+  },
 };
 
 module.exports = nextConfig;
