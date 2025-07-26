@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
-import { Sparkles, ArrowRight, Target, TrendingUp } from 'lucide-react';
+import { Sparkles, ArrowRight, Target, TrendingUp, RotateCcw, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePercyContext } from '../assistant/PercyProvider';
 import toast from 'react-hot-toast';
@@ -81,8 +81,9 @@ export default function PercyOnboardingRevolution() {
   const [currentSocialProof, setCurrentSocialProof] = useState<any>(null);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
 
-  // Fix: define promptBarRef
+  // Fix: define promptBarRef for the new integrated prompt bar
   const promptBarRef = useRef<HTMLInputElement>(null);
+  const [promptBarValue, setPromptBarValue] = useState('');
 
   // Typewriter effect for prompt bar
   const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
@@ -964,233 +965,364 @@ export default function PercyOnboardingRevolution() {
     }
   }, [session, userGoal, userProfile, trackBehavior]);
 
+  // Helper functions for new prompt bar functionality
+  const handlePromptBarSubmit = () => {
+    if (!promptBarValue.trim()) return;
+    
+    // Handle master code interception
+    if (promptBarValue.trim() === 'MMM_mstr') {
+      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
+      setShowFounderDashboard(true);
+      setPromptBarValue('');
+      trackBehavior('founder_dashboard_access', { 
+        timestamp: new Date().toISOString(),
+        accessMethod: 'prompt_bar'
+      });
+      return;
+    }
+
+    // Handle general conversation - route to custom needs analysis
+    setUserInput(promptBarValue);
+    setInputValue(promptBarValue);
+    setCurrentStep('custom-needs-analysis');
+    setPromptBarValue('');
+    handleAnyInteraction();
+  };
+
+  const handleChatReset = () => {
+    setCurrentStep('greeting');
+    setInputValue('');
+    setPromptBarValue('');
+    setUserInteracted(false);
+    setAnalysisResults(null);
+    setCompetitiveInsights([]);
+    setPercyMood('excited');
+    toast.success('Conversation reset! Percy is ready to help again.', {
+      icon: '🔄',
+      duration: 2000,
+    });
+    trackBehavior('chat_reset', { from: currentStep });
+  };
+
   const step = getCurrentStep();
 
   return (
-    <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row md:items-start gap-8 pointer-events-auto touch-manipulation" data-percy-onboarding>
-      {/* Left Column – Percy Avatar & Intro */}
-      <div className="relative w-full md:w-1/3 max-w-xs mx-auto px-2 md:px-0 flex-shrink-0 pointer-events-auto">
-    {/* Animated Percy Welcome Intro + Avatar */}
-    <div className="flex flex-col items-center gap-2 mb-4 select-none pointer-events-auto">
-      <div className="pointer-events-auto touch-manipulation">
-        <PercyAvatar size="lg" animate={!userInteracted} />
-      </div>
+    <div className="w-full max-w-5xl mx-auto relative pointer-events-auto touch-manipulation" data-percy-onboarding>
+      {/* Top Pseudo-3D Deck Panel */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-        className="w-full pointer-events-auto"
+        transition={{ duration: 0.8 }}
+        className="relative mb-8"
       >
-        <span
-          className="block font-bold text-lg md:text-xl text-cyan-300 text-center tracking-tight pointer-events-auto"
-          style={{ minHeight: 32 }}
-          aria-live="polite"
-        >
-          {typedText}
-        </span>
-      </motion.div>
-      <div className="text-right text-xs text-gray-400 pointer-events-auto">
-        <div>Businesses Transformed</div>
-        <div className="text-cyan-400 font-bold">{businessesTransformed.toLocaleString()}</div>
-      </div>
-    </div>
-  </div>
-
-      {/* Right Column – Chat, Stats, PromptBar */}
-      <div className="flex-1 pointer-events-auto">
-
-        {/* Chat Messages */}
-        <div 
-          ref={chatRef} 
-          className="p-4 sm:p-6 min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-scroll overscroll-contain touch-pan-y pointer-events-auto"
-          data-percy-chat-container
-        >
-          <AnimatePresence>
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.5 }}
-              className="mb-6 pointer-events-auto"
+        {/* Glowing deck background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-teal-500/20 rounded-3xl blur-xl transform rotate-1"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 to-slate-900/80 rounded-2xl backdrop-blur-sm border border-cyan-400/30 shadow-2xl"></div>
+        
+        {/* Percy Avatar and Intro - Centered on deck */}
+        <div className="relative p-8 flex flex-col items-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-6"
+          >
+            <PercyAvatar size="xl" animate={!userInteracted} />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="text-center"
+          >
+            <span
+              className="block font-bold text-2xl md:text-3xl text-cyan-300 text-center tracking-tight mb-2"
+              style={{ minHeight: 40 }}
+              aria-live="polite"
             >
-              {/* Percy Message */}
-              <div className="flex items-start space-x-3 mb-4 pointer-events-auto">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0 pointer-events-auto">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 pointer-events-auto">
-                  <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-xl p-3 sm:p-4 border border-cyan-400/20 pointer-events-auto">
-                    <div className="prose prose-invert prose-sm max-w-none pointer-events-auto">
-                      {step.percyMessage.split('\n').map((line, i) => (
-                        <p key={i} className="mb-2 last:mb-0 pointer-events-auto text-sm sm:text-base">
-                          {line.includes('**') ? (
-                            <span dangerouslySetInnerHTML={{
-                              __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400">$1</strong>')
-                            }} />
-                          ) : (
-                            line
-                          )}
-                        </p>
-                      ))}
+              {typedText}
+            </span>
+            <div className="text-sm text-gray-400">
+              <div>Businesses Transformed</div>
+              <div className="text-cyan-400 font-bold text-lg">{businessesTransformed.toLocaleString()}</div>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Main Chat and Options Container */}
+      <div className="relative mb-8">
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 rounded-2xl blur-2xl"></div>
+        <div className="relative bg-slate-900/70 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+          
+          {/* Chat Messages */}
+          <div 
+            ref={chatRef} 
+            className="min-h-[300px] max-h-[400px] overflow-y-auto overscroll-contain mb-6"
+            data-percy-chat-container
+          >
+            <AnimatePresence>
+              <motion.div
+                key={currentStep}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.5 }}
+                className="mb-4"
+              >
+                {/* Percy Message */}
+                <div className="flex items-start space-x-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-gradient-to-br from-cyan-900/30 to-blue-900/30 rounded-xl p-4 border border-cyan-400/20">
+                      <div className="prose prose-invert prose-sm max-w-none">
+                        {step.percyMessage.split('\n').map((line, i) => (
+                          <p key={i} className="mb-2 last:mb-0 text-sm">
+                            {line.includes('**') ? (
+                              <span dangerouslySetInnerHTML={{
+                                __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400">$1</strong>')
+                              }} />
+                            ) : (
+                              line
+                            )}
+                          </p>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Analysis Results Display */}
-              {analysisResults && currentStep === 'analysis-results' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-3 sm:p-4 border border-green-400/20 pointer-events-auto"
-                >
-                  <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2 pointer-events-auto text-sm sm:text-base">
-                    <Target className="w-4 h-4 sm:w-5 sm:h-5" />
-                    Competitive Intelligence Report
-                  </h4>
-                  <div className="space-y-2 pointer-events-auto">
-                    {competitiveInsights.map((insight, i) => (
-                      <div key={i} className="flex items-start gap-2 pointer-events-auto">
-                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-400 mt-0.5 flex-shrink-0" />
-                        <span className="text-gray-200 text-xs sm:text-sm pointer-events-auto">{insight}</span>
+                {/* Analysis Results Display */}
+                {analysisResults && currentStep === 'analysis-results' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-4 border border-green-400/20"
+                  >
+                    <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2 text-sm">
+                      <Target className="w-4 h-4" />
+                      Competitive Intelligence Report
+                    </h4>
+                    <div className="space-y-2">
+                      {competitiveInsights.map((insight, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <TrendingUp className="w-3 h-3 text-green-400 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-200 text-xs">{insight}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Thinking Indicator */}
+                {isPercyThinking && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex items-center space-x-2 mb-4 text-cyan-400"
+                  >
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                    <span className="text-sm">Percy is analyzing...</span>
+                  </motion.div>
+                )}
+
+                {/* Input Field */}
+                {step.showInput && (
+                  <div className="mb-4">
+                    <div className="relative">
+                      <input
+                        type={step.inputType}
+                        value={inputValue}
+                        onChange={(e) => {
+                          setInputValue(e.target.value);
+                          handleAnyInteraction();
+                        }}
+                        placeholder={step.inputPlaceholder}
+                        className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleInputSubmit();
+                          }
+                        }}
+                        onFocus={() => handleAnyInteraction()}
+                        data-percy-input
+                        style={{ 
+                          touchAction: 'manipulation',
+                          fontSize: '16px'
+                        }}
+                      />
+                      <motion.button
+                        onClick={() => {
+                          handleInputSubmit();
+                          handleAnyInteraction();
+                        }}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        style={{ touchAction: 'manipulation' }}
+                        data-percy-submit-button
+                      >
+                        <ArrowRight className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Onboarding Options - 2x2 Grid on Desktop */}
+                {step.options && (
+                  <div className="space-y-3">
+                    {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
+                    {step.options.slice(0, 4).length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {step.options.slice(0, 4).map((option) => (
+                          <motion.button
+                            key={option.id}
+                            onClick={() => {
+                              handleOptionClick(option);
+                              handleAnyInteraction();
+                            }}
+                            className="w-full text-left p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group min-h-[60px] flex items-center"
+                            whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
+                            whileTap={{ scale: 0.98 }}
+                            style={{ touchAction: 'manipulation' }}
+                            data-percy-option={option.id}
+                          >
+                            <div className="flex items-center space-x-3 w-full">
+                              <span className="text-2xl flex-shrink-0">{option.icon}</span>
+                              <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
+                                {option.label}
+                              </span>
+                            </div>
+                          </motion.button>
+                        ))}
                       </div>
+                    )}
+                    
+                    {/* Remaining options (5th onwards) - full width stack */}
+                    {step.options.slice(4).map((option) => (
+                      <motion.button
+                        key={option.id}
+                        onClick={() => {
+                          handleOptionClick(option);
+                          handleAnyInteraction();
+                        }}
+                        className="w-full text-left p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group min-h-[60px] flex items-center"
+                        whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
+                        whileTap={{ scale: 0.98 }}
+                        style={{ touchAction: 'manipulation' }}
+                        data-percy-option={option.id}
+                      >
+                        <div className="flex items-center space-x-3 w-full">
+                          <span className="text-2xl flex-shrink-0">{option.icon}</span>
+                          <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
+                            {option.label}
+                          </span>
+                        </div>
+                      </motion.button>
                     ))}
                   </div>
-                </motion.div>
-              )}
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-              {/* Thinking Indicator */}
-              {isPercyThinking && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="flex items-center space-x-2 mb-4 text-cyan-400 pointer-events-auto"
-                >
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                  </div>
-                  <span className="text-xs sm:text-sm">Percy is analyzing...</span>
-                </motion.div>
-              )}
-
-              {/* Input Field */}
-              {step.showInput && (
-                <div className="mb-4 pointer-events-auto">
-                  <div className="relative pointer-events-auto">
-                    <input
-                      type={step.inputType}
-                      value={inputValue}
-                      onChange={(e) => {
-                        setInputValue(e.target.value);
-                        handleAnyInteraction();
-                      }}
-                      placeholder={step.inputPlaceholder}
-                      className="w-full px-3 sm:px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 pointer-events-auto text-sm sm:text-base"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleInputSubmit();
-                        }
-                      }}
-                      onFocus={() => handleAnyInteraction()}
-                      data-percy-input
-                      style={{ 
-                        touchAction: 'manipulation',
-                        fontSize: '16px' // Prevents zoom on iOS
-                      }}
-                    />
-                    <motion.button
-                      onClick={() => {
-                        handleInputSubmit();
-                        handleAnyInteraction();
-                      }}
-                      className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors pointer-events-auto min-w-[44px] min-h-[44px] flex items-center justify-center"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      style={{ touchAction: 'manipulation' }}
-                      data-percy-submit-button
-                    >
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                    </motion.button>
-                  </div>
-                </div>
-              )}
-
-              {/* Options */}
-              {step.options && (
-                <div className="space-y-2 pointer-events-auto">
-                  {step.options.map((option) => (
-                    <motion.button
-                      key={option.id}
-                      onClick={() => {
-                        handleOptionClick(option);
-                        handleAnyInteraction();
-                      }}
-                      className="w-full text-left p-3 sm:p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group pointer-events-auto min-h-[44px] flex items-center"
-                      whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
-                      whileTap={{ scale: 0.98 }}
-                      style={{ touchAction: 'manipulation' }}
-                      data-percy-option={option.id}
-                    >
-                      <div className="flex items-center space-x-3 pointer-events-auto w-full">
-                        <span className="text-xl sm:text-2xl pointer-events-none flex-shrink-0">{option.icon}</span>
-                        <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors pointer-events-none text-sm sm:text-base flex-1">
-                          {option.label}
-                        </span>
-                      </div>
-                    </motion.button>
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      {/* End of Chat Messages wrapper */}
-
-      {/* Unified Business Stats moved from HomePage */}
-      <div className="w-full mt-6 sm:mt-8 pointer-events-auto" data-percy-stats>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 pointer-events-auto">
-          <div 
-            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
-            onClick={() => handleAnyInteraction()}
-            style={{ touchAction: 'manipulation' }}
-            data-percy-stat="businesses-transformed"
+          {/* Integrated Prompt/Upload Bar - Always visible under last option */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6 pt-4 border-t border-slate-600/30"
           >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+            <div className="relative">
+              <input
+                ref={promptBarRef}
+                type="text"
+                value={promptBarValue}
+                onChange={(e) => setPromptBarValue(e.target.value)}
+                onFocus={() => setPromptBarFocused(true)}
+                onBlur={() => setPromptBarFocused(false)}
+                placeholder={promptBarFocused ? "Tell me about your business goals..." : (promptBarTypewriter || "Need something else? Ask Percy...")}
+                className="w-full px-4 py-3 pr-20 bg-slate-800/60 border border-slate-600/40 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && promptBarValue.trim()) {
+                    handlePromptBarSubmit();
+                  }
+                }}
+                style={{ 
+                  touchAction: 'manipulation',
+                  fontSize: '16px'
+                }}
+              />
+              
+              {/* Chat Reset Button */}
+              <motion.button
+                onClick={handleChatReset}
+                className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-400 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                title="Reset conversation"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </motion.button>
+              
+              {/* Send Button */}
+              <motion.button
+                onClick={handlePromptBarSubmit}
+                disabled={!promptBarValue.trim()}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 disabled:text-gray-600 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Send className="w-4 h-4" />
+              </motion.button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Restored Stats Cards Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="mb-8"
+        data-percy-stats
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+            <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.liveUsers} 
                 label="Live Users Online"
                 duration={2500}
               />
             </div>
-            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Businesses Transformed Today</div>
-            <div className="text-xs text-teal-400 mt-1 pointer-events-auto">▲ Still climbing</div>
+            <div className="text-sm text-gray-400">Live Users Online</div>
+            <div className="text-xs text-teal-400 mt-1">▲ Active now</div>
           </div>
-          <div 
-            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
-            onClick={() => handleAnyInteraction()}
-            style={{ touchAction: 'manipulation' }}
-            data-percy-stat="competitors-eliminated"
-          >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+          
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+            <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.agentsDeployed} 
                 label="Agents Deployed"
                 duration={2500}
               />
             </div>
-            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Competitors Eliminated</div>
-            <div className="text-xs text-electric-blue mt-1 pointer-events-auto">▲ Per minute</div>
+            <div className="text-sm text-gray-400">Agents Deployed</div>
+            <div className="text-xs text-electric-blue mt-1">▲ This hour</div>
           </div>
-          <div 
-            className="text-center p-3 sm:p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 pointer-events-auto hover:bg-white/10 active:bg-white/15 transition-all cursor-pointer min-h-[44px] flex flex-col justify-center"
-            onClick={() => handleAnyInteraction()}
-            style={{ touchAction: 'manipulation' }}
-            data-percy-stat="revenue-generated"
-          >
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 pointer-events-auto">
+          
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+            <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.revenueGenerated} 
                 prefix="$"
@@ -1199,234 +1331,74 @@ export default function PercyOnboardingRevolution() {
                 duration={3000}
               />
             </div>
-            <div className="text-xs sm:text-sm text-gray-400 pointer-events-auto">Revenue Generated</div>
-            <div className="text-xs text-fuchsia-400 mt-1 pointer-events-auto">▲ This month</div>
+            <div className="text-sm text-gray-400">Revenue Generated</div>
+            <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
           </div>
         </div>
-      </div>
+      </motion.div>
+
+      {/* Bottom Pseudo-3D Deck Panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="relative"
+      >
+        {/* Glowing deck background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 via-cyan-500/20 to-blue-500/20 rounded-3xl blur-xl transform -rotate-1"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 to-slate-900/80 rounded-2xl backdrop-blur-sm border border-teal-400/30 shadow-2xl"></div>
+        
+        {/* Content */}
+        <div className="relative p-6 text-center">
+          <div className="text-sm text-gray-400 mb-2">Your cosmic concierge is ready</div>
+          <div className="text-lg font-semibold text-teal-400">Percy • Always here to help</div>
+        </div>
+      </motion.div>
 
       {/* Floating Widget Preview */}
       {showFloatingWidget && (
         <motion.div
           initial={{ opacity: 0, scale: 0.8, y: 50 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          className="fixed bottom-6 right-6 z-50 pointer-events-auto"
+          className="fixed bottom-6 right-6 z-50"
         >
-          <div className="w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 pointer-events-auto cursor-pointer"
+          <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 cursor-pointer"
                style={{ touchAction: 'manipulation' }}>
-            <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-pulse" />
+            <Sparkles className="w-8 h-8 text-white animate-pulse" />
           </div>
         </motion.div>
       )}
 
-      {/* Enhanced Main Component Container */}
-      <div className="relative w-full max-w-none mx-auto pointer-events-auto overflow-visible">
-        {/* Live Social Proof Notification */}
-        <AnimatePresence>
-          {currentSocialProof && (
-            <motion.div
-              initial={{ opacity: 0, x: 300, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -100, scale: 0.9 }}
-              className="absolute top-4 right-4 z-[60] max-w-xs bg-gradient-to-r from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-xl shadow-2xl border border-green-400/30 p-3"
-            >
-              <div className="flex items-start gap-2">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-400/20 flex items-center justify-center">
-                  <span className="text-green-400">🚀</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white text-xs font-medium leading-tight">
-                    {currentSocialProof.message}
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    Just now
-                  </p>
-                </div>
-                <motion.div
-                  className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Enhanced Onboarding Stages */}
-        {onboardingStage === 'recommendations' && currentRecommendation && (
+      {/* Live Social Proof Notification */}
+      <AnimatePresence>
+        {currentSocialProof && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 p-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-xl border border-blue-400/30"
+            initial={{ opacity: 0, x: 300, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -100, scale: 0.9 }}
+            className="absolute top-4 right-4 z-[60] max-w-xs bg-gradient-to-r from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-xl shadow-2xl border border-green-400/30 p-3"
           >
-
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-white mb-2">🎯 Percy's Perfect Recommendation</h3>
-              <p className="text-gray-300">Based on your profile, here's your optimal first win:</p>
-            </div>
-            
-            <div className="bg-black/20 rounded-lg p-4 mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-green-400 font-semibold">{currentRecommendation.title}</span>
-                <span className="text-blue-400 text-sm">{currentRecommendation.confidence}% match</span>
+            <div className="flex items-start gap-2">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-400/20 flex items-center justify-center">
+                <span className="text-green-400">🚀</span>
               </div>
-              <p className="text-white font-medium mb-2">{currentRecommendation.description}</p>
-              <div className="flex items-center gap-4 text-sm text-gray-400">
-                <span>⏱️ {currentRecommendation.timeToValue}</span>
-                <span>📊 {currentRecommendation.expectedResult}</span>
+              <div className="flex-1">
+                <p className="text-white text-xs font-medium leading-tight">
+                  {currentSocialProof.message}
+                </p>
+                <p className="text-gray-400 text-xs mt-1">
+                  Just now
+                </p>
               </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <motion.button
-                onClick={() => executeFirstAgentDemo(currentRecommendation)}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-lg font-semibold"
-              >
-                🚀 Try This Demo
-              </motion.button>
-              <motion.button
-                onClick={() => setOnboardingStage('greeting')}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-3 border border-gray-600 text-gray-300 rounded-lg"
-              >
-                Different Option
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Demo Execution Stage */}
-        {onboardingStage === 'demo' && firstAgentDemo && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 p-6 bg-gradient-to-r from-purple-900/20 to-cyan-900/20 rounded-xl border border-purple-400/30"
-          >
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-white mb-2">⚡ Live Demo in Progress</h3>
-              <p className="text-gray-300">Percy is demonstrating: {firstAgentDemo.description}</p>
-            </div>
-            
-            {isPercyThinking ? (
-              <div className="bg-black/20 rounded-lg p-6 text-center">
-                <div className="animate-spin w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full mx-auto mb-3"></div>
-                <p className="text-cyan-400 font-medium">Processing your demo...</p>
-                <p className="text-gray-400 text-sm mt-1">ETA: {firstAgentDemo.timeToValue}</p>
-              </div>
-            ) : demoResults ? (
-              <div className="bg-black/20 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-green-400">✅</span>
-                  <span className="text-green-400 font-semibold">Demo Completed!</span>
-                  <span className="text-gray-400 text-sm">({demoResults.executionTime}ms)</span>
-                </div>
-                <p className="text-white mb-3">{demoResults.output}</p>
-                <div className="text-sm text-gray-400">
-                  <p><strong>Steps executed:</strong> {demoResults.steps.length}</p>
-                  <p><strong>Success rate:</strong> 100%</p>
-                </div>
-              </div>
-            ) : null}
-          </motion.div>
-        )}
-
-        {/* Activation Stage */}
-        {onboardingStage === 'activation' && demoResults && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-6 p-6 bg-gradient-to-r from-green-900/20 to-teal-900/20 rounded-xl border border-green-400/30"
-          >
-            <div className="text-center mb-4">
-              <h3 className="text-xl font-bold text-white mb-2">🎉 Ready to Dominate?</h3>
-              <p className="text-gray-300">You just experienced the power of SKRBL AI! Ready to unlock the full arsenal?</p>
-            </div>
-            
-            <div className="bg-black/20 rounded-lg p-4 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-green-400">{currentRecommendation?.timeToValue}</div>
-                  <div className="text-sm text-gray-400">Time to Value</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-400">97%</div>
-                  <div className="text-sm text-gray-400">Success Rate</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-400">14</div>
-                  <div className="text-sm text-gray-400">More Agents</div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <motion.button
-                onClick={() => router.push('/dashboard')}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 px-6 rounded-lg font-semibold"
-              >
-                🚀 Access Full Arsenal
-              </motion.button>
-              <motion.button
-                onClick={() => router.push('/agents')}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-3 border border-gray-600 text-gray-300 rounded-lg"
-              >
-                Browse All Agents
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Enhanced Prompt Bar Integration */}
-        {onboardingStage === 'greeting' && (
-          <div className="mt-6 px-2 sm:px-4 pointer-events-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="relative max-w-2xl mx-auto"
-            >
-              <input
-                ref={promptBarRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && inputValue.trim()) {
-                    handlePercyConversation(inputValue);
-                  }
-                }}
-                placeholder={promptBarTypewriter || "Tell me about your business goals..."}
-                className="w-full px-6 py-4 bg-black/30 backdrop-blur-lg border border-cyan-400/30 rounded-full text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition-all"
-                onFocus={() => setPromptBarFocused(true)}
-                onBlur={() => setPromptBarFocused(false)}
+              <motion.div
+                className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"
+                animate={{ scale: [1, 1.3, 1] }}
+                transition={{ repeat: Infinity, duration: 2 }}
               />
-              <motion.button
-                onClick={() => inputValue.trim() && handlePercyConversation(inputValue)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-2 rounded-full disabled:opacity-50"
-                disabled={!inputValue.trim() || isPercyThinking}
-              >
-                {isPercyThinking ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                )}
-              </motion.button>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         )}
-      </div> {/* End Enhanced Main Component Container */}
-      </div> {/* End Right Column */}
+      </AnimatePresence>
 
       {/* Founder Dashboard Overlay - Triggered by Master Code */}
       <FounderDashboardOverlay 
@@ -1438,7 +1410,6 @@ export default function PercyOnboardingRevolution() {
           });
         }}
       />
-
     </div>
   );
 }
