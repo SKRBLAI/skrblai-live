@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { ReactNode } from 'react';
 import { cn } from '../../lib/utils/index';
 import Pseudo3DCard, { Pseudo3DSize, Pseudo3DIntensity } from './Pseudo3DCard';
@@ -27,6 +27,15 @@ export default function GlassmorphicCard({
   pseudo3DSize = 'md',
   pseudo3DIntensity = 'medium',
 }: GlassmorphicCardProps) {
+  // Floating entry and loop variants for subtle 3D polish
+  const variants: Variants = {
+    initial: { opacity: 0, y: 20 },
+    entry: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+    float: {
+      y: [0, -4, 0],
+      transition: { duration: 4, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const }
+    }
+  };
   // If 3D mode is enabled, use Pseudo3DCard wrapper
   if (mode3D) {
     return (
@@ -46,9 +55,11 @@ export default function GlassmorphicCard({
   return (
     <motion.div
       onClick={onClick}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      variants={variants}
+      initial="initial"
+      animate={["entry","float"]}
+      whileHover={hoverEffect ? { scale: 1.03, perspective: 1000, rotateX: 2, rotateY: -2 } : undefined}
+      whileTap={hoverEffect ? { scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 } : undefined}
       className={cn(`
         bg-transparent
         backdrop-blur-xl

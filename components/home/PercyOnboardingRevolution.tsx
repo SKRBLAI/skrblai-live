@@ -89,6 +89,8 @@ export default function PercyOnboardingRevolution() {
   const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
   const [promptBarFocused, setPromptBarFocused] = useState(false);
   const [promptBarActive, setPromptBarActive] = useState(false);
+  // New: dynamic placeholder for the integrated prompt bar
+  const [promptBarPlaceholder, setPromptBarPlaceholder] = useState<string>('Need something else? Ask Percy...');
 
   const chatRef = useRef<HTMLDivElement>(null);
   const typewriterMessages = ['Talk to Percy Here...', 'Ask me anything...', 'Let\'s dominate together...', 'Your AI concierge awaits...'];
@@ -207,7 +209,11 @@ export default function PercyOnboardingRevolution() {
         { id: 'business-strategy', label: '🏢 Scale my business with AI automation', icon: '🎯', action: 'instant-business-analysis' },
         { id: 'linkedin-profile', label: '💼 Build my professional brand', icon: '📈', action: 'instant-linkedin-analysis' },
         { id: 'sports-analysis', label: '🏆 Athletic performance optimization', icon: '⚽', action: 'sports-routing' },
-        { id: 'custom-needs', label: '💬 Something else - let me explain', icon: '🎤', action: 'custom-needs-analysis' }
+        { id: 'custom-needs', label: '💬 Something else - let me explain', icon: '🎤', action: 'custom-needs-analysis' },
+        // New core actions
+        { id: 'signup', label: '🚀 Sign Up', icon: '🚀', action: 'signup' },
+        { id: 'have-code', label: '🔑 Have A Code?', icon: '🔑', action: 'have-code' },
+        { id: 'my-dashboard', label: '📊 My Dashboard', icon: '📊', action: 'my-dashboard' }
       ]
     },
     'instant-website-analysis': {
@@ -454,6 +460,41 @@ export default function PercyOnboardingRevolution() {
   };
 
   const handleOptionClick = async (option: OnboardingOption) => {
+    // New button actions
+    if (option.action === 'signup') {
+      setCurrentStep('signup');
+      setPromptBarPlaceholder('Enter your email or phone');
+      setPromptBarValue('');
+      promptBarRef.current?.focus();
+      return;
+    }
+    if (option.action === 'have-code') {
+      setPromptBarPlaceholder('Enter Code Here');
+      setPromptBarValue('');
+      promptBarRef.current?.focus();
+      return;
+    }
+    if (option.action === 'my-dashboard') {
+      if (user) {
+        trackBehavior('dashboard_navigation', { from: 'onboarding', method: 'button_click' });
+        router.push('/dashboard');
+      } else {
+        setCurrentStep('signup');
+        setPromptBarPlaceholder('Enter your email or phone');
+        setPromptBarValue('');
+        promptBarRef.current?.focus();
+      }
+      return;
+    }
+    if (option.action === 'custom-needs-analysis') {
+      // Trigger open-ended intake
+      setCurrentStep('custom-needs-analysis');
+      setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
+      setPromptBarValue('');
+      promptBarRef.current?.focus();
+      return;
+    }
+
     if (option.action === 'route-to-sports') {
       // Track behavior before navigation
       trackBehavior('sports_routing', { from: currentStep });
@@ -669,7 +710,7 @@ export default function PercyOnboardingRevolution() {
       // Require phone verified before email signup
       if (!phoneVerified) {
         setCurrentStep('phone-entry');
-        toast('📱 Let’s secure your account – phone first!', { icon: '📲' });
+        toast("📱 Let's secure your account – phone first!", { icon: '📲' });
         return;
       }
 
@@ -966,10 +1007,10 @@ export default function PercyOnboardingRevolution() {
   }, [session, userGoal, userProfile, trackBehavior]);
 
   // Helper functions for new prompt bar functionality
-  const handlePromptBarSubmit = () => {
+  const handlePromptBarSubmit = async () => {
     if (!promptBarValue.trim()) return;
-    
-    // Handle master code interception
+
+    // MASTER CODE INTERCEPTION - Founder Dashboard Access
     if (promptBarValue.trim() === 'MMM_mstr') {
       console.log('[Founder Dashboard] Master code detected - activating founder overlay');
       setShowFounderDashboard(true);
@@ -978,6 +1019,34 @@ export default function PercyOnboardingRevolution() {
         timestamp: new Date().toISOString(),
         accessMethod: 'prompt_bar'
       });
+      return; // Exit early
+    }
+
+    // VIP Code Detection in prompt bar
+    const trimmed = promptBarValue.trim();
+    const vipValidation = await validateVIPCode(trimmed);
+    if (vipValidation.isValid && vipValidation.tier) {
+      setVipCode(trimmed);
+      setIsVIPUser(true);
+      setVipTier(vipValidation.tier);
+      setPromptBarValue('');
+      setPromptBarPlaceholder('Need something else? Ask Percy...');
+      await handlePercyThinking(2000);
+      setCurrentStep('vip-welcome');
+      toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
+        icon: '👑',
+        duration: 4000,
+      });
+      trackBehavior('vip_activated', { vipTier: vipValidation.tier, code: trimmed });
+      return;
+    }
+
+    // If current chat step expects input, forward to chat handler
+    const step = getCurrentStep();
+    if (step.showInput) {
+      setInputValue(promptBarValue);
+      setPromptBarValue('');
+      await handleInputSubmit();
       return;
     }
 
@@ -985,8 +1054,8 @@ export default function PercyOnboardingRevolution() {
     setUserInput(promptBarValue);
     setInputValue(promptBarValue);
     setCurrentStep('custom-needs-analysis');
+    setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
     setPromptBarValue('');
-    handleAnyInteraction();
   };
 
   const handleChatReset = () => {
@@ -1007,12 +1076,33 @@ export default function PercyOnboardingRevolution() {
   const step = getCurrentStep();
 
   return (
-    <div className="w-full max-w-5xl mx-auto relative pointer-events-auto touch-manipulation" data-percy-onboarding>
+    <motion.div
+  className="w-full max-w-5xl mx-auto relative pointer-events-auto touch-manipulation"
+  data-percy-onboarding
+  variants={{
+    initial: {},
+    animate: {
+      transition: {
+        staggerChildren: 0.23,
+        delayChildren: 0.15
+      }
+    }
+  }}
+  initial="initial"
+  animate="animate"
+  layout
+>
       {/* Top Pseudo-3D Deck Panel */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={{
+          initial: { opacity: 0, y: -20 },
+          entry: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+          float: { y: [0, -6, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const } }
+        }}
+        initial="initial"
+        animate={["entry","float"]}
+        whileHover={{ scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 }}
+        whileTap={{ scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 }}
         className="relative mb-8"
       >
         {/* Glowing deck background */}
@@ -1027,18 +1117,23 @@ export default function PercyOnboardingRevolution() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-6"
           >
-            <PercyAvatar size="lg" animate={!userInteracted} />
+            <PercyAvatar size="lg" animate={!userInteracted} className="shadow-inner shadow-[inset_0_0_12px_rgba(0,0,0,0.7)]" />
           </motion.div>
           
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
+            variants={{
+              initial: { opacity: 0, y: -20 },
+              entry: { opacity: 1, y: 0, transition: { duration: 0.8 } },
+              float: { y: [0, -6, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const } }
+            }}
+            initial="initial"
+            animate={["entry","float"]}
+            whileHover={{ scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 }}
+            whileTap={{ scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 }}
             className="text-center"
           >
             <span
-              className="block font-bold text-2xl md:text-3xl text-cyan-300 text-center tracking-tight mb-2"
-              style={{ minHeight: 40 }}
+              className="block font-bold text-2xl md:text-3xl text-cyan-300 text-center tracking-tight mb-2 min-h-10"
               aria-live="polite"
             >
               {typedText}
@@ -1054,8 +1149,8 @@ export default function PercyOnboardingRevolution() {
       {/* Main Chat and Options Container */}
       <div className="relative mb-8">
         {/* Subtle glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 rounded-2xl blur-2xl"></div>
-        <div className="relative bg-slate-900/70 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl blur-3xl"></div>
+        <div className="relative bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] shadow-inner rounded-2xl p-8">
           
           {/* Chat Messages */}
           <div 
@@ -1126,9 +1221,9 @@ export default function PercyOnboardingRevolution() {
                     className="flex items-center space-x-2 mb-4 text-cyan-400"
                   >
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-0"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-150"></div>
+                      <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce delay-300"></div>
                     </div>
                     <span className="text-sm">Percy is analyzing...</span>
                   </motion.div>
@@ -1146,7 +1241,7 @@ export default function PercyOnboardingRevolution() {
                           handleAnyInteraction();
                         }}
                         placeholder={step.inputPlaceholder}
-                        className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm"
+                        className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm touch-manipulation text-base"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             handleInputSubmit();
@@ -1160,14 +1255,14 @@ export default function PercyOnboardingRevolution() {
                         }}
                       />
                       <motion.button
+                        variants={{
+                          initial: { opacity: 0, y: 16, scale: 0.96 }
+                        }}
                         onClick={() => {
                           handleInputSubmit();
                           handleAnyInteraction();
                         }}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        style={{ touchAction: 'manipulation' }}
                         data-percy-submit-button
                       >
                         <ArrowRight className="w-4 h-4" />
@@ -1178,21 +1273,38 @@ export default function PercyOnboardingRevolution() {
 
                 {/* Onboarding Options - 2x2 Grid on Desktop */}
                 {step.options && (
-                  <div className="space-y-3">
+                  <motion.div
+                    variants={{
+                      initial: { opacity: 0, y: 10 },
+                      entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+                      float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                    }}
+                    initial="initial"
+                    animate={["entry","float"]}
+                    className="space-y-3"
+                    layout
+                  >
                     {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
                     {step.options.slice(0, 4).length > 0 && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {step.options.slice(0, 4).map((option) => (
                           <motion.button
+                            variants={{
+                              initial: { opacity: 0, y: 16, scale: 0.96 },
+                              entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
+                              float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                            }}
+                            initial="initial"
+                            animate={["entry","float"]}
+                            whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
+                            whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
+
                             key={option.id}
                             onClick={() => {
                               handleOptionClick(option);
                               handleAnyInteraction();
                             }}
-                            className="w-full text-left p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group min-h-[60px] flex items-center"
-                            whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
-                            whileTap={{ scale: 0.98 }}
-                            style={{ touchAction: 'manipulation' }}
+                            className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 transition-all group min-h-[60px] flex items-center"
                             data-percy-option={option.id}
                           >
                             <div className="flex items-center space-x-3 w-full">
@@ -1209,15 +1321,22 @@ export default function PercyOnboardingRevolution() {
                     {/* Remaining options (5th onwards) - full width stack */}
                     {step.options.slice(4).map((option) => (
                       <motion.button
+                        variants={{
+                          initial: { opacity: 0, y: 16, scale: 0.96 },
+                          entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
+                          float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                        }}
+                        initial="initial"
+                        animate={["entry","float"]}
+                        whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
+                        whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
+
                         key={option.id}
                         onClick={() => {
                           handleOptionClick(option);
                           handleAnyInteraction();
                         }}
-                        className="w-full text-left p-4 rounded-xl bg-gradient-to-r from-slate-700/50 to-slate-800/50 border border-cyan-400/20 hover:border-cyan-400/40 active:border-cyan-400/60 transition-all group min-h-[60px] flex items-center"
-                        whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' }}
-                        whileTap={{ scale: 0.98 }}
-                        style={{ touchAction: 'manipulation' }}
+                        className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 transition-all group min-h-[60px] flex items-center"
                         data-percy-option={option.id}
                       >
                         <div className="flex items-center space-x-3 w-full">
@@ -1228,46 +1347,58 @@ export default function PercyOnboardingRevolution() {
                         </div>
                       </motion.button>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
-              </motion.div>
-            </AnimatePresence>
+              </motion.div> 
+             </AnimatePresence>
           </div>
 
           {/* Integrated Prompt/Upload Bar - Always visible under last option */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="mt-6 pt-4 border-t border-slate-600/30"
+            variants={{
+              initial: { opacity: 0, y: 18 },
+              entry: { opacity: 1, y: 0, boxShadow: '0 0 24px #30d5c899', transition: { duration: 0.8, delay: 0.8 } },
+              float: { y: [0, -3, 0], boxShadow: ['0 0 24px #30d5c899','0 0 40px #6366f1cc','0 0 24px #30d5c899'], transition: { duration: 7, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+            }}
+            initial="initial"
+            animate={["entry","float"]}
+            className="mt-6 pt-4 relative border-t border-teal-400/40"
+            layout
           >
             <div className="relative">
-              <input
+              <motion.input
                 ref={promptBarRef}
                 type="text"
                 value={promptBarValue}
                 onChange={(e) => setPromptBarValue(e.target.value)}
                 onFocus={() => setPromptBarFocused(true)}
                 onBlur={() => setPromptBarFocused(false)}
-                placeholder={promptBarFocused ? "Tell me about your business goals..." : (promptBarTypewriter || "Need something else? Ask Percy...")}
-                className="w-full px-4 py-3 pr-20 bg-slate-800/60 border border-slate-600/40 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm"
+                placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
+                className="w-full px-4 py-3 pr-20 bg-[rgba(21,23,30,0.7)] backdrop-blur-md border border-teal-400/40 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-200 focus:ring-2 focus:ring-teal-200/30 text-sm shadow-[0_0_12px_#30d5c899] transition-all duration-200"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && promptBarValue.trim()) {
                     handlePromptBarSubmit();
                   }
                 }}
-                style={{ 
-                  touchAction: 'manipulation',
-                  fontSize: '16px'
-                }}
+                style={{ fontSize: '16px' }}
+                animate={promptBarFocused ? { scale: 1.035, boxShadow: '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb' } : { scale: 1, boxShadow: '0 0 12px #30d5c899' }}
+                transition={{ type: 'spring', stiffness: 90, damping: 18 }}
               />
               
               {/* Chat Reset Button */}
               <motion.button
+                variants={{
+                  initial: { opacity: 0, y: 16, scale: 0.96 },
+                  entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
+                  float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                }}
+                initial="initial"
+                animate={["entry","float"]}
+                whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
+                whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
+
                 onClick={handleChatReset}
                 className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-400 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
                 title="Reset conversation"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -1275,11 +1406,18 @@ export default function PercyOnboardingRevolution() {
               
               {/* Send Button */}
               <motion.button
+                variants={{
+                  initial: { opacity: 0, y: 16, scale: 0.96 },
+                  entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
+                  float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                }}
+                initial="initial"
+                animate={["entry","float"]}
+                whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
+                whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
                 onClick={handlePromptBarSubmit}
                 disabled={!promptBarValue.trim()}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 disabled:text-gray-600 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
               >
                 <Send className="w-4 h-4" />
               </motion.button>
@@ -1339,9 +1477,15 @@ export default function PercyOnboardingRevolution() {
 
       {/* Bottom Pseudo-3D Deck Panel */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
+        variants={{
+          initial: { opacity: 0, y: 20 },
+          entry: { opacity: 1, y: 0, transition: { duration: 0.8, delay: 0.6 } },
+          float: { y: [0, -6, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const } }
+        }}
+        initial="initial"
+        animate={["entry","float"]}
+        whileHover={{ scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 }}
+        whileTap={{ scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 }}
         className="relative"
       >
         {/* Glowing deck background */}
@@ -1410,6 +1554,6 @@ export default function PercyOnboardingRevolution() {
           });
         }}
       />
-    </div>
+    </motion.div>
   );
 }

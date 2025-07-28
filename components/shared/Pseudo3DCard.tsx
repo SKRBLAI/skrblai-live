@@ -39,8 +39,8 @@ export default function Pseudo3DCard({
       className={cn(...baseClasses, className)}
       onClick={onClick}
       style={style}
-      whileHover={hover ? { scale: 1.02 } : undefined}
-      whileTap={hover ? { scale: 0.98 } : undefined}
+      whileHover={hover ? { scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 } : undefined}
+      whileTap={hover ? { scale: 0.98, perspective: 1000, rotateX: -1, rotateY: 1 } : undefined}
       transition={{
         type: 'spring',
         stiffness: 300,
