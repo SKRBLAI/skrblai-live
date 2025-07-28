@@ -12,7 +12,8 @@ import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
 import UpgradeModal from '../../components/skillsmith/UpgradeModal';
-import { Trophy, Zap, Target, Star, Users, BarChart3 } from 'lucide-react';
+import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
+import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 
 interface AnalysisResult {
   feedback: string;
@@ -31,6 +32,21 @@ interface QuickWin {
   category: 'technique' | 'training' | 'nutrition' | 'mental';
 }
 
+interface Product {
+  id: string;
+  title: string;
+  description: string;
+  detailedDescription: string;
+  price: number;
+  originalPrice?: number;
+  sku: string;
+  category: 'analysis' | 'training' | 'nutrition' | 'performance';
+  icon: React.ComponentType<any>;
+  color: string;
+  features: string[];
+  popular?: boolean;
+}
+
 export default function SportsPage(): JSX.Element {
   const { user, isEmailVerified } = useAuth();
   const { 
@@ -45,7 +61,22 @@ export default function SportsPage(): JSX.Element {
   const [emailCaptureModalOpen, setEmailCaptureModalOpen] = useState(false);
   const [resultsModalOpen, setResultsModalOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [previewFlowOpen, setPreviewFlowOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  // Check for successful purchase from URL params
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('success') === 'true') {
+        setShowSuccessMessage(true);
+        // Clean up URL
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
+  }, []);
 
   // Determine user type for different flows
   const getUserType = (): 'guest' | 'auth' | 'platform' => {
@@ -127,30 +158,123 @@ export default function SportsPage(): JSX.Element {
     setUpgradeModalOpen(false);
   };
 
-  const quickWins = [
+  // Product Preview Flow Handler
+  const openPreviewFlow = (product: Product) => {
+    setSelectedProduct(product);
+    setPreviewFlowOpen(true);
+  };
+
+  // Buy Now Handler
+  const handleBuyNow = async (product: Product) => {
+    setSelectedProduct(product);
+    try {
+      // Create Stripe checkout session
+      const response = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productSku: product.sku,
+          price: product.price,
+          title: product.title,
+          successUrl: `${window.location.origin}/sports?success=true`,
+          cancelUrl: `${window.location.origin}/sports`,
+        }),
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        // Fallback to upgrade modal for now
+        setUpgradeModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      // Fallback to upgrade modal
+      setUpgradeModalOpen(true);
+    }
+  };
+
+  // SkillSmith Products Array
+  const products: Product[] = [
     {
+      id: 'form-analysis-pro',
+      title: "Form Analysis Pro",
+      description: "AI-powered technique analysis with biomechanics insights",
+      detailedDescription: "Get professional-grade biomechanical analysis of your form with detailed breakdown of movement patterns, efficiency metrics, and injury risk assessment.",
+      price: 29,
+      originalPrice: 39,
+      sku: 'skillsmith_form_analysis_pro',
+      category: 'analysis',
       icon: Target,
-      title: "Form Analysis",
-      description: "Get instant feedback on your technique and form",
-      color: "text-blue-400"
+      color: "text-blue-400",
+      features: [
+        "Frame-by-frame technique breakdown",
+        "Biomechanical efficiency scoring",
+        "Injury risk assessment",
+        "Comparison with elite athletes",
+        "Downloadable analysis report"
+      ],
+      popular: true
     },
     {
+      id: 'performance-insights-elite',
+      title: "Performance Insights Elite",
+      description: "Advanced performance metrics and improvement recommendations",
+      detailedDescription: "Unlock elite-level performance insights with advanced metrics, weakness identification, and personalized improvement strategies tailored to your sport.",
+      price: 49,
+      originalPrice: 69,
+      sku: 'skillsmith_performance_elite',
+      category: 'performance',
       icon: Zap,
-      title: "Performance Insights",
-      description: "Discover what's holding back your peak performance",
-      color: "text-orange-400"
+      color: "text-orange-400",
+      features: [
+        "Advanced performance scoring",
+        "Weakness identification",
+        "Strength optimization",
+        "Elite athlete comparisons",
+        "Performance tracking dashboard"
+      ]
     },
     {
+      id: 'custom-training-plan',
+      title: "Custom Training Plan",
+      description: "Personalized training programs based on your analysis",
+      detailedDescription: "Receive a completely customized training program designed specifically for your sport, skill level, and improvement goals based on your analysis results.",
+      price: 79,
+      originalPrice: 99,
+      sku: 'skillsmith_training_plan',
+      category: 'training',
       icon: Trophy,
-      title: "Training Plans",
-      description: "Receive personalized recommendations to improve",
-      color: "text-green-400"
+      color: "text-green-400",
+      features: [
+        "Sport-specific training program",
+        "Progressive skill development",
+        "Injury prevention protocols",
+        "Weekly plan adjustments",
+        "Expert coach consultation"
+      ]
     },
     {
+      id: 'progress-tracker-premium',
+      title: "Progress Tracker Premium",
+      description: "Advanced tracking with detailed metrics and insights",
+      detailedDescription: "Monitor your athletic development with comprehensive progress tracking, detailed metrics visualization, and achievement milestones.",
+      price: 39,
+      originalPrice: 49,
+      sku: 'skillsmith_progress_premium',
+      category: 'analysis',
       icon: Star,
-      title: "Progress Tracking",
-      description: "Monitor your improvement over time with detailed metrics",
-      color: "text-purple-400"
+      color: "text-purple-400",
+      features: [
+        "Detailed progress analytics",
+        "Achievement tracking",
+        "Performance trend analysis",
+        "Goal setting and monitoring",
+        "Improvement predictions"
+      ]
     }
   ];
 
@@ -169,7 +293,7 @@ export default function SportsPage(): JSX.Element {
             onEmailCaptureClick={handleEmailCaptureClick}
           />
 
-          {/* Quick Wins Section - Only for standalone users */}
+          {/* Products Section - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
@@ -179,28 +303,181 @@ export default function SportsPage(): JSX.Element {
               className="relative mb-24"
             >
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center mb-12"
+                >
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    What You'll Get in <span className="text-orange-400">30 Seconds</span>
+                    Premium SkillSmith <span className="text-orange-400">Products</span>
                   </h2>
                   <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-                    Upload your training video and get instant, professional-grade analysis
+                    Professional-grade analysis tools and training programs designed by sports scientists
                   </p>
-                </div>
+                </motion.div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {quickWins.map((win, index) => (
+                  {products.map((product, index) => (
                     <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
+                      key={product.id}
+                      initial={{ 
+                        opacity: 0, 
+                        y: 40,
+                        rotateY: -15,
+                        scale: 0.9
+                      }}
+                      whileInView={{ 
+                        opacity: 1, 
+                        y: 0,
+                        rotateY: 0,
+                        scale: 1
+                      }}
                       viewport={{ once: true }}
-                      transition={{ delay: index * 0.1, duration: 0.6 }}
-                      className="bg-gradient-to-b from-gray-800/60 to-gray-900/60 border border-gray-600/30 rounded-xl p-6 backdrop-blur-xl text-center hover:border-orange-500/30 transition-colors"
+                      transition={{ 
+                        delay: index * 0.15, 
+                        duration: 0.8,
+                        type: "spring",
+                        stiffness: 120,
+                        damping: 15
+                      }}
+                      whileHover={{ 
+                        scale: 1.05,
+                        rotateY: 5,
+                        z: 50,
+                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 60px 15px rgba(0,245,212,0.4), 0 0 100px 25px rgba(0,102,255,0.25), 0 0 40px 10px rgba(232,121,249,0.3)'
+                      }}
+                      whileTap={{ 
+                        scale: 0.98,
+                        rotateY: 2
+                      }}
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        perspective: 1000
+                      }}
+                      className="relative bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-gray-600/20 rounded-2xl p-6 backdrop-blur-xl hover:border-orange-500/40 transition-all duration-500 group cursor-pointer"
                     >
-                      <win.icon className={`w-12 h-12 ${win.color} mx-auto mb-4`} />
-                      <h3 className="text-lg font-semibold text-white mb-2">{win.title}</h3>
-                      <p className="text-gray-400 text-sm">{win.description}</p>
+                      {/* Glassmorphic overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Popular badge with 3D effect */}
+                      {product.popular && (
+                        <motion.div 
+                          className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10"
+                          initial={{ scale: 0, rotateZ: -180 }}
+                          animate={{ scale: 1, rotateZ: 0 }}
+                          transition={{ delay: index * 0.15 + 0.5, type: "spring", stiffness: 200 }}
+                          whileHover={{ 
+                            scale: 1.1,
+                            rotateZ: 5,
+                            boxShadow: '0 10px 25px rgba(251, 146, 60, 0.5)'
+                          }}
+                        >
+                          <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg border border-orange-400/30">
+                            ⭐ POPULAR
+                          </div>
+                        </motion.div>
+                      )}
+
+                      <motion.div 
+                        className="relative z-10"
+                        style={{ transform: 'translateZ(20px)' }}
+                      >
+                        <div className="text-center mb-6">
+                          <motion.div
+                            whileHover={{ 
+                              rotateX: 15,
+                              rotateY: 10,
+                              scale: 1.1
+                            }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                            className="relative"
+                          >
+                            <product.icon className={`w-14 h-14 ${product.color} mx-auto mb-4 drop-shadow-lg`} />
+                            <div className={`absolute inset-0 w-14 h-14 mx-auto mb-4 ${product.color.replace('text-', 'bg-').replace('-400', '-400/20')} rounded-full blur-xl`} />
+                          </motion.div>
+                          
+                          <h3 className="text-lg font-bold text-white mb-3 group-hover:text-orange-100 transition-colors">
+                            {product.title}
+                          </h3>
+                          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors leading-relaxed">
+                            {product.description}
+                          </p>
+                          
+                          <motion.div 
+                            className="flex items-center justify-center gap-2 mb-6"
+                            whileHover={{ scale: 1.05 }}
+                          >
+                            {product.originalPrice && (
+                              <span className="text-gray-500 line-through text-sm">${product.originalPrice}</span>
+                            )}
+                            <span className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                              ${product.price}
+                            </span>
+                          </motion.div>
+                        </div>
+
+                        {/* Enhanced CTAs with 3D effects */}
+                        <div className="space-y-3">
+                          <motion.button
+                            whileHover={{ 
+                              scale: 1.03,
+                              rotateX: 5,
+                              boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                            }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => openPreviewFlow(product)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-600/20 border border-blue-400/40 text-blue-300 rounded-xl hover:from-blue-500/30 hover:via-cyan-500/30 hover:to-blue-600/30 hover:border-blue-400/60 transition-all duration-300 backdrop-blur-sm font-medium"
+                          >
+                            <Eye className="w-4 h-4" />
+                            Preview Demo
+                          </motion.button>
+                          
+                          <motion.button
+                            whileHover={{ 
+                              scale: 1.03,
+                              rotateX: 5,
+                              boxShadow: '0 15px 35px rgba(251, 146, 60, 0.6)'
+                            }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => handleBuyNow(product)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:via-red-600 hover:to-orange-700 transition-all duration-300 font-bold shadow-lg hover:shadow-2xl"
+                          >
+                            <ShoppingCart className="w-4 h-4" />
+                            Buy Now
+                          </motion.button>
+                        </div>
+                      </motion.div>
+
+                      {/* Floating particles effect on hover */}
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        initial={{ opacity: 0 }}
+                        whileHover={{ opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {[...Array(6)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-orange-400 rounded-full"
+                            style={{
+                              left: `${20 + i * 15}%`,
+                              top: `${30 + (i % 2) * 40}%`,
+                            }}
+                            animate={{
+                              y: [-10, -20, -10],
+                              opacity: [0, 1, 0],
+                              scale: [0, 1, 0],
+                            }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: i * 0.2,
+                            }}
+                          />
+                        ))}
+                      </motion.div>
                     </motion.div>
                   ))}
                 </div>
@@ -218,50 +495,133 @@ export default function SportsPage(): JSX.Element {
               className="relative mb-24"
             >
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="bg-gradient-to-b from-gray-800/40 to-gray-900/40 border border-orange-500/30 rounded-3xl p-8 backdrop-blur-xl">
-                  <div className="text-center mb-8">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                      Join Thousands of Athletes
-                    </h2>
-                    <p className="text-gray-400">
-                      Real results from SkillSmith users worldwide
-                    </p>
-                  </div>
+                <motion.div 
+                  whileHover={{ 
+                    scale: 1.02,
+                    rotateX: 2,
+                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 80px 20px rgba(251,146,60,0.3)'
+                  }}
+                  style={{ transformStyle: 'preserve-3d' }}
+                  className="bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-orange-500/30 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden"
+                >
+                  {/* Glassmorphic overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-red-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  <div className="relative z-10">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6 }}
+                      className="text-center mb-8"
+                    >
+                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                        Join Thousands of Athletes
+                      </h2>
+                      <p className="text-gray-400">
+                        Real results from SkillSmith users worldwide
+                      </p>
+                    </motion.div>
 
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Users className="w-6 h-6 text-orange-400" />
-                        <span className="text-3xl font-bold text-orange-400">{liveMetrics.athletesTransformed.toLocaleString()}</span>
-                      </div>
-                      <p className="text-gray-400 text-sm">Athletes Improved</p>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <BarChart3 className="w-6 h-6 text-green-400" />
-                        <span className="text-3xl font-bold text-green-400">{liveMetrics.performanceImprovement}%</span>
-                      </div>
-                      <p className="text-gray-400 text-sm">Avg Improvement</p>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Zap className="w-6 h-6 text-blue-400" />
-                        <span className="text-3xl font-bold text-blue-400">{liveMetrics.injuriesPrevented.toLocaleString()}</span>
-                      </div>
-                      <p className="text-gray-400 text-sm">Injuries Prevented</p>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-2 mb-2">
-                        <Trophy className="w-6 h-6 text-yellow-400" />
-                        <span className="text-3xl font-bold text-yellow-400">{liveMetrics.recordsBroken}</span>
-                      </div>
-                      <p className="text-gray-400 text-sm">Records Broken</p>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1, duration: 0.6 }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          rotateY: 5,
+                          boxShadow: '0 15px 30px rgba(0,245,212,0.3)'
+                        }}
+                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Users className="w-6 h-6 text-orange-400" />
+                          <motion.span 
+                            className="text-3xl font-bold text-orange-400"
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            {liveMetrics.athletesTransformed.toLocaleString()}
+                          </motion.span>
+                        </div>
+                        <p className="text-gray-400 text-sm">Athletes Improved</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2, duration: 0.6 }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          rotateY: 5,
+                          boxShadow: '0 15px 30px rgba(34,197,94,0.3)'
+                        }}
+                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <BarChart3 className="w-6 h-6 text-green-400" />
+                          <motion.span 
+                            className="text-3xl font-bold text-green-400"
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            {liveMetrics.performanceImprovement}%
+                          </motion.span>
+                        </div>
+                        <p className="text-gray-400 text-sm">Avg Improvement</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          rotateY: 5,
+                          boxShadow: '0 15px 30px rgba(59,130,246,0.3)'
+                        }}
+                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Zap className="w-6 h-6 text-blue-400" />
+                          <motion.span 
+                            className="text-3xl font-bold text-blue-400"
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            {liveMetrics.injuriesPrevented.toLocaleString()}
+                          </motion.span>
+                        </div>
+                        <p className="text-gray-400 text-sm">Injuries Prevented</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4, duration: 0.6 }}
+                        whileHover={{ 
+                          scale: 1.05,
+                          rotateY: 5,
+                          boxShadow: '0 15px 30px rgba(251,191,36,0.3)'
+                        }}
+                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Trophy className="w-6 h-6 text-yellow-400" />
+                          <motion.span 
+                            className="text-3xl font-bold text-yellow-400"
+                            whileHover={{ scale: 1.1 }}
+                          >
+                            {liveMetrics.recordsBroken}
+                          </motion.span>
+                        </div>
+                        <p className="text-gray-400 text-sm">Records Broken</p>
+                      </motion.div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             </motion.section>
           )}
@@ -296,6 +656,31 @@ export default function SportsPage(): JSX.Element {
         </div>
 
         {/* Modals */}
+        {showSuccessMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            className="fixed top-8 right-8 z-50 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-6 rounded-2xl shadow-2xl border border-green-400/30 backdrop-blur-xl"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                <Star className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold">Purchase Successful! 🎉</h3>
+                <p className="text-sm opacity-90">Your SkillSmith product is ready to use.</p>
+              </div>
+              <button 
+                onClick={() => setShowSuccessMessage(false)}
+                className="ml-4 text-white/70 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         <VideoUploadModal
           isOpen={uploadModalOpen}
           onClose={() => setUploadModalOpen(false)}
@@ -325,6 +710,13 @@ export default function SportsPage(): JSX.Element {
           onClose={() => setUpgradeModalOpen(false)}
           onPurchase={handlePurchase}
           userType={userType === 'platform' ? 'auth' : userType}
+        />
+
+        <SkillSmithOnboardingFlow
+          isOpen={previewFlowOpen}
+          onClose={() => setPreviewFlowOpen(false)}
+          product={selectedProduct}
+          onBuyNow={handleBuyNow}
         />
       </div>
     </PageLayout>
