@@ -716,7 +716,7 @@ export default function SportsPage(): JSX.Element {
           isOpen={previewFlowOpen}
           onClose={() => setPreviewFlowOpen(false)}
           product={selectedProduct}
-          onBuyNow={p => { void handleBuyNow(p); }}
+          onBuyNow={(p: any) => { void handleBuyNow(p); }}
         />
       </div>
     </PageLayout>

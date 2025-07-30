@@ -17,6 +17,8 @@ interface Product {
   category: 'analysis' | 'training' | 'nutrition' | 'performance';
   features: string[];
   popular?: boolean;
+  icon: React.ComponentType<any>;
+  color: string;
 }
 
 interface PreviewStep {

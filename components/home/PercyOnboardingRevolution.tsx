@@ -67,9 +67,14 @@ export default function PercyOnboardingRevolution() {
   const [showFounderDashboard, setShowFounderDashboard] = useState(false);
 
   // Enhanced Percy personality state
-  const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning'>('excited');
+  const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning' | 'thinking' | 'waving' | 'nodding'>('excited');
   const [intelligenceScore] = useState(247); // Percy's enhanced IQ
   const [businessesTransformed] = useState(47213);
+  
+  // Enhanced feedback states
+  const [lastInteractionType, setLastInteractionType] = useState<string>('');
+  const [userReturnVisit, setUserReturnVisit] = useState(false);
+  const [personalizedGreeting, setPersonalizedGreeting] = useState('');
   // Business stats counters for unified section - Enhanced with live data
   const [liveMetrics, setLiveMetrics] = useState({
     liveUsers: 1251,
@@ -101,13 +106,34 @@ export default function PercyOnboardingRevolution() {
   const [userInteracted, setUserInteracted] = useState(false);
   const [pulseActive, setPulseActive] = useState(false);
 
-  // REMOVED: Early return logic that was hiding Percy for verified users
-  // Percy onboarding should ALWAYS show on homepage regardless of user status
+  // Enhanced initialization with personalization
   useEffect(() => {
     // Always activate Percy onboarding on homepage
     console.log('[PERCY] Activating onboarding for all users on homepage');
     setIsOnboardingActive(true);
-  }, [setIsOnboardingActive]);
+    
+    // Check if returning user
+    const hasVisited = localStorage.getItem('percy_visited');
+    const userName = localStorage.getItem('user_name') || (user?.email?.split('@')[0]);
+    
+    if (hasVisited && userName) {
+      setUserReturnVisit(true);
+      setPersonalizedGreeting(`Welcome back, ${userName}! 👋`);
+      setPercyMood('waving');
+      // Show celebratory animation for returning users
+      setTimeout(() => setPercyMood('celebrating'), 2000);
+      setTimeout(() => setPercyMood('excited'), 4000);
+    } else if (user && userName) {
+      setPersonalizedGreeting(`Hey ${userName}! Great to meet you! 🚀`);
+      setPercyMood('excited');
+    }
+    
+    // Mark as visited
+    localStorage.setItem('percy_visited', 'true');
+    if (userName) {
+      localStorage.setItem('user_name', userName);
+    }
+  }, [setIsOnboardingActive, user]);
 
   // Typewriter/cycling effect for intro messages
   useEffect(() => {
@@ -167,10 +193,26 @@ export default function PercyOnboardingRevolution() {
     return () => clearTimeout(timeout);
   }, [promptBarFocused, promptBarActive, typewriterMessages]);
 
-  // Mark user as interacted on any onboarding action
-  const handleAnyInteraction = useCallback(() => {
-    if (!userInteracted) setUserInteracted(true);
+  // Enhanced interaction handling with mood changes
+  const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
+    if (!userInteracted) {
+      setUserInteracted(true);
+      setPercyMood('nodding'); // Percy nods when user first interacts
+      setTimeout(() => setPercyMood('excited'), 1500);
+    }
     setPulseActive(false);
+    setLastInteractionType(interactionType);
+    
+    // Add subtle mood changes based on interaction type
+    if (interactionType === 'option_click') {
+      setPercyMood('analyzing');
+      setTimeout(() => setPercyMood('confident'), 1000);
+    } else if (interactionType === 'input_focus') {
+      setPercyMood('scanning');
+    } else if (interactionType === 'successful_action') {
+      setPercyMood('celebrating');
+      setTimeout(() => setPercyMood('excited'), 2000);
+    }
   }, [userInteracted]);
 
   // VIP Code validation
@@ -686,6 +728,7 @@ export default function PercyOnboardingRevolution() {
           setVipTier(vipValidation.tier);
           setInputValue('');
           setPercyMood('celebrating');
+          handleAnyInteraction('successful_action');
           
           await handlePercyThinking(2000);
           setCurrentStep('vip-welcome');
@@ -807,204 +850,96 @@ export default function PercyOnboardingRevolution() {
     return () => clearInterval(interval);
   }, [socialProofMessages]);
 
-  // Enhanced Percy intelligence and recommendation engine
-  const [quickWinRecommendations, setQuickWinRecommendations] = useState<any[]>([]);
-  const [currentRecommendation, setCurrentRecommendation] = useState<any>(null);
-  const [userProfile, setUserProfile] = useState<any>({
-    industry: null,
-    experience: null,
-    urgency: null,
-    goals: []
-  });
-  const [onboardingStage, setOnboardingStage] = useState<'greeting' | 'profiling' | 'recommendations' | 'demo' | 'activation'>('greeting');
-  const [firstAgentDemo, setFirstAgentDemo] = useState<any>(null);
-  const [demoResults, setDemoResults] = useState<any>(null);
+  // Legacy recommendation engine - TODO: Consider removing if not actively used
+  // const [quickWinRecommendations, setQuickWinRecommendations] = useState<any[]>([]);
+  // const [currentRecommendation, setCurrentRecommendation] = useState<any>(null);
+  // const [userProfile, setUserProfile] = useState<any>({
+  //   industry: null,
+  //   experience: null,
+  //   urgency: null,
+  //   goals: []
+  // });
+  // const [onboardingStage, setOnboardingStage] = useState<'greeting' | 'profiling' | 'recommendations' | 'demo' | 'activation'>('greeting');
+  // const [firstAgentDemo, setFirstAgentDemo] = useState<any>(null);
+  // const [demoResults, setDemoResults] = useState<any>(null);
 
-  // Quick Win Templates for different user profiles
-  const quickWinTemplates = {
-    'content_creator': {
-      primaryAgent: 'contentcreation',
-      quickWin: 'Generate 5 blog post ideas in 30 seconds',
-      demoTemplate: 'content-creation-pipeline',
-      timeToValue: '2 minutes',
-      expectedResult: '5 SEO-optimized blog topics with outlines'
-    },
-    'ecommerce_owner': {
-      primaryAgent: 'adcreative',
-      quickWin: 'Create Facebook ad copy for your best product',
-      demoTemplate: 'ecommerce-product-launch',
-      timeToValue: '3 minutes',
-      expectedResult: 'High-converting ad copy with 3 variations'
-    },
-    'saas_founder': {
-      primaryAgent: 'branding',
-      quickWin: 'Generate your complete brand voice guide',
-      demoTemplate: 'saas-user-onboarding',
-      timeToValue: '5 minutes',
-      expectedResult: 'Brand voice, messaging, and tone guidelines'
-    },
-    'consultant': {
-      primaryAgent: 'proposal',
-      quickWin: 'Create a client proposal template',
-      demoTemplate: 'consulting-client-proposal',
-      timeToValue: '4 minutes',
-      expectedResult: 'Professional proposal with pricing structure'
-    },
-    'agency_owner': {
-      primaryAgent: 'social',
-      quickWin: 'Plan 30 days of social content',
-      demoTemplate: 'social-media-campaign',
-      timeToValue: '6 minutes',
-      expectedResult: 'Complete social media content calendar'
-    }
-  };
+  // Legacy Quick Win Templates - TODO: Consider removing if not actively used
+  // const quickWinTemplates = {
+  //   'content_creator': {
+  //     primaryAgent: 'contentcreation',
+  //     quickWin: 'Generate 5 blog post ideas in 30 seconds',
+  //     demoTemplate: 'content-creation-pipeline',
+  //     timeToValue: '2 minutes',
+  //     expectedResult: '5 SEO-optimized blog topics with outlines'
+  //   },
+  //   'ecommerce_owner': {
+  //     primaryAgent: 'adcreative',
+  //     quickWin: 'Create Facebook ad copy for your best product',
+  //     demoTemplate: 'ecommerce-product-launch',
+  //     timeToValue: '3 minutes',
+  //     expectedResult: 'High-converting ad copy with 3 variations'
+  //   },
+  //   'saas_founder': {
+  //     primaryAgent: 'branding',
+  //     quickWin: 'Generate your complete brand voice guide',
+  //     demoTemplate: 'saas-user-onboarding',
+  //     timeToValue: '5 minutes',
+  //     expectedResult: 'Brand voice, messaging, and tone guidelines'
+  //   },
+  //   'consultant': {
+  //     primaryAgent: 'proposal',
+  //     quickWin: 'Create a client proposal template',
+  //     demoTemplate: 'consulting-client-proposal',
+  //     timeToValue: '4 minutes',
+  //     expectedResult: 'Professional proposal with pricing structure'
+  //   },
+  //   'agency_owner': {
+  //     primaryAgent: 'social',
+  //     quickWin: 'Plan 30 days of social content',
+  //     demoTemplate: 'social-media-campaign',
+  //     timeToValue: '6 minutes',
+  //     expectedResult: 'Complete social media content calendar'
+  //   }
+  // };
 
-  // Intelligent user profiling based on responses
-  const analyzeUserProfile = useCallback((responses: string[]) => {
-    const allText = responses.join(' ').toLowerCase();
-    
-    // Industry detection
-    let industry = 'general';
-    if (allText.includes('shop') || allText.includes('store') || allText.includes('product')) industry = 'ecommerce';
-    else if (allText.includes('content') || allText.includes('blog') || allText.includes('write')) industry = 'content';
-    else if (allText.includes('saas') || allText.includes('software') || allText.includes('app')) industry = 'saas';
-    else if (allText.includes('consult') || allText.includes('agency') || allText.includes('client')) industry = 'consulting';
-    else if (allText.includes('social') || allText.includes('instagram') || allText.includes('tiktok')) industry = 'social';
+  // Legacy recommendation and analysis functions - commented out for cleanup
+  // TODO: Consider removing if not actively used in current onboarding flow
+  
+  // const analyzeUserProfile = useCallback((responses: string[]) => {
+  //   const allText = responses.join(' ').toLowerCase();
+  //   
+  //   // Industry detection
+  //   let industry = 'general';
+  //   if (allText.includes('shop') || allText.includes('store') || allText.includes('product')) industry = 'ecommerce';
+  //   else if (allText.includes('content') || allText.includes('blog') || allText.includes('write')) industry = 'content';
+  //   else if (allText.includes('saas') || allText.includes('software') || allText.includes('app')) industry = 'saas';
+  //   else if (allText.includes('consult') || allText.includes('agency') || allText.includes('client')) industry = 'consulting';
+  //   else if (allText.includes('social') || allText.includes('instagram') || allText.includes('tiktok')) industry = 'social';
 
-    // Experience level detection
-    let experience = 'beginner';
-    if (allText.includes('expert') || allText.includes('advanced') || allText.includes('professional')) experience = 'advanced';
-    else if (allText.includes('some experience') || allText.includes('intermediate')) experience = 'intermediate';
+  //   // Experience level detection
+  //   let experience = 'beginner';
+  //   if (allText.includes('expert') || allText.includes('advanced') || allText.includes('professional')) experience = 'advanced';
+  //   else if (allText.includes('some experience') || allText.includes('intermediate')) experience = 'intermediate';
 
-    // Urgency detection
-    let urgency = 'normal';
-    if (allText.includes('urgent') || allText.includes('asap') || allText.includes('immediately')) urgency = 'high';
-    else if (allText.includes('soon') || allText.includes('quickly')) urgency = 'medium';
+  //   // Urgency detection
+  //   let urgency = 'normal';
+  //   if (allText.includes('urgent') || allText.includes('asap') || allText.includes('immediately')) urgency = 'high';
+  //   else if (allText.includes('soon') || allText.includes('quickly')) urgency = 'medium';
 
-    return { industry, experience, urgency };
-  }, []);
+  //   return { industry, experience, urgency };
+  // }, []);
 
-  // Generate personalized recommendations
-  const generateRecommendations = useCallback((profile: any) => {
-    const recommendations = [];
-    
-    // Primary recommendation based on industry
-    const profileKey = `${profile.industry}_${profile.experience === 'beginner' ? 'creator' : 'owner'}`;
-    const primaryTemplate = quickWinTemplates[profileKey as keyof typeof quickWinTemplates] || quickWinTemplates['content_creator'];
-    
-    recommendations.push({
-      type: 'primary',
-      title: 'Perfect First Win',
-      description: primaryTemplate.quickWin,
-      agent: primaryTemplate.primaryAgent,
-      template: primaryTemplate.demoTemplate,
-      timeToValue: primaryTemplate.timeToValue,
-      expectedResult: primaryTemplate.expectedResult,
-      confidence: 95
-    });
+  // const generateRecommendations = useCallback((profile: any) => {
+  //   // Implementation commented out for cleanup
+  // }, []);
 
-    // Secondary recommendations
-    if (profile.urgency === 'high') {
-      recommendations.push({
-        type: 'urgent',
-        title: 'Immediate Impact',
-        description: 'Get results in under 60 seconds with our fastest agent',
-        agent: 'contentcreation',
-        template: 'content-creation-pipeline',
-        timeToValue: '45 seconds',
-        expectedResult: 'Instant content ideas',
-        confidence: 88
-      });
-    }
+  // const handlePercyConversation = useCallback(async (userInput: string) => {
+  //   // Implementation commented out for cleanup
+  // }, []);
 
-    // Experience-based recommendations
-    if (profile.experience === 'advanced') {
-      recommendations.push({
-        type: 'advanced',
-        title: 'Power User Flow',
-        description: 'Chain multiple agents for complex automation',
-        agent: 'percy',
-        template: 'advanced-workflow',
-        timeToValue: '10 minutes',
-        expectedResult: 'Complete automated workflow',
-        confidence: 92
-      });
-    }
-
-    return recommendations;
-  }, [quickWinTemplates]);
-
-  // Enhanced Percy conversation handler
-  const handlePercyConversation = useCallback(async (userInput: string) => {
-    setIsPercyThinking(true);
-    
-    try {
-      // Analyze user input for profiling
-      const responses = [userInput, userGoal, inputValue].filter(Boolean);
-      const profile = analyzeUserProfile(responses);
-      setUserProfile(profile);
-
-      // Generate recommendations
-      const recommendations = generateRecommendations(profile);
-      setQuickWinRecommendations(recommendations);
-      setCurrentRecommendation(recommendations[0]);
-
-      // Move to recommendations stage
-      setOnboardingStage('recommendations');
-      
-      // Simulate Percy thinking time
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-    } catch (error) {
-      console.error('[Percy] Conversation analysis failed:', error);
-    } finally {
-      setIsPercyThinking(false);
-    }
-  }, [userGoal, inputValue, analyzeUserProfile, generateRecommendations]);
-
-  // Demo execution handler
-  const executeFirstAgentDemo = useCallback(async (recommendation: any) => {
-    setOnboardingStage('demo');
-    setFirstAgentDemo(recommendation);
-    
-    try {
-      // Simulate demo execution
-      setIsPercyThinking(true);
-      
-      const response = await fetch('/api/workflows/templates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({
-          templateId: recommendation.template,
-          action: 'demo',
-          sampleInput: `Demo for ${userGoal || 'business automation'}`
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        setDemoResults(result.demo);
-        setOnboardingStage('activation');
-        
-        // Track successful demo
-        trackBehavior?.('demo_completed', {
-          agent: recommendation.agent,
-          template: recommendation.template,
-          userProfile,
-          timeToComplete: result.demo.executionTime
-        });
-      }
-      
-    } catch (error) {
-      console.error('[Percy] Demo execution failed:', error);
-    } finally {
-      setIsPercyThinking(false);
-    }
-  }, [session, userGoal, userProfile, trackBehavior]);
+  // const executeFirstAgentDemo = useCallback(async (recommendation: any) => {
+  //   // Implementation commented out for cleanup
+  // }, []);
 
   // Helper functions for new prompt bar functionality
   const handlePromptBarSubmit = async () => {
@@ -1092,6 +1027,57 @@ export default function PercyOnboardingRevolution() {
   animate="animate"
   layout
 >
+      {/* Floating Background Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={`bg-particle-${i}`}
+            className="absolute w-2 h-2 rounded-full bg-gradient-to-r from-cyan-400/20 to-blue-400/20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              x: [0, Math.sin(i) * 50, 0],
+              opacity: [0, 0.6, 0],
+              scale: [0, 1, 0],
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: i * 0.5,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+        
+        {/* Larger ambient orbs */}
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={`bg-orb-${i}`}
+            className="absolute rounded-full bg-gradient-to-r from-teal-500/10 to-cyan-500/10 blur-xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${60 + Math.random() * 40}px`,
+              height: `${60 + Math.random() * 40}px`,
+            }}
+            animate={{
+              y: [0, -80, 0],
+              x: [0, Math.cos(i) * 60, 0],
+              opacity: [0.1, 0.3, 0.1],
+              scale: [0.8, 1.2, 0.8],
+            }}
+            transition={{
+              duration: 12 + Math.random() * 8,
+              repeat: Infinity,
+              delay: i * 1.2,
+              ease: 'easeInOut',
+            }}
+          />
+        ))}
+      </div>
       {/* Top Pseudo-3D Deck Panel */}
       <motion.div
         variants={{
@@ -1117,7 +1103,13 @@ export default function PercyOnboardingRevolution() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-6"
           >
-            <PercyAvatar size="lg" animate={!userInteracted} className="shadow-inner shadow-[inset_0_0_12px_rgba(0,0,0,0.7)]" />
+            <PercyAvatar 
+              size="lg" 
+              animate={!userInteracted} 
+              mood={percyMood}
+              showParticles={percyMood === 'celebrating'}
+              className="shadow-inner shadow-[inset_0_0_12px_rgba(0,0,0,0.7)]" 
+            />
           </motion.div>
           
           <motion.div
@@ -1136,7 +1128,7 @@ export default function PercyOnboardingRevolution() {
               className="block font-bold text-2xl md:text-3xl text-cyan-300 text-center tracking-tight mb-2 min-h-10"
               aria-live="polite"
             >
-              {typedText}
+              {personalizedGreeting || typedText}
             </span>
             <div className="text-sm text-gray-400">
               <div>Businesses Transformed</div>
@@ -1238,7 +1230,7 @@ export default function PercyOnboardingRevolution() {
                         value={inputValue}
                         onChange={(e) => {
                           setInputValue(e.target.value);
-                          handleAnyInteraction();
+                          handleAnyInteraction('input_change');
                         }}
                         placeholder={step.inputPlaceholder}
                         className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm touch-manipulation text-base"
@@ -1247,7 +1239,7 @@ export default function PercyOnboardingRevolution() {
                             handleInputSubmit();
                           }
                         }}
-                        onFocus={() => handleAnyInteraction()}
+                        onFocus={() => handleAnyInteraction('input_focus')}
                         data-percy-input
                         style={{ 
                           touchAction: 'manipulation',
@@ -1290,21 +1282,66 @@ export default function PercyOnboardingRevolution() {
                         {step.options.slice(0, 4).map((option) => (
                           <motion.button
                             variants={{
-                              initial: { opacity: 0, y: 16, scale: 0.96 },
-                              entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
-                              float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                              initial: { opacity: 0, y: 16, scale: 0.96, rotateX: -5 },
+                              entry: { 
+                                opacity: 1, 
+                                y: 0, 
+                                scale: 1, 
+                                rotateX: 0,
+                                transition: { type: 'spring', stiffness: 60, damping: 16 } 
+                              },
+                              float: { 
+                                y: [0, -2, 0], 
+                                rotateX: [0, 1, 0],
+                                boxShadow: [
+                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                  '0 8px 32px rgba(45,212,191,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                                ],
+                                transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } 
+                              }
                             }}
                             initial="initial"
                             animate={["entry","float"]}
-                            whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
-                            whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
+                            whileHover={{ 
+                              scale: 1.05, 
+                              rotateX: 8, 
+                              rotateY: -4, 
+                              z: 20,
+                              boxShadow: '0 20px 60px rgba(30,144,255,0.4), 0 8px 24px rgba(45,212,191,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
+                              background: 'linear-gradient(145deg, rgba(21,23,30,0.8), rgba(45,212,191,0.1))',
+                              transition: { duration: 0.2, ease: 'easeOut' }
+                            }}
+                            whileTap={{ 
+                              scale: 0.98, 
+                              rotateX: -3, 
+                              rotateY: 2,
+                              boxShadow: '0 2px 8px rgba(45,212,191,0.3), inset 0 2px 4px rgba(0,0,0,0.3)',
+                              transition: { duration: 0.1 }
+                            }}
 
                             key={option.id}
                             onClick={() => {
                               handleOptionClick(option);
-                              handleAnyInteraction();
+                              handleAnyInteraction('option_click');
                             }}
-                            className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 transition-all group min-h-[60px] flex items-center"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleOptionClick(option);
+                                handleAnyInteraction('option_click');
+                              }
+                            }}
+                            tabIndex={0}
+                            role="button"
+                            aria-label={`Select ${option.label}`}
+                                                          className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-md shadow-inner border border-teal-400/40 hover:border-teal-400/80 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center transform-gpu touch-manipulation"
+                            style={{ 
+                              perspective: '1000px',
+                              transformStyle: 'preserve-3d',
+                              background: 'linear-gradient(145deg, rgba(21,23,30,0.6), rgba(21,23,30,0.8))',
+                              boxShadow: '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                            }}
                             data-percy-option={option.id}
                           >
                             <div className="flex items-center space-x-3 w-full">
@@ -1334,9 +1371,19 @@ export default function PercyOnboardingRevolution() {
                         key={option.id}
                         onClick={() => {
                           handleOptionClick(option);
-                          handleAnyInteraction();
+                          handleAnyInteraction('option_click');
                         }}
-                        className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 transition-all group min-h-[60px] flex items-center"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleOptionClick(option);
+                            handleAnyInteraction('option_click');
+                          }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`Select ${option.label}`}
+                        className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center touch-manipulation"
                         data-percy-option={option.id}
                       >
                         <div className="flex items-center space-x-3 w-full">
@@ -1366,24 +1413,84 @@ export default function PercyOnboardingRevolution() {
             layout
           >
             <div className="relative">
-              <motion.input
-                ref={promptBarRef}
-                type="text"
-                value={promptBarValue}
-                onChange={(e) => setPromptBarValue(e.target.value)}
-                onFocus={() => setPromptBarFocused(true)}
-                onBlur={() => setPromptBarFocused(false)}
-                placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
-                className="w-full px-4 py-3 pr-20 bg-[rgba(21,23,30,0.7)] backdrop-blur-md border border-teal-400/40 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-200 focus:ring-2 focus:ring-teal-200/30 text-sm shadow-[0_0_12px_#30d5c899] transition-all duration-200"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && promptBarValue.trim()) {
-                    handlePromptBarSubmit();
-                  }
-                }}
-                style={{ fontSize: '16px' }}
-                animate={promptBarFocused ? { scale: 1.035, boxShadow: '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb' } : { scale: 1, boxShadow: '0 0 12px #30d5c899' }}
-                transition={{ type: 'spring', stiffness: 90, damping: 18 }}
-              />
+              <motion.div className="relative">
+                <motion.input
+                  ref={promptBarRef}
+                  type="text"
+                  value={promptBarValue}
+                  onChange={(e) => setPromptBarValue(e.target.value)}
+                  onFocus={() => {
+                    setPromptBarFocused(true);
+                    setPercyMood('scanning');
+                  }}
+                  onBlur={() => {
+                    setPromptBarFocused(false);
+                    setPercyMood('excited');
+                  }}
+                  placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
+                  className="w-full px-4 py-3 pr-20 bg-[rgba(21,23,30,0.7)] backdrop-blur-md border border-teal-400/40 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-200 focus:ring-2 focus:ring-teal-200/30 text-sm transition-all duration-200"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && promptBarValue.trim()) {
+                      handlePromptBarSubmit();
+                    }
+                  }}
+                  style={{ fontSize: '16px' }}
+                  animate={promptBarFocused ? { 
+                    scale: 1.035, 
+                    boxShadow: [
+                      '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb',
+                      '0 0 40px #30d5c8ff, 0 0 20px #6366f1ff',
+                      '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb'
+                    ],
+                    background: [
+                      'rgba(21,23,30,0.7)',
+                      'rgba(21,23,30,0.85)',
+                      'rgba(21,23,30,0.7)'
+                    ]
+                  } : { 
+                    scale: 1, 
+                    boxShadow: '0 0 12px #30d5c899',
+                    background: 'rgba(21,23,30,0.7)'
+                  }}
+                  transition={{ 
+                    type: 'spring', 
+                    stiffness: 90, 
+                    damping: 18,
+                    boxShadow: { duration: 2, repeat: promptBarFocused ? Infinity : 0 },
+                    background: { duration: 2, repeat: promptBarFocused ? Infinity : 0 }
+                  }}
+                />
+                
+                {/* Animated Caret Effect */}
+                {promptBarFocused && (
+                  <motion.div
+                    className="absolute right-24 top-1/2 w-0.5 h-4 bg-cyan-400"
+                    style={{ transform: 'translateY(-50%)' }}
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  />
+                )}
+                
+                {/* Input Ripple Effect */}
+                <AnimatePresence>
+                  {promptBarFocused && (
+                    <motion.div
+                      className="absolute inset-0 rounded-2xl border-2 border-cyan-400/50"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ 
+                        opacity: [0, 0.6, 0],
+                        scale: [0.8, 1.1, 1.3],
+                      }}
+                      exit={{ opacity: 0 }}
+                      transition={{ 
+                        duration: 1.5,
+                        repeat: Infinity,
+                        ease: 'easeOut'
+                      }}
+                    />
+                  )}
+                </AnimatePresence>
+              </motion.div>
               
               {/* Chat Reset Button */}
               <motion.button
