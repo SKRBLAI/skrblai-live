@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, cubicBezier } from 'framer-motion';
 import Image from 'next/image';
 
 interface PercyAvatarProps {
@@ -36,7 +36,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             duration: 2,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
       case 'celebrating':
@@ -47,7 +47,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             duration: 1.5,
             repeat: 3,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
       case 'nodding':
@@ -57,7 +57,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             duration: 2,
             repeat: 2,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
       case 'waving':
@@ -67,7 +67,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             duration: 2.5,
             repeat: 2,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
       case 'analyzing':
@@ -75,8 +75,8 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           rotateY: [0, 360],
           y: [0, -3, 0],
           transition: {
-            rotateY: { duration: 4, repeat: Infinity, ease: 'linear' },
-            y: { duration: 2, repeat: Infinity, ease: 'easeInOut' }
+            rotateY: { duration: 4, repeat: Infinity, ease: cubicBezier(0, 0, 1, 1) },
+            y: { duration: 2, repeat: Infinity, ease: cubicBezier(0.42, 0, 0.58, 1) }
           }
         };
       case 'scanning':
@@ -86,7 +86,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             duration: 1.5,
             repeat: Infinity,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
       default: // excited
@@ -96,7 +96,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition: {
             repeat: Infinity,
             duration: 7,
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
           }
         };
     }
@@ -157,8 +157,8 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
             ]
           } : undefined}
           transition={{
-            y: { duration: mood === 'celebrating' ? 1 : 2, repeat: Infinity, ease: 'easeInOut' },
-            filter: { duration: mood === 'celebrating' ? 2 : 3, repeat: Infinity, ease: 'easeInOut' }
+            y: { duration: mood === 'celebrating' ? 1 : 2, repeat: Infinity, ease: cubicBezier(0.42, 0, 0.58, 1) },
+            filter: { duration: mood === 'celebrating' ? 2 : 3, repeat: Infinity, ease: cubicBezier(0.42, 0, 0.58, 1) }
           }}
         >
           <Image
@@ -175,7 +175,11 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-electric-blue/30 to-teal-400/30 rounded-full blur-sm"
           animate={getGlowIntensity()}
-          transition={{ repeat: Infinity, duration: mood === 'celebrating' ? 1.5 : 2.8, ease: 'easeInOut' }}
+          transition={{
+            repeat: Infinity,
+            duration: mood === 'celebrating' ? 1.5 : 2.8,
+            ease: cubicBezier(0.42, 0, 0.58, 1)
+          }}
         />
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-electric-blue/10 to-teal-400/10 rounded-full blur-md"
@@ -195,7 +199,7 @@ const PercyAvatar: React.FC<PercyAvatarProps> = ({
           transition={{ 
             repeat: Infinity, 
             duration: mood === 'celebrating' ? 3 : 3.2, 
-            ease: 'easeInOut',
+            ease: cubicBezier(0.42, 0, 0.58, 1),
             background: { duration: 4, repeat: Infinity }
           }}
         />
