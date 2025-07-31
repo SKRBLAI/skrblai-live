@@ -154,7 +154,6 @@ export default function AgentPreviewSection(): React.ReactElement {
         {FEATURED_AGENTS.map((agent) => {
           const intelligence = agentIntelligence.get(agent.id);
           const insights = predictiveInsights.get(agent.id) || [];
-          
           return (
             <motion.div
               key={agent.id}

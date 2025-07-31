@@ -252,9 +252,8 @@ export default function PercyOnboardingRevolution() {
         { id: 'linkedin-profile', label: '💼 Build my professional brand', icon: '📈', action: 'instant-linkedin-analysis' },
         { id: 'sports-analysis', label: '🏆 Athletic performance optimization', icon: '⚽', action: 'sports-routing' },
         { id: 'custom-needs', label: '💬 Something else - let me explain', icon: '🎤', action: 'custom-needs-analysis' },
-        // New core actions
         { id: 'signup', label: '🚀 Sign Up', icon: '🚀', action: 'signup' },
-        { id: 'have-code', label: '🔑 Have A Code?', icon: '🔑', action: 'have-code' },
+        { id: 'have-code', label: '🔑 Have a Code?', icon: '🔑', action: 'have-code' },
         { id: 'my-dashboard', label: '📊 My Dashboard', icon: '📊', action: 'my-dashboard' }
       ]
     },
@@ -1104,10 +1103,12 @@ export default function PercyOnboardingRevolution() {
             className="mb-6"
           >
             <PercyAvatar 
+              
+              
               size="lg" 
               animate={!userInteracted} 
-              mood={percyMood}
-              showParticles={percyMood === 'celebrating'}
+              
+              
               className="shadow-inner shadow-[inset_0_0_12px_rgba(0,0,0,0.7)]" 
             />
           </motion.div>
@@ -1265,60 +1266,148 @@ export default function PercyOnboardingRevolution() {
 
                 {/* Onboarding Options - 2x2 Grid on Desktop */}
                 {step.options && (
-                  <motion.div
-                    variants={{
-                      initial: { opacity: 0, y: 10 },
-                      entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
-                      float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-                    }}
-                    initial="initial"
-                    animate={["entry","float"]}
-                    className="space-y-3"
-                    layout
-                  >
-                    {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
-                    {step.options.slice(0, 4).length > 0 && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {step.options.slice(0, 4).map((option) => (
+                  step.id === 'greeting'
+                    ? (
+                      <motion.div
+                        variants={{
+                          initial: { opacity: 0, y: 10 },
+                          entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+                          float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                        }}
+                        initial="initial"
+                        animate={["entry","float"]}
+                        className="space-y-3"
+                        layout
+                      >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                          {step.options.map((option) => (
+                            <motion.button
+                              variants={{ initial: { opacity: 0 }, entry: { opacity: 1, transition: { duration: 0.7 } } }}
+                              initial="initial"
+                              animate="entry"
+                              whileHover={{ scale: 1.05, transition: { duration: 0.2, ease: 'easeOut' } }}
+                              whileTap={{ scale: 0.98, transition: { duration: 0.1 } }}
+                              key={option.id}
+                              onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
+                              tabIndex={0}
+                              role="button"
+                              aria-label={`Select ${option.label}`}
+                              className="w-full p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-md shadow-inner border border-teal-400/40 hover:border-teal-400/80 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group flex items-center touch-manipulation"
+                              style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+                              data-percy-option={option.id}
+                            >
+                              <div className="flex items-center space-x-3 w-full">
+                                <span className="text-2xl flex-shrink-0">{option.icon}</span>
+                                <span className="text-white font-medium transition-colors text-sm flex-1">{option.label}</span>
+                              </div>
+                            </motion.button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )
+                    : (
+                      <motion.div
+                        variants={{
+                          initial: { opacity: 0, y: 10 },
+                          entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+                          float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                        }}
+                        initial="initial"
+                        animate={["entry","float"]}
+                        className="space-y-3"
+                        layout
+                      >
+                        {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
+                        {step.options.slice(0, 4).length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {step.options.slice(0, 4).map((option) => (
+                              <motion.button
+                                variants={{
+                                  initial: { opacity: 0, y: 16, scale: 0.96, rotateX: -5 },
+                                  entry: { 
+                                    opacity: 1, 
+                                    y: 0, 
+                                    scale: 1, 
+                                    rotateX: 0,
+                                    transition: { type: 'spring', stiffness: 60, damping: 16 } 
+                                  },
+                                  float: { 
+                                    y: [0, -2, 0], 
+                                    rotateX: [0, 1, 0],
+                                    boxShadow: [
+                                      '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+                                      '0 8px 32px rgba(45,212,191,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
+                                      '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                                    ],
+                                    transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } 
+                                  }
+                                }}
+                                initial="initial"
+                                animate={["entry","float"]}
+                                whileHover={{ 
+                                  scale: 1.05, 
+                                  rotateX: 8, 
+                                  rotateY: -4, 
+                                  z: 20,
+                                  boxShadow: '0 20px 60px rgba(30,144,255,0.4), 0 8px 24px rgba(45,212,191,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
+                                  background: 'linear-gradient(145deg, rgba(21,23,30,0.8), rgba(45,212,191,0.1))',
+                                  transition: { duration: 0.2, ease: 'easeOut' }
+                                }}
+                                whileTap={{ 
+                                  scale: 0.98, 
+                                  rotateX: -3, 
+                                  rotateY: 2,
+                                  boxShadow: '0 2px 8px rgba(45,212,191,0.3), inset 0 2px 4px rgba(0,0,0,0.3)',
+                                  transition: { duration: 0.1 }
+                                }}
+
+                                key={option.id}
+                                onClick={() => {
+                                  handleOptionClick(option);
+                                  handleAnyInteraction('option_click');
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    handleOptionClick(option);
+                                    handleAnyInteraction('option_click');
+                                  }
+                                }}
+                                tabIndex={0}
+                                role="button"
+                                aria-label={`Select ${option.label}`}
+                                                          className={`w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-md shadow-inner border border-teal-400/40 hover:border-teal-400/80 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center touch-manipulation ${option.id === 'custom-needs' ? 'md:col-span-2' : ''}`}
+                                style={{ 
+                                  perspective: '1000px',
+                                  transformStyle: 'preserve-3d',
+                                  background: 'linear-gradient(145deg, rgba(21,23,30,0.6), rgba(21,23,30,0.8))',
+                                  boxShadow: '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
+                                }}
+                                data-percy-option={option.id}
+                              >
+                                <div className="flex items-center space-x-3 w-full">
+                                  <span className="text-2xl flex-shrink-0">{option.icon}</span>
+                                  <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
+                                    {option.label}
+                                  </span>
+                                </div>
+                              </motion.button>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Remaining options (5th onwards) - full width stack */}
+                        {step.options.slice(4).map((option) => (
                           <motion.button
                             variants={{
-                              initial: { opacity: 0, y: 16, scale: 0.96, rotateX: -5 },
-                              entry: { 
-                                opacity: 1, 
-                                y: 0, 
-                                scale: 1, 
-                                rotateX: 0,
-                                transition: { type: 'spring', stiffness: 60, damping: 16 } 
-                              },
-                              float: { 
-                                y: [0, -2, 0], 
-                                rotateX: [0, 1, 0],
-                                boxShadow: [
-                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                  '0 8px 32px rgba(45,212,191,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
-                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
-                                ],
-                                transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } 
-                              }
+                              initial: { opacity: 0, y: 16, scale: 0.96 },
+                              entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
+                              float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
                             }}
                             initial="initial"
                             animate={["entry","float"]}
-                            whileHover={{ 
-                              scale: 1.05, 
-                              rotateX: 8, 
-                              rotateY: -4, 
-                              z: 20,
-                              boxShadow: '0 20px 60px rgba(30,144,255,0.4), 0 8px 24px rgba(45,212,191,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
-                              background: 'linear-gradient(145deg, rgba(21,23,30,0.8), rgba(45,212,191,0.1))',
-                              transition: { duration: 0.2, ease: 'easeOut' }
-                            }}
-                            whileTap={{ 
-                              scale: 0.98, 
-                              rotateX: -3, 
-                              rotateY: 2,
-                              boxShadow: '0 2px 8px rgba(45,212,191,0.3), inset 0 2px 4px rgba(0,0,0,0.3)',
-                              transition: { duration: 0.1 }
-                            }}
+                            whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
+                            whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
 
                             key={option.id}
                             onClick={() => {
@@ -1335,13 +1424,7 @@ export default function PercyOnboardingRevolution() {
                             tabIndex={0}
                             role="button"
                             aria-label={`Select ${option.label}`}
-                                                          className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-md shadow-inner border border-teal-400/40 hover:border-teal-400/80 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center transform-gpu touch-manipulation"
-                            style={{ 
-                              perspective: '1000px',
-                              transformStyle: 'preserve-3d',
-                              background: 'linear-gradient(145deg, rgba(21,23,30,0.6), rgba(21,23,30,0.8))',
-                              boxShadow: '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
-                            }}
+                            className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center touch-manipulation"
                             data-percy-option={option.id}
                           >
                             <div className="flex items-center space-x-3 w-full">
@@ -1352,49 +1435,8 @@ export default function PercyOnboardingRevolution() {
                             </div>
                           </motion.button>
                         ))}
-                      </div>
-                    )}
-                    
-                    {/* Remaining options (5th onwards) - full width stack */}
-                    {step.options.slice(4).map((option) => (
-                      <motion.button
-                        variants={{
-                          initial: { opacity: 0, y: 16, scale: 0.96 },
-                          entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
-                          float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-                        }}
-                        initial="initial"
-                        animate={["entry","float"]}
-                        whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
-                        whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
-
-                        key={option.id}
-                        onClick={() => {
-                          handleOptionClick(option);
-                          handleAnyInteraction('option_click');
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleOptionClick(option);
-                            handleAnyInteraction('option_click');
-                          }
-                        }}
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`Select ${option.label}`}
-                        className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center touch-manipulation"
-                        data-percy-option={option.id}
-                      >
-                        <div className="flex items-center space-x-3 w-full">
-                          <span className="text-2xl flex-shrink-0">{option.icon}</span>
-                          <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
-                            {option.label}
-                          </span>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </motion.div>
+                      </motion.div>
+                    )
                 )}
               </motion.div> 
              </AnimatePresence>
@@ -1541,8 +1583,8 @@ export default function PercyOnboardingRevolution() {
         className="mb-8"
         data-percy-stats
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-teal-400/40 shadow-[0_0_24px_#30d5c899] hover:shadow-[0_0_40px_#30d5c8ff] hover:bg-white/10 transform-gpu hover:scale-105 transition-all">
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.liveUsers} 
@@ -1554,7 +1596,7 @@ export default function PercyOnboardingRevolution() {
             <div className="text-xs text-teal-400 mt-1">▲ Active now</div>
           </div>
           
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-teal-400/40 shadow-[0_0_24px_#30d5c899] hover:shadow-[0_0_40px_#30d5c8ff] hover:bg-white/10 transform-gpu hover:scale-105 transition-all">
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.agentsDeployed} 
@@ -1566,7 +1608,7 @@ export default function PercyOnboardingRevolution() {
             <div className="text-xs text-electric-blue mt-1">▲ This hour</div>
           </div>
           
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-teal-400/40 shadow-[0_0_24px_#30d5c899] hover:shadow-[0_0_40px_#30d5c8ff] hover:bg-white/10 transform-gpu hover:scale-105 transition-all">
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.revenueGenerated} 

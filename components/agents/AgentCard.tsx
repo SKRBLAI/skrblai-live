@@ -61,7 +61,7 @@ export default function AgentCard({
       whileHover={{ scale: isLocked ? 1.01 : 1.04, y: isLocked ? 0 : -8, boxShadow: isLocked ? '0 0 12px 2px #888' : '0 0 36px 8px #30D5C8CC' }}
       whileTap={{ scale: 0.98 }}
       className={`
-        relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
+        min-h-[300px] h-full flex flex-col justify-between relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
         ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
         ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : ''}
         ${isRecommended ? 'border-fuchsia-400/80 shadow-[0_0_48px_12px_#e879f9aa] animate-pulse-slow' : ''}
@@ -92,7 +92,7 @@ export default function AgentCard({
         }}
         style={{ zIndex: 1 }}
       />
-      <div className="relative p-6 flex flex-col items-center z-10">
+      <div className="relative p-6 flex flex-col justify-between items-center z-10">
         {/* Agent Image */}
         <div
           className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'} ${isRecommended ? 'ring-4 ring-fuchsia-400/60 ring-offset-2' : ''}`}

@@ -54,9 +54,9 @@ export default function CosmicButton({
   `);
 
   const motionProps = {
-    whileHover: disabled ? {} : { scale: 1.02, y: variant === 'glass' ? -3 : 0 },
-    whileTap: disabled ? {} : { scale: 0.98 },
-    transition: { duration: 0.2 },
+    whileHover: disabled ? {} : { scale: 1.04, perspective: 1000, rotateY: -2, y: variant === 'glass' ? -3 : 0 },
+    whileTap: disabled ? {} : { scale: 0.96, perspective: 1000, rotateY: 1 },
+    transition: { type: 'spring' as const, stiffness: 350, damping: 25 },
     style: variant === 'glass' ? { background: 'transparent', boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)' } : {}
   };
 

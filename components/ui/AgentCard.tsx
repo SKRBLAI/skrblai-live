@@ -244,7 +244,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
       <motion.article
         ref={cardRef}
-        className={`relative group cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
+        className={`min-h-[300px] h-full flex flex-col justify-between relative group cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
         variants={cardVariants}
         initial="initial"
         animate="animate"
@@ -356,7 +356,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           
           <motion.div 
             variants={contentVariants}
-            className="mt-2 text-white/90 text-sm text-center min-h-[48px] leading-relaxed px-1"
+            className="mt-2 text-white/90 text-sm text-center min-h-[48px] leading-relaxed px-1 line-clamp-3"
             initial="initial"
             animate="animate"
             whileHover="hover"

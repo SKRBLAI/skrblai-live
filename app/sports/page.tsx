@@ -318,7 +318,7 @@ export default function SportsPage(): JSX.Element {
                   </p>
                 </motion.div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {products.map((product, index) => (
                     <motion.div
                       key={product.id}
@@ -356,7 +356,7 @@ export default function SportsPage(): JSX.Element {
                         transformStyle: 'preserve-3d',
                         perspective: 1000
                       }}
-                      className="relative bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-gray-600/20 rounded-2xl p-6 backdrop-blur-xl hover:border-orange-500/40 transition-all duration-500 group cursor-pointer"
+                      className="min-h-[300px] h-full flex flex-col justify-between relative bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-gray-600/20 rounded-2xl p-6 backdrop-blur-xl hover:border-orange-500/40 transition-all duration-500 group cursor-pointer"
                     >
                       {/* Glassmorphic overlay */}
                       <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -401,7 +401,7 @@ export default function SportsPage(): JSX.Element {
                           <h3 className="text-lg font-bold text-white mb-3 group-hover:text-orange-100 transition-colors">
                             {product.title}
                           </h3>
-                          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors leading-relaxed">
+                          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors leading-relaxed line-clamp-3">
                             {product.description}
                           </p>
                           

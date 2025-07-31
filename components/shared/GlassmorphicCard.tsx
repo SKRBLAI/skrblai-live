@@ -53,28 +53,25 @@ export default function GlassmorphicCard({
 
   // Traditional glassmorphic style
   return (
-    <motion.div
+    <motion.div style={{ willChange: 'transform, box-shadow' }} 
       onClick={onClick}
       variants={variants}
       initial="initial"
       animate={["entry","float"]}
-      whileHover={hoverEffect ? { scale: 1.03, perspective: 1000, rotateX: 2, rotateY: -2 } : undefined}
-      whileTap={hoverEffect ? { scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 } : undefined}
+      whileHover={hoverEffect ? { scale: 1.04, perspective: 1000, rotateX: 2, rotateY: -2 } : undefined}
+      whileTap={hoverEffect ? { scale: 0.96, perspective: 1000, rotateX: -1, rotateY: 1 } : undefined}
       className={cn(`
         bg-transparent
         backdrop-blur-xl
         border-2 border-${glowColor}/70
         rounded-3xl
-        shadow-[0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]
-        ${hoverEffect ? 'hover:shadow-[0_0_25px_rgba(45,212,191,0.5),0_0_40px_rgba(56,189,248,0.3)] hover:border-teal-400/90 hover:-translate-y-1' : ''}
-        transition-all duration-300
+        shadow-[0_8px_16px_rgba(0,0,0,0.15),0_0_15px_rgba(45,212,191,0.3),0_0_30px_rgba(56,189,248,0.2)]
+        ${hoverEffect ? 'hover:shadow-[0_12px_24px_rgba(0,0,0,0.2),0_0_25px_rgba(45,212,191,0.5),0_0_40px_rgba(56,189,248,0.3)] hover:border-teal-400/90' : ''}
+        transition-shadow duration-300 ease-out
         p-6 md:p-8 mx-4 md:mx-6 lg:mx-8
         ${className}
       `)}
-      style={{
-        background: 'transparent',
-        boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'
-      }}
+      
     >
       {children}
     </motion.div>
