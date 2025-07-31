@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, MotionProps } from 'framer-motion';
 
-export interface AgentLeagueCardProps extends MotionProps, React.HTMLAttributes<HTMLDivElement> {
+export interface AgentLeagueCardProps extends MotionProps, Omit<React.HTMLAttributes<HTMLDivElement>, keyof MotionProps> {
   style?: React.CSSProperties;
   children: React.ReactNode;
   onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
