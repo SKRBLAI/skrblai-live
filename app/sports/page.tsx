@@ -227,7 +227,7 @@ export default function SportsPage(): JSX.Element {
                 </motion.div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                  {products.map((product, index) => (
+                  {products && products.length > 0 ? products.map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ 
@@ -420,7 +420,18 @@ export default function SportsPage(): JSX.Element {
                         ))}
                       </motion.div>
                     </motion.div>
-                  ))}
+                  )) : (
+                    // Error handling for empty/null products data
+                    <div className="col-span-full flex flex-col items-center justify-center py-12">
+                      <div className="text-center">
+                        <div className="text-6xl mb-4">⚠️</div>
+                        <h3 className="text-xl font-bold text-white mb-2">Products Not Available</h3>
+                        <p className="text-gray-400 text-sm">
+                          SkillSmith products are currently unavailable. Please try again later.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.section>

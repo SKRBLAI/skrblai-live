@@ -38,5 +38,64 @@ export const products: Product[] = [
     ],
     popular: true
   },
-  // ... copy the rest of the array from app/sports/page.tsx ...
+  {
+    id: 'performance-insights-elite',
+    title: 'Performance Insights Elite',
+    description: 'Advanced performance metrics and predictive analytics',
+    detailedDescription: 'Unlock elite-level performance insights with advanced analytics, trend tracking, and AI-powered predictions to optimize your training and competition strategies.',
+    price: 49,
+    originalPrice: 69,
+    sku: 'skillsmith_performance_insights_elite',
+    category: 'performance',
+    icon: Zap,
+    color: 'text-yellow-400',
+    features: [
+      'Real-time performance tracking',
+      'Predictive injury prevention',
+      'Training optimization algorithms',
+      'Competition readiness scoring',
+      'Performance trend analysis'
+    ],
+    popular: false
+  },
+  {
+    id: 'custom-training-plan',
+    title: 'Custom Training Plan',
+    description: 'Personalized training programs tailored to your goals',
+    detailedDescription: 'Get a fully customized training program designed by AI and sports scientists, adapted to your current fitness level, goals, and available equipment.',
+    price: 39,
+    originalPrice: 59,
+    sku: 'skillsmith_custom_training_plan',
+    category: 'training',
+    icon: Trophy,
+    color: 'text-green-400',
+    features: [
+      'AI-generated personalized workouts',
+      'Progressive difficulty scaling',
+      'Equipment-based customization',
+      'Goal-specific training phases',
+      'Weekly plan adjustments'
+    ],
+    popular: true
+  },
+  {
+    id: 'progress-tracker-premium',
+    title: 'Progress Tracker Premium',
+    description: 'Comprehensive progress monitoring and goal achievement',
+    detailedDescription: 'Track every aspect of your athletic journey with detailed metrics, milestone tracking, and motivational insights to keep you on the path to success.',
+    price: 19,
+    originalPrice: 29,
+    sku: 'skillsmith_progress_tracker_premium',
+    category: 'performance',
+    icon: Star,
+    color: 'text-purple-400',
+    features: [
+      'Detailed progress analytics',
+      'Goal setting and tracking',
+      'Achievement milestones',
+      'Performance photo comparisons',
+      'Motivational insights'
+    ],
+    popular: false
+  }
 ];
