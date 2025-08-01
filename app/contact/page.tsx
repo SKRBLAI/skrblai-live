@@ -4,11 +4,12 @@ import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import PageLayout from '../../components/layout/PageLayout';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
 import GlassmorphicForm from '../../components/shared/GlassmorphicForm';
 import CosmicButton from '../../components/shared/CosmicButton';
 import CosmicHeading from '../../components/shared/CosmicHeading';
+import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, DollarSign, Target, Phone, Mail, Calendar } from 'lucide-react';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 
@@ -195,7 +196,7 @@ export default function ContactPage() {
 
   if (submitted) {
     return (
-      <PageLayout>
+      <ClientPageLayout>
         <motion.div 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
@@ -203,12 +204,14 @@ export default function ContactPage() {
           className="min-h-screen relative"
         >
           <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-4xl mx-auto text-center"
-            >
+            <section className="relative z-10">
+              <div className="max-w-4xl mx-auto px-4 md:px-8">
+                <CosmicCardGlow size="xl" className="text-center">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6 }}
+                  >
               <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="flex items-center gap-2 bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                   🎯 MISSION RECEIVED
@@ -227,7 +230,7 @@ export default function ContactPage() {
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
-                <GlassmorphicCard className="p-6 border-green-400/30">
+                <CosmicCardGlass className="p-6 text-center border-green-400/30">
                   <Clock className="w-8 h-8 text-green-400 mx-auto mb-3" />
                   <div className="text-sm text-gray-300">Response Time</div>
                   <div className="text-xl font-bold text-green-400">
@@ -235,24 +238,24 @@ export default function ContactPage() {
                      selectedOption === 'enterprise' || selectedOption === 'investment' ? '< 2 hours' : 
                      '< 24 hours'}
                   </div>
-                </GlassmorphicCard>
+                </CosmicCardGlass>
 
-                <GlassmorphicCard className="p-6 border-cyan-400/30">
+                <CosmicCardGlass className="p-6 text-center border-cyan-400/30">
                   <MessageCircle className="w-8 h-8 text-cyan-400 mx-auto mb-3" />
                   <div className="text-sm text-gray-300">Priority Level</div>
                   <div className="text-xl font-bold text-cyan-400">
                     {selectedOption === 'media' ? 'IMMEDIATE' :
                      selectedOption === 'enterprise' || selectedOption === 'investment' ? 'URGENT' : 'HIGH'}
                   </div>
-                </GlassmorphicCard>
+                </CosmicCardGlass>
 
-                <GlassmorphicCard className="p-6 border-purple-400/30">
+                <CosmicCardGlass className="p-6 text-center border-purple-400/30">
                   <Star className="w-8 h-8 text-purple-400 mx-auto mb-3" />
                   <div className="text-sm text-gray-300">Next Steps</div>
                   <div className="text-xl font-bold text-purple-400">
                     {selectedOption === 'enterprise' ? 'Demo Prep' : 'Analysis'}
                   </div>
-                </GlassmorphicCard>
+                </CosmicCardGlass>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -274,15 +277,18 @@ export default function ContactPage() {
                   (844) 426-2860
                 </a>
               </p>
-            </motion.div>
+                  </motion.div>
+                </CosmicCardGlow>
+              </div>
+            </section>
           </div>
         </motion.div>
-      </PageLayout>
+      </ClientPageLayout>
     );
   }
 
   return (
-    <PageLayout>
+    <ClientPageLayout>
       <motion.div 
         initial={{ opacity: 0 }} 
         animate={{ opacity: 1 }} 
@@ -291,60 +297,108 @@ export default function ContactPage() {
       >
         <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
           
-          {/* Hero Section with Live Activity - Matching Services */}
+          {/* Hero Section with Live Activity - Matching About Page Style */}
+          <section className="relative z-10 mb-16">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+              <CosmicCardGlow size="xl" className="text-center mb-16">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                >
+                  {/* Live Activity Banner */}
+                  <motion.div
+                    className="flex items-center justify-center gap-4 mb-8"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <motion.div
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-400/30 rounded-full"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                      <span className="text-red-300 font-bold text-sm">
+                        LIVE: {metrics.inquiriesToday} inquiries today
+                      </span>
+                    </motion.div>
+                    <motion.div
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-400/30 rounded-full"
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                    >
+                      <Zap className="w-4 h-4 text-yellow-400" />
+                      <span className="text-yellow-300 font-bold text-sm">
+                        Avg response: {metrics.responseTime} min
+                      </span>
+                    </motion.div>
+                  </motion.div>
+
+                  <CosmicHeading className="text-4xl md:text-6xl mb-8">
+                    Ready to <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">Dominate</span> Your Market?
+                  </CosmicHeading>
+
+                  <motion.p
+                    className="text-xl md:text-2xl text-electric-blue mb-6 font-bold max-w-4xl mx-auto"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    Whether you're ready to scale, disrupt, or explore AI automation. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> delivers real solutions, real results, real fast.
+                  </motion.p>
+
+                  <motion.p
+                    className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    Percy's Contact Intelligence connects you directly to the right team member for immediate action. 
+                    No forms, no waiting - just instant business transformation.
+                  </motion.p>
+
+                  <motion.div
+                    className="flex items-center justify-center gap-4 mb-10"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <Image
+                      src="/images/agents-percy-nobg-skrblai.webp"
+                      alt="Percy the AI Concierge"
+                      width={80}
+                      height={80}
+                      className="rounded-full shadow-[0_0_30px_rgba(48,213,200,0.6)] bg-gradient-to-br from-cyan-400/20 to-purple-500/20 border-2 border-cyan-400/50"
+                      priority
+                    />
+                    <div className="text-left">
+                      <div className="text-white font-bold text-lg">Percy's Contact Intelligence</div>
+                      <div className="text-cyan-400 text-sm font-semibold">🧠 Connecting you to the right team...</div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              </CosmicCardGlow>
+            </div>
+          </section>
+
+          {/* Quick Contact Methods - Like About Page Metrics */}
           <motion.div
-            className="text-center mb-16"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="flex items-center gap-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                🔥 LIVE: {metrics.inquiriesToday} inquiries today
-              </div>
-              <div className="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded-full text-sm font-bold">
-                ⚡ Avg response: {metrics.responseTime} min
-              </div>
-            </div>
-            
-            <CosmicHeading className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl mb-4 md:mb-6 mobile-text-safe no-text-cutoff">
-              Ready to <span className="text-electric-blue">Dominate</span> Your Market?
-            </CosmicHeading>
-            <p className="text-lg sm:text-xl text-teal-300 max-w-3xl mx-auto mb-6 md:mb-8 font-semibold leading-relaxed mobile-text-safe no-text-cutoff">
-              Whether you're ready to scale, disrupt, or explore AI automation. <span className="text-white font-bold">Real solutions, real results, real fast.</span>
-            </p>
-            
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <Image
-                src="/images/agents-percy-nobg-skrblai.webp"
-                alt="Percy the AI Concierge"
-                width={80}
-                height={80}
-                className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30"
-                priority
-              />
-              <div className="text-left">
-                <div className="text-white font-bold">Percy's Contact Intelligence</div>
-                <div className="text-cyan-400 text-sm">🧠 Connecting you to the right team...</div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quick Contact Methods - Matching Services Grid */}
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16"
+            transition={{ delay: 0.5 }}
           >
             {quickContactMethods.map((method, index) => (
               <motion.div
                 key={method.method}
-                variants={item}
-                whileHover={{ scale: 1.02, y: -5 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 + 0.6 }}
+                whileHover={{ scale: 1.05, y: -5 }}
                 className="relative group cursor-pointer transition-all duration-300"
               >
-                <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                <CosmicCardGlass className="h-full p-6 text-center relative overflow-hidden">
                   <div className="flex flex-col items-center mb-2">
                     <div className="p-3 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-500 shadow-glow mb-2 group-hover:scale-110 transition-transform">
                       {method.icon}
@@ -367,29 +421,46 @@ export default function ContactPage() {
                       <span className="text-sm text-green-400 font-bold">{method.responseTime}</span>
                     </div>
                   </div>
-                </GlassmorphicCard>
+                </CosmicCardGlass>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* Priority Contact Options - Matching Services Grid */}
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-16"
-          >
-            {urgentContactOptions.map((option, index) => (
+          {/* Priority Contact Options - Like About Page Story Cards */}
+          <section className="relative z-10 mb-16">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+              <CosmicCardGlass className="text-center mb-12">
+                <CosmicHeading className="text-3xl md:text-4xl mb-4">
+                  Choose Your <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">Priority Level</span>
+                </CosmicHeading>
+                <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+                  Select the contact option that matches your urgency and business needs for the fastest response.
+                </p>
+              </CosmicCardGlass>
+
               <motion.div
-                key={option.action}
-                variants={item}
-                whileHover={{ scale: 1.02, y: -5 }}
-                onClick={() => handleQuickContact(option)}
-                className={`relative group cursor-pointer transition-all duration-300 ${
-                  selectedOption === option.action ? 'ring-4 ring-cyan-400/50' : ''
-                }`}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8 }}
               >
-                <GlassmorphicCard className="h-full p-6 relative overflow-hidden">
+                {urgentContactOptions.map((option, index) => (
+                  <motion.div
+                    key={option.action}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 + 0.9 }}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -10,
+                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 60px 15px rgba(147,51,234,0.4)'
+                    }}
+                    onClick={() => handleQuickContact(option)}
+                    className={`relative group cursor-pointer transition-all duration-300 ${
+                      selectedOption === option.action ? 'ring-4 ring-cyan-400/50' : ''
+                    }`}
+                  >
+                    <CosmicCardGlass className="h-full p-6 relative overflow-hidden">
                   {/* Live Activity Badge */}
                   <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -445,22 +516,29 @@ export default function ContactPage() {
 
                   {/* Hover Glow Effect */}
                   <div className={`absolute inset-0 bg-gradient-to-r ${option.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none`}></div>
-                </GlassmorphicCard>
+                </CosmicCardGlass>
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
+            </div>
+          </section>
 
-          {/* Contact Form - Matching Services Card Style */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-          >
-            <CosmicHeading level={2} className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Send Your Mission Brief
-            </CosmicHeading>
-            
-            <div className="bg-gradient-to-br from-purple-900/10 via-blue-900/10 to-cyan-900/10 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-8 md:p-12 shadow-[0_8px_32px_rgba(147,51,234,0.15),0_0_60px_rgba(59,130,246,0.1)]">
+          {/* Contact Form - Like About Page Style */}
+          <section className="relative z-10 mb-16">
+            <div className="max-w-4xl mx-auto px-4 md:px-8">
+              <CosmicCardGlow size="lg" className="mb-16">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 1.0 }}
+                >
+                  <CosmicHeading className="text-4xl md:text-5xl mb-6 text-center">
+                    Send Your <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">Mission Brief</span>
+                  </CosmicHeading>
+                  
+                  <p className="text-lg text-gray-300 mb-8 text-center max-w-3xl mx-auto">
+                    Ready to transform your business? Share your goals and we'll connect you with the perfect AI solution within minutes.
+                  </p>
               <GlassmorphicForm onSubmit={handleSubmit} className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">
                   <div>
@@ -585,18 +663,22 @@ export default function ContactPage() {
                                       '< 24 hours'}
                   </p>
                 </div>
-              </GlassmorphicForm>
+                </GlassmorphicForm>
+                </motion.div>
+              </CosmicCardGlow>
             </div>
-          </motion.div>
+          </section>
 
-          {/* CTA Section - Matching Services Style */}
-          <motion.div
-            className="max-w-5xl mx-auto text-center mb-24"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <div className="bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-12 md:p-16 shadow-[0_8px_32px_rgba(147,51,234,0.15),0_0_60px_rgba(59,130,246,0.1)]">
+          {/* CTA Section - Like About Page Style */}
+          <section className="relative z-10 mb-24">
+            <div className="max-w-5xl mx-auto px-4 md:px-8">
+              <CosmicCardGlow size="xl" className="text-center">
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                >
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent mb-6">
                 Ready To Transform Your Business?
               </h2>
@@ -622,13 +704,15 @@ export default function ContactPage() {
                   👥 Meet Your Agent League
                 </CosmicButton>
               </div>
-              <div className="text-base text-purple-300 bg-black/20 backdrop-blur-sm rounded-xl px-6 py-3 border border-purple-400/20">
-                ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
-              </div>
+                <div className="text-base text-purple-300 bg-black/20 backdrop-blur-sm rounded-xl px-6 py-3 border border-purple-400/20">
+                  ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
+                </div>
+                </motion.div>
+              </CosmicCardGlow>
             </div>
-          </motion.div>
+          </section>
         </div>
-      </motion.div>
-    </PageLayout>
+              </motion.div>
+      </ClientPageLayout>
   );
 }
