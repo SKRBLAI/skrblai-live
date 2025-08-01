@@ -93,6 +93,8 @@ export default function PercyOnboardingRevolution() {
 
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning' | 'thinking' | 'waving' | 'nodding'>('excited');
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [pulseActive, setPulseActive] = useState(true);
 
   // Centralized choice handler for unified routing
   const handleUserChoice = useCallback((choiceId: string, data?: any) => {
@@ -196,11 +198,29 @@ export default function PercyOnboardingRevolution() {
   const promptBarRef = useRef<HTMLInputElement>(null);
   const [promptBarValue, setPromptBarValue] = useState('');
   
-  // Handle any interaction function
-  const handleAnyInteraction = useCallback((type: string) => {
-    setLastInteractionType(type);
-    console.log('[Percy] Interaction:', type);
-  }, []);
+  // Handle any interaction function with enhanced mood changes
+  const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
+    if (!userInteracted) {
+      setUserInteracted(true);
+      setPercyMood('nodding'); // Percy nods when user first interacts
+      setTimeout(() => setPercyMood('excited'), 1500);
+    }
+    setPulseActive(false);
+    setLastInteractionType(interactionType);
+    
+    // Add subtle mood changes based on interaction type
+    if (interactionType === 'option_click') {
+      setPercyMood('analyzing');
+      setTimeout(() => setPercyMood('confident'), 1000);
+    } else if (interactionType === 'input_focus') {
+      setPercyMood('scanning');
+    } else if (interactionType === 'successful_action') {
+      setPercyMood('celebrating');
+      setTimeout(() => setPercyMood('excited'), 2000);
+    }
+    
+    console.log('[Percy] Interaction:', interactionType);
+  }, [userInteracted]);
 
   // Typewriter effect for prompt bar
   const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
@@ -223,8 +243,6 @@ export default function PercyOnboardingRevolution() {
   // --- Animated Intro Message State ---
   const [introIdx, setIntroIdx] = useState(0);
   const [typedText, setTypedText] = useState('');
-  const [userInteracted, setUserInteracted] = useState(false);
-  const [pulseActive, setPulseActive] = useState(false);
 
   // Enhanced initialization with personalization
   useEffect(() => {
@@ -312,27 +330,7 @@ export default function PercyOnboardingRevolution() {
     return () => clearTimeout(timeout);
   }, [promptBarFocused, promptBarActive, typewriterMessages]);
 
-  // Enhanced interaction handling with mood changes
-  const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
-    if (!userInteracted) {
-      setUserInteracted(true);
-      setPercyMood('nodding'); // Percy nods when user first interacts
-      setTimeout(() => setPercyMood('excited'), 1500);
-    }
-    setPulseActive(false);
-    setLastInteractionType(interactionType);
-    
-    // Add subtle mood changes based on interaction type
-    if (interactionType === 'option_click') {
-      setPercyMood('analyzing');
-      setTimeout(() => setPercyMood('confident'), 1000);
-    } else if (interactionType === 'input_focus') {
-      setPercyMood('scanning');
-    } else if (interactionType === 'successful_action') {
-      setPercyMood('celebrating');
-      setTimeout(() => setPercyMood('excited'), 2000);
-    }
-  }, [userInteracted]);
+
 
   // VIP Code validation
   const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
@@ -1576,7 +1574,7 @@ export default function PercyOnboardingRevolution() {
                         }}
                         onClick={() => {
                           handleInputSubmit();
-                          handleAnyInteraction();
+                          handleAnyInteraction('successful_action');
                         }}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                         data-percy-submit-button
@@ -1770,8 +1768,9 @@ export default function PercyOnboardingRevolution() {
                 </motion.button>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
+      </div>
 
       {/* Restored Stats Cards Section */}
       <motion.div
