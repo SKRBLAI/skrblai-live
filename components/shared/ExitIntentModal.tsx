@@ -112,15 +112,16 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
             transition={{ type: 'spring', duration: 0.5 }}
             className="relative w-full max-w-2xl cosmic-gradient backdrop-blur-2xl rounded-3xl p-8 border border-cyan-400/50 shadow-[0_0_32px_rgba(45,212,191,0.25)]"
             style={{
-              background: 'transparent',
-              boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2)'
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.85) 50%, rgba(15, 23, 42, 0.85) 100%)',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2), inset 0 1px 0 rgba(255,255,255,0.1)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 rounded-full bg-transparent hover:bg-white/10 transition-colors text-gray-400 hover:text-white border border-teal-400/30"
+              className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/50 hover:bg-slate-700/70 transition-colors text-gray-400 hover:text-white border border-teal-400/30 backdrop-blur-sm"
             >
               <X className="w-5 h-5" />
             </button>
@@ -130,7 +131,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-transparent backdrop-blur-xl border border-orange-400/50 rounded-full text-white text-sm font-bold shadow-[0_0_15px_rgba(255,100,50,0.4)]"
+              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gradient-to-r from-orange-900/70 to-red-900/70 backdrop-blur-xl border border-orange-400/50 rounded-full text-white text-sm font-bold shadow-[0_0_15px_rgba(255,100,50,0.4)]"
               style={{
                 boxShadow: '0 0 15px rgba(255,100,50,0.4)'
               }}
@@ -145,7 +146,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.3, type: 'spring' }}
-                className="inline-flex p-4 rounded-full bg-transparent backdrop-blur-xl border-2 border-cyan-400/50 mb-4 shadow-[0_0_15px_rgba(56,189,248,0.3)]"
+                className="inline-flex p-4 rounded-full bg-gradient-to-br from-cyan-900/60 to-blue-900/60 backdrop-blur-xl border-2 border-cyan-400/50 mb-4 shadow-[0_0_15px_rgba(56,189,248,0.3)]"
                 style={{
                   boxShadow: '0 0 15px rgba(56,189,248,0.3)'
                 }}
@@ -177,7 +178,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.6 }}
-              className="flex items-center justify-center gap-3 mb-8 p-4 bg-transparent backdrop-blur-xl border border-green-400/40 rounded-xl shadow-[0_0_15px_rgba(74,222,128,0.2)]"
+              className="flex items-center justify-center gap-3 mb-8 p-4 bg-gradient-to-r from-green-900/50 to-emerald-900/50 backdrop-blur-xl border border-green-400/40 rounded-xl shadow-[0_0_15px_rgba(74,222,128,0.2)]"
               style={{
                 boxShadow: '0 0 15px rgba(74,222,128,0.2)'
               }}
@@ -201,9 +202,9 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-4 bg-transparent border border-teal-400/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg backdrop-blur-md"
+                  className="w-full px-4 py-4 bg-slate-800/40 border border-teal-400/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg backdrop-blur-md focus:bg-slate-800/60 transition-colors"
                   style={{
-                    background: 'transparent'
+                    background: 'rgba(30, 41, 59, 0.4)'
                   }}
                 />
               </div>
