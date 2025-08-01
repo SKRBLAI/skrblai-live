@@ -1,37 +1,69 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import PageLayout from '../../components/layout/PageLayout';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicHeading from '../../components/shared/CosmicHeading';
-import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
 import CosmicButton from '../../components/shared/CosmicButton';
-import Image from 'next/image';
+import PercyAvatar from '../../components/home/PercyAvatar';
 import SkrblAiText from '../../components/shared/SkrblAiText';
+import BillingToggle from '../../components/pricing/BillingToggle';
+import PricingCard from '../../components/pricing/PricingCard';
+import Link from 'next/link';
+import { 
+  Check, Shield, Sparkles, Crown, Zap, Rocket, 
+  Star, MessageCircle, ArrowRight, Users, TrendingUp 
+} from 'lucide-react';
+import { 
+  pricingPlans, 
+  liveMetrics, 
+  BillingPeriod, 
+  LiveMetric,
+  URGENCY_TIMER_INITIAL,
+  METRICS_UPDATE_INTERVAL,
+  TIMER_UPDATE_INTERVAL
+} from '../../lib/config/pricing';
 
-const plans = [
+// Pricing page now uses centralized config
+// Types and data imported from lib/config/pricing.ts
+
+export default function PricingPage() {
+  // Billing period state
+  const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  
+  // Live metrics state
+  const [metrics, setMetrics] = useState(liveMetrics);
+  const [urgencyTimer, setUrgencyTimer] = useState(URGENCY_TIMER_INITIAL);
+
+/*
+OLD HARDCODED PLANS - Now using pricingPlans from config
+const oldPlans: any[] = [
   {
+    id: 'gateway',
     title: 'Gateway',
-    price: 'FREE',
-    period: '3-Days',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    period: '3-Days Free',
     description: 'Taste the power. See what domination feels like.',
     features: [
       '3 Strategic Agents',
       'Percy Concierge Access',
       '10 Tasks/Agent/Month',
-      'Community Support'
+      'Community Support',
+      'Basic Analytics'
     ],
     gradient: 'from-gray-600 to-gray-500',
     cta: 'Start Your Domination',
     href: '/sign-up',
     badge: 'Get Addicted',
     agentCount: 3,
-    icon: '🎯'
+    icon: <Zap className="w-6 h-6" />
   },
   {
+    id: 'hustler',
     title: 'Starter Hustler',
-    price: '$27',
+    monthlyPrice: 27,
+    annualPrice: 22,
     period: 'per month',
     description: 'Content creators & entrepreneurs: automation empire starts here.',
     features: [
@@ -39,7 +71,8 @@ const plans = [
       'Percy Basic Access',
       '50 Tasks/Agent/Month',
       'Social Media Automation',
-      'Priority Support'
+      'Priority Support',
+      'Advanced Analytics'
     ],
     gradient: 'from-blue-600 to-cyan-500',
     cta: 'Become a Hustler',
@@ -47,11 +80,14 @@ const plans = [
     popular: true,
     badge: 'Perfect for Creators',
     agentCount: 6,
-    icon: '⚡'
+    icon: <Rocket className="w-6 h-6" />,
+    savings: 'Save $60/year'
   },
   {
+    id: 'dominator',
     title: 'Business Dominator',
-    price: '$69',
+    monthlyPrice: 69,
+    annualPrice: 55,
     period: 'per month',
     description: 'Growing businesses: deploy the arsenal that makes competitors cry.',
     features: [
@@ -59,18 +95,22 @@ const plans = [
       'Percy + Advanced Analytics',
       '200 Tasks/Agent/Month',
       'Client Success Automation',
-      'Video Content Machine'
+      'Video Content Machine',
+      'Custom Workflows'
     ],
     gradient: 'from-yellow-500 to-orange-500',
     cta: 'Dominate Your Market',
     href: '/sign-up?plan=star',
     badge: 'Revenue Multiplier',
     agentCount: 10,
-    icon: '🔥'
+    icon: <Crown className="w-6 h-6" />,
+    savings: 'Save $168/year'
   },
   {
+    id: 'crusher',
     title: 'Industry Crusher',
-    price: '$269',
+    monthlyPrice: 269,
+    annualPrice: 215,
     period: 'per month',
     description: 'Enterprise: complete arsenal for market domination.',
     features: [
@@ -79,7 +119,9 @@ const plans = [
       'Unlimited Tasks & Processing',
       'Custom Agent Builder',
       'White-label Options',
-      'Dedicated Success Manager'
+      'Dedicated Success Manager',
+      'API Access',
+      'Custom Integrations'
     ],
     gradient: 'from-purple-600 to-pink-600',
     cta: 'Crush Your Industry',
@@ -87,37 +129,29 @@ const plans = [
     enterprise: true,
     badge: 'Complete Annihilation',
     agentCount: 14,
-    icon: '👑'
+    icon: <Star className="w-6 h-6" />,
+    savings: 'Save $648/year'
   }
 ];
 
-// Live metrics for engagement
-const liveMetrics = [
-  { label: 'Businesses Automated Today', value: 1247, increment: 3 },
-  { label: 'Competitors Eliminated', value: 89, increment: 1 },
-  { label: 'Revenue Generated', value: 2847291, increment: 1500 }
+// Live social proof metrics
+const socialProofMetrics = [
+  { label: 'Businesses Automated Today', value: 1247, icon: <Users className="w-5 h-5" /> },
+  { label: 'Revenue Generated This Month', value: '$2.8M', icon: <TrendingUp className="w-5 h-5" /> },
+  { label: 'Competitors Eliminated', value: 89, icon: <Zap className="w-5 h-5" /> }
 ];
+*/
 
-export default function PricingPage() {
-  const [metrics, setMetrics] = useState(liveMetrics);
-  const [urgencyTimer, setUrgencyTimer] = useState(23 * 60 + 47); // 23:47
-
-  // Live metrics animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMetrics(prev => prev.map(metric => ({
-        ...metric,
-        value: metric.value + Math.floor(Math.random() * metric.increment) + 1
-      })));
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  // Handle billing period change
+  const handleBillingPeriodChange = (period: BillingPeriod) => {
+    setBillingPeriod(period);
+  };
 
   // Urgency timer
   useEffect(() => {
     const timer = setInterval(() => {
-      setUrgencyTimer(prev => prev > 0 ? prev - 1 : 23 * 60 + 59);
-    }, 1000);
+      setUrgencyTimer(prev => prev > 0 ? prev - 1 : URGENCY_TIMER_INITIAL);
+    }, TIMER_UPDATE_INTERVAL);
     return () => clearInterval(timer);
   }, []);
 
@@ -127,8 +161,19 @@ export default function PricingPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Live metrics animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMetrics(prev => prev.map(metric => ({
+        ...metric,
+        value: metric.value + Math.floor(Math.random() * metric.increment) + 1
+      })));
+    }, METRICS_UPDATE_INTERVAL);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <PageLayout>
+    <ClientPageLayout>
       <div className="relative min-h-screen">
   
         
@@ -180,8 +225,8 @@ export default function PricingPage() {
               {metrics.map((metric, index) => (
                 <div key={metric.label} className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-xl rounded-xl p-4 border border-cyan-400/30">
                   <div className="text-2xl font-bold text-cyan-400">
-                    {metric.label.includes('Revenue') 
-                      ? `$${metric.value.toLocaleString()}`
+                    {metric.formatter 
+                      ? metric.formatter(metric.value)
                       : metric.value.toLocaleString()
                     }
                   </div>
@@ -191,6 +236,20 @@ export default function PricingPage() {
               ))}
             </motion.div>
           </div>
+
+          {/* Billing Toggle */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="max-w-4xl mx-auto text-center mb-12"
+          >
+            <BillingToggle
+              currentPeriod={billingPeriod}
+              onPeriodChange={handleBillingPeriodChange}
+              className="mb-8"
+            />
+          </motion.div>
 
           {/* Percy Intro */}
           <motion.div
@@ -220,7 +279,20 @@ export default function PricingPage() {
 
           {/* Enhanced Pricing Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
-            {plans.map((plan, index) => (
+            {pricingPlans.map((plan, index) => (
+              <PricingCard
+                key={plan.id}
+                plan={plan}
+                billingPeriod={billingPeriod}
+                animationDelay={0.5 + index * 0.1}
+                isHighlighted={plan.isPopular}
+              />
+            ))}
+          </div>
+
+          {/* Original cards - replaced with PricingCard component
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
+            {oldPlans.map((plan, index) => (
               <motion.div
                 key={plan.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -305,6 +377,7 @@ export default function PricingPage() {
               </motion.div>
             ))}
           </div>
+          */
 
           {/* Disruption Guarantee */}
           <motion.div
@@ -358,6 +431,6 @@ export default function PricingPage() {
           </motion.div>
         </div>
       </div>
-    </PageLayout>
+    </ClientPageLayout>
   );
 }
