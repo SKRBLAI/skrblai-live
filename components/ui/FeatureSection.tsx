@@ -89,7 +89,7 @@ const FeatureSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid justify-items-center gap-8 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
           {features.map((feature) => (
             <motion.div
               key={feature.id}

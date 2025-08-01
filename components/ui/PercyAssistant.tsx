@@ -126,7 +126,7 @@ export default function PercyAssistant() {
     >
       <div className="text-center mb-8">
         <div className="flex flex-col items-center mb-6">
-          <PercyAvatar isThinking={isLoading} />
+          <PercyAvatar isThinking={isLoading} glow={!!isHovered} />
           {isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -159,7 +159,7 @@ export default function PercyAssistant() {
       </div>
 
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        className="grid justify-items-center gap-6 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.2 }}
@@ -172,7 +172,7 @@ export default function PercyAssistant() {
             onHoverStart={() => setIsHovered(goal.id)}
             onHoverEnd={() => setIsHovered(null)}
             className={`
-              glass-card p-6 text-left transition-all duration-300
+              w-full glass-card p-6 text-left transition-all duration-300
               ${isLoading
                 ? 'opacity-50 cursor-not-allowed'
                 : 'hover:scale-105 hover:shadow-electric-blue/20'

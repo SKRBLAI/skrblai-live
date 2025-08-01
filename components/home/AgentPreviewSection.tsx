@@ -41,6 +41,7 @@ const FEATURED_AGENTS = [
   {
     id: 'branding',
     name: 'BrandAlexander',
+    description: 'Creates professional brand kits: logos, style guides, and color palettes.',
     freeTip: 'Update your logo background color to create more contrast—it\'ll make your brand pop on social media!',
     upsell: 'Want a full brand kit with style guide, logos, and color palette? Unlock all my superpowers.',
     activityKey: 'branding' as keyof ReturnType<typeof generateLiveActivity>,
@@ -49,6 +50,7 @@ const FEATURED_AGENTS = [
   {
     id: 'social',
     name: 'SocialNino',
+    description: 'Automates social media scheduling, analytics, and engagement tracking.',
     freeTip: 'Posting at 8pm can double your Instagram engagement based on typical audience behavior patterns.',
     upsell: 'Want me to schedule posts and track analytics for maximum growth? Unlock my full toolkit!',
     activityKey: 'social' as keyof ReturnType<typeof generateLiveActivity>,
@@ -57,6 +59,7 @@ const FEATURED_AGENTS = [
   {
     id: 'contentcreation',
     name: 'ContentCarltig',
+    description: 'Generates SEO-optimized articles, blog posts, and content calendars.',
     freeTip: 'Try this headline format for your next blog: "How [Your Industry] Experts Are [Achieving Result] Without [Common Method]"',
     upsell: 'Want a month of content ideas and SEO-optimized articles? Unlock more capabilities.',
     activityKey: 'content' as keyof ReturnType<typeof generateLiveActivity>,
@@ -134,6 +137,12 @@ export default function AgentPreviewSection(): React.ReactElement {
       startFresh: true
     }));
     router.push(`/chat/${agentId}?preview=true`);
+
+  // Handle demo action
+  const handleDemoClick = (agentId: string) => {
+    setPercyIntent(JSON.stringify({ action: 'demo', agentId, context: 'demo_mode' }));
+    router.push(`/chat/${agentId}?demo=true`);
+  }; 
   };
 
   return (
@@ -160,6 +169,9 @@ export default function AgentPreviewSection(): React.ReactElement {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
+              // 3D hover/tap effects for life
+              whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}
+              whileTap={{ scale: 0.98 }}
               className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
               onMouseEnter={() => setHoveredAgent(agent.id)}
               onMouseLeave={() => setHoveredAgent(null)}
@@ -255,10 +267,10 @@ export default function AgentPreviewSection(): React.ReactElement {
                 </motion.h3>
                 
                 {/* Invisible Hotspots for Image Buttons */}
-                <div className="absolute bottom-0 left-0 right-0 h-[20%] flex justify-center items-end pb-[3%]">
+                <div className="absolute bottom-0 left-0 right-0 flex flex-wrap justify-center items-end p-4 gap-2">
                   {/* LEARN Button Hotspot */}
                   <motion.button
-                    className="w-[22%] h-[45%] bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 rounded-lg"
+                    className="flex-1 min-w-[80px] h-8 bg-transparent border border-cyan-400/30 focus:outline-none focus:ring-2 focus:ring-cyan-400/50 rounded-lg relative"
                     onClick={() => handleLearnClick(agent.id)}
                     aria-label={`Learn about ${agent.name}`}
                     whileHover={{ scale: 1.01 }}
@@ -271,7 +283,7 @@ export default function AgentPreviewSection(): React.ReactElement {
                   
                   {/* CHAT Button Hotspot */}
                   <motion.button
-                    className="w-[22%] h-[45%] bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 rounded-lg"
+                    className="flex-1 min-w-[80px] h-8 bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 rounded-lg relative"
                     onClick={() => handleChatClick(agent.id, agent.freeTip)}
                     aria-label={`Chat with ${agent.name}`}
                     whileHover={{ scale: 1.01 }}
@@ -283,8 +295,19 @@ export default function AgentPreviewSection(): React.ReactElement {
                   </motion.button>
                   
                   {/* LAUNCH Button Hotspot */}
+                   {/* DEMO Button Hotspot */}
+                   <motion.button
+                     className="flex-1 min-w-[80px] h-8 bg-transparent border border-yellow-400/30 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 rounded-lg relative"
+                     onClick={() => handleDemoClick(agent.id)}
+                     aria-label={`Demo ${agent.name}`}
+                     whileHover={{ scale: 1.01 }}
+                     whileTap={{ scale: 0.99 }}
+                   >
+                     <span className="sr-only">DEMO {agent.name}</span>
+                     <div className="absolute inset-0 flex items-center justify-center text-xs text-yellow-400 font-bold">DEMO</div>
+                   </motion.button>
                   <motion.button
-                    className={`w-[22%] h-[45%] bg-transparent border border-green-400/30 focus:outline-none rounded-lg ${
+                    className={`flex-1 min-w-[80px] h-8 bg-transparent border border-green-400/30 focus:outline-none rounded-lg ${
                       isLoggedIn ? 'focus:ring-2 focus:ring-green-400/50' : 'cursor-not-allowed opacity-50'
                     }`}
                     onClick={() => isLoggedIn && router.push(`/agent/${agent.id}`)}
@@ -312,8 +335,7 @@ export default function AgentPreviewSection(): React.ReactElement {
                   <div className="text-red-400 font-semibold mb-1">⚡ Competitive Edge:</div>
                   <div className="text-white">{liveActivity[agent.activityKey].competitiveEdge}</div>
                 </div>
-                <p className="text-white text-xs mb-1"><span className="text-teal-400">Free Preview:</span> {agent.freeTip}</p>
-                <p className="text-white text-xs"><span className="text-yellow-400">Full Domination:</span> {agent.upsell}</p>
+                <p className="text-white text-sm mt-2">{agent.description}</p>
               </div>
             </motion.div>
           );

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { getAgentImagePath } from "../../utils/agentUtils";
+import { freeAgents, recommendedAgents } from '../../lib/config/agents';
 import LockOverlay from '../ui/LockOverlay';
 
 // Agent interface, matching your type in agentUtils
@@ -52,10 +53,11 @@ export default function AgentCard({
   const imagePath = getAgentImagePath({ id: '', imageSlug, name } as Agent);
   const [imgSrc, setImgSrc] = useState(imagePath);
 
-  // Determine lock state (example: treat 'Content Creation' and 'Social Media' as free)
-  const isFree = ["Content Creation", "Social Media"].includes(name);
+  // Determine lock state from centralized config
+  const isFree = freeAgents.includes(name);
   const isLocked = !isPercy && !isFree;
 
+  const isRecommendedFlag = recommendedAgents.includes(name);
   return (
     <motion.div
       whileHover={{ scale: isLocked ? 1.01 : 1.04, y: isLocked ? 0 : -8, boxShadow: isLocked ? '0 0 12px 2px #888' : '0 0 36px 8px #30D5C8CC' }}
@@ -64,7 +66,7 @@ export default function AgentCard({
         min-h-[300px] h-full flex flex-col justify-between relative overflow-hidden rounded-2xl border-2 bg-white/5 backdrop-blur-xl bg-clip-padding cosmic-gradient shadow-cosmic group transition-all duration-300
         ${isPercy ? 'col-span-2 row-span-2 md:col-span-3 border-electric-blue/60' : 'border-teal-400/40'}
         ${isPercy ? 'bg-gradient-to-br from-electric-blue/20 to-teal-500/20' : ''}
-        ${isRecommended ? 'border-fuchsia-400/80 shadow-[0_0_48px_12px_#e879f9aa] animate-pulse-slow' : ''}
+        ${isRecommendedFlag ? 'border-fuchsia-400/80 shadow-[0_0_48px_12px_#e879f9aa] animate-pulse-slow' : ''}
         ${isLocked ? 'opacity-70 grayscale pointer-events-auto' : ''}
       `}
       tabIndex={0}
@@ -72,7 +74,7 @@ export default function AgentCard({
       role="button"
     >
       {/* Lock overlay for locked agents */}
-      {isLocked && <LockOverlay badge="Pro" tooltip="Upgrade to unlock" showBadge={true} />}
+      {isLocked && <LockOverlay badge="Pro" tooltip="Upgrade to unlock" showBadge />}
 
       {/* Animated Glow Border */}
       <motion.div
@@ -81,12 +83,12 @@ export default function AgentCard({
         animate={{
           boxShadow: isPercy
             ? '0 0 32px 8px #2dd4bf'
-            : isRecommended
+            : isRecommendedFlag
               ? '0 0 48px 16px #e879f9cc'
               : '0 0 20px 4px #38bdf8',
         }}
         transition={{
-          duration: isRecommended ? 1.5 : 1.2,
+          duration: isRecommendedFlag ? 1.5 : 1.2,
           repeat: Infinity,
           repeatType: 'mirror',
         }}
@@ -95,7 +97,7 @@ export default function AgentCard({
       <div className="relative p-6 flex flex-col justify-between items-center z-10">
         {/* Agent Image */}
         <div
-          className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'} ${isRecommended ? 'ring-4 ring-fuchsia-400/60 ring-offset-2' : ''}`}
+          className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'} ${isRecommendedFlag ? 'ring-4 ring-fuchsia-400/60 ring-offset-2' : ''}`}
           tabIndex={0}
           aria-label={name}
           style={{

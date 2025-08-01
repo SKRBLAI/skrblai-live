@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 // Optional prop interface retained for backward compatibility in pages like Services
 interface AgentsGridProps {
-  agents?: any[]; // Currently unused; AgentLeagueDashboard handles its own data
+  agents?: any[]; // Currently unused; AgentLeagueDashboard handles its own data  // TODO: REVIEW UNUSED
 }
 
 // Dynamically load the AgentLeagueDashboard on the client only

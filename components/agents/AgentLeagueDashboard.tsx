@@ -3,6 +3,7 @@ import PercyFigure from '../home/PercyFigure';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -72,9 +73,9 @@ export default function AgentLeagueDashboard() {
     fetchAgentLeagueData(session.access_token).then(data => {
       // Production-optimized logging
       if (process.env.NODE_ENV === 'development') {
-        console.log('[AgentLeagueDashboard] Loaded agents:', data.agents);
-        console.log('[AgentLeagueDashboard] Agent count:', data.agents.length);
-        console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible })));
+        console.log('[AgentLeagueDashboard] Loaded agents:', data.agents); // TODO: REVIEW UNUSED
+        console.log('[AgentLeagueDashboard] Agent count:', data.agents.length); // TODO: REVIEW UNUSED
+        console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible }))); // TODO: REVIEW UNUSED
       }
       setAgents(data.agents);
       setRecommendations(data.recommendations || []);
@@ -130,32 +131,70 @@ export default function AgentLeagueDashboard() {
     }
   }
 
-  // Launch agent functionality
-  function handleAgentLaunch(agent: Agent) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[AgentLeagueDashboard] Launch agent:', agent.name);
+  // Launch agent functionality: trigger N8N workflow then navigate
+  const handleAgentLaunch = async (agent: Agent) => {
+    try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[AgentLeagueDashboard] Triggering N8N workflow for:', agent.name);
+      }
+      const res = await fetch(`/api/agents/${agent.id}/trigger-n8n`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload: {}, userPrompt: '', fileData: null })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Workflow trigger failed');
+      router.push(`/services/${agent.id}`);
+    } catch (err: any) {
+      console.error('[AgentLeagueDashboard] Launch error:', err);
+      toast.error(err.message || 'Failed to launch agent. Please try again.');
     }
-    // Navigate to agent's specific service page
-    router.push(`/services/${agent.id}`);
-  }
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
       {/* Toast container */}
       <Toaster position="bottom-right" />
       
-      {/* Percy Centerpiece */}
-      <div className="flex flex-col items-center mb-8 md:mb-10">
-        <div className="text-center mobile-text-safe">
-          <div className="flex flex-col items-center justify-center mb-4">
-            <PercyFigure size="md" animate showGlow />
-          </div>
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-2 no-text-cutoff">
-            Welcome to Percy's League of Superheroes
-          </h2>
-          <p className="text-sm md:text-base text-gray-300 no-text-cutoff">
-            Your cosmic concierge is ready to coordinate the perfect team
-          </p>
+      {/* New Header with Percy Background Treatment */}
+      <div className="relative mb-8 md:mb-12">
+        {/* Background Percy Hero - Subtle and Large */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
+          <Image
+            src="/images/percy-hero.png"
+            alt="Percy Background"
+            width={400}
+            height={400}
+            className="animate-pulse"
+            style={{ 
+              filter: 'blur(1px)',
+              transform: 'scale(1.2)',
+            }}
+          />
+        </div>
+        
+        {/* Header Content */}
+        <div className="relative z-10 text-center mobile-text-safe py-8">
+          <motion.h2 
+            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 no-text-cutoff"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            Percy And the{' '}
+            <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
+              SKRBL AI League
+            </span>
+            {' '}of Digital Superheroes
+          </motion.h2>
+          <motion.p 
+            className="text-sm md:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto no-text-cutoff"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Your cosmic concierge orchestrates the perfect AI team to dominate your industry
+          </motion.p>
         </div>
       </div>
 
@@ -224,8 +263,8 @@ export default function AgentLeagueDashboard() {
               </div>
             </div>
           ) : (
-            /* Desktop Grid */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+            /* Desktop Grid - Standardized Card Heights */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" style={{ gridAutoRows: '320px' }}>
               {otherAgents.map((agent, index) => (
                 <AgentLeagueCard
                   key={agent.id}

@@ -115,7 +115,7 @@ export default function HomePage() {
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-center text-sm sm:text-base lg:text-xl text-gray-300 max-w-2xl lg:max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
+                  className="text-center text-sm sm:text-base lg:text-xl text-gray-200 max-w-2xl lg:max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
                 >
                   SKRBL AI does not just automate—it <span className="text-electric-blue font-bold">DOMINATES</span>. 
                   While your competitors are still figuring out AI, you will be deploying the arsenal that makes them extinct.

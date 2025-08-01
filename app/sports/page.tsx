@@ -14,6 +14,8 @@ import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsMod
 import UpgradeModal from '../../components/skillsmith/UpgradeModal';
 import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
+import type { Product } from '../../lib/config/skillsmithProducts';
+import { products } from '../../lib/config/skillsmithProducts';
 
 interface AnalysisResult {
   feedback: string;
@@ -30,21 +32,6 @@ interface QuickWin {
   description: string;
   downloadUrl: string;
   category: 'technique' | 'training' | 'nutrition' | 'mental';
-}
-
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  detailedDescription: string;
-  price: number;
-  originalPrice?: number;
-  sku: string;
-  category: 'analysis' | 'training' | 'nutrition' | 'performance';
-  icon: React.ComponentType<any>;
-  color: string;
-  features: string[];
-  popular?: boolean;
 }
 
 export default function SportsPage(): JSX.Element {
@@ -197,86 +184,7 @@ export default function SportsPage(): JSX.Element {
     }
   };
 
-  // SkillSmith Products Array
-  const products: Product[] = [
-    {
-      id: 'form-analysis-pro',
-      title: "Form Analysis Pro",
-      description: "AI-powered technique analysis with biomechanics insights",
-      detailedDescription: "Get professional-grade biomechanical analysis of your form with detailed breakdown of movement patterns, efficiency metrics, and injury risk assessment.",
-      price: 29,
-      originalPrice: 39,
-      sku: 'skillsmith_form_analysis_pro',
-      category: 'analysis',
-      icon: Target,
-      color: "text-blue-400",
-      features: [
-        "Frame-by-frame technique breakdown",
-        "Biomechanical efficiency scoring",
-        "Injury risk assessment",
-        "Comparison with elite athletes",
-        "Downloadable analysis report"
-      ],
-      popular: true
-    },
-    {
-      id: 'performance-insights-elite',
-      title: "Performance Insights Elite",
-      description: "Advanced performance metrics and improvement recommendations",
-      detailedDescription: "Unlock elite-level performance insights with advanced metrics, weakness identification, and personalized improvement strategies tailored to your sport.",
-      price: 49,
-      originalPrice: 69,
-      sku: 'skillsmith_performance_elite',
-      category: 'performance',
-      icon: Zap,
-      color: "text-orange-400",
-      features: [
-        "Advanced performance scoring",
-        "Weakness identification",
-        "Strength optimization",
-        "Elite athlete comparisons",
-        "Performance tracking dashboard"
-      ]
-    },
-    {
-      id: 'custom-training-plan',
-      title: "Custom Training Plan",
-      description: "Personalized training programs based on your analysis",
-      detailedDescription: "Receive a completely customized training program designed specifically for your sport, skill level, and improvement goals based on your analysis results.",
-      price: 79,
-      originalPrice: 99,
-      sku: 'skillsmith_training_plan',
-      category: 'training',
-      icon: Trophy,
-      color: "text-green-400",
-      features: [
-        "Sport-specific training program",
-        "Progressive skill development",
-        "Injury prevention protocols",
-        "Weekly plan adjustments",
-        "Expert coach consultation"
-      ]
-    },
-    {
-      id: 'progress-tracker-premium',
-      title: "Progress Tracker Premium",
-      description: "Advanced tracking with detailed metrics and insights",
-      detailedDescription: "Monitor your athletic development with comprehensive progress tracking, detailed metrics visualization, and achievement milestones.",
-      price: 39,
-      originalPrice: 49,
-      sku: 'skillsmith_progress_premium',
-      category: 'analysis',
-      icon: Star,
-      color: "text-purple-400",
-      features: [
-        "Detailed progress analytics",
-        "Achievement tracking",
-        "Performance trend analysis",
-        "Goal setting and monitoring",
-        "Improvement predictions"
-      ]
-    }
-  ];
+  // `products` now imported from config
 
   return (
     <PageLayout>

@@ -13,7 +13,7 @@ export default function AgentLeagueCard({ style, children, ...motionProps }: Age
     <motion.div
       {...motionProps}
       style={{ position: 'absolute', ...style }}
-      className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
+      className="w-full mx-auto flex flex-col items-center justify-center relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
     >
       {children}
     </motion.div>

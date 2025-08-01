@@ -36,7 +36,7 @@ export default function VideoUploadModal({
   userType,
   onAnalysisComplete 
 }: VideoUploadModalProps) {
-  const [dragActive, setDragActive] = useState(false);
+  const [dragActive, setDragActive] = useState(false); // TODO: REVIEW UNUSED
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
