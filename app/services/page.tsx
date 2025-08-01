@@ -343,51 +343,73 @@ export default function ServicesPage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            {/* Percy Ask Button */}
+            {/* Floating Percy Ask Button */}
             <motion.div
               className="flex justify-center mb-8"
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ 
+                scale: 1.05,
+                y: -5,
+                rotateY: 5
+              }}
               whileTap={{ scale: 0.95 }}
+              animate={{
+                y: [0, -8, 0],
+                rotateX: [0, 2, 0]
+              }}
+              transition={{
+                y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                rotateX: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+              }}
             >
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 to-purple-500/30 rounded-full blur-xl animate-pulse" />
-                <div className="relative bg-[rgba(21,23,30,0.8)] backdrop-blur-xl border-2 border-teal-400/50 rounded-full px-8 py-4 shadow-[0_0_40px_#30d5c8aa] flex items-center gap-4">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-blue-500/40 rounded-full blur-2xl" />
+                <div className="relative bg-gradient-to-br from-[rgba(30,25,50,0.9)] to-[rgba(15,20,40,0.9)] backdrop-blur-xl border-2 border-purple-400/60 rounded-full px-8 py-4 shadow-[0_0_60px_rgba(147,51,234,0.6),0_0_100px_rgba(99,102,241,0.3)] flex items-center gap-4">
                   <PercyAvatar 
                     mood={percyMood}
                     size="lg"
-                    className="animate-pulse"
+                    className="drop-shadow-[0_0_20px_rgba(147,51,234,0.8)]"
                   />
                   <div className="text-left">
-                    <div className="text-white font-bold text-lg">Ask Percy</div>
-                    <div className="text-teal-300 text-sm">Your AI Business Strategist</div>
+                    <div className="text-white font-bold text-lg drop-shadow-lg">Ask Percy</div>
+                    <div className="text-purple-300 text-sm font-medium">Your AI Business Strategist</div>
                   </div>
-                  <MessageCircle className="w-6 h-6 text-teal-400 animate-bounce" />
+                  <MessageCircle className="w-6 h-6 text-purple-400 animate-bounce drop-shadow-lg" />
                 </div>
               </div>
             </motion.div>
 
-            {/* Live Stats */}
+            {/* Animated Market Stats */}
             <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
               <motion.div 
-                className="bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 rounded-full px-4 py-2 shadow-[0_0_20px_#30d5c866]"
-                animate={{ boxShadow: ['0 0 20px #30d5c866', '0 0 30px #30d5c8aa', '0 0 20px #30d5c866'] }}
-                transition={{ duration: 2, repeat: Infinity }}
+                className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 backdrop-blur-xl border border-purple-400/50 rounded-full px-5 py-3 shadow-[0_0_30px_rgba(147,51,234,0.4)]"
+                animate={{ 
+                  boxShadow: [
+                    '0 0 30px rgba(147,51,234,0.4)', 
+                    '0 0 50px rgba(147,51,234,0.7)', 
+                    '0 0 30px rgba(147,51,234,0.4)'
+                  ],
+                  scale: [1, 1.02, 1]
+                }}
+                transition={{ duration: 3, repeat: Infinity }}
               >
-                <span className="text-red-400 font-bold text-sm">🔥 LIVE: {liveMetrics.businessesTransformed.toLocaleString()} businesses transforming</span>
+                <span className="text-purple-300 font-bold text-sm">🚀 {Math.floor(Math.random() * 20) + 14} brands transformed in last 24h</span>
               </motion.div>
               <motion.div 
-                className="bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-orange-400/40 rounded-full px-4 py-2 shadow-[0_0_20px_#f97316aa]"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
+                className="bg-gradient-to-r from-blue-900/40 to-indigo-900/40 backdrop-blur-xl border border-blue-400/50 rounded-full px-5 py-3 shadow-[0_0_30px_rgba(99,102,241,0.4)]"
+                animate={{ 
+                  scale: [1, 1.05, 1],
+                  y: [0, -2, 0]
+                }}
+                transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
               >
-                <span className="text-orange-400 font-bold text-sm">⚡ {liveMetrics.revenueGenerated} revenue generated</span>
+                <span className="text-blue-300 font-bold text-sm">💰 ${Math.floor(Math.random() * 500) + 250}K revenue this month</span>
               </motion.div>
             </div>
             
             <CosmicHeading className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl mb-6">
               What's Killing Your <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">Business Growth</span>?
             </CosmicHeading>
-            <p className="text-xl sm:text-2xl text-teal-300 max-w-4xl mx-auto mb-8 font-semibold leading-relaxed">
+            <p className="text-xl sm:text-2xl text-purple-200 max-w-4xl mx-auto mb-8 font-semibold leading-relaxed">
               Percy analyzes your challenge and assembles the perfect AI agent team to solve it. 
               <span className="text-white font-bold block mt-2">Real solutions, real results, real fast.</span>
             </p>
@@ -403,8 +425,8 @@ export default function ServicesPage() {
                 className="mb-12"
               >
                 <div className="relative max-w-4xl mx-auto">
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-3xl blur-2xl" />
-                  <div className="relative bg-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 rounded-3xl p-8 shadow-[0_0_60px_#30d5c8aa]">
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-3xl blur-2xl" />
+                  <div className="relative bg-gradient-to-br from-[rgba(30,25,50,0.9)] to-[rgba(15,20,40,0.9)] backdrop-blur-xl border-2 border-purple-400/60 rounded-3xl p-8 shadow-[0_0_80px_rgba(147,51,234,0.5)]">
                     <div className="flex items-start gap-6">
                       <div className="relative">
                         <motion.div
@@ -418,7 +440,7 @@ export default function ServicesPage() {
                           animate={{ scale: [1, 1.2, 1] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         >
-                          <Sparkles className="w-6 h-6 text-cyan-400" />
+                          <Sparkles className="w-6 h-6 text-purple-400" />
                         </motion.div>
                       </div>
                       <div className="flex-1">
@@ -453,32 +475,40 @@ export default function ServicesPage() {
             )}
           </AnimatePresence>
 
-          {/* Global Success Metrics */}
+          {/* Floating Achievement Badges */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16"
+            className="flex flex-wrap justify-center gap-4 mb-16"
           >
-            {Object.entries(globalMetrics).map(([key, value], index) => (
+            {[
+              { label: "Most Popular", icon: "🔥", color: "from-red-500/20 to-orange-500/20", border: "border-red-400/40" },
+              { label: "New", icon: "✨", color: "from-purple-500/20 to-pink-500/20", border: "border-purple-400/40" },
+              { label: "Trending", icon: "📈", color: "from-blue-500/20 to-cyan-500/20", border: "border-blue-400/40" },
+              { label: "Editor's Choice", icon: "⭐", color: "from-yellow-500/20 to-amber-500/20", border: "border-yellow-400/40" }
+            ].map((badge, index) => (
               <motion.div
-                key={key}
-                className="relative group"
-                whileHover={{ y: -5, scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
-                animate={{ y: [0, -2, 0] }}
+                key={badge.label}
+                className={`relative group bg-gradient-to-r ${badge.color} backdrop-blur-xl border ${badge.border} rounded-full px-4 py-2 shadow-lg`}
+                whileHover={{ 
+                  scale: 1.1,
+                  y: -3,
+                  rotateZ: [0, -2, 2, 0]
+                }}
+                animate={{ 
+                  y: [0, -5, 0],
+                  rotateZ: [0, 1, -1, 0]
+                }}
                 transition={{ 
-                  y: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut" }
+                  y: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut" },
+                  rotateZ: { duration: 4 + index * 0.3, repeat: Infinity, ease: "easeInOut" }
                 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-cyan-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
-                <div className="relative bg-[rgba(21,23,30,0.8)] backdrop-blur-xl border border-teal-400/40 rounded-2xl p-6 shadow-[0_0_25px_#30d5c866] text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">
-                    {typeof value === 'number' ? value.toLocaleString() : value}
-                  </div>
-                  <div className="text-sm text-gray-400 capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                  </div>
-                </div>
+                <span className="text-sm font-bold text-white flex items-center gap-2">
+                  <span className="text-base">{badge.icon}</span>
+                  {badge.label}
+                </span>
               </motion.div>
             ))}
           </motion.div>
@@ -488,14 +518,23 @@ export default function ServicesPage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-16 justify-items-center"
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-16 max-w-7xl mx-auto"
           >
             {businessSolutions.map((solution, index) => (
-              <Pseudo3DFeature
+              <motion.div
                 key={solution.problem}
-                className="group cursor-pointer relative overflow-hidden"
+                className="group cursor-pointer relative overflow-hidden bg-gradient-to-br from-[rgba(30,25,50,0.8)] to-[rgba(15,20,40,0.9)] backdrop-blur-xl border-2 border-purple-400/30 rounded-3xl p-6 shadow-[0_0_40px_rgba(147,51,234,0.2)] min-h-[500px] flex flex-col"
                 onClick={() => handleSolutionClick(solution)}
                 data-service-id={solution.id}
+                whileHover={{
+                  scale: 1.02,
+                  rotateY: 5,
+                  rotateX: 2,
+                  boxShadow: "0 0 80px rgba(147,51,234,0.4), 0 0 120px rgba(99,102,241,0.2)"
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
               >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -503,21 +542,38 @@ export default function ServicesPage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="relative z-10"
                 >
-                  {/* Live Activity Badge */}
+                  {/* Floating Status Badge */}
                   <div className="absolute top-4 right-4 z-20">
-                    <div className="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1 text-xs">
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                      <span className="text-green-300">{solution.liveActivity.users}</span>
-                    </div>
+                    <motion.div 
+                      className="flex items-center gap-1 bg-purple-900/60 backdrop-blur-sm border border-purple-400/40 rounded-full px-3 py-1 text-xs shadow-lg"
+                      animate={{ 
+                        y: [0, -3, 0],
+                        scale: [1, 1.05, 1]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                      <span className="text-purple-200 font-medium">{solution.liveActivity.status}</span>
+                    </motion.div>
                   </div>
 
-                  {/* Icon with gradient background */}
-                  <div className={`p-3 rounded-lg bg-gradient-to-r ${solution.primaryColor} shadow-glow mb-2 group-hover:scale-110 transition-transform`}>
-                    {solution.icon}
-                  </div>
+                  {/* Icon with cosmic background */}
+                  <motion.div 
+                    className="p-4 rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 border border-purple-400/30 shadow-[0_0_20px_rgba(147,51,234,0.3)] mb-4"
+                    whileHover={{ 
+                      scale: 1.1,
+                      rotateY: 10,
+                      boxShadow: "0 0 40px rgba(147,51,234,0.6)"
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  >
+                    <div className="text-purple-200 w-8 h-8">
+                      {solution.icon}
+                    </div>
+                  </motion.div>
 
                   {/* Problem Title */}
-                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-teal-300 transition-colors">
+                  <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors drop-shadow-lg">
                     {solution.problem}
                   </h3>
 
@@ -536,8 +592,12 @@ export default function ServicesPage() {
                     {solution.personalization.tags.slice(0, 3).map((tag: string, tagIndex: number) => (
                       <motion.span
                         key={tagIndex}
-                        className="px-3 py-1 bg-teal-500/20 text-teal-300 rounded-full text-sm font-medium border border-teal-400/30"
-                        whileHover={{ scale: 1.05, backgroundColor: "rgba(45, 212, 191, 0.3)" }}
+                        className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-400/30"
+                        whileHover={{ 
+                          scale: 1.05, 
+                          backgroundColor: "rgba(147, 51, 234, 0.3)",
+                          borderColor: "rgba(147, 51, 234, 0.6)"
+                        }}
                       >
                         {tag}
                       </motion.span>
@@ -548,37 +608,60 @@ export default function ServicesPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <span className="text-3xl font-bold bg-gradient-to-r from-white to-teal-300 bg-clip-text text-transparent">
+                        <span className="text-3xl font-bold bg-gradient-to-r from-white to-purple-300 bg-clip-text text-transparent">
                           Free Trial
                         </span>
-                        <div className="text-sm text-gray-400">per month</div>
+                        <div className="text-sm text-gray-400">get started today</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-sm text-teal-400 font-bold">🔥 {Math.floor(Math.random() * 50) + 10} active</div>
+                        <motion.div 
+                          className="text-sm text-purple-400 font-bold"
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
+                          🚀 {Math.floor(Math.random() * 50) + 10} active
+                        </motion.div>
                         <div className="text-xs text-gray-500">this week</div>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 mt-auto">
                       <motion.button
                         onClick={() => handleSolutionClick(solution)}
-                        className="flex-1 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-[0_0_20px_#30d5c866] hover:shadow-[0_0_30px_#30d5c8aa]"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-[0_0_30px_rgba(147,51,234,0.4)] hover:shadow-[0_0_50px_rgba(147,51,234,0.6)]"
+                        whileHover={{ 
+                          scale: 1.05,
+                          rotateY: 2,
+                          boxShadow: "0 0 50px rgba(147,51,234,0.8)"
+                        }}
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <span className="flex items-center justify-center gap-2">
-                          <Rocket className="w-4 h-4" />
-                          {solution.conversionCTA}
+                        <span className="flex items-center justify-center gap-2 text-base">
+                          <Rocket className="w-5 h-5" />
+                          {solution.id.includes('revenue') ? 'Unlock Revenue' :
+                           solution.id.includes('brand') ? 'Transform Brand' :
+                           solution.id.includes('automation') || solution.id.includes('manual') ? 'Automate Now' :
+                           solution.id.includes('content') ? 'Generate Content' :
+                           solution.id.includes('authority') ? 'Build Authority' :
+                           solution.id.includes('sales') ? 'Fix Sales' :
+                           'Get Started'}
                         </span>
                       </motion.button>
                       
                       {solution.videoDemoUrl && (
                         <motion.button
-                          onClick={() => handleVideoDemo(solution.videoDemoUrl!)}
-                          className="px-4 py-3 bg-[rgba(21,23,30,0.8)] border border-teal-400/40 rounded-xl text-teal-400 hover:text-white hover:border-teal-400 transition-all duration-300"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVideoDemo(solution.videoDemoUrl!);
+                          }}
+                          className="px-4 py-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-2 border-purple-400/40 rounded-xl text-purple-300 hover:text-white hover:border-purple-300 transition-all duration-300 backdrop-blur-sm"
+                          whileHover={{ 
+                            scale: 1.1,
+                            rotateZ: 5,
+                            borderColor: "rgba(147, 51, 234, 0.8)"
+                          }}
+                          whileTap={{ scale: 0.9 }}
                           title={`Watch ${solution.demoContent.title} (${solution.demoContent.duration})`}
                         >
                           <Play className="w-5 h-5" />
@@ -587,7 +670,7 @@ export default function ServicesPage() {
                     </div>
                   </div>
                 </motion.div>
-              </Pseudo3DFeature>
+              </motion.div>
             ))}
           </motion.div>
 
