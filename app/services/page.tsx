@@ -20,6 +20,7 @@ import { businessSolutions, globalMetrics, LiveMetrics, ServiceSolution } from '
 import { getPercyRecommendation, PercyRecommendation } from '../../lib/percy/recommendationEngine';
 import { agentHandoffAnimations } from '../../lib/animations/agentHandoff';
 import toast from 'react-hot-toast';
+import SkillSmithProductsGrid from '../../components/skillsmith/SkillSmithProductsGrid';
 
 // Business solutions now imported from lib/config/services.ts
 // Percy recommendation and live stats integration
@@ -717,6 +718,9 @@ export default function ServicesPage() {
               ))}
             </div>
           </Pseudo3DFeature>
+
+          {/* SkillSmith Products Section */}
+          <SkillSmithProductsGrid className="mb-24" />
 
           {/* Final CTA Section */}
           <motion.div
