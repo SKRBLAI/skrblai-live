@@ -1889,7 +1889,7 @@ export default function PercyOnboardingRevolution() {
           >
             <div className="text-cyan-400 text-sm font-semibold mb-2 flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4" />
-              <span>Percy says:</span>
+              <span>Did you know?</span>
             </div>
             <motion.p 
               className="text-lg md:text-xl text-white font-medium"
@@ -1897,8 +1897,8 @@ export default function PercyOnboardingRevolution() {
             >
               {[
                 "AI teams launch 7x faster with SKRBL automation.",
-                "Ready to unlock your AI League and dominate?",
-                "Your competitors aren't using AI yet—perfect timing."
+                "Your competitive advantage starts with the right AI strategy.",
+                "Most businesses waste 20+ hours/week on tasks AI could handle."
               ][Math.floor(Date.now() / 5000) % 3]}
             </motion.p>
           </motion.div>
@@ -1924,8 +1924,8 @@ export default function PercyOnboardingRevolution() {
         
         {/* Content */}
         <div className="relative p-6 text-center">
-          <div className="text-sm text-gray-400 mb-2">Your cosmic concierge is ready</div>
-          <div className="text-lg font-semibold text-teal-400">Percy • Always here to help</div>
+          <div className="text-sm text-gray-400 mb-2">Your AI transformation starts here</div>
+          <div className="text-lg font-semibold text-teal-400">Ready when you are • 24/7 Support</div>
         </div>
       </motion.div>
 
