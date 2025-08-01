@@ -37,9 +37,10 @@ interface OnboardingStep {
 // --- Percy Onboarding Revolution with Animated Intro & Container Pulse ---
 
 const introMessages = [
-  "Hey, I'm Percy! What brings you to SKRBL AI today? 👋",
-  "Need help navigating SKRBL AI? Just ask Percy!",
-  "Percy here—ready to guide your AI journey!"
+  "Percy here—ready to guide you to victory! 🚀",
+  "Percy here—ready to guide you to automation! ⚡",
+  "Percy here—ready to guide you to dominance! 👑",
+  "Percy here—ready to guide you to launch! 🌟"
 ];
 
 // Type for competitive analysis result
@@ -80,16 +81,11 @@ export default function PercyOnboardingRevolution() {
   const [currentSocialProof, setCurrentSocialProof] = useState<{ message: string } | null>(null);
   const [promptBarLoading, setPromptBarLoading] = useState(false);
   
-  // Live metrics state
-  const [liveMetrics, setLiveMetrics] = useState({
-    liveUsers: 1247,
-    agentsDeployed: 89,
-    revenueGenerated: 125000
-  });
+  // Removed liveMetrics state - replaced with static value props
   
-  // Missing constants
-  const [intelligenceScore] = useState(247);
-  const [businessesTransformed] = useState(47213);
+  // Constants for dynamic messaging
+  const businessesTransformed = 47213;
+  const intelligenceScore = 247;
 
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning' | 'thinking' | 'waving' | 'nodding'>('excited');
@@ -193,7 +189,7 @@ export default function PercyOnboardingRevolution() {
   const [personalizedGreeting, setPersonalizedGreeting] = useState('');
   const [socialProofMessages, setSocialProofMessages] = useState<any[]>([]);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
-  
+
   // Fix: define promptBarRef for the new integrated prompt bar
   const promptBarRef = useRef<HTMLInputElement>(null);
   const [promptBarValue, setPromptBarValue] = useState('');
@@ -362,13 +358,13 @@ export default function PercyOnboardingRevolution() {
       type: 'greeting',
       percyMessage: `**Welcome to the revolution!** I'm Percy, your cosmic concierge and architect of digital dominance. I've transformed **${businessesTransformed.toLocaleString()}** businesses this quarter alone - making their competition completely irrelevant.\n\n**Here's what I do**: I analyze your business, deploy the perfect AI agent army, and watch your competitors scramble to catch up. \n\n**So, tell me - what brings you to me today? You must be ready to WIN since you're here!**`,
       options: [
-        { id: 'website-scan', label: 'Analyze my website & crush SEO competition', icon: <BarChart3 className="w-8 h-8" />, action: 'instant-website-analysis' },
-        { id: 'content-creator', label: 'I create content & need to dominate', icon: <Palette className="w-8 h-8" />, action: 'instant-content-analysis' },
-        { id: 'book-publisher', label: 'I\'m writing/publishing books', icon: <BookOpen className="w-8 h-8" />, action: 'instant-book-analysis' },
-        { id: 'business-strategy', label: 'Scale my business with AI automation', icon: <Zap className="w-8 h-8" />, action: 'instant-business-analysis' },
-        { id: 'linkedin-profile', label: 'Build my professional brand', icon: <Users className="w-8 h-8" />, action: 'instant-linkedin-analysis' },
-        { id: 'sports-analysis', label: 'Athletic performance optimization', icon: <Trophy className="w-8 h-8" />, action: 'sports-routing' },
-        { id: 'custom-needs', label: 'Something else - let me explain', icon: <MessageCircle className="w-8 h-8" />, action: 'custom-needs-analysis' },
+        { id: 'website-scan', label: 'Dominate SEO', icon: <BarChart3 className="w-8 h-8" />, action: 'instant-website-analysis' },
+        { id: 'content-creator', label: 'Create Content', icon: <Palette className="w-8 h-8" />, action: 'instant-content-analysis' },
+        { id: 'book-publisher', label: 'Publish a Book', icon: <BookOpen className="w-8 h-8" />, action: 'instant-book-analysis' },
+        { id: 'business-strategy', label: 'Automate My Biz', icon: <Zap className="w-8 h-8" />, action: 'instant-business-analysis' },
+        { id: 'linkedin-profile', label: 'Upgrade My Brand', icon: <Users className="w-8 h-8" />, action: 'instant-linkedin-analysis' },
+        { id: 'sports-analysis', label: 'Get Fit', icon: <Trophy className="w-8 h-8" />, action: 'sports-routing' },
+        { id: 'custom-needs', label: 'Something Else', icon: <MessageCircle className="w-8 h-8" />, action: 'custom-needs-analysis' },
         { id: 'signup', label: 'Sign Up', icon: <Rocket className="w-8 h-8" />, action: 'signup' },
         { id: 'have-code', label: 'Have a Code?', icon: <Settings className="w-8 h-8" />, action: 'have-code' },
         { id: 'my-dashboard', label: 'My Dashboard', icon: <LayoutDashboard className="w-8 h-8" />, action: 'my-dashboard' }
@@ -909,14 +905,7 @@ export default function PercyOnboardingRevolution() {
         const result = await response.json();
         
         if (result.success) {
-          setLiveMetrics(prev => ({
-            ...prev,
-            liveUsers: result.data.metrics.live.totalUsers,
-            agentsDeployed: Math.floor(result.data.metrics.live.agentsLaunched / 1000),
-            revenueGenerated: result.data.metrics.live.revenueGenerated,
-            businessesTransformed: result.data.metrics.live.businessesTransformed
-          }));
-          
+          // Removed liveMetrics updates - using static value props instead
           setSocialProofMessages(result.data.socialProof);
           
           // Update competitive insights
@@ -1052,14 +1041,14 @@ export default function PercyOnboardingRevolution() {
     
     try {
       // MASTER CODE INTERCEPTION - Founder Dashboard Access
-      if (promptBarValue.trim() === 'MMM_mstr') {
-        console.log('[Founder Dashboard] Master code detected - activating founder overlay');
-        setShowFounderDashboard(true);
-        setPromptBarValue('');
-        trackBehavior('founder_dashboard_access', { 
-          timestamp: new Date().toISOString(),
-          accessMethod: 'prompt_bar'
-        });
+    if (promptBarValue.trim() === 'MMM_mstr') {
+      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
+      setShowFounderDashboard(true);
+      setPromptBarValue('');
+      trackBehavior('founder_dashboard_access', { 
+        timestamp: new Date().toISOString(),
+        accessMethod: 'prompt_bar'
+      });
         return; // Exit early
       }
 
@@ -1088,15 +1077,15 @@ export default function PercyOnboardingRevolution() {
         setInputValue(promptBarValue);
         setPromptBarValue('');
         await handleInputSubmit();
-        return;
-      }
+      return;
+    }
 
-      // Handle general conversation - route to custom needs analysis
-      setUserInput(promptBarValue);
-      setInputValue(promptBarValue);
-      setCurrentStep('custom-needs-analysis');
+    // Handle general conversation - route to custom needs analysis
+    setUserInput(promptBarValue);
+    setInputValue(promptBarValue);
+    setCurrentStep('custom-needs-analysis');
       setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
-      setPromptBarValue('');
+    setPromptBarValue('');
     } finally {
       setPromptBarLoading(false);
     }
@@ -1183,7 +1172,7 @@ export default function PercyOnboardingRevolution() {
   const step = getCurrentStep();
 
   return (
-    <motion.div
+      <motion.div
   className="w-full max-w-5xl mx-auto relative pointer-events-auto touch-manipulation"
   data-percy-onboarding
   variants={{
@@ -1288,21 +1277,21 @@ export default function PercyOnboardingRevolution() {
           />
         </div>
 
-        {/* Main Hero Container */}
-        <motion.div
-          className="relative bg-gradient-to-br from-[rgba(21,23,30,0.95)] via-[rgba(30,35,45,0.9)] to-[rgba(21,23,30,0.95)] backdrop-blur-xl border-2 border-teal-400/60 rounded-3xl shadow-[0_0_60px_#30d5c8cc,inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden"
+        {/* Main Hero Container with Enhanced Depth */}
+          <motion.div
+          className="relative bg-gradient-to-br from-[rgba(21,23,30,0.95)] via-[rgba(30,35,45,0.9)] to-[rgba(21,23,30,0.95)] backdrop-blur-xl border-2 border-teal-400/60 rounded-3xl shadow-[0_0_80px_#30d5c8dd,0_0_120px_#6366f144,inset_0_1px_0_rgba(255,255,255,0.15)] overflow-hidden"
           whileHover={{
             scale: 1.02,
             rotateX: 2,
             rotateY: -1,
             boxShadow: [
-              "0 0 60px #30d5c8cc,inset 0 1px 0 rgba(255,255,255,0.1)",
-              "0 0 100px #30d5c8ff, 0 0 150px #6366f1aa,inset 0 1px 0 rgba(255,255,255,0.2)",
-              "0 0 60px #30d5c8cc,inset 0 1px 0 rgba(255,255,255,0.1)"
+              "0 0 80px #30d5c8dd,0 0 120px #6366f144,inset 0 1px 0 rgba(255,255,255,0.15)",
+              "0 0 120px #30d5c8ff, 0 0 180px #6366f1bb, 0 0 240px #ec4899aa,inset 0 1px 0 rgba(255,255,255,0.25)",
+              "0 0 80px #30d5c8dd,0 0 120px #6366f144,inset 0 1px 0 rgba(255,255,255,0.15)"
             ]
           }}
           transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.8 } }}
-          style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
+          style={{ perspective: "1000px", transformStyle: "preserve-3d", zIndex: 50 }}
         >
           {/* Inner cosmic shimmer */}
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-blue-400/5 rounded-3xl" />
@@ -1312,8 +1301,8 @@ export default function PercyOnboardingRevolution() {
             {/* Enhanced Percy Avatar with Micro-interactions */}
             <motion.div
               className="relative mb-6"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               whileHover={{
                 scale: 1.1,
@@ -1363,13 +1352,13 @@ export default function PercyOnboardingRevolution() {
                 animate={!userInteracted} 
                 className="relative z-10 shadow-[0_0_40px_rgba(48,213,200,0.6),inset_0_0_20px_rgba(0,0,0,0.8)] border-4 border-teal-400/30" 
               />
-            </motion.div>
-            
+          </motion.div>
+          
             {/* Enhanced Prominent Messaging */}
-            <motion.div
+          <motion.div
               className="text-center max-w-2xl"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             >
               {/* Main Message - Prominent and Glowing */}
@@ -1384,16 +1373,16 @@ export default function PercyOnboardingRevolution() {
                   ]
                 } : {}}
                 transition={{ duration: 2, repeat: pulseActive ? Infinity : 0 }}
-              >
-                <span
+          >
+            <span
                   className="block font-bold text-3xl md:text-4xl text-transparent bg-gradient-to-r from-cyan-300 via-white to-teal-300 bg-clip-text text-center tracking-tight leading-tight"
                   style={{
                     textShadow: "0 0 30px rgba(48,213,200,0.8), 0 4px 8px rgba(0,0,0,0.9)"
                   }}
-                  aria-live="polite"
-                >
+              aria-live="polite"
+            >
                   {personalizedGreeting || "Percy here—ready to guide"}
-                </span>
+            </span>
               </motion.div>
               
               {/* Typewriter Message */}
@@ -1408,51 +1397,51 @@ export default function PercyOnboardingRevolution() {
                 </span>
               </motion.div>
               
-              {/* Enhanced Stats Display */}
+              {/* Clean tagline and demo button */}
               <motion.div
-                className="flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
+                className="text-center space-y-4"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1 }}
               >
-                <div className="flex flex-col items-center">
-                  <div className="text-sm text-gray-400 mb-1">Businesses Transformed</div>
-                  <motion.div 
-                    className="text-2xl font-bold text-transparent bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text"
-                    animate={{
-                      textShadow: [
-                        "0 0 10px rgba(48,213,200,0.6)",
-                        "0 0 20px rgba(48,213,200,0.9)",
-                        "0 0 10px rgba(48,213,200,0.6)"
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    {businessesTransformed.toLocaleString()}
-                  </motion.div>
-                </div>
+                <motion.p 
+                  className="text-lg text-gray-300 font-medium"
+                  animate={{
+                    textShadow: [
+                      "0 0 8px rgba(48,213,200,0.3)",
+                      "0 0 16px rgba(48,213,200,0.5)",
+                      "0 0 8px rgba(48,213,200,0.3)"
+                    ]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  Your AI-powered business transformation starts here.
+                </motion.p>
                 
-                <div className="hidden sm:block w-px h-12 bg-gradient-to-b from-transparent via-teal-400/50 to-transparent" />
-                
-                <div className="flex flex-col items-center">
-                  <div className="text-sm text-gray-400 mb-1">AI Intelligence</div>
-                  <motion.div 
-                    className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text"
-                    animate={{
-                      textShadow: [
-                        "0 0 10px rgba(168,85,247,0.6)",
-                        "0 0 20px rgba(168,85,247,0.9)",
-                        "0 0 10px rgba(168,85,247,0.6)"
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  >
-                    IQ {intelligenceScore}
-                  </motion.div>
-                </div>
+                {/* Show me a Demo button */}
+                <motion.button
+                  onClick={() => {
+                    setDemoActive(true);
+                    setDemoStep('selecting');
+                    handleAnyInteraction();
+                  }}
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-400/30"
+                  whileHover={{ 
+                    scale: 1.05,
+                    boxShadow: "0 0 30px rgba(168,85,247,0.6), 0 0 50px rgba(236,72,153,0.4)",
+                    background: "linear-gradient(135deg, rgb(147,51,234) 0%, rgb(219,39,119) 100%)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                >
+                  <span className="flex items-center gap-2">
+                    <Zap className="w-4 h-4" />
+                    Show me a Demo
+                  </span>
+                </motion.button>
               </motion.div>
-            </motion.div>
-          </div>
+          </motion.div>
+        </div>
           
           {/* 3D highlight edges */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full" />
@@ -1600,7 +1589,7 @@ export default function PercyOnboardingRevolution() {
                         className="space-y-3"
                         layout
                       >
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-center mx-auto max-w-4xl">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 justify-center mx-auto max-w-6xl">
                           {step.options.map((option) => (
                             <ChoiceCard
                               key={option.id}
@@ -1626,39 +1615,39 @@ export default function PercyOnboardingRevolution() {
                         className="space-y-3"
                         layout
                       >
-                        {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
-                        {step.options.slice(0, 4).length > 0 && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {step.options.slice(0, 4).map((option) => (
+                    {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
+                    {step.options.slice(0, 4).length > 0 && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {step.options.slice(0, 4).map((option) => (
                               <ChoiceCard
-                                key={option.id}
+                            key={option.id}
                                 icon={option.icon}
                                 label={option.label}
                                 onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
                                 className={option.id === 'custom-needs' ? 'md:col-span-2' : ''}
                               />
-                            ))}
-                          </div>
-                        )}
-                        
-                        {/* Remaining options (5th onwards) - full width stack */}
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Remaining options (5th onwards) - full width stack */}
                         {step.options.slice(4).length > 0 && (
                           <div className="space-y-3">
-                            {step.options.slice(4).map((option) => (
+                    {step.options.slice(4).map((option) => (
                               <ChoiceCard
-                                key={option.id}
+                        key={option.id}
                                 icon={option.icon}
                                 label={option.label}
                                 onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
                               />
-                            ))}
-                          </div>
+                    ))}
+                  </div>
                         )}
                       </motion.div>
                     )
                 )}
-              </motion.div> 
-             </AnimatePresence>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Enhanced 3D Prompt Bar */}
@@ -1672,16 +1661,19 @@ export default function PercyOnboardingRevolution() {
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60" />
             
             <motion.div
-              className="relative bg-gradient-to-br from-[rgba(21,23,30,0.9)] via-[rgba(30,35,45,0.85)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 rounded-3xl shadow-[0_0_40px_#30d5c8aa,inset_0_1px_0_rgba(255,255,255,0.1)] p-6"
+              className="relative bg-gradient-to-br from-[rgba(21,23,30,0.9)] via-[rgba(30,35,45,0.85)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/60 rounded-3xl shadow-[0_0_60px_#30d5c8cc,0_0_100px_#6366f155,inset_0_1px_0_rgba(255,255,255,0.15)] p-6"
               whileHover={{
                 scale: 1.02,
+                rotateX: 1,
+                rotateY: -0.5,
                 boxShadow: [
-                  "0 0 40px #30d5c8aa,inset 0 1px 0 rgba(255,255,255,0.1)",
-                  "0 0 60px #30d5c8ff, 0 0 100px #6366f1aa,inset 0 1px 0 rgba(255,255,255,0.2)",
-                  "0 0 40px #30d5c8aa,inset 0 1px 0 rgba(255,255,255,0.1)"
+                  "0 0 60px #30d5c8cc,0 0 100px #6366f155,inset 0 1px 0 rgba(255,255,255,0.15)",
+                  "0 0 100px #30d5c8ff, 0 0 140px #6366f1bb, 0 0 180px #ec4899aa,inset 0 1px 0 rgba(255,255,255,0.25)",
+                  "0 0 60px #30d5c8cc,0 0 100px #6366f155,inset 0 1px 0 rgba(255,255,255,0.15)"
                 ]
               }}
               transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.6 } }}
+              style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
             >
               {/* Header with reset button */}
               <div className="flex items-center justify-between mb-4">
@@ -1707,12 +1699,12 @@ export default function PercyOnboardingRevolution() {
               </div>
               
               {/* Enhanced Input Field */}
-              <div className="relative">
+            <div className="relative">
                 <motion.input
-                  ref={promptBarRef}
-                  type="text"
-                  value={promptBarValue}
-                  onChange={(e) => setPromptBarValue(e.target.value)}
+                ref={promptBarRef}
+                type="text"
+                value={promptBarValue}
+                onChange={(e) => setPromptBarValue(e.target.value)}
                   onFocus={() => {
                     setPromptBarFocused(true);
                     setPercyMood('scanning');
@@ -1722,7 +1714,7 @@ export default function PercyOnboardingRevolution() {
                     setPercyMood('excited');
                   }}
                   placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
-                  className="w-full px-6 py-4 pr-16 bg-gradient-to-br from-[rgba(15,18,25,0.8)] to-[rgba(25,30,40,0.8)] backdrop-blur-md border-2 border-teal-400/30 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20 text-base font-medium transition-all duration-300"
+                  className="w-full px-6 py-4 pr-16 bg-gradient-to-br from-[rgba(15,18,25,0.8)] to-[rgba(25,30,40,0.8)] backdrop-blur-md border-2 border-teal-400/30 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20 text-base md:text-lg font-medium transition-all duration-300"
                   onKeyDown={handlePromptBarKeyDown}
                   disabled={promptBarLoading}
                   animate={promptBarFocused ? { 
@@ -1746,10 +1738,10 @@ export default function PercyOnboardingRevolution() {
                   }}
                   aria-label="Percy prompt input"
                 />
-                
-                {/* Send Button */}
-                <motion.button
-                  onClick={handlePromptBarSubmit}
+              
+              {/* Send Button */}
+              <motion.button
+                onClick={handlePromptBarSubmit}
                   disabled={!promptBarValue.trim() || promptBarLoading}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border border-teal-400/50 shadow-lg hover:shadow-xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                   whileHover={{ 
@@ -1765,75 +1757,56 @@ export default function PercyOnboardingRevolution() {
                   ) : (
                     <Send className="w-4 h-4 text-white group-hover:text-gray-100 transition-colors" />
                   )}
-                </motion.button>
-              </div>
+              </motion.button>
+            </div>
             </motion.div>
           </motion.div>
         </div>
       </div>
 
       {/* Restored Stats Cards Section */}
+      {/* Animated Value Props Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
         className="mb-8"
-        data-percy-stats
       >
-        <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] justify-items-center">
-          <motion.div
-            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
-            whileTap={{ scale: 1.02 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
+        <motion.div
+          className="max-w-4xl mx-auto p-6 bg-gradient-to-r from-[rgba(21,23,30,0.8)] via-[rgba(30,35,45,0.7)] to-[rgba(21,23,30,0.8)] backdrop-blur-xl border border-teal-400/40 rounded-2xl shadow-[0_0_40px_#30d5c8aa]"
+          whileHover={{ 
+            scale: 1.02,
+            boxShadow: "0 0 60px #30d5c8cc, 0 0 100px #6366f155"
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <motion.div 
+            className="text-center"
+            animate={{
+              textShadow: [
+                "0 0 8px rgba(48,213,200,0.4)",
+                "0 0 16px rgba(48,213,200,0.6)",
+                "0 0 8px rgba(48,213,200,0.4)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
           >
-            <div className="text-2xl md:text-3xl font-bold mb-1">
-              <StatCounter 
-                end={liveMetrics.liveUsers} 
-                label="Live Users Online"
-                duration={2500}
-              />
+            <div className="text-cyan-400 text-sm font-semibold mb-2 flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4" />
+              <span>Percy says:</span>
             </div>
-            <div className="text-sm text-gray-400">Live Users Online</div>
-            <div className="text-xs text-teal-400 mt-1">▲ Active now</div>
+            <motion.p 
+              className="text-lg md:text-xl text-white font-medium"
+              key={Math.floor(Date.now() / 5000)} // Changes every 5 seconds
+            >
+              {[
+                "AI teams launch 7x faster with SKRBL automation.",
+                "Ready to unlock your AI League and dominate?",
+                "Your competitors aren't using AI yet—perfect timing."
+              ][Math.floor(Date.now() / 5000) % 3]}
+            </motion.p>
           </motion.div>
-          
-          <motion.div
-            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
-            whileTap={{ scale: 1.02 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
-          >
-            <div className="text-2xl md:text-3xl font-bold mb-1">
-              <StatCounter 
-                end={liveMetrics.agentsDeployed} 
-                label="Agents Deployed"
-                duration={2500}
-              />
-            </div>
-            <div className="text-sm text-gray-400">Agents Deployed</div>
-            <div className="text-xs text-electric-blue mt-1">▲ This hour</div>
-          </motion.div>
-          
-          <motion.div
-            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
-            whileTap={{ scale: 1.02 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
-          >
-            <div className="text-2xl md:text-3xl font-bold mb-1">
-              <StatCounter 
-                end={liveMetrics.revenueGenerated} 
-                prefix="$"
-                suffix="+"
-                label="Revenue Generated"
-                duration={3000}
-              />
-            </div>
-            <div className="text-sm text-gray-400">Revenue Generated</div>
-            <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
-          </motion.div>
-        </div>
+        </motion.div>
       </motion.div>
 
       {/* Bottom Pseudo-3D Deck Panel */}

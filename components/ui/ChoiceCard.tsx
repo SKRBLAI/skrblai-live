@@ -89,7 +89,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           damping: 25,
           boxShadow: { duration: 0.8 }
         }}
-        className={`relative w-full h-44 rounded-2xl bg-gradient-to-br from-[rgba(21,23,30,0.85)] via-[rgba(30,35,45,0.8)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 shadow-[0_0_32px_#30d5c8aa,inset_0_1px_0_rgba(255,255,255,0.1)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/70 ${className}`}
+        className={`relative w-full h-32 md:h-36 lg:h-40 rounded-2xl bg-gradient-to-br from-[rgba(21,23,30,0.85)] via-[rgba(30,35,45,0.8)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 shadow-[0_0_32px_#30d5c8aa,inset_0_1px_0_rgba(255,255,255,0.1)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/70 ${className}`}
         style={{ 
           perspective: '1000px', 
           transformStyle: 'preserve-3d',
@@ -103,7 +103,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
         {/* Content */}
         <div className="relative flex flex-col items-center justify-center h-full space-y-4 z-10">
           <motion.div
-            className="text-6xl filter drop-shadow-[0_0_8px_rgba(48,213,200,0.6)]"
+            className="text-3xl md:text-4xl lg:text-5xl filter drop-shadow-[0_0_8px_rgba(48,213,200,0.6)]"
             animate={isHovered ? {
               scale: [1, 1.1, 1],
               rotateY: [0, 10, 0],
@@ -119,9 +119,10 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           </motion.div>
           
           <motion.span 
-            className="text-white text-xl font-bold text-center leading-tight tracking-wide px-2"
+            className="text-white text-sm md:text-base lg:text-lg font-bold text-center leading-tight tracking-wide px-2"
             style={{
-              textShadow: '0 0 12px rgba(48,213,200,0.4), 0 2px 4px rgba(0,0,0,0.8)'
+              textShadow: '0 0 12px rgba(48,213,200,0.4), 0 2px 4px rgba(0,0,0,0.8)',
+              fontSize: `clamp(0.75rem, 2.5vw, 1rem)`
             }}
             animate={isHovered ? {
               scale: [1, 1.05, 1],

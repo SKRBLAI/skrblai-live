@@ -1,12 +1,10 @@
-import { BookOpen, Palette, FilePenLine, Megaphone, BarChart2, LayoutDashboard, Users, TrendingUp, Zap, Crown, DollarSign, Clock } from 'lucide-react';
-
 export interface ServiceSolution {
   id: string;
   problem: string;
   subheading: string;
   description: string;
   agents: string[];
-  icon: React.ReactNode;
+  icon: string; // Changed from React.ReactNode to string
   metrics: {
     successRate: number;
     avgIncrease: string;
@@ -43,7 +41,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Break through growth plateaus",
     description: "AI powered analytics and marketing automation that identifies hidden revenue opportunities and converts them into profit.",
     agents: ['analytics', 'adcreative', 'social'],
-    icon: <TrendingUp className="w-8 h-8" />,
+    icon: 'TrendingUp',
     metrics: { successRate: 94, avgIncrease: "127%", timeToResults: "14 days" },
     href: '/analytics',
     primaryColor: 'from-green-600 to-emerald-500',
@@ -69,7 +67,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Customers don't get your brand",
     description: "Complete brand identity transformation with AI powered logo design, voice development, and positioning strategy.",
     agents: ['branding', 'contentcreation', 'book-publishing'],
-    icon: <Palette className="w-8 h-8" />,
+    icon: 'Palette',
     metrics: { successRate: 89, avgIncrease: "156%", timeToResults: "21 days" },
     href: '/branding',
     primaryColor: 'from-purple-600 to-pink-500',
@@ -95,7 +93,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Drowning in repetitive tasks",
     description: "Complete workflow automation that handles your busywork while you focus on strategy and growth.",
     agents: ['sync', 'biz', 'percy'],
-    icon: <Zap className="w-8 h-8" />,
+    icon: 'Zap',
     metrics: { successRate: 96, avgIncrease: "234%", timeToResults: "7 days" },
     href: '/content-automation',
     primaryColor: 'from-blue-600 to-cyan-500',
@@ -121,7 +119,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Running out of content ideas",
     description: "AI powered content engine that creates unlimited engaging content across all platforms and formats.",
     agents: ['contentcreation', 'social', 'videocontent'],
-    icon: <FilePenLine className="w-8 h-8" />,
+    icon: 'FilePenLine',
     metrics: { successRate: 92, avgIncrease: "189%", timeToResults: "10 days" },
     href: '/content-automation',
     primaryColor: 'from-orange-600 to-red-500',
@@ -147,7 +145,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Nobody knows you exist",
     description: "Complete thought leadership strategy with book publishing, speaking opportunities, and industry recognition.",
     agents: ['publishing', 'contentcreation', 'proposal'],
-    icon: <BookOpen className="w-8 h-8" />,
+    icon: 'BookOpen',
     metrics: { successRate: 87, avgIncrease: "167%", timeToResults: "30 days" },
     href: '/book-publishing',
     primaryColor: 'from-indigo-600 to-purple-500',
@@ -173,7 +171,7 @@ export const businessSolutions: ServiceSolution[] = [
     subheading: "Leads falling through cracks",
     description: "Complete sales automation with lead nurturing, proposal generation, and client success management.",
     agents: ['proposal', 'clientsuccess', 'analytics'],
-    icon: <DollarSign className="w-8 h-8" />,
+    icon: 'DollarSign',
     metrics: { successRate: 91, avgIncrease: "198%", timeToResults: "14 days" },
     href: '/dashboard/analytics',
     primaryColor: 'from-green-600 to-teal-500',

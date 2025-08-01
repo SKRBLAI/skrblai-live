@@ -50,18 +50,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Add Percy's personality to the response
+    const primaryResult = Array.isArray(result) ? result[0] : result;
     const percyResponse = {
       recommendation: result,
       percyMessage: {
         greeting: percyMessages.greeting[Math.floor(Math.random() * percyMessages.greeting.length)],
         confidence: percyMessages.confidence[
-          result.confidence > 0.8 ? 'high' : 
-          result.confidence > 0.5 ? 'medium' : 'low'
+          primaryResult.confidence > 0.8 ? 'high' : 
+          primaryResult.confidence > 0.5 ? 'medium' : 'low'
         ],
-        urgency: result.urgencyMessage || percyMessages.urgency.medium
+        urgency: primaryResult.urgencyMessage || percyMessages.urgency.medium
       },
       metadata: {
-        confidence: result.confidence,
+        confidence: primaryResult.confidence,
         timestamp: Date.now(),
         recommendationType: requestType,
         triggerAnalyzed: trigger

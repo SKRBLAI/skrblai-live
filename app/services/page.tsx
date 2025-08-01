@@ -23,7 +23,7 @@ import toast from 'react-hot-toast';
 
 // Business solutions now imported from lib/config/services.ts
 // Percy recommendation and live stats integration
-// const businessSolutions = [ // Moved to config
+/* const businessSolutions = [ // Moved to config
   {
     problem: "Revenue Stalling",
     subheading: "Break through growth plateaus",
@@ -373,14 +373,14 @@ export default function ServicesPage() {
                 animate={{ boxShadow: ['0 0 20px #30d5c866', '0 0 30px #30d5c8aa', '0 0 20px #30d5c866'] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <span className="text-red-400 font-bold text-sm">🔥 LIVE: {globalMetrics.liveUsers.toLocaleString()} businesses transforming</span>
+                <span className="text-red-400 font-bold text-sm">🔥 LIVE: {liveMetrics.businessesTransformed.toLocaleString()} businesses transforming</span>
               </motion.div>
               <motion.div 
                 className="bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-orange-400/40 rounded-full px-4 py-2 shadow-[0_0_20px_#f97316aa]"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               >
-                <span className="text-orange-400 font-bold text-sm">⚡ ${(globalMetrics.revenueGenerated / 1000000).toFixed(1)}M+ revenue generated</span>
+                <span className="text-orange-400 font-bold text-sm">⚡ {liveMetrics.revenueGenerated} revenue generated</span>
               </motion.div>
             </div>
             
@@ -432,14 +432,14 @@ export default function ServicesPage() {
                             AI ANALYZING
                           </motion.div>
                         </div>
-                        <p className="text-gray-300 leading-relaxed mb-4">{percyRecommendation}</p>
+                        <p className="text-gray-300 leading-relaxed mb-4">{percyRecommendation.reasoning}</p>
                         <div className="flex items-center gap-3">
                           <CosmicButton size="sm" className="flex items-center gap-2">
                             <Rocket className="w-4 h-4" />
                             Get Started Now
                           </CosmicButton>
                           <button 
-                            onClick={() => setPercyRecommendation('')}
+                            onClick={() => setPercyRecommendation(null)}
                             className="text-gray-400 hover:text-white transition-colors text-sm"
                           >
                             Dismiss
@@ -464,13 +464,10 @@ export default function ServicesPage() {
               <motion.div
                 key={key}
                 className="relative group"
-                whileHover={{ y: -5, scale: 1.02 }}
+                whileHover={{ y: -5, scale: 1.02, transition: { type: "spring", stiffness: 300 } }}
                 animate={{ y: [0, -2, 0] }}
                 transition={{ 
                   y: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut" }
-                }}
-                whileHover={{ 
-                  transition: { type: "spring", stiffness: 300 }
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-cyan-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all" />
@@ -534,15 +531,15 @@ export default function ServicesPage() {
                     {solution.description}
                   </p>
 
-                  {/* Benefits Tags */}
+                  {/* Tags from personalization */}
                   <div className="flex flex-wrap gap-2 mb-6">
-                    {solution.benefits.slice(0, 3).map((benefit, benefitIndex) => (
+                    {solution.personalization.tags.slice(0, 3).map((tag: string, tagIndex: number) => (
                       <motion.span
-                        key={benefitIndex}
+                        key={tagIndex}
                         className="px-3 py-1 bg-teal-500/20 text-teal-300 rounded-full text-sm font-medium border border-teal-400/30"
                         whileHover={{ scale: 1.05, backgroundColor: "rgba(45, 212, 191, 0.3)" }}
                       >
-                        {benefit}
+                        {tag}
                       </motion.span>
                     ))}
                   </div>
@@ -552,7 +549,7 @@ export default function ServicesPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-3xl font-bold bg-gradient-to-r from-white to-teal-300 bg-clip-text text-transparent">
-                          {solution.pricing}
+                          Free Trial
                         </span>
                         <div className="text-sm text-gray-400">per month</div>
                       </div>
@@ -589,8 +586,8 @@ export default function ServicesPage() {
                       )}
                     </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </Pseudo3DFeature>
             ))}
           </motion.div>
 

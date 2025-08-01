@@ -137,12 +137,12 @@ export default function AgentPreviewSection(): React.ReactElement {
       startFresh: true
     }));
     router.push(`/chat/${agentId}?preview=true`);
+  };
 
   // Handle demo action
   const handleDemoClick = (agentId: string) => {
     setPercyIntent(JSON.stringify({ action: 'demo', agentId, context: 'demo_mode' }));
     router.push(`/chat/${agentId}?demo=true`);
-  }; 
   };
 
   return (

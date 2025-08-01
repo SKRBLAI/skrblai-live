@@ -1,3 +1,6 @@
+import { Target, Zap, Trophy, Star } from 'lucide-react';
+import React from 'react';
+
 export interface Product {
   id: string;
   title: string;
