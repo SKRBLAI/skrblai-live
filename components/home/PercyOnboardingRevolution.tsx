@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation';
 import { 
   Sparkles, ArrowRight, Target, TrendingUp, RotateCcw, Send,
   BarChart3, Rocket, BookOpen, Zap, Palette, Trophy,
-  Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard
+  Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard,
+  CornerUpLeft
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePercyContext } from '../assistant/PercyProvider';
@@ -1169,6 +1170,50 @@ export default function PercyOnboardingRevolution() {
     trackBehavior('chat_reset', { from: currentStep });
   };
 
+  // Enhanced back to start function with state reset and smooth transition
+  const handleBackToStart = () => {
+    // Reset all onboarding state
+    setCurrentStep('greeting');
+    setInputValue('');
+    setPromptBarValue('');
+    setUserInteracted(false);
+    setAnalysisResults(null);
+    setCompetitiveInsights([]);
+    setUserGoal('');
+    setUserInput('');
+    setVipCode('');
+    setIsVIPUser(false);
+    setVipTier(null);
+    setPhoneNumber('');
+    setPhoneVerified(false);
+    setDemoActive(false);
+    setDemoTargetAgent(null);
+    setDemoStep('idle');
+    setPercyMood('excited');
+    setPromptBarLoading(false);
+    
+    // Track the action
+    trackBehavior('back_to_start', { from: currentStep });
+    
+    // Success feedback
+    toast.success('Welcome back! Choose your path to domination.', {
+      icon: '🚀',
+      duration: 2000,
+    });
+  };
+
+  // Keyboard shortcut handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && currentStep !== 'greeting') {
+        handleBackToStart();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentStep]);
+
   const step = getCurrentStep();
 
   return (
@@ -1293,6 +1338,31 @@ export default function PercyOnboardingRevolution() {
           transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.8 } }}
           style={{ perspective: "1000px", transformStyle: "preserve-3d", zIndex: 50 }}
         >
+          {/* Back to Start Button - Only show when not on greeting step */}
+          <AnimatePresence>
+            {currentStep !== 'greeting' && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                whileHover={{ 
+                  scale: 1.1,
+                  boxShadow: "0 0 30px rgba(48,213,200,0.6), 0 0 60px rgba(99,102,241,0.4)",
+                  background: "linear-gradient(135deg, rgba(21,23,30,0.95) 0%, rgba(30,35,45,0.9) 50%, rgba(21,23,30,0.95) 100%)"
+                }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleBackToStart}
+                className="absolute top-4 right-4 z-20 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[rgba(21,23,30,0.9)] via-[rgba(30,35,45,0.85)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 shadow-[0_0_20px_rgba(48,213,200,0.4)] transition-all duration-300 group"
+                aria-label="Back to Start"
+                title="Back to Start (Press Esc)"
+              >
+                <CornerUpLeft className="w-6 h-6 text-teal-400 group-hover:text-cyan-300 transition-colors duration-300" />
+                
+                {/* Cosmic glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-cyan-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </motion.button>
+            )}
+          </AnimatePresence>
           {/* Inner cosmic shimmer */}
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-blue-400/5 rounded-3xl" />
           
@@ -1392,7 +1462,15 @@ export default function PercyOnboardingRevolution() {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <span className="text-xl md:text-2xl text-cyan-200 font-medium tracking-wide">
+                <span 
+                  className="text-xl md:text-2xl text-white font-bold tracking-wide antialiased"
+                  style={{
+                    textShadow: "0 0 20px rgba(48,213,200,0.8), 0 0 40px rgba(48,213,200,0.4), 0 2px 4px rgba(0,0,0,0.9)",
+                    filter: "brightness(1.1) contrast(1.1)",
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale"
+                  } as React.CSSProperties}
+                >
                   {!personalizedGreeting && typedText}
                 </span>
               </motion.div>

@@ -219,14 +219,14 @@ export default function SportsPage(): JSX.Element {
                   className="text-center mb-12"
                 >
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    Premium SkillSmith <span className="text-orange-400">Products</span>
+                    Premium SkillSmith <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">Products</span>
                   </h2>
-                  <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+                  <p className="text-purple-200 text-lg max-w-2xl mx-auto">
                     Professional-grade analysis tools and training programs designed by sports scientists
                   </p>
                 </motion.div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                   {products.map((product, index) => (
                     <motion.div
                       key={product.id}
@@ -251,10 +251,11 @@ export default function SportsPage(): JSX.Element {
                         damping: 15
                       }}
                       whileHover={{ 
-                        scale: 1.05,
-                        rotateY: 5,
-                        z: 50,
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 60px 15px rgba(0,245,212,0.4), 0 0 100px 25px rgba(0,102,255,0.25), 0 0 40px 10px rgba(232,121,249,0.3)'
+                        scale: 1.03,
+                        rotateY: 8,
+                        rotateX: 3,
+                        y: -8,
+                        boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 80px 20px rgba(147,51,234,0.6), 0 0 120px 30px rgba(99,102,241,0.4), 0 0 60px 15px rgba(168,85,247,0.5)'
                       }}
                       whileTap={{ 
                         scale: 0.98,
@@ -264,10 +265,35 @@ export default function SportsPage(): JSX.Element {
                         transformStyle: 'preserve-3d',
                         perspective: 1000
                       }}
-                      className="min-h-[300px] h-full flex flex-col justify-between relative bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-gray-600/20 rounded-2xl p-6 backdrop-blur-xl hover:border-orange-500/40 transition-all duration-500 group cursor-pointer"
+                      className="min-h-[420px] h-full flex flex-col justify-between relative bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-3xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-500 group cursor-pointer shadow-[0_0_40px_rgba(147,51,234,0.3),0_0_80px_rgba(99,102,241,0.2)]"
                     >
-                      {/* Glassmorphic overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      {/* Cosmic glassmorphic overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-blue-400/5 to-indigo-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      
+                      {/* Subtle cosmic particles */}
+                      <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                        {[...Array(8)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            className="absolute w-1 h-1 bg-purple-400/40 rounded-full"
+                            style={{
+                              left: `${10 + i * 12}%`,
+                              top: `${15 + (i % 3) * 25}%`,
+                            }}
+                            animate={{
+                              opacity: [0, 1, 0],
+                              scale: [0, 1.5, 0],
+                              y: [0, -10, 0]
+                            }}
+                            transition={{
+                              duration: 3 + i * 0.5,
+                              repeat: Infinity,
+                              delay: i * 0.3,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
+                      </div>
                       
                       {/* Popular badge with 3D effect */}
                       {product.popular && (
@@ -277,12 +303,13 @@ export default function SportsPage(): JSX.Element {
                           animate={{ scale: 1, rotateZ: 0 }}
                           transition={{ delay: index * 0.15 + 0.5, type: "spring", stiffness: 200 }}
                           whileHover={{ 
-                            scale: 1.1,
+                            scale: 1.15,
                             rotateZ: 5,
-                            boxShadow: '0 10px 25px rgba(251, 146, 60, 0.5)'
+                            y: -2,
+                            boxShadow: '0 15px 35px rgba(147, 51, 234, 0.6)'
                           }}
                         >
-                          <div className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg border border-orange-400/30">
+                          <div className="bg-gradient-to-r from-purple-500 via-pink-500 to-indigo-500 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl border-2 border-purple-300/40 backdrop-blur-sm">
                             ⭐ POPULAR
                           </div>
                         </motion.div>
@@ -302,14 +329,14 @@ export default function SportsPage(): JSX.Element {
                             transition={{ type: "spring", stiffness: 300 }}
                             className="relative"
                           >
-                            <product.icon className={`w-14 h-14 ${product.color} mx-auto mb-4 drop-shadow-lg`} />
-                            <div className={`absolute inset-0 w-14 h-14 mx-auto mb-4 ${product.color.replace('text-', 'bg-').replace('-400', '-400/20')} rounded-full blur-xl`} />
+                            <product.icon className="w-16 h-16 text-purple-300 mx-auto mb-4 drop-shadow-2xl" />
+                            <div className="absolute inset-0 w-16 h-16 mx-auto mb-4 bg-purple-400/20 rounded-full blur-xl" />
                           </motion.div>
                           
-                          <h3 className="text-lg font-bold text-white mb-3 group-hover:text-orange-100 transition-colors">
+                          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-200 transition-colors drop-shadow-lg">
                             {product.title}
                           </h3>
-                          <p className="text-gray-400 text-sm mb-4 group-hover:text-gray-300 transition-colors leading-relaxed line-clamp-3">
+                          <p className="text-gray-300 text-sm mb-4 group-hover:text-purple-200 transition-colors leading-relaxed line-clamp-3">
                             {product.description}
                           </p>
                           
@@ -320,68 +347,74 @@ export default function SportsPage(): JSX.Element {
                             {product.originalPrice && (
                               <span className="text-gray-500 line-through text-sm">${product.originalPrice}</span>
                             )}
-                            <span className="text-3xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                            <span className="text-3xl font-bold bg-gradient-to-r from-purple-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
                               ${product.price}
                             </span>
                           </motion.div>
                         </div>
 
-                        {/* Enhanced CTAs with 3D effects */}
-                        <div className="space-y-3">
+                        {/* Enhanced CTAs with cosmic 3D effects */}
+                        <div className="space-y-3 mt-auto">
                           <motion.button
                             whileHover={{ 
-                              scale: 1.03,
+                              scale: 1.05,
                               rotateX: 5,
-                              boxShadow: '0 15px 35px rgba(59, 130, 246, 0.4)'
+                              rotateY: 2,
+                              boxShadow: '0 20px 40px rgba(99, 102, 241, 0.5)'
                             }}
-                            whileTap={{ scale: 0.97 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => openPreviewFlow(product)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-600/20 border border-blue-400/40 text-blue-300 rounded-xl hover:from-blue-500/30 hover:via-cyan-500/30 hover:to-blue-600/30 hover:border-blue-400/60 transition-all duration-300 backdrop-blur-sm font-medium"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 border-2 border-blue-400/50 text-blue-200 rounded-xl hover:from-blue-500/40 hover:via-indigo-500/40 hover:to-purple-500/40 hover:border-blue-300/70 hover:text-white transition-all duration-300 backdrop-blur-sm font-semibold text-base"
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-5 h-5" />
                             Preview Demo
                           </motion.button>
                           
                           <motion.button
                             whileHover={{ 
-                              scale: 1.03,
+                              scale: 1.05,
                               rotateX: 5,
-                              boxShadow: '0 15px 35px rgba(251, 146, 60, 0.6)'
+                              rotateY: -2,
+                              boxShadow: '0 20px 40px rgba(147, 51, 234, 0.7)'
                             }}
-                            whileTap={{ scale: 0.97 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => handleBuyNow(product)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:via-red-600 hover:to-orange-700 transition-all duration-300 font-bold shadow-lg hover:shadow-2xl"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 text-white rounded-xl hover:from-purple-500 hover:via-pink-400 hover:to-indigo-500 transition-all duration-300 font-bold shadow-xl hover:shadow-2xl text-base"
                           >
-                            <ShoppingCart className="w-4 h-4" />
+                            <ShoppingCart className="w-5 h-5" />
                             Buy Now
                           </motion.button>
                         </div>
                       </motion.div>
 
-                      {/* Floating particles effect on hover */}
+                      {/* Enhanced cosmic particles effect on hover */}
                       <motion.div
-                        className="absolute inset-0 pointer-events-none"
+                        className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl"
                         initial={{ opacity: 0 }}
                         whileHover={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
+                        transition={{ duration: 0.4 }}
                       >
-                        {[...Array(6)].map((_, i) => (
+                        {[...Array(12)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className="absolute w-1 h-1 bg-orange-400 rounded-full"
+                            className={`absolute w-1 h-1 rounded-full ${
+                              i % 3 === 0 ? 'bg-purple-400' : i % 3 === 1 ? 'bg-blue-400' : 'bg-indigo-400'
+                            }`}
                             style={{
-                              left: `${20 + i * 15}%`,
-                              top: `${30 + (i % 2) * 40}%`,
+                              left: `${15 + (i * 7)}%`,
+                              top: `${20 + (i % 4) * 20}%`,
                             }}
                             animate={{
-                              y: [-10, -20, -10],
+                              y: [-15, -30, -15],
                               opacity: [0, 1, 0],
-                              scale: [0, 1, 0],
+                              scale: [0, 1.5, 0],
+                              rotate: [0, 180, 360]
                             }}
                             transition={{
-                              duration: 2,
+                              duration: 2.5 + i * 0.1,
                               repeat: Infinity,
-                              delay: i * 0.2,
+                              delay: i * 0.15,
+                              ease: "easeInOut"
                             }}
                           />
                         ))}
@@ -406,14 +439,44 @@ export default function SportsPage(): JSX.Element {
                 <motion.div 
                   whileHover={{ 
                     scale: 1.02,
-                    rotateX: 2,
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 80px 20px rgba(251,146,60,0.3)'
+                    rotateX: 3,
+                    y: -5,
+                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 100px 25px rgba(147,51,234,0.4), 0 0 150px 35px rgba(99,102,241,0.25)'
                   }}
                   style={{ transformStyle: 'preserve-3d' }}
-                  className="bg-gradient-to-br from-gray-800/40 via-gray-900/60 to-black/40 border border-orange-500/30 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden"
+                  className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/40 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden shadow-[0_0_50px_rgba(147,51,234,0.3)]"
                 >
-                  {/* Glassmorphic overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-red-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  {/* Cosmic glassmorphic overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  
+                  {/* Cosmic particle overlay */}
+                  <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                    {[...Array(20)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className={`absolute w-0.5 h-0.5 rounded-full ${
+                          i % 4 === 0 ? 'bg-purple-400/30' : 
+                          i % 4 === 1 ? 'bg-blue-400/30' : 
+                          i % 4 === 2 ? 'bg-indigo-400/30' : 'bg-violet-400/30'
+                        }`}
+                        style={{
+                          left: `${Math.random() * 100}%`,
+                          top: `${Math.random() * 100}%`,
+                        }}
+                        animate={{
+                          opacity: [0, 1, 0],
+                          scale: [0, 2, 0],
+                          y: [0, -20, 0]
+                        }}
+                        transition={{
+                          duration: 4 + Math.random() * 2,
+                          repeat: Infinity,
+                          delay: Math.random() * 3,
+                          ease: "easeInOut"
+                        }}
+                      />
+                    ))}
+                  </div>
                   
                   <div className="relative z-10">
                     <motion.div 
@@ -421,39 +484,51 @@ export default function SportsPage(): JSX.Element {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.6 }}
-                      className="text-center mb-8"
+                      className="text-center mb-12"
                     >
-                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        Join Thousands of Athletes
-                      </h2>
-                      <p className="text-gray-400">
+                      <motion.h2 
+                        className="text-3xl md:text-4xl font-bold text-white mb-4"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        Join Thousands of <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Athletes</span>
+                      </motion.h2>
+                      <p className="text-purple-200 text-lg">
                         Real results from SkillSmith users worldwide
                       </p>
                     </motion.div>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
                       <motion.div 
                         initial={{ opacity: 0, scale: 0.8 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1, duration: 0.6 }}
                         whileHover={{ 
-                          scale: 1.05,
+                          scale: 1.08,
                           rotateY: 5,
-                          boxShadow: '0 15px 30px rgba(0,245,212,0.3)'
+                          y: -5,
+                          boxShadow: '0 20px 40px rgba(147,51,234,0.4)'
                         }}
-                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                        className="text-center bg-purple-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-purple-400/30 hover:border-purple-300/60 transition-all duration-300 shadow-lg"
                       >
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Users className="w-6 h-6 text-orange-400" />
+                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
+                          <Users className="w-8 h-8 text-purple-400" />
                           <motion.span 
-                            className="text-3xl font-bold text-orange-400"
-                            whileHover={{ scale: 1.1 }}
+                            className="text-3xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent"
+                            whileHover={{ scale: 1.15 }}
+                            animate={{ 
+                              textShadow: [
+                                '0 0 10px rgba(147,51,234,0.5)',
+                                '0 0 20px rgba(147,51,234,0.8)',
+                                '0 0 10px rgba(147,51,234,0.5)'
+                              ]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
                           >
                             {liveMetrics.athletesTransformed.toLocaleString()}
                           </motion.span>
                         </div>
-                        <p className="text-gray-400 text-sm">Athletes Improved</p>
+                        <p className="text-purple-200 text-sm font-medium">Athletes Improved</p>
                       </motion.div>
                       
                       <motion.div 
@@ -462,22 +537,31 @@ export default function SportsPage(): JSX.Element {
                         viewport={{ once: true }}
                         transition={{ delay: 0.2, duration: 0.6 }}
                         whileHover={{ 
-                          scale: 1.05,
+                          scale: 1.08,
                           rotateY: 5,
-                          boxShadow: '0 15px 30px rgba(34,197,94,0.3)'
+                          y: -5,
+                          boxShadow: '0 20px 40px rgba(59,130,246,0.4)'
                         }}
-                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                        className="text-center bg-blue-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-blue-400/30 hover:border-blue-300/60 transition-all duration-300 shadow-lg"
                       >
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <BarChart3 className="w-6 h-6 text-green-400" />
+                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
+                          <BarChart3 className="w-8 h-8 text-blue-400" />
                           <motion.span 
-                            className="text-3xl font-bold text-green-400"
-                            whileHover={{ scale: 1.1 }}
+                            className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent"
+                            whileHover={{ scale: 1.15 }}
+                            animate={{ 
+                              textShadow: [
+                                '0 0 10px rgba(59,130,246,0.5)',
+                                '0 0 20px rgba(59,130,246,0.8)',
+                                '0 0 10px rgba(59,130,246,0.5)'
+                              ]
+                            }}
+                            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
                           >
                             {liveMetrics.performanceImprovement}%
                           </motion.span>
                         </div>
-                        <p className="text-gray-400 text-sm">Avg Improvement</p>
+                        <p className="text-blue-200 text-sm font-medium">Avg Improvement</p>
                       </motion.div>
                       
                       <motion.div 
@@ -486,22 +570,31 @@ export default function SportsPage(): JSX.Element {
                         viewport={{ once: true }}
                         transition={{ delay: 0.3, duration: 0.6 }}
                         whileHover={{ 
-                          scale: 1.05,
+                          scale: 1.08,
                           rotateY: 5,
-                          boxShadow: '0 15px 30px rgba(59,130,246,0.3)'
+                          y: -5,
+                          boxShadow: '0 20px 40px rgba(99,102,241,0.4)'
                         }}
-                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                        className="text-center bg-indigo-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-indigo-400/30 hover:border-indigo-300/60 transition-all duration-300 shadow-lg"
                       >
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Zap className="w-6 h-6 text-blue-400" />
+                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
+                          <Zap className="w-8 h-8 text-indigo-400" />
                           <motion.span 
-                            className="text-3xl font-bold text-blue-400"
-                            whileHover={{ scale: 1.1 }}
+                            className="text-3xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent"
+                            whileHover={{ scale: 1.15 }}
+                            animate={{ 
+                              textShadow: [
+                                '0 0 10px rgba(99,102,241,0.5)',
+                                '0 0 20px rgba(99,102,241,0.8)',
+                                '0 0 10px rgba(99,102,241,0.5)'
+                              ]
+                            }}
+                            transition={{ duration: 3, repeat: Infinity, delay: 1 }}
                           >
                             {liveMetrics.injuriesPrevented.toLocaleString()}
                           </motion.span>
                         </div>
-                        <p className="text-gray-400 text-sm">Injuries Prevented</p>
+                        <p className="text-indigo-200 text-sm font-medium">Injuries Prevented</p>
                       </motion.div>
                       
                       <motion.div 
@@ -510,22 +603,31 @@ export default function SportsPage(): JSX.Element {
                         viewport={{ once: true }}
                         transition={{ delay: 0.4, duration: 0.6 }}
                         whileHover={{ 
-                          scale: 1.05,
+                          scale: 1.08,
                           rotateY: 5,
-                          boxShadow: '0 15px 30px rgba(251,191,36,0.3)'
+                          y: -5,
+                          boxShadow: '0 20px 40px rgba(168,85,247,0.4)'
                         }}
-                        className="text-center bg-gray-800/30 rounded-xl p-4 backdrop-blur-sm border border-gray-700/30 hover:border-orange-500/30 transition-all duration-300"
+                        className="text-center bg-violet-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-violet-400/30 hover:border-violet-300/60 transition-all duration-300 shadow-lg"
                       >
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Trophy className="w-6 h-6 text-yellow-400" />
+                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
+                          <Trophy className="w-8 h-8 text-violet-400" />
                           <motion.span 
-                            className="text-3xl font-bold text-yellow-400"
-                            whileHover={{ scale: 1.1 }}
+                            className="text-3xl font-bold bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent"
+                            whileHover={{ scale: 1.15 }}
+                            animate={{ 
+                              textShadow: [
+                                '0 0 10px rgba(168,85,247,0.5)',
+                                '0 0 20px rgba(168,85,247,0.8)',
+                                '0 0 10px rgba(168,85,247,0.5)'
+                              ]
+                            }}
+                            transition={{ duration: 2.2, repeat: Infinity, delay: 1.5 }}
                           >
                             {liveMetrics.recordsBroken}
                           </motion.span>
                         </div>
-                        <p className="text-gray-400 text-sm">Records Broken</p>
+                        <p className="text-violet-200 text-sm font-medium">Records Broken</p>
                       </motion.div>
                     </div>
                   </div>
@@ -546,14 +648,14 @@ export default function SportsPage(): JSX.Element {
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    Welcome back to <span className="text-orange-400">SkillSmith</span>
+                    Welcome back to <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">SkillSmith</span>
                   </h2>
-                  <p className="text-gray-300 text-lg max-w-2xl mx-auto mb-8">
+                  <p className="text-purple-200 text-lg max-w-2xl mx-auto mb-8">
                     Continue your athletic journey with our full suite of training tools
                   </p>
                   <a 
                     href="/services/skillsmith" 
-                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-lg transition-colors"
+                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-500 hover:via-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl"
                   >
                     Access Full Platform →
                   </a>

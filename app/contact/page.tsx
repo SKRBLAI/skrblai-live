@@ -455,23 +455,16 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
-            className="max-w-4xl mx-auto mb-16"
           >
-            <div className="text-center mb-8">
-              <CosmicHeading className="text-2xl sm:text-3xl lg:text-4xl mb-4">
-                Launch Your <span className="text-electric-blue">Transformation</span>
-              </CosmicHeading>
-              <p className="text-gray-300">Fill out the form - our team will contact you within hours</p>
-            </div>
+            <CosmicHeading level={2} className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
+              Send Your Mission Brief
+            </CosmicHeading>
             
-            <GlassmorphicForm 
-              onSubmit={handleSubmit} 
-              loading={isSubmitting}
-              className="space-y-6"
-            >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-purple-900/10 via-blue-900/10 to-cyan-900/10 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-8 md:p-12 shadow-[0_8px_32px_rgba(147,51,234,0.15),0_0_60px_rgba(59,130,246,0.1)]">
+              <GlassmorphicForm onSubmit={handleSubmit} className="space-y-8">
+                <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-sm font-bold text-electric-blue mb-2">
+                    <label className="block text-base font-bold text-purple-300 mb-3">
                       Full Name *
                     </label>
                     <input
@@ -480,13 +473,12 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
-                      placeholder="Your name"
+                      className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm"
+                      placeholder="Your full name"
                     />
                   </div>
-
                   <div>
-                    <label className="block text-sm font-bold text-electric-blue mb-2">
+                    <label className="block text-base font-bold text-purple-300 mb-3">
                       Email Address *
                     </label>
                     <input
@@ -495,15 +487,15 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm"
                       placeholder="your@email.com"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-sm font-bold text-electric-blue mb-2">
+                    <label className="block text-base font-bold text-purple-300 mb-3">
                       Company Name
                     </label>
                     <input
@@ -511,13 +503,13 @@ export default function ContactPage() {
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
-                      placeholder="Your company"
+                      className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm"
+                      placeholder="Your company name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-electric-blue mb-2">
+                    <label className="block text-base font-bold text-purple-300 mb-3">
                       Phone Number
                     </label>
                     <input
@@ -525,14 +517,14 @@ export default function ContactPage() {
                       name="phoneNumber"
                       value={formData.phoneNumber}
                       onChange={handleChange}
-                      className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors"
+                      className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm"
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="projectTimeline" className="block text-sm font-bold text-electric-blue mb-2">
+                  <label htmlFor="projectTimeline" className="block text-base font-bold text-purple-300 mb-3">
                     Project Timeline
                   </label>
                   <select
@@ -540,7 +532,7 @@ export default function ContactPage() {
                     name="projectTimeline"
                     value={formData.projectTimeline}
                     onChange={handleChange}
-                    className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white focus:border-electric-blue focus:outline-none transition-colors"
+                    className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm"
                   >
                     <option value="immediate">Immediate (ASAP)</option>
                     <option value="1-month">Within 1 month</option>
@@ -551,7 +543,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-electric-blue mb-2">
+                  <label className="block text-base font-bold text-purple-300 mb-3">
                     Tell us about your mission *
                   </label>
                   <textarea
@@ -560,18 +552,19 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-4 bg-slate-800/50 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:border-electric-blue focus:outline-none transition-colors resize-none"
+                    className="w-full px-6 py-4 text-lg bg-black/20 border-2 border-purple-400/30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 focus:outline-none transition-all duration-300 backdrop-blur-sm resize-none"
                     placeholder="Describe your project, goals, and how SKRBL AI can help transform your business..."
                   />
                 </div>
 
-                <div className="text-center pt-2">
+                <div className="text-center pt-4">
                   <CosmicButton
                     type="submit"
                     variant="glass"
-                    size="lg"
+                    size="xl"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto hover:shadow-[0_0_40px_rgba(147,51,234,0.6),0_0_80px_rgba(59,130,246,0.4)] shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-500"
+                    glowColor="purple-400"
                   >
                     {isSubmitting ? (
                       <>
@@ -593,6 +586,7 @@ export default function ContactPage() {
                   </p>
                 </div>
               </GlassmorphicForm>
+            </div>
           </motion.div>
 
           {/* CTA Section - Matching Services Style */}
@@ -602,22 +596,33 @@ export default function ContactPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl p-12 border border-purple-500/30">
-              <h2 className="text-4xl font-bold text-white mb-4">
+            <div className="bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-cyan-900/20 backdrop-blur-xl border border-purple-400/30 rounded-3xl p-12 md:p-16 shadow-[0_8px_32px_rgba(147,51,234,0.15),0_0_60px_rgba(59,130,246,0.1)]">
+              <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent mb-6">
                 Ready To Transform Your Business?
               </h2>
-              <p className="text-xl text-gray-300 mb-8">
-                Join {metrics.dealsClosedThisWeek} companies that chose <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> this week. Avg project: <span className="text-green-400 font-bold">${metrics.avgProjectValue.toLocaleString()}</span>
+              <p className="text-xl md:text-2xl text-gray-300 mb-10 leading-relaxed">
+                Join {metrics.dealsClosedThisWeek} companies that chose <SkrblAiText variant="glow" size="md">SKRBL AI</SkrblAiText> this week. Avg project: <span className="text-cyan-400 font-bold">${metrics.avgProjectValue.toLocaleString()}</span>
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href="/sign-up" className="cosmic-btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-2xl">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8">
+                <CosmicButton
+                  href="/sign-up"
+                  variant="glass"
+                  size="xl"
+                  className="hover:shadow-[0_0_40px_rgba(147,51,234,0.6),0_0_80px_rgba(59,130,246,0.4)] shadow-[0_8px_32px_rgba(0,0,0,0.3)] transition-all duration-500"
+                  glowColor="purple-400"
+                >
                   🚀 Start Free Trial (No Credit Card)
-                </Link>
-                <Link href="/agents" className="cosmic-btn-secondary px-8 py-4 rounded-xl font-bold text-lg">
+                </CosmicButton>
+                <CosmicButton
+                  href="/agents"
+                  variant="outline"
+                  size="xl"
+                  className="border-2 border-cyan-400/50 text-cyan-300 hover:border-purple-400/70 hover:text-purple-300 hover:shadow-[0_0_25px_rgba(147,51,234,0.4)] transition-all duration-300"
+                >
                   👥 Meet Your Agent League
-                </Link>
+                </CosmicButton>
               </div>
-              <div className="mt-6 text-sm text-gray-400">
+              <div className="text-base text-purple-300 bg-black/20 backdrop-blur-sm rounded-xl px-6 py-3 border border-purple-400/20">
                 ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
               </div>
             </div>
