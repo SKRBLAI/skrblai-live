@@ -1455,24 +1455,42 @@ export default function PercyOnboardingRevolution() {
             </span>
               </motion.div>
               
-              {/* Typewriter Message */}
+              {/* Typewriter Message - Isolated from blur effects */}
               <motion.div
-                className="mb-6"
+                className="mb-6 relative z-20"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
+                style={{
+                  transform: "translateZ(50px)",
+                  willChange: "transform",
+                  backfaceVisibility: "hidden"
+                }}
               >
-                <span 
-                  className="text-xl md:text-2xl text-white font-bold tracking-wide antialiased"
+                <div 
+                  className="relative"
                   style={{
-                    textShadow: "0 0 20px rgba(48,213,200,0.8), 0 0 40px rgba(48,213,200,0.4), 0 2px 4px rgba(0,0,0,0.9)",
-                    filter: "brightness(1.1) contrast(1.1)",
-                    WebkitFontSmoothing: "antialiased",
-                    MozOsxFontSmoothing: "grayscale"
-                  } as React.CSSProperties}
+                    isolation: "isolate",
+                    transform: "translate3d(0, 0, 0)"
+                  }}
                 >
-                  {!personalizedGreeting && typedText}
-                </span>
+                  <span 
+                    className="block text-xl md:text-2xl text-white font-black tracking-wide"
+                    style={{
+                      textShadow: "0 0 30px rgba(48,213,200,1), 0 0 60px rgba(48,213,200,0.6), 0 2px 6px rgba(0,0,0,1)",
+                      filter: "brightness(1.2) contrast(1.3) saturate(1.1)",
+                      WebkitFontSmoothing: "antialiased",
+                      MozOsxFontSmoothing: "grayscale",
+                      fontFeatureSettings: "'liga' 1, 'kern' 1",
+                      textRendering: "optimizeLegibility",
+                      WebkitTextStroke: "0.5px rgba(48,213,200,0.3)",
+                      letterSpacing: "0.025em",
+                      lineHeight: "1.2"
+                    } as React.CSSProperties}
+                  >
+                    {!personalizedGreeting && typedText}
+                  </span>
+                </div>
               </motion.div>
               
               {/* Clean tagline and demo button */}
