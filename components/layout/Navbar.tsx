@@ -26,16 +26,12 @@ export default function Navbar() {
     
     if (user && isEmailVerified) {
       // Verified user - go directly to dashboard
-      console.log('[NAVBAR] Verified user clicking login - routing to dashboard');
+      console.log('[NAVBAR] Verified user clicking dashboard - routing to dashboard');
       router.push('/dashboard');
-    } else if (user && !isEmailVerified) {
-      // Unverified user - go to homepage for Percy onboarding
-      console.log('[NAVBAR] Unverified user clicking login - routing to Percy onboarding');
-      router.push('/');
     } else {
-      // No user - go to sign-in page
-      console.log('[NAVBAR] Unauthenticated user clicking login - routing to sign-in');
-      router.push('/sign-in');
+      // Any other case (unverified or no user) - go to Percy onboarding
+      console.log('[NAVBAR] User needs authentication - routing to Percy onboarding');
+      router.push('/?action=dashboard');
     }
   };
 

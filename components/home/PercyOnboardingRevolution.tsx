@@ -191,6 +191,7 @@ export default function PercyOnboardingRevolution() {
   const [personalizedGreeting, setPersonalizedGreeting] = useState('');
   const [socialProofMessages, setSocialProofMessages] = useState<any[]>([]);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
+  const [dashboardIntent, setDashboardIntent] = useState(false);
 
   // Fix: define promptBarRef for the new integrated prompt bar
   const promptBarRef = useRef<HTMLInputElement>(null);
@@ -246,6 +247,15 @@ export default function PercyOnboardingRevolution() {
   useEffect(() => {
     // Activate Percy onboarding on homepage
     setIsOnboardingActive(true);
+    
+    // Check for dashboard intent from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    if (action === 'dashboard') {
+      setDashboardIntent(true);
+      setPromptBarPlaceholder('Enter your email to access dashboard...');
+      console.log('[Percy] Dashboard intent detected from navbar');
+    }
     
     // Check if returning user
     const hasVisited = localStorage.getItem('percy_visited');
@@ -822,6 +832,26 @@ export default function PercyOnboardingRevolution() {
       return; // Exit early - do not proceed with normal onboarding logic
     }
 
+    // OWNER DASHBOARD ACCESS - Direct dashboard access for owner
+    if (inputValue.trim() === 'OWNER_ACCESS' || inputValue.trim() === 'MMM_dash') {
+      console.log('[Percy] Owner access code detected in input - routing directly to dashboard');
+      setInputValue('');
+      
+      trackBehavior('owner_dashboard_access', { 
+        timestamp: new Date().toISOString(),
+        accessMethod: 'owner_code_input'
+      });
+      
+      toast.success('🔑 Owner Access Granted - Welcome to Dashboard!', {
+        icon: '👑',
+        duration: 3000,
+      });
+      
+      // Route directly to dashboard
+      router.push('/dashboard');
+      return;
+    }
+
     const step = getCurrentStep();
     
     if (step.type === 'instant-analysis' && step.analysisMode) {
@@ -832,6 +862,65 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (step.type === 'signup') {
+      // Email entry - simplified authentication
+      if (step.inputType === 'email' || inputValue.includes('@')) {
+        const email = inputValue.trim().toLowerCase();
+        if (!email || !email.includes('@')) {
+          toast.error('Please enter a valid email address');
+          return;
+        }
+        
+        try {
+          setPercyMood('analyzing');
+          await handlePercyThinking(1500);
+          
+          console.log('[Percy] Processing email authentication for:', email);
+          
+          // Check if user exists or create new account
+          const authResponse = await fetch('/api/auth/dashboard-signin', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              email,
+              autoSignIn: true,
+              dashboardIntent: dashboardIntent
+            })
+          });
+          
+          const authData = await authResponse.json();
+          
+          if (authData.success) {
+            // Store user info
+            localStorage.setItem('user_email', email);
+            localStorage.setItem('user_name', email.split('@')[0]);
+            
+            toast.success(`🎉 Welcome${authData.isNewUser ? ' to SKRBL AI' : ' back'}!`, {
+              icon: authData.isNewUser ? '🚀' : '👋',
+              duration: 3000,
+            });
+            
+            // Route based on intent
+            if (dashboardIntent || authData.hasAccess) {
+              console.log('[Percy] Routing to dashboard after email authentication');
+              router.push('/dashboard');
+            } else {
+              setCurrentStep('welcome');
+              setPercyMood('celebrating');
+            }
+            
+            setInputValue('');
+            return;
+          } else {
+            throw new Error(authData.error || 'Authentication failed');
+          }
+        } catch (err: any) {
+          console.error('[Percy] Email authentication error:', err);
+          toast.error('Authentication issue. Try again or use code OWNER_ACCESS for immediate access.');
+          setPercyMood('confident');
+        }
+        return;
+      }
+
       // Phone number entry
       if (step.inputType === 'phone') {
         const phone = inputValue.trim();
@@ -1123,6 +1212,38 @@ export default function PercyOnboardingRevolution() {
         accessMethod: 'prompt_bar'
       });
         return; // Exit early
+      }
+
+      // OWNER DASHBOARD ACCESS - Direct dashboard access for owner
+      if (promptBarValue.trim() === 'OWNER_ACCESS' || promptBarValue.trim() === 'MMM_dash') {
+        console.log('[Percy] Owner access code detected - routing directly to dashboard');
+        setPromptBarValue('');
+        
+        // Create a mock verified user session for immediate access
+        const mockOwnerUser = {
+          id: 'owner-access-' + Date.now(),
+          email: 'owner@skrblai.io',
+          email_verified: true,
+          app_metadata: { role: 'owner' },
+          user_metadata: { access_level: 'owner' }
+        };
+        
+        // Note: User authentication will be handled by the dashboard route
+        // The owner access bypasses normal auth for immediate dashboard access
+        
+        trackBehavior('owner_dashboard_access', { 
+          timestamp: new Date().toISOString(),
+          accessMethod: 'owner_code'
+        });
+        
+        toast.success('🔑 Owner Access Granted - Welcome to Dashboard!', {
+          icon: '👑',
+          duration: 3000,
+        });
+        
+        // Route directly to dashboard
+        router.push('/dashboard');
+        return;
       }
 
       // VIP Code Detection in prompt bar
