@@ -174,7 +174,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
       >
         {/* Power Rangers Cosmic Glass Card */}
         <div 
+
           className="h-full relative overflow-hidden group bg-gradient-to-br from-violet-800/90 via-purple-900/90 to-indigo-900/80 backdrop-blur-xl border-2 border-teal-400/80 shadow-[0_0_36px_#30D5C8AA,0_0_72px_#5B3DF544] hover:shadow-[0_0_72px_#30D5C8AA,0_8px_64px_#5B3DF566] rounded-2xl transition-all duration-500 agent-card-glow float-slow"
+
           style={{
             background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%)',
             backdropFilter: 'blur(20px)',

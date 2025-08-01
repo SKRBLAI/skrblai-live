@@ -92,7 +92,7 @@ export default function TypewriterText({
       {/* Cosmic background glow */}
       {cosmicMode && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-electric-blue/20 via-teal-400/20 to-fuchsia-500/20 blur-xl rounded-lg"
+          className="absolute inset-0 bg-gradient-to-r from-electric-blue/20 via-teal-400/20 to-fuchsia-500/20 blur-xl rounded-lg -z-10"
           animate={{
             opacity: showPulse ? [0.3, 0.6, 0.3] : 0.1,
             scale: showPulse ? [1, 1.1, 1] : 1,
@@ -107,7 +107,7 @@ export default function TypewriterText({
 
       {/* Main typewriter text */}
       <motion.span
-        className="relative z-10"
+        className="relative z-20"
         variants={cosmicMode ? glowVariants : {}}
         animate={showPulse ? 'pulse' : 'normal'}
       >

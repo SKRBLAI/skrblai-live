@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+import Spinner from '../../../components/ui/Spinner';
+import { useAuth } from '../../../components/context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import ErrorBoundary from '../../../components/layout/ErrorBoundary';
 import { Crown, Sparkles, Shield, Star, Zap, TrendingUp, Users, MessageCircle, Settings, ChevronRight } from 'lucide-react';
 // VIP Dashboard uses the standard dashboard layout from parent
 
@@ -47,7 +49,8 @@ export default function VIPDashboard() {
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
-        router.replace('/sign-in');
+        toast.error('Please sign in to access VIP Dashboard.');
+        router.replace('/');
       } else if (!vipStatus?.isVIP) {
         toast.error('VIP access required – upgrade to unlock.');
         router.replace('/dashboard');
@@ -55,6 +58,9 @@ export default function VIPDashboard() {
     }
   }, [vipStatus, user, isLoading, router]);
 
+  if (isLoading) return <Spinner />;
+  if (!user || !vipStatus?.isVIP) return null;
+  
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond'>('diamond'); // Demo with Diamond
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -102,7 +108,8 @@ export default function VIPDashboard() {
   ];
 
   return (
-    <div className={`min-h-screen ${tierConfig.bgPattern} relative overflow-hidden`}>
+    <ErrorBoundary fallback={<div className="p-8 text-center">An unexpected error occurred in the VIP Dashboard. Please refresh the page or contact support.</div>}>
+      <div className={`min-h-screen ${tierConfig.bgPattern} relative overflow-hidden`}>
         {/* Animated Background Particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(20)].map((_, i) => (
@@ -325,5 +332,6 @@ export default function VIPDashboard() {
           </motion.div>
                  </div>
        </div>
-   );
- }
+   </ErrorBoundary>
+  );
+}

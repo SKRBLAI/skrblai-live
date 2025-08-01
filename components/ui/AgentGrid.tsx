@@ -126,7 +126,7 @@ export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
       variants={staggerContainer}
       initial="hidden"
       animate="show"
-      className="cosmic-glass cosmic-gradient grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 p-3 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20] max-w-7xl mx-auto w-full"
+      className="cosmic-glass cosmic-gradient grid justify-items-center gap-6 grid-cols-[repeat(auto-fit,minmax(280px,1fr))] p-3 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20] max-w-7xl mx-auto w-full"
     >
       {agents.map((agent: Agent, idx: number) => {
         const isLocked = agent.unlocked === false;

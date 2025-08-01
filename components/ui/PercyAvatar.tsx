@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 
 interface PercyAvatarProps {
+  src?: string;
+  alt?: string; // image URL and alt text
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   isThinking?: boolean;
@@ -11,7 +13,7 @@ interface PercyAvatarProps {
   glow?: boolean; // adds gradient ring/glow
 }
 
-export default function PercyAvatar({ size = 'md', className = '', isThinking = false, animate = true, glow = false }: PercyAvatarProps) {
+export default function PercyAvatar({ src = '/images/percy-chameleon.png', alt = 'Percy AI Assistant', size = 'md', className = '', isThinking = false, animate = true, glow = false }: PercyAvatarProps) {
   const sizeClasses: Record<string, string> = {
     sm: 'w-10 h-10',
     md: 'w-24 h-24',
@@ -53,8 +55,8 @@ export default function PercyAvatar({ size = 'md', className = '', isThinking = 
         transition={{ duration: 2.2, repeat: Infinity }}
       >
         <Image
-          src="/images/agents-percy-nobg-skrblai.webp"
-          alt="Percy AI Assistant"
+          src={src}
+          alt={alt}
           width={96}
           height={96}
           className="object-contain"

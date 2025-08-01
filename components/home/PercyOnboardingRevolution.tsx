@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
-import { Sparkles, ArrowRight, Target, TrendingUp, RotateCcw, Send } from 'lucide-react';
+import { 
+  Sparkles, ArrowRight, Target, TrendingUp, RotateCcw, Send,
+  BarChart3, Rocket, BookOpen, Zap, Palette, Trophy,
+  Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePercyContext } from '../assistant/PercyProvider';
 import toast from 'react-hot-toast';
@@ -13,12 +17,13 @@ import UniversalPromptBar from '../ui/UniversalPromptBar';
 import PercyAvatar from './PercyAvatar';
 import StatCounter from '../features/StatCounter';
 import FounderDashboardOverlay from '../admin/FounderDashboardOverlay';
+import ChoiceCard from '../ui/ChoiceCard';
 
 interface OnboardingStep {
   id: string;
   type: 'greeting' | 'instant-analysis' | 'goal-selection' | 'signup' | 'email-verification' | 'welcome' | 'farewell' | 'custom-needs';
   percyMessage: string;
-  options?: { id: string; label: string; icon: string; action: string; data?: any }[];
+  options?: { id: string; label: string; icon: React.ReactNode; action: string; data?: any }[];
   showInput?: boolean;
   inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code' | 'phone' | 'sms-code';
   inputPlaceholder?: string;
@@ -47,7 +52,7 @@ interface AnalysisResults {
 export default function PercyOnboardingRevolution() {
   const router = useRouter();
   // NEW: Use the auth context to check verification status
-  const { user, session, isEmailVerified, shouldShowOnboarding, setOnboardingComplete } = useAuth();
+  const { user, session, isEmailVerified, shouldShowOnboarding /* TODO: REVIEW UNUSED */, setOnboardingComplete /* TODO: REVIEW UNUSED */ } = useAuth();
   const { trackBehavior, setIsOnboardingActive } = usePercyContext();
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [isPercyThinking, setIsPercyThinking] = useState(false);
@@ -66,29 +71,156 @@ export default function PercyOnboardingRevolution() {
   // Founder Dashboard state
   const [showFounderDashboard, setShowFounderDashboard] = useState(false);
 
+  // Demo Mode Infrastructure
+  const [demoActive, setDemoActive] = useState(false);
+  const [demoTargetAgent, setDemoTargetAgent] = useState<string | null>(null);
+  const [demoStep, setDemoStep] = useState<'idle' | 'selecting' | 'handoff' | 'workflow'>('idle');
+
+  // Additional state variables
+  const [currentSocialProof, setCurrentSocialProof] = useState<{ message: string } | null>(null);
+  const [promptBarLoading, setPromptBarLoading] = useState(false);
+  
+  // Live metrics state
+  const [liveMetrics, setLiveMetrics] = useState({
+    liveUsers: 1247,
+    agentsDeployed: 89,
+    revenueGenerated: 125000
+  });
+  
+  // Missing constants
+  const [intelligenceScore] = useState(247);
+  const [businessesTransformed] = useState(47213);
+
   // Enhanced Percy personality state
   const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning' | 'thinking' | 'waving' | 'nodding'>('excited');
-  const [intelligenceScore] = useState(247); // Percy's enhanced IQ
-  const [businessesTransformed] = useState(47213);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [pulseActive, setPulseActive] = useState(true);
+
+  // Centralized choice handler for unified routing
+  const handleUserChoice = useCallback((choiceId: string, data?: any) => {
+    console.log('[Percy] User choice:', choiceId, data);
+    
+    switch(choiceId) {
+      case 'website-scan':
+        trackBehavior('choice_website_seo', { from: 'onboarding' });
+        setCurrentStep('instant-website-analysis');
+        setPromptBarPlaceholder('Enter your website URL...');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'content-creator':
+        trackBehavior('choice_content_creation', { from: 'onboarding' });
+        setCurrentStep('instant-content-analysis');
+        setPromptBarPlaceholder('Tell me about your content goals...');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'business-strategy':
+        trackBehavior('choice_business_automation', { from: 'onboarding' });
+        setCurrentStep('instant-business-analysis');
+        setPromptBarPlaceholder('Describe your business challenges...');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'book-publisher':
+        trackBehavior('choice_book_publishing', { from: 'onboarding' });
+        setCurrentStep('instant-book-analysis');
+        setPromptBarPlaceholder('Tell me about your book project...');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'linkedin-profile':
+        trackBehavior('choice_linkedin_branding', { from: 'onboarding' });
+        setCurrentStep('instant-linkedin-analysis');
+        setPromptBarPlaceholder('Share your LinkedIn profile URL...');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'sports-analysis':
+        trackBehavior('choice_sports_routing', { from: 'onboarding' });
+        router.push('/sports');
+        break;
+        
+      case 'signup':
+        trackBehavior('choice_signup', { from: 'onboarding' });
+        setCurrentStep('signup');
+        setPromptBarPlaceholder('Enter your email or phone');
+        setPromptBarValue('');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'have-code':
+        trackBehavior('choice_vip_code', { from: 'onboarding' });
+        setPromptBarPlaceholder('Enter Code Here');
+        setPromptBarValue('');
+        promptBarRef.current?.focus();
+        break;
+        
+      case 'my-dashboard':
+        trackBehavior('choice_dashboard', { from: 'onboarding' });
+        if (user) {
+          router.push('/dashboard');
+        } else {
+          setCurrentStep('signup');
+          setPromptBarPlaceholder('Enter your email or phone');
+          setPromptBarValue('');
+          promptBarRef.current?.focus();
+        }
+        break;
+        
+      case 'custom-needs':
+        trackBehavior('choice_custom_needs', { from: 'onboarding' });
+        setCurrentStep('custom-needs-analysis');
+        setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
+        setPromptBarValue('');
+        promptBarRef.current?.focus();
+        break;
+        
+      default:
+        console.warn('[Percy] Unknown choice:', choiceId);
+        // Fallback to custom needs analysis
+        setCurrentStep('custom-needs-analysis');
+        setPromptBarPlaceholder('Tell me what you need help with...');
+        promptBarRef.current?.focus();
+    }
+    
+    handleAnyInteraction('choice_selection');
+  }, [user, router]);
   
   // Enhanced feedback states
   const [lastInteractionType, setLastInteractionType] = useState<string>('');
   const [userReturnVisit, setUserReturnVisit] = useState(false);
   const [personalizedGreeting, setPersonalizedGreeting] = useState('');
-  // Business stats counters for unified section - Enhanced with live data
-  const [liveMetrics, setLiveMetrics] = useState({
-    liveUsers: 1251,
-    agentsDeployed: 92,
-    revenueGenerated: 2849718,
-    businessesTransformed: 47213
-  });
   const [socialProofMessages, setSocialProofMessages] = useState<any[]>([]);
-  const [currentSocialProof, setCurrentSocialProof] = useState<any>(null);
   const [competitiveInsights, setCompetitiveInsights] = useState<string[]>([]);
-
+  
   // Fix: define promptBarRef for the new integrated prompt bar
   const promptBarRef = useRef<HTMLInputElement>(null);
   const [promptBarValue, setPromptBarValue] = useState('');
+  
+  // Handle any interaction function with enhanced mood changes
+  const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
+    if (!userInteracted) {
+      setUserInteracted(true);
+      setPercyMood('nodding'); // Percy nods when user first interacts
+      setTimeout(() => setPercyMood('excited'), 1500);
+    }
+    setPulseActive(false);
+    setLastInteractionType(interactionType);
+    
+    // Add subtle mood changes based on interaction type
+    if (interactionType === 'option_click') {
+      setPercyMood('analyzing');
+      setTimeout(() => setPercyMood('confident'), 1000);
+    } else if (interactionType === 'input_focus') {
+      setPercyMood('scanning');
+    } else if (interactionType === 'successful_action') {
+      setPercyMood('celebrating');
+      setTimeout(() => setPercyMood('excited'), 2000);
+    }
+    
+    console.log('[Percy] Interaction:', interactionType);
+  }, [userInteracted]);
 
   // Typewriter effect for prompt bar
   const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
@@ -97,19 +229,24 @@ export default function PercyOnboardingRevolution() {
   // New: dynamic placeholder for the integrated prompt bar
   const [promptBarPlaceholder, setPromptBarPlaceholder] = useState<string>('Need something else? Ask Percy...');
 
+  // Debounced prompt bar handler
+  const debouncedPromptBarValue = useMemo(() => {
+    const timeoutId = setTimeout(() => {
+      return promptBarValue;
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [promptBarValue]);
+
   const chatRef = useRef<HTMLDivElement>(null);
   const typewriterMessages = ['Talk to Percy Here...', 'Ask me anything...', 'Let\'s dominate together...', 'Your AI concierge awaits...'];
 
   // --- Animated Intro Message State ---
   const [introIdx, setIntroIdx] = useState(0);
   const [typedText, setTypedText] = useState('');
-  const [userInteracted, setUserInteracted] = useState(false);
-  const [pulseActive, setPulseActive] = useState(false);
 
   // Enhanced initialization with personalization
   useEffect(() => {
-    // Always activate Percy onboarding on homepage
-    console.log('[PERCY] Activating onboarding for all users on homepage');
+    // Activate Percy onboarding on homepage
     setIsOnboardingActive(true);
     
     // Check if returning user
@@ -193,27 +330,7 @@ export default function PercyOnboardingRevolution() {
     return () => clearTimeout(timeout);
   }, [promptBarFocused, promptBarActive, typewriterMessages]);
 
-  // Enhanced interaction handling with mood changes
-  const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
-    if (!userInteracted) {
-      setUserInteracted(true);
-      setPercyMood('nodding'); // Percy nods when user first interacts
-      setTimeout(() => setPercyMood('excited'), 1500);
-    }
-    setPulseActive(false);
-    setLastInteractionType(interactionType);
-    
-    // Add subtle mood changes based on interaction type
-    if (interactionType === 'option_click') {
-      setPercyMood('analyzing');
-      setTimeout(() => setPercyMood('confident'), 1000);
-    } else if (interactionType === 'input_focus') {
-      setPercyMood('scanning');
-    } else if (interactionType === 'successful_action') {
-      setPercyMood('celebrating');
-      setTimeout(() => setPercyMood('excited'), 2000);
-    }
-  }, [userInteracted]);
+
 
   // VIP Code validation
   const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
@@ -243,19 +360,18 @@ export default function PercyOnboardingRevolution() {
     greeting: {
       id: 'greeting',
       type: 'greeting',
-      percyMessage: `🚀 **Welcome to the revolution!** I'm Percy, your cosmic concierge and architect of digital dominance. I've transformed **${businessesTransformed.toLocaleString()}** businesses this quarter alone - making their competition completely irrelevant.\n\n✨ **Here's what I do**: I analyze your business, deploy the perfect AI agent army, and watch your competitors scramble to catch up. \n\n**So, tell me - what brings you to me today? You must be ready to WIN since you're here!**`,
+      percyMessage: `**Welcome to the revolution!** I'm Percy, your cosmic concierge and architect of digital dominance. I've transformed **${businessesTransformed.toLocaleString()}** businesses this quarter alone - making their competition completely irrelevant.\n\n**Here's what I do**: I analyze your business, deploy the perfect AI agent army, and watch your competitors scramble to catch up. \n\n**So, tell me - what brings you to me today? You must be ready to WIN since you're here!**`,
       options: [
-        { id: 'website-scan', label: '🌐 Analyze my website & crush SEO competition', icon: '⚡', action: 'instant-website-analysis' },
-        { id: 'content-creator', label: '✍️ I create content & need to dominate', icon: '📝', action: 'instant-content-analysis' },
-        { id: 'book-publisher', label: '📚 I\'m writing/publishing books', icon: '✨', action: 'instant-book-analysis' },
-        { id: 'business-strategy', label: '🏢 Scale my business with AI automation', icon: '🎯', action: 'instant-business-analysis' },
-        { id: 'linkedin-profile', label: '💼 Build my professional brand', icon: '📈', action: 'instant-linkedin-analysis' },
-        { id: 'sports-analysis', label: '🏆 Athletic performance optimization', icon: '⚽', action: 'sports-routing' },
-        { id: 'custom-needs', label: '💬 Something else - let me explain', icon: '🎤', action: 'custom-needs-analysis' },
-        // New core actions
-        { id: 'signup', label: '🚀 Sign Up', icon: '🚀', action: 'signup' },
-        { id: 'have-code', label: '🔑 Have A Code?', icon: '🔑', action: 'have-code' },
-        { id: 'my-dashboard', label: '📊 My Dashboard', icon: '📊', action: 'my-dashboard' }
+        { id: 'website-scan', label: 'Analyze my website & crush SEO competition', icon: <BarChart3 className="w-8 h-8" />, action: 'instant-website-analysis' },
+        { id: 'content-creator', label: 'I create content & need to dominate', icon: <Palette className="w-8 h-8" />, action: 'instant-content-analysis' },
+        { id: 'book-publisher', label: 'I\'m writing/publishing books', icon: <BookOpen className="w-8 h-8" />, action: 'instant-book-analysis' },
+        { id: 'business-strategy', label: 'Scale my business with AI automation', icon: <Zap className="w-8 h-8" />, action: 'instant-business-analysis' },
+        { id: 'linkedin-profile', label: 'Build my professional brand', icon: <Users className="w-8 h-8" />, action: 'instant-linkedin-analysis' },
+        { id: 'sports-analysis', label: 'Athletic performance optimization', icon: <Trophy className="w-8 h-8" />, action: 'sports-routing' },
+        { id: 'custom-needs', label: 'Something else - let me explain', icon: <MessageCircle className="w-8 h-8" />, action: 'custom-needs-analysis' },
+        { id: 'signup', label: 'Sign Up', icon: <Rocket className="w-8 h-8" />, action: 'signup' },
+        { id: 'have-code', label: 'Have a Code?', icon: <Settings className="w-8 h-8" />, action: 'have-code' },
+        { id: 'my-dashboard', label: 'My Dashboard', icon: <LayoutDashboard className="w-8 h-8" />, action: 'my-dashboard' }
       ]
     },
     'instant-website-analysis': {
@@ -496,36 +612,23 @@ export default function PercyOnboardingRevolution() {
   type OnboardingOption = {
     id: string;
     label: string;
-    icon: string;
+    icon: React.ReactNode;
     action: string;
     data?: Record<string, unknown>;
   };
 
   const handleOptionClick = async (option: OnboardingOption) => {
-    // New button actions
-    if (option.action === 'signup') {
-      setCurrentStep('signup');
-      setPromptBarPlaceholder('Enter your email or phone');
-      setPromptBarValue('');
-      promptBarRef.current?.focus();
-      return;
+    // Use centralized choice handler first
+    handleUserChoice(option.id, option.data);
+    
+    // Legacy handling for backward compatibility
+    if (['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
+      return; // Already handled by centralized handler
     }
     if (option.action === 'have-code') {
       setPromptBarPlaceholder('Enter Code Here');
       setPromptBarValue('');
       promptBarRef.current?.focus();
-      return;
-    }
-    if (option.action === 'my-dashboard') {
-      if (user) {
-        trackBehavior('dashboard_navigation', { from: 'onboarding', method: 'button_click' });
-        router.push('/dashboard');
-      } else {
-        setCurrentStep('signup');
-        setPromptBarPlaceholder('Enter your email or phone');
-        setPromptBarValue('');
-        promptBarRef.current?.focus();
-      }
       return;
     }
     if (option.action === 'custom-needs-analysis') {
@@ -941,57 +1044,126 @@ export default function PercyOnboardingRevolution() {
   //   // Implementation commented out for cleanup
   // }, []);
 
-  // Helper functions for new prompt bar functionality
+  // Enhanced prompt bar handler with debouncing and loading states
   const handlePromptBarSubmit = async () => {
-    if (!promptBarValue.trim()) return;
+    if (!promptBarValue.trim() || promptBarLoading) return;
 
-    // MASTER CODE INTERCEPTION - Founder Dashboard Access
-    if (promptBarValue.trim() === 'MMM_mstr') {
-      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
-      setShowFounderDashboard(true);
-      setPromptBarValue('');
-      trackBehavior('founder_dashboard_access', { 
-        timestamp: new Date().toISOString(),
-        accessMethod: 'prompt_bar'
-      });
-      return; // Exit early
-    }
+    setPromptBarLoading(true);
+    
+    try {
+      // MASTER CODE INTERCEPTION - Founder Dashboard Access
+      if (promptBarValue.trim() === 'MMM_mstr') {
+        console.log('[Founder Dashboard] Master code detected - activating founder overlay');
+        setShowFounderDashboard(true);
+        setPromptBarValue('');
+        trackBehavior('founder_dashboard_access', { 
+          timestamp: new Date().toISOString(),
+          accessMethod: 'prompt_bar'
+        });
+        return; // Exit early
+      }
 
-    // VIP Code Detection in prompt bar
-    const trimmed = promptBarValue.trim();
-    const vipValidation = await validateVIPCode(trimmed);
-    if (vipValidation.isValid && vipValidation.tier) {
-      setVipCode(trimmed);
-      setIsVIPUser(true);
-      setVipTier(vipValidation.tier);
-      setPromptBarValue('');
-      setPromptBarPlaceholder('Need something else? Ask Percy...');
-      await handlePercyThinking(2000);
-      setCurrentStep('vip-welcome');
-      toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
-        icon: '👑',
-        duration: 4000,
-      });
-      trackBehavior('vip_activated', { vipTier: vipValidation.tier, code: trimmed });
-      return;
-    }
+      // VIP Code Detection in prompt bar
+      const trimmed = promptBarValue.trim();
+      const vipValidation = await validateVIPCode(trimmed);
+      if (vipValidation.isValid && vipValidation.tier) {
+        setVipCode(trimmed);
+        setIsVIPUser(true);
+        setVipTier(vipValidation.tier);
+        setPromptBarValue('');
+        setPromptBarPlaceholder('Need something else? Ask Percy...');
+        await handlePercyThinking(2000);
+        setCurrentStep('vip-welcome');
+        toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
+          icon: '👑',
+          duration: 4000,
+        });
+        trackBehavior('vip_activated', { vipTier: vipValidation.tier, code: trimmed });
+        return;
+      }
 
-    // If current chat step expects input, forward to chat handler
-    const step = getCurrentStep();
-    if (step.showInput) {
+      // If current chat step expects input, forward to chat handler
+      const step = getCurrentStep();
+      if (step.showInput) {
+        setInputValue(promptBarValue);
+        setPromptBarValue('');
+        await handleInputSubmit();
+        return;
+      }
+
+      // Handle general conversation - route to custom needs analysis
+      setUserInput(promptBarValue);
       setInputValue(promptBarValue);
+      setCurrentStep('custom-needs-analysis');
+      setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
       setPromptBarValue('');
-      await handleInputSubmit();
-      return;
+    } finally {
+      setPromptBarLoading(false);
     }
-
-    // Handle general conversation - route to custom needs analysis
-    setUserInput(promptBarValue);
-    setInputValue(promptBarValue);
-    setCurrentStep('custom-needs-analysis');
-    setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
-    setPromptBarValue('');
   };
+
+  // Clear and reset prompt bar
+  const handlePromptBarClear = useCallback(() => {
+    setPromptBarValue('');
+    setPromptBarPlaceholder('Need something else? Ask Percy...');
+    promptBarRef.current?.focus();
+  }, []);
+
+  // Handle keyboard shortcuts
+  const handlePromptBarKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handlePromptBarSubmit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handlePromptBarClear();
+    }
+  }, [handlePromptBarSubmit, handlePromptBarClear]);
+
+  // Demo Mode Handlers
+  const activateDemoMode = useCallback((agentId: string) => {
+    setDemoActive(true);
+    setDemoTargetAgent(agentId);
+    setDemoStep('selecting');
+    setPercyMood('analyzing');
+    console.log('[Demo] Activating demo mode for agent:', agentId);
+    trackBehavior('demo_mode_activated', { agentId, timestamp: Date.now() });
+  }, [trackBehavior, setPercyMood]);
+
+  const deactivateDemoMode = useCallback(() => {
+    setDemoActive(false);
+    setDemoTargetAgent(null);
+    setDemoStep('idle');
+    setPercyMood('excited');
+    console.log('[Demo] Deactivating demo mode');
+    trackBehavior('demo_mode_deactivated', { timestamp: Date.now() });
+  }, [trackBehavior, setPercyMood]);
+
+  const triggerAgentHandoff = useCallback((fromAgent: string, toAgent: string) => {
+    setDemoStep('handoff');
+    console.log('[Demo] Agent handoff:', fromAgent, '->', toAgent);
+    trackBehavior('demo_agent_handoff', { fromAgent, toAgent, timestamp: Date.now() });
+    // Animation hooks for Windsurf
+    document.dispatchEvent(new CustomEvent('demo:agent-handoff', { 
+      detail: { fromAgent, toAgent } 
+    }));
+  }, [trackBehavior]);
+
+  // Expose demo controls for external access (Windsurf)
+  useEffect(() => {
+    (window as any).PercyDemoControls = {
+      activateDemoMode,
+      deactivateDemoMode,
+      triggerAgentHandoff,
+      demoActive,
+      demoStep,
+      demoTargetAgent
+    };
+    
+    return () => {
+      delete (window as any).PercyDemoControls;
+    };
+  }, [activateDemoMode, deactivateDemoMode, triggerAgentHandoff, demoActive, demoStep, demoTargetAgent]);
 
   const handleChatReset = () => {
     setCurrentStep('greeting');
@@ -1078,64 +1250,214 @@ export default function PercyOnboardingRevolution() {
           />
         ))}
       </div>
-      {/* Top Pseudo-3D Deck Panel */}
+      {/* Enhanced Percy Hero Section with Cosmic Effects */}
       <motion.div
-        variants={{
-          initial: { opacity: 0, y: -20 },
-          entry: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-          float: { y: [0, -6, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const } }
-        }}
-        initial="initial"
-        animate={["entry","float"]}
-        whileHover={{ scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 }}
-        whileTap={{ scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 }}
         className="relative mb-8"
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
       >
-        {/* Glowing deck background */}
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-teal-500/20 rounded-3xl blur-xl transform rotate-1"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 to-slate-900/80 rounded-2xl backdrop-blur-sm border border-cyan-400/30 shadow-2xl"></div>
-        
-        {/* Percy Avatar and Intro - Centered on deck */}
-        <div className="relative p-8 flex flex-col items-center">
+        {/* Cosmic Background Effects */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl">
+          {/* Pulsing cosmic glow */}
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mb-6"
-          >
-            <PercyAvatar 
-              size="lg" 
-              animate={!userInteracted} 
-              mood={percyMood}
-              showParticles={percyMood === 'celebrating'}
-              className="shadow-inner shadow-[inset_0_0_12px_rgba(0,0,0,0.7)]" 
-            />
-          </motion.div>
-          
-          <motion.div
-            variants={{
-              initial: { opacity: 0, y: -20 },
-              entry: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-              float: { y: [0, -6, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse' as const, ease: 'easeInOut' as const } }
+            className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-teal-500/30 rounded-3xl blur-2xl"
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.3, 0.6, 0.3],
             }}
-            initial="initial"
-            animate={["entry","float"]}
-            whileHover={{ scale: 1.02, perspective: 1000, rotateX: 2, rotateY: -2 }}
-            whileTap={{ scale: 0.97, perspective: 1000, rotateX: -1, rotateY: 1 }}
-            className="text-center"
-          >
-            <span
-              className="block font-bold text-2xl md:text-3xl text-cyan-300 text-center tracking-tight mb-2 min-h-10"
-              aria-live="polite"
-            >
-              {personalizedGreeting || typedText}
-            </span>
-            <div className="text-sm text-gray-400">
-              <div>Businesses Transformed</div>
-              <div className="text-cyan-400 font-bold text-lg">{businessesTransformed.toLocaleString()}</div>
-            </div>
-          </motion.div>
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+          {/* Secondary glow layer */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-cyan-500/20 rounded-3xl blur-3xl"
+            animate={{
+              scale: [1.1, 1, 1.1],
+              opacity: [0.2, 0.4, 0.2],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
         </div>
+
+        {/* Main Hero Container */}
+        <motion.div
+          className="relative bg-gradient-to-br from-[rgba(21,23,30,0.95)] via-[rgba(30,35,45,0.9)] to-[rgba(21,23,30,0.95)] backdrop-blur-xl border-2 border-teal-400/60 rounded-3xl shadow-[0_0_60px_#30d5c8cc,inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden"
+          whileHover={{
+            scale: 1.02,
+            rotateX: 2,
+            rotateY: -1,
+            boxShadow: [
+              "0 0 60px #30d5c8cc,inset 0 1px 0 rgba(255,255,255,0.1)",
+              "0 0 100px #30d5c8ff, 0 0 150px #6366f1aa,inset 0 1px 0 rgba(255,255,255,0.2)",
+              "0 0 60px #30d5c8cc,inset 0 1px 0 rgba(255,255,255,0.1)"
+            ]
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.8 } }}
+          style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
+        >
+          {/* Inner cosmic shimmer */}
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-blue-400/5 rounded-3xl" />
+          
+          {/* Content */}
+          <div className="relative p-8 flex flex-col items-center z-10">
+            {/* Enhanced Percy Avatar with Micro-interactions */}
+            <motion.div
+              className="relative mb-6"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              whileHover={{
+                scale: 1.1,
+                rotateY: 10,
+                transition: { duration: 0.3 }
+              }}
+            >
+              {/* Avatar glow effect */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-cyan-400/40 to-blue-400/40 rounded-full blur-xl"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.4, 0.8, 0.4],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
+              
+              {/* Sparkle effects around avatar */}
+              {[...Array(8)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-1 h-1 bg-gradient-to-r from-cyan-400 to-white rounded-full"
+                  style={{
+                    left: `${50 + Math.cos((i * Math.PI * 2) / 8) * 60}%`,
+                    top: `${50 + Math.sin((i * Math.PI * 2) / 8) * 60}%`,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0, 1.5, 0],
+                    rotate: [0, 180, 360],
+                  }}
+                  transition={{
+                    duration: 2,
+                    delay: i * 0.2,
+                    repeat: Infinity,
+                    repeatDelay: 3,
+                  }}
+                />
+              ))}
+              
+              <PercyAvatar 
+                size="lg" 
+                animate={!userInteracted} 
+                className="relative z-10 shadow-[0_0_40px_rgba(48,213,200,0.6),inset_0_0_20px_rgba(0,0,0,0.8)] border-4 border-teal-400/30" 
+              />
+            </motion.div>
+            
+            {/* Enhanced Prominent Messaging */}
+            <motion.div
+              className="text-center max-w-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              {/* Main Message - Prominent and Glowing */}
+              <motion.div
+                className="mb-4"
+                animate={pulseActive ? {
+                  scale: [1, 1.05, 1],
+                  textShadow: [
+                    "0 0 20px rgba(48,213,200,0.6), 0 2px 4px rgba(0,0,0,0.8)",
+                    "0 0 40px rgba(48,213,200,1), 0 0 60px rgba(99,102,241,0.8), 0 2px 4px rgba(0,0,0,0.8)",
+                    "0 0 20px rgba(48,213,200,0.6), 0 2px 4px rgba(0,0,0,0.8)"
+                  ]
+                } : {}}
+                transition={{ duration: 2, repeat: pulseActive ? Infinity : 0 }}
+              >
+                <span
+                  className="block font-bold text-3xl md:text-4xl text-transparent bg-gradient-to-r from-cyan-300 via-white to-teal-300 bg-clip-text text-center tracking-tight leading-tight"
+                  style={{
+                    textShadow: "0 0 30px rgba(48,213,200,0.8), 0 4px 8px rgba(0,0,0,0.9)"
+                  }}
+                  aria-live="polite"
+                >
+                  {personalizedGreeting || "Percy here—ready to guide"}
+                </span>
+              </motion.div>
+              
+              {/* Typewriter Message */}
+              <motion.div
+                className="mb-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                <span className="text-xl md:text-2xl text-cyan-200 font-medium tracking-wide">
+                  {!personalizedGreeting && typedText}
+                </span>
+              </motion.div>
+              
+              {/* Enhanced Stats Display */}
+              <motion.div
+                className="flex flex-col sm:flex-row items-center justify-center gap-6 text-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1 }}
+              >
+                <div className="flex flex-col items-center">
+                  <div className="text-sm text-gray-400 mb-1">Businesses Transformed</div>
+                  <motion.div 
+                    className="text-2xl font-bold text-transparent bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text"
+                    animate={{
+                      textShadow: [
+                        "0 0 10px rgba(48,213,200,0.6)",
+                        "0 0 20px rgba(48,213,200,0.9)",
+                        "0 0 10px rgba(48,213,200,0.6)"
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    {businessesTransformed.toLocaleString()}
+                  </motion.div>
+                </div>
+                
+                <div className="hidden sm:block w-px h-12 bg-gradient-to-b from-transparent via-teal-400/50 to-transparent" />
+                
+                <div className="flex flex-col items-center">
+                  <div className="text-sm text-gray-400 mb-1">AI Intelligence</div>
+                  <motion.div 
+                    className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text"
+                    animate={{
+                      textShadow: [
+                        "0 0 10px rgba(168,85,247,0.6)",
+                        "0 0 20px rgba(168,85,247,0.9)",
+                        "0 0 10px rgba(168,85,247,0.6)"
+                      ]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                  >
+                    IQ {intelligenceScore}
+                  </motion.div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+          
+          {/* 3D highlight edges */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent rounded-full" />
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-400/60 to-transparent rounded-full" />
+        </motion.div>
       </motion.div>
 
       {/* Main Chat and Options Container */}
@@ -1252,7 +1574,7 @@ export default function PercyOnboardingRevolution() {
                         }}
                         onClick={() => {
                           handleInputSubmit();
-                          handleAnyInteraction();
+                          handleAnyInteraction('successful_action');
                         }}
                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                         data-percy-submit-button
@@ -1265,155 +1587,127 @@ export default function PercyOnboardingRevolution() {
 
                 {/* Onboarding Options - 2x2 Grid on Desktop */}
                 {step.options && (
-                  <motion.div
-                    variants={{
-                      initial: { opacity: 0, y: 10 },
-                      entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
-                      float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-                    }}
-                    initial="initial"
-                    animate={["entry","float"]}
-                    className="space-y-3"
-                    layout
-                  >
-                    {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
-                    {step.options.slice(0, 4).length > 0 && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {step.options.slice(0, 4).map((option) => (
-                          <motion.button
-                            variants={{
-                              initial: { opacity: 0, y: 16, scale: 0.96, rotateX: -5 },
-                              entry: { 
-                                opacity: 1, 
-                                y: 0, 
-                                scale: 1, 
-                                rotateX: 0,
-                                transition: { type: 'spring', stiffness: 60, damping: 16 } 
-                              },
-                              float: { 
-                                y: [0, -2, 0], 
-                                rotateX: [0, 1, 0],
-                                boxShadow: [
-                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
-                                  '0 8px 32px rgba(45,212,191,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
-                                  '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
-                                ],
-                                transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } 
-                              }
-                            }}
-                            initial="initial"
-                            animate={["entry","float"]}
-                            whileHover={{ 
-                              scale: 1.05, 
-                              rotateX: 8, 
-                              rotateY: -4, 
-                              z: 20,
-                              boxShadow: '0 20px 60px rgba(30,144,255,0.4), 0 8px 24px rgba(45,212,191,0.6), inset 0 1px 0 rgba(255,255,255,0.2)',
-                              background: 'linear-gradient(145deg, rgba(21,23,30,0.8), rgba(45,212,191,0.1))',
-                              transition: { duration: 0.2, ease: 'easeOut' }
-                            }}
-                            whileTap={{ 
-                              scale: 0.98, 
-                              rotateX: -3, 
-                              rotateY: 2,
-                              boxShadow: '0 2px 8px rgba(45,212,191,0.3), inset 0 2px 4px rgba(0,0,0,0.3)',
-                              transition: { duration: 0.1 }
-                            }}
-
-                            key={option.id}
-                            onClick={() => {
-                              handleOptionClick(option);
-                              handleAnyInteraction('option_click');
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                handleOptionClick(option);
-                                handleAnyInteraction('option_click');
-                              }
-                            }}
-                            tabIndex={0}
-                            role="button"
-                            aria-label={`Select ${option.label}`}
-                                                          className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-md shadow-inner border border-teal-400/40 hover:border-teal-400/80 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center transform-gpu touch-manipulation"
-                            style={{ 
-                              perspective: '1000px',
-                              transformStyle: 'preserve-3d',
-                              background: 'linear-gradient(145deg, rgba(21,23,30,0.6), rgba(21,23,30,0.8))',
-                              boxShadow: '0 4px 20px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)'
-                            }}
-                            data-percy-option={option.id}
-                          >
-                            <div className="flex items-center space-x-3 w-full">
-                              <span className="text-2xl flex-shrink-0">{option.icon}</span>
-                              <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
-                                {option.label}
-                              </span>
-                            </div>
-                          </motion.button>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Remaining options (5th onwards) - full width stack */}
-                    {step.options.slice(4).map((option) => (
-                      <motion.button
+                  step.id === 'greeting'
+                    ? (
+                      <motion.div
                         variants={{
-                          initial: { opacity: 0, y: 16, scale: 0.96 },
-                          entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
-                          float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                          initial: { opacity: 0, y: 10 },
+                          entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+                          float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
                         }}
                         initial="initial"
                         animate={["entry","float"]}
-                        whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
-                        whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
-
-                        key={option.id}
-                        onClick={() => {
-                          handleOptionClick(option);
-                          handleAnyInteraction('option_click');
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleOptionClick(option);
-                            handleAnyInteraction('option_click');
-                          }
-                        }}
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`Select ${option.label}`}
-                        className="w-full text-left p-4 rounded-xl bg-[rgba(21,23,30,0.6)] backdrop-blur-sm shadow-inner shadow-[0_0_10px_rgba(45,212,191,0.4)] border border-teal-400/40 hover:border-teal-400/60 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-300/30 focus:outline-none transition-all group min-h-[60px] sm:min-h-[60px] min-h-[44px] flex items-center touch-manipulation"
-                        data-percy-option={option.id}
+                        className="space-y-3"
+                        layout
                       >
-                        <div className="flex items-center space-x-3 w-full">
-                          <span className="text-2xl flex-shrink-0">{option.icon}</span>
-                          <span className="text-white font-medium group-hover:text-cyan-300 group-active:text-cyan-200 transition-colors text-sm flex-1">
-                            {option.label}
-                          </span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-center mx-auto max-w-4xl">
+                          {step.options.map((option) => (
+                            <ChoiceCard
+                              key={option.id}
+                              icon={option.icon}
+                              label={option.label}
+                              onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
+                              data-demo-target={option.id}
+                              data-demo-action="choice-selection"
+                            />
+                          ))}
                         </div>
-                      </motion.button>
-                    ))}
-                  </motion.div>
+                      </motion.div>
+                    )
+                    : (
+                      <motion.div
+                        variants={{
+                          initial: { opacity: 0, y: 10 },
+                          entry: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+                          float: { y: [0, -4, 0], transition: { duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
+                        }}
+                        initial="initial"
+                        animate={["entry","float"]}
+                        className="space-y-3"
+                        layout
+                      >
+                        {/* First 4 options in 2x2 grid on desktop, stack on mobile */}
+                        {step.options.slice(0, 4).length > 0 && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {step.options.slice(0, 4).map((option) => (
+                              <ChoiceCard
+                                key={option.id}
+                                icon={option.icon}
+                                label={option.label}
+                                onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
+                                className={option.id === 'custom-needs' ? 'md:col-span-2' : ''}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Remaining options (5th onwards) - full width stack */}
+                        {step.options.slice(4).length > 0 && (
+                          <div className="space-y-3">
+                            {step.options.slice(4).map((option) => (
+                              <ChoiceCard
+                                key={option.id}
+                                icon={option.icon}
+                                label={option.label}
+                                onClick={() => { handleOptionClick(option); handleAnyInteraction('option_click'); }}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    )
                 )}
               </motion.div> 
              </AnimatePresence>
           </div>
 
-          {/* Integrated Prompt/Upload Bar - Always visible under last option */}
+          {/* Enhanced 3D Prompt Bar */}
           <motion.div
-            variants={{
-              initial: { opacity: 0, y: 18 },
-              entry: { opacity: 1, y: 0, boxShadow: '0 0 24px #30d5c899', transition: { duration: 0.8, delay: 0.8 } },
-              float: { y: [0, -3, 0], boxShadow: ['0 0 24px #30d5c899','0 0 40px #6366f1cc','0 0 24px #30d5c899'], transition: { duration: 7, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-            }}
-            initial="initial"
-            animate={["entry","float"]}
-            className="mt-6 pt-4 relative border-t border-teal-400/40"
-            layout
+            className="mt-8 relative"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
           >
-            <div className="relative">
-              <motion.div className="relative">
+            {/* Cosmic glow background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-3xl blur-2xl opacity-60" />
+            
+            <motion.div
+              className="relative bg-gradient-to-br from-[rgba(21,23,30,0.9)] via-[rgba(30,35,45,0.85)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 rounded-3xl shadow-[0_0_40px_#30d5c8aa,inset_0_1px_0_rgba(255,255,255,0.1)] p-6"
+              whileHover={{
+                scale: 1.02,
+                boxShadow: [
+                  "0 0 40px #30d5c8aa,inset 0 1px 0 rgba(255,255,255,0.1)",
+                  "0 0 60px #30d5c8ff, 0 0 100px #6366f1aa,inset 0 1px 0 rgba(255,255,255,0.2)",
+                  "0 0 40px #30d5c8aa,inset 0 1px 0 rgba(255,255,255,0.1)"
+                ]
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.6 } }}
+            >
+              {/* Header with reset button */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                  <span className="text-sm text-gray-300 font-medium">Ask Percy Anything</span>
+                </div>
+                
+                {/* Modern Reset Button */}
+                <motion.button
+                  onClick={handleChatReset}
+                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-slate-700/80 to-slate-800/80 border border-slate-600/50 shadow-lg hover:shadow-xl transition-all group"
+                  whileHover={{ 
+                    scale: 1.1,
+                    boxShadow: "0 0 20px rgba(148,163,184,0.4)",
+                    background: "linear-gradient(135deg, rgba(71,85,105,0.9) 0%, rgba(51,65,85,0.9) 100%)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Reset conversation"
+                >
+                  <RotateCcw className="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition-colors" />
+                </motion.button>
+              </div>
+              
+              {/* Enhanced Input Field */}
+              <div className="relative">
                 <motion.input
                   ref={promptBarRef}
                   type="text"
@@ -1428,107 +1722,52 @@ export default function PercyOnboardingRevolution() {
                     setPercyMood('excited');
                   }}
                   placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
-                  className="w-full px-4 py-3 pr-20 bg-[rgba(21,23,30,0.7)] backdrop-blur-md border border-teal-400/40 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-200 focus:ring-2 focus:ring-teal-200/30 text-sm transition-all duration-200"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && promptBarValue.trim()) {
-                      handlePromptBarSubmit();
-                    }
-                  }}
-                  style={{ fontSize: '16px' }}
+                  className="w-full px-6 py-4 pr-16 bg-gradient-to-br from-[rgba(15,18,25,0.8)] to-[rgba(25,30,40,0.8)] backdrop-blur-md border-2 border-teal-400/30 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20 text-base font-medium transition-all duration-300"
+                  onKeyDown={handlePromptBarKeyDown}
+                  disabled={promptBarLoading}
                   animate={promptBarFocused ? { 
-                    scale: 1.035, 
+                    scale: 1.02,
+                    borderColor: "rgba(45, 212, 191, 0.6)",
                     boxShadow: [
-                      '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb',
-                      '0 0 40px #30d5c8ff, 0 0 20px #6366f1ff',
-                      '0 0 28px #30d5c8cc, 0 0 12px #6366f1bb'
-                    ],
-                    background: [
-                      'rgba(21,23,30,0.7)',
-                      'rgba(21,23,30,0.85)',
-                      'rgba(21,23,30,0.7)'
+                      "0 0 30px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+                      "0 0 50px rgba(45,212,191,0.5), 0 0 80px rgba(99,102,241,0.3), inset 0 1px 0 rgba(255,255,255,0.15)",
+                      "0 0 30px rgba(45,212,191,0.3), inset 0 1px 0 rgba(255,255,255,0.1)"
                     ]
                   } : { 
-                    scale: 1, 
-                    boxShadow: '0 0 12px #30d5c899',
-                    background: 'rgba(21,23,30,0.7)'
+                    scale: 1,
+                    borderColor: "rgba(45, 212, 191, 0.3)",
+                    boxShadow: "0 0 15px rgba(45,212,191,0.2), inset 0 1px 0 rgba(255,255,255,0.05)"
                   }}
                   transition={{ 
                     type: 'spring', 
-                    stiffness: 90, 
-                    damping: 18,
-                    boxShadow: { duration: 2, repeat: promptBarFocused ? Infinity : 0 },
-                    background: { duration: 2, repeat: promptBarFocused ? Infinity : 0 }
+                    stiffness: 200, 
+                    damping: 25,
+                    boxShadow: { duration: 1.5, repeat: promptBarFocused ? Infinity : 0 }
                   }}
+                  aria-label="Percy prompt input"
                 />
                 
-                {/* Animated Caret Effect */}
-                {promptBarFocused && (
-                  <motion.div
-                    className="absolute right-24 top-1/2 w-0.5 h-4 bg-cyan-400"
-                    style={{ transform: 'translateY(-50%)' }}
-                    animate={{ opacity: [1, 0, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
-                
-                {/* Input Ripple Effect */}
-                <AnimatePresence>
-                  {promptBarFocused && (
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl border-2 border-cyan-400/50"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ 
-                        opacity: [0, 0.6, 0],
-                        scale: [0.8, 1.1, 1.3],
-                      }}
-                      exit={{ opacity: 0 }}
-                      transition={{ 
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: 'easeOut'
-                      }}
-                    />
+                {/* Send Button */}
+                <motion.button
+                  onClick={handlePromptBarSubmit}
+                  disabled={!promptBarValue.trim() || promptBarLoading}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border border-teal-400/50 shadow-lg hover:shadow-xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                  whileHover={{ 
+                    scale: 1.1,
+                    boxShadow: "0 0 25px rgba(45,212,191,0.6)",
+                    background: "linear-gradient(135deg, rgba(45,212,191,0.9) 0%, rgba(34,197,194,0.9) 100%)"
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Send to Percy"
+                >
+                  {promptBarLoading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 text-white group-hover:text-gray-100 transition-colors" />
                   )}
-                </AnimatePresence>
-              </motion.div>
-              
-              {/* Chat Reset Button */}
-              <motion.button
-                variants={{
-                  initial: { opacity: 0, y: 16, scale: 0.96 },
-                  entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
-                  float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-                }}
-                initial="initial"
-                animate={["entry","float"]}
-                whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
-                whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
-
-                onClick={handleChatReset}
-                className="absolute right-12 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-orange-400 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-                title="Reset conversation"
-              >
-                <RotateCcw className="w-4 h-4" />
-              </motion.button>
-              
-              {/* Send Button */}
-              <motion.button
-                variants={{
-                  initial: { opacity: 0, y: 16, scale: 0.96 },
-                  entry: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 60, damping: 16 } },
-                  float: { y: [0, -2, 0], transition: { duration: 5, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' } }
-                }}
-                initial="initial"
-                animate={["entry","float"]}
-                whileHover={{ scale: 1.03, rotateX: 3, rotateY: -3, boxShadow: '0 0 18px #30d5c8bb, 0 0 6px #6366f1cc' }}
-                whileTap={{ scale: 0.97, rotateX: -2, rotateY: 2 }}
-                onClick={handlePromptBarSubmit}
-                disabled={!promptBarValue.trim()}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 disabled:text-gray-600 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-              >
-                <Send className="w-4 h-4" />
-              </motion.button>
-            </div>
+                </motion.button>
+              </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>
@@ -1541,8 +1780,13 @@ export default function PercyOnboardingRevolution() {
         className="mb-8"
         data-percy-stats
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+        <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(240px,1fr))] justify-items-center">
+          <motion.div
+            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
+            whileTap={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
+          >
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.liveUsers} 
@@ -1552,9 +1796,14 @@ export default function PercyOnboardingRevolution() {
             </div>
             <div className="text-sm text-gray-400">Live Users Online</div>
             <div className="text-xs text-teal-400 mt-1">▲ Active now</div>
-          </div>
+          </motion.div>
           
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+          <motion.div
+            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
+            whileTap={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
+          >
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.agentsDeployed} 
@@ -1564,9 +1813,14 @@ export default function PercyOnboardingRevolution() {
             </div>
             <div className="text-sm text-gray-400">Agents Deployed</div>
             <div className="text-xs text-electric-blue mt-1">▲ This hour</div>
-          </div>
+          </motion.div>
           
-          <div className="text-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all">
+          <motion.div
+            whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(48,213,200,0.7)' }}
+            whileTap={{ scale: 1.02 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            className="w-full text-center p-4 bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] transform-gpu transition-all"
+          >
             <div className="text-2xl md:text-3xl font-bold mb-1">
               <StatCounter 
                 end={liveMetrics.revenueGenerated} 
@@ -1578,7 +1832,7 @@ export default function PercyOnboardingRevolution() {
             </div>
             <div className="text-sm text-gray-400">Revenue Generated</div>
             <div className="text-xs text-fuchsia-400 mt-1">▲ This month</div>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 

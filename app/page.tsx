@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import FloatingParticles from '../components/ui/FloatingParticles';
 import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolution';
 import AgentsGrid from '../components/agents/AgentsGrid';
+import AgentPreviewSection from '../components/home/AgentPreviewSection';
 import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
 import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 import AnimatedBackground from './AnimatedBackground';
@@ -48,7 +49,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen relative text-white overflow-hidden">
+    <div className="min-h-screen relative text-white">
       {/* Enhanced Cosmic Starfield Background */}
       <CosmicStarfield 
         starCount={120}
@@ -80,20 +81,18 @@ export default function HomePage() {
       <main className="relative z-10 min-h-screen pt-20 sm:pt-24 md:pt-28">
         
         {/* Main Content - Unified Responsive Container */}
-        <motion.div 
-          style={{ scale }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-        >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Removed scroll-scale wrapper here to keep hero text unscaled */}
           {/* Hero Section - Mobile Optimized */}
           <section className="min-h-[85vh] flex flex-col items-center">
             <div className="flex flex-col items-center justify-center w-full">
               {/* Welcome headline with Typewriter Effect - Mobile Safe */}
-              <Pseudo3DHero className="text-center mb-8 w-full">
-                <motion.h1 
-                  initial={{ opacity: 0, y: -20 }} 
-                  animate={{ opacity: 1, y: 0 }}
+              <Pseudo3DHero className="text-center mb-8 w-full" style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none', willChange: 'auto' }}>
+                <motion.h1 style={{ textRendering: 'optimizeLegibility', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }} 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }}
                   transition={{ duration: 0.6 }}
-                  className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 antialiased"
+                  className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 subpixel-antialiased"
                 >
                   <TypewriterText 
                     words={[
@@ -113,10 +112,10 @@ export default function HomePage() {
                 
                 {/* Subheading - Mobile Typography */}
                 <motion.p 
-                  initial={{ opacity: 0, y: 20 }} 
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-center text-sm sm:text-base lg:text-xl text-gray-300 max-w-2xl lg:max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
+                  className="text-center text-sm sm:text-base lg:text-xl text-gray-200 max-w-2xl lg:max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
                 >
                   SKRBL AI does not just automate—it <span className="text-electric-blue font-bold">DOMINATES</span>. 
                   While your competitors are still figuring out AI, you will be deploying the arsenal that makes them extinct.
@@ -139,6 +138,7 @@ export default function HomePage() {
 
           {/* Agent League – Dynamic Rendering with 3D Enhancement */}
           <Pseudo3DFeature>
+            <AgentPreviewSection />
             <AgentsGrid />
           </Pseudo3DFeature>
 
@@ -159,7 +159,7 @@ export default function HomePage() {
               </div>
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Animated Background */}
         <AnimatedBackground />
