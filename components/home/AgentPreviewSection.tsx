@@ -146,20 +146,29 @@ export default function AgentPreviewSection(): React.ReactElement {
   };
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold text-center mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400">
-        Live Agent Domination Dashboard
-      </h2>
-      <div className="text-center mb-6">
-        <p className="text-cyan-400 text-sm font-semibold">
-          🔥 Real-time competitive advantage happening now
-        </p>
-        <p className="text-gray-400 text-xs mt-1">
-          {liveActivity.branding.liveUsers + liveActivity.social.liveUsers + liveActivity.content.liveUsers} businesses currently destroying their competition
-        </p>
-      </div>
+    <section className="w-full relative">
+      {/* Floating Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-8 relative z-10"
+      >
+        <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-teal-400 drop-shadow-lg">
+          Live Agent Domination Dashboard
+        </h2>
+        <div className="mt-2">
+          <p className="text-cyan-400 text-sm font-semibold drop-shadow-lg">
+            🔥 Real-time competitive advantage happening now
+          </p>
+          <p className="text-gray-300 text-xs mt-1 drop-shadow-md">
+            {liveActivity.branding.liveUsers + liveActivity.social.liveUsers + liveActivity.content.liveUsers} businesses currently destroying their competition
+          </p>
+        </div>
+      </motion.div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Floating Agent Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto px-4 relative z-10">
         {FEATURED_AGENTS.map((agent) => {
           const intelligence = agentIntelligence.get(agent.id);
           const insights = predictiveInsights.get(agent.id) || [];
@@ -342,30 +351,56 @@ export default function AgentPreviewSection(): React.ReactElement {
         })}
       </div>
       
-      {/* Progressive Urgency CTA */}
-      <div className="mt-8 text-center">
-        <div className="mb-4 p-4 bg-gradient-to-r from-red-900/20 to-orange-900/20 border border-red-500/30 rounded-xl max-w-md mx-auto">
-          <p className="text-red-400 text-sm font-semibold mb-1">
-            ⚠️ Competitive Alert
+      {/* Floating CTA */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="mt-12 text-center relative z-10"
+      >
+        <motion.div 
+          className="mb-6 p-6 bg-gradient-to-r from-red-900/30 to-orange-900/30 backdrop-blur-lg border border-red-500/40 rounded-2xl max-w-lg mx-auto shadow-[0_0_40px_rgba(239,68,68,0.3)]"
+          whileHover={{ scale: 1.02, boxShadow: '0 0 60px rgba(239,68,68,0.4)' }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
+          <p className="text-red-400 text-sm font-bold mb-2 flex items-center justify-center gap-2">
+            <span className="animate-pulse">⚠️</span>
+            Competitive Alert
           </p>
-          <p className="text-white text-xs">
+          <p className="text-white text-sm leading-relaxed">
             {Math.floor(Math.random() * 156) + 47} businesses gained insurmountable advantage today.
-            Your competitors aren't using AI yet—perfect timing.
+            <br />
+            <span className="text-red-300 font-medium">Your competitors aren't using AI yet—perfect timing.</span>
           </p>
-        </div>
+        </motion.div>
+        
         <Link href="/sign-up">
           <motion.button
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: '0 0 50px rgba(239,68,68,0.6), 0 0 100px rgba(251,146,60,0.4)'
+            }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold rounded-md shadow-lg"
+            className="px-10 py-4 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 text-white font-bold rounded-xl shadow-[0_0_30px_rgba(239,68,68,0.5)] border border-red-400/30"
           >
             🔥 Join the {(liveActivity.branding.liveUsers + liveActivity.social.liveUsers + liveActivity.content.liveUsers)} Crushing Competition Now
           </motion.button>
         </Link>
-        <p className="text-gray-400 text-xs mt-2">
-          Average competitive advantage gained: 340% within first week
-        </p>
-      </div>
+        
+        <motion.p 
+          className="text-gray-300 text-sm mt-4 drop-shadow-md"
+          animate={{
+            textShadow: [
+              "0 0 8px rgba(156,163,175,0.3)",
+              "0 0 16px rgba(156,163,175,0.5)",
+              "0 0 8px rgba(156,163,175,0.3)"
+            ]
+          }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          Average competitive advantage gained: <span className="text-cyan-400 font-semibold">340%</span> within first week
+        </motion.p>
+      </motion.div>
     </section>
   );
 }
