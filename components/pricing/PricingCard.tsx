@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { 
   PricingPlan, 
@@ -10,8 +10,8 @@ import {
   getCTAText,
   getHref 
 } from '../../lib/config/pricing';
-import GlassmorphicCard from '../shared/GlassmorphicCard';
 import CosmicButton from '../shared/CosmicButton';
+import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
 
 interface PricingCardProps {
   plan: PricingPlan;
@@ -61,12 +61,23 @@ export default function PricingCard({
         </div>
       )}
       
-      <GlassmorphicCard
-        className={`p-4 sm:p-6 text-center h-full relative overflow-hidden ${
-          isHighlighted || plan.isPopular ? 'border-2 border-yellow-400/50 shadow-2xl' : 
-          plan.isEnterprise ? 'border-2 border-purple-400/50' : ''
-        }`}
-      >
+      {/* Cosmic Glow Effect */}
+      <div className={`absolute inset-0 rounded-3xl blur-2xl transition-all duration-500 ${
+        plan.isPopular 
+          ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 opacity-100'
+          : plan.isEnterprise 
+          ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 opacity-0 group-hover:opacity-100'
+          : 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100'
+      }`} />
+      
+      {/* Main Cosmic Card */}
+      <div className={`relative group bg-[rgba(21,23,30,0.9)] backdrop-blur-2xl rounded-3xl p-8 h-full flex flex-col transition-all duration-500 ${
+        plan.isPopular 
+          ? 'border-2 border-yellow-400/60 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
+          : plan.isEnterprise 
+          ? 'border-2 border-purple-400/50 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
+          : 'border-2 border-teal-400/40 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
+      }`}>
         {/* Agent Count Indicator */}
         <div className="absolute top-2 right-2">
           <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-2 py-1 rounded-full border border-cyan-400/30">
@@ -196,7 +207,7 @@ export default function PricingCard({
           <div>Tasks: {plan.taskLimit}</div>
           <div>Support: {plan.support}</div>
         </div>
-      </GlassmorphicCard>
+      </div>
     </motion.div>
   );
 }

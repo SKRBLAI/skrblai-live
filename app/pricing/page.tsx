@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import CosmicButton from '../../components/shared/CosmicButton';
+import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
 import PercyAvatar from '../../components/home/PercyAvatar';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import BillingToggle from '../../components/pricing/BillingToggle';
@@ -290,95 +292,6 @@ const socialProofMetrics = [
             ))}
           </div>
 
-          {/* Original cards - replaced with PricingCard component
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
-            {oldPlans.map((plan, index) => (
-              <motion.div
-                key={plan.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + index * 0.1 }}
-                className="relative"
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                    <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full text-sm font-bold animate-pulse shadow-lg border border-white/20">
-                      🏆 MOST POPULAR
-                    </div>
-                  </div>
-                )}
-                
-                <GlassmorphicCard
-                  className={`p-4 sm:p-6 text-center h-full relative overflow-hidden ${
-                    plan.popular ? 'border-2 border-yellow-400/50 shadow-2xl' : 
-                    plan.enterprise ? 'border-2 border-purple-400/50' : ''
-                  }`}
-                >
-                  {/* Agent Count Indicator */}
-                  <div className="absolute top-2 right-2">
-                    <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-2 py-1 rounded-full border border-cyan-400/30">
-                      <span className="text-cyan-400 text-xs font-bold">{plan.agentCount} Agents</span>
-                    </div>
-                  </div>
-
-                  {plan.badge && (
-                    <div className="mb-3">
-                      <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-electric-blue bg-electric-blue/10 rounded-full border border-electric-blue/30">
-                        <span className="text-sm">{plan.icon}</span>
-                        {plan.badge}
-                      </span>
-                    </div>
-                  )}
-                  
-                  <h3 className="text-xl sm:text-2xl font-bold text-electric-blue mb-2">{plan.title}</h3>
-                  <div className="mb-3">
-                    <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">{plan.price}</span>
-                    {plan.price !== 'FREE' && <span className="text-gray-400 ml-1 text-sm">/{plan.period.split(' ')[1]}</span>}
-                  </div>
-                  
-                  <p className="text-sm text-gray-300 mb-4 font-medium leading-tight">{plan.description}</p>
-                  
-                  <ul className="space-y-1.5 mb-6 text-left">
-                    {plan.features.map((feature, idx) => (
-                      <li key={feature} className="flex items-start text-gray-300 text-sm">
-                        <span className="text-green-400 mr-2 text-base font-bold">✓</span>
-                        <span className="flex-1 leading-tight">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  
-                  <CosmicButton
-                    href={plan.href}
-                    variant={plan.enterprise ? 'outline' : plan.popular ? 'primary' : 'secondary'}
-                    size="md"
-                    className={`w-full font-bold text-sm ${
-                      plan.popular ? 'animate-pulse' : ''
-                    } ${plan.enterprise ? 'hover:bg-purple-500/20 border-purple-400' : ''}`}
-                  >
-                    {plan.cta} {plan.icon}
-                  </CosmicButton>
-                  
-                  {plan.popular && (
-                    <div className="mt-2">
-                      <span className="inline-block px-2 py-1 text-xs text-yellow-400 bg-yellow-400/10 rounded-full border border-yellow-400/30">
-                        💰 Revenue Accelerator
-                      </span>
-                    </div>
-                  )}
-
-                  {plan.enterprise && (
-                    <div className="mt-2">
-                      <span className="inline-block px-2 py-1 text-xs text-purple-400 bg-purple-400/10 rounded-full border border-purple-400/30">
-                        👑 Enterprise Arsenal
-                      </span>
-                    </div>
-                  )}
-                </GlassmorphicCard>
-              </motion.div>
-            ))}
-          </div>
-          */
-
           {/* Disruption Guarantee */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -431,6 +344,58 @@ const socialProofMetrics = [
           </motion.div>
         </div>
       </div>
+      
+      {/* Sticky Percy Help Button */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 2, type: 'spring', stiffness: 300 }}
+        className="fixed bottom-6 right-6 z-50"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1, rotate: 5 }}
+          whileTap={{ scale: 0.95 }}
+          className="group relative bg-gradient-to-r from-teal-500 to-cyan-500 p-4 rounded-full shadow-[0_0_30px_rgba(45,212,191,0.6)] border-2 border-teal-400/50 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(45,212,191,0.8)]"
+          onClick={() => {
+            // Add Percy help modal logic here
+            console.log('Percy help activated!');
+          }}
+          aria-label="Get help from Percy AI"
+        >
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            {/* Percy Avatar */}
+            <motion.div
+              animate={{ 
+                y: [0, -2, 0],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="text-2xl"
+            >
+              🤖
+            </motion.div>
+            
+            {/* Pulsing Ring */}
+            <motion.div
+              animate={{ scale: [1, 1.3, 1], opacity: [0.7, 0, 0.7] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-2 border-white/50"
+            />
+          </div>
+          
+          {/* Help Tooltip */}
+          <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="bg-[rgba(21,23,30,0.95)] backdrop-blur-xl border border-teal-400/30 rounded-lg px-3 py-2 text-sm text-white whitespace-nowrap shadow-lg">
+              Need help choosing? Ask Percy! 💡
+              <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-teal-400/30" />
+            </div>
+          </div>
+        </motion.button>
+      </motion.div>
     </ClientPageLayout>
   );
 }
