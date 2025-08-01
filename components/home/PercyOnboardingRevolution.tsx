@@ -63,6 +63,7 @@ export default function PercyOnboardingRevolution() {
   const [showFloatingWidget, setShowFloatingWidget] = useState(false);
   const [userGoal, setUserGoal] = useState('');
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
+  const [userAnalysisAgent, setUserAnalysisAgent] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [vipCode, setVipCode] = useState<string>('');
   const [isVIPUser, setIsVIPUser] = useState(false);
@@ -437,10 +438,11 @@ export default function PercyOnboardingRevolution() {
     'analysis-results': {
       id: 'analysis-results',
       type: 'goal-selection',
-      percyMessage: `🔥 **ANALYSIS COMPLETE - COMPETITIVE ADVANTAGE IDENTIFIED!**\n\nBased on my scan, I've identified **3 major opportunities** where you can leave your competition in the dust:\n\n${competitiveInsights.map((insight, i) => `**${i + 1}.** ${insight}`).join('\n\n')}\n\n**Ready to deploy the AI agents that'll automate these advantages?**`,
+      percyMessage: `🔥 **ANALYSIS COMPLETE - COMPETITIVE ADVANTAGE IDENTIFIED!**\n\nBased on my scan, I've identified **3 major opportunities** where you can leave your competition in the dust:\n\n${competitiveInsights.map((insight, i) => `**${i + 1}.** ${insight}`).join('\n\n')}\n\n**Ready to launch the perfect AI agent for this exact challenge?**`,
       options: [
-        { id: 'deploy-now', label: '🚀 Deploy my AI advantage now!', icon: '⚡', action: 'goal-selection' },
-        { id: 'learn-more', label: '🧠 Show me exactly how this works', icon: '🤖', action: 'show-intelligence' },
+        { id: 'launch-agent', label: `🚀 Launch ${userAnalysisAgent ? userAnalysisAgent.charAt(0).toUpperCase() + userAnalysisAgent.slice(1) : 'Recommended'} Agent!`, icon: '⚡', action: 'launch-recommended-agent' },
+        { id: 'explore-all', label: '🧭 Explore all agents first', icon: '🤖', action: 'explore-agents' },
+        { id: 'try-dashboard', label: '📊 Take me to my dashboard', icon: '🏠', action: 'launch-dashboard' },
         { id: 'another-scan', label: '🔄 Analyze something else first', icon: '🔍', action: 'back-to-greeting' }
       ]
     },
@@ -543,15 +545,19 @@ export default function PercyOnboardingRevolution() {
     setPercyMood('confident');
   };
 
-  // Enhanced analysis simulation
+  // Enhanced analysis simulation with agent routing
   const performAnalysis = async (mode: string, input: string) => {
     setIsPercyThinking(true);
     setPercyMood('scanning');
+    
+    console.log('[Percy] Performing analysis:', mode, input);
+    trackBehavior('analysis_performed', { mode, input });
     
     // Simulate analysis delay
     await new Promise(resolve => setTimeout(resolve, 3000));
     
     let insights: string[] = [];
+    let recommendedAgent = '';
     
     switch (mode) {
       case 'website':
@@ -560,6 +566,7 @@ export default function PercyOnboardingRevolution() {
           `**Conversion Killer**: Your CTA placement could increase conversions by 340%`,
           `**Speed Advantage**: Site optimization could make you 2.3x faster than top competitors`
         ];
+        recommendedAgent = 'sitegen';
         break;
       case 'business':
         insights = [
@@ -567,6 +574,7 @@ export default function PercyOnboardingRevolution() {
           `**Market Gap**: There's a $47K/month opportunity your competitors are missing`,
           `**Content Strategy**: AI-generated content could capture 340% more leads`
         ];
+        recommendedAgent = 'biz';
         break;
       case 'linkedin':
         insights = [
@@ -574,6 +582,7 @@ export default function PercyOnboardingRevolution() {
           `**Network Growth**: Strategic connections could open doors to $127K opportunities`,
           `**Content Strategy**: LinkedIn AI automation could 5x your professional influence`
         ];
+        recommendedAgent = 'branding';
         break;
       case 'content':
         insights = [
@@ -581,6 +590,7 @@ export default function PercyOnboardingRevolution() {
           `**Viral Formula**: AI-analyzed patterns show 340% higher engagement potential`,
           `**Monetization Blind Spot**: You're missing $23K/month in revenue opportunities`
         ];
+        recommendedAgent = 'content-creator';
         break;
       case 'book-publishing':
         insights = [
@@ -588,6 +598,7 @@ export default function PercyOnboardingRevolution() {
           `**Authority Platform**: Strategic content could establish you as THE expert before publication`,
           `**Revenue Streams**: Authors in your space miss 5 income channels worth $127K annually`
         ];
+        recommendedAgent = 'publishing';
         break;
       case 'custom':
         insights = [
@@ -595,14 +606,18 @@ export default function PercyOnboardingRevolution() {
           `**Competitive Edge**: Your industry has gaps that AI could fill for massive advantage`,
           `**Scale Potential**: With the right agents, you could 10x impact without burning out`
         ];
+        recommendedAgent = 'percy';
         break;
     }
     
     setCompetitiveInsights(insights);
     setAnalysisResults({ mode, input, insights });
+    setUserAnalysisAgent(recommendedAgent); // Store recommended agent
     setCurrentStep('analysis-results');
     setIsPercyThinking(false);
     setPercyMood('celebrating');
+    
+    console.log('[Percy] Analysis complete, recommended agent:', recommendedAgent);
   };
 
   // Narrow type for option actions for safer handling
@@ -615,12 +630,21 @@ export default function PercyOnboardingRevolution() {
   };
 
   const handleOptionClick = async (option: OnboardingOption) => {
-    // Use centralized choice handler first
-    handleUserChoice(option.id, option.data);
-    
-    // Legacy handling for backward compatibility
-    if (['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
-      return; // Already handled by centralized handler
+    try {
+      // Add micro-animation feedback
+      toast.success(`${option.label} selected! 🎯`, { duration: 1500 });
+      
+      // Use centralized choice handler first
+      handleUserChoice(option.id, option.data);
+      
+      // Legacy handling for backward compatibility
+      if (['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
+        return; // Already handled by centralized handler
+      }
+    } catch (error) {
+      toast.error('Navigation failed. Please try again.', { duration: 3000 });
+      console.error('Option click error:', error);
+      return;
     }
     if (option.action === 'have-code') {
       setPromptBarPlaceholder('Enter Code Here');
@@ -638,9 +662,16 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (option.action === 'route-to-sports') {
-      // Track behavior before navigation
-      trackBehavior('sports_routing', { from: currentStep });
-      router.push('/sports');
+      try {
+        // Track behavior before navigation
+        console.log('[Percy] Navigation: Routing to /sports from step:', currentStep);
+        trackBehavior('sports_routing', { from: currentStep });
+        toast.success('Navigating to Sports AI...', { duration: 2000 });
+        router.push('/sports');
+      } catch (error) {
+        toast.error('Sports page unavailable. Please try again.', { duration: 3000 });
+        console.error('Sports routing error:', error);
+      }
       return;
     }
 
@@ -671,14 +702,28 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (option.action === 'launch-dashboard') {
-      trackBehavior('dashboard_navigation', { from: 'onboarding', userGoal });
-      router.push('/dashboard');
+      try {
+        console.log('[Percy] Navigation: Routing to /dashboard from step:', currentStep, 'userGoal:', userGoal);
+        trackBehavior('dashboard_navigation', { from: 'onboarding', userGoal });
+        toast.success('Launching your dashboard... 🚀', { duration: 2000 });
+        router.push('/dashboard');
+      } catch (error) {
+        toast.error('Dashboard unavailable. Please try again.', { duration: 3000 });
+        console.error('Dashboard routing error:', error);
+      }
       return;
     }
 
     if (option.action === 'explore-agents') {
-      trackBehavior('agents_navigation', { from: 'onboarding', userGoal });
-      router.push('/agents');
+      try {
+        console.log('[Percy] Navigation: Routing to /agents from step:', currentStep, 'userGoal:', userGoal);
+        trackBehavior('agents_navigation', { from: 'onboarding', userGoal });
+        toast.success('Exploring AI agents... 🤖', { duration: 2000 });
+        router.push('/agents');
+      } catch (error) {
+        toast.error('Agents page unavailable. Please try again.', { duration: 3000 });
+        console.error('Agents routing error:', error);
+      }
       return;
     }
 
@@ -712,14 +757,41 @@ export default function PercyOnboardingRevolution() {
     }
 
     if (option.action === 'launch-vip-dashboard') {
-      trackBehavior('vip_dashboard_navigation', { from: 'vip_onboarding', vipTier, userGoal });
-      router.push('/dashboard?vip=true');
+      try {
+        console.log('[Percy] Navigation: Routing to VIP dashboard from step:', currentStep, 'vipTier:', vipTier);
+        trackBehavior('vip_dashboard_navigation', { from: 'vip_onboarding', vipTier, userGoal });
+        toast.success('Launching VIP dashboard... 👑', { duration: 2000 });
+        router.push('/dashboard?vip=true');
+      } catch (error) {
+        toast.error('VIP dashboard unavailable. Please try again.', { duration: 3000 });
+        console.error('VIP dashboard routing error:', error);
+      }
       return;
     }
 
     if (option.action === 'explore-vip-features') {
-      trackBehavior('vip_features_navigation', { from: 'vip_onboarding', vipTier });
-      router.push('/features?vip=true');
+      try {
+        console.log('[Percy] Navigation: Routing to VIP features from step:', currentStep, 'vipTier:', vipTier);
+        trackBehavior('vip_features_navigation', { from: 'vip_onboarding', vipTier });
+        toast.success('Exploring VIP features... ✨', { duration: 2000 });
+        router.push('/features?vip=true');
+      } catch (error) {
+        toast.error('VIP features unavailable. Please try again.', { duration: 3000 });
+        console.error('VIP features routing error:', error);
+      }
+      return;
+    }
+
+    if (option.action === 'launch-recommended-agent') {
+      console.log('[Percy] Navigation: Launching recommended agent:', userAnalysisAgent, 'from step:', currentStep);
+      if (userAnalysisAgent) {
+        trackBehavior('recommended_agent_launch', { agentId: userAnalysisAgent, from: 'analysis_results' });
+        await handleLaunch(userAnalysisAgent, { source: 'analysis', input: analysisResults?.input });
+      } else {
+        // Fallback to agents page if no specific agent recommended
+        console.log('[Percy] Navigation: No specific agent recommended, routing to /agents');
+        router.push('/agents');
+      }
       return;
     }
 
@@ -1129,6 +1201,119 @@ export default function PercyOnboardingRevolution() {
     trackBehavior('demo_mode_deactivated', { timestamp: Date.now() });
   }, [trackBehavior, setPercyMood]);
 
+  // Enhanced error boundary for route failures
+  const handleRouteError = useCallback((error: any, attemptedRoute: string, fallbackRoute: string = '/') => {
+    console.error('[Percy] Route error:', error, 'Attempted route:', attemptedRoute);
+    trackBehavior('route_error', { 
+      error: error?.message || 'Unknown error', 
+      attemptedRoute, 
+      fallbackRoute,
+      timestamp: Date.now() 
+    });
+    
+    toast.error(`Navigation failed. Taking you to a safe place...`, {
+      icon: '🚧',
+      duration: 3000,
+    });
+    
+    // Try fallback route with additional error handling
+    try {
+      router.push(fallbackRoute);
+    } catch (fallbackError) {
+      console.error('[Percy] Fallback route also failed:', fallbackError);
+      // Ultimate fallback - reload page
+      window.location.href = '/';
+    }
+  }, [router, trackBehavior]);
+
+  // Route validation to prevent dead ends
+  const validateAndRoute = useCallback((route: string, context?: string) => {
+    const validRoutes = [
+      '/', '/dashboard', '/agents', '/services', '/sports', '/features', 
+      '/pricing', '/contact', '/about', '/academy', '/branding', '/book-publishing',
+      '/content-automation', '/social-media'
+    ];
+    
+    const isDynamicRoute = route.includes('/services/') || route.includes('/chat/') || 
+                          route.includes('/agent-backstory/') || route.includes('/dashboard?');
+    
+    if (!validRoutes.includes(route) && !isDynamicRoute) {
+      console.warn('[Percy] Invalid route detected:', route, 'Context:', context);
+      handleRouteError(new Error('Invalid route'), route, '/agents');
+      return false;
+    }
+    
+    console.log('[Percy] Route validated:', route, 'Context:', context);
+    return true;
+  }, [handleRouteError]);
+
+  // Enhanced routing functions for agent interactions
+  const handleLaunch = useCallback(async (agentId: string, context?: any) => {
+    console.log('[Percy] Launching agent:', agentId, context);
+    trackBehavior('agent_launch', { agentId, context, from: currentStep });
+    
+    const route = `/services/${agentId}`;
+    if (!validateAndRoute(route, `agent-launch-${agentId}`)) {
+      return;
+    }
+    
+    try {
+      // Show loading state
+      setPromptBarLoading(true);
+      
+      // Route to agent service page for instant launch
+      router.push(route);
+    } catch (error) {
+      console.error('[Percy] Agent launch error:', error);
+      handleRouteError(error, route, '/agents');
+    } finally {
+      setPromptBarLoading(false);
+    }
+  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
+
+  const handleContinue = useCallback(async (nextStep: string, routeTo?: string) => {
+    console.log('[Percy] Continuing to step:', nextStep, 'Route:', routeTo);
+    trackBehavior('continue_flow', { nextStep, routeTo, from: currentStep });
+    
+    if (routeTo) {
+      if (!validateAndRoute(routeTo, `continue-${nextStep}`)) {
+        return;
+      }
+      
+      try {
+        setPromptBarLoading(true);
+        router.push(routeTo);
+      } catch (error) {
+        console.error('[Percy] Continue routing error:', error);
+        handleRouteError(error, routeTo, '/dashboard');
+      } finally {
+        setPromptBarLoading(false);
+      }
+    } else {
+      setCurrentStep(nextStep);
+    }
+  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
+
+  const handleAgentChat = useCallback(async (agentId: string) => {
+    console.log('[Percy] Starting chat with agent:', agentId);
+    trackBehavior('agent_chat_start', { agentId, from: currentStep });
+    
+    const route = `/chat/${agentId}`;
+    if (!validateAndRoute(route, `agent-chat-${agentId}`)) {
+      return;
+    }
+    
+    try {
+      setPromptBarLoading(true);
+      router.push(route);
+    } catch (error) {
+      console.error('[Percy] Agent chat routing error:', error);
+      handleRouteError(error, route, '/agents');
+    } finally {
+      setPromptBarLoading(false);
+    }
+  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
+
   const triggerAgentHandoff = useCallback((fromAgent: string, toAgent: string) => {
     setDemoStep('handoff');
     console.log('[Demo] Agent handoff:', fromAgent, '->', toAgent);
@@ -1170,36 +1355,48 @@ export default function PercyOnboardingRevolution() {
     trackBehavior('chat_reset', { from: currentStep });
   };
 
-  // Enhanced back to start function with state reset and smooth transition
+  // Enhanced back to start function with state reset and routing options
   const handleBackToStart = () => {
-    // Reset all onboarding state
-    setCurrentStep('greeting');
-    setInputValue('');
-    setPromptBarValue('');
-    setUserInteracted(false);
-    setAnalysisResults(null);
-    setCompetitiveInsights([]);
-    setUserGoal('');
-    setUserInput('');
-    setVipCode('');
-    setIsVIPUser(false);
-    setVipTier(null);
-    setPhoneNumber('');
-    setPhoneVerified(false);
-    setDemoActive(false);
-    setDemoTargetAgent(null);
-    setDemoStep('idle');
-    setPercyMood('excited');
-    setPromptBarLoading(false);
-    
-    // Track the action
-    trackBehavior('back_to_start', { from: currentStep });
-    
-    // Success feedback
-    toast.success('Welcome back! Choose your path to domination.', {
-      icon: '🚀',
-      duration: 2000,
-    });
+    try {
+      // If user is deep in onboarding, reset to greeting
+      if (currentStep !== 'greeting') {
+        // Reset all onboarding state
+        setCurrentStep('greeting');
+        setInputValue('');
+        setPromptBarValue('');
+        setUserInteracted(false);
+        setAnalysisResults(null);
+        setCompetitiveInsights([]);
+        setUserGoal('');
+        setUserInput('');
+        setVipCode('');
+        setIsVIPUser(false);
+        setVipTier(null);
+        setPhoneNumber('');
+        setPhoneVerified(false);
+        setDemoActive(false);
+        setDemoTargetAgent(null);
+        setDemoStep('idle');
+        setPercyMood('excited');
+        setPromptBarLoading(false);
+        
+        // Track the action
+        trackBehavior('back_to_start', { from: currentStep });
+        
+        // Success feedback
+        toast.success('Welcome back! Choose your path to domination. 🚀', {
+          duration: 2000,
+        });
+      } else {
+        // If already at greeting, offer to go to homepage
+        toast.success('Going to homepage... 🏠', { duration: 2000 });
+        trackBehavior('homepage_navigation', { from: 'onboarding_greeting' });
+        router.push('/');
+      }
+    } catch (error) {
+      toast.error('Navigation failed. Please refresh the page.', { duration: 3000 });
+      console.error('Back to start error:', error);
+    }
   };
 
   // Keyboard shortcut handler
@@ -1514,24 +1711,47 @@ export default function PercyOnboardingRevolution() {
                   Your AI-powered business transformation starts here.
                 </motion.p>
                 
-                {/* Show me a Demo button */}
+                {/* Show me a Demo button - Enhanced CTA */}
                 <motion.button
                   onClick={() => {
-                    setDemoActive(true);
-                    setDemoStep('selecting');
-                    handleAnyInteraction();
+                    try {
+                      setDemoActive(true);
+                      setDemoStep('selecting');
+                      handleAnyInteraction();
+                      toast.success('Demo mode activated! 🚀', { duration: 2000 });
+                    } catch (error) {
+                      toast.error('Demo unavailable. Please try again.', { duration: 3000 });
+                    }
                   }}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-400/30"
+                  className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.6)] border-2 border-purple-400/50 cursor-pointer min-h-[48px] min-w-[120px] touch-manipulation"
                   whileHover={{ 
-                    scale: 1.05,
-                    boxShadow: "0 0 30px rgba(168,85,247,0.6), 0 0 50px rgba(236,72,153,0.4)",
-                    background: "linear-gradient(135deg, rgb(147,51,234) 0%, rgb(219,39,119) 100%)"
+                    scale: 1.08,
+                    boxShadow: "0 0 50px rgba(168,85,247,0.8), 0 0 80px rgba(236,72,153,0.6)",
+                    background: "linear-gradient(135deg, rgb(147,51,234) 0%, rgb(219,39,119) 100%)",
+                    y: -2
                   }}
-                  whileTap={{ scale: 0.95 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  whileTap={{ 
+                    scale: 0.95,
+                    boxShadow: "0 0 20px rgba(168,85,247,0.4)"
+                  }}
+                  animate={{
+                    boxShadow: [
+                      "0 0 30px rgba(168,85,247,0.6)",
+                      "0 0 40px rgba(168,85,247,0.8), 0 0 60px rgba(236,72,153,0.4)",
+                      "0 0 30px rgba(168,85,247,0.6)"
+                    ]
+                  }}
+                  transition={{ 
+                    type: "spring", 
+                    stiffness: 300, 
+                    damping: 25,
+                    boxShadow: { duration: 2, repeat: Infinity }
+                  }}
+                  aria-label="Start Demo Mode"
+                  title="Experience SKRBL AI Demo"
                 >
-                  <span className="flex items-center gap-2">
-                    <Zap className="w-4 h-4" />
+                  <span className="flex items-center gap-3">
+                    <Zap className="w-5 h-5" />
                     Show me a Demo
                   </span>
                 </motion.button>
@@ -1658,13 +1878,25 @@ export default function PercyOnboardingRevolution() {
                           initial: { opacity: 0, y: 16, scale: 0.96 }
                         }}
                         onClick={() => {
-                          handleInputSubmit();
-                          handleAnyInteraction('successful_action');
+                          try {
+                            handleInputSubmit();
+                            handleAnyInteraction('successful_action');
+                          } catch (error) {
+                            toast.error('Submission failed. Please try again.', { duration: 3000 });
+                          }
                         }}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 hover:text-cyan-300 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/80 to-teal-500/80 border-2 border-cyan-400/50 shadow-[0_0_20px_rgba(48,213,200,0.4)] hover:shadow-[0_0_30px_rgba(48,213,200,0.6)] transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center group touch-manipulation"
+                        whileHover={{
+                          scale: 1.1,
+                          boxShadow: "0 0 30px rgba(48,213,200,0.6)",
+                          background: "linear-gradient(135deg, rgba(48,213,200,0.9) 0%, rgba(45,212,191,0.9) 100%)"
+                        }}
+                        whileTap={{ scale: 0.95 }}
                         data-percy-submit-button
+                        aria-label="Submit to Percy"
+                        title="Send Message"
                       >
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-5 h-5 text-white group-hover:text-cyan-100 transition-colors" />
                       </motion.button>
                     </div>
                   </div>
@@ -1778,19 +2010,27 @@ export default function PercyOnboardingRevolution() {
                   <span className="text-sm text-gray-300 font-medium">Ask Percy Anything</span>
                 </div>
                 
-                {/* Modern Reset Button */}
+                {/* Enhanced Reset Button */}
                 <motion.button
-                  onClick={handleChatReset}
-                  className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-slate-700/80 to-slate-800/80 border border-slate-600/50 shadow-lg hover:shadow-xl transition-all group"
+                  onClick={() => {
+                    try {
+                      handleChatReset();
+                    } catch (error) {
+                      toast.error('Reset failed. Please refresh the page.', { duration: 3000 });
+                    }
+                  }}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-red-500/80 border-2 border-orange-400/50 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all group cursor-pointer min-w-[44px] min-h-[44px] touch-manipulation"
                   whileHover={{ 
                     scale: 1.1,
-                    boxShadow: "0 0 20px rgba(148,163,184,0.4)",
-                    background: "linear-gradient(135deg, rgba(71,85,105,0.9) 0%, rgba(51,65,85,0.9) 100%)"
+                    boxShadow: "0 0 25px rgba(249,115,22,0.6)",
+                    background: "linear-gradient(135deg, rgba(249,115,22,0.9) 0%, rgba(239,68,68,0.9) 100%)",
+                    y: -1
                   }}
                   whileTap={{ scale: 0.95 }}
                   aria-label="Reset conversation"
+                  title="Reset Chat (Clear All)"
                 >
-                  <RotateCcw className="w-4 h-4 text-slate-400 group-hover:text-slate-200 transition-colors" />
+                  <RotateCcw className="w-5 h-5 text-white group-hover:text-orange-100 transition-colors" />
                 </motion.button>
               </div>
               
@@ -1835,18 +2075,39 @@ export default function PercyOnboardingRevolution() {
                   aria-label="Percy prompt input"
                 />
               
-              {/* Send Button */}
+              {/* Enhanced Send Button */}
               <motion.button
-                onClick={handlePromptBarSubmit}
+                onClick={() => {
+                  try {
+                    handlePromptBarSubmit();
+                  } catch (error) {
+                    toast.error('Message failed to send. Please try again.', { duration: 3000 });
+                  }
+                }}
                   disabled={!promptBarValue.trim() || promptBarLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border border-teal-400/50 shadow-lg hover:shadow-xl transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border-2 border-teal-400/50 shadow-[0_0_20px_rgba(45,212,191,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)] transition-all group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-w-[48px] min-h-[48px] touch-manipulation"
                   whileHover={{ 
-                    scale: 1.1,
-                    boxShadow: "0 0 25px rgba(45,212,191,0.6)",
-                    background: "linear-gradient(135deg, rgba(45,212,191,0.9) 0%, rgba(34,197,194,0.9) 100%)"
+                    scale: !promptBarValue.trim() || promptBarLoading ? 1 : 1.1,
+                    boxShadow: !promptBarValue.trim() || promptBarLoading ? "0 0 20px rgba(45,212,191,0.4)" : "0 0 30px rgba(45,212,191,0.6)",
+                    background: !promptBarValue.trim() || promptBarLoading ? undefined : "linear-gradient(135deg, rgba(45,212,191,0.9) 0%, rgba(34,197,194,0.9) 100%)",
+                    y: !promptBarValue.trim() || promptBarLoading ? 0 : -1
                   }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: !promptBarValue.trim() || promptBarLoading ? 1 : 0.95 }}
+                  animate={!promptBarValue.trim() || promptBarLoading ? {} : {
+                    boxShadow: [
+                      "0 0 20px rgba(45,212,191,0.4)",
+                      "0 0 30px rgba(45,212,191,0.6)",
+                      "0 0 20px rgba(45,212,191,0.4)"
+                    ]
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 25,
+                    boxShadow: { duration: 1.5, repeat: !promptBarValue.trim() || promptBarLoading ? 0 : Infinity }
+                  }}
                   aria-label="Send to Percy"
+                  title="Send Message to Percy"
                 >
                   {promptBarLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
