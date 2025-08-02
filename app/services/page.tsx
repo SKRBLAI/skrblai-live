@@ -20,7 +20,7 @@ import { businessSolutions, globalMetrics, LiveMetrics, ServiceSolution } from '
 import { getPercyRecommendation, PercyRecommendation } from '../../lib/percy/recommendationEngine';
 import { agentHandoffAnimations } from '../../lib/animations/agentHandoff';
 import toast from 'react-hot-toast';
-import SkillSmithProductsGrid from '../../components/skillsmith/SkillSmithProductsGrid';
+
 
 // Business solutions now imported from lib/config/services.ts
 // Percy recommendation and live stats integration
@@ -344,40 +344,7 @@ export default function ServicesPage() {
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            {/* Floating Percy Ask Button */}
-            <motion.div
-              className="flex justify-center mb-8"
-              whileHover={{ 
-                scale: 1.05,
-                y: -5,
-                rotateY: 5
-              }}
-              whileTap={{ scale: 0.95 }}
-              animate={{
-                y: [0, -8, 0],
-                rotateX: [0, 2, 0]
-              }}
-              transition={{
-                y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                rotateX: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-blue-500/40 rounded-full blur-2xl" />
-                <div className="relative bg-gradient-to-br from-[rgba(30,25,50,0.9)] to-[rgba(15,20,40,0.9)] backdrop-blur-xl border-2 border-purple-400/60 rounded-full px-8 py-4 shadow-[0_0_60px_rgba(147,51,234,0.6),0_0_100px_rgba(99,102,241,0.3)] flex items-center gap-4">
-                  <PercyAvatar 
-                    mood={percyMood}
-                    size="lg"
-                    className="drop-shadow-[0_0_20px_rgba(147,51,234,0.8)]"
-                  />
-                  <div className="text-left">
-                    <div className="text-white font-bold text-lg drop-shadow-lg">Ask Percy</div>
-                    <div className="text-purple-300 text-sm font-medium">Your AI Business Strategist</div>
-                  </div>
-                  <MessageCircle className="w-6 h-6 text-purple-400 animate-bounce drop-shadow-lg" />
-                </div>
-              </div>
-            </motion.div>
+
 
             {/* Animated Market Stats */}
             <div className="flex items-center justify-center gap-4 mb-6 flex-wrap">
@@ -650,24 +617,7 @@ export default function ServicesPage() {
                         </span>
                       </motion.button>
                       
-                      {solution.videoDemoUrl && (
-                        <motion.button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleVideoDemo(solution.videoDemoUrl!);
-                          }}
-                          className="px-4 py-4 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-2 border-purple-400/40 rounded-xl text-purple-300 hover:text-white hover:border-purple-300 transition-all duration-300 backdrop-blur-sm"
-                          whileHover={{ 
-                            scale: 1.1,
-                            rotateZ: 5,
-                            borderColor: "rgba(147, 51, 234, 0.8)"
-                          }}
-                          whileTap={{ scale: 0.9 }}
-                          title={`Watch ${solution.demoContent.title} (${solution.demoContent.duration})`}
-                        >
-                          <Play className="w-5 h-5" />
-                        </motion.button>
-                      )}
+                      
                     </div>
                   </div>
                 </motion.div>
@@ -719,8 +669,7 @@ export default function ServicesPage() {
             </div>
           </Pseudo3DFeature>
 
-          {/* SkillSmith Products Section */}
-          <SkillSmithProductsGrid className="mb-24" />
+
 
           {/* Final CTA Section */}
           <motion.div

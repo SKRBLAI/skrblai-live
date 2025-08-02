@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePercyContext } from '../assistant/PercyProvider';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
 import SkrblAiText from '../ui/SkrblAiText';
 import UniversalPromptBar from '../ui/UniversalPromptBar';
@@ -56,20 +57,30 @@ export default function PercyOnboardingRevolution() {
   // NEW: Use the auth context to check verification status
   const { user, session, isEmailVerified, shouldShowOnboarding /* TODO: REVIEW UNUSED */, setOnboardingComplete /* TODO: REVIEW UNUSED */ } = useAuth();
   const { trackBehavior, setIsOnboardingActive } = usePercyContext();
-  const [currentStep, setCurrentStep] = useState<string>('greeting');
-  const [isPercyThinking, setIsPercyThinking] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [inputValue, setInputValue] = useState('');
+  
+  // Use centralized onboarding context instead of local state
+  const { 
+    currentStep, 
+    setCurrentStep, 
+    inputValue, 
+    setInputValue, 
+    handleUserChoice, 
+    handleInputSubmit,
+    promptBarValue,
+    setPromptBarValue,
+    handlePromptBarSubmit,
+    isPercyThinking,
+    analysisResults,
+    userAnalysisAgent,
+    isVIPUser,
+    vipTier,
+    phoneVerified
+  } = useOnboarding();
+  
+  // Keep only UI-specific local state
   const [showFloatingWidget, setShowFloatingWidget] = useState(false);
   const [userGoal, setUserGoal] = useState('');
-  const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
-  const [userAnalysisAgent, setUserAnalysisAgent] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
-  const [vipCode, setVipCode] = useState<string>('');
-  const [isVIPUser, setIsVIPUser] = useState(false);
-  const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond' | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [phoneVerified, setPhoneVerified] = useState(false);
 
   // Founder Dashboard state
   const [showFounderDashboard, setShowFounderDashboard] = useState(false);
@@ -94,96 +105,8 @@ export default function PercyOnboardingRevolution() {
   const [userInteracted, setUserInteracted] = useState(false);
   const [pulseActive, setPulseActive] = useState(true);
 
-  // Centralized choice handler for unified routing
-  const handleUserChoice = useCallback((choiceId: string, data?: any) => {
-    console.log('[Percy] User choice:', choiceId, data);
-    
-    switch(choiceId) {
-      case 'website-scan':
-        trackBehavior('choice_website_seo', { from: 'onboarding' });
-        setCurrentStep('instant-website-analysis');
-        setPromptBarPlaceholder('Enter your website URL...');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'content-creator':
-        trackBehavior('choice_content_creation', { from: 'onboarding' });
-        setCurrentStep('instant-content-analysis');
-        setPromptBarPlaceholder('Tell me about your content goals...');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'business-strategy':
-        trackBehavior('choice_business_automation', { from: 'onboarding' });
-        setCurrentStep('instant-business-analysis');
-        setPromptBarPlaceholder('Describe your business challenges...');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'book-publisher':
-        trackBehavior('choice_book_publishing', { from: 'onboarding' });
-        setCurrentStep('instant-book-analysis');
-        setPromptBarPlaceholder('Tell me about your book project...');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'linkedin-profile':
-        trackBehavior('choice_linkedin_branding', { from: 'onboarding' });
-        setCurrentStep('instant-linkedin-analysis');
-        setPromptBarPlaceholder('Share your LinkedIn profile URL...');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'sports-analysis':
-        trackBehavior('choice_sports_routing', { from: 'onboarding' });
-        router.push('/sports');
-        break;
-        
-      case 'signup':
-        trackBehavior('choice_signup', { from: 'onboarding' });
-        setCurrentStep('signup');
-        setPromptBarPlaceholder('Enter your email or phone');
-        setPromptBarValue('');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'have-code':
-        trackBehavior('choice_vip_code', { from: 'onboarding' });
-        setPromptBarPlaceholder('Enter Code Here');
-        setPromptBarValue('');
-        promptBarRef.current?.focus();
-        break;
-        
-      case 'my-dashboard':
-        trackBehavior('choice_dashboard', { from: 'onboarding' });
-        if (user) {
-          router.push('/dashboard');
-        } else {
-          setCurrentStep('signup');
-          setPromptBarPlaceholder('Enter your email or phone');
-          setPromptBarValue('');
-          promptBarRef.current?.focus();
-        }
-        break;
-        
-      case 'custom-needs':
-        trackBehavior('choice_custom_needs', { from: 'onboarding' });
-        setCurrentStep('custom-needs-analysis');
-        setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
-        setPromptBarValue('');
-        promptBarRef.current?.focus();
-        break;
-        
-      default:
-        console.warn('[Percy] Unknown choice:', choiceId);
-        // Fallback to custom needs analysis
-        setCurrentStep('custom-needs-analysis');
-        setPromptBarPlaceholder('Tell me what you need help with...');
-        promptBarRef.current?.focus();
-    }
-    
-    handleAnyInteraction('choice_selection');
-  }, [user, router]);
+  // Use centralized choice handler from context
+  // The handleUserChoice is now provided by useOnboarding()
   
   // Enhanced feedback states
   const [lastInteractionType, setLastInteractionType] = useState<string>('');
@@ -195,7 +118,7 @@ export default function PercyOnboardingRevolution() {
 
   // Fix: define promptBarRef for the new integrated prompt bar
   const promptBarRef = useRef<HTMLInputElement>(null);
-  const [promptBarValue, setPromptBarValue] = useState('');
+  // promptBarValue and setPromptBarValue now come from context
   
   // Handle any interaction function with enhanced mood changes
   const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
@@ -520,7 +443,7 @@ export default function PercyOnboardingRevolution() {
     'email-verification': {
       id: 'email-verification',
       type: 'email-verification',
-      percyMessage: `📧 **ALMOST THERE!** I just sent a verification link to **${userEmail}**.\n\n🎯 **While you check your email**: I'm already analyzing your industry and preparing your competitive advantage report. This usually takes my competitors 2-3 weeks. I'll have it ready in **3 minutes**.\n\n**Click the verification link and let's make your competition irrelevant!**`,
+      percyMessage: `📧 **ALMOST THERE!** I just sent a verification link to your email.\n\n🎯 **While you check your email**: I'm already analyzing your industry and preparing your competitive advantage report. This usually takes my competitors 2-3 weeks. I'll have it ready in **3 minutes**.\n\n**Click the verification link and let's make your competition irrelevant!**`,
       options: [
         { id: 'verified', label: '✅ Email verified - let\'s go!', icon: '🚀', action: 'complete-verification' },
         { id: 'resend', label: '📧 Resend verification email', icon: '🔄', action: 'resend-email' }
@@ -547,88 +470,14 @@ export default function PercyOnboardingRevolution() {
 
   const getCurrentStep = () => onboardingSteps[currentStep];
 
+  // Percy thinking is now handled by context
   const handlePercyThinking = async (duration = 2000) => {
-    setIsPercyThinking(true);
     setPercyMood('analyzing');
     await new Promise(resolve => setTimeout(resolve, duration));
-    setIsPercyThinking(false);
     setPercyMood('confident');
   };
 
-  // Enhanced analysis simulation with agent routing
-  const performAnalysis = async (mode: string, input: string) => {
-    setIsPercyThinking(true);
-    setPercyMood('scanning');
-    
-    console.log('[Percy] Performing analysis:', mode, input);
-    trackBehavior('analysis_performed', { mode, input });
-    
-    // Simulate analysis delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    let insights: string[] = [];
-    let recommendedAgent = '';
-    
-    switch (mode) {
-      case 'website':
-        insights = [
-          `**SEO Gap**: Your site is missing 47 high-traffic keywords your competitors rank for`,
-          `**Conversion Killer**: Your CTA placement could increase conversions by 340%`,
-          `**Speed Advantage**: Site optimization could make you 2.3x faster than top competitors`
-        ];
-        recommendedAgent = 'sitegen';
-        break;
-      case 'business':
-        insights = [
-          `**Automation Opportunity**: 78% of your processes can be automated for 10x efficiency`,
-          `**Market Gap**: There's a $47K/month opportunity your competitors are missing`,
-          `**Content Strategy**: AI-generated content could capture 340% more leads`
-        ];
-        recommendedAgent = 'biz';
-        break;
-      case 'linkedin':
-        insights = [
-          `**Authority Gap**: Consistent posting could establish you as the #1 expert in 90 days`,
-          `**Network Growth**: Strategic connections could open doors to $127K opportunities`,
-          `**Content Strategy**: LinkedIn AI automation could 5x your professional influence`
-        ];
-        recommendedAgent = 'branding';
-        break;
-      case 'content':
-        insights = [
-          `**Content Gap**: Your audience is hungry for content that 89% of creators are ignoring`,
-          `**Viral Formula**: AI-analyzed patterns show 340% higher engagement potential`,
-          `**Monetization Blind Spot**: You're missing $23K/month in revenue opportunities`
-        ];
-        recommendedAgent = 'content-creator';
-        break;
-      case 'book-publishing':
-        insights = [
-          `**Market Positioning**: 67% of your genre competitors are targeting the wrong audience`,
-          `**Authority Platform**: Strategic content could establish you as THE expert before publication`,
-          `**Revenue Streams**: Authors in your space miss 5 income channels worth $127K annually`
-        ];
-        recommendedAgent = 'publishing';
-        break;
-      case 'custom':
-        insights = [
-          `**Hidden Opportunity**: I've identified 3 automation points that could save 15+ hours weekly`,
-          `**Competitive Edge**: Your industry has gaps that AI could fill for massive advantage`,
-          `**Scale Potential**: With the right agents, you could 10x impact without burning out`
-        ];
-        recommendedAgent = 'percy';
-        break;
-    }
-    
-    setCompetitiveInsights(insights);
-    setAnalysisResults({ mode, input, insights });
-    setUserAnalysisAgent(recommendedAgent); // Store recommended agent
-    setCurrentStep('analysis-results');
-    setIsPercyThinking(false);
-    setPercyMood('celebrating');
-    
-    console.log('[Percy] Analysis complete, recommended agent:', recommendedAgent);
-  };
+  // performAnalysis is now handled by context
 
   // Narrow type for option actions for safer handling
   type OnboardingOption = {
@@ -814,227 +663,7 @@ export default function PercyOnboardingRevolution() {
     }
   };
 
-  const handleInputSubmit = async () => {
-    if (!inputValue.trim()) {
-      toast.error('Please enter a valid input');
-      return;
-    }
-
-    // MASTER CODE INTERCEPTION - Founder Dashboard Access
-    if (inputValue.trim() === 'MMM_mstr') {
-      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
-      setShowFounderDashboard(true);
-      setInputValue(''); // Clear the input
-      trackBehavior('founder_dashboard_access', { 
-        timestamp: new Date().toISOString(),
-        accessMethod: 'master_code'
-      });
-      return; // Exit early - do not proceed with normal onboarding logic
-    }
-
-    // OWNER DASHBOARD ACCESS - Direct dashboard access for owner
-    if (inputValue.trim() === 'OWNER_ACCESS' || inputValue.trim() === 'MMM_dash') {
-      console.log('[Percy] Owner access code detected in input - routing directly to dashboard');
-      setInputValue('');
-      
-      trackBehavior('owner_dashboard_access', { 
-        timestamp: new Date().toISOString(),
-        accessMethod: 'owner_code_input'
-      });
-      
-      toast.success('🔑 Owner Access Granted - Welcome to Dashboard!', {
-        icon: '👑',
-        duration: 3000,
-      });
-      
-      // Route directly to dashboard
-      router.push('/dashboard');
-      return;
-    }
-
-    const step = getCurrentStep();
-    
-    if (step.type === 'instant-analysis' && step.analysisMode) {
-      setUserInput(inputValue);
-      await performAnalysis(step.analysisMode, inputValue);
-      setInputValue('');
-      return;
-    }
-
-    if (step.type === 'signup') {
-      // Email entry - simplified authentication
-      if (step.inputType === 'email' || inputValue.includes('@')) {
-        const email = inputValue.trim().toLowerCase();
-        if (!email || !email.includes('@')) {
-          toast.error('Please enter a valid email address');
-          return;
-        }
-        
-        try {
-          setPercyMood('analyzing');
-          await handlePercyThinking(1500);
-          
-          console.log('[Percy] Processing email authentication for:', email);
-          
-          // Check if user exists or create new account
-          const authResponse = await fetch('/api/auth/dashboard-signin', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              email,
-              autoSignIn: true,
-              dashboardIntent: dashboardIntent
-            })
-          });
-          
-          const authData = await authResponse.json();
-          
-          if (authData.success) {
-            // Store user info
-            localStorage.setItem('user_email', email);
-            localStorage.setItem('user_name', email.split('@')[0]);
-            
-            toast.success(`🎉 Welcome${authData.isNewUser ? ' to SKRBL AI' : ' back'}!`, {
-              icon: authData.isNewUser ? '🚀' : '👋',
-              duration: 3000,
-            });
-            
-            // Route based on intent
-            if (dashboardIntent || authData.hasAccess) {
-              console.log('[Percy] Routing to dashboard after email authentication');
-              router.push('/dashboard');
-            } else {
-              setCurrentStep('welcome');
-              setPercyMood('celebrating');
-            }
-            
-            setInputValue('');
-            return;
-          } else {
-            throw new Error(authData.error || 'Authentication failed');
-          }
-        } catch (err: any) {
-          console.error('[Percy] Email authentication error:', err);
-          toast.error('Authentication issue. Try again or use code OWNER_ACCESS for immediate access.');
-          setPercyMood('confident');
-        }
-        return;
-      }
-
-      // Phone number entry
-      if (step.inputType === 'phone') {
-        const phone = inputValue.trim();
-        if (!phone) {
-          toast.error('Enter a valid phone number');
-          return;
-        }
-        try {
-          setPhoneNumber(phone);
-          setPercyMood('analyzing');
-          await handlePercyThinking(1500);
-          const res = await fetch('/api/sms/send-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phoneNumber: phone })
-          });
-          const data = await res.json();
-          if (!data.success) throw new Error(data.error || 'Failed to send code');
-          toast.success('📲 Verification code sent!');
-          setInputValue('');
-          setCurrentStep('code-entry');
-          setPercyMood('scanning');
-        } catch (err: any) {
-          toast.error(err.message || 'SMS failed');
-          setPercyMood('confident');
-        }
-        return;
-      }
-
-      // SMS code entry
-      if (step.inputType === 'sms-code') {
-        const code = inputValue.trim();
-        if (code.length !== 6) {
-          toast.error('Enter the 6-digit code');
-          return;
-        }
-        try {
-          setPercyMood('analyzing');
-          await handlePercyThinking(1000);
-          const res = await fetch('/api/sms/verify-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ phoneNumber, code })
-          });
-          const data = await res.json();
-          if (!data.success) throw new Error(data.error || 'Invalid code');
-          toast.success('✅ Phone verified!');
-          setPhoneVerified(true);
-          setInputValue('');
-          setCurrentStep('signup'); // fall back to original email signup step
-          setPercyMood('celebrating');
-          return;
-        } catch (err: any) {
-          toast.error(err.message || 'Verification failed');
-          setPercyMood('confident');
-          return;
-        }
-      }
-
-      // Handle VIP code entry
-      if (step.vipCodeEntry) {
-        const vipValidation = await validateVIPCode(inputValue);
-        if (vipValidation.isValid && vipValidation.tier) {
-          setVipCode(inputValue);
-          setIsVIPUser(true);
-          setVipTier(vipValidation.tier);
-          setInputValue('');
-          setPercyMood('celebrating');
-          handleAnyInteraction('successful_action');
-          
-          await handlePercyThinking(2000);
-          setCurrentStep('vip-welcome');
-          toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
-            icon: '👑',
-            duration: 4000,
-          });
-          
-          // Track VIP activation
-          trackBehavior('vip_activated', { 
-            vipTier: vipValidation.tier, 
-            code: inputValue,
-            userGoal 
-          });
-        } else {
-          toast.error('Invalid VIP code. Please check and try again.');
-          setPercyMood('confident');
-        }
-        return;
-      }
-
-      // Require phone verified before email signup
-      if (!phoneVerified) {
-        setCurrentStep('phone-entry');
-        toast("📱 Let's secure your account – phone first!", { icon: '📲' });
-        return;
-      }
-
-      // Handle regular email signup
-      if (!inputValue.includes('@')) {
-        toast.error('Please enter a valid email address');
-        return;
-      }
-      setUserEmail(inputValue);
-      setInputValue('');
-      
-      try {
-        await handlePercyThinking(3000);
-        setCurrentStep(isVIPUser ? 'vip-welcome' : 'email-verification');
-        toast.success('🚀 Verification email sent! Check your inbox.');
-      } catch (error) {
-        toast.error('Something went wrong. Please try again.');
-      }
-    }
-  };
+  // handleInputSubmit is now provided by useOnboarding() context
 
   const resendVerificationEmail = async () => {
     await handlePercyThinking(1000);
@@ -1070,8 +699,8 @@ export default function PercyOnboardingRevolution() {
           // Removed liveMetrics updates - using static value props instead
           setSocialProofMessages(result.data.socialProof);
           
-          // Update competitive insights
-          setCompetitiveInsights(result.data.metrics.competitive.recentAchievements);
+                  // Update competitive insights (stored locally for UI)
+        setCompetitiveInsights(result.data.metrics.competitive.recentAchievements);
         }
       } catch (error) {
         console.error('[Percy] Failed to fetch live social proof:', error);
@@ -1195,102 +824,14 @@ export default function PercyOnboardingRevolution() {
   //   // Implementation commented out for cleanup
   // }, []);
 
-  // Enhanced prompt bar handler with debouncing and loading states
-  const handlePromptBarSubmit = async () => {
-    if (!promptBarValue.trim() || promptBarLoading) return;
-
-    setPromptBarLoading(true);
-    
-    try {
-      // MASTER CODE INTERCEPTION - Founder Dashboard Access
-    if (promptBarValue.trim() === 'MMM_mstr') {
-      console.log('[Founder Dashboard] Master code detected - activating founder overlay');
-      setShowFounderDashboard(true);
-      setPromptBarValue('');
-      trackBehavior('founder_dashboard_access', { 
-        timestamp: new Date().toISOString(),
-        accessMethod: 'prompt_bar'
-      });
-        return; // Exit early
-      }
-
-      // OWNER DASHBOARD ACCESS - Direct dashboard access for owner
-      if (promptBarValue.trim() === 'OWNER_ACCESS' || promptBarValue.trim() === 'MMM_dash') {
-        console.log('[Percy] Owner access code detected - routing directly to dashboard');
-        setPromptBarValue('');
-        
-        // Create a mock verified user session for immediate access
-        const mockOwnerUser = {
-          id: 'owner-access-' + Date.now(),
-          email: 'owner@skrblai.io',
-          email_verified: true,
-          app_metadata: { role: 'owner' },
-          user_metadata: { access_level: 'owner' }
-        };
-        
-        // Note: User authentication will be handled by the dashboard route
-        // The owner access bypasses normal auth for immediate dashboard access
-        
-        trackBehavior('owner_dashboard_access', { 
-          timestamp: new Date().toISOString(),
-          accessMethod: 'owner_code'
-        });
-        
-        toast.success('🔑 Owner Access Granted - Welcome to Dashboard!', {
-          icon: '👑',
-          duration: 3000,
-        });
-        
-        // Route directly to dashboard
-        router.push('/dashboard');
-        return;
-      }
-
-      // VIP Code Detection in prompt bar
-      const trimmed = promptBarValue.trim();
-      const vipValidation = await validateVIPCode(trimmed);
-      if (vipValidation.isValid && vipValidation.tier) {
-        setVipCode(trimmed);
-        setIsVIPUser(true);
-        setVipTier(vipValidation.tier);
-        setPromptBarValue('');
-        setPromptBarPlaceholder('Need something else? Ask Percy...');
-        await handlePercyThinking(2000);
-        setCurrentStep('vip-welcome');
-        toast.success(`🏆 VIP ${vipValidation.tier.toUpperCase()} ACCESS CONFIRMED!`, {
-          icon: '👑',
-          duration: 4000,
-        });
-        trackBehavior('vip_activated', { vipTier: vipValidation.tier, code: trimmed });
-        return;
-      }
-
-      // If current chat step expects input, forward to chat handler
-      const step = getCurrentStep();
-      if (step.showInput) {
-        setInputValue(promptBarValue);
-        setPromptBarValue('');
-        await handleInputSubmit();
-      return;
-    }
-
-    // Handle general conversation - route to custom needs analysis
-    setUserInput(promptBarValue);
-    setInputValue(promptBarValue);
-    setCurrentStep('custom-needs-analysis');
-      setPromptBarPlaceholder('Go ahead, tell Percy what you need!');
-    setPromptBarValue('');
-    } finally {
-      setPromptBarLoading(false);
-    }
-  };
+  // handlePromptBarSubmit is now provided by useOnboarding() context
 
   // Clear and reset prompt bar
   const handlePromptBarClear = useCallback(() => {
     setPromptBarValue('');
-    setPromptBarPlaceholder('Need something else? Ask Percy...');
+    // setPromptBarPlaceholder('Need something else? Ask Percy...');
     promptBarRef.current?.focus();
-  }, []);
+  }, [setPromptBarValue]);
 
   // Handle keyboard shortcuts
   const handlePromptBarKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -1466,7 +1007,7 @@ export default function PercyOnboardingRevolution() {
     setInputValue('');
     setPromptBarValue('');
     setUserInteracted(false);
-    setAnalysisResults(null);
+    // Reset local UI state only
     setCompetitiveInsights([]);
     setPercyMood('excited');
     toast.success('Conversation reset! Percy is ready to help again.', {
@@ -1481,25 +1022,19 @@ export default function PercyOnboardingRevolution() {
     try {
       // If user is deep in onboarding, reset to greeting
       if (currentStep !== 'greeting') {
-        // Reset all onboarding state
+        // Reset all onboarding state via context
         setCurrentStep('greeting');
         setInputValue('');
         setPromptBarValue('');
+        // Reset local UI state
         setUserInteracted(false);
-        setAnalysisResults(null);
         setCompetitiveInsights([]);
         setUserGoal('');
         setUserInput('');
-        setVipCode('');
-        setIsVIPUser(false);
-        setVipTier(null);
-        setPhoneNumber('');
-        setPhoneVerified(false);
         setDemoActive(false);
         setDemoTargetAgent(null);
         setDemoStep('idle');
         setPercyMood('excited');
-        setPromptBarLoading(false);
         
         // Track the action
         trackBehavior('back_to_start', { from: currentStep });
@@ -1806,7 +1341,7 @@ export default function PercyOnboardingRevolution() {
                       lineHeight: "1.2"
                     } as React.CSSProperties}
                   >
-                    {!personalizedGreeting && typedText}
+                    {currentStep === 'greeting' && !personalizedGreeting && typedText}
                   </span>
                 </div>
               </motion.div>
@@ -1895,7 +1430,7 @@ export default function PercyOnboardingRevolution() {
           {/* Chat Messages */}
           <div 
             ref={chatRef} 
-            className="min-h-[300px] max-h-[400px] overflow-y-auto overscroll-contain mb-6"
+            className="min-h-[300px] mb-6"
             data-percy-chat-container
           >
             <AnimatePresence>
@@ -1995,9 +1530,6 @@ export default function PercyOnboardingRevolution() {
                         }}
                       />
                       <motion.button
-                        variants={{
-                          initial: { opacity: 0, y: 16, scale: 0.96 }
-                        }}
                         onClick={() => {
                           try {
                             handleInputSubmit();
@@ -2006,18 +1538,12 @@ export default function PercyOnboardingRevolution() {
                             toast.error('Submission failed. Please try again.', { duration: 3000 });
                           }
                         }}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/80 to-teal-500/80 border-2 border-cyan-400/50 shadow-[0_0_20px_rgba(48,213,200,0.4)] hover:shadow-[0_0_30px_rgba(48,213,200,0.6)] transition-all cursor-pointer min-w-[44px] min-h-[44px] flex items-center justify-center group touch-manipulation"
-                        whileHover={{
-                          scale: 1.1,
-                          boxShadow: "0 0 30px rgba(48,213,200,0.6)",
-                          background: "linear-gradient(135deg, rgba(48,213,200,0.9) 0%, rgba(45,212,191,0.9) 100%)"
-                        }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="w-full mt-3 px-6 py-3 bg-gradient-to-br from-cyan-500 to-teal-400 text-white font-bold rounded-2xl shadow-[0_0_30px_rgba(48,213,200,0.6)] border-2 border-teal-400/50 hover:shadow-[0_0_40px_rgba(48,213,200,0.8)] transition-all"
                         data-percy-submit-button
-                        aria-label="Submit to Percy"
-                        title="Send Message"
                       >
-                        <ArrowRight className="w-5 h-5 text-white group-hover:text-cyan-100 transition-colors" />
+                        Send
                       </motion.button>
                     </div>
                   </div>

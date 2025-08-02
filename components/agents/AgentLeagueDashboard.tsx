@@ -115,17 +115,17 @@ export default function AgentLeagueDashboard() {
     }
   }
 
-  // Navigation to agent backstory page
+  // Navigation to unified agent service page
   function handleAgentInfo(agent: Agent) {
-    router.push(`/agent-backstory/${agent.id}`);
+    router.push(`/services/${agent.id}`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] View info for:', agent.name);
     }
   }
 
-  // Chat with agent
+  // Chat with agent - route to unified page with chat tab
   function handleAgentChat(agent: Agent) {
-    setSelectedAgent(agent);
+    router.push(`/services/${agent.id}?tab=chat`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Chat with:', agent.name);
     }

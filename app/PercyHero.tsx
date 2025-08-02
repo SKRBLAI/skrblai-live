@@ -5,9 +5,11 @@ import PercyChat from './PercyChat';
 import AnimatedBackground from './AnimatedBackground';
 import PercyButton from './PercyButton';
 import Image from 'next/image';
+import { useOnboarding } from '../contexts/OnboardingContext';
 
 export default function PercyHero() {
   const [showChat, setShowChat] = useState(false);
+  const { currentStep, handleUserChoice } = useOnboarding();
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-transparent">
@@ -62,7 +64,7 @@ export default function PercyHero() {
             className="flex justify-center"
           >
             <PercyButton 
-              onClick={() => setShowChat(true)}
+              onClick={() => handleUserChoice('start-onboarding')}
               label="Chat with Percy"
               className="animate-pulse-subtle shadow-glow"
             />

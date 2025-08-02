@@ -151,9 +151,9 @@ export default function AgentsPage() {
     return cats;
   }, [agents]);
 
-  // Agent interaction handlers
+  // Agent interaction handlers - All route to unified agent page
   const handleAgentInfo = (agent: EnhancedAgent) => {
-    router.push(`/agent-backstory/${agent.id}`);
+    router.push(`/services/${agent.id}`);
   };
 
   const handleAgentChat = (agent: EnhancedAgent) => {
@@ -161,7 +161,8 @@ export default function AgentsPage() {
       toast.error('Please sign in to chat with premium agents');
       return;
     }
-    router.push(`/agent-backstory/${agent.id}`);
+    // Route to unified page with chat tab active
+    router.push(`/services/${agent.id}?tab=chat`);
   };
 
   const handleAgentLaunch = (agent: EnhancedAgent) => {

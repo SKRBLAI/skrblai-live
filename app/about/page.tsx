@@ -98,14 +98,15 @@ export default function AboutPage(): JSX.Element {
 
   return (
     <ClientPageLayout>
-      <div className="space-y-16">
+          <div className="absolute inset-0 bg-gradient-radial from-[#0f0f2b] to-[#06061a] opacity-80 bg-fixed -z-10" />
+      <motion.div className="space-y-16" style={{ y }}>
         {/* Hero Section */}
         <section className="relative z-10 pt-24 pb-16">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <CosmicCardGlow size="xl" className="text-center mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                 transition={{ duration: 0.8 }}
               >
                 {/* Live Revenue Banner */}
@@ -132,7 +133,7 @@ export default function AboutPage(): JSX.Element {
                 <motion.p
                   className="text-xl md:text-2xl text-electric-blue mb-6 font-bold max-w-4xl mx-auto"
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.2 }}
                 >
                   While others talk about AI, we deliver it. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> is the platform disrupting how businesses automate, create, and scale.
@@ -141,7 +142,7 @@ export default function AboutPage(): JSX.Element {
                 <motion.p
                   className="text-lg text-gray-300 mb-10 max-w-3xl mx-auto"
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.3 }}
                 >
                   Built by entrepreneurs, for entrepreneurs. Led by Percy the Cosmic Concierge and powered by 14 specialized AI agents, 
@@ -151,7 +152,7 @@ export default function AboutPage(): JSX.Element {
                 <motion.div
                   className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.4 }}
                 >
                   <CosmicButton href="/agents" variant="primary" size="lg">
@@ -172,7 +173,8 @@ export default function AboutPage(): JSX.Element {
         <motion.div
           className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }} 
+          viewport={{ once: true, amount: 0.3 }}
           transition={{ delay: 0.5 }}
         >
           {achievements.map((achievement, index) => (
@@ -206,8 +208,9 @@ export default function AboutPage(): JSX.Element {
                 <motion.div
                   key={milestone.year}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.1 * index }}
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 24px 0 #30d5c8aa" }}
                 >
                   <CosmicCardGlass className="h-full text-center">
                     <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${milestone.color} mb-6`}>
@@ -245,8 +248,9 @@ export default function AboutPage(): JSX.Element {
                 <motion.div
                   key={value.title}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.2 * index }}
+                  whileHover={{ scale: 1.05, boxShadow: "0 0 24px 0 #30d5c8aa" }}
                 >
                   <CosmicCardGlass className="text-center h-full">
                     <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white mx-auto mb-4">
@@ -304,7 +308,7 @@ export default function AboutPage(): JSX.Element {
                 <motion.div
                   key={benefit.title}
                   initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.1 * index }}
                 >
                   <CosmicCardGlass className="text-left h-full">
@@ -327,7 +331,7 @@ export default function AboutPage(): JSX.Element {
             <CosmicCardGlow size="xl" className="text-center mb-16">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: 0.6 }}
               >
                 <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30 mb-8">
@@ -352,7 +356,7 @@ export default function AboutPage(): JSX.Element {
             </CosmicCardGlow>
           </div>
         </section>
-      </div>
+      </motion.div>
     </ClientPageLayout>
   );
 }

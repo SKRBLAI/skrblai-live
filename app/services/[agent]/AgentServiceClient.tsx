@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { Agent } from '@/types/agent';
 import { agentBackstories } from '../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../utils/agentUtils';
@@ -20,6 +20,7 @@ interface AgentServiceClientProps {
 
 export default function AgentServiceClient({ agent, params }: AgentServiceClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [showBackstory, setShowBackstory] = useState(false);
   const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
   const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
@@ -29,6 +30,14 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'agent', message: string, timestamp: Date}>>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+
+  // Set initial tab based on URL parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | null;
+    if (tab && ['overview', 'backstory', 'chat'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Live metrics animation
   useEffect(() => {
@@ -200,17 +209,52 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
     { step: 4, title: "Results Delivery", description: "Delivers completed work to your dashboard", time: "Instant" }
   ];
 
-  const handleLaunchAgent = () => {
+  const handleLaunchAgent = async () => {
+    if (!agent) return;
+    
     setIsLaunching(true);
-    // Simulate agent launch process
-    setTimeout(() => {
-      // Navigate to the actual agent workflow or dashboard
+    
+    try {
+      console.log(`[AgentServiceClient] Launching agent: ${agent.name}`);
+      
+      // Call the n8n trigger API endpoint
+      const response = await fetch(`/api/agents/${agent.id}/trigger-n8n`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          payload: {}, 
+          userPrompt: `User launched ${agent.name} agent`, 
+          fileData: null 
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to launch agent workflow');
+      }
+      
+      toast.success(`🚀 ${agent.name} launched successfully! Workflow is now running.`, {
+        duration: 4000,
+        icon: '⚡'
+      });
+      
+      // Navigate to dashboard or agent-specific route
       if (agent.route) {
         router.push(agent.route);
       } else {
         router.push(`/dashboard?agent=${agent.id}&action=launch`);
       }
-    }, 2000);
+      
+    } catch (error: any) {
+      console.error(`[AgentServiceClient] Launch error for ${agent.name}:`, error);
+      toast.error(`Failed to launch ${agent.name}: ${error.message}`, {
+        duration: 5000,
+        icon: '❌'
+      });
+    } finally {
+      setIsLaunching(false);
+    }
   };
 
   const handleStartChat = () => {

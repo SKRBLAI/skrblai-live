@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import { validateHomepageUI } from '../utils/agentUtils';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { OnboardingProvider } from '../contexts/OnboardingContext';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -48,25 +49,25 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
-          {/* Global cosmic backgrounds for all pages */}
-          <CosmicBackground />
-          <ParticleGlowBackground />
+              <OnboardingProvider>
+                {/* Global cosmic backgrounds for all pages */}
+                <CosmicBackground />
+                <ParticleGlowBackground />
 
-          {/* Global Navigation */}
-          <Navbar />
+                {/* Global Navigation */}
+                <Navbar />
 
-          {/* Main Content */}
-          <div className="relative z-10">
-            <PageTransition>
-              {mounted ? children : null}
-            </PageTransition>
-          </div>
+                {/* Main Content */}
+                <div className="relative z-10">
+                  <PageTransition>
+                    {mounted ? children : null}
+                  </PageTransition>
+                </div>
 
-          {/* Site Footer */}
-          <Footer />
-
-          {/* Percy Widget removed - now integrated into ConversationalPercyOnboarding */}
-                  </BannerProvider>
+                {/* Site Footer */}
+                <Footer />
+              </OnboardingProvider>
+            </BannerProvider>
           </PercyProvider>
         </AuthProvider>
       </body>
