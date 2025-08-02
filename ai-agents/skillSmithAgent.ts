@@ -12,6 +12,9 @@ interface SkillSmithInput extends BaseAgentInput {
   previousExperience?: string;
   targetTimeframe?: string; // e.g., "1 month", "3 months", "6 months"
   analysisType: 'video-analysis' | 'training-plan' | 'quick-wins' | 'progress-check';
+  ageGroup?: 'youth' | 'teen' | 'adult' | 'senior'; // Age-adaptive coaching
+  sportSpecific?: 'baseball' | 'basketball' | 'football' | 'soccer' | 'golf' | 'softball' | 'general'; // Specific sport focus
+  userEmail?: string; // For scan results and follow-up
 }
 
 interface VideoAnalysisResult {
@@ -22,7 +25,81 @@ interface VideoAnalysisResult {
   formCorrections: string[];
   quickFixes: string[];
   nextSteps: string[];
+  personalizedMessage?: string; // Age-adaptive coaching message
+  motivationalTone?: 'youth' | 'teen' | 'adult' | 'senior'; // Tone indicator
 }
+
+// Age-adaptive personality system for SkillSmith
+const AGE_ADAPTIVE_PERSONALITIES = {
+  youth: {
+    greeting: "Hey there, superstar! 🌟 SkillSmith here and I am SO excited to help you become AMAZING at your sport!",
+    encouragement: "WOW! You're doing AWESOME! 🚀 I can see you're going to be incredible!",
+    improvement: "Here's a super cool trick that's going to make you even more amazing! Ready?",
+    motivation: "You're already a champion in my eyes! Let's have fun getting even better! 🏆",
+    tone: "fun, encouraging, patient, inspiring"
+  },
+  teen: {
+    greeting: "What's up, athlete! 💪 SkillSmith here - ready to help you dominate your sport and reach that next level!",
+    encouragement: "Dude, that's solid work! 🔥 I can see the dedication paying off!",
+    improvement: "Here's what's going to separate you from the competition - this is game-changing stuff!",
+    motivation: "You've got serious potential! Let's unlock that beast mode! 🦁",
+    tone: "supportive, confident, relatable, challenging"
+  },
+  adult: {
+    greeting: "Good to meet you! I'm SkillSmith, your AI performance coach. Let's optimize your technique and get you performing at your peak.",
+    encouragement: "Excellent foundation - I can see the experience and dedication in your form.",
+    improvement: "Here's the technical adjustment that will maximize your efficiency and power:",
+    motivation: "Consistent improvement at this level requires precision. You're ready for it.",
+    tone: "professional, technical, respectful, focused"
+  },
+  senior: {
+    greeting: "Welcome! I'm SkillSmith, and I'm honored to help you continue excelling in your sport with wisdom and experience.",
+    encouragement: "Beautiful technique - there's nothing like experience combined with proper form.",
+    improvement: "Here's a refinement that will help you maintain peak performance while being kind to your body:",
+    motivation: "Your dedication is inspiring. Let's keep you performing at your best for years to come.",
+    tone: "respectful, gentle, wisdom-focused, injury-preventive"
+  }
+};
+
+// Sport-specific expertise knowledge base
+const SPORT_EXPERTISE = {
+  baseball: {
+    fundamentals: ['batting stance', 'swing mechanics', 'fielding position', 'throwing form', 'base running'],
+    quickWins: ['grip adjustment', 'follow-through extension', 'weight transfer', 'eye tracking'],
+    mentalGame: ['plate confidence', 'focus techniques', 'pressure handling', 'visualization'],
+    nutrition: ['game day fuel', 'hydration timing', 'recovery nutrition', 'energy snacks']
+  },
+  basketball: {
+    fundamentals: ['shooting form', 'dribbling technique', 'defensive stance', 'footwork', 'passing'],
+    quickWins: ['follow-through hold', 'elbow alignment', 'balance point', 'hand positioning'],
+    mentalGame: ['shot confidence', 'game awareness', 'pressure free throws', 'team communication'],
+    nutrition: ['endurance fuel', 'quick energy', 'muscle recovery', 'hydration strategy']
+  },
+  football: {
+    fundamentals: ['throwing mechanics', 'catching technique', 'blocking form', 'tackling safety', 'footwork'],
+    quickWins: ['spiral grip', 'release point', 'stance stability', 'hand-eye coordination'],
+    mentalGame: ['field vision', 'play recognition', 'leadership', 'pressure management'],
+    nutrition: ['strength building', 'power fuel', 'recovery nutrition', 'weight management']
+  },
+  soccer: {
+    fundamentals: ['ball control', 'passing accuracy', 'shooting technique', 'defensive positioning', 'movement'],
+    quickWins: ['first touch', 'plant foot placement', 'body positioning', 'timing'],
+    mentalGame: ['field awareness', 'decision making', 'team play', 'endurance mental toughness'],
+    nutrition: ['endurance fuel', 'quick recovery', 'hydration balance', 'energy maintenance']
+  },
+  golf: {
+    fundamentals: ['grip technique', 'stance setup', 'swing plane', 'putting stroke', 'course management'],
+    quickWins: ['grip pressure', 'alignment check', 'tempo control', 'follow-through'],
+    mentalGame: ['course strategy', 'pressure putts', 'focus maintenance', 'mistake recovery'],
+    nutrition: ['sustained energy', 'mental clarity', 'hydration', 'concentration foods']
+  },
+  softball: {
+    fundamentals: ['batting mechanics', 'pitching form', 'fielding technique', 'base running', 'catching'],
+    quickWins: ['bat angle', 'stride timing', 'glove positioning', 'release point'],
+    mentalGame: ['plate confidence', 'team communication', 'situational awareness', 'pressure handling'],
+    nutrition: ['game energy', 'recovery fuel', 'tournament nutrition', 'hydration timing']
+  }
+};
 
 interface TrainingPlan {
   planId: string;

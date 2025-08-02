@@ -11,12 +11,21 @@ interface EmailCaptureModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEmailCaptured?: (email: string) => void;
+  purpose?: 'upgrade' | 'scan-results' | 'follow-up'; // What the email capture is for
+  scanData?: {
+    sport?: string;
+    ageGroup?: 'youth' | 'teen' | 'adult' | 'senior';
+    overallScore?: number;
+    quickWins?: string[];
+  };
 }
 
 export default function EmailCaptureModal({ 
   isOpen, 
   onClose, 
-  onEmailCaptured 
+  onEmailCaptured,
+  purpose = 'upgrade',
+  scanData
 }: EmailCaptureModalProps) {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +33,76 @@ export default function EmailCaptureModal({
   const [error, setError] = useState<string | null>(null);
   
   const { markEmailCaptured, scansRemaining, usageStats } = useSkillSmithGuest();
+
+  // Dynamic messaging based on purpose and age group
+  const getModalContent = () => {
+    const ageGroup = scanData?.ageGroup || 'teen';
+    
+    if (purpose === 'scan-results') {
+      const ageMessages = {
+        youth: {
+          title: "🎉 Your Amazing Results Are Ready!",
+          subtitle: "Get your personalized coaching report delivered instantly!",
+          benefits: [
+            "🏆 Your complete performance breakdown",
+            "⚡ 2 Quick Wins to improve in 24 hours", 
+            "🎯 Fun training games just for you",
+            "🌟 Surprise bonus tips from SkillSmith"
+          ],
+          cta: "Send My Super Results!"
+        },
+        teen: {
+          title: "🔥 Your Analysis Results Are FIRE!",
+          subtitle: "Get your complete performance breakdown + exclusive training secrets!",
+          benefits: [
+            "📊 Detailed performance analysis",
+            "💪 Pro-level improvement techniques",
+            "🏃‍♂️ Sport-specific training plan",
+            "🎯 Exclusive access to advanced tips"
+          ],
+          cta: "Send My Results Now!"
+        },
+        adult: {
+          title: "📈 Your Performance Analysis Complete",
+          subtitle: "Receive your comprehensive coaching report and optimization plan",
+          benefits: [
+            "📋 Technical analysis breakdown",
+            "⚡ Efficiency improvement strategies", 
+            "📊 Performance benchmarking data",
+            "🎯 Personalized training recommendations"
+          ],
+          cta: "Deliver My Analysis"
+        },
+        senior: {
+          title: "🏆 Your Performance Assessment Ready",
+          subtitle: "Your detailed analysis with gentle, effective improvement strategies",
+          benefits: [
+            "📈 Form optimization analysis",
+            "🎯 Safe improvement techniques",
+            "💪 Injury prevention insights",
+            "🏃‍♂️ Sustainable training methods"
+          ],
+          cta: "Send My Report"
+        }
+      };
+      return ageMessages[ageGroup];
+    }
+    
+    // Default upgrade messaging
+    return {
+      title: "🚀 Unlock Your Full Potential!",
+      subtitle: "Get unlimited access to SkillSmith's complete training system",
+      benefits: [
+        "🎯 Unlimited video analysis",
+        "🏆 Personalized training programs", 
+        "⚡ Advanced performance metrics",
+        "💎 Priority coaching support"
+      ],
+      cta: "Upgrade My Account"
+    };
+  };
+
+  const modalContent = getModalContent();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,14 +126,34 @@ export default function EmailCaptureModal({
     setIsSubmitting(true);
 
     try {
-      // Simulate API call to capture email
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mark email as captured in guest tracker
-      markEmailCaptured();
-      
-      setIsSuccess(true);
-      onEmailCaptured?.(email);
+      if (purpose === 'scan-results') {
+        // Send scan results email with upsell
+        const emailData = {
+          email,
+          purpose: 'scan-results',
+          scanData,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Simulate API call to send scan results email
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Track scan results email sent
+        console.log('Scan results email sent:', emailData);
+        
+        setIsSuccess(true);
+        onEmailCaptured?.(email);
+        
+      } else {
+        // Regular upgrade email capture
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Mark email as captured in guest tracker
+        markEmailCaptured();
+        
+        setIsSuccess(true);
+        onEmailCaptured?.(email);
+      }
       
       // Auto-close after success
       setTimeout(() => {
@@ -62,7 +161,10 @@ export default function EmailCaptureModal({
       }, 2500);
       
     } catch (err) {
-      setError('Failed to upgrade your account. Please try again.');
+      const errorMessage = purpose === 'scan-results' 
+        ? 'Failed to send your results. Please try again.' 
+        : 'Failed to upgrade your account. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +202,7 @@ export default function EmailCaptureModal({
               <div className="border-b border-orange-500/20 p-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-white">
-                    Unlock Premium Benefits
+                    {modalContent.title}
                   </h2>
                   <button
                     onClick={handleClose}
@@ -120,45 +222,22 @@ export default function EmailCaptureModal({
                       <Star className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">
-                      Upgrade to Premium
+                      {purpose === 'scan-results' ? 'Get Your Results!' : 'Upgrade to Premium'}
                     </h3>
                     <p className="text-gray-400">
-                      Get instant access to advanced features
+                      {modalContent.subtitle}
                     </p>
                   </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
-                      <Zap className="w-5 h-5 text-orange-400 flex-shrink-0" />
-                      <div className="text-sm">
-                        <span className="font-semibold text-orange-400">10 Video Scans</span>
-                        <span className="text-gray-300"> instead of {scansRemaining} remaining</span>
+                    {modalContent.benefits.map((benefit, index) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
+                        <Zap className="w-5 h-5 text-orange-400 flex-shrink-0" />
+                        <div className="text-sm">
+                          <span className="font-semibold text-orange-400">{benefit}</span>
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      <div className="text-sm">
-                        <span className="font-semibold text-green-400">10 Quick Wins</span>
-                        <span className="text-gray-300"> per analysis</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                      <Gift className="w-5 h-5 text-purple-400 flex-shrink-0" />
-                      <div className="text-sm">
-                        <span className="font-semibold text-purple-400">20% Off</span>
-                        <span className="text-gray-300"> full SkillSmith package</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                      <Mail className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                      <div className="text-sm">
-                        <span className="font-semibold text-blue-400">Priority Support</span>
-                        <span className="text-gray-300"> & exclusive tips</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
@@ -196,12 +275,12 @@ export default function EmailCaptureModal({
                     {isSubmitting ? (
                       <>
                         <Loader className="w-5 h-5 mr-2 animate-spin" />
-                        Upgrading Account...
+                        {purpose === 'scan-results' ? 'Sending Results...' : 'Upgrading Account...'}
                       </>
                     ) : (
                       <>
-                        <Star className="w-5 h-5 mr-2" />
-                        Unlock Premium Benefits
+                        {purpose === 'scan-results' ? <Mail className="w-5 h-5 mr-2" /> : <Star className="w-5 h-5 mr-2" />}
+                        {modalContent.cta}
                       </>
                     )}
                   </CosmicButton>
@@ -227,7 +306,7 @@ export default function EmailCaptureModal({
               </motion.div>
               
               <h3 className="text-2xl font-bold text-white mb-4">
-                Welcome to Premium!
+                {purpose === 'scan-results' ? 'Results Sent Successfully!' : 'Welcome to Premium!'}
               </h3>
               
               <p className="text-gray-300 mb-6">

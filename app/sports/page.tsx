@@ -121,13 +121,27 @@ export default function SportsPage(): JSX.Element {
   const handleAnalysisComplete = (result: AnalysisResult) => {
     setAnalysisResult(result);
     setUploadModalOpen(false);
-    setResultsModalOpen(true);
+    
+    // For guest users, request email before showing results
+    if (userType === 'guest') {
+      setEmailCaptureModalOpen(true);
+    } else {
+      // Authenticated users see results immediately
+      setResultsModalOpen(true);
+    }
   };
 
   const handleEmailCaptured = (email: string) => {
     setEmailCaptureModalOpen(false);
-    // In a real app, you'd send this to your backend
-    console.log('Email captured:', email);
+    
+    // For scan results: show results immediately after email capture
+    if (analysisResult) {
+      setResultsModalOpen(true);
+      console.log('Scan results email sent to:', email, 'Analysis:', analysisResult);
+    } else {
+      // Regular upgrade email capture
+      console.log('Email captured for upgrade:', email);
+    }
   };
 
   const handleUpgradeClick = () => {
@@ -713,6 +727,13 @@ export default function SportsPage(): JSX.Element {
           isOpen={emailCaptureModalOpen}
           onClose={() => setEmailCaptureModalOpen(false)}
           onEmailCaptured={handleEmailCaptured}
+          purpose={analysisResult ? 'scan-results' : 'upgrade'}
+          scanData={analysisResult ? {
+            sport: analysisResult.sport,
+            ageGroup: analysisResult.ageGroup,
+            overallScore: analysisResult.score,
+            quickWins: analysisResult.quickWins?.map(qw => qw.title) || []
+          } : undefined}
         />
 
         <AnalysisResultsModal
