@@ -10,7 +10,7 @@ import { agentBackstories } from '../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../utils/agentUtils';
 import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
 import CosmicButton from '../../../components/shared/CosmicButton';
-import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star } from 'lucide-react';
+import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface AgentServiceClientProps {
@@ -25,6 +25,10 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
   const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
   const [isLaunching, setIsLaunching] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'backstory' | 'chat'>('overview');
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'agent', message: string, timestamp: Date}>>([]);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // Live metrics animation
   useEffect(() => {
@@ -72,6 +76,94 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
 
   const backstory = agentBackstories[agent.id];
   const agentImagePath = getAgentImagePath(agent, "card");
+  
+  // Agent marketing content based on agent type
+  const getAgentMarketingContent = () => {
+    if (!agent) return null;
+    
+    const agentId = agent.id.toLowerCase();
+    
+    if (agentId.includes('social')) {
+      return {
+        title: "SOCIAL MEDIA DOMINATION",
+        subtitle: "While competitors post random content hoping for likes, you'll have viral-engineered content that converts followers into customers automatically",
+        metrics: [
+          { value: "487,351", label: "Viral Posts Created", suffix: "+50 today" },
+          { value: "2.8M", label: "Followers Gained", suffix: "+1047 today" },
+          { value: "501%", label: "Engagement Boost", suffix: "vs manual posting" },
+          { value: "8,480", label: "Viral Hits", suffix: "100k+ reach each" }
+        ],
+        features: [
+          "✅ Fully automated posting",
+          "✅ Viral-engineered content", 
+          "✅ 35-78% engagement rates",
+          "✅ All platforms covered",
+          "✅ AI brand personality"
+        ]
+      };
+    }
+    
+    if (agentId.includes('brand')) {
+      return {
+        title: "BRAND DOMINATION",
+        subtitle: "While others struggle with brand identity, you'll have a complete brand universe that resonates instantly and drives premium pricing",
+        metrics: [
+          { value: "3,942", label: "Brands Transformed", suffix: "+8 today" },
+          { value: "$8.47M", label: "Revenue Generated", suffix: "+15k today" },
+          { value: "347%", label: "Brand Recognition", suffix: "vs generic brands" },
+          { value: "2,847", label: "Competitors Destroyed", suffix: "market domination" }
+        ],
+        features: [
+          "✅ Complete brand identity",
+          "✅ Premium positioning",
+          "✅ Instant recognition",
+          "✅ Cohesive messaging",
+          "✅ Market differentiation"
+        ]
+      };
+    }
+    
+    if (agentId.includes('publish')) {
+      return {
+        title: "PUBLISHING DOMINATION", 
+        subtitle: "While others wait 2+ years for traditional publishers, you'll have your book live in 7-14 days and earning revenue immediately",
+        metrics: [
+          { value: "2,847", label: "Books Published", suffix: "+4 this week" },
+          { value: "$4.79M", label: "Author Revenue", suffix: "+8.5k today" },
+          { value: "94%", label: "Success Rate", suffix: "vs 3% traditional" },
+          { value: "14", label: "Days Average", suffix: "vs 2+ years" }
+        ],
+        features: [
+          "✅ 7-14 day publishing",
+          "✅ 100% creative control",
+          "✅ 70% royalty vs 8-12%",
+          "✅ Marketing automation",
+          "✅ Global distribution"
+        ]
+      };
+    }
+    
+    // Default content for other agents
+    return {
+      title: `${agent.name?.toUpperCase() || 'AGENT'} DOMINATION`,
+      subtitle: `Revolutionize your ${agent.category || 'business'} with AI-powered automation that delivers results while you sleep`,
+      metrics: [
+        { value: "1,247", label: "Projects Completed", suffix: "+12 today" },
+        { value: "98%", label: "Success Rate", suffix: "industry leading" },
+        { value: "47m", label: "Time Saved", suffix: "for clients" },
+        { value: "24/7", label: "Availability", suffix: "never sleeps" }
+      ],
+      features: [
+        "✅ Automated workflows",
+        "✅ 24/7 productivity",
+        "✅ Expert-level results",
+        "✅ Instant delivery",
+        "✅ Scalable solutions"
+      ]
+    };
+  };
+  
+  const marketingContent = getAgentMarketingContent();
 
   // Enhanced emoji mapping
   const emojiMap: { [key: string]: string } = {
@@ -134,7 +226,71 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
       return;
     }
     
-    router.push(`/agents/${agent.id}/chat`);
+    // Switch to chat tab instead of routing to separate page
+    setActiveTab('chat');
+    
+    // Initialize chat with agent's greeting if empty
+    if (chatHistory.length === 0 && backstory?.catchphrase) {
+      setChatHistory([{
+        role: 'agent',
+        message: `${backstory.catchphrase} I'm ${backstory.superheroName || agent.name}, ready to help you dominate your ${agent.category}! What can I do for you today?`,
+        timestamp: new Date()
+      }]);
+    }
+  };
+  
+  const handleSendMessage = async () => {
+    if (!chatMessage.trim() || isSendingMessage) return;
+    
+    const userMessage = chatMessage.trim();
+    setChatMessage('');
+    
+    // Add user message to chat
+    const newUserMessage = {
+      role: 'user' as const,
+      message: userMessage,
+      timestamp: new Date()
+    };
+    setChatHistory(prev => [...prev, newUserMessage]);
+    setIsSendingMessage(true);
+    
+    try {
+      // Call the agent chat API
+      const response = await fetch(`/api/agents/chat/${agent.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: chatHistory,
+          context: { agentId: agent.id }
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        const agentResponse = {
+          role: 'agent' as const,
+          message: data.message,
+          timestamp: new Date()
+        };
+        setChatHistory(prev => [...prev, agentResponse]);
+      } else {
+        throw new Error(data.error || 'Failed to get response');
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorResponse = {
+        role: 'agent' as const,
+        message: "I'm experiencing some technical difficulties right now. Please try again or click the Launch button to start a workflow!",
+        timestamp: new Date()
+      };
+      setChatHistory(prev => [...prev, errorResponse]);
+    } finally {
+      setIsSendingMessage(false);
+    }
   };
 
   const handleViewBackstory = () => {
@@ -270,7 +426,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                 
                 <div className="flex gap-3">
                   <button
-                    onClick={handleStartChat}
+                    onClick={() => setActiveTab('chat')}
                     className={`flex items-center gap-2 px-6 py-4 rounded-xl border transition-all duration-200 font-semibold ${
                       ['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id)
                         ? 'bg-gradient-to-r from-blue-600/20 to-teal-600/20 text-blue-300 border-blue-500/40 hover:from-blue-600/30 hover:to-teal-600/30 cursor-default'
@@ -287,7 +443,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                       : 'Chat'}
                   </button>
                   <button
-                    onClick={handleViewBackstory}
+                    onClick={() => setActiveTab('backstory')}
                     className="flex items-center gap-2 px-6 py-4 bg-cyan-600/20 text-cyan-300 rounded-xl border border-cyan-500/30 hover:bg-cyan-600/30 transition-all duration-200 font-semibold"
                   >
                     <Info className="w-5 h-5" />
@@ -336,6 +492,273 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
               </GlassmorphicCard>
             </motion.div>
           </div>
+        </motion.div>
+
+        {/* Tabbed Content Area */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.6 }}
+          className="max-w-7xl mx-auto mt-16"
+        >
+          {/* Tab Navigation */}
+          <div className="flex justify-center mb-8">
+            <div className="flex bg-gray-800/30 backdrop-blur-sm rounded-xl p-1 border border-cyan-500/20">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                  activeTab === 'overview'
+                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Marketing
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('backstory')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                  activeTab === 'backstory'
+                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Info className="w-4 h-4" />
+                  Backstory
+                </div>
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                  activeTab === 'chat'
+                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                disabled={['site', 'clientsuccess', 'payment', 'proposal-agent'].includes(agent.id)}
+              >
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  Chat
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Tab Content */}
+          <AnimatePresence mode="wait">
+            {activeTab === 'overview' && marketingContent && (
+              <motion.div
+                key="overview"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Marketing Content */}
+                <div className="space-y-12">
+                  {/* Marketing Hero */}
+                  <div className="text-center">
+                    <h2 className="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-6">
+                      {marketingContent.title}
+                    </h2>
+                    <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
+                      {marketingContent.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Marketing Metrics */}
+                  <GlassmorphicCard className="p-8">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                      {marketingContent.metrics.map((metric, index) => (
+                        <div key={index} className="text-center">
+                          <div className="text-3xl font-bold text-cyan-400 mb-2">{metric.value}</div>
+                          <div className="text-gray-400 mb-1">{metric.label}</div>
+                          <div className="text-sm text-green-400">{metric.suffix}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </GlassmorphicCard>
+
+                  {/* Marketing Features */}
+                  <GlassmorphicCard className="p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6 text-center">What You Get</h3>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {marketingContent.features.map((feature, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-center text-cyan-300"
+                        >
+                          <span className="mr-3 text-lg">{feature.includes('✅') ? '' : '✅'}</span>
+                          {feature.replace('✅', '')}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </GlassmorphicCard>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'backstory' && backstory && (
+              <motion.div
+                key="backstory"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Backstory Content */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Main Backstory */}
+                  <div className="lg:col-span-2">
+                    <GlassmorphicCard className="p-8">
+                      <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-cyan-400 mb-2">{backstory.superheroName}</h2>
+                        <p className="text-xl text-purple-400 italic">"{backstory.catchphrase}"</p>
+                      </div>
+                      
+                      <h3 className="text-2xl font-bold text-white mb-4">Origin Story</h3>
+                      <p className="text-gray-300 leading-relaxed mb-8">{backstory.backstory}</p>
+                      
+                      <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                          <h4 className="text-xl font-semibold text-cyan-300 mb-4">Powers</h4>
+                          <ul className="space-y-2">
+                            {backstory.powers?.map((power: string, idx: number) => (
+                              <li key={idx} className="flex items-center text-cyan-300">
+                                <span className="mr-2">⚡</span> {power}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h4 className="text-xl font-semibold text-orange-400 mb-4">Weakness</h4>
+                          <p className="text-orange-400 mb-6">{backstory.weakness}</p>
+                          
+                          <h4 className="text-xl font-semibold text-red-400 mb-4">Nemesis</h4>
+                          <p className="text-red-400">{backstory.nemesis}</p>
+                        </div>
+                      </div>
+                    </GlassmorphicCard>
+                  </div>
+
+                  {/* Agent Stats Sidebar */}
+                  <div>
+                    <GlassmorphicCard className="p-6">
+                      <h3 className="text-xl font-semibold text-cyan-300 mb-4">Agent Stats</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-gray-400 text-sm">Category</p>
+                          <p className="text-white font-semibold">{agent.category}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-sm">Success Rate</p>
+                          <p className="text-green-400 font-semibold">{successRate}%</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400 text-sm">Active Users</p>
+                          <p className="text-cyan-400 font-semibold">{liveUsers} online</p>
+                        </div>
+                      </div>
+                    </GlassmorphicCard>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === 'chat' && (
+              <motion.div
+                key="chat"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Chat Interface */}
+                <GlassmorphicCard className="p-6 min-h-[600px] flex flex-col">
+                  <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-600">
+                    <Image
+                      src={agentImagePath}
+                      alt={agent.name}
+                      width={48}
+                      height={48}
+                      className="rounded-full border-2 border-cyan-400/30"
+                    />
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{backstory?.superheroName || agent.name}</h3>
+                      <p className="text-gray-400">AI {agent.category} Expert</p>
+                    </div>
+                    <div className="ml-auto flex items-center gap-2 text-green-400 text-sm">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      Online
+                    </div>
+                  </div>
+
+                  {/* Chat Messages */}
+                  <div className="flex-1 overflow-y-auto space-y-4 mb-6 max-h-96">
+                    {chatHistory.map((message, index) => (
+                      <div
+                        key={index}
+                        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div
+                          className={`max-w-[80%] p-4 rounded-xl ${
+                            message.role === 'user'
+                              ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
+                              : 'bg-gray-700/50 text-gray-100 border border-gray-600'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap">{message.message}</p>
+                          <p className="text-xs opacity-70 mt-2">
+                            {message.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {isSendingMessage && (
+                      <div className="flex justify-start">
+                        <div className="bg-gray-700/50 p-4 rounded-xl border border-gray-600">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                            <span className="text-gray-400 text-sm ml-2">Thinking...</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Chat Input */}
+                  <div className="flex gap-3">
+                    <input
+                      type="text"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder={`Ask ${backstory?.superheroName || agent.name} anything...`}
+                      className="flex-1 px-4 py-3 bg-gray-800/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
+                      disabled={isSendingMessage}
+                    />
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={!chatMessage.trim() || isSendingMessage}
+                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-xl font-semibold hover:from-cyan-600 hover:to-purple-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      <Send className="w-4 h-4" />
+                      Send
+                    </button>
+                  </div>
+                </GlassmorphicCard>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Performance Metrics */}
