@@ -72,6 +72,14 @@ const nextConfig = {
   productionBrowserSourceMaps: true, // Enable source maps for debugging
   async redirects() {
     return [
+      // Legacy agent redirects
+      { source: '/social-media', destination: '/services/socialnino', permanent: true },
+      { source: '/branding', destination: '/services/branding', permanent: true },
+      { source: '/book-publishing', destination: '/services/book-publishing', permanent: true },
+      { source: '/agent-backstory/:agentId', destination: '/services/:agentId', permanent: true },
+      { source: '/chat/:agentId', destination: '/services/:agentId', permanent: true },
+
+      // Existing auth redirects
       { source: '/sign-in', destination: '/dashboard', permanent: false },
       { source: '/sign-up', destination: '/dashboard', permanent: false },
       { source: '/auth', destination: '/dashboard', permanent: false },

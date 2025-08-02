@@ -1,12 +1,13 @@
+// DEPRECATED: Legacy agent backstory page. Redirects to /services/[agentId] via next.config.js. Use /services/[agentId] instead.
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { agentBackstories } from '../../../lib/agents/agentBackstories';
-import { getAgent } from '../../../lib/agents/agentLeague';
-import { getAgentImagePath } from '../../../utils/agentUtils';
+import { agentBackstories } from '../../../../lib/agents/agentBackstories';
+import { getAgent } from '../../../../lib/agents/agentLeague';
+import { getAgentImagePath } from '../../../../utils/agentUtils';
 
 interface AgentDisplay {
   id: string;

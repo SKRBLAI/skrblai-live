@@ -787,6 +787,8 @@ export default function ServicesPage() {
                     </div>
                     <button
                       onClick={() => setPercyRecommendation(null)}
+                      title="Close recommendation modal"
+                      aria-label="Close recommendation modal"
                       className="p-2 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-full transition-all"
                     >
                       <X className="w-5 h-5" />
@@ -892,6 +894,8 @@ export default function ServicesPage() {
                 {/* Close Button */}
                 <button
                   onClick={closeVideoDemo}
+                  title="Close video demo"
+                  aria-label="Close video demo"
                   className="absolute top-4 right-4 z-10 p-2 bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-white rounded-full transition-all duration-300"
                 >
                   <X className="w-6 h-6" />

@@ -1,16 +1,17 @@
+// DEPRECATED: Legacy marketing page. Redirects to /services/socialnino via next.config.js. Use /services/[agentId] instead.
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
-import FloatingParticles from '../../components/ui/FloatingParticles';
-import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
-import CosmicButton from '../../components/shared/CosmicButton';
-import CosmicHeading from '../../components/shared/CosmicHeading';
+import FloatingParticles from '../../../components/ui/FloatingParticles';
+import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../../components/shared/CosmicButton';
+import CosmicHeading from '../../../components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, Share2, MessageCircle, Heart, PlayCircle } from 'lucide-react';
-import SkrblAiText from '../../components/shared/SkrblAiText';
+import SkrblAiText from '../../../components/shared/SkrblAiText';
 
 export default function SocialMediaPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({

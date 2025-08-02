@@ -1,15 +1,16 @@
+// DEPRECATED: Legacy marketing page. Redirects to /services/branding via next.config.js. Use /services/[agentId] instead.
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import PageLayout from 'components/layout/PageLayout';
-import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
-import CosmicButton from '../../components/shared/CosmicButton';
-import CosmicHeading from '../../components/shared/CosmicHeading';
+import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
+import CosmicButton from '../../../components/shared/CosmicButton';
+import CosmicHeading from '../../../components/shared/CosmicHeading';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, Palette, Eye, Star, Crown } from 'lucide-react';
-import SkrblAiText from '../../components/shared/SkrblAiText';
+import SkrblAiText from '../../../components/shared/SkrblAiText';
 
 export default function BrandingPage(): JSX.Element {
   const [liveMetrics, setLiveMetrics] = useState({

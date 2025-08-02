@@ -434,7 +434,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     onChat(agent);
                   } else {
                     // Default chat behavior - route to agent chat
-                    router.push(`/chat/${agent.id}`);
+                    router.push(`/services/${agent.id}`);
                   }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/90 hover:to-blue-500/90 text-white text-xs font-bold rounded-lg border border-cyan-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(48,213,200,0.3)] hover:shadow-[0_0_25px_rgba(48,213,200,0.5)] transition-all duration-300"
@@ -451,7 +451,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     onInfo(agent);
                   } else {
                     // Default info behavior - route to agent backstory
-                    router.push(`/agent-backstory/${agent.id}`);
+                    router.push(`/services/${agent.id}`);
                   }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/80 to-pink-600/80 hover:from-purple-400/90 hover:to-pink-500/90 text-white text-xs font-bold rounded-lg border border-purple-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300"
