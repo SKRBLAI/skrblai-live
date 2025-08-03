@@ -7,10 +7,18 @@ import { getAgentEmoji, getAgentImagePath } from '../utils/agentUtils';
 import AgentModal from './ui/AgentModal';
 import LockOverlay from './ui/LockOverlay';
 import GlassmorphicCard from './shared/GlassmorphicCard';
+import { useRouter } from 'next/navigation';
 
 // Cosmic Shadow Standard: Soft, premium, layered glow with teal, blue, and subtle fuchsia.
 const GLOW_COLOR = '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)';
 const HOVER_GLOW = '0 0 36px 8px rgba(0,245,212,0.70), 0 0 80px 20px rgba(0,102,255,0.38), 0 0 48px 12px rgba(232,121,249,0.28)';
+
+const AGENT_SLUGS: Record<string, string> = {
+  branding: 'branding',
+  social: 'socialnino',
+  contentcreation: 'content-automation',
+  // Add more mappings as needed
+};
 
 const getCardVariants = (index: number) => ({
   initial: { 
@@ -237,6 +245,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const contentVariants = getContentVariants(index);
   const ctaVariants = getCtaVariants(index);
 
+  const router = useRouter();
+
+  const handleCardRoute = () => {
+    const slug = AGENT_SLUGS[agent.id] || agent.id;
+    router.push(`/services/${slug}`);
+  };
+
   return (
     <>
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
@@ -244,7 +259,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
       <motion.article
         ref={cardRef}
         className={`min-h-[300px] h-full flex flex-col justify-between relative group cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
-        onClick={handleCardClick}
+        onClick={handleCardRoute}
       >
         <motion.div
           ref={cardRef}
@@ -317,11 +332,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
               variants={ctaVariants}
             >
               <button
-                onClick={handleCtaClick}
+                onClick={e => { e.stopPropagation(); handleCardRoute(); }}
                 className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-medium text-sm md:text-base hover:shadow-glow transition-all duration-300"
               >
                 {isLocked ? 'Unlock Agent' : 'Launch Agent'}
               </button>
+              {/* TODO: Add walkthrough modal for Demo/Preview if needed */}
             </motion.div>
           </div>
           

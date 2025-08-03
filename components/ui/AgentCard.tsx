@@ -6,6 +6,7 @@ import { Lock } from 'lucide-react';
 import { getAgentEmoji, getAgentImagePath } from '../../utils/agentUtils';
 import AgentModal from './AgentModal';
 import LockOverlay from './LockOverlay';
+import { useRouter } from 'next/navigation';
 
 // Cosmic Shadow Standard: Soft, premium, layered glow with teal, blue, and subtle fuchsia.
 const GLOW_COLOR = '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)';
@@ -239,6 +240,20 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const contentVariants = getContentVariants(index);
   const ctaVariants = getCtaVariants(index);
 
+  const router = useRouter();
+
+  const AGENT_SLUGS: Record<string, string> = {
+    branding: 'branding',
+    social: 'socialnino',
+    contentcreation: 'content-automation',
+    // Add more mappings as needed
+  };
+
+  const handleCardRoute = () => {
+    const slug = AGENT_SLUGS[agent.id] || agent.id;
+    router.push(`/services/${slug}`);
+  };
+
   return (
     <>
       <AgentModal agent={agent} open={modalOpen} onClose={() => setModalOpen(false)} />
@@ -252,7 +267,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
         whileTap="tap"
         style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
         tabIndex={0}
-        onClick={handleCardClick}
+        onClick={handleCardRoute}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         aria-label={agent.name}

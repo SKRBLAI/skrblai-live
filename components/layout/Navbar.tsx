@@ -77,6 +77,7 @@ export default function Navbar() {
               <div className="hidden items-center space-x-3 py-1 lg:flex">
                 <NavLink href="/about">About</NavLink>
                 <NavLink href="/features">Features</NavLink>
+                <NavLink href="/sports">Sports</NavLink>
                 <NavLink href="/pricing">Pricing</NavLink>
                 <MoreNavDropdown pathname={pathname} />
               </div>
@@ -163,7 +164,6 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
   const moreNavItems = [
     { href: "/agents", label: "Agent League" },
     { href: "/services", label: "Services" },
-    { href: "/sports", label: "Sports" },
     { href: "/contact", label: "Contact" },
   ];
 
@@ -275,11 +275,11 @@ function MobileMenu({ pathname, onSmartLogin }: MobileMenuProps) {
     // Main nav items for mobile
     { href: "/about", label: "About" },
     { href: "/features", label: "Features" },
+    { href: "/sports", label: "Sports" },
     { href: "/pricing", label: "Pricing" },
     // Hamburger menu items
     { href: "/agents", label: "Agent League", section: "More" },
     { href: "/services", label: "Services", section: "More" },
-    { href: "/sports", label: "Sports", section: "More" },
     { href: "/contact", label: "Contact", section: "More" },
   ];
 

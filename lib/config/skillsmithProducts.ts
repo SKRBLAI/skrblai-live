@@ -28,7 +28,7 @@ export const products: Product[] = [
     sku: 'skillsmith_form_analysis_pro',
     category: 'analysis',
     icon: Target,
-    color: 'text-blue-400',
+    color: 'text-orange-400',
     features: [
       'Frame-by-frame technique breakdown',
       'Biomechanical efficiency scoring',
@@ -48,7 +48,7 @@ export const products: Product[] = [
     sku: 'skillsmith_performance_insights_elite',
     category: 'performance',
     icon: Zap,
-    color: 'text-yellow-400',
+    color: 'text-red-400',
     features: [
       'Real-time performance tracking',
       'Predictive injury prevention',
@@ -68,7 +68,7 @@ export const products: Product[] = [
     sku: 'skillsmith_custom_training_plan',
     category: 'training',
     icon: Trophy,
-    color: 'text-green-400',
+    color: 'text-orange-500',
     features: [
       'AI-generated personalized workouts',
       'Progressive difficulty scaling',
@@ -88,7 +88,7 @@ export const products: Product[] = [
     sku: 'skillsmith_progress_tracker_premium',
     category: 'performance',
     icon: Star,
-    color: 'text-purple-400',
+    color: 'text-red-500',
     features: [
       'Detailed progress analytics',
       'Goal setting and tracking',

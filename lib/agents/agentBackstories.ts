@@ -305,7 +305,7 @@ export const agentBackstories: Record<string, AgentBackstory> = {
   },
 
   'biz': {
-    superheroName: 'Biz Z. Bee the Strategy Bam Bam',
+    superheroName: 'Biz Z.the Strategy Bam Bam',
     origin: 'Materialized from the collective wisdom of successful entrepreneurs',
     powers: [
       'Business Insight Generation',
