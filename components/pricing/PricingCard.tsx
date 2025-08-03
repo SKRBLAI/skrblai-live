@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 import { 
   PricingPlan, 
   BillingPeriod, 
@@ -28,6 +29,55 @@ export default function PricingCard({
   animationDelay = 0,
   className = ''
 }: PricingCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePurchase = async () => {
+    if (plan.monthlyPrice === 0) {
+      // Free plan - redirect to sign up
+      window.location.href = '/sign-up?plan=free';
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      // Get the current price based on billing period
+      const priceId = billingPeriod === 'monthly' ? plan.stripePriceIds?.monthly : plan.stripePriceIds?.annual;
+      
+      if (!priceId) {
+        throw new Error('Price ID not configured for this plan');
+      }
+
+      // For demo purposes, using placeholder user data
+      // TODO: Replace with actual user data from auth context
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          userId: 'demo-user', // TODO: Replace with actual user ID from auth
+          email: 'user@example.com', // TODO: Replace with actual user email
+          successUrl: `${window.location.origin}/dashboard?success=true&plan=${plan.id}`,
+          cancelUrl: window.location.href
+        })
+      });
+
+      const { url, error } = await response.json();
+      
+      if (error) {
+        throw new Error(error);
+      }
+
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      toast.error(`Checkout failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const formattedPrice = getFormattedPrice(plan, billingPeriod);
   const savingsAmount = getSavingsAmount(plan);
   const badgeText = getBadgeText(plan, billingPeriod);
@@ -170,20 +220,22 @@ export default function PricingCard({
         </ul>
         
         {/* CTA Button */}
-        <Link href={href} className="block">
-          <CosmicButton
-            variant={plan.isEnterprise ? 'outline' : plan.isPopular ? 'primary' : 'secondary'}
-            size="md"
-            className={`w-full font-bold text-sm transition-all duration-200 ${
-              isHighlighted || plan.isPopular ? 'animate-pulse' : ''
-            } ${
-              plan.isEnterprise ? 'hover:bg-purple-500/20 border-purple-400' : ''
-            }`}
-            aria-label={`${ctaText} - ${plan.title} plan`}
-          >
-            {ctaText} {plan.icon}
-          </CosmicButton>
-        </Link>
+        <CosmicButton
+          variant={plan.isEnterprise ? 'outline' : plan.isPopular ? 'primary' : 'secondary'}
+          size="md"
+          onClick={handlePurchase}
+          disabled={isLoading}
+          className={`w-full font-bold text-sm transition-all duration-200 ${
+            isHighlighted || plan.isPopular ? 'animate-pulse' : ''
+          } ${
+            plan.isEnterprise ? 'hover:bg-purple-500/20 border-purple-400' : ''
+          } ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          aria-label={`${ctaText} - ${plan.title} plan`}
+        >
+          {isLoading ? 'Processing...' : `${ctaText} ${plan.icon}`}
+        </CosmicButton>
         
         {/* Additional Badges */}
         {plan.isPopular && !plan.isBestValue && (

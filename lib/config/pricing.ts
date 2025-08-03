@@ -24,6 +24,10 @@ export interface PricingPlan {
     monthly: string;
     annual: string;
   };
+  stripePriceIds?: {
+    monthly?: string;
+    annual?: string;
+  };
   badges?: {
     primary?: string;
     secondary?: string;
@@ -105,6 +109,10 @@ export const pricingPlans: PricingPlan[] = [
       monthly: '/sign-up?plan=starter&billing=monthly',
       annual: '/sign-up?plan=starter&billing=annual'
     },
+    stripePriceIds: {
+      monthly: 'price_starter_monthly', // Replace with actual Stripe price ID
+      annual: 'price_starter_annual'   // Replace with actual Stripe price ID
+    },
     badges: {
       primary: 'Perfect for Creators',
       secondary: 'Most Popular'
@@ -140,6 +148,10 @@ export const pricingPlans: PricingPlan[] = [
       monthly: '/sign-up?plan=business&billing=monthly',
       annual: '/sign-up?plan=business&billing=annual'
     },
+    stripePriceIds: {
+      monthly: 'price_business_monthly', // Replace with actual Stripe price ID
+      annual: 'price_business_annual'    // Replace with actual Stripe price ID
+    },
     badges: {
       primary: 'Revenue Multiplier',
       secondary: 'Best Value'
@@ -174,6 +186,10 @@ export const pricingPlans: PricingPlan[] = [
     href: {
       monthly: '/sign-up?plan=enterprise&billing=monthly',
       annual: '/sign-up?plan=enterprise&billing=annual'
+    },
+    stripePriceIds: {
+      monthly: 'price_enterprise_monthly', // Replace with actual Stripe price ID
+      annual: 'price_enterprise_annual'    // Replace with actual Stripe price ID
     },
     badges: {
       primary: 'Complete Annihilation',

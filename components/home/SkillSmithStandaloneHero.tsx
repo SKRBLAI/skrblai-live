@@ -42,10 +42,10 @@ export default function SkillSmithStandaloneHero({
   }, []);
 
   const typewriterWords = [
-    "Analyze Performance in 30 Seconds!",
-    "Get Pro-Level Feedback Instantly!",
-    "Upload & Dominate Your Sport!",
-    "Transform Your Training Today!"
+    "Level Up Your Game with AI! 🚀",
+    "From Beginner to Beast Mode! 🦥",
+    "Get Coach-Level Feedback Instantly! 🏆",
+    "Master Any Sport with AI! ⚽🏀🏈"
   ];
 
   const isStandalone = userType === 'guest' || userType === 'auth';
@@ -150,30 +150,38 @@ export default function SkillSmithStandaloneHero({
                   </motion.div>
 
                   {/* Typewriter Subtitle */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
+                  <motion.h1
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.6 }}
-                    className="mb-8"
+                    className="text-center lg:text-left mb-6"
                   >
-                    <div className="text-2xl md:text-3xl font-bold text-red-400 mb-4">
-                      <TypewriterText 
+                    <div className="text-5xl md:text-6xl lg:text-7xl font-black mb-4">
+                      <TypewriterText
                         words={typewriterWords}
                         typeSpeed={60}
                         deleteSpeed={40}
                         delaySpeed={1500}
                         cosmicMode={true}
-                        actionWords={["Analyze", "Dominate", "Transform", "Pro-Level"]}
+                        actionWords={["Level", "Beast", "Coach-Level", "Master"]}
                         className="font-extrabold"
                       />
                     </div>
                     
                     {isStandalone && (
-                      <p className="text-xl md:text-2xl font-bold text-white mb-2">
-                        — Try <span className="text-orange-400">{freeScansRemaining} Free Scans!</span>
-                      </p>
+                      <motion.div 
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ delay: 1.2, duration: 0.5 }}
+                        className="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/30 rounded-2xl p-4 mb-4 backdrop-blur-sm"
+                      >
+                        <p className="text-lg md:text-xl font-bold text-white mb-1">
+                          🏆 <span className="text-orange-400">{freeScansRemaining} FREE</span> AI Sports Analysis!
+                        </p>
+                        <p className="text-sm text-orange-200">Perfect for kids, teens, and adults • No trainer needed to start!</p>
+                      </motion.div>
                     )}
-                  </motion.div>
+                  </motion.h1>
 
                   {/* Description */}
                   <motion.p
@@ -182,8 +190,11 @@ export default function SkillSmithStandaloneHero({
                     transition={{ delay: 1.0, duration: 0.6 }}
                     className="text-gray-300 text-lg md:text-xl mb-8 max-w-2xl mx-auto lg:mx-0"
                   >
-                    Upload your training video (max 30 seconds) and get instant AI-powered analysis. 
-                    Improve your form, technique, and performance with personalized feedback tailored to your skill level.
+                    🤖 Upload your video (30 sec) → Get AI analysis → Improve your game! 
+                    <br />
+                    <span className="text-orange-300 font-semibold">
+                      ✨ Analysis + Mental Health + Nutrition + Training Plans
+                    </span>
                   </motion.p>
 
                   {/* CTAs */}
@@ -211,7 +222,7 @@ export default function SkillSmithStandaloneHero({
                         className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black font-bold px-8 py-4 text-lg"
                       >
                         <Users className="w-6 h-6 mr-3" />
-                        Unlock 10 Scans + 20% Off
+                        Get 10 More + Save 20%
                       </CosmicButton>
                     )}
 
@@ -231,11 +242,11 @@ export default function SkillSmithStandaloneHero({
                       transition={{ delay: 1.4, duration: 0.6 }}
                       className="mt-8 text-center lg:text-left"
                     >
-                      <div className="text-sm text-gray-400 mb-3">
-                        ✅ No signup required • ✅ Instant results • ✅ Professional analysis
+                      <div className="text-sm text-orange-200 mb-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-lg p-3 border border-orange-400/20">
+                        ✅ No signup required • ✅ Works for ANY sport • ✅ Kid-friendly results
                       </div>
-                      <div className="text-xs text-gray-500">
-                        Used by athletes from youth leagues to professional teams
+                      <div className="text-xs text-gray-400">
+                        🏀 Basketball • ⚽ Soccer • 🏈 Football • 🎾 Tennis • 🏐 Volleyball • 🏓 More!
                       </div>
                     </motion.div>
                   )}

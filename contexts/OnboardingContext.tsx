@@ -400,7 +400,7 @@ const handleAgentChat = React.useCallback(async (agentId: string) => {
   console.log('[Onboarding] Starting chat with agent:', agentId);
   trackBehavior('agent_chat_start', { agentId, from: currentStep });
   
-  const route = `/chat/${agentId}`;
+  const route = `/services/${agentId}?tab=chat`;
   if (!validateAndRoute(route, `agent-chat-${agentId}`)) {
     return;
   }

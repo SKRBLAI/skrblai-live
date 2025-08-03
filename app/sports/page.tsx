@@ -153,6 +153,13 @@ export default function SportsPage(): JSX.Element {
     }
   };
 
+  const handleProductSelectFromModal = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      void handleBuyNow(product);
+    }
+  };
+
   const handlePurchase = (plan: 'basic' | 'pro' | 'elite') => {
     // In a real app, integrate with Stripe or payment processor
     console.log('Purchase plan:', plan);
@@ -233,10 +240,10 @@ export default function SportsPage(): JSX.Element {
                   className="text-center mb-12"
                 >
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    Premium SkillSmith <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">Products</span>
+                    🚀 AI Sports Tools for <span className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-500 bg-clip-text text-transparent">Every Athlete</span>
                   </h2>
-                  <p className="text-purple-200 text-lg max-w-2xl mx-auto">
-                    Professional-grade analysis tools and training programs designed by sports scientists
+                  <p className="text-orange-200 text-lg max-w-2xl mx-auto">
+                    🏆 Perfect for kids to adults! Get AI analysis, mental health support, nutrition guidance, and foundational training – all in one place.
                   </p>
                 </motion.div>
 
@@ -466,7 +473,7 @@ export default function SportsPage(): JSX.Element {
                     scale: 1.02,
                     rotateX: 3,
                     y: -5,
-                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 100px 25px rgba(147,51,234,0.4), 0 0 150px 35px rgba(99,102,241,0.25)'
+                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 100px 25px rgba(147,51,234,0.4), 0 0 150px 35px rgba(99,102,241,0.25), 0 0 60px 15px rgba(168,85,247,0.5)'
                   }}
                   style={{ transformStyle: 'preserve-3d' }}
                   className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/40 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden shadow-[0_0_50px_rgba(147,51,234,0.3)]"
@@ -515,10 +522,10 @@ export default function SportsPage(): JSX.Element {
                         className="text-3xl md:text-4xl font-bold text-white mb-4"
                         whileHover={{ scale: 1.05 }}
                       >
-                        Join Thousands of <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">Athletes</span>
+                        Join 50,000+ <span className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">Young Athletes</span>
                       </motion.h2>
-                      <p className="text-purple-200 text-lg">
-                        Real results from SkillSmith users worldwide
+                      <p className="text-orange-200 text-lg">
+                        🎆 Kids, teens, and adults crushing their sports goals with AI!
                       </p>
                     </motion.div>
 
@@ -709,6 +716,8 @@ export default function SportsPage(): JSX.Element {
               <button 
                 onClick={() => setShowSuccessMessage(false)}
                 className="ml-4 text-white/70 hover:text-white transition-colors"
+                title="Close success message"
+                aria-label="Close success message"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -750,7 +759,7 @@ export default function SportsPage(): JSX.Element {
         <UpgradeModal
           isOpen={upgradeModalOpen}
           onClose={() => setUpgradeModalOpen(false)}
-          onPurchase={handlePurchase}
+          onProductSelect={handleProductSelectFromModal}
           userType={userType === 'platform' ? 'auth' : userType}
         />
 

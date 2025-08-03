@@ -1,25 +1,24 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Star, Crown, Zap, Target, Trophy, Gift, Users, Sparkles } from 'lucide-react';
+import { X, Star, Zap, Target, Trophy, Users, Sparkles, Play, ShoppingCart, Gift } from 'lucide-react';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import CosmicButton from '../shared/CosmicButton';
+import { products } from '../../lib/config/skillsmithProducts';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPurchase?: (plan: 'basic' | 'pro' | 'elite') => void;
+  onProductSelect?: (productId: string) => void;
   userType: 'guest' | 'auth';
 }
 
 export default function UpgradeModal({ 
   isOpen, 
   onClose, 
-  onPurchase,
+  onProductSelect,
   userType 
 }: UpgradeModalProps) {
-  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro' | 'elite'>('pro');
   const { markUpgradeOffered, usageStats } = useSkillSmithGuest();
 
   const handleClose = () => {
@@ -27,75 +26,12 @@ export default function UpgradeModal({
     onClose();
   };
 
-  const handlePurchase = (plan: 'basic' | 'pro' | 'elite') => {
-    setSelectedPlan(plan);
-    onPurchase?.(plan);
+  const handleProductSelect = (productId: string) => {
+    onProductSelect?.(productId);
     handleClose();
   };
 
-  const plans = [
-    {
-      id: 'basic' as const,
-      name: 'SkillSmith Basic',
-      price: '$29',
-      originalPrice: userType === 'auth' ? '$36' : null,
-      period: '/month',
-      description: 'Perfect for individual athletes',
-      icon: Target,
-      color: 'from-blue-500 to-cyan-500',
-      features: [
-        '50 video analyses per month',
-        'Basic performance insights',
-        '5 Quick Wins per analysis',
-        'Form correction guidance',
-        'Progress tracking',
-        'Email support'
-      ],
-      popular: false
-    },
-    {
-      id: 'pro' as const,
-      name: 'SkillSmith Pro',
-      price: '$59',
-      originalPrice: userType === 'auth' ? '$74' : null,
-      period: '/month',
-      description: 'For serious athletes and coaches',
-      icon: Crown,
-      color: 'from-orange-500 to-red-500',
-      features: [
-        'Unlimited video analyses',
-        'Advanced AI insights',
-        '15 Quick Wins per analysis',
-        'Personalized training plans',
-        'Injury prevention analysis',
-        'Progress comparisons',
-        'Priority support',
-        'Downloadable reports'
-      ],
-      popular: true
-    },
-    {
-      id: 'elite' as const,
-      name: 'SkillSmith Elite',
-      price: '$99',
-      originalPrice: userType === 'auth' ? '$124' : null,
-      period: '/month',
-      description: 'Professional-grade analysis',
-      icon: Trophy,
-      color: 'from-purple-500 to-pink-500',
-      features: [
-        'Everything in Pro',
-        'Team management tools',
-        'Custom analysis parameters',
-        'Advanced biomechanics',
-        '1-on-1 coach consultation',
-        'API access',
-        'White-label options',
-        'Dedicated account manager'
-      ],
-      popular: false
-    }
-  ];
+  const featuredProducts = products.slice(0, 3); // Show top 3 products
 
   if (!isOpen) return null;
 
@@ -116,87 +52,82 @@ export default function UpgradeModal({
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b border-orange-500/20 p-6">
+          <div className="border-b border-orange-500/20 p-6 bg-gradient-to-r from-orange-500/10 to-red-500/10">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-white mb-2">
-                  Ready to Unlock Your Athletic Potential?
+                  Level Up Your Game with AI!
                 </h2>
-                <p className="text-gray-400">
+                <p className="text-gray-300 text-lg">
                   You've used {usageStats.scansUsed} scans. Join {userType === 'auth' ? '12,000+' : '15,000+'} athletes who've transformed their performance.
                 </p>
               </div>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-white transition-colors"
+                title="Close modal"
+                aria-label="Close modal"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            {userType === 'auth' && (
-              <div className="mt-4 p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-green-400" />
-                  <span className="text-green-400 font-semibold">Premium Member Exclusive: 20% Off All Plans!</span>
-                </div>
+            <div className="mt-4 p-3 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Gift className="w-5 h-5 text-green-400" />
+                <span className="text-green-400 font-semibold">Perfect for kids to adults! Get AI-powered sports analysis, mental health support, nutrition guidance, and foundational training.</span>
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Plans */}
+          {/* Products Grid */}
           <div className="p-6">
-            <div className="grid md:grid-cols-3 gap-6">
-              {plans.map((plan) => {
-                const Icon = plan.icon;
-                const isSelected = selectedPlan === plan.id;
-                
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              {featuredProducts.map((product, index) => {
+                const IconComponent = product.icon;
                 return (
                   <motion.div
-                    key={plan.id}
+                    key={product.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * plans.indexOf(plan) }}
-                    className={`relative rounded-2xl border p-6 transition-all duration-300 ${
-                      plan.popular 
-                        ? 'border-orange-500/50 bg-gradient-to-b from-orange-500/10 to-red-500/10 scale-105' 
-                        : 'border-gray-600 bg-gray-800/30 hover:border-gray-500'
-                    } ${isSelected ? 'ring-2 ring-orange-400' : ''}`}
+                    transition={{ delay: index * 0.1 }}
+                    className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${
+                      product.popular 
+                        ? 'border-orange-500/50 bg-gradient-to-b from-orange-500/10 to-red-500/10' 
+                        : 'border-gray-600/50 bg-gradient-to-b from-gray-800/50 to-gray-900/50'
+                    } hover:border-orange-400/70 hover:shadow-xl`}
+                    onClick={() => handleProductSelect(product.id)}
                   >
-                    {plan.popular && (
+                    {product.popular && (
                       <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1 rounded-full text-sm font-semibold flex items-center gap-1">
-                          <Sparkles className="w-4 h-4" />
-                          Most Popular
-                        </div>
+                        <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 rounded-full text-xs font-bold">
+                          MOST POPULAR
+                        </span>
                       </div>
                     )}
-
-                    <div className="text-center mb-6">
-                      <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${plan.color} mb-4`}>
-                        <Icon className="w-8 h-8 text-white" />
-                      </div>
-                      
-                      <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-                      <p className="text-gray-400 text-sm mb-4">{plan.description}</p>
+                    
+                    <div className="text-center mb-4">
+                      <IconComponent className="w-12 h-12 mx-auto mb-3 text-orange-400" />
+                      <h3 className="text-xl font-bold text-white mb-2">{product.title}</h3>
+                      <p className="text-gray-400 text-sm mb-4">{product.description}</p>
                       
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        {plan.originalPrice && (
-                          <span className="text-gray-500 line-through text-lg">{plan.originalPrice}</span>
+                        {product.originalPrice && (
+                          <span className="text-gray-500 line-through text-lg">${product.originalPrice}</span>
                         )}
-                        <span className="text-3xl font-bold text-white">{plan.price}</span>
-                        <span className="text-gray-400">{plan.period}</span>
+                        <span className="text-3xl font-bold text-white">${product.price}</span>
+                        <span className="text-gray-400 text-sm">one-time</span>
                       </div>
                       
-                      {plan.originalPrice && (
+                      {product.originalPrice && (
                         <div className="text-green-400 text-sm font-semibold">
-                          Save ${parseInt(plan.originalPrice.slice(1)) - parseInt(plan.price.slice(1))}/month
+                          Save ${product.originalPrice - product.price}!
                         </div>
                       )}
                     </div>
 
-                    <ul className="space-y-3 mb-6">
-                      {plan.features.map((feature, index) => (
+                    <ul className="space-y-2 mb-6">
+                      {product.features.slice(0, 4).map((feature, index) => (
                         <li key={index} className="flex items-start gap-2 text-sm">
                           <Zap className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
                           <span className="text-gray-300">{feature}</span>
@@ -204,53 +135,56 @@ export default function UpgradeModal({
                       ))}
                     </ul>
 
-                    <CosmicButton
-                      variant={plan.popular ? 'primary' : 'outline'}
-                      size="lg"
-                      onClick={() => handlePurchase(plan.id)}
-                      className={
-                        plan.popular 
-                          ? `w-full bg-gradient-to-r ${plan.color} hover:opacity-90 text-white font-bold`
-                          : `w-full border-gray-400 text-gray-300 hover:bg-gray-400 hover:text-black`
-                      }
-                    >
-                      {plan.popular ? (
-                        <>
-                          <Crown className="w-5 h-5 mr-2" />
-                          Start Free Trial
-                        </>
-                      ) : (
-                        <>
-                          <Star className="w-5 h-5 mr-2" />
-                          Choose Plan
-                        </>
-                      )}
-                    </CosmicButton>
+                    <div className="space-y-2">
+                      <CosmicButton
+                        variant="primary"
+                        size="sm"
+                        onClick={() => handleProductSelect(product.id)}
+                        className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:opacity-90 text-white font-bold"
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Get This Tool
+                      </CosmicButton>
+                      
+                      <CosmicButton
+                        variant="outline"
+                        size="sm"
+                        className="w-full border-orange-400 text-orange-400 hover:bg-orange-400/10"
+                      >
+                        <Play className="w-4 h-4 mr-2" />
+                        Preview Demo
+                      </CosmicButton>
+                    </div>
                   </motion.div>
                 );
               })}
             </div>
 
-            {/* Trust & Guarantee */}
+            {/* Trust & Social Proof */}
             <div className="mt-8 text-center">
               <div className="grid md:grid-cols-3 gap-6 mb-6">
                 <div className="flex items-center justify-center gap-2 text-green-400">
                   <Users className="w-5 h-5" />
-                  <span className="text-sm">15,000+ Athletes</span>
+                  <span className="text-sm">50,000+ Young Athletes</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-blue-400">
                   <Trophy className="w-5 h-5" />
-                  <span className="text-sm">87% Performance Boost</span>
+                  <span className="text-sm">Perfect for All Skill Levels</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 text-purple-400">
                   <Sparkles className="w-5 h-5" />
-                  <span className="text-sm">30-Day Guarantee</span>
+                  <span className="text-sm">Instant Results</span>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500 mb-4">
-                ✅ Cancel anytime • ✅ 30-day money-back guarantee • ✅ Used by professional teams
+              <p className="text-sm text-gray-400 mb-6">
+                Basketball • Soccer • Football • Tennis • Volleyball • Table Tennis • And More!
               </p>
+
+              <div className="bg-gradient-to-r from-orange-500/10 to-red-500/10 rounded-xl p-4 mb-6">
+                <p className="text-orange-300 font-semibold mb-2">"This is exactly what I needed to improve my game!"</p>
+                <p className="text-gray-400 text-sm">- Marcus, 16, Basketball Player</p>
+              </div>
 
               <div className="text-center">
                 <CosmicButton
@@ -258,7 +192,7 @@ export default function UpgradeModal({
                   onClick={handleClose}
                   className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-black"
                 >
-                  Maybe Later
+                  I'll Browse More
                 </CosmicButton>
               </div>
             </div>
@@ -267,4 +201,4 @@ export default function UpgradeModal({
       </motion.div>
     </AnimatePresence>
   );
-} 
+}

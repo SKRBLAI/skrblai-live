@@ -11,6 +11,7 @@ import PercyAvatar from '../../components/home/PercyAvatar';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import BillingToggle from '../../components/pricing/BillingToggle';
 import PricingCard from '../../components/pricing/PricingCard';
+import { usePercyContext } from '../../components/assistant/PercyProvider';
 import Link from 'next/link';
 import { 
   Check, Shield, Sparkles, Crown, Zap, Rocket, 
@@ -30,6 +31,8 @@ import {
 // Types and data imported from lib/config/pricing.ts
 
 export default function PricingPage() {
+  const { openPercy } = usePercyContext();
+  
   // Billing period state
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
   
@@ -217,80 +220,131 @@ const socialProofMetrics = [
               <span className="text-cyan-400 font-semibold"> No contracts. No limits. Just pure automation domination.</span>
             </motion.p>
 
-            {/* Live Metrics Dashboard */}
+            {/* Bold Claims & Social Proof */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-12"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-12"
             >
-              {metrics.map((metric, index) => (
-                <div key={metric.label} className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-xl rounded-xl p-4 border border-cyan-400/30">
-                  <div className="text-2xl font-bold text-cyan-400">
-                    {metric.formatter 
-                      ? metric.formatter(metric.value)
-                      : metric.value.toLocaleString()
-                    }
-                  </div>
-                  <div className="text-sm text-gray-400">{metric.label}</div>
-                  <div className="text-xs text-green-400 font-semibold">🔥 Live updating</div>
-                </div>
-              ))}
+              <motion.div 
+                className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20 backdrop-blur-xl rounded-xl p-6 border border-cyan-400/30 text-center"
+                whileHover={{ scale: 1.02, borderColor: 'rgba(34, 211, 238, 0.5)' }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <div className="text-3xl font-bold text-cyan-400 mb-2">127,439+</div>
+                <div className="text-sm text-gray-300 font-medium">Automations Delivered</div>
+                <div className="text-xs text-cyan-400 font-semibold mt-2">✨ Since Launch</div>
+              </motion.div>
+
+              <motion.div 
+                className="bg-gradient-to-br from-green-900/20 to-emerald-900/20 backdrop-blur-xl rounded-xl p-6 border border-green-400/30 text-center"
+                whileHover={{ scale: 1.02, borderColor: 'rgba(16, 185, 129, 0.5)' }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <div className="text-3xl font-bold text-green-400 mb-2">95%</div>
+                <div className="text-sm text-gray-300 font-medium">Customer Success Rate</div>
+                <div className="text-xs text-green-400 font-semibold mt-2">🎯 Verified Results</div>
+              </motion.div>
+
+              <motion.div 
+                className="bg-gradient-to-br from-purple-900/20 to-pink-900/20 backdrop-blur-xl rounded-xl p-6 border border-purple-400/30 text-center"
+                whileHover={{ scale: 1.02, borderColor: 'rgba(168, 85, 247, 0.5)' }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <div className="text-3xl font-bold text-purple-400 mb-2">24/7</div>
+                <div className="text-sm text-gray-300 font-medium">AI-Powered Automation</div>
+                <div className="text-xs text-purple-400 font-semibold mt-2">⚡ Never Sleeps</div>
+              </motion.div>
             </motion.div>
           </div>
-
-          {/* Billing Toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="max-w-4xl mx-auto text-center mb-12"
-          >
-            <BillingToggle
-              currentPeriod={billingPeriod}
-              onPeriodChange={handleBillingPeriodChange}
-              className="mb-8"
-            />
-          </motion.div>
 
           {/* Percy Intro */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="max-w-4xl mx-auto text-center mb-16"
+            transition={{ delay: 0.35 }}
+            className="max-w-6xl mx-auto text-center mb-12"
           >
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Image
-                src="/images/agents-percy-nobg-skrblai.webp"
-                alt="Percy the Cosmic Concierge"
-                width={80}
-                height={80}
-                className="rounded-full border-2 border-cyan-400/50 shadow-glow"
-                priority
-              />
+            <div className="flex items-center justify-center gap-6 mb-8">
+              <motion.button
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={openPercy}
+                className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-cyan-400/50 rounded-full"
+                aria-label="Chat with Percy"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 rounded-full blur-xl group-hover:blur-2xl transition-all duration-300" />
+                  <Image
+                    src="/images/agents-percy-nobg-skrblai.webp"
+                    alt="Percy the Cosmic Concierge"
+                    width={100}
+                    height={100}
+                    className="relative rounded-full border-3 border-cyan-400/60 shadow-[0_0_40px_#22d3ee66] group-hover:border-cyan-400/80 group-hover:shadow-[0_0_60px_#22d3ee88] transition-all duration-300"
+                    priority
+                  />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              </motion.button>
               <div className="text-left">
-                <h3 className="text-2xl font-bold text-cyan-400">Meet Percy</h3>
-                <p className="text-gray-300">Your Cosmic Concierge & Automation Orchestrator</p>
+                <motion.h3 
+                  className="text-3xl font-bold text-cyan-400 mb-2 cursor-pointer"
+                  whileHover={{ scale: 1.02 }}
+                  onClick={openPercy}
+                >
+                  Meet Percy
+                </motion.h3>
+                <p className="text-lg text-gray-300">Your Cosmic Concierge & Automation Orchestrator</p>
+                <motion.button
+                  className="text-sm text-cyan-400/80 hover:text-cyan-400 transition-colors duration-200 mt-1"
+                  whileHover={{ x: 2 }}
+                  onClick={openPercy}
+                >
+                  → Click to chat
+                </motion.button>
               </div>
             </div>
-            <p className="text-lg text-gray-300">
-              <span className="text-cyan-400 font-bold">"Every plan includes me as your personal guide."</span> I'll connect you to the perfect agents, orchestrate your workflows, and ensure your competition becomes a distant memory.
-            </p>
+            <motion.p 
+              className="text-lg text-gray-300 max-w-4xl mx-auto"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <span className="text-cyan-400 font-bold text-xl">"Every plan includes me as your personal guide."</span> I'll connect you to the perfect agents, orchestrate your workflows, and ensure your competition becomes a distant memory.
+            </motion.p>
           </motion.div>
 
-          {/* Enhanced Pricing Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8 max-w-7xl mx-auto mb-16">
-            {pricingPlans.map((plan, index) => (
-              <PricingCard
-                key={plan.id}
-                plan={plan}
-                billingPeriod={billingPeriod}
-                animationDelay={0.5 + index * 0.1}
-                isHighlighted={plan.isPopular}
+          {/* Pricing Section with Integrated Toggle */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-7xl mx-auto mb-16"
+          >
+            {/* Billing Toggle - Now Part of Pricing Section */}
+            <div className="text-center mb-8">
+              <BillingToggle
+                currentPeriod={billingPeriod}
+                onPeriodChange={handleBillingPeriodChange}
+                className=""
               />
-            ))}
-          </div>
+            </div>
+
+            {/* Enhanced Pricing Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+              {pricingPlans.map((plan, index) => (
+                <PricingCard
+                  key={plan.id}
+                  plan={plan}
+                  billingPeriod={billingPeriod}
+                  animationDelay={0.5 + index * 0.1}
+                  isHighlighted={plan.isPopular}
+                />
+              ))}
+            </div>
+          </motion.div>
 
           {/* Disruption Guarantee */}
           <motion.div
@@ -356,10 +410,7 @@ const socialProofMetrics = [
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.95 }}
           className="group relative bg-gradient-to-r from-teal-500 to-cyan-500 p-4 rounded-full shadow-[0_0_30px_rgba(45,212,191,0.6)] border-2 border-teal-400/50 backdrop-blur-xl transition-all duration-300 hover:shadow-[0_0_50px_rgba(45,212,191,0.8)]"
-          onClick={() => {
-            // Add Percy help modal logic here
-            console.log('Percy help activated!');
-          }}
+          onClick={openPercy}
           aria-label="Get help from Percy AI"
         >
           <div className="relative w-12 h-12 flex items-center justify-center">
