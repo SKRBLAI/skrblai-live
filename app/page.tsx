@@ -83,39 +83,29 @@ export default function HomePage() {
         {/* Main Content - Unified Responsive Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Removed scroll-scale wrapper here to keep hero text unscaled */}
-          {/* Hero Section - Mobile Optimized */}
-          <section className="min-h-[85vh] flex flex-col items-center">
-            <div className="flex flex-col items-center justify-center w-full">
-              {/* Welcome headline with Typewriter Effect - Mobile Safe */}
-              <Pseudo3DHero className="text-center mb-8 w-full" style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none', willChange: 'auto' }}>
-                <motion.h1 style={{ textRendering: 'optimizeLegibility', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }} 
-                  initial={{ opacity: 0 }} 
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 subpixel-antialiased"
+          {/* Hero Section - Unified Percy-Centered */}
+          <section className="min-h-[85vh] flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center w-full max-w-7xl mx-auto">
+              {/* Main Hero Statement - Single Static Tagline */}
+              <motion.div 
+                className="text-center mb-12 w-full" 
+                initial={{ opacity: 0, y: -20 }} 
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <motion.h1 
+                  className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2"
+                  style={{ textRendering: 'optimizeLegibility', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}
                 >
-                  <TypewriterText 
-                    words={[
-                      'Your Competition Just Became Extinct',
-                      'AI Automation That DOMINATES',
-                      'Business Intelligence UNLEASHED',
-                      'Your Empire Starts NOW'
-                    ]}
-                    typeSpeed={120}
-                    deleteSpeed={80}
-                    delaySpeed={3000}
-                    className="block"
-                    actionWords={['DOMINATES', 'Extinct', 'UNLEASHED', 'NOW']}
-                    cosmicMode={true}
-                  />
+                  Your Competition Just Became Extinct
                 </motion.h1>
                 
-                {/* Subheading - Mobile Typography */}
+                {/* Static Subheading */}
                 <motion.p 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="text-center text-sm sm:text-base lg:text-xl text-gray-200 max-w-2xl lg:max-w-4xl mx-auto mb-6 sm:mb-8 px-2 leading-relaxed"
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="text-center text-sm sm:text-base lg:text-xl text-gray-200 max-w-2xl lg:max-w-4xl mx-auto mb-8 px-2 leading-relaxed"
                 >
                   SKRBL AI does not just automate—it <span className="text-electric-blue font-bold">DOMINATES</span>. 
                   While your competitors are still figuring out AI, you will be deploying the arsenal that makes them extinct.
@@ -124,28 +114,51 @@ export default function HomePage() {
                     No contracts. No limits. Just pure automation domination.
                   </span>
                 </motion.p>
-              </Pseudo3DHero>
+              </motion.div>
 
-              {/* Percy Onboarding Section - Enhanced with 3D */}
+              {/* Percy Onboarding Section - Enhanced with 3D and Micro-animations */}
               {/* FIXED: Percy onboarding now ALWAYS shows on homepage for ALL users */}
-              <Pseudo3DFeature className="w-full max-w-4xl mx-auto">
-                <PercyOnboardingRevolution />
-              </Pseudo3DFeature>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="w-full max-w-4xl mx-auto"
+              >
+                <Pseudo3DFeature className="w-full">
+                  <PercyOnboardingRevolution />
+                </Pseudo3DFeature>
+              </motion.div>
             </div>
 
             {/* Social Proof Section removed – stats now live inside unified Percy component */}
           </section>
 
           {/* Agent League – Dynamic Rendering with 3D Enhancement */}
-          <Pseudo3DFeature>
-            <AgentPreviewSection />
-            <AgentsGrid />
-          </Pseudo3DFeature>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-20"
+          >
+            <Pseudo3DFeature>
+              <AgentPreviewSection />
+              <AgentsGrid />
+            </Pseudo3DFeature>
+          </motion.div>
 
-          {/* Enhanced Banner Component with 3D */}
-          <Pseudo3DFeature className="mt-16">
-            <EmpowermentBanner />
-          </Pseudo3DFeature>
+          {/* Enhanced Banner Component with 3D and Stagger Animation */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-24"
+          >
+            <Pseudo3DFeature>
+              <EmpowermentBanner />
+            </Pseudo3DFeature>
+          </motion.div>
 
           {/* Loading state with enhanced styling */}
           {isLoading && (

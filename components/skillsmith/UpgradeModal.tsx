@@ -41,14 +41,14 @@ export default function UpgradeModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
         onClick={handleClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 border border-orange-500/30 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto backdrop-blur-xl"
+          className="bg-gradient-to-b from-gray-900/98 via-gray-800/98 to-gray-900/98 border-2 border-orange-500/60 rounded-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto backdrop-blur-xl shadow-[0_0_40px_rgba(249,115,22,0.4)] ring-1 ring-orange-400/20"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}

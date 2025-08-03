@@ -120,6 +120,20 @@ export default function PercyOnboardingRevolution() {
   const promptBarRef = useRef<HTMLInputElement>(null);
   // promptBarValue and setPromptBarValue now come from context
   
+  // [FEATURE] Add state for 'Coming Soon' modal
+  const [comingSoonOpen, setComingSoonOpen] = useState(false);
+  const [comingSoonOption, setComingSoonOption] = useState<OnboardingOption | null>(null);
+
+  // List of agent actions that map to /services/[agent]
+  const AGENT_ACTIONS: Record<string, string> = {
+    'instant-website-analysis': 'seo-agent',
+    'instant-content-analysis': 'content-automation',
+    'instant-book-analysis': 'book-publishing',
+    'instant-business-analysis': 'biz-agent',
+    'instant-linkedin-analysis': 'branding',
+    'sports-routing': 'skillsmith',
+  };
+
   // Handle any interaction function with enhanced mood changes
   const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
     if (!userInteracted) {
@@ -490,15 +504,22 @@ export default function PercyOnboardingRevolution() {
 
   const handleOptionClick = async (option: OnboardingOption) => {
     try {
-      // Add micro-animation feedback
       toast.success(`${option.label} selected! 🎯`, { duration: 1500 });
-      
+      // Enhanced: Route to agent if mapped, else show Coming Soon modal
+      if (AGENT_ACTIONS[option.action]) {
+        router.push(`/services/${AGENT_ACTIONS[option.action]}`);
+        return;
+      }
+      // If not mapped and not handled by legacy logic, show Coming Soon modal
+      if (!['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
+        setComingSoonOption(option);
+        setComingSoonOpen(true);
+        return;
+      }
       // Use centralized choice handler first
       handleUserChoice(option.id, option.data);
-      
-      // Legacy handling for backward compatibility
       if (['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
-        return; // Already handled by centralized handler
+        return;
       }
     } catch (error) {
       toast.error('Navigation failed. Please try again.', { duration: 3000 });
@@ -1427,10 +1448,10 @@ export default function PercyOnboardingRevolution() {
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl blur-3xl"></div>
         <div className="relative bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] shadow-inner rounded-2xl p-8">
           
-          {/* Chat Messages */}
+          {/* Chat Messages - Mobile Optimized */}
           <div 
             ref={chatRef} 
-            className="min-h-[300px] mb-6"
+            className="min-h-[200px] md:min-h-[250px] mb-6"
             data-percy-chat-container
           >
             <AnimatePresence>
@@ -1650,35 +1671,111 @@ export default function PercyOnboardingRevolution() {
               transition={{ type: "spring", stiffness: 300, damping: 30, boxShadow: { duration: 0.6 } }}
               style={{ perspective: "1000px", transformStyle: "preserve-3d" }}
             >
-              {/* Header with reset button */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
-                  <span className="text-sm text-gray-300 font-medium">Ask Percy Anything</span>
+              {/* Enhanced Header with Branded CTA Buttons */}
+              <div className="flex flex-col space-y-4 mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse" />
+                    <span className="text-sm text-gray-300 font-medium">Ask Percy Anything</span>
+                  </div>
+                  
+                  {/* Enhanced Reset Button */}
+                  <motion.button
+                    onClick={() => {
+                      try {
+                        handleChatReset();
+                      } catch (error) {
+                        toast.error('Reset failed. Please refresh the page.', { duration: 3000 });
+                      }
+                    }}
+                    className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-red-500/80 border-2 border-orange-400/50 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all group cursor-pointer min-w-[44px] min-h-[44px] touch-manipulation"
+                    whileHover={{ 
+                      scale: 1.1,
+                      boxShadow: "0 0 25px rgba(249,115,22,0.6)",
+                      background: "linear-gradient(135deg, rgba(249,115,22,0.9) 0%, rgba(239,68,68,0.9) 100%)",
+                      y: -1
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Reset conversation"
+                    title="Reset Chat (Clear All)"
+                  >
+                    <RotateCcw className="w-5 h-5 text-white group-hover:text-orange-100 transition-colors" />
+                  </motion.button>
                 </div>
                 
-                {/* Enhanced Reset Button */}
-                <motion.button
-                  onClick={() => {
-                    try {
-                      handleChatReset();
-                    } catch (error) {
-                      toast.error('Reset failed. Please refresh the page.', { duration: 3000 });
-                    }
-                  }}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-red-500/80 border-2 border-orange-400/50 shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all group cursor-pointer min-w-[44px] min-h-[44px] touch-manipulation"
-                  whileHover={{ 
-                    scale: 1.1,
-                    boxShadow: "0 0 25px rgba(249,115,22,0.6)",
-                    background: "linear-gradient(135deg, rgba(249,115,22,0.9) 0%, rgba(239,68,68,0.9) 100%)",
-                    y: -1
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label="Reset conversation"
-                  title="Reset Chat (Clear All)"
-                >
-                  <RotateCcw className="w-5 h-5 text-white group-hover:text-orange-100 transition-colors" />
-                </motion.button>
+                {/* Branded Quick Action CTA Buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <motion.button
+                    onClick={() => {
+                      try {
+                        setPromptBarValue('Show me a demo of SKRBL AI');
+                        setDemoActive(true);
+                        setDemoStep('selecting');
+                        toast.success('Demo mode activated! 🚀', { duration: 2000 });
+                      } catch (error) {
+                        toast.error('Demo unavailable. Please try again.', { duration: 3000 });
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-500/80 to-pink-500/80 border-2 border-purple-400/50 rounded-xl text-white font-semibold text-sm shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all cursor-pointer min-h-[44px] touch-manipulation"
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 0 25px rgba(168,85,247,0.6)",
+                      y: -1
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Start Demo"
+                    title="Experience SKRBL AI Demo"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>Demo</span>
+                  </motion.button>
+                  
+                  <motion.button
+                    onClick={() => {
+                      try {
+                        router.push('/sports');
+                        toast.success('Loading Sports AI... 🏀', { duration: 2000 });
+                      } catch (error) {
+                        toast.error('Sports page unavailable. Please try again.', { duration: 3000 });
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-orange-500/80 to-red-500/80 border-2 border-orange-400/50 rounded-xl text-white font-semibold text-sm shadow-[0_0_15px_rgba(249,115,22,0.4)] hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-all cursor-pointer min-h-[44px] touch-manipulation"
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 0 25px rgba(249,115,22,0.6)",
+                      y: -1
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Sports Analysis"
+                    title="AI Sports Performance Analysis"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    <span>Sports</span>
+                  </motion.button>
+                  
+                  <motion.button
+                    onClick={() => {
+                      try {
+                        setPromptBarValue('Analyze my website and give me competitive insights');
+                        toast.success('Website analysis ready! 🔍', { duration: 2000 });
+                      } catch (error) {
+                        toast.error('Analysis unavailable. Please try again.', { duration: 3000 });
+                      }
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-teal-500/80 to-cyan-500/80 border-2 border-teal-400/50 rounded-xl text-white font-semibold text-sm shadow-[0_0_15px_rgba(45,212,191,0.4)] hover:shadow-[0_0_25px_rgba(45,212,191,0.6)] transition-all cursor-pointer min-h-[44px] touch-manipulation"
+                    whileHover={{ 
+                      scale: 1.05,
+                      boxShadow: "0 0 25px rgba(45,212,191,0.6)",
+                      y: -1
+                    }}
+                    whileTap={{ scale: 0.95 }}
+                    aria-label="Quick Scan"
+                    title="Instant Website Analysis"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Quick Scan</span>
+                  </motion.button>
+                </div>
               </div>
               
               {/* Enhanced Input Field */}
@@ -1892,6 +1989,18 @@ export default function PercyOnboardingRevolution() {
           });
         }}
       />
+
+      {/* [FEATURE] Coming Soon Modal JSX (add near the end of the component's return) */}
+      {comingSoonOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 max-w-md w-full text-center relative">
+            <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white" onClick={() => setComingSoonOpen(false)} aria-label="Close">✕</button>
+            <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
+            <p className="mb-4">This feature will launch soon. Want early access?</p>
+            <button className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-2 rounded-lg font-semibold shadow" onClick={() => { /* TODO: Implement waitlist logic */ setComingSoonOpen(false); toast.success('Added to waitlist!'); }}>Join Waitlist</button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

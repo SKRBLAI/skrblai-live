@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { agentIntelligenceEngine, type AgentIntelligence, type PredictiveInsight } from '../../lib/agents/agentIntelligence';
+import AgentWalkthroughModal from '../ui/AgentWalkthroughModal';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => {
@@ -67,6 +68,13 @@ const FEATURED_AGENTS = [
   }
 ];
 
+// [FEATURE] Map agent IDs to slugs for unified routing
+const AGENT_SLUGS: Record<string, string> = {
+  branding: 'branding',
+  social: 'socialnino',
+  contentcreation: 'content-automation',
+};
+
 export default function AgentPreviewSection(): React.ReactElement {
   const router = useRouter();
   const { setPercyIntent } = usePercyContext();
@@ -76,6 +84,8 @@ export default function AgentPreviewSection(): React.ReactElement {
   const [agentIntelligence, setAgentIntelligence] = useState<Map<string, AgentIntelligence>>(new Map());
   const [predictiveInsights, setPredictiveInsights] = useState<Map<string, PredictiveInsight[]>>(new Map());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
+  const [walkthroughOpen, setWalkthroughOpen] = useState(false);
+  const [walkthroughAgent, setWalkthroughAgent] = useState<typeof FEATURED_AGENTS[0] | null>(null);
 
   // Check if user is logged in
   React.useEffect(() => {
@@ -127,22 +137,16 @@ export default function AgentPreviewSection(): React.ReactElement {
     }
   };
 
-  const handleChatClick = (agentId: string, freeTip: string) => {
-    // Start a chat with the agent showing the free tip
-    setPercyIntent(JSON.stringify({
-      action: 'chat',
-      agentId: agentId,
-      context: 'freebie_preview',
-      initialMessage: freeTip,
-      startFresh: true
-    }));
-    router.push(`/chat/${agentId}?preview=true`);
+  // Update button actions for unified routing
+  const handleCardRoute = (agentId: string) => {
+    const slug = AGENT_SLUGS[agentId] || agentId;
+    router.push(`/services/${slug}`);
   };
 
   // Handle demo action
-  const handleDemoClick = (agentId: string) => {
-    setPercyIntent(JSON.stringify({ action: 'demo', agentId, context: 'demo_mode' }));
-    router.push(`/chat/${agentId}?demo=true`);
+  const handleDemoClick = (agent: typeof FEATURED_AGENTS[0]) => {
+    setWalkthroughAgent(agent);
+    setWalkthroughOpen(true);
   };
 
   return (
@@ -184,6 +188,7 @@ export default function AgentPreviewSection(): React.ReactElement {
               className="relative rounded-xl overflow-hidden bg-black/20 backdrop-blur-lg border border-blue-500/30"
               onMouseEnter={() => setHoveredAgent(agent.id)}
               onMouseLeave={() => setHoveredAgent(null)}
+              onClick={() => handleCardRoute(agent.id)}
             >
               {/* Live Activity Overlay */}
               <div className="absolute top-2 left-2 right-2 z-10">
@@ -293,7 +298,7 @@ export default function AgentPreviewSection(): React.ReactElement {
                   {/* CHAT Button Hotspot */}
                   <motion.button
                     className="flex-1 min-w-[80px] h-8 bg-transparent border border-purple-400/30 focus:outline-none focus:ring-2 focus:ring-purple-400/50 rounded-lg relative"
-                    onClick={() => handleChatClick(agent.id, agent.freeTip)}
+                    onClick={e => { e.stopPropagation(); handleCardRoute(agent.id); }}
                     aria-label={`Chat with ${agent.name}`}
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
@@ -307,7 +312,7 @@ export default function AgentPreviewSection(): React.ReactElement {
                    {/* DEMO Button Hotspot */}
                    <motion.button
                      className="flex-1 min-w-[80px] h-8 bg-transparent border border-yellow-400/30 focus:outline-none focus:ring-2 focus:ring-yellow-400/50 rounded-lg relative"
-                     onClick={() => handleDemoClick(agent.id)}
+                     onClick={e => { e.stopPropagation(); handleDemoClick(agent); }}
                      aria-label={`Demo ${agent.name}`}
                      whileHover={{ scale: 1.01 }}
                      whileTap={{ scale: 0.99 }}
@@ -401,6 +406,14 @@ export default function AgentPreviewSection(): React.ReactElement {
           Average competitive advantage gained: <span className="text-cyan-400 font-semibold">340%</span> within first week
         </motion.p>
       </motion.div>
+
+      {/* [FEATURE] Agent Walkthrough Modal */}
+      <AgentWalkthroughModal
+        isOpen={walkthroughOpen}
+        onClose={() => setWalkthroughOpen(false)}
+        agentName={walkthroughAgent?.name || ''}
+        agentAvatar={walkthroughAgent ? <Image src={getAgentImagePath(walkthroughAgent.id, 'card')} alt={walkthroughAgent.name} width={64} height={64} className="rounded-full" /> : null}
+      />
     </section>
   );
 }

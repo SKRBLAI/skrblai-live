@@ -11,7 +11,8 @@ import SkillSmithStandaloneHero from '../../components/home/SkillSmithStandalone
 import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
-import UpgradeModal from '../../components/skillsmith/UpgradeModal';
+// [CLEANUP] Remove UpgradeModal import and usage
+// import UpgradeModal from '../../components/skillsmith/UpgradeModal';
 import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
@@ -47,7 +48,8 @@ export default function SportsPage(): JSX.Element {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [emailCaptureModalOpen, setEmailCaptureModalOpen] = useState(false);
   const [resultsModalOpen, setResultsModalOpen] = useState(false);
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  // [CLEANUP] Remove UpgradeModal state and effect
+  // const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [previewFlowOpen, setPreviewFlowOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -78,7 +80,8 @@ export default function SportsPage(): JSX.Element {
   useEffect(() => {
     if (shouldShowUpgradeOffer && userType === 'guest') {
       const timer = setTimeout(() => {
-        setUpgradeModalOpen(true);
+        // [CLEANUP] Remove UpgradeModal state and effect
+        // setUpgradeModalOpen(true);
       }, 5000); // Show after 5 seconds
       
       return () => clearTimeout(timer);
@@ -149,7 +152,8 @@ export default function SportsPage(): JSX.Element {
     if (userType === 'guest') {
       setEmailCaptureModalOpen(true);
     } else {
-      setUpgradeModalOpen(true);
+      // [CLEANUP] Remove UpgradeModal state and effect
+      // setUpgradeModalOpen(true);
     }
   };
 
@@ -163,7 +167,8 @@ export default function SportsPage(): JSX.Element {
   const handlePurchase = (plan: 'basic' | 'pro' | 'elite') => {
     // In a real app, integrate with Stripe or payment processor
     console.log('Purchase plan:', plan);
-    setUpgradeModalOpen(false);
+    // [CLEANUP] Remove UpgradeModal state and effect
+    // setUpgradeModalOpen(false);
   };
 
   // Product Preview Flow Handler
@@ -196,12 +201,14 @@ export default function SportsPage(): JSX.Element {
         window.location.href = url;
       } else {
         // Fallback to upgrade modal for now
-        setUpgradeModalOpen(true);
+        // [CLEANUP] Remove UpgradeModal state and effect
+        // setUpgradeModalOpen(true);
       }
     } catch (error) {
       console.error('Payment error:', error);
       // Fallback to upgrade modal
-      setUpgradeModalOpen(true);
+      // [CLEANUP] Remove UpgradeModal state and effect
+      // setUpgradeModalOpen(true);
     }
   };
 
@@ -756,12 +763,13 @@ export default function SportsPage(): JSX.Element {
           }}
         />
 
-        <UpgradeModal
+        {/* [CLEANUP] Remove UpgradeModal JSX */}
+        {/* <UpgradeModal
           isOpen={upgradeModalOpen}
           onClose={() => setUpgradeModalOpen(false)}
           onProductSelect={handleProductSelectFromModal}
           userType={userType === 'platform' ? 'auth' : userType}
-        />
+        /> */}
 
         <SkillSmithOnboardingFlow
           isOpen={previewFlowOpen}
