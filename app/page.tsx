@@ -78,14 +78,14 @@ export default function HomePage() {
       <div className="absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.08),transparent)]" />
       <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#0d1117]/60 via-[#0d1117]/80 to-[#0d1117]/90" />
       
-      <main className="relative z-10 min-h-screen pt-20 sm:pt-24 md:pt-28">
+      <main className="relative z-10 min-h-screen pt-24 sm:pt-28 md:pt-32 lg:pt-36">
         
         {/* Main Content - Unified Responsive Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Removed scroll-scale wrapper here to keep hero text unscaled */}
-          {/* Hero Section - Mobile Optimized */}
-          <section className="min-h-[85vh] flex flex-col items-center">
-            <div className="flex flex-col items-center justify-center w-full">
+          {/* Hero Section - Mobile Optimized with Enhanced Spacing */}
+          <section className="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center pt-8 sm:pt-12 md:pt-16">
+            <div className="flex flex-col items-center justify-center w-full relative z-20">
               {/* Welcome headline with Typewriter Effect - Mobile Safe */}
               <Pseudo3DHero className="text-center mb-8 w-full" style={{ backdropFilter: 'none', WebkitBackdropFilter: 'none', willChange: 'auto' }}>
                 <motion.h1 style={{ textRendering: 'optimizeLegibility', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }} 

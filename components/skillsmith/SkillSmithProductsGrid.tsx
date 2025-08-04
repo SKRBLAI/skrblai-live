@@ -27,9 +27,44 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
     return () => clearInterval(interval);
   }, []);
 
-  const handleProductClick = (productId: string) => {
-    // Navigate to product page or open modal
-    console.log('Product clicked:', productId);
+  const handleProductClick = async (productId: string) => {
+    // 🚀 LAUNCH FIX: Route directly to Stripe checkout instead of dead-end modal
+    // ✅ RESTORED: Buy Now buttons now go to Stripe, not subscription modals
+    const product = skillsmithProducts.find(p => p.id === productId);
+    if (!product) {
+      console.error('Product not found:', productId);
+      return;
+    }
+    
+    try {
+      console.log('[SkillSmith] Creating Stripe checkout for:', product.title);
+      
+      // Create Stripe checkout session
+      const response = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productSku: product.sku,
+          price: product.price,
+          title: product.title,
+          successUrl: `${window.location.origin}/sports?success=true&product=${productId}`,
+          cancelUrl: `${window.location.origin}/sports`,
+        }),
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error) {
+      console.error('[SkillSmith] Stripe checkout error:', error);
+      // Fallback: route to sports page with product context
+      window.location.href = `/sports?product=${productId}`;
+    }
   };
 
   const handlePreviewDemo = (productId: string) => {

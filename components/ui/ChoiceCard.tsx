@@ -13,6 +13,7 @@ export interface ChoiceCardProps extends MotionProps {
 export default function ChoiceCard({ icon, label, onClick, className = '', ...props }: ChoiceCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   return (
     <motion.div
@@ -49,13 +50,44 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
         </div>
       )}
 
+      {/* Success particle burst */}
+      {showSuccess && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+          {[...Array(12)].map((_, i) => (
+            <motion.div
+              key={`success-${i}`}
+              className="absolute w-2 h-2 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-full"
+              style={{
+                left: '50%',
+                top: '50%',
+              }}
+              initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0, 1.5, 0],
+                x: [0, (Math.cos((i / 12) * Math.PI * 2) * 60)],
+                y: [0, (Math.sin((i / 12) * Math.PI * 2) * 60)],
+              }}
+              transition={{
+                duration: 0.8,
+                ease: "easeOut"
+              }}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Glow effect background */}
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-teal-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <motion.button
         onClick={() => {
           setIsSelected(true);
-          setTimeout(() => setIsSelected(false), 200);
+          setShowSuccess(true);
+          setTimeout(() => {
+            setIsSelected(false);
+            setShowSuccess(false);
+          }, 800);
           onClick();
         }}
         whileHover={{ 
@@ -76,10 +108,12 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           transition: { duration: 0.1 }
         }}
         animate={isSelected ? {
-          scale: [1, 1.1, 1],
+          scale: [1, 1.15, 1.05, 1],
+          rotateZ: [0, 2, -1, 0],
           boxShadow: [
             '0 0 40px rgba(48,213,200,0.6)',
-            '0 0 80px rgba(255,255,255,0.8), 0 0 120px rgba(48,213,200,1)',
+            '0 0 100px rgba(255,215,0,0.9), 0 0 150px rgba(48,213,200,1), 0 0 200px rgba(99,102,241,0.6)',
+            '0 0 60px rgba(48,213,200,0.8)',
             '0 0 40px rgba(48,213,200,0.6)'
           ]
         } : {}}

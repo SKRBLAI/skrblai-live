@@ -443,24 +443,80 @@ const handleContinue = React.useCallback(async (nextStep: string, routeTo?: stri
 
   const handleUserChoice = React.useCallback((choiceId: string, data?: any) => {
     console.log('[Onboarding] User choice:', choiceId, data);
+    trackBehavior(`choice_${choiceId}`, { from: currentStep, data });
+    
+    // 🚀 RESTORED PERCY ONBOARDING FLOW: All buttons now go through onboarding first
+    // ✅ LAUNCH FIX: No more direct routing to /services/agent - Percy guides users first
     switch (choiceId) {
+      // 🎯 Homepage action buttons - route to instant analysis steps FIRST (RESTORED)
+      case 'website-scan':
+      case 'dominate-seo':
+        setCurrentStep('instant-website-analysis');
+        break;
+      case 'content-creator':
+      case 'create-content':
+        setCurrentStep('instant-content-analysis');
+        break;
+      case 'book-publisher':
+      case 'publish-book':
+        setCurrentStep('instant-book-analysis');
+        break;
+      case 'business-strategy':
+      case 'automate-biz':
+        setCurrentStep('instant-business-analysis');
+        break;
+      case 'linkedin-profile':
+      case 'upgrade-brand':
+        setCurrentStep('instant-linkedin-analysis');
+        break;
       case 'sports-analysis':
-        trackBehavior('choice_sports_routing', { from: 'onboarding' });
-        router.push('/sports');
+      case 'get-fit':
+        // Sports routes to the existing sports-routing step
+        setCurrentStep('sports-routing');
+        break;
+      case 'custom-needs':
+      case 'something-else':
+        setCurrentStep('custom-needs-analysis');
+        break;
+      
+      // Onboarding flow controls
+      case 'start-onboarding':
+        setCurrentStep('greeting');
+        break;
+      case 'signup':
+        setCurrentStep('signup');
+        break;
+      case 'have-code':
+        setCurrentStep('vip-code-entry');
         break;
       case 'my-dashboard':
-        trackBehavior('choice_dashboard', { from: 'onboarding' });
         if (user) {
           router.push('/dashboard');
         } else {
           setCurrentStep('signup');
         }
         break;
+      
+      // Analysis completion actions
+      case 'launch-agent':
+        if (userAnalysisAgent) {
+          handleLaunch(userAnalysisAgent, { source: 'analysis_completion' });
+        }
+        break;
+      case 'chat-agent':
+        if (userAnalysisAgent) {
+          handleAgentChat(userAnalysisAgent);
+        }
+        break;
+      case 'back-to-greeting':
+        setCurrentStep('greeting');
+        break;
+      
+      // Default to step change for other flows
       default:
-        trackBehavior(`choice_${choiceId}`, { from: 'onboarding' });
         setCurrentStep(choiceId);
     }
-  }, [trackBehavior, router, user]);
+  }, [trackBehavior, router, user, currentStep, userAnalysisAgent, handleLaunch, handleAgentChat]);
 
   const value: OnboardingContextType = {
     currentStep,

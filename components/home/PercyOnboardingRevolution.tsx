@@ -493,7 +493,8 @@ export default function PercyOnboardingRevolution() {
       // Add micro-animation feedback
       toast.success(`${option.label} selected! 🎯`, { duration: 1500 });
       
-      // Use centralized choice handler first
+      // 🚀 LAUNCH FIX: Use centralized choice handler with RESTORED Percy onboarding flow
+      // ✅ All buttons now route through Percy analysis FIRST, then to agents
       handleUserChoice(option.id, option.data);
       
       // Legacy handling for backward compatibility
@@ -1141,8 +1142,9 @@ export default function PercyOnboardingRevolution() {
       <motion.div
         className="relative mb-8"
         initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 1, ease: "easeOut", staggerChildren: 0.2 }}
       >
         {/* Cosmic Background Effects */}
         <div className="absolute inset-0 overflow-hidden rounded-3xl">
@@ -1422,15 +1424,21 @@ export default function PercyOnboardingRevolution() {
       </motion.div>
 
       {/* Main Chat and Options Container */}
-      <div className="relative mb-8">
+      <motion.div 
+        className="relative mb-8"
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: "easeOut", staggerChildren: 0.1 }}
+      >
         {/* Subtle glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl blur-3xl"></div>
         <div className="relative bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] shadow-inner rounded-2xl p-8">
           
-          {/* Chat Messages */}
+          {/* Chat Messages - Mobile Optimized Heights */}
           <div 
             ref={chatRef} 
-            className="min-h-[300px] mb-6"
+            className="min-h-[200px] sm:min-h-[250px] md:min-h-[300px] mb-6"
             data-percy-chat-container
           >
             <AnimatePresence>
@@ -1763,17 +1771,100 @@ export default function PercyOnboardingRevolution() {
                   )}
               </motion.button>
             </div>
+            
+            {/* Branded Quick Action Buttons */}
+            <motion.div
+              className="mt-6 flex flex-wrap justify-center gap-3 sm:gap-4"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.1 }}
+            >
+              {/* Demo Button - Purple */}
+              <motion.button
+                onClick={() => {
+                  try {
+                    router.push('/demo');
+                    toast.success('Launching Demo! 🚀', { duration: 2000 });
+                  } catch (error) {
+                    toast.error('Demo unavailable. Please try again.', { duration: 3000 });
+                  }
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-violet-600 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(147,51,234,0.4)] border border-purple-400/50 cursor-pointer min-h-[44px] touch-manipulation"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 0 30px rgba(147,51,234,0.6)",
+                  y: -2
+                }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Launch Demo"
+                title="Experience SKRBL AI Demo"
+              >
+                <Zap className="w-4 h-4" />
+                <span className="text-sm font-bold">Demo</span>
+              </motion.button>
+
+              {/* Sports Button - Orange */}
+              <motion.button
+                onClick={() => {
+                  try {
+                    router.push('/sports');
+                    toast.success('Welcome to SkillSmith Sports! ⚽', { duration: 2000 });
+                  } catch (error) {
+                    toast.error('Sports page unavailable. Please try again.', { duration: 3000 });
+                  }
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(249,115,22,0.4)] border border-orange-400/50 cursor-pointer min-h-[44px] touch-manipulation"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 0 30px rgba(249,115,22,0.6)",
+                  y: -2
+                }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Go to Sports"
+                title="Athletic Performance Analytics"
+              >
+                <Trophy className="w-4 h-4" />
+                <span className="text-sm font-bold">Sports</span>
+              </motion.button>
+
+              {/* Quick Scan Button - Teal */}
+              <motion.button
+                onClick={() => {
+                  try {
+                    setPromptBarValue('Analyze my business and show me opportunities');
+                    handlePromptBarSubmit();
+                    toast.success('Quick Scan initiated! 🔍', { duration: 2000 });
+                  } catch (error) {
+                    toast.error('Quick scan failed. Please try again.', { duration: 3000 });
+                  }
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.4)] border border-teal-400/50 cursor-pointer min-h-[44px] touch-manipulation"
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 0 30px rgba(20,184,166,0.6)",
+                  y: -2
+                }}
+                whileTap={{ scale: 0.95 }}
+                aria-label="Quick Business Scan"
+                title="AI-Powered Business Analysis"
+              >
+                <BarChart3 className="w-4 h-4" />
+                <span className="text-sm font-bold">Quick Scan</span>
+              </motion.button>
+            </motion.div>
+            
             </motion.div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Restored Stats Cards Section */}
       {/* Animated Value Props Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.4 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.8, delay: 0.1 }}
         className="mb-8"
       >
         <motion.div
