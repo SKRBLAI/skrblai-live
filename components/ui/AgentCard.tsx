@@ -250,8 +250,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
   };
 
   const handleCardRoute = () => {
-    const slug = AGENT_SLUGS[agent.id] || agent.id;
-    router.push(`/services/${slug}`);
+    // Free Scan Flow: Route to Percy onboarding with scan intent
+    router.push(`/?scan=${agent.id}`);
   };
 
   return (

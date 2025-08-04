@@ -1,19 +1,29 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Services | SKRBL AI Business Solutions & Automation',
-  description: 'Discover SKRBL AI\'s comprehensive business services: marketing automation, content creation, brand management, analytics, and custom AI solutions tailored for your industry.',
+  title: 'AI Agent Services | SKRBL AI - Automated Business Solutions',
+  description: 'Discover SKRBL AI\'s powerful agent services. From content creation to business automation, our AI agents provide competitive advantages that make your competition extinct.',
+  keywords: [
+    'AI agent services',
+    'business automation',
+    'AI content creation',
+    'automated marketing',
+    'AI SEO optimization',
+    'business intelligence',
+    'competitive analysis',
+    'SKRBL AI agents'
+  ],
   openGraph: {
-    title: 'AI Services | SKRBL AI Business Solutions & Automation',
-    description: 'Discover SKRBL AI\'s comprehensive business services: marketing automation, content creation, brand management, and analytics.',
+    title: 'AI Agent Services | SKRBL AI',
+    description: 'Deploy AI agents that give you an unfair advantage over your competition.',
     url: 'https://skrblai.io/services',
     siteName: 'SKRBL AI',
     images: [
       {
-        url: '/og-image.png',
+        url: '/images/og-services.png',
         width: 1200,
         height: 630,
-        alt: 'SKRBL AI Services - Business Solutions & Automation',
+        alt: 'SKRBL AI Agent Services',
       },
     ],
     locale: 'en_US',
@@ -21,20 +31,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AI Services | SKRBL AI Business Solutions',
-    description: 'Discover SKRBL AI\'s comprehensive business services: marketing automation, content creation, and analytics.',
-    images: ['/og-image.png'],
+    title: 'AI Agent Services | SKRBL AI',
+    description: 'Deploy AI agents that give you an unfair advantage.',
+    images: ['/images/og-services.png'],
   },
-  keywords: [
-    'AI Services',
-    'Business Solutions',
-    'Marketing Automation',
-    'Content Creation',
-    'Brand Management',
-    'Business Analytics',
-    'Custom AI Solutions',
-    'Digital Transformation',
-    'SKRBL AI Services',
-    'Enterprise Automation'
-  ],
+  alternates: {
+    canonical: 'https://skrblai.io/services',
+  },
 };

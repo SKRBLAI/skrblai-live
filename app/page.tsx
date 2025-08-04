@@ -78,7 +78,7 @@ export default function HomePage() {
       <div className="absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.08),transparent)]" />
       <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#0d1117]/60 via-[#0d1117]/80 to-[#0d1117]/90" />
       
-      <main className="relative z-10 min-h-screen pt-24 sm:pt-28 md:pt-32 lg:pt-36">
+      <main className="relative z-10 min-h-screen pt-28 sm:pt-32 md:pt-36 lg:pt-40">
         
         {/* Main Content - Unified Responsive Container */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,13 +116,27 @@ export default function HomePage() {
                 </motion.p>
               </motion.div>
 
-              {/* Percy Onboarding Section - Enhanced with 3D and Micro-animations */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }} className="text-center mt-6">
+  <motion.button
+    onClick={() => {
+      const el = document.getElementById('onboarding');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+    className="px-8 py-4 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 text-white text-lg font-semibold rounded-lg shadow-lg transition-all"
+  >
+    Start My Free Scan
+  </motion.button>
+</motion.div>
+
+{/* Percy Onboarding Section - Enhanced with 3D and Micro-animations */}
               {/* FIXED: Percy onboarding now ALWAYS shows on homepage for ALL users */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
-                className="w-full max-w-4xl mx-auto"
+                id="onboarding" className="w-full max-w-4xl mx-auto"
               >
                 <Pseudo3DFeature className="w-full">
                   <PercyOnboardingRevolution />

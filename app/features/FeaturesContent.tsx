@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, Palette, FilePenLine, Megaphone, Crown } from 'lucide-react';
 import SkrblAiText from '../../components/shared/SkrblAiText';
+import PercySuggestionModal from '../../components/percy/PercySuggestionModal';
 
 // Business-Focused Features with metrics like Services page
 const businessFeatures = [
@@ -105,7 +106,8 @@ const successStories = [
 
 export default function FeaturesContent(): JSX.Element {
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
-  const [percyResponse, setPercyResponse] = useState<string>("");
+  const [percySuggestionOpen, setPercySuggestionOpen] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<typeof businessFeatures[0] | null>(null);
   const [liveMetrics, setLiveMetrics] = useState({ totalUsers: 247, featuresActive: 23 });
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   
@@ -128,11 +130,34 @@ export default function FeaturesContent(): JSX.Element {
     return () => clearInterval(interval);
   }, []);
 
-  // Percy Feature Quiz Logic - matching Services pattern
-  const handlePercyFeature = (featureIndex: number) => {
+  // NEW: Percy Suggestion Modal Logic
+  const handleFeatureActivation = (featureIndex: number) => {
     setSelectedFeature(featureIndex);
     const feature = businessFeatures[featureIndex];
-    setPercyResponse(`🎯 Excellent choice! The "${feature.title}" is powered by our ${feature.agents.map(id => id.replace('-agent', '').replace('-', ' ')).join(', ')} agent team. Ready to see ${feature.metrics.avgIncrease} average results in ${feature.metrics.timeToResults}?`);
+    setActiveFeature(feature);
+    setPercySuggestionOpen(true);
+    
+    // Analytics tracking
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'feature_activation_started', {
+        feature_name: feature.title,
+        feature_category: feature.primaryColor
+      });
+    }
+  };
+
+  // Handle Percy suggestion engagement tracking
+  const handlePercyEngagement = (action: string, data?: any) => {
+    console.log('Percy engagement:', action, data);
+    
+    // Analytics tracking
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'percy_suggestion_engagement', {
+        action,
+        feature_name: activeFeature?.title,
+        ...data
+      });
+    }
   };
 
   const container = {
@@ -201,23 +226,36 @@ export default function FeaturesContent(): JSX.Element {
 
           {/* Features Arsenal Grid - Matching Services */}
           <motion.div
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16"
-          >
-            {businessFeatures.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                variants={item}
-                whileHover={{ scale: 1.02, y: -5 }}
-                onClick={() => handlePercyFeature(index)}
-                className={`relative group cursor-pointer transition-all duration-300 ${
-                  selectedFeature === index ? 'ring-4 ring-cyan-400/50' : ''
-                }`}
-              >
-                <GlassmorphicCard className="h-full p-6 relative overflow-hidden border-teal-400/70 backdrop-blur-xl">
-                  {/* Live Activity Badge */}
+  variants={container}
+  initial="hidden"
+  animate="show"
+  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-16"
+>
+  {businessFeatures.map((feature, index) => (
+    <motion.div
+      key={feature.title}
+      variants={item}
+      whileHover={{ scale: 1.045, y: -10, boxShadow: "0 0 40px 12px #0fffcf55, 0 0 80px 24px #a21caf55" }}
+      animate={selectedFeature === index ? { scale: 1.06, boxShadow: "0 0 64px 24px #67e8f9cc, 0 0 128px 32px #f472b6bb" } : {}}
+      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      onClick={() => handleFeatureActivation(index)}
+      className={`relative group cursor-pointer transition-all duration-400 flex flex-col min-h-[410px] md:min-h-[410px] lg:min-h-[430px] ${
+        selectedFeature === index ? 'ring-4 ring-cyan-400/60 z-20 shadow-[0_0_80px_24px_rgba(56,189,248,0.25)]' : 'shadow-[0_0_40px_8px_rgba(56,189,248,0.13)]'
+      }`}
+    >
+      {/* Animated cosmic highlight border for selected */}
+      {selectedFeature === index && (
+        <motion.div
+          layoutId="cosmic-feature-ring"
+          className="absolute inset-0 rounded-3xl border-4 border-cyan-400/70 pointer-events-none animate-pulse"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        />
+      )}
+      <GlassmorphicCard className="flex flex-col justify-between h-full p-8 relative overflow-hidden border-teal-400/70 backdrop-blur-2xl bg-white/10 shadow-[0_0_48px_8px_rgba(56,189,248,0.17),0_0_80px_24px_rgba(168,85,247,0.15)] transition-all duration-400">
+        {/* Live Activity Badge */}
                   <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 backdrop-blur-md px-2 py-1 rounded-full text-xs border border-teal-400/30">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     <span className="text-green-400 font-bold">{feature.liveActivity.users}</span>
@@ -286,41 +324,26 @@ export default function FeaturesContent(): JSX.Element {
             ))}
           </motion.div>
 
-          {/* Percy's Analysis Response - Matching Services */}
-          <AnimatePresence>
-            {percyResponse && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-4xl mx-auto mb-16"
-              >
-                <GlassmorphicCard className="p-8 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,212,255,0.28)]">
-                  <div className="flex items-start gap-4">
-                    <Image
-                      src="/images/agents-percy-nobg-skrblai.webp"
-                      alt="Percy"
-                      width={60}
-                      height={60}
-                      className="rounded-full border-2 border-cyan-400/50"
-                    />
-                    <div className="flex-1">
-                      <div className="text-cyan-400 font-bold mb-2">Percy's Feature Analysis:</div>
-                      <p className="text-white text-lg leading-relaxed mb-4">{percyResponse}</p>
-                      <div className="flex gap-4">
-                        <CosmicButton href="/agents" variant="glass">
-                          Meet The Agent Team
-                        </CosmicButton>
-                        <CosmicButton href="/" variant="glass">
-                          Start Free Trial
-                        </CosmicButton>
-                      </div>
-                    </div>
-                  </div>
-                </GlassmorphicCard>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* NEW: Percy Suggestion Modal */}
+          <PercySuggestionModal
+            isOpen={percySuggestionOpen}
+            onClose={() => {
+              setPercySuggestionOpen(false);
+              setSelectedFeature(null);
+              setActiveFeature(null);
+            }}
+            featureName={activeFeature?.title || ""}
+            featureDescription={activeFeature?.description || ""}
+            primaryColor={activeFeature?.primaryColor || "from-cyan-500 to-blue-600"}
+            customCopy={{
+              benefits: [
+                `${activeFeature?.metrics.successRate}% success rate with real businesses`,
+                `Average ${activeFeature?.metrics.avgIncrease} increase in results`,
+                `See results in just ${activeFeature?.metrics.timeToResults}`
+              ]
+            }}
+            onEngagement={handlePercyEngagement}
+          />
 
           {/* Live Success Stories - Matching Services */}
           <motion.div

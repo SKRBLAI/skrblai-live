@@ -8,7 +8,7 @@ import {
   Sparkles, ArrowRight, Target, TrendingUp, RotateCcw, Send,
   BarChart3, Rocket, BookOpen, Zap, Palette, Trophy,
   Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard,
-  CornerUpLeft
+  CornerUpLeft, Eye, Star, Calendar
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePercyContext } from '../assistant/PercyProvider';
@@ -23,15 +23,42 @@ import ChoiceCard from '../ui/ChoiceCard';
 
 interface OnboardingStep {
   id: string;
-  type: 'greeting' | 'instant-analysis' | 'goal-selection' | 'signup' | 'email-verification' | 'welcome' | 'farewell' | 'custom-needs';
+  type: 'greeting' | 'instant-analysis' | 'goal-selection' | 'signup' | 'email-verification' | 'welcome' | 'farewell' | 'custom-needs' | 'percy-diagnosis' | 'quick-wins' | 'agent-launch' | 'conversational-flow' | 'scanning' | 'results' | 'agent-handoff' | 'input' | 'thinking';
   percyMessage: string;
   options?: { id: string; label: string; icon: React.ReactNode; action: string; data?: any }[];
   showInput?: boolean;
-  inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code' | 'phone' | 'sms-code';
+  inputType?: 'email' | 'text' | 'password' | 'url' | 'vip-code' | 'phone' | 'sms-code' | 'file';
   inputPlaceholder?: string;
   showSkip?: boolean;
   analysisMode?: 'website' | 'business' | 'linkedin' | 'sports' | 'content' | 'book-publishing' | 'custom';
   vipCodeEntry?: boolean;
+  diagnosisType?: 'seo' | 'business' | 'content' | 'brand' | 'sports' | 'book' | 'custom';
+  quickWins?: Array<{
+    title: string;
+    description: string;
+    roi: string;
+    impact: 'high' | 'medium' | 'low';
+  }>;
+  suggestedAgent?: {
+    id: string;
+    name: string;
+    description: string;
+    route: string;
+  };
+  flowType?: 'seo' | 'content' | 'book' | 'business' | 'brand' | 'fitness' | 'custom' | 'signup' | 'code' | 'dashboard';
+  scanningMessage?: string;
+  resultsFeedback?: string[];
+  handoffOptions?: Array<{
+    id: string;
+    label: string;
+    icon: React.ReactNode;
+    action: string;
+    route?: string;
+    modal?: string;
+    data?: any;
+  }>;
+  showProgress?: boolean;
+  dynamicContent?: boolean;
 }
 
 // Removed legacy VIP_CODES constant – we now validate codes on-the-fly inside validateVIPCode
@@ -74,7 +101,20 @@ export default function PercyOnboardingRevolution() {
     userAnalysisAgent,
     isVIPUser,
     vipTier,
-    phoneVerified
+    phoneVerified,
+    // Enhanced Free Scan Logic from Context
+    handleBusinessAnalysis,
+    analysisIntent,
+    setAnalysisIntent,
+    freeAnalysisResults,
+    recommendedAgents,
+    isProcessingAnalysis,
+    // Enhanced Percy Concierge Features from Context
+    percyMood,
+    setPercyMood,
+    userHistory,
+    contextualSuggestions,
+    updateContextualSuggestions
   } = useOnboarding();
   
   // Keep only UI-specific local state
@@ -93,6 +133,7 @@ export default function PercyOnboardingRevolution() {
   // Additional state variables
   const [currentSocialProof, setCurrentSocialProof] = useState<{ message: string } | null>(null);
   const [promptBarLoading, setPromptBarLoading] = useState(false);
+  const [businessInput, setBusinessInput] = useState<string>('');
   
   // Removed liveMetrics state - replaced with static value props
   
@@ -100,9 +141,11 @@ export default function PercyOnboardingRevolution() {
   const businessesTransformed = 47213;
   const intelligenceScore = 247;
 
-  // Enhanced Percy personality state
-  const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'celebrating' | 'confident' | 'scanning' | 'thinking' | 'waving' | 'nodding'>('excited');
+  // Enhanced Percy personality state (UI only - mood comes from context)
   const [userInteracted, setUserInteracted] = useState(false);
+  
+  // Free Scan functionality (UI only - logic handled by context)
+  const [scanIntent, setScanIntent] = useState<string>('');
   const [pulseActive, setPulseActive] = useState(true);
 
   // Use centralized choice handler from context
@@ -159,7 +202,7 @@ export default function PercyOnboardingRevolution() {
   }, [userInteracted]);
 
   // Typewriter effect for prompt bar
-  const [promptBarTypewriter, setPromptBarTypewriter] = useState<string>('');
+  
   const [promptBarFocused, setPromptBarFocused] = useState(false);
   const [promptBarActive, setPromptBarActive] = useState(false);
   // New: dynamic placeholder for the integrated prompt bar
@@ -174,7 +217,7 @@ export default function PercyOnboardingRevolution() {
   }, [promptBarValue]);
 
   const chatRef = useRef<HTMLDivElement>(null);
-  const typewriterMessages = ['Talk to Percy Here...', 'Ask me anything...', 'Let\'s dominate together...', 'Your AI concierge awaits...'];
+  
 
   // --- Animated Intro Message State ---
   const [introIdx, setIntroIdx] = useState(0);
@@ -188,10 +231,20 @@ export default function PercyOnboardingRevolution() {
     // Check for dashboard intent from URL
     const urlParams = new URLSearchParams(window.location.search);
     const action = urlParams.get('action');
+    const scanAction = urlParams.get('scan');
+    
     if (action === 'dashboard') {
       setDashboardIntent(true);
       setPromptBarPlaceholder('Enter your email to access dashboard...');
       console.log('[Percy] Dashboard intent detected from navbar');
+    }
+    
+    // Check for scan intent (from agent cards)
+    if (scanAction) {
+      setScanIntent(scanAction);
+      setCurrentStep('business-input-collection');
+      setPercyMood('excited');
+      console.log('[Percy] Scan intent detected:', scanAction);
     }
     
     // Check if returning user
@@ -246,36 +299,6 @@ export default function PercyOnboardingRevolution() {
     const t = setTimeout(() => setPulseActive(true), 2000);
     return () => clearTimeout(t);
   }, [userInteracted]);
-
-  // Typewriter effect for prompt bar (loops when idle)
-  useEffect(() => {
-    if (promptBarFocused || promptBarActive) return;
-    
-    let messageIndex = 0;
-    let charIndex = 0;
-    let timeout: ReturnType<typeof setTimeout>;
-    
-    const typeChar = () => {
-      const currentMessage = typewriterMessages[messageIndex];
-      if (charIndex < currentMessage.length) {
-        setPromptBarTypewriter(currentMessage.slice(0, charIndex + 1));
-        charIndex++;
-        timeout = setTimeout(typeChar, 100);
-      } else {
-        // Message complete, wait then move to next message
-        timeout = setTimeout(() => {
-          messageIndex = (messageIndex + 1) % typewriterMessages.length;
-          charIndex = 0;
-          setPromptBarTypewriter('');
-        }, 2000);
-      }
-    };
-    
-    typeChar();
-    return () => clearTimeout(timeout);
-  }, [promptBarFocused, promptBarActive, typewriterMessages]);
-
-
 
   // VIP Code validation
   const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
@@ -382,17 +405,7 @@ export default function PercyOnboardingRevolution() {
         { id: 'stay-business', label: '🏢 Actually, let\'s focus on business', icon: '💼', action: 'back-to-business' }
       ]
     },
-    'analysis-results': {
-      id: 'analysis-results',
-      type: 'goal-selection',
-      percyMessage: `🔥 **ANALYSIS COMPLETE - COMPETITIVE ADVANTAGE IDENTIFIED!**\n\nBased on my scan, I've identified **3 major opportunities** where you can leave your competition in the dust:\n\n${competitiveInsights.map((insight, i) => `**${i + 1}.** ${insight}`).join('\n\n')}\n\n**Ready to launch the perfect AI agent for this exact challenge?**`,
-      options: [
-        { id: 'launch-agent', label: `🚀 Launch ${userAnalysisAgent ? userAnalysisAgent.charAt(0).toUpperCase() + userAnalysisAgent.slice(1) : 'Recommended'} Agent!`, icon: '⚡', action: 'launch-recommended-agent' },
-        { id: 'explore-all', label: '🧭 Explore all agents first', icon: '🤖', action: 'explore-agents' },
-        { id: 'try-dashboard', label: '📊 Take me to my dashboard', icon: '🏠', action: 'launch-dashboard' },
-        { id: 'another-scan', label: '🔄 Analyze something else first', icon: '🔍', action: 'back-to-greeting' }
-      ]
-    },
+
     'goal-selection': {
       id: 'goal-selection',
       type: 'goal-selection',
@@ -479,10 +492,413 @@ export default function PercyOnboardingRevolution() {
       options: [
         { id: 'got-it', label: '👍 Got it, thanks Percy!', icon: '✨', action: 'activate-widget' }
       ]
+    },
+    
+    // NEW PERCY DIAGNOSIS STEPS
+    'percy-seo-diagnosis': {
+      id: 'percy-seo-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `🌐 **SEO DOMINANCE SCANNER ACTIVATED!**\n\nPerfect choice! I'm about to analyze your website with intelligence that's made **${Math.floor(businessesTransformed/10)}** businesses the #1 result in their industry.\n\n**Drop your website URL and I'll show you how to crush your SEO competition:**\n\n⚡ **What I'll reveal in 15 seconds:**\n• SEO gaps your competitors haven't noticed\n• Content opportunities worth $50K+ in traffic\n• Technical advantages that Google loves\n• The exact strategy to rank #1 for your keywords`,
+      showInput: true,
+      inputType: 'url',
+      inputPlaceholder: 'https://your-website.com',
+      diagnosisType: 'seo'
+    },
+    
+    'percy-business-diagnosis': {
+      id: 'percy-business-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `🏢 **BUSINESS AUTOMATION INTELLIGENCE ACTIVATED!**\n\nExcellent! I'm about to deploy the same strategic analysis that's automated **$18.5M** worth of manual work this month.\n\n**Tell me about your business or share your website, and I'll show you exactly how to automate everything:**\n\n🎯 **What I'll uncover:**\n• Hidden automation opportunities worth 40+ hours/week\n• Revenue streams your competitors can't touch\n• Workflow optimizations that 10x your efficiency\n• The exact AI agents that'll run your business automatically`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your business OR paste your website URL...',
+      diagnosisType: 'business'
+    },
+    
+    'percy-content-diagnosis': {
+      id: 'percy-content-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `✍️ **CONTENT CREATION DOMINATION MODE!**\n\nBrilliant! I've helped **${Math.floor(businessesTransformed/8)}** content creators build massive audiences and leave their competition posting into the void.\n\n**Share your content goals, niche, or current platform and I'll reveal your viral strategy:**\n\n🎯 **What I'll optimize:**\n• Content gaps your audience is desperately craving\n• Viral content formulas your competitors don't know\n• Monetization opportunities they're missing\n• AI automation that'll 10x your content output`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'What type of content do you create? (YouTube, blogs, social media, etc.)',
+      diagnosisType: 'content'
+    },
+    
+    'percy-brand-diagnosis': {
+      id: 'percy-brand-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `💼 **PROFESSIONAL BRAND DOMINATION SCANNER!**\n\nPerfect timing! I'm about to optimize your professional presence with intelligence that's made **2,847** professionals the go-to expert in their field.\n\n**Share your LinkedIn profile or tell me about your brand goals:**\n\n📈 **What I'll transform:**\n• Personal brand positioning that makes you THE authority\n• Network expansion tactics your competition won't think of\n• Content strategy that positions you as indispensable\n• Professional presence that opens every door`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'LinkedIn URL OR describe your professional goals...',
+      diagnosisType: 'brand'
+    },
+    
+    'percy-book-diagnosis': {
+      id: 'percy-book-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `📚 **BOOK PUBLISHING EMPIRE ANALYSIS!**\n\nExcellent choice! I've helped **${Math.floor(businessesTransformed/12)}** authors and publishers build bestselling machines that dominate their markets.\n\n**Tell me about your book project, genre, or publishing goals:**\n\n✨ **What I'll architect:**\n• Market positioning that makes you THE expert\n• Content strategies that sell books before they're written\n• Author platform automation that builds massive followings\n• Publishing workflows that turn ideas into consistent revenue`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your book project, genre, or publishing goals...',
+      diagnosisType: 'book'
+    },
+    
+    'percy-sports-diagnosis': {
+      id: 'percy-sports-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `🏆 **ATHLETIC PERFORMANCE OPTIMIZATION SCAN!**\n\nGame time! I'm connecting you with our sports performance intelligence that's optimized **1,200+** athletes' training and mental game.\n\n**Tell me about your sport, current level, or specific goals:**\n\n🎯 **What I'll analyze:**\n• Performance gaps your competition hasn't identified\n• Training optimizations for maximum results\n• Mental game strategies that create champions\n• Recovery and nutrition protocols for peak performance`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'What sport? What\'s your current level and goals?',
+      diagnosisType: 'sports'
+    },
+    
+    'percy-custom-diagnosis': {
+      id: 'percy-custom-diagnosis',
+      type: 'percy-diagnosis',
+      percyMessage: `🎤 **CUSTOM INTELLIGENCE MODE - I'M ALL EARS!**\n\nBrilliant! This is exactly why I have an IQ of ${intelligenceScore} - I can adapt to ANY challenge and find competitive advantages others completely miss.\n\n**Tell me exactly what you need and I'll analyze how our AI agent army can give you an unfair advantage:**\n\n💡 **Whatever you're building, I can help you:**\n• Automate the tedious manual work\n• Outthink and outmaneuver your competition\n• Scale beyond human limitations\n• Generate revenue while you sleep`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your challenge, business, goals, or what you need help with...',
+      diagnosisType: 'custom'
+    },
+    
+    // QUICK WINS RESULTS STEP
+    'percy-quick-wins': {
+      id: 'percy-quick-wins',
+      type: 'quick-wins',
+      percyMessage: `🔥 **DIAGNOSIS COMPLETE - COMPETITIVE ADVANTAGE IDENTIFIED!**\n\nBased on my analysis of "${analysisResults?.input}", I've identified **3 QUICK WINS** that will give you an immediate advantage over your competition:\n\n${analysisResults?.insights ? analysisResults.insights.map((insight, i) => `**${i + 1}.** ${insight}`).join('\n\n') : 'Analyzing your competitive landscape...'}\n\n**These aren't just suggestions - they're your roadmap to domination. Ready to launch the perfect AI agent for this challenge?**`,
+      quickWins: [
+        { title: 'Quick Win 1', description: 'High-impact optimization', roi: '+40% results', impact: 'high' },
+        { title: 'Quick Win 2', description: 'Automation opportunity', roi: '+25% efficiency', impact: 'high' },
+        { title: 'Quick Win 3', description: 'Competitive advantage', roi: '+60% performance', impact: 'medium' }
+      ],
+      suggestedAgent: {
+        id: 'recommended',
+        name: userAnalysisAgent || 'AI Agent',
+        description: 'Perfectly matched to your specific needs',
+        route: '/services/agent'
+      },
+      options: [
+        { id: 'launch-agent', label: `🚀 Launch ${userAnalysisAgent || 'Recommended'} Agent Now!`, icon: <Rocket className="w-8 h-8" />, action: 'launch-recommended-agent' },
+        { id: 'explore-agents', label: '🧭 Explore All Agents First', icon: <Users className="w-8 h-8" />, action: 'explore-all-agents' },
+        { id: 'get-dashboard', label: '📊 Set Up My Dashboard', icon: <LayoutDashboard className="w-8 h-8" />, action: 'setup-dashboard' },
+        { id: 'another-scan', label: '🔄 Analyze Something Else', icon: <BarChart3 className="w-8 h-8" />, action: 'back-to-greeting' }
+      ]
+    },
+    
+    // ========== NEW CONVERSATIONAL FLOW STEPS ==========
+    
+    // SEO DOMINATION FLOW
+    'seo-flow-start': {
+      id: 'seo-flow-start',
+      type: 'conversational-flow',
+      flowType: 'seo',
+      percyMessage: `🌐 **SEO DOMINATION MODE ACTIVATED!**\n\nPerfect choice! I'm about to analyze your website with the same intelligence that's made **${Math.floor(businessesTransformed/10)}** businesses the #1 result in their industry.\n\n**Drop your website URL or tell me your business niche, and I'll show you exactly how to crush your SEO competition:**\n\n⚡ **What I'll reveal in 15 seconds:**\n• Missing backlinks that could 10x your traffic\n• Technical issues hemorrhaging your rankings\n• Content gaps your competitors are exploiting\n• The exact keywords that'll make you #1`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Enter your website URL or business niche...'
+    },
+    
+    'seo-scanning': {
+      id: 'seo-scanning',
+      type: 'scanning',
+      flowType: 'seo',
+      percyMessage: `🔍 **SCANNING YOUR SEO FOOTPRINT...**\n\nAnalyzing your website architecture...\nChecking competitor rankings...\nIdentifying keyword opportunities...\nScanning technical SEO issues...\n\n**Almost done! This is where your competition gets left behind.**`,
+      scanningMessage: 'Analyzing your SEO footprint...'
+    },
+    
+    'seo-results': {
+      id: 'seo-results',
+      type: 'results',
+      flowType: 'seo',
+      percyMessage: `🎯 **SEO ANALYSIS COMPLETE - FOUND YOUR COMPETITIVE ADVANTAGES!**\n\nHere's what I discovered about your SEO landscape:\n\n**🔴 CRITICAL ISSUES:**\n• 67% of your pages lack proper meta descriptions\n• Page speed 3.2s slower than top competitors\n• Missing 23 high-value backlink opportunities\n\n**🟢 QUICK WINS IDENTIFIED:**\n• Target "long-tail + location" keywords (zero competition)\n• Fix technical issues blocking Google crawlers\n• Implement schema markup for instant rich results\n\n**💰 POTENTIAL IMPACT:** +270% organic traffic, +$18K monthly revenue`,
+      resultsFeedback: [
+        'Critical technical SEO issues found',
+        '23 high-value keyword opportunities identified',
+        'Competitor analysis complete - gaps discovered'
+      ],
+      handoffOptions: [
+        { id: 'get-seo-report', label: '📊 Get Free SEO Report', icon: <BarChart3 className="w-6 h-6" />, action: 'download-seo-report' },
+        { id: 'chat-seo-agent', label: '💬 Chat SEO Agent', icon: <MessageCircle className="w-6 h-6" />, action: 'open-seo-chat', route: '/chat/seo-agent' },
+        { id: 'launch-seo-automation', label: '🚀 Launch SEO Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-seo-agent', route: '/services/seo-agent' }
+      ]
+    },
+    
+    // CONTENT CREATION FLOW
+    'content-flow-start': {
+      id: 'content-flow-start',
+      type: 'conversational-flow',
+      flowType: 'content',
+      percyMessage: `✍️ **CONTENT CREATION DOMINATION MODE!**\n\nBrilliant! I'm about to deploy the same content intelligence that's helped **${Math.floor(businessesTransformed/8)}** creators build massive audiences and leave their competition posting into the void.\n\n**What kind of content empire are we building?**\n\n🎯 **I can optimize:**\n• Blog posts that rank #1 and convert\n• Social media content that goes viral\n• Email campaigns that generate revenue\n• Video content that builds audiences\n• Any content that needs to DOMINATE`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'What type of content? (blog, social, email, video, etc.)'
+    },
+    
+    'content-topic-prompt': {
+      id: 'content-topic-prompt',
+      type: 'conversational-flow',
+      flowType: 'content',
+      percyMessage: `🎬 **CONTENT TYPE LOCKED IN!**\n\nPerfect! Now let's make this content absolutely irresistible to your audience.\n\n**What's your main topic, product, or message?** The more specific you are, the more I can help you dominate this space.\n\n💡 **Examples:**\n• "AI tools for small business automation"\n• "Fitness routines for busy professionals"\n• "Real estate investing for beginners"\n• "Productivity hacks for entrepreneurs"`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Tell me your topic, product, or main message...'
+    },
+    
+    'content-results': {
+      id: 'content-results',
+      type: 'results',
+      flowType: 'content',
+      percyMessage: `🔥 **CONTENT STRATEGY GENERATED - YOUR COMPETITION WON'T SEE THIS COMING!**\n\nBased on your content goals, here's your viral content outline:\n\n**📋 CONTENT OUTLINE:**\n• Hook: "The #1 mistake everyone makes with [topic]"\n• Problem: Pain points your audience faces daily\n• Solution: Your unique approach/product\n• Proof: Social proof and success stories\n• CTA: Clear next step for engagement\n\n**🎯 VIRAL ELEMENTS:**\n• Trending hashtags for maximum reach\n• Controversy angle that sparks engagement\n• Shareable quotes and visual elements\n\n**💰 MONETIZATION HOOKS:**\n• Lead magnet integration\n• Product mention placement\n• Follow-up sequence triggers`,
+      handoffOptions: [
+        { id: 'see-content-demo', label: '👀 See Demo', icon: <Eye className="w-6 h-6" />, action: 'open-content-demo', modal: 'content-walkthrough' },
+        { id: 'connect-contentrix', label: '💬 Connect to Contentrix', icon: <MessageCircle className="w-6 h-6" />, action: 'open-content-chat', route: '/chat/content-agent' },
+        { id: 'launch-content-automation', label: '🚀 Launch Content Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-content-agent', route: '/services/content-automation' }
+      ]
+    },
+    
+    // BOOK PUBLISHING FLOW
+    'book-flow-start': {
+      id: 'book-flow-start',
+      type: 'conversational-flow',
+      flowType: 'book',
+      percyMessage: `📚 **BOOK PUBLISHING EMPIRE MODE ACTIVATED!**\n\nExcellent choice! I've helped **${Math.floor(businessesTransformed/12)}** authors and publishers build bestselling machines that dominate their markets.\n\n**Let's create your publishing empire! What's your book idea?**\n\n✨ **Tell me:**\n• Your book title or main idea\n• Type: Fiction, Non-fiction, Children's, Business, Self-help, etc.\n• Your target audience\n\n**I'll generate your complete publishing roadmap, from manuscript to bestseller!**`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your book idea, title, and type...'
+    },
+    
+    'book-results': {
+      id: 'book-results',
+      type: 'results',
+      flowType: 'book',
+      percyMessage: `🏆 **PUBLISHING ROADMAP GENERATED - BESTSELLER STATUS INCOMING!**\n\nYour book has serious potential! Here's your complete publishing strategy:\n\n**📖 AI PUBLISHING TEMPLATE:**\n• Chapter outline with hooks that keep readers engaged\n• Market positioning against top competitors\n• Amazon KDP optimization strategy\n• Launch sequence for maximum visibility\n\n**💰 MONETIZATION STRATEGY:**\n• Pre-launch audience building (10K potential buyers)\n• Book-to-business funnel integration\n• Speaking opportunity pipeline\n• Course/coaching upsell opportunities\n\n**🚀 QUICK START:**\n• Professional book cover concepts\n• Optimized book description\n• Category selection for easy rankings\n• Launch timeline with milestones`,
+      handoffOptions: [
+        { id: 'download-template', label: '📥 Download Template', icon: <BookOpen className="w-6 h-6" />, action: 'download-book-template' },
+        { id: 'chat-publishing-agent', label: '💬 Chat Publishing Agent', icon: <MessageCircle className="w-6 h-6" />, action: 'open-publishing-chat', route: '/chat/book-agent' },
+        { id: 'launch-book-publishing', label: '🚀 Launch Book Publishing', icon: <Rocket className="w-6 h-6" />, action: 'launch-book-agent', route: '/services/book-publishing' }
+      ]
+    },
+    
+    // BUSINESS AUTOMATION FLOW
+    'business-flow-start': {
+      id: 'business-flow-start',
+      type: 'conversational-flow',
+      flowType: 'business',
+      percyMessage: `⚡ **BUSINESS AUTOMATION INTELLIGENCE ACTIVATED!**\n\nExcellent! I'm about to deploy the same automation analysis that's saved **$18.5M** worth of manual work this month alone.\n\n**What's your biggest business time-waster right now?**\n\n🎯 **Common time-wasters I eliminate:**\n• Manual lead qualification and follow-up\n• Social media posting and engagement\n• Customer support and FAQ responses\n• Data entry and reporting tasks\n• Email marketing and nurture sequences\n• Inventory management and ordering\n\n**Tell me what's eating up your time, and I'll show you exactly how to automate it!**`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'What\'s your biggest time-waster or manual task?'
+    },
+    
+    'business-scanning': {
+      id: 'business-scanning',
+      type: 'scanning',
+      flowType: 'business',
+      percyMessage: `🔄 **SCANNING FOR AUTOMATION OPPORTUNITIES...**\n\nAnalyzing your workflow inefficiencies...\nIdentifying automation quick wins...\nCalculating time savings potential...\nMapping competitive advantages...\n\n**Finding the automations that'll give you 20+ hours back per week!**`,
+      scanningMessage: 'Scanning for automation opportunities...'
+    },
+    
+    'business-results': {
+      id: 'business-results',
+      type: 'results',
+      flowType: 'business',
+      percyMessage: `💼 **AUTOMATION ANALYSIS COMPLETE - MASSIVE TIME SAVINGS IDENTIFIED!**\n\nHere are the automation opportunities that'll transform your business:\n\n**⏰ TIME SAVINGS POTENTIAL:**\n• Automate lead qualification: +15 hours/week\n• Customer journey automation: +12 hours/week\n• Social media management: +8 hours/week\n• **Total weekly savings: +35 hours**\n\n**💰 REVENUE IMPACT:**\n• +320% more qualified leads\n• +250% customer conversion rate\n• +$22K additional monthly revenue\n\n**🚀 QUICK WINS:**\n• Email automation sequences\n• Lead scoring and qualification\n• Social media content scheduling\n• Customer support chatbots`,
+      handoffOptions: [
+        { id: 'demo-automation', label: '👀 Demo Automation', icon: <Eye className="w-6 h-6" />, action: 'open-automation-demo', modal: 'automation-walkthrough' },
+        { id: 'chat-bizwiz', label: '💬 Chat BizWiz', icon: <MessageCircle className="w-6 h-6" />, action: 'open-business-chat', route: '/chat/biz-agent' },
+        { id: 'see-workflow-template', label: '📋 See Workflow Template', icon: <Zap className="w-6 h-6" />, action: 'view-workflow-template', route: '/templates/business-automation' }
+      ]
+    },
+    
+    // BRAND UPGRADE FLOW
+    'brand-flow-start': {
+      id: 'brand-flow-start',
+      type: 'conversational-flow',
+      flowType: 'brand',
+      percyMessage: `🎨 **BRAND UPGRADE DOMINATION MODE!**\n\nPerfect timing! I'm about to optimize your brand with intelligence that's made **2,847** professionals the go-to expert in their field.\n\n**What aspect of your brand needs an upgrade?**\n\n✨ **I can enhance:**\n• Logo design and visual identity\n• Color palette and brand guidelines\n• Website design and user experience\n• Social media presence and consistency\n• Professional headshots and imagery\n• Brand voice and messaging strategy\n\n**Upload any current brand assets or describe what you want to upgrade!**`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'What do you want to upgrade? (logo, colors, website, etc.)'
+    },
+    
+    'brand-upload-prompt': {
+      id: 'brand-upload-prompt',
+      type: 'conversational-flow',
+      flowType: 'brand',
+      percyMessage: `📤 **BRAND ASSET ANALYSIS MODE!**\n\nGreat! Now let's make your brand absolutely irresistible.\n\n**Upload your current brand assets or describe your vision:**\n\n🎨 **What I can work with:**\n• Current logo files\n• Brand colors or inspiration\n• Website screenshots\n• Competitor brands you admire\n• Style preferences (modern, classic, bold, minimal)\n\n**The more details you give me, the more I can help you dominate your market visually!**`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your brand vision or upload current assets...'
+    },
+    
+    'brand-results': {
+      id: 'brand-results',
+      type: 'results',
+      flowType: 'brand',
+      percyMessage: `🎯 **BRAND ANALYSIS COMPLETE - YOUR NEW IDENTITY AWAITS!**\n\nBased on your brand goals, here are the upgrades that'll make you unforgettable:\n\n**🎨 BRAND RECOMMENDATIONS:**\n• Color Psychology: Deep blue for trust + vibrant orange for energy\n• Typography: Modern sans-serif for authority and readability\n• Logo Concept: Minimalist icon with strong wordmark\n• Visual Style: Clean, professional with strategic color pops\n\n**📈 COMPETITIVE ADVANTAGES:**\n• Visual consistency across all platforms\n• Professional credibility that builds instant trust\n• Memorable brand elements that stick in minds\n• Scalable design system for future growth\n\n**💼 IMPLEMENTATION PACKAGE:**\n• Complete brand guidelines document\n• Logo variations and usage rules\n• Social media templates\n• Business card and letterhead designs`,
+      handoffOptions: [
+        { id: 'see-brand-kit', label: '🎨 See Brand Kit', icon: <Palette className="w-6 h-6" />, action: 'view-brand-kit', modal: 'brand-showcase' },
+        { id: 'chat-brandbot', label: '💬 Chat BrandBot', icon: <MessageCircle className="w-6 h-6" />, action: 'open-brand-chat', route: '/chat/brand-agent' },
+        { id: 'launch-brand-upgrade', label: '🚀 Launch Brand Upgrade', icon: <Rocket className="w-6 h-6" />, action: 'launch-brand-agent', route: '/services/branding' }
+      ]
+    },
+    
+    // FITNESS/SKILLSMITH FLOW (Direct handoff)
+    'fitness-skillsmith-handoff': {
+      id: 'fitness-skillsmith-handoff',
+      type: 'agent-handoff',
+      flowType: 'fitness',
+      percyMessage: `🏆 **CONNECTING TO SKILL SMITH - YOUR ATHLETIC PERFORMANCE EXPERT!**\n\nPerfect choice! I'm handing you over to **Skill Smith**, our elite sports performance AI who's optimized **1,200+** athletes' training and mental game.\n\n**🎯 Skill Smith specializes in:**\n• Sports video analysis and form correction\n• Personalized training program optimization\n• Mental game and performance psychology\n• Nutrition and recovery protocols\n\n**You'll be redirected to Skill Smith's training lab where you can:**\n• Upload training videos for instant analysis\n• Get personalized workout recommendations\n• Access sport-specific performance tools\n\n**Get ready to unlock your athletic potential!**`,
+      handoffOptions: [
+        { id: 'launch-skillsmith', label: '🏃‍♂️ Enter Training Lab', icon: <Trophy className="w-6 h-6" />, action: 'launch-skillsmith', route: '/sports' },
+        { id: 'skillsmith-preview', label: '👀 Preview SkillSmith', icon: <Eye className="w-6 h-6" />, action: 'preview-skillsmith', modal: 'skillsmith-demo' },
+        { id: 'back-to-percy', label: '↩️ Back to Percy', icon: <MessageCircle className="w-6 h-6" />, action: 'back-to-greeting' }
+      ]
+    },
+    
+    // CUSTOM SOMETHING ELSE FLOW
+    'custom-flow-start': {
+      id: 'custom-flow-start',
+      type: 'conversational-flow',
+      flowType: 'custom',
+      percyMessage: `🎤 **CUSTOM INTELLIGENCE MODE - I'M ALL EARS!**\n\nBrilliant! This is exactly why I have an IQ of ${intelligenceScore} - I can adapt to ANY challenge and find competitive advantages others completely miss.\n\n**Tell me about your challenge, idea, or what you need help with:**\n\n💡 **I excel at:**\n• Unusual business challenges\n• Creative project automation\n• Industry-specific solutions\n• Custom workflow optimization\n• Unique competitive advantages\n\n**Don't hold back - the more unique your challenge, the more I can help you dominate!**`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Describe your challenge, idea, or what you need help with...'
+    },
+    
+    'custom-analysis': {
+      id: 'custom-analysis',
+      type: 'results',
+      flowType: 'custom',
+      percyMessage: `🧠 **CUSTOM ANALYSIS COMPLETE - SOLUTION PATHWAY IDENTIFIED!**\n\nBased on your unique challenge, here are the top 3 agents perfectly matched to help you:\n\n**🤖 RECOMMENDED AGENTS:**\n\n**1. Business Automation Agent**\n• Best for: Workflow optimization and process automation\n• Specializes in: Custom business solutions\n\n**2. Content Automation Agent**\n• Best for: Creative projects and content challenges\n• Specializes in: Multi-platform content strategies\n\n**3. Custom AI Agent**\n• Best for: Unique challenges requiring adaptive solutions\n• Specializes in: Industry-specific innovations\n\n**💡 NEXT STEPS:**\nChoose an agent below to dive deeper into your specific solution!`,
+      handoffOptions: [
+        { id: 'chat-recommended-agent', label: '💬 Chat Agent', icon: <MessageCircle className="w-6 h-6" />, action: 'open-custom-chat', route: '/chat' },
+        { id: 'see-custom-demo', label: '👀 See Demo', icon: <Eye className="w-6 h-6" />, action: 'open-custom-demo', modal: 'custom-walkthrough' },
+        { id: 'get-recommendation', label: '🎯 Get Recommendation', icon: <Target className="w-6 h-6" />, action: 'get-custom-recommendation' }
+      ]
+    },
+    
+    // SIGNUP FLOW
+    'signup-flow-start': {
+      id: 'signup-flow-start',
+      type: 'conversational-flow',
+      flowType: 'signup',
+      percyMessage: `🚀 **WELCOME TO THE REVOLUTION!**\n\nExcellent choice! You're about to join **${(businessesTransformed + 1).toLocaleString()}** successful businesses who've gained an unfair AI advantage.\n\n**Enter your email to unlock your AI agent army:**\n\n✨ **What you get instantly:**\n• Access to all AI agents\n• Personalized automation recommendations\n• Competitive intelligence dashboard\n• Priority support from the team\n\n**Ready to make your competition irrelevant?**`,
+      showInput: true,
+      inputType: 'email',
+      inputPlaceholder: 'Enter your email address...'
+    },
+    
+    'signup-confirmation': {
+      id: 'signup-confirmation',
+      type: 'results',
+      flowType: 'signup',
+      percyMessage: `🎉 **ACCOUNT CREATED - WELCOME TO THE ELITE!**\n\nYour AI advantage is now activating! Here's what happens next:\n\n**✅ ACCOUNT SETUP COMPLETE:**\n• AI agent team deployed\n• Competitive intelligence scanning\n• Dashboard ready for customization\n• Welcome bonus unlocked\n\n**🎯 RECOMMENDED NEXT STEPS:**\n• Book your personalized onboarding call\n• Explore your agent capabilities\n• Take the quick product tour\n\n**You're now 10x ahead of competitors who are still doing things manually!**`,
+      handoffOptions: [
+        { id: 'book-onboarding', label: '📅 Book Onboarding', icon: <Calendar className="w-6 h-6" />, action: 'book-onboarding-call' },
+        { id: 'explore-agents', label: '🧭 Explore Agents', icon: <Users className="w-6 h-6" />, action: 'explore-agents', route: '/agents' },
+        { id: 'quick-tour', label: '🎯 Get Quick Tour', icon: <Eye className="w-6 h-6" />, action: 'start-product-tour', modal: 'platform-tour' }
+      ]
+    },
+    
+    // VIP CODE FLOW
+    'code-flow-start': {
+      id: 'code-flow-start',
+      type: 'conversational-flow',
+      flowType: 'code',
+      percyMessage: `🔑 **VIP ACCESS VERIFICATION!**\n\nAh, someone with exclusive access! Enter your VIP, referral, or promo code below.\n\n**✨ SPECIAL CODES UNLOCK:**\n• VIP agent features\n• Priority support access\n• Exclusive automation templates\n• Advanced analytics dashboard\n• Beta feature early access\n\n**Enter your code to unlock your premium experience:**`,
+      showInput: true,
+      inputType: 'vip-code',
+      inputPlaceholder: 'Enter your VIP/promo code...'
+    },
+    
+    'code-success': {
+      id: 'code-success',
+      type: 'results',
+      flowType: 'code',
+      percyMessage: `👑 **VIP ACCESS GRANTED - WELCOME TO THE ELITE TIER!**\n\nYour exclusive code has been verified! Here's what you've unlocked:\n\n**🌟 VIP FEATURES ACTIVATED:**\n• Priority agent response times\n• Advanced automation templates\n• Exclusive industry insights\n• Direct founder access\n• Beta feature early access\n\n**💎 EXCLUSIVE OFFERS:**\n• 50% off premium upgrades\n• Free strategy consultation\n• Custom automation builds\n• White-glove onboarding\n\n**Your VIP dashboard is ready to dominate!**`,
+      handoffOptions: [
+        { id: 'access-vip-dashboard', label: '👑 Access Dashboard', icon: <LayoutDashboard className="w-6 h-6" />, action: 'access-vip-dashboard', route: '/dashboard?vip=true' },
+        { id: 'see-vip-offers', label: '💎 See Offers', icon: <Star className="w-6 h-6" />, action: 'view-vip-offers', route: '/offers' },
+        { id: 'chat-percy-vip', label: '💬 Chat Percy VIP', icon: <MessageCircle className="w-6 h-6" />, action: 'open-vip-chat', route: '/chat/percy?vip=true' }
+      ]
+    },
+    
+    // DASHBOARD ACCESS FLOW
+    'dashboard-flow-start': {
+      id: 'dashboard-flow-start',
+      type: 'conversational-flow',
+      flowType: 'dashboard',
+      percyMessage: `📊 **DASHBOARD ACCESS PORTAL!**\n\nWelcome back! Enter your email or access code to view your saved workflows, analysis results, and AI agent activities.\n\n**🎯 YOUR DASHBOARD INCLUDES:**\n• Active automation workflows\n• Performance analytics and insights\n• Saved analysis results\n• Agent conversation history\n• Competitive intelligence reports\n\n**Ready to see your AI empire in action?**`,
+      showInput: true,
+      inputType: 'email',
+      inputPlaceholder: 'Enter email or access code...'
+    },
+    
+    'dashboard-access': {
+      id: 'dashboard-access',
+      type: 'results',
+      flowType: 'dashboard',
+      percyMessage: `🎮 **DASHBOARD ACCESS GRANTED - COMMAND CENTER READY!**\n\nWelcome to your AI command center! Here's what's waiting for you:\n\n**📈 RECENT ACTIVITY:**\n• 3 automation workflows running\n• 12 competitive insights generated\n• 8 agent conversations saved\n• $4,200 in ROI tracked this month\n\n**🚀 QUICK ACTIONS:**\n• View your active workflows\n• Analyze latest results\n• Launch new agent sessions\n\n**Your competitive advantage is growing every day!**`,
+      handoffOptions: [
+        { id: 'view-workflows', label: '⚙️ View Workflows', icon: <Settings className="w-6 h-6" />, action: 'view-workflows', route: '/dashboard/workflows' },
+        { id: 'analyze-results', label: '📊 Analyze My Results', icon: <BarChart3 className="w-6 h-6" />, action: 'analyze-results', route: '/dashboard/analytics' },
+        { id: 'launch-agent-session', label: '🚀 Launch Agent', icon: <Rocket className="w-6 h-6" />, action: 'launch-agent-session', route: '/agents' }
+      ]
+    },
+
+    // FREE SCAN FLOW STEPS
+    'business-input-collection': {
+      id: 'business-input-collection',
+      type: 'input',
+      percyMessage: `🔍 **FREE AI BUSINESS SCAN ACTIVATED!**\n\nI'm going to analyze your business and identify immediate opportunities for growth and automation.\n\n**What I need:** Just share your business website, social media profile, or tell me about your business/goals.\n\n**What you'll get:**\n• AI-powered opportunity analysis\n• Specific recommendations\n• 1-2 recommended agents to launch\n• Instant actionable insights\n\nReady to see what your competition is missing?`,
+      showInput: true,
+      inputType: 'text',
+      inputPlaceholder: 'Enter your website URL, social media, or describe your business...'
+    },
+
+    'ai-analysis-processing': {
+      id: 'ai-analysis-processing',
+      type: 'thinking',
+      percyMessage: `🧠 **AI ANALYSIS IN PROGRESS...**\n\nI'm running deep analysis on your business using my 247 IQ competitive intelligence engine:\n\n**🔍 Scanning:** Market position & competitor gaps\n**⚡ Analyzing:** Automation opportunities\n**🎯 Identifying:** Quick wins & revenue boosters\n**🚀 Matching:** Perfect AI agents for your needs\n\nThis usually takes 15-30 seconds...\n\n*Your competition won't know what hit them.*`,
+      showProgress: true
+    },
+
+    'analysis-results': {
+      id: 'analysis-results',
+      type: 'results',
+      percyMessage: `✨ **ANALYSIS COMPLETE - OPPORTUNITIES IDENTIFIED!**\n\nI've found several ways to give you an unfair advantage over your competition.\n\n**Here's what I discovered about your business:**`,
+      dynamicContent: true, // Will be populated with actual analysis
+      handoffOptions: [] // Will be populated with recommended agents
     }
   };
 
-  const getCurrentStep = () => onboardingSteps[currentStep];
+  const getCurrentStep = () => {
+    const step = onboardingSteps[currentStep];
+    
+    // Dynamically populate analysis-results step with context data
+    if (currentStep === 'analysis-results' && freeAnalysisResults) {
+      return {
+        ...step,
+        percyMessage: `✨ **ANALYSIS COMPLETE - OPPORTUNITIES IDENTIFIED!**\n\n${freeAnalysisResults.analysis}\n\n**🎯 OPPORTUNITIES I FOUND:**\n${freeAnalysisResults.opportunities?.map((opp: string) => `• ${opp}`).join('\n')}\n\n**⚡ QUICK WINS (This Week):**\n${freeAnalysisResults.quickWins?.map((win: string) => `• ${win}`).join('\n')}\n\n**Your next step: Launch the perfect AI agent to capitalize on these opportunities!**`,
+        handoffOptions: recommendedAgents?.map((agent: any) => ({
+          id: `launch-${agent.id}`,
+          label: `🚀 Launch ${agent.name}`,
+          icon: <Rocket className="w-6 h-6" />,
+          action: 'launch-agent',
+          route: `/services/${agent.id}`,
+          data: { agentId: agent.id, reason: agent.reason }
+        })) || []
+      };
+    }
+    
+    return step;
+  };
 
   // Percy thinking is now handled by context
   const handlePercyThinking = async (duration = 2000) => {
@@ -490,6 +906,8 @@ export default function PercyOnboardingRevolution() {
     await new Promise(resolve => setTimeout(resolve, duration));
     setPercyMood('confident');
   };
+
+  // Business Analysis Handler now handled by context - Percy focuses on UI!
 
   // performAnalysis is now handled by context
 
@@ -500,28 +918,128 @@ export default function PercyOnboardingRevolution() {
     icon: React.ReactNode;
     action: string;
     data?: Record<string, unknown>;
+    route?: string;
+    modal?: string;
   };
 
   const handleOptionClick = async (option: OnboardingOption) => {
     try {
       toast.success(`${option.label} selected! 🎯`, { duration: 1500 });
       
-      // Enhanced: Route to agent if mapped, else show Coming Soon modal or use centralized handler
-      if (AGENT_ACTIONS[option.action]) {
-        router.push(`/services/${AGENT_ACTIONS[option.action]}`);
+      // FREE SCAN FLOW SYSTEM:
+      // Each choice button triggers AI analysis followed by agent recommendations
+      const freeAnalysisMapping: Record<string, string> = {
+        'website-scan': 'analyze-website',
+        'content-creator': 'analyze-content-strategy', 
+        'book-publisher': 'analyze-publishing-strategy',
+        'business-strategy': 'analyze-business-automation',
+        'linkedin-profile': 'analyze-brand-presence',
+        'sports-analysis': 'fitness-skillsmith-handoff', // Direct SkillSmith handoff
+        'custom-needs': 'analyze-custom-needs',
+        'signup': 'signup-flow-start',
+        'have-code': 'code-flow-start',
+        'my-dashboard': 'dashboard-flow-start'
+      };
+      
+      // Route to analysis flows for choice buttons
+      if (freeAnalysisMapping[option.id]) {
+        if (option.id === 'sports-analysis') {
+          // Direct route to SkillSmith
+          setPercyMood('excited');
+          await handlePercyThinking(800);
+          setCurrentStep('fitness-skillsmith-handoff');
+          trackBehavior('skillsmith_redirect', { type: option.id });
+          return;
+        }
+        
+        // For other options, start AI analysis
+        setPercyMood('analyzing');
+        await handlePercyThinking(1000);
+        setCurrentStep('business-input-collection');
+        setAnalysisIntent(freeAnalysisMapping[option.id]);
+        trackBehavior('free_scan_started', { type: option.id, analysis: freeAnalysisMapping[option.id] });
         return;
       }
       
-      // If not mapped and not handled by legacy logic, show Coming Soon modal
-      if (!['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
-        setComingSoonOption(option);
-        setComingSoonOpen(true);
+      // Handle scanning animation flows
+      if (option.action === 'trigger-scanning') {
+        setPercyMood('analyzing');
+        await handlePercyThinking(3000);
+        // Move to results step based on flow type
+        const currentStepObj = getCurrentStep();
+        if (currentStepObj.flowType) {
+          setCurrentStep(`${currentStepObj.flowType}-results`);
+        }
         return;
       }
       
-      // Use centralized choice handler for Percy onboarding flow
-      handleUserChoice(option.id, option.data);
-      if (['signup', 'have-code', 'my-dashboard', 'custom-needs-analysis', 'website-scan', 'content-creator', 'business-strategy', 'book-publisher', 'linkedin-profile', 'sports-analysis'].includes(option.id)) {
+      // Handle handoff actions (See Demo, Chat Agent, Launch Automation)
+      if (option.action.startsWith('open-') && option.modal) {
+        // Open demo/walkthrough modals
+        console.log('[Percy] Opening demo modal:', option.modal);
+        trackBehavior('demo_modal_opened', { modal: option.modal, from: currentStep });
+        // TODO: Implement modal opening logic
+        toast.success(`🎬 Opening ${option.label}...`, { duration: 2000 });
+        return;
+      }
+      
+      if (option.action.startsWith('open-') && option.route) {
+        // Open chat with specific agent
+        console.log('[Percy] Opening agent chat:', option.route);
+        trackBehavior('agent_chat_opened', { route: option.route, from: currentStep });
+        toast.success(`💬 Connecting to agent...`, { duration: 2000 });
+        router.push(option.route);
+        return;
+      }
+      
+      if (option.action.startsWith('launch-') && option.route) {
+        // Launch agent/automation
+        console.log('[Percy] Launching agent:', option.route);
+        trackBehavior('agent_launched', { route: option.route, from: currentStep });
+        toast.success(`🚀 ${option.label}...`, { duration: 2000 });
+        router.push(option.route);
+        return;
+      }
+      
+      // Handle download/template actions
+      if (option.action.includes('download') || option.action.includes('template')) {
+        console.log('[Percy] Download action:', option.action);
+        trackBehavior('resource_download', { action: option.action, from: currentStep });
+        toast.success(`📥 Preparing ${option.label}...`, { duration: 2000 });
+        // TODO: Implement download logic
+        return;
+      }
+      
+      // Handle view actions
+      if (option.action.startsWith('view-') && option.route) {
+        console.log('[Percy] View action:', option.route);
+        trackBehavior('view_action', { route: option.route, from: currentStep });
+        toast.success(`📊 ${option.label}...`, { duration: 2000 });
+        router.push(option.route);
+        return;
+      }
+      
+      // Handle Quick Wins actions (legacy support)
+      if (option.action === 'launch-recommended-agent') {
+        console.log('[Percy] Navigation: Launching recommended agent:', userAnalysisAgent);
+        if (userAnalysisAgent) {
+          trackBehavior('recommended_agent_launch', { agentId: userAnalysisAgent, from: 'percy_quick_wins' });
+          
+          const agentRoutes: Record<string, string> = {
+            'SEO Dominator': '/services/seo-agent',
+            'Business Automation Agent': '/services/biz-agent', 
+            'Content Automation Agent': '/services/content-automation',
+            'Personal Branding Agent': '/services/branding',
+            'Book Publishing Agent': '/services/book-publishing',
+            'Skill Smith': '/services/skillsmith'
+          };
+          
+          const route = agentRoutes[userAnalysisAgent] || '/agents';
+          toast.success(`🚀 Launching ${userAnalysisAgent}...`, { duration: 2000 });
+          router.push(route);
+        } else {
+          router.push('/agents');
+        }
         return;
       }
     } catch (error) {
@@ -1110,6 +1628,25 @@ export default function PercyOnboardingRevolution() {
   animate="animate"
   layout
 >
+  {/* Animated Cosmic Border Overlay */}
+  <motion.div
+    className="pointer-events-none absolute -inset-2 z-30 rounded-[2.5rem] border-4 border-cyan-400/60 animate-cosmic-border"
+    style={{
+      boxShadow: '0 0 32px 8px rgba(48,213,200,0.25), 0 0 120px 12px rgba(99,102,241,0.13)',
+      borderImage: 'linear-gradient(90deg, #30d5c8 20%, #6366f1 50%, #06b6d4 80%) 1',
+      filter: 'drop-shadow(0 0 20px #30d5c8cc) drop-shadow(0 0 40px #6366f1cc)'
+    }}
+    animate={{
+      opacity: [0.7, 1, 0.7],
+      scale: [1, 1.03, 1],
+      boxShadow: [
+        '0 0 32px 8px rgba(48,213,200,0.25), 0 0 120px 12px rgba(99,102,241,0.13)',
+        '0 0 64px 24px rgba(48,213,200,0.40), 0 0 180px 24px rgba(99,102,241,0.22)',
+        '0 0 32px 8px rgba(48,213,200,0.25), 0 0 120px 12px rgba(99,102,241,0.13)'
+      ]
+    }}
+    transition={{ duration: 6, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+  />
       {/* Floating Background Particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(12)].map((_, i) => (
@@ -1353,20 +1890,24 @@ export default function PercyOnboardingRevolution() {
                   }}
                 >
                   <span 
-                    className="block text-xl md:text-2xl text-white font-black tracking-wide"
-                    style={{
-                      textShadow: "0 0 30px rgba(48,213,200,1), 0 0 60px rgba(48,213,200,0.6), 0 2px 6px rgba(0,0,0,1)",
-                      filter: "brightness(1.2) contrast(1.3) saturate(1.1)",
-                      WebkitFontSmoothing: "antialiased",
-                      MozOsxFontSmoothing: "grayscale",
-                      fontFeatureSettings: "'liga' 1, 'kern' 1",
-                      textRendering: "optimizeLegibility",
-                      WebkitTextStroke: "0.5px rgba(48,213,200,0.3)",
-                      letterSpacing: "0.025em",
-                      lineHeight: "1.2"
-                    } as React.CSSProperties}
-                  >
-                    {currentStep === 'greeting' && !personalizedGreeting && typedText}
+                                      className="block text-xl md:text-2xl text-white font-black tracking-wide"
+                  style={{
+                    textShadow: "0 0 30px rgba(48,213,200,1), 0 0 60px rgba(48,213,200,0.6), 0 2px 6px rgba(0,0,0,1)",
+                    filter: "brightness(1.2) contrast(1.3) saturate(1.1)",
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale",
+                    fontFeatureSettings: "'liga' 1, 'kern' 1",
+                    textRendering: "optimizeLegibility",
+                    WebkitTextStroke: "0.5px rgba(48,213,200,0.3)",
+                    letterSpacing: "0.025em",
+                    lineHeight: "1.2"
+                  } as React.CSSProperties}
+                >
+                  {currentStep === 'greeting' && !personalizedGreeting && (
+                    userHistory.length > 0 ? 
+                      `Welcome back! Ready to dominate again? 🚀` : 
+                      typedText
+                  )}
                   </span>
                 </div>
               </motion.div>
@@ -1446,14 +1987,49 @@ export default function PercyOnboardingRevolution() {
         </motion.div>
       </motion.div>
 
-      {/* Main Chat and Options Container */}
-      <motion.div 
-        className="relative mb-8"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.8, ease: "easeOut", staggerChildren: 0.1 }}
-      >
+      {/* Main Chat and Options Container as Floating Modal Overlay */}
+<motion.div
+  className="fixed md:absolute left-0 right-0 mx-auto md:mx-0 bottom-0 md:bottom-auto md:top-[56%] z-[100] md:w-[90%] w-full max-w-3xl rounded-2xl md:rounded-2xl shadow-2xl md:shadow-[0_8px_64px_16px_rgba(48,213,200,0.22),0_0_120px_32px_rgba(99,102,241,0.13)] bg-gradient-to-br from-[rgba(21,23,30,0.95)] via-[rgba(30,35,45,0.92)] to-[rgba(21,23,30,0.98)] backdrop-blur-2xl border-2 border-cyan-400/30 animate-cosmic-modal"
+  initial={{ opacity: 0, y: 60 }}
+  animate={{ opacity: 1, y: 0 }}
+  exit={{ opacity: 0, y: 60 }}
+  transition={{ duration: 0.7, ease: 'easeOut' }}
+  style={{
+    boxShadow: '0 8px 64px 16px rgba(48,213,200,0.22), 0 0 120px 32px rgba(99,102,241,0.13)',
+    borderImage: 'linear-gradient(90deg, #30d5c8 20%, #6366f1 50%, #06b6d4 80%) 1',
+    filter: 'drop-shadow(0 0 40px #30d5c8cc) drop-shadow(0 0 80px #6366f1cc)'
+  }}
+  layout
+>
+  {/* AI Listening Animation - Animated Dots */}
+  <div className="absolute left-1/2 -top-6 -translate-x-1/2 z-30 flex gap-1 items-center">
+    {[0, 1, 2].map(i => (
+      <motion.span
+        key={i}
+        className="w-2 h-2 rounded-full bg-cyan-400 shadow-lg"
+        animate={{
+          scale: [1, 1.5, 1],
+          opacity: [0.7, 1, 0.7]
+        }}
+        transition={{
+          duration: 1.2,
+          repeat: Infinity,
+          repeatType: 'loop',
+          delay: i * 0.33
+        }}
+      />
+    ))}
+    <span className="ml-2 text-xs text-cyan-300 font-semibold tracking-wide">AI Listening...</span>
+  </div>
+  {/* Close Modal Button (mobile/overlay) */}
+  <button
+    className="absolute top-3 right-3 z-40 w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[rgba(21,23,30,0.95)] via-[rgba(30,35,45,0.85)] to-[rgba(21,23,30,0.95)] border-2 border-cyan-400/40 shadow-lg hover:scale-110 transition-all duration-200 md:hidden"
+    aria-label="Close Chat"
+    title="Close Chat"
+    onClick={handleBackToStart}
+  >
+    <svg className="w-6 h-6 text-cyan-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+  </button>
         {/* Subtle glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-2xl blur-3xl"></div>
         <div className="relative bg-[rgba(21,23,30,0.7)] backdrop-blur-xl border border-teal-400/40 shadow-[0_0_32px_#30d5c899] shadow-inner rounded-2xl p-8">
@@ -1461,9 +2037,22 @@ export default function PercyOnboardingRevolution() {
           {/* Chat Messages - Mobile Optimized Heights */}
           <div 
             ref={chatRef} 
-            className="min-h-[200px] sm:min-h-[250px] md:min-h-[300px] mb-6"
+            className="min-h-[200px] sm:min-h-[250px] md:min-h-[300px] mb-6 relative"
             data-percy-chat-container
           >
+            {/* Modal Glow & Shadow Overlay */}
+            <motion.div
+              className="absolute inset-0 rounded-2xl pointer-events-none z-10"
+              style={{
+                boxShadow: '0 0 60px 12px #30d5c8cc, 0 0 120px 24px #6366f1cc',
+                filter: 'blur(2px) brightness(1.2) opacity(0.7)'
+              }}
+              animate={{
+                opacity: [0.7, 1, 0.7],
+                scale: [1, 1.04, 1]
+              }}
+              transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+            />
             <AnimatePresence>
               <motion.div
                 key={currentStep}
@@ -1535,6 +2124,34 @@ export default function PercyOnboardingRevolution() {
                   </motion.div>
                 )}
 
+                {/* Enhanced Contextual Suggestions (Percy's Concierge Intelligence) */}
+                {contextualSuggestions.length > 0 && !isPercyThinking && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 bg-gradient-to-br from-purple-900/20 to-indigo-900/20 rounded-xl p-3 border border-purple-400/20"
+                  >
+                    <h5 className="text-purple-400 font-semibold mb-2 flex items-center gap-2 text-xs">
+                      <Sparkles className="w-3 h-3" />
+                      Percy's Intelligence
+                    </h5>
+                    <div className="space-y-1">
+                      {contextualSuggestions.slice(0, 2).map((suggestion, i) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.2 }}
+                          className="flex items-start gap-2"
+                        >
+                          <div className="w-1 h-1 bg-purple-400 rounded-full mt-1.5 flex-shrink-0"></div>
+                          <span className="text-purple-200 text-xs italic">{suggestion}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Input Field */}
                 {step.showInput && (
                   <div className="mb-4">
@@ -1550,7 +2167,12 @@ export default function PercyOnboardingRevolution() {
                         className="w-full px-4 py-3 pr-12 bg-slate-800/80 border border-cyan-400/30 rounded-xl text-white placeholder:text-gray-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 text-sm touch-manipulation text-base"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
-                            handleInputSubmit();
+                            if (currentStep === 'business-input-collection') {
+                              handleBusinessAnalysis(inputValue, analysisIntent || 'analyze-custom-needs');
+                              setInputValue('');
+                            } else {
+                              handleInputSubmit();
+                            }
                           }
                         }}
                         onFocus={() => handleAnyInteraction('input_focus')}
@@ -1563,7 +2185,13 @@ export default function PercyOnboardingRevolution() {
                       <motion.button
                         onClick={() => {
                           try {
-                            handleInputSubmit();
+                            // Handle business input collection step
+                            if (currentStep === 'business-input-collection') {
+                              handleBusinessAnalysis(inputValue, analysisIntent || 'analyze-custom-needs');
+                              setInputValue(''); // Clear input
+                            } else {
+                              handleInputSubmit();
+                            }
                             handleAnyInteraction('successful_action');
                           } catch (error) {
                             toast.error('Submission failed. Please try again.', { duration: 3000 });
@@ -1578,6 +2206,85 @@ export default function PercyOnboardingRevolution() {
                       </motion.button>
                     </div>
                   </div>
+                )}
+
+                {/* NEW: Scanning Animation for Conversational Flows */}
+                {step.type === 'scanning' && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center py-8"
+                  >
+                    <div className="relative">
+                      <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="absolute inset-2 w-12 h-12 border-2 border-teal-400 border-b-transparent rounded-full animate-spin animate-reverse"></div>
+                    </div>
+                    <motion.p
+                      className="mt-4 text-cyan-300 font-semibold animate-pulse"
+                      animate={{ opacity: [0.7, 1, 0.7] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      {step.scanningMessage || 'Analyzing...'}
+                    </motion.p>
+                  </motion.div>
+                )}
+
+                {/* NEW: Results Display for Conversational Flows */}
+                {step.type === 'results' && step.resultsFeedback && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6"
+                  >
+                    <div className="space-y-2">
+                      {step.resultsFeedback.map((feedback, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.3 }}
+                          className="flex items-center gap-3 p-3 bg-gradient-to-r from-green-900/30 to-teal-900/30 rounded-xl border border-green-400/30"
+                        >
+                          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                          <span className="text-green-300 text-sm font-medium">{feedback}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* NEW: Handoff Options for Agent/Demo/Launch Actions */}
+                {(step.type === 'results' || step.type === 'agent-handoff') && step.handoffOptions && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="mb-6"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {step.handoffOptions.map((option, index) => (
+                        <motion.button
+                          key={option.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.7 + index * 0.1 }}
+                          onClick={() => { handleOptionClick(option); handleAnyInteraction('handoff_action'); }}
+                          whileHover={{ scale: 1.02, y: -2 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="flex items-center gap-3 p-4 bg-gradient-to-br from-cyan-900/40 to-teal-900/40 hover:from-cyan-800/50 hover:to-teal-800/50 border border-cyan-400/30 hover:border-cyan-400/50 rounded-xl transition-all duration-200 text-left group"
+                        >
+                          <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 rounded-lg group-hover:from-cyan-500/30 group-hover:to-teal-500/30 transition-all">
+                            {option.icon}
+                          </div>
+                          <div className="flex-1">
+                            <span className="text-white font-medium text-sm group-hover:text-cyan-200 transition-colors">
+                              {option.label}
+                            </span>
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
                 )}
 
                 {/* Onboarding Options - 2x2 Grid on Desktop */}
@@ -1803,7 +2510,7 @@ export default function PercyOnboardingRevolution() {
                     setPromptBarFocused(false);
                     setPercyMood('excited');
                   }}
-                  placeholder={promptBarFocused ? promptBarPlaceholder : (promptBarTypewriter || promptBarPlaceholder)}
+                  placeholder={promptBarPlaceholder}
                   className="w-full px-6 py-4 pr-16 bg-gradient-to-br from-[rgba(15,18,25,0.8)] to-[rgba(25,30,40,0.8)] backdrop-blur-md border-2 border-teal-400/30 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20 text-base md:text-lg font-medium transition-all duration-300"
                   onKeyDown={handlePromptBarKeyDown}
                   disabled={promptBarLoading}

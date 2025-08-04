@@ -44,8 +44,12 @@ export default function PricingCard({
       // Get the current price based on billing period
       const priceId = billingPeriod === 'monthly' ? plan.stripePriceIds?.monthly : plan.stripePriceIds?.annual;
       
-      if (!priceId) {
-        throw new Error('Price ID not configured for this plan');
+      if (!priceId || priceId.includes('price_') && priceId.includes('_monthly')) {
+        // Stripe price IDs not configured - redirect to sign up for now
+        console.log('Stripe price IDs not configured, redirecting to sign up');
+        const planHref = plan.href[billingPeriod];
+        window.location.href = planHref;
+        return;
       }
 
       // For demo purposes, using placeholder user data

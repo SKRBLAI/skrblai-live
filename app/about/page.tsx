@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import {
 import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import CosmicButton from '../../components/shared/CosmicButton';
+import PercySuggestionModal from '../../components/percy/PercySuggestionModal';
 import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import { useLiveMetrics } from '../../hooks/useLiveMetrics';
@@ -95,6 +96,15 @@ export default function AboutPage(): JSX.Element {
   const metrics = useLiveMetrics();
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+
+  // Suggestion Modal State and Engagement Handler
+  const [percySuggestionOpen, setPercySuggestionOpen] = useState(false);
+  const handlePercyEngagement = (action: string, data?: any) => {
+    console.log('Percy engagement:', action, data);
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('event', 'percy_suggestion_engagement', { action, ...data });
+    }
+  }; 
 
   return (
     <ClientPageLayout>
@@ -203,26 +213,49 @@ export default function AboutPage(): JSX.Element {
                 </p>
               </motion.div>
             </CosmicCardGlass>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {storyMilestones.map((milestone, index) => (
-                <motion.div
-                  key={milestone.year}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
-                  transition={{ delay: 0.1 * index }}
-                  whileHover={{ scale: 1.05, boxShadow: "0 0 24px 0 #30d5c8aa" }}
-                >
-                  <CosmicCardGlass className="h-full text-center">
-                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${milestone.color} mb-6`}>
-                      {milestone.icon}
-                    </div>
-                    <div className="text-2xl font-bold text-teal-400 mb-2">{milestone.year}</div>
-                    <h3 className="text-lg font-bold text-white mb-3">{milestone.title}</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{milestone.description}</p>
-                  </CosmicCardGlass>
-                </motion.div>
-              ))}
-            </div>
+            <div className="relative flex justify-center items-center w-full py-8">
+  {/* Cosmic connector line */}
+  <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-2 z-0">
+    <motion.div
+      initial={{ scaleY: 0 }}
+      whileInView={{ scaleY: 1 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 1.2, ease: 'easeInOut' }}
+      className="origin-top h-full w-full bg-gradient-to-b from-cyan-400 via-purple-500 to-pink-500 rounded-full shadow-[0_0_48px_8px_rgba(56,189,248,0.35)] opacity-70"
+      style={{ minHeight: '320px' }}
+    />
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full z-10">
+    {storyMilestones.map((milestone, index) => (
+      <motion.div
+        key={milestone.year}
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ delay: 0.2 + 0.15 * index, duration: 0.7, type: 'spring' }}
+        whileHover={{ scale: 1.07, boxShadow: "0 0 40px 10px #7dd3fc88, 0 0 80px 20px #a21caf55" }}
+        className="relative"
+      >
+        {/* Connector dot */}
+        <motion.div
+          className="absolute left-1/2 top-0 -translate-x-1/2 w-6 h-6 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-full shadow-lg border-4 border-white/30 z-20"
+          initial={{ scale: 0 }}
+          whileInView={{ scale: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ delay: 0.2 + 0.15 * index, duration: 0.5, type: 'spring' }}
+        />
+        <CosmicCardGlass className="h-full text-center backdrop-blur-2xl bg-white/10 border-2 border-cyan-400/30 shadow-[0_0_48px_8px_rgba(56,189,248,0.25),0_0_80px_24px_rgba(168,85,247,0.22)]">
+          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${milestone.color} mb-6 shadow-[0_0_32px_8px_rgba(34,211,238,0.28)]`}>
+            {milestone.icon}
+          </div>
+          <div className="text-2xl font-bold text-teal-400 mb-2 drop-shadow-md">{milestone.year}</div>
+          <h3 className="text-lg font-bold text-white mb-3 drop-shadow">{milestone.title}</h3>
+          <p className="text-gray-300 text-sm leading-relaxed drop-shadow-sm">{milestone.description}</p>
+        </CosmicCardGlass>
+      </motion.div>
+    ))}
+  </div>
+</div>
           </div>
         </section>
 
@@ -344,11 +377,11 @@ export default function AboutPage(): JSX.Element {
                 </CosmicHeading>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <CosmicButton href="/sign-up" size="lg" className="text-lg px-8 py-4">
+                  <CosmicButton size="lg" className="text-lg px-8 py-4" onClick={() => setPercySuggestionOpen(true)}>
                     Start Free Trial
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </CosmicButton>
-                  <CosmicButton href="/services" variant="secondary" size="lg" className="text-lg px-8 py-4">
+                  <CosmicButton variant="secondary" size="lg" className="text-lg px-8 py-4" onClick={() => setPercySuggestionOpen(true)}>
                     See Solutions
                   </CosmicButton>
                 </div>
@@ -357,6 +390,21 @@ export default function AboutPage(): JSX.Element {
           </div>
         </section>
       </motion.div>
-    </ClientPageLayout>
+        <PercySuggestionModal
+      isOpen={percySuggestionOpen}
+      onClose={() => setPercySuggestionOpen(false)}
+      featureName="SKRBL AI Overview"
+      featureDescription="Discover why SKRBL AI works and how it transforms your business."
+      primaryColor="from-cyan-500 to-purple-500"
+      customCopy={{
+        benefits: [
+          'No learning curve - guided by Percy',
+          'Immediate results within the first week',
+          'Scales with you from startup to enterprise'
+        ]
+      }}
+      onEngagement={handlePercyEngagement}
+    />
+  </ClientPageLayout>
   );
 }

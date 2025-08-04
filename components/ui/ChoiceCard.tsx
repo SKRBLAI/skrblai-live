@@ -77,10 +77,13 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
         </div>
       )}
 
+      {/* Animated cosmic border */}
+      <div className="absolute inset-0 rounded-3xl pointer-events-none z-20 animate-cosmic-border" />
       {/* Glow effect background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-teal-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-teal-500/30 rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
       
       <motion.button
+        aria-label={label}
         onClick={() => {
           setIsSelected(true);
           setShowSuccess(true);
@@ -90,45 +93,49 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           }, 800);
           onClick();
         }}
-        whileHover={{ 
-          scale: 1.08,
-          rotateY: 5,
-          rotateX: -2,
-          z: 50,
+        whileHover={{
+          scale: 1.13,
+          rotateY: 8,
+          rotateX: -3,
+          z: 80,
           boxShadow: [
-            '0 0 40px rgba(48,213,200,0.6)',
-            '0 0 60px rgba(48,213,200,0.8), 0 0 100px rgba(99,102,241,0.4)',
-            '0 0 40px rgba(48,213,200,0.6)'
-          ]
+            '0 0 64px 12px #30d5c8cc, 0 0 24px 8px #38bdf8cc',
+            '0 0 120px 32px #38bdf8cc, 0 0 160px 64px #0fffc4cc',
+            '0 0 64px 12px #30d5c8cc'
+          ],
+          borderColor: '#38bdf8',
         }}
-        whileTap={{ 
-          scale: 0.95,
-          rotateY: -2,
-          rotateX: 1,
-          transition: { duration: 0.1 }
+        whileTap={{
+          scale: 0.92,
+          rotateY: -4,
+          rotateX: 2,
+          boxShadow: '0 0 80px 24px #0fffc4cc',
+          transition: { duration: 0.08 }
         }}
         animate={isSelected ? {
-          scale: [1, 1.15, 1.05, 1],
-          rotateZ: [0, 2, -1, 0],
+          scale: [1, 1.18, 1.05, 1],
+          rotateZ: [0, 3, -2, 0],
           boxShadow: [
-            '0 0 40px rgba(48,213,200,0.6)',
-            '0 0 100px rgba(255,215,0,0.9), 0 0 150px rgba(48,213,200,1), 0 0 200px rgba(99,102,241,0.6)',
-            '0 0 60px rgba(48,213,200,0.8)',
-            '0 0 40px rgba(48,213,200,0.6)'
-          ]
+            '0 0 80px 24px #ffd700cc, 0 0 160px 64px #30d5c8cc',
+            '0 0 120px 32px #38bdf8cc, 0 0 180px 80px #0fffc4cc',
+            '0 0 80px 24px #ffd700cc',
+            '0 0 64px 12px #30d5c8cc'
+          ],
+          borderColor: '#ffd700',
         } : {}}
-        transition={{ 
-          type: 'spring', 
-          stiffness: 300, 
-          damping: 25,
+        transition={{
+          type: 'spring',
+          stiffness: 320,
+          damping: 22,
           boxShadow: { duration: 0.8 }
         }}
-        className={`relative w-full h-32 md:h-36 lg:h-40 rounded-2xl bg-gradient-to-br from-[rgba(21,23,30,0.85)] via-[rgba(30,35,45,0.8)] to-[rgba(21,23,30,0.9)] backdrop-blur-xl border-2 border-teal-400/50 shadow-[0_0_32px_#30d5c8aa,inset_0_1px_0_rgba(255,255,255,0.1)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/70 ${className}`}
-        style={{ 
-          perspective: '1000px', 
+        className={`relative w-full h-40 md:h-48 lg:h-56 rounded-3xl bg-gradient-to-br from-[rgba(21,23,30,0.92)] via-[rgba(30,35,45,0.88)] to-[rgba(21,23,30,0.95)] backdrop-blur-2xl border-4 border-cosmic-animate shadow-[0_0_64px_#30d5c8cc,0_0_32px_#38bdf8cc,inset_0_1px_0_rgba(255,255,255,0.12)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/80 ${className} focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/80`}
+        style={{
+          perspective: '1200px',
           transformStyle: 'preserve-3d',
-          background: 'linear-gradient(135deg, rgba(21,23,30,0.85) 0%, rgba(30,35,45,0.8) 50%, rgba(21,23,30,0.9) 100%)'
+          background: 'linear-gradient(135deg, rgba(21,23,30,0.92) 0%, rgba(30,35,45,0.88) 50%, rgba(21,23,30,0.95) 100%)'
         }}
+        tabIndex={0}
         {...props}
       >
         {/* Inner glow effect */}

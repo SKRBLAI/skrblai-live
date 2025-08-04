@@ -135,7 +135,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
   if (!agent || !agent.name || !agentConfig) {
     return (
-      <div className="h-96 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
+      <div className="h-80 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
         <div className="text-white/60">Agent data unavailable</div>
       </div>
     );
@@ -150,7 +150,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     >
       <motion.div
         ref={cardRef}
-        className={`relative h-96 ${className}`}
+        className={`relative h-80 ${className}`}
         initial={{ 
           opacity: 0, 
           y: shouldReduceMotion ? 0 : 30,
@@ -433,8 +433,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   if (onChat) {
                     onChat(agent);
                   } else {
-                    // Default chat behavior - route to agent chat
-                    router.push(`/services/${agent.id}`);
+                    // Free Scan Flow - route to Percy onboarding with scan intent
+                    router.push(`/?scan=${agent.id}`);
                   }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/90 hover:to-blue-500/90 text-white text-xs font-bold rounded-lg border border-cyan-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(48,213,200,0.3)] hover:shadow-[0_0_25px_rgba(48,213,200,0.5)] transition-all duration-300"
@@ -450,7 +450,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Default info behavior - route to agent backstory
+                    // Route to unified agent service page
                     router.push(`/services/${agent.id}`);
                   }
                 }}
@@ -468,7 +468,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Default launch behavior - route to agent service page
+                  // Launch Agent - route to unified service page
                   router.push(`/services/${agent.id}`);
                 }
               }}

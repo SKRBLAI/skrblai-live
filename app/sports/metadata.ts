@@ -1,19 +1,31 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Sports AI | SKRBL AI Athletic Performance & Analytics',
-  description: 'Revolutionize sports performance with SKRBL AI. Advanced analytics, player tracking, performance optimization, and data-driven insights for athletes, coaches, and sports organizations.',
+  title: 'SkillSmith Sports Analysis | AI-Powered Athletic Performance',
+  description: 'Get instant AI-powered sports analysis with SkillSmith. Upload your video for personalized training insights, technique improvements, and performance optimization.',
+  keywords: [
+    'sports analysis AI',
+    'athletic performance analysis',
+    'video analysis sports',
+    'AI sports coaching',
+    'baseball analysis',
+    'basketball analysis',
+    'football analysis',
+    'golf analysis',
+    'sports technique improvement',
+    'SkillSmith AI'
+  ],
   openGraph: {
-    title: 'Sports AI | SKRBL AI Athletic Performance & Analytics',
-    description: 'Revolutionize sports performance with SKRBL AI. Advanced analytics, player tracking, and performance optimization.',
+    title: 'SkillSmith Sports Analysis | AI-Powered Athletic Performance',
+    description: 'Upload your sports video and get instant AI analysis to improve your performance.',
     url: 'https://skrblai.io/sports',
     siteName: 'SKRBL AI',
     images: [
       {
-        url: '/og-image.png',
+        url: '/images/og-skillsmith.png',
         width: 1200,
         height: 630,
-        alt: 'SKRBL AI Sports - Athletic Performance & Analytics',
+        alt: 'SkillSmith AI Sports Analysis',
       },
     ],
     locale: 'en_US',
@@ -21,20 +33,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sports AI | SKRBL AI Athletic Performance',
-    description: 'Revolutionize sports performance with SKRBL AI. Advanced analytics and performance optimization.',
-    images: ['/og-image.png'],
+    title: 'SkillSmith Sports Analysis | AI-Powered Athletic Performance',
+    description: 'Upload your sports video and get instant AI analysis.',
+    images: ['/images/og-skillsmith.png'],
   },
-  keywords: [
-    'Sports AI',
-    'Athletic Performance',
-    'Sports Analytics',
-    'Player Tracking',
-    'Performance Optimization',
-    'Sports Data',
-    'AI Coaching',
-    'Sports Technology',
-    'Athletic Intelligence',
-    'Sports Innovation'
-  ],
+  alternates: {
+    canonical: 'https://skrblai.io/sports',
+  },
 };

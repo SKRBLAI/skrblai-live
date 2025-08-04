@@ -24,6 +24,19 @@ export interface OnboardingContextType {
   handleAgentChat: (agentId: string) => Promise<void>;
   handleContinue: (nextStep: string, routeTo?: string) => Promise<void>;
   validateAndRoute: (route: string, context?: string) => boolean;
+  // Enhanced Free Scan Logic
+  handleBusinessAnalysis: (input: string, analysisType?: string) => Promise<void>;
+  analysisIntent: string | null;
+  setAnalysisIntent: (intent: string | null) => void;
+  freeAnalysisResults: any | null;
+  recommendedAgents: any[] | null;
+  isProcessingAnalysis: boolean;
+  // Enhanced Percy Concierge Features
+  percyMood: string;
+  setPercyMood: (mood: string) => void;
+  userHistory: any[];
+  contextualSuggestions: string[];
+  updateContextualSuggestions: (action: string, data?: any) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -57,6 +70,21 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   // Prompt bar state
   const [promptBarValue, setPromptBarValue] = useState<string>('');
   const [promptBarLoading, setPromptBarLoading] = useState<boolean>(false);
+
+  // Enhanced Free Scan Logic State
+  const [analysisIntent, setAnalysisIntent] = useState<string | null>(null);
+  const [freeAnalysisResults, setFreeAnalysisResults] = useState<any | null>(null);
+  const [recommendedAgents, setRecommendedAgents] = useState<any[] | null>(null);
+  const [isProcessingAnalysis, setIsProcessingAnalysis] = useState<boolean>(false);
+
+  // Enhanced Percy Concierge Features
+  const [percyMood, setPercyMood] = useState<string>('excited');
+  const [userHistory, setUserHistory] = useState<any[]>([]);
+  const [contextualSuggestions, setContextualSuggestions] = useState<string[]>([
+    'I can analyze any business and find automation opportunities instantly',
+    'Your competitors aren\'t using AI yet - perfect timing to gain advantage',
+    'Every analysis I run reveals hidden revenue opportunities'
+  ]);
 
   // Validate VIP codes
   const validateVIPCode = React.useCallback(async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
@@ -119,6 +147,606 @@ const performAnalysis = React.useCallback(async (mode: string, input: string) =>
   console.log('Percy analysis complete, recommended agent:', recommendedAgent);
 }, [trackBehavior]);
 
+// Business Type Detection Helper
+const detectBusinessType = (input: string): string => {
+  const lowInput = input.toLowerCase();
+  
+  // E-commerce indicators
+  if (lowInput.includes('shop') || lowInput.includes('store') || lowInput.includes('product') || 
+      lowInput.includes('ecom') || lowInput.includes('retail') || lowInput.includes('sell')) {
+    return 'ecommerce';
+  }
+  
+  // SaaS/Tech indicators  
+  if (lowInput.includes('saas') || lowInput.includes('software') || lowInput.includes('app') ||
+      lowInput.includes('tech') || lowInput.includes('platform') || lowInput.includes('api')) {
+    return 'saas';
+  }
+  
+  // Local Business indicators
+  if (lowInput.includes('restaurant') || lowInput.includes('salon') || lowInput.includes('gym') ||
+      lowInput.includes('clinic') || lowInput.includes('local') || lowInput.includes('neighborhood')) {
+    return 'local';
+  }
+  
+  // Real Estate indicators
+  if (lowInput.includes('real estate') || lowInput.includes('realtor') || lowInput.includes('property') ||
+      lowInput.includes('homes') || lowInput.includes('listing')) {
+    return 'realestate';
+  }
+  
+  // Professional Services indicators
+  if (lowInput.includes('consulting') || lowInput.includes('lawyer') || lowInput.includes('accountant') ||
+      lowInput.includes('agency') || lowInput.includes('professional') || lowInput.includes('service')) {
+    return 'professional';
+  }
+  
+  // Content Creator indicators
+  if (lowInput.includes('youtube') || lowInput.includes('instagram') || lowInput.includes('tiktok') ||
+      lowInput.includes('content') || lowInput.includes('creator') || lowInput.includes('influencer')) {
+    return 'creator';
+  }
+  
+  // Coach/Education indicators
+  if (lowInput.includes('coach') || lowInput.includes('course') || lowInput.includes('training') ||
+      lowInput.includes('education') || lowInput.includes('teach') || lowInput.includes('mentor')) {
+    return 'coaching';
+  }
+  
+  return 'general';
+};
+
+// Targeted SEO Quick Wins by Business Type  
+const getTargetedSEOQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  switch (businessType) {
+    case 'ecommerce':
+      return [
+        { title: 'Product Page SEO Overhaul', description: 'Your product pages are invisible to Google - fix this and watch sales explode', roi: '+180% organic sales', impact: 'high' },
+        { title: 'Shopping Feed Optimization', description: 'Competitors rank higher for YOUR products - time to reclaim what\'s yours', roi: '+$25K monthly', impact: 'high' },
+        { title: 'Review Schema Implementation', description: 'Missing star ratings in search = lost customers to competitors', roi: '+45% click-through', impact: 'medium' }
+      ];
+    
+    case 'local':
+      return [
+        { title: 'Local Pack Domination', description: 'You\'re losing customers to competitors who show up in "near me" searches', roi: '+300% local visibility', impact: 'high' },
+        { title: 'Google My Business Optimization', description: 'Your GMB profile is costing you 15+ customers daily', roi: '+$8K monthly revenue', impact: 'high' },
+        { title: 'Local Citation Building', description: 'Competitors outrank you because they\'re listed everywhere - you\'re not', roi: '+60% local traffic', impact: 'medium' }
+      ];
+      
+    case 'saas':
+      return [
+        { title: 'Feature Page SEO', description: 'Prospects search for your exact features but find competitors instead', roi: '+220% qualified leads', impact: 'high' },
+        { title: 'Technical Content Gap', description: 'Your ideal customers are asking questions - competitors are answering them', roi: '+$35K MRR', impact: 'high' },
+        { title: 'Comparison Page Strategy', description: 'Prospects compare you to competitors - make sure you win every time', roi: '+85% conversion rate', impact: 'medium' }
+      ];
+      
+    case 'professional':
+      return [
+        { title: 'Service Page Authority', description: 'Clients search for your services but hire competitors who rank higher', roi: '+400% consultation requests', impact: 'high' },
+        { title: 'Local Professional SEO', description: 'You\'re the best in your area but invisible online - fix this now', roi: '+$15K monthly', impact: 'high' },
+        { title: 'Expertise Content Strategy', description: 'Establish authority before competitors steal your market share', roi: '+150% qualified leads', impact: 'medium' }
+      ];
+      
+    default:
+      return [
+        { title: 'Competitor Keyword Theft', description: 'Your competitors rank for keywords that should be YOURS', roi: '+270% organic traffic', impact: 'high' },
+        { title: 'Technical SEO Foundation', description: 'Your site has critical issues that are hemorrhaging potential customers', roi: '+$18K monthly', impact: 'high' },
+        { title: 'Content Authority Building', description: 'Build topical authority before competitors dominate your niche', roi: '+195% search visibility', impact: 'medium' }
+      ];
+  }
+};
+
+// Targeted Business Quick Wins by Type
+const getTargetedBusinessQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  switch (businessType) {
+    case 'ecommerce':
+      return [
+        { title: 'Abandoned Cart Recovery', description: '68% of customers abandon carts - turn them into sales automatically', roi: '+$12K monthly revenue', impact: 'high' },
+        { title: 'AI Product Recommendations', description: 'Amazon makes billions from "customers who bought this" - you should too', roi: '+35% average order value', impact: 'high' },
+        { title: 'Inventory Automation', description: 'Stop losing sales to out-of-stock items while competitors take your customers', roi: '+$8K monthly savings', impact: 'medium' }
+      ];
+      
+    case 'saas':
+      return [
+        { title: 'User Onboarding Automation', description: 'Poor onboarding = 90% churn in first week - automate success instead', roi: '+450% user retention', impact: 'high' },
+        { title: 'Feature Adoption Tracking', description: 'Users who don\'t adopt key features churn - guide them automatically', roi: '+$25K MRR', impact: 'high' },
+        { title: 'Churn Prediction AI', description: 'Know which customers will leave before they do - save them automatically', roi: '+30% LTV', impact: 'medium' }
+      ];
+      
+    case 'local':
+      return [
+        { title: 'Appointment Booking Automation', description: 'Missing calls = lost customers - never miss another booking', roi: '+40% more bookings', impact: 'high' },
+        { title: 'Review Generation Machine', description: 'Happy customers forget to review - unhappy ones always remember', roi: '+300% positive reviews', impact: 'high' },
+        { title: 'Local Social Media Automation', description: 'Competitors post daily, you post weekly - automate consistent presence', roi: '+180% local awareness', impact: 'medium' }
+      ];
+      
+    default:
+      return [
+        { title: 'Lead Qualification Automation', description: 'Wasting time on unqualified leads while competitors close qualified ones', roi: '+320% qualified leads', impact: 'high' },
+        { title: 'Customer Journey Automation', description: 'Prospects need 7+ touchpoints to buy - automate every interaction', roi: '+$22K monthly', impact: 'high' },
+        { title: 'Competitive Intelligence Automation', description: 'Know what competitors do before they do it - automate market monitoring', roi: '+150% market advantage', impact: 'medium' }
+      ];
+  }
+};
+
+// Targeted Content Quick Wins by Platform/Type
+const getTargetedContentQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  const lowInput = input.toLowerCase();
+  
+  if (lowInput.includes('youtube')) {
+    return [
+      { title: 'AI Thumbnail Optimization', description: 'Your thumbnails get 2% click-through - viral thumbnails get 15%+', roi: '+650% video views', impact: 'high' },
+      { title: 'Viral Hook Generator', description: 'First 3 seconds determine if viewers stay - master them with AI', roi: '+400% watch time', impact: 'high' },
+      { title: 'Content Repurposing Machine', description: 'Turn 1 video into 20 pieces of content across all platforms', roi: '+500% content output', impact: 'medium' }
+    ];
+  }
+  
+  if (lowInput.includes('instagram') || lowInput.includes('tiktok')) {
+    return [
+      { title: 'Viral Trend Predictor', description: 'Ride trends before they peak - when others follow, you\'re already winning', roi: '+800% reach', impact: 'high' },
+      { title: 'AI Content Calendar', description: 'Posting randomly kills growth - strategic posting explodes it', roi: '+450% engagement', impact: 'high' },
+      { title: 'Story Automation Engine', description: 'Stories disappear but their impact shouldn\'t - automate for maximum effect', roi: '+300% story views', impact: 'medium' }
+    ];
+  }
+  
+  return [
+    { title: 'AI Content Calendar', description: 'Competitors post consistently, you post when you remember - fix this now', roi: '+700% content consistency', impact: 'high' },
+    { title: 'Cross-Platform Automation', description: 'Create once, post everywhere - while competitors manage 5 platforms manually', roi: '+400% reach', impact: 'high' },
+    { title: 'Engagement Automation', description: 'Respond to every comment/DM instantly - build community while you sleep', roi: '+250% engagement rate', impact: 'medium' }
+  ];
+};
+
+// Agent Recommendation Helpers
+const getRecommendedBusinessAgent = (businessType: string): string => {
+  switch (businessType) {
+    case 'ecommerce': return 'E-commerce Automation Agent';
+    case 'saas': return 'SaaS Growth Agent'; 
+    case 'local': return 'Local Business Dominator';
+    case 'professional': return 'Professional Services Agent';
+    case 'realestate': return 'Real Estate Automation Agent';
+    case 'coaching': return 'Course Creation Agent';
+    default: return 'Business Automation Agent';
+  }
+};
+
+const getBusinessAgentRoute = (businessType: string): string => {
+  switch (businessType) {
+    case 'ecommerce': return '/services/ecommerce-agent';
+    case 'saas': return '/services/saas-agent';
+    case 'local': return '/services/local-agent';
+    case 'professional': return '/services/professional-agent';
+    case 'realestate': return '/services/realestate-agent';
+    case 'coaching': return '/services/coaching-agent';
+    default: return '/services/biz-agent';
+  }
+};
+
+// Enhanced Brand Quick Wins
+const getTargetedBrandQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  const lowInput = input.toLowerCase();
+  
+  if (lowInput.includes('linkedin')) {
+    return [
+      { title: 'LinkedIn Authority Automation', description: 'CEO competitors post 2x daily while you post weekly - automate dominance', roi: '+1200% profile views', impact: 'high' },
+      { title: 'C-Suite Network Infiltration', description: 'Auto-connect with 500+ decision makers who can write checks', roi: '+80 qualified prospects/month', impact: 'high' },
+      { title: 'Thought Leadership Content Engine', description: 'Position yourself as THE expert before competitors steal your space', roi: '+400% engagement', impact: 'medium' }
+    ];
+  }
+  
+  if (businessType === 'professional') {
+    return [
+      { title: 'Expert Positioning System', description: 'Clients hire who they perceive as THE authority - not the best kept secret', roi: '+350% consultation requests', impact: 'high' },
+      { title: 'Referral Network Automation', description: 'Happy clients forget to refer - automate referral generation systems', roi: '+$25K monthly revenue', impact: 'high' },
+      { title: 'Professional Credibility Stack', description: 'Build authority faster than competitors can catch up', roi: '+200% market credibility', impact: 'medium' }
+    ];
+  }
+  
+  return [
+    { title: 'Personal Brand Authority Engine', description: 'Your expertise is invisible online while mediocre competitors dominate', roi: '+500% brand visibility', impact: 'high' },
+    { title: 'Multi-Platform Presence Automation', description: 'Be everywhere your audience is - without the manual work', roi: '+300% reach', impact: 'high' },
+    { title: 'Reputation Management System', description: 'Control your narrative before competitors or critics do', roi: '+250% positive mentions', impact: 'medium' }
+  ];
+};
+
+// Enhanced Book Publishing Quick Wins
+const getTargetedBookQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  const lowInput = input.toLowerCase();
+  
+  if (lowInput.includes('nonfiction') || lowInput.includes('business') || lowInput.includes('self-help')) {
+    return [
+      { title: 'Authority Book Empire System', description: 'Your expertise deserves a bestseller - not another forgotten manuscript', roi: '+$50K in speaking fees', impact: 'high' },
+      { title: 'Pre-Launch Audience Builder', description: 'Build your buyer audience BEFORE you finish writing - guarantee success', roi: '+10K pre-orders', impact: 'high' },
+      { title: 'Book-to-Business Funnel', description: 'Turn your book into a client-generating machine, not just a passion project', roi: '+$100K annual revenue', impact: 'medium' }
+    ];
+  }
+  
+  if (lowInput.includes('fiction') || lowInput.includes('novel') || lowInput.includes('story')) {
+    return [
+      { title: 'Fiction Marketing Automation', description: 'Readers discover new authors through algorithms - not luck', roi: '+500% book discovery', impact: 'high' },
+      { title: 'Series Launch Strategy', description: 'One book is a hobby, a series is a business - plan for domination', roi: '+$20K monthly royalties', impact: 'high' },
+      { title: 'Reader Community Engine', description: 'Superfans sell more books than any ad campaign ever will', roi: '+300% reader loyalty', impact: 'medium' }
+    ];
+  }
+  
+  return [
+    { title: 'AI Book Writing Assistant', description: 'Write faster, better, and more consistently than competitors who struggle alone', roi: '+300% writing speed', impact: 'high' },
+    { title: 'Publishing Empire Automation', description: 'From manuscript to bestseller - automate every step of the journey', roi: '+$15K monthly', impact: 'high' },
+    { title: 'Author Platform Builder', description: 'Build your author brand while you write - launch with an audience ready to buy', roi: '+5K loyal fans', impact: 'medium' }
+  ];
+};
+
+// Enhanced Sports/Fitness Quick Wins  
+const getTargetedSportsQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  const lowInput = input.toLowerCase();
+  
+  if (lowInput.includes('coach') || lowInput.includes('trainer') || lowInput.includes('fitness business')) {
+    return [
+      { title: 'Client Transformation Documentation', description: 'Results that aren\'t documented don\'t exist in clients\' minds', roi: '+400% client retention', impact: 'high' },
+      { title: 'Performance Tracking Automation', description: 'Clients who see progress stay longer and refer more', roi: '+$8K monthly revenue', impact: 'high' },
+      { title: 'Workout Prescription AI', description: 'Personalized programs at scale - without the manual work', roi: '+200% client capacity', impact: 'medium' }
+    ];
+  }
+  
+  if (lowInput.includes('athlete') || lowInput.includes('performance') || lowInput.includes('sport')) {
+    return [
+      { title: 'Performance Gap Analysis', description: 'Identify the 3 bottlenecks keeping you from the next level', roi: '+35% performance improvement', impact: 'high' },
+      { title: 'Competition Preparation System', description: 'Peak when it matters most - not 2 weeks too early or late', roi: '+50% competition success', impact: 'high' },
+      { title: 'Recovery Optimization Protocol', description: 'Recovery is when gains happen - optimize for maximum results', roi: '+25% training consistency', impact: 'medium' }
+    ];
+  }
+  
+  return [
+    { title: 'Fitness Goal Automation', description: 'Most people quit in 3 weeks - build systems that guarantee success', roi: '+300% goal achievement', impact: 'high' },
+    { title: 'Motivation Maintenance System', description: 'Willpower fails, systems succeed - automate your fitness journey', roi: '+200% consistency', impact: 'high' },
+    { title: 'Progress Tracking Intelligence', description: 'What gets measured gets managed - automate your fitness data', roi: '+150% motivation', impact: 'medium' }
+  ];
+};
+
+// Enhanced Custom/Default Quick Wins
+const getTargetedCustomQuickWins = (businessType: string, input: string): Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> => {
+  const lowInput = input.toLowerCase();
+  
+  // Detect specific custom needs
+  if (lowInput.includes('email') || lowInput.includes('newsletter') || lowInput.includes('marketing')) {
+    return [
+      { title: 'Email Automation Domination', description: 'Your emails land in promotions while competitors reach inboxes', roi: '+450% email open rates', impact: 'high' },
+      { title: 'Behavioral Trigger Campaigns', description: 'Send the right message at the perfect moment - automatically', roi: '+300% conversion rate', impact: 'high' },
+      { title: 'List Building Machine', description: 'Grow your email list 10x faster than competitors using lead magnets', roi: '+5K subscribers/month', impact: 'medium' }
+    ];
+  }
+  
+  if (lowInput.includes('crm') || lowInput.includes('sales') || lowInput.includes('leads')) {
+    return [
+      { title: 'Sales Process Automation', description: 'Never miss a follow-up while competitors let prospects go cold', roi: '+250% sales conversion', impact: 'high' },
+      { title: 'Lead Scoring Intelligence', description: 'Focus on buyers, not browsers - automate lead qualification', roi: '+$15K monthly revenue', impact: 'high' },
+      { title: 'Pipeline Optimization Engine', description: 'Identify bottlenecks before they kill your revenue', roi: '+180% sales velocity', impact: 'medium' }
+    ];
+  }
+  
+  if (lowInput.includes('social') || lowInput.includes('facebook') || lowInput.includes('marketing')) {
+    return [
+      { title: 'Social Media Domination Suite', description: 'Consistent posting beats sporadic brilliance - automate your presence', roi: '+600% social engagement', impact: 'high' },
+      { title: 'Viral Content Predictor', description: 'Create content that spreads while competitors post into the void', roi: '+400% reach', impact: 'high' },
+      { title: 'Community Building Automation', description: 'Build loyal followers who buy, not just lurkers who scroll', roi: '+300% audience loyalty', impact: 'medium' }
+    ];
+  }
+  
+  // Default custom recommendations
+  return [
+    { title: 'Workflow Automation Audit', description: 'Hidden inefficiencies are costing you 15+ hours/week - find and fix them', roi: '+20 hours/week saved', impact: 'high' },
+    { title: 'Competitive Intelligence System', description: 'Know what competitors do before they do - automate market monitoring', roi: '+250% market advantage', impact: 'high' },
+    { title: 'Customer Journey Optimization', description: 'Guide prospects to purchase automatically - no more lost opportunities', roi: '+180% conversion rate', impact: 'medium' }
+  ];
+};
+
+const getRecommendedCustomAgent = (businessType: string): string => {
+  switch (businessType) {
+    case 'ecommerce': return 'E-commerce Automation Agent';
+    case 'saas': return 'SaaS Growth Agent';
+    case 'local': return 'Local Business Dominator';
+    case 'professional': return 'Professional Services Agent';
+    case 'creator': return 'Content Automation Agent';
+    case 'coaching': return 'Course Creation Agent';
+    default: return 'Custom AI Agent';
+  }
+};
+
+const getCustomAgentRoute = (businessType: string): string => {
+  switch (businessType) {
+    case 'ecommerce': return '/services/ecommerce-agent';
+    case 'saas': return '/services/saas-agent';
+    case 'local': return '/services/local-agent';
+    case 'professional': return '/services/professional-agent';
+    case 'creator': return '/services/content-automation';
+    case 'coaching': return '/services/coaching-agent';
+    default: return '/agents';
+  }
+};
+
+// NEW: Percy diagnosis with Quick Wins analysis
+const performPercyDiagnosis = React.useCallback(async (diagnosisType: string, input: string) => {
+  setIsPercyThinking(true);
+  console.log('Percy is performing diagnosis...', diagnosisType, input);
+  trackBehavior('percy_diagnosis_performed', { type: diagnosisType, input });
+  
+  // TODO: N8N AUTOMATION TRIGGER
+  // This is where we'll trigger n8n workflows for:
+  // - Lead qualification scoring
+  // - CRM integration and data enrichment  
+  // - Automated follow-up email sequences
+  // - Competitive intelligence gathering
+  // - Real-time ROI calculations
+  
+  // Simulate AI diagnosis delay
+  await new Promise(resolve => setTimeout(resolve, 4000));
+
+  // ENHANCED: Business Type Detection & Targeted Quick Wins
+  const businessType = detectBusinessType(input);
+  let quickWins: Array<{title: string, description: string, roi: string, impact: 'high' | 'medium' | 'low'}> = [];
+  let recommendedAgent = '';
+  let agentRoute = '';
+
+  switch (diagnosisType) {
+    case 'seo':
+      quickWins = getTargetedSEOQuickWins(businessType, input);
+      recommendedAgent = 'SEO Dominator';
+      agentRoute = '/services/seo-agent';
+      break;
+    case 'business':
+      quickWins = getTargetedBusinessQuickWins(businessType, input);
+      recommendedAgent = getRecommendedBusinessAgent(businessType);
+      agentRoute = getBusinessAgentRoute(businessType);
+      break;
+    case 'content':
+      quickWins = getTargetedContentQuickWins(businessType, input);
+      recommendedAgent = 'Content Automation Agent';
+      agentRoute = '/services/content-automation';
+      break;
+    case 'brand':
+      quickWins = getTargetedBrandQuickWins(businessType, input);
+      recommendedAgent = 'Personal Branding Agent';
+      agentRoute = '/services/branding';
+      break;
+    case 'book':
+      quickWins = getTargetedBookQuickWins(businessType, input);
+      recommendedAgent = 'Book Publishing Agent';
+      agentRoute = '/services/book-publishing';
+      break;
+    case 'sports':
+      quickWins = getTargetedSportsQuickWins(businessType, input);
+      recommendedAgent = 'Skill Smith';
+      agentRoute = '/services/skillsmith';
+      break;
+    default:
+      quickWins = getTargetedCustomQuickWins(businessType, input);
+      recommendedAgent = getRecommendedCustomAgent(businessType);
+      agentRoute = getCustomAgentRoute(businessType);
+  }
+
+  // Store diagnosis results 
+  setAnalysisResults({ 
+    mode: diagnosisType, 
+    input, 
+    insights: quickWins.map(qw => `${qw.title}: ${qw.description} (${qw.roi})`)
+  });
+  setUserAnalysisAgent(recommendedAgent);
+  
+  // Move to Quick Wins step
+  setCurrentStep('percy-quick-wins');
+  setIsPercyThinking(false);
+  console.log('Percy diagnosis complete, recommended agent:', recommendedAgent);
+}, [trackBehavior]);
+
+// ENHANCED: Business Analysis with OpenAI Integration (Free Scan)
+const handleBusinessAnalysis = React.useCallback(async (input: string, analysisType?: string) => {
+  if (!input.trim()) {
+    toast.error('Please provide your business information');
+    return;
+  }
+
+  setIsProcessingAnalysis(true);
+  setPercyMood('analyzing');
+  setCurrentStep('ai-analysis-processing');
+
+  try {
+    console.log('[Percy Context] Starting business analysis with input:', input.substring(0, 50) + '...');
+    
+    // Add to user history for better concierge experience
+    const historyEntry = {
+      timestamp: Date.now(),
+      action: 'business_analysis_request',
+      input: input.substring(0, 100) + '...',
+      analysisType: analysisType || analysisIntent || 'analyze-custom-needs'
+    };
+    setUserHistory(prev => [...prev, historyEntry]);
+    
+    // Update contextual suggestions for analysis start
+    updateContextualSuggestions('business_analysis');
+    
+    const response = await fetch('/api/analysis/business-scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        businessInput: input,
+        analysisType: analysisType || analysisIntent || 'analyze-custom-needs',
+        userEmail: user?.email
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Analysis failed');
+    }
+
+    const { result } = await response.json();
+    
+    // Store analysis results in context
+    setFreeAnalysisResults(result);
+    setRecommendedAgents(result.recommendedAgents);
+    
+    // Update legacy analysisResults for backward compatibility
+    setAnalysisResults({
+      mode: analysisType || analysisIntent || 'business',
+      input: input,
+      insights: result.opportunities || []
+    });
+    
+    // Update contextual suggestions for enhanced concierge experience
+    setContextualSuggestions([
+      `Based on your ${result.businessType || 'business'}, I recommend focusing on automation first`,
+      `Your competition likely isn't using AI yet - perfect timing!`,
+      `Quick wins are ready to implement this week`
+    ]);
+    
+    // Simulate Percy thinking for better UX
+    await handlePercyThinking(1500);
+    setCurrentStep('analysis-results');
+    setPercyMood('celebrating');
+    
+    toast.success('Analysis complete! 🎯', { duration: 2000 });
+    
+    trackBehavior('analysis_complete', {
+      analysisType: analysisType || analysisIntent,
+      confidence: result.confidence,
+      agentCount: result.recommendedAgents?.length || 0,
+      businessType: result.businessType
+    });
+    
+    // Update contextual suggestions for analysis completion
+    updateContextualSuggestions('analysis_complete', {
+      agentCount: result.recommendedAgents?.length || 0,
+      businessType: result.businessType
+    });
+
+    // Add successful analysis to history
+    setUserHistory(prev => [...prev, {
+      timestamp: Date.now(),
+      action: 'business_analysis_complete',
+      result: `Found ${result.opportunities?.length || 0} opportunities`,
+      recommendedAgents: result.recommendedAgents?.length || 0
+    }]);
+
+  } catch (error) {
+    console.error('[Percy Context] Business analysis failed:', error);
+    setPercyMood('confident');
+    toast.error('Analysis encountered an issue, but I can still help you!');
+    
+    // Fallback to a basic recommendation
+    setCurrentStep('analysis-results');
+    setContextualSuggestions([
+      'Let me connect you with our most popular agent',
+      'I can still guide you to the perfect solution',
+      'Your success is guaranteed with any of our agents'
+    ]);
+    
+  } finally {
+    setIsProcessingAnalysis(false);
+  }
+}, [user?.email, analysisIntent, handlePercyThinking, trackBehavior]);
+
+// ENHANCED: Update contextual suggestions based on user behavior
+const updateContextualSuggestions = React.useCallback((action: string, data?: any) => {
+  switch (action) {
+    case 'website_analysis':
+      setContextualSuggestions([
+        'I\'ll scan your site for SEO gaps and conversion opportunities',
+        'Most websites I analyze are missing 3-5 major revenue boosters',
+        'Your site analysis will reveal competitive advantages'
+      ]);
+      break;
+    case 'business_analysis':
+      setContextualSuggestions([
+        'Business analysis reveals automation opportunities worth 10x ROI',
+        'I\'ll identify which AI agents will transform your operations first',
+        'Every business analysis I run finds hidden profit centers'
+      ]);
+      break;
+    case 'analysis_complete':
+      setContextualSuggestions([
+        `Based on your results, ${data?.agentCount || 2} agents are perfect matches`,
+        'These opportunities will give you a massive competitive edge',
+        'Ready to launch? Your competitors won\'t know what hit them'
+      ]);
+      break;
+    case 'vip_activated':
+      setContextualSuggestions([
+        `VIP ${data?.tier?.toUpperCase()} member detected - unlocking exclusive features`,
+        'VIP analysis includes proprietary competitive intelligence',
+        'Your VIP status grants access to premium agent capabilities'
+      ]);
+      break;
+    case 'returning_user':
+      setContextualSuggestions([
+        'Welcome back! Ready to continue dominating your market?',
+        'I remember your previous success - want to amplify it?',
+        'Your competitive advantage is waiting to be activated'
+      ]);
+      break;
+    default:
+      // Keep current suggestions
+      break;
+  }
+}, []);
+
+// NEW: Handle conversational flow inputs
+const handleConversationalFlowInput = React.useCallback(async (step: string, input: string) => {
+  setIsPercyThinking(true);
+  console.log('Processing conversational flow input:', step, input);
+  trackBehavior('conversational_input_submitted', { step, input });
+  
+  // Simulate processing delay
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  // Route to next step based on current flow
+  if (step === 'seo-flow-start') {
+    // SEO flow: input → scanning → results
+    setCurrentStep('seo-scanning');
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Scanning animation
+    setCurrentStep('seo-results');
+  } else if (step === 'content-flow-start') {
+    // Content flow: type → topic prompt
+    setCurrentStep('content-topic-prompt');
+  } else if (step === 'content-topic-prompt') {
+    // Content flow: topic → results
+    setCurrentStep('content-results');
+  } else if (step === 'book-flow-start') {
+    // Book flow: idea → results
+    setCurrentStep('book-results');
+  } else if (step === 'business-flow-start') {
+    // Business flow: problem → scanning → results
+    setCurrentStep('business-scanning');
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Scanning animation
+    setCurrentStep('business-results');
+  } else if (step === 'brand-flow-start') {
+    // Brand flow: upgrade type → upload prompt
+    setCurrentStep('brand-upload-prompt');
+  } else if (step === 'brand-upload-prompt') {
+    // Brand flow: assets → results
+    setCurrentStep('brand-results');
+  } else if (step === 'custom-flow-start') {
+    // Custom flow: challenge → analysis
+    setCurrentStep('custom-analysis');
+  } else if (step === 'signup-flow-start') {
+    // Signup flow: email → confirmation
+    setCurrentStep('signup-confirmation');
+  } else if (step === 'code-flow-start') {
+    // Code flow: validate → success/error
+    const isValidCode = await validateVIPCode(input);
+    if (isValidCode.isValid) {
+      setCurrentStep('code-success');
+    } else {
+      toast.error('Invalid code. Please try again.');
+      setIsPercyThinking(false);
+      return;
+    }
+  } else if (step === 'dashboard-flow-start') {
+    // Dashboard flow: email/code → access
+    setCurrentStep('dashboard-access');
+  }
+  
+  setIsPercyThinking(false);
+  console.log('Conversational flow processed, moved to next step');
+}, [trackBehavior, validateVIPCode]);
+
 // Handle input submission (signup, analysis, verification)
 const handleInputSubmit = React.useCallback(async () => {
     const trimmed = inputValue.trim();
@@ -139,6 +767,21 @@ const handleInputSubmit = React.useCallback(async () => {
     if (currentStep.startsWith('instant-') && currentStep.endsWith('-analysis')) {
       const mode = currentStep.replace(/^instant-/, '').replace(/-analysis$/, '');
       await performAnalysis(mode, trimmed);
+      setInputValue('');
+      return;
+    }
+
+    // NEW: Percy diagnosis steps
+    if (currentStep.startsWith('percy-') && currentStep.endsWith('-diagnosis')) {
+      const diagnosisType = currentStep.replace(/^percy-/, '').replace(/-diagnosis$/, '');
+      await performPercyDiagnosis(diagnosisType, trimmed);
+      setInputValue('');
+      return;
+    }
+    
+    // NEW: Conversational flow steps
+    if (currentStep.includes('-flow-start') || currentStep.includes('-topic-prompt') || currentStep.includes('-upload-prompt')) {
+      await handleConversationalFlowInput(currentStep, trimmed);
       setInputValue('');
       return;
     }
@@ -538,6 +1181,19 @@ const handleContinue = React.useCallback(async (nextStep: string, routeTo?: stri
     handleAgentChat,
     handleContinue,
     validateAndRoute,
+    // Enhanced Free Scan Logic
+    handleBusinessAnalysis,
+    analysisIntent,
+    setAnalysisIntent,
+    freeAnalysisResults,
+    recommendedAgents,
+    isProcessingAnalysis,
+    // Enhanced Percy Concierge Features
+    percyMood,
+    setPercyMood,
+    userHistory,
+    contextualSuggestions,
+    updateContextualSuggestions,
   };
 
   return (
