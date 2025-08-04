@@ -103,9 +103,9 @@ Be specific, actionable, and focus on competitive advantages. Use an authoritati
 
     // Parse the structured response
     const sections = response.split('\n\n');
-    const analysisMatch = response.match(/ANALYSIS:\s*(.*?)(?=OPPORTUNITIES:|$)/s);
-    const opportunitiesMatch = response.match(/OPPORTUNITIES:\s*(.*?)(?=QUICK_WINS:|$)/s);
-    const quickWinsMatch = response.match(/QUICK_WINS:\s*(.*?)$/s);
+    const analysisMatch = response.match(/ANALYSIS:\s*([\s\S]*?)(?=OPPORTUNITIES:|$)/);
+    const opportunitiesMatch = response.match(/OPPORTUNITIES:\s*([\s\S]*?)(?=QUICK_WINS:|$)/);
+    const quickWinsMatch = response.match(/QUICK_WINS:\s*([\s\S]*)$/);
 
     const analysis = analysisMatch?.[1]?.trim() || response.substring(0, 300);
     const opportunities = opportunitiesMatch?.[1]?.split('•').filter(Boolean).map(s => s.trim()) || [
