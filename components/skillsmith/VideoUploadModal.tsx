@@ -230,14 +230,14 @@ export default function VideoUploadModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"
         onClick={handleClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 border border-orange-500/30 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto backdrop-blur-xl"
+          className="bg-gradient-to-b from-gray-900/98 via-gray-800/98 to-gray-900/98 border-2 border-orange-500/60 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto backdrop-blur-xl shadow-[0_0_40px_rgba(249,115,22,0.4)] ring-1 ring-orange-400/20"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
@@ -249,6 +249,8 @@ export default function VideoUploadModal({
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-white transition-colors"
+                title="Close video upload modal"
+                aria-label="Close video upload modal"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -268,128 +270,129 @@ export default function VideoUploadModal({
 
           {/* Content */}
           <div className="p-6">
-            {!selectedFile ? (
-              /* Upload Area */
-              <div
-                className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
-                  dragActive 
-                    ? 'border-orange-400 bg-orange-500/10' 
-                    : 'border-gray-600 hover:border-orange-400'
-                }`}
-                onDragEnter={handleDrag}
-                onDragLeave={handleDrag}
-                onDragOver={handleDrag}
-                onDrop={handleDrop}
+          {!selectedFile ? (
+            /* Upload Area */
+            <div
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                dragActive 
+                  ? 'border-orange-400 bg-orange-500/10' 
+                  : 'border-gray-600 hover:border-orange-400'
+              }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+            >
+              <Upload className="w-12 h-12 text-orange-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Drop your video here
+              </h3>
+              <p className="text-gray-400 mb-4">
+                or click to select a file
+              </p>
+              <CosmicButton
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black"
               >
-                <Upload className="w-12 h-12 text-orange-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Drop your video here
-                </h3>
-                <p className="text-gray-400 mb-4">
-                  or click to select a file
-                </p>
-                <CosmicButton
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-orange-400 text-orange-400 hover:bg-orange-400 hover:text-black"
-                >
-                  Select Video
-                </CosmicButton>
-                
-                <div className="mt-4 text-xs text-gray-500">
-                  Supports: MP4, MOV, WEBM • Max 30 seconds • Max 100MB
-                </div>
+                Select Video
+              </CosmicButton>
+              
+              <div className="mt-4 text-xs text-gray-500">
+                Supports: MP4, MOV, WEBM • Max 30 seconds • Max 100MB
               </div>
-            ) : (
-              /* Preview Area */
-              <div className="space-y-4">
-                <div className="bg-gray-800/50 rounded-xl p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-white">Selected Video</h3>
-                    <button
-                      onClick={resetModal}
-                      className="text-gray-400 hover:text-white text-sm"
-                    >
-                      Choose Different
-                    </button>
+            </div>
+          ) : (
+            /* Preview Area */
+            <div className="space-y-4">
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-white">Selected Video</h3>
+                  <button
+                    onClick={resetModal}
+                    className="text-gray-400 hover:text-white text-sm"
+                  >
+                    Choose Different
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <p className="text-gray-300 text-sm truncate">{selectedFile.name}</p>
+                    <div className="flex items-center gap-4 mt-1 text-xs text-gray-400">
+                      <span>{(selectedFile.size / (1024 * 1024)).toFixed(1)} MB</span>
+                      {videoDuration && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {Math.round(videoDuration)}s
+                        </span>
+                      )}
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <p className="text-gray-300 text-sm truncate">{selectedFile.name}</p>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-gray-400">
-                        <span>{(selectedFile.size / (1024 * 1024)).toFixed(1)} MB</span>
-                        {videoDuration && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {Math.round(videoDuration)}s
-                          </span>
-                        )}
-                        <CheckCircle className="w-4 h-4 text-green-400" />
-                      </div>
-                    </div>
-                    
-                    {videoPreview && (
-                      <video
-                        ref={videoRef}
-                        src={videoPreview}
-                        className="w-20 h-20 rounded-lg object-cover"
-                        controls={false}
-                        muted
-                        onClick={() => videoRef.current?.play()}
-                      />
-                    )}
-                  </div>
+                  {videoPreview && (
+                    <video
+                      ref={videoRef}
+                      src={videoPreview}
+                      className="w-20 h-20 rounded-lg object-cover"
+                      controls={false}
+                      muted
+                      onClick={() => videoRef.current?.play()}
+                    />
+                  )}
                 </div>
-
-                {/* Analysis Button */}
-                <CosmicButton
-                  variant="primary"
-                  size="lg"
-                  onClick={handleAnalyze}
-                  disabled={uploading || analyzing || !canUseScan}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
-                >
-                  {uploading && (
-                    <>
-                      <Loader className="w-5 h-5 mr-2 animate-spin" />
-                      Uploading...
-                    </>
-                  )}
-                  {analyzing && (
-                    <>
-                      <Loader className="w-5 h-5 mr-2 animate-spin" />
-                      Analyzing Performance...
-                    </>
-                  )}
-                  {!uploading && !analyzing && (
-                    <>
-                      <Play className="w-5 h-5 mr-2" />
-                      Analyze My Performance
-                    </>
-                  )}
-                </CosmicButton>
               </div>
-            )}
 
-            {/* Error Message */}
-            {error && (
-              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                <p className="text-red-400 text-sm">{error}</p>
-              </div>
-            )}
+              {/* Analysis Button */}
+              <CosmicButton
+                variant="primary"
+                size="lg"
+                onClick={handleAnalyze}
+                disabled={uploading || analyzing || !canUseScan}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:opacity-50"
+              >
+                {uploading && (
+                  <>
+                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                    Uploading...
+                  </>
+                )}
+                {analyzing && (
+                  <>
+                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                    Analyzing Performance...
+                  </>
+                )}
+                {!uploading && !analyzing && (
+                  <>
+                    <Play className="w-5 h-5 mr-2" />
+                    Analyze My Performance
+                  </>
+                )}
+              </CosmicButton>
+            </div>
+          )}
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </div>
-        </motion.div>
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="video/*"
+            onChange={handleFileSelect}
+            className="hidden"
+            aria-label="Select video file for upload"
+          />
+        </div>
       </motion.div>
-    </AnimatePresence>
-  );
+    </motion.div>
+  </AnimatePresence>
+);
 } 

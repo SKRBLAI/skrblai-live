@@ -1,5 +1,7 @@
 import { supabase } from '../utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
+import { generateSkillSmithPDF } from '../lib/utils/pdfGenerator';
+import { sendSkillSmithAnalysisEmail } from '../lib/services/emailService';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
 // Define input interface for Skill Smith Agent
@@ -27,6 +29,10 @@ interface VideoAnalysisResult {
   nextSteps: string[];
   personalizedMessage?: string; // Age-adaptive coaching message
   motivationalTone?: 'youth' | 'teen' | 'adult' | 'senior'; // Tone indicator
+  detailedSuggestions?: string[]; // Enhanced AI suggestions
+  trainingRecommendations?: string[]; // Specific training recommendations
+  nutritionTips?: string[]; // Sport-specific nutrition advice
+  mentalGameTips?: string[]; // Mental preparation and focus tips
 }
 
 // Age-adaptive personality system for SkillSmith

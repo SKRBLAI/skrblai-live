@@ -156,7 +156,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                       <motion.div
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
-                        className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1"
+                        className="bg-gradient-to-r from-orange-400 to-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1"
                       >
                         <Star className="w-3 h-3" />
                         Popular
