@@ -1219,19 +1219,17 @@ export default function PercyOnboardingRevolution() {
     // Initial fetch
     fetchLiveSocialProof();
     
-    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating  
-    // const interval = setInterval(fetchLiveSocialProof, 45000);
+    // Regular fetch interval
+    const interval = setInterval(fetchLiveSocialProof, 45000);
     
-    // return () => clearInterval(interval);
-    return;
+    return () => clearInterval(interval);
   }, []);
 
   // Rotate social proof messages
   useEffect(() => {
     if (socialProofMessages.length === 0) return;
 
-    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating
-    /* const interval = setInterval(() => {
+    const interval = setInterval(() => {
       const randomMessage = socialProofMessages[Math.floor(Math.random() * socialProofMessages.length)];
       setCurrentSocialProof(randomMessage);
       
@@ -1239,11 +1237,9 @@ export default function PercyOnboardingRevolution() {
       setTimeout(() => {
         setCurrentSocialProof(null);
       }, 6000);
-    }, 12000 + Math.random() * 8000); // Random interval between 12-20 seconds */
+    }, 12000 + Math.random() * 8000); // Random interval between 12-20 seconds
 
-    // 🚨 EMERGENCY FIX: No interval to clear
-    // return () => clearInterval(interval);
-    return;
+    return () => clearInterval(interval);
   }, [socialProofMessages]);
 
   // Legacy recommendation engine - TODO: Consider removing if not actively used

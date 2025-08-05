@@ -52,10 +52,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white">
-      {/* 🚨 EMERGENCY PERFORMANCE FIX: Disabled heavy animations causing white screen & CPU overheating */}
-      {/* REMOVED: CosmicStarfield - 120 animated stars with requestAnimationFrame */}
-      {/* REMOVED: FloatingParticles - 18 particles with constant animation */}
-      
       {/* Static background gradients only - MUCH lighter performance */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-900 via-gray-900 to-black" />
       <div className="absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.08),transparent)]" />

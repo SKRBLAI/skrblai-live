@@ -116,14 +116,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const badgeType = detectedBadgeType || (isRecommended ? 'recommended' : null);
 
   useEffect(() => {
-    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating and white screen
-    // const interval = setInterval(() => {
-    //   setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
-    //   setUrgencySpots(prev => Math.max(5, prev + Math.floor(Math.random() * 2) - 1));
-    // }, 8000);
+    const interval = setInterval(() => {
+      setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
+      setUrgencySpots(prev => Math.max(5, prev + Math.floor(Math.random() * 2) - 1));
+    }, 8000);
 
-    // return () => clearInterval(interval);
-    return;
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
