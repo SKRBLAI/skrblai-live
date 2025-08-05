@@ -83,6 +83,7 @@ interface AgentLeagueCardProps {
   userProgress?: number;
   userMastery?: number;
   showIntelligence?: boolean;
+  children?: React.ReactNode;
 }
 
 const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> = ({

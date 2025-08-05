@@ -82,7 +82,7 @@ interface BusinessResultsShowcaseProps {
   useAiAutomationHomepage?: boolean;
 }
 
-export default function BusinessResultsShowcase({ useAiAutomationHomepage = true }: BusinessResultsShowcaseProps): React.ReactElement {
+export default function BusinessResultsShowcase({ useAiAutomationHomepage = true }: BusinessResultsShowcaseProps): JSX.Element | null {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [liveMetrics, setLiveMetrics] = useState({
     businessesTransformed: 2847,

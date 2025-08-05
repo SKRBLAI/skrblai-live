@@ -51,7 +51,7 @@ interface SuperAgentPowersProps {
   useAiAutomationHomepage?: boolean;
 }
 
-export default function SuperAgentPowers({ useAiAutomationHomepage = true }: SuperAgentPowersProps): React.ReactElement {
+export default function SuperAgentPowers({ useAiAutomationHomepage = true }: SuperAgentPowersProps): JSX.Element | null {
   const router = useRouter();
   const [hoveredPower, setHoveredPower] = useState<string | null>(null);
 

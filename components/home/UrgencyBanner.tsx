@@ -183,8 +183,7 @@ export default function UrgencyBanner({ useAiAutomationHomepage = true }: Urgenc
                 ]
               }}
               transition={{ 
-                boxShadow: { duration: 2, repeat: Infinity },
-                hover: { duration: 0.2 }
+                boxShadow: { duration: 2, repeat: Infinity }
               }}
               className="px-10 py-5 bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-white font-bold text-xl rounded-xl border border-green-400/30 transition-all duration-300"
             >
