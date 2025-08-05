@@ -1,20 +1,21 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, useTransform, useScroll } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '../components/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import FloatingParticles from '../components/ui/FloatingParticles';
+// 🚨 EMERGENCY FIX: Removed performance-heavy imports
+// import FloatingParticles from '../components/ui/FloatingParticles';
 import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolution';
 import AgentsGrid from '../components/agents/AgentsGrid';
 import AgentPreviewSection from '../components/home/AgentPreviewSection';
-import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
+// import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
 import EmpowermentBanner from '../components/ui/EmpowermentBanner';
-import AnimatedBackground from './AnimatedBackground';
-import PercyHelpBubble from '../components/ui/PercyHelpBubble';
-import TypewriterText from '../components/shared/TypewriterText';
-import CosmicStarfield from '../components/background/CosmicStarfield';
-import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
+// import AnimatedBackground from './AnimatedBackground';
+// import PercyHelpBubble from '../components/ui/PercyHelpBubble';
+// import TypewriterText from '../components/shared/TypewriterText';
+// import CosmicStarfield from '../components/background/CosmicStarfield';
+import { Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
 import toast from 'react-hot-toast';
 
 export default function HomePage() {
@@ -23,8 +24,9 @@ export default function HomePage() {
   const searchParams = useSearchParams();
   const { user, session, isLoading, isEmailVerified } = useAuth();
   
-  const { scrollY } = useScroll();
-  const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
+  // 🚨 EMERGENCY FIX: Removed scroll transforms causing constant repaints and white screen
+  // const { scrollY } = useScroll();
+  // const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
 
   useEffect(() => {
     setMounted(true);
@@ -50,31 +52,12 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative text-white">
-      {/* Enhanced Cosmic Starfield Background */}
-      <CosmicStarfield 
-        starCount={120}
-        parallax={true}
-        speed={0.8}
-        twinkling={true}
-        optimized={true}
-        className="z-0"
-      />
+      {/* 🚨 EMERGENCY PERFORMANCE FIX: Disabled heavy animations causing white screen & CPU overheating */}
+      {/* REMOVED: CosmicStarfield - 120 animated stars with requestAnimationFrame */}
+      {/* REMOVED: FloatingParticles - 18 particles with constant animation */}
       
-      {/* Floating Percy Help Bubble - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* <PercyHelpBubble /> */}
-      
-      {/* Enhanced Background Effects - Mobile Optimized */}
-      <div className="absolute inset-0 z-5 opacity-10 sm:opacity-15">
-        <FloatingParticles particleCount={18} />
-      </div>
-      
-      {/* Interactive Empowerment Elements - TEMPORARILY DISABLED FOR DEBUGGING */}
-      {/* <InteractiveFloatingElements 
-        count={6} 
-        mouseFollow={true} 
-        className="hidden sm:block pointer-events-auto"
-      /> */}
-      
+      {/* Static background gradients only - MUCH lighter performance */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-900 via-gray-900 to-black" />
       <div className="absolute inset-0 z-5 bg-[radial-gradient(circle_at_center,rgba(0,102,255,0.08),transparent)]" />
       <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#0d1117]/60 via-[#0d1117]/80 to-[#0d1117]/90" />
       
@@ -93,12 +76,10 @@ export default function HomePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <motion.h1 
-                  className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 subpixel-antialiased"
-                  style={{ textRendering: 'optimizeLegibility', WebkitFontSmoothing: 'antialiased', MozOsxFontSmoothing: 'grayscale' }}
-                >
+                <h1 className="text-center text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl max-w-5xl mx-auto mb-4 sm:mb-6 tracking-tight font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent leading-tight px-2 subpixel-antialiased">
+                  {/* 🚨 EMERGENCY FIX: Removed motion animation causing performance issues */}
                   Your Competition Just Became Extinct
-                </motion.h1>
+                </h1>
                 
                 {/* Static Subheading */}
                 <motion.p 
@@ -132,16 +113,10 @@ export default function HomePage() {
 
 {/* Percy Onboarding Section - Enhanced with 3D and Micro-animations */}
               {/* FIXED: Percy onboarding now ALWAYS shows on homepage for ALL users */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                id="onboarding" className="w-full max-w-4xl mx-auto"
-              >
-                <Pseudo3DFeature className="w-full">
-                  <PercyOnboardingRevolution />
-                </Pseudo3DFeature>
-              </motion.div>
+              <div id="onboarding" className="w-full max-w-4xl mx-auto">
+                {/* 🚨 EMERGENCY FIX: Removed motion animations and Pseudo3DFeature causing performance issues */}
+                <PercyOnboardingRevolution />
+              </div>
             </div>
 
             {/* Social Proof Section removed – stats now live inside unified Percy component */}
@@ -188,8 +163,8 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Animated Background */}
-        <AnimatedBackground />
+        {/* 🚨 EMERGENCY FIX: Removed AnimatedBackground causing CPU overheating */}
+        {/* <AnimatedBackground /> */}
       </main>
     </div>
   );

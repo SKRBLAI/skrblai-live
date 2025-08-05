@@ -40,6 +40,7 @@ const scaleIn: Variants = {
   }
 };
 import Image from 'next/image';
+import CardBase from './CardBase';
 
 const features = [
   {
@@ -106,7 +107,7 @@ const FeatureSection = () => {
               aria-label={`${feature.title} feature card`}
               role="button"
             >
-              <div className="cosmic-glass cosmic-gradient cosmic-glow rounded-2xl p-8 h-full border-2 border-[#30D5C8] group-hover:border-[#a21caf] shadow-[0_0_32px_#a21caf40] transition-all duration-300 relative">
+              <CardBase className="h-full" ariaLabel={`Feature: ${feature.title}`}>
                 {/* Premium badge and lock for premium features */}
                 {feature.premium && (
                   <span className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 rounded-full bg-[#1E90FF] text-white text-xs font-bold shadow-[0_0_10px_#1E90FF80] z-10" title="This feature unlocks cosmic-level powers!">
@@ -130,13 +131,11 @@ const FeatureSection = () => {
                   {feature.title}
                   {feature.premium && <span className="ml-2 align-middle text-[#30D5C8]" title="Premium feature" aria-label="Premium feature">🔒</span>}
                 </h3>
-                <p className="text-[#30D5C8] leading-relaxed" aria-label={`Feature description: ${feature.description}`}
-                  tabIndex={0}
-                >
+                <p className="text-[#30D5C8] leading-relaxed" aria-label={`Feature description: ${feature.description}`} tabIndex={0}>
                   {feature.description}
                 </p>
                 <span className="sr-only">Press Enter or tap for more cosmic details.</span>
-              </div>
+              </CardBase>
             </motion.div>
           ))}
         </div>

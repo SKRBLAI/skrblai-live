@@ -75,8 +75,33 @@ export default function SkillSmithStandaloneHero({
           {/* Animated glowing border */}
           <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 opacity-60 blur-2xl animate-pulse -z-10" />
           
-          {/* Main Glass Panel */}
-          <div className="relative bg-gradient-to-b from-gray-900/80 via-gray-800/70 to-gray-900/80 border border-orange-500/40 rounded-3xl backdrop-blur-xl overflow-hidden shadow-2xl">
+          {/* Enhanced Gaming-Style Glass Panel */}
+          <motion.div 
+            className="relative bg-gradient-to-b from-gray-900/80 via-gray-800/70 to-gray-900/80 border-2 rounded-3xl backdrop-blur-xl overflow-hidden shadow-2xl"
+            animate={{
+              borderColor: [
+                'rgba(249, 115, 22, 0.6)',
+                'rgba(239, 68, 68, 0.8)', 
+                'rgba(245, 158, 11, 0.6)',
+                'rgba(249, 115, 22, 0.6)'
+              ],
+              boxShadow: [
+                '0 0 60px rgba(249, 115, 22, 0.4), 0 0 120px rgba(239, 68, 68, 0.2)',
+                '0 0 80px rgba(239, 68, 68, 0.5), 0 0 160px rgba(245, 158, 11, 0.3)',
+                '0 0 60px rgba(249, 115, 22, 0.4), 0 0 120px rgba(239, 68, 68, 0.2)'
+              ]
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            whileHover={{
+              scale: 1.01,
+              y: -5,
+              transition: { duration: 0.3 }
+            }}
+          >
             {/* Top Stats Bar (for standalone) */}
             {isStandalone && (
               <div className="border-b border-orange-500/20 bg-gray-900/50 px-6 py-4">
@@ -117,21 +142,93 @@ export default function SkillSmithStandaloneHero({
 
             <div className="p-8 sm:p-12">
               <div className="flex flex-col lg:flex-row items-center gap-10">
-                {/* SkillSmith Image */}
+                {/* SkillSmith Image - ENHANCED & LARGER */}
                 <motion.div 
-                  className="shrink-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-72 lg:h-72 relative"
+                  className="shrink-0 w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 relative"
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.4, duration: 0.6 }}
+                  whileHover={{ 
+                    scale: 1.05,
+                    rotateY: 5,
+                    transition: { duration: 0.3 }
+                  }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-400/20 to-red-500/20 rounded-full blur-xl" />
-                  <Image
-                    src="/images/agents-skillsmith-nobg-skrblai.webp"
-                    alt="SkillSmith AI Sports Analyst"
-                    fill
-                    className="object-contain relative z-10"
-                    priority
+                  {/* Enhanced glow effects */}
+                  <motion.div 
+                    className="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-red-500/30 rounded-full blur-2xl"
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      opacity: [0.3, 0.5, 0.3]
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
                   />
+                  
+                  {/* Pulsing ring animation */}
+                  <motion.div
+                    className="absolute inset-4 border-2 border-orange-400/40 rounded-full"
+                    animate={{
+                      scale: [1, 1.1, 1],
+                      borderColor: [
+                        'rgba(251, 146, 60, 0.4)',
+                        'rgba(239, 68, 68, 0.6)',
+                        'rgba(251, 146, 60, 0.4)'
+                      ]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
+                  
+                  {/* Interactive breathing animation */}
+                  <motion.div
+                    animate={{
+                      scale: [1, 1.02, 1],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="relative z-10 w-full h-full"
+                  >
+                    <Image
+                      src="/images/agents-skillsmith-nobg-skrblai.webp"
+                      alt="SkillSmith AI Sports Analyst"
+                      fill
+                      className="object-contain relative z-10 drop-shadow-2xl"
+                      priority
+                    />
+                  </motion.div>
+                  
+                  {/* Floating particles around character */}
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="absolute w-2 h-2 bg-orange-400/60 rounded-full"
+                      style={{
+                        left: `${20 + Math.sin(i) * 60}%`,
+                        top: `${30 + Math.cos(i) * 40}%`,
+                      }}
+                      animate={{
+                        y: [-10, 10, -10],
+                        opacity: [0, 1, 0],
+                        scale: [0.5, 1, 0.5]
+                      }}
+                      transition={{
+                        duration: 3 + i * 0.5,
+                        repeat: Infinity,
+                        delay: i * 0.8,
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
                 </motion.div>
 
                 {/* Content */}
@@ -204,15 +301,51 @@ export default function SkillSmithStandaloneHero({
                     transition={{ delay: 1.2, duration: 0.6 }}
                     className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
                   >
-                    <CosmicButton
-                      variant="primary"
-                      size="xl"
-                      onClick={onUploadClick}
-                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold px-8 py-4 text-lg"
+                    {/* Enhanced primary CTA with instant value */}
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="relative"
                     >
-                      <Upload className="w-6 h-6 mr-3" />
-                      Upload Your Video
-                    </CosmicButton>
+                      <CosmicButton
+                        variant="primary"
+                        size="xl"
+                        onClick={onUploadClick}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold px-8 py-4 text-lg relative overflow-hidden"
+                      >
+                        {/* Shimmer effect */}
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                          animate={{
+                            x: [-100, 300],
+                            opacity: [0, 1, 0]
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            repeatDelay: 3
+                          }}
+                        />
+                        <Upload className="w-6 h-6 mr-3 relative z-10" />
+                        <span className="relative z-10">🎯 Get FREE Analysis</span>
+                      </CosmicButton>
+                      
+                      {/* Floating achievement indicator */}
+                      <motion.div
+                        className="absolute -top-3 -right-3 bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full"
+                        animate={{
+                          y: [-5, 5, -5],
+                          rotate: [-5, 5, -5]
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        ⚡ INSTANT
+                      </motion.div>
+                    </motion.div>
 
                     {userType === 'guest' && (
                       <CosmicButton
@@ -253,7 +386,7 @@ export default function SkillSmithStandaloneHero({
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </motion.section>

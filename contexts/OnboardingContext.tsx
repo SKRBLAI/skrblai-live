@@ -1,51 +1,156 @@
+/**
+ * OnboardingContext - Centralized Business Logic for Percy Onboarding
+ * 
+ * This context manages all business logic for the Percy onboarding experience,
+ * providing a clean separation between UI components and data/business operations.
+ * 
+ * KEY INTEGRATIONS:
+ * 
+ * 1. OpenAI API Integration (/api/analysis/business-scan):
+ *    - Uses GPT-4o or GPT-4-32k for business analysis
+ *    - Structured prompts for different analysis types (website, content, business, etc.)
+ *    - Returns analysis, opportunities, quick wins, and agent recommendations
+ *    - Includes fallback handling for API failures
+ * 
+ * 2. N8N Workflow Integration:
+ *    - Agent launches trigger N8N workflows via /api/agents/[agentId]/trigger-n8n
+ *    - Handles automated workflow execution for agent deployment
+ *    - Manages workflow state and progress tracking
+ * 
+ * 3. User State Management:
+ *    - VIP tier validation and status tracking
+ *    - User history for enhanced concierge experience
+ *    - Contextual suggestions based on user behavior
+ *    - Analysis results and agent recommendations
+ * 
+ * 4. Routing and Navigation:
+ *    - Centralized route validation and error handling
+ *    - Agent service page routing (/services/[agent])
+ *    - Chat interface routing (/chat/[agentId])
+ *    - Dashboard and feature page navigation
+ * 
+ * BUSINESS LOGIC FLOWS:
+ * - Free Scan: Input → OpenAI Analysis → Agent Recommendations → Service Launch
+ * - VIP Onboarding: Code Validation → Tier Assignment → Enhanced Features
+ * - Agent Handoff: Analysis Results → Agent Selection → N8N Workflow → Service Page
+ * - User Memory: Interaction Tracking → Behavior Analysis → Personalized Suggestions
+ */
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/context/AuthContext';
 import { usePercyContext } from '../components/assistant/PercyProvider';
 import toast from 'react-hot-toast';
 
+/**
+ * OnboardingContext Interface
+ * Centralized state and business logic for Percy onboarding experience
+ */
 export interface OnboardingContextType {
+  // Core onboarding state
   currentStep: string;
   setCurrentStep: (step: string) => void;
   inputValue: string;
   setInputValue: (value: string) => void;
+  
+  // User interaction handlers
   handleUserChoice: (choiceId: string, data?: any) => void;
   handleInputSubmit: () => Promise<void>;
+  
+  // Prompt bar functionality
   promptBarValue: string;
   setPromptBarValue: (value: string) => void;
   handlePromptBarSubmit: () => Promise<void>;
+  
+  // Analysis and AI state
   isPercyThinking: boolean;
   analysisResults: AnalysisResults | null;
   userAnalysisAgent: string;
+  
+  // VIP and user state
   isVIPUser: boolean;
   vipTier: 'gold' | 'platinum' | 'diamond' | null;
   phoneVerified: boolean;
+  
+  // Navigation and routing
   handleLaunch: (agentId: string, context?: any) => Promise<void>;
   handleAgentChat: (agentId: string) => Promise<void>;
   handleContinue: (nextStep: string, routeTo?: string) => Promise<void>;
   validateAndRoute: (route: string, context?: string) => boolean;
-  // Enhanced Free Scan Logic
+  
+  // Enhanced Free Scan Logic (OpenAI Integration)
+  /**
+   * Processes business analysis using OpenAI API
+   * Handles the complete scan→analysis→agent recommendation flow
+   */
   handleBusinessAnalysis: (input: string, analysisType?: string) => Promise<void>;
   analysisIntent: string | null;
   setAnalysisIntent: (intent: string | null) => void;
-  freeAnalysisResults: any | null;
-  recommendedAgents: any[] | null;
+  freeAnalysisResults: FreeAnalysisResults | null;
+  recommendedAgents: RecommendedAgent[] | null;
   isProcessingAnalysis: boolean;
+  
   // Enhanced Percy Concierge Features
-  percyMood: string;
-  setPercyMood: (mood: string) => void;
-  userHistory: any[];
+  percyMood: 'excited' | 'analyzing' | 'thinking' | 'celebrating' | 'confident' | 'scanning';
+  setPercyMood: (mood: 'excited' | 'analyzing' | 'thinking' | 'celebrating' | 'confident' | 'scanning') => void;
+  userHistory: UserHistoryEntry[];
   contextualSuggestions: string[];
+  /**
+   * Updates contextual suggestions based on user actions
+   * Enhances Percy's concierge intelligence and personalization
+   */
   updateContextualSuggestions: (action: string, data?: any) => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
-// Add AnalysisResults type
+/**
+ * Analysis Results Structure
+ * Used for both legacy compatibility and new enhanced results
+ */
 interface AnalysisResults {
   mode: string;
   input: string;
   insights: string[];
+}
+
+/**
+ * Enhanced Free Analysis Results from OpenAI API
+ * Contains full business analysis with agent recommendations
+ */
+interface FreeAnalysisResults {
+  analysis: string;
+  opportunities: string[];
+  quickWins: string[];
+  businessType: string;
+  confidence: number;
+  recommendedAgents: RecommendedAgent[];
+}
+
+/**
+ * Recommended Agent Structure
+ * Used in agent handoff cards and routing
+ */
+interface RecommendedAgent {
+  id: string;
+  name: string;
+  description: string;
+  route: string;
+  reason: string;
+  confidence: number;
+}
+
+/**
+ * User History Entry
+ * Tracks user interactions for enhanced concierge experience
+ */
+interface UserHistoryEntry {
+  timestamp: number;
+  action: string;
+  input?: string;
+  result?: string;
+  analysisType?: string;
+  recommendedAgents?: number;
 }
 
 export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
@@ -73,20 +178,24 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
 
   // Enhanced Free Scan Logic State
   const [analysisIntent, setAnalysisIntent] = useState<string | null>(null);
-  const [freeAnalysisResults, setFreeAnalysisResults] = useState<any | null>(null);
-  const [recommendedAgents, setRecommendedAgents] = useState<any[] | null>(null);
+  const [freeAnalysisResults, setFreeAnalysisResults] = useState<FreeAnalysisResults | null>(null);
+  const [recommendedAgents, setRecommendedAgents] = useState<RecommendedAgent[] | null>(null);
   const [isProcessingAnalysis, setIsProcessingAnalysis] = useState<boolean>(false);
 
   // Enhanced Percy Concierge Features
-  const [percyMood, setPercyMood] = useState<string>('excited');
-  const [userHistory, setUserHistory] = useState<any[]>([]);
+  const [percyMood, setPercyMood] = useState<'excited' | 'analyzing' | 'thinking' | 'celebrating' | 'confident' | 'scanning'>('excited');
+  const [userHistory, setUserHistory] = useState<UserHistoryEntry[]>([]);
   const [contextualSuggestions, setContextualSuggestions] = useState<string[]>([
     'I can analyze any business and find automation opportunities instantly',
     'Your competitors aren\'t using AI yet - perfect timing to gain advantage',
     'Every analysis I run reveals hidden revenue opportunities'
   ]);
 
-  // Validate VIP codes
+  /**
+   * Validates VIP access codes against predefined list
+   * @param code - VIP code to validate
+   * @returns Promise with validation result and tier level
+   */
   const validateVIPCode = React.useCallback(async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
     const vipCodes: Record<string, 'gold' | 'platinum' | 'diamond'> = {
       'SKRBL-VIP-GOLD-2024': 'gold',
@@ -103,13 +212,14 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
     return { isValid: !!tier, tier: tier || null };
   }, []);
 
-  // Percy thinking helper
+  /**
+   * Handles Percy thinking animation and state
+   * @param duration - Duration of thinking state in milliseconds
+   */
 const handlePercyThinking = React.useCallback(async (duration: number = 2000) => {
   setIsPercyThinking(true);
-  console.log('Percy is thinking...');
   await new Promise(resolve => setTimeout(resolve, duration));
   setIsPercyThinking(false);
-  console.log('Percy is confident.');
 }, []);
 
 // Simulate analysis based on mode and input
@@ -537,7 +647,24 @@ const performPercyDiagnosis = React.useCallback(async (diagnosisType: string, in
   console.log('Percy diagnosis complete, recommended agent:', recommendedAgent);
 }, [trackBehavior]);
 
-// ENHANCED: Business Analysis with OpenAI Integration (Free Scan)
+/**
+ * ENHANCED: Business Analysis with OpenAI Integration (Free Scan)
+ * 
+ * This function handles the complete free scan flow:
+ * 1. Validates input and sets processing states
+ * 2. Updates user history and contextual suggestions
+ * 3. Calls OpenAI API via /api/analysis/business-scan
+ * 4. Processes results and updates recommended agents
+ * 5. Routes to analysis results step
+ * 
+ * @param input - Business description or website URL from user
+ * @param analysisType - Type of analysis (analyze-custom-needs, etc.)
+ * 
+ * API Interaction: POST /api/analysis/business-scan
+ * - Uses OpenAI GPT-4o or GPT-4-32k for analysis
+ * - Returns structured business analysis with agent recommendations
+ * - Includes fallback handling for API failures
+ */
 const handleBusinessAnalysis = React.useCallback(async (input: string, analysisType?: string) => {
   if (!input.trim()) {
     toast.error('Please provide your business information');
@@ -549,7 +676,7 @@ const handleBusinessAnalysis = React.useCallback(async (input: string, analysisT
   setCurrentStep('ai-analysis-processing');
 
   try {
-    console.log('[Percy Context] Starting business analysis with input:', input.substring(0, 50) + '...');
+    // Starting business analysis
     
     // Add to user history for better concierge experience
     const historyEntry = {
@@ -643,7 +770,22 @@ const handleBusinessAnalysis = React.useCallback(async (input: string, analysisT
   }
 }, [user?.email, analysisIntent, handlePercyThinking, trackBehavior]);
 
-// ENHANCED: Update contextual suggestions based on user behavior
+/**
+ * ENHANCED: Update contextual suggestions based on user behavior
+ * 
+ * This function enhances Percy's concierge intelligence by providing
+ * contextual suggestions that adapt to user actions and analysis results.
+ * 
+ * @param action - The user action that triggered the update
+ * @param data - Additional context data (analysis results, VIP tier, etc.)
+ * 
+ * Supported actions:
+ * - 'website_analysis': Shows SEO-focused suggestions
+ * - 'business_analysis': Shows automation-focused suggestions  
+ * - 'analysis_complete': Shows results-based suggestions with agent count
+ * - 'vip_activated': Shows VIP-specific messaging
+ * - 'returning_user': Shows personalized welcome back messages
+ */
 const updateContextualSuggestions = React.useCallback((action: string, data?: any) => {
   switch (action) {
     case 'website_analysis':
@@ -687,7 +829,21 @@ const updateContextualSuggestions = React.useCallback((action: string, data?: an
   }
 }, []);
 
-// NEW: Handle conversational flow inputs
+/**
+ * Handles conversational flow inputs for different onboarding paths
+ * 
+ * This function manages multi-step flows like SEO analysis, content creation,
+ * business strategy, etc. It coordinates the progression through each flow's steps
+ * including scanning animations and result delivery.
+ * 
+ * @param step - Current flow step (e.g., 'seo-flow-start', 'content-topic-prompt')
+ * @param input - User input for the current step
+ * 
+ * Flow Examples:
+ * - SEO: input → scanning → results
+ * - Content: type → topic prompt → results
+ * - Business: problem → scanning → results
+ */
 const handleConversationalFlowInput = React.useCallback(async (step: string, input: string) => {
   setIsPercyThinking(true);
   console.log('Processing conversational flow input:', step, input);
@@ -1016,6 +1172,26 @@ const validateAndRoute = React.useCallback((route: string, context?: string) => 
 }, [router]);
 
 // Enhanced routing functions for agent interactions
+/**
+ * Enhanced Agent Launch Function
+ * 
+ * Launches AI agents by routing to their service pages and triggering N8N workflows.
+ * This is the primary function for converting analysis results into active agent deployment.
+ * 
+ * @param agentId - The ID of the agent to launch (maps to /services/[agentId])
+ * @param context - Additional context data (analysis results, user preferences, etc.)
+ * 
+ * Workflow:
+ * 1. Validates route and agent availability
+ * 2. Triggers N8N workflow via /api/agents/[agentId]/trigger-n8n
+ * 3. Routes user to agent service page
+ * 4. Tracks behavior for analytics and optimization
+ * 
+ * N8N Integration:
+ * - Each agent has associated N8N workflows for automation setup
+ * - Workflows handle initial configuration, data setup, and service provisioning
+ * - Error handling includes fallback routes and user notifications
+ */
 const handleLaunch = React.useCallback(async (agentId: string, context?: any) => {
   console.log('[Onboarding] Launching agent:', agentId, context);
   trackBehavior('agent_launch', { agentId, context, from: currentStep });

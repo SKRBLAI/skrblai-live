@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import CardBase from './CardBase';
+
 import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap, Sparkles, Crown, Award, Brain, Target, Palette, BarChart3, BookOpen, Globe, Smartphone, Video, DollarSign, Shield } from 'lucide-react';
 import { Agent } from '../../types/agent';
 import '../../styles/components/agent-card.css';
@@ -16,7 +18,7 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
-import { Agent3DCardProvider } from '../../lib/3d/Agent3DCardCore';
+
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -114,12 +116,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const badgeType = detectedBadgeType || (isRecommended ? 'recommended' : null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
-      setUrgencySpots(prev => Math.max(5, prev + Math.floor(Math.random() * 2) - 1));
-    }, 8000);
+    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating and white screen
+    // const interval = setInterval(() => {
+    //   setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
+    //   setUrgencySpots(prev => Math.max(5, prev + Math.floor(Math.random() * 2) - 1));
+    // }, 8000);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
+    return;
   }, []);
 
   useEffect(() => {
@@ -142,292 +146,214 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   }
 
   return (
-    <Agent3DCardProvider 
-      agent={agent}
-      enable3D={!shouldReduceMotion}
-      enableFlip={false}
-      enableHover={true}
-    >
-      <motion.div
-        ref={cardRef}
-        className={`relative h-80 ${className}`}
+    <motion.div
+        className={`relative min-h-80 h-auto ${className}`}
         initial={{ 
           opacity: 0, 
-          y: shouldReduceMotion ? 0 : 30,
-          scale: shouldReduceMotion ? 1 : 0.95
+          y: 30,
+          scale: 0.95
         }}
         animate={{ 
           opacity: 1, 
           y: 0,
           scale: 1
         }}
-        whileHover={{
-          y: shouldReduceMotion ? 0 : -8,
-          scale: shouldReduceMotion ? 1 : 1.03
-        }}
         transition={{
-          duration: shouldReduceMotion ? 0.1 : 0.5,
-          delay: shouldReduceMotion ? 0 : index * 0.1
+          duration: 0.5,
+          delay: index * 0.1
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Power Rangers Cosmic Glass Card */}
-        <div 
-
-          className="h-full relative overflow-hidden group bg-gradient-to-br from-violet-800/90 via-purple-900/90 to-indigo-900/80 backdrop-blur-xl border-2 border-teal-400/80 shadow-[0_0_36px_#30D5C8AA,0_0_72px_#5B3DF544] hover:shadow-[0_0_72px_#30D5C8AA,0_8px_64px_#5B3DF566] rounded-2xl transition-all duration-500 agent-card-glow float-slow"
-
-          style={{
-            background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%)',
-            backdropFilter: 'blur(20px)',
-            boxShadow: `
-              0 0 40px rgba(48, 213, 200, 0.4),
-              0 0 80px rgba(91, 61, 245, 0.3),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1),
-              inset 0 -1px 0 rgba(0, 0, 0, 0.2)
-            `
-          }}
-        >
-          {/* Pulsing Border Animation */}
+        <CardBase className="h-full relative overflow-hidden group float-slow" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
           <motion.div 
-            className="absolute inset-0 rounded-2xl border-2 border-teal-400/60 opacity-75"
-            animate={{
-              borderColor: [
-                'rgba(48, 213, 200, 0.6)',
-                'rgba(91, 61, 245, 0.8)',
-                'rgba(168, 85, 247, 0.6)',
-                'rgba(48, 213, 200, 0.6)'
-              ]
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-
-          {/* Auto-detected Badge from Agent Config */}
-          {badgeType && (
-            <div className="absolute top-3 right-3 z-20">
-              <motion.div 
-                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg backdrop-blur-sm ${
-                  badgeType === 'recommended' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' :
-                  badgeType === 'featured' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' :
-                  badgeType === 'new' ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white' :
-                  'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.2 }}
-              >
-                {badgeType === 'recommended' && <Star className="w-3 h-3" />}
-                {badgeType === 'featured' && <Crown className="w-3 h-3" />}
-                {badgeType === 'new' && <Sparkles className="w-3 h-3" />}
-                {badgeType.toUpperCase()}
-              </motion.div>
-            </div>
-          )}
-
-          {/* Live Activity & Stats - Data-driven */}
-          <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
-            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-cyan-400/30">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-cyan-300 font-medium">{liveUsers} online</span>
-            </div>
-            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-purple-400/30">
-              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-              <span className="text-purple-300 font-medium">{agentConfig.powers.length} powers</span>
-            </div>
-          </div>
-
-          {/* Power Rangers Agent Image with Cosmic Effects */}
-          <div className="flex flex-col items-center pt-8 pb-4">
-            <motion.div
-              className="relative w-24 h-24 mb-4"
-              whileHover={{ 
-                scale: shouldReduceMotion ? 1 : 1.15,
-                rotateY: shouldReduceMotion ? 0 : 15
-              }}
-              transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
-            >
-              {/* Cosmic Glow Background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/40 to-purple-600/40 rounded-full blur-lg animate-pulse"></div>
-              
-              {/* Double Rotating Rings */}
-              <motion.div
-                className="absolute inset-0 rounded-full border-2 border-cyan-300/80"
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 8, ease: 'linear' }}
-              />
-              <motion.div
-                className="absolute inset-1 rounded-full border border-purple-400/60"
-                animate={{ rotate: -360 }}
-                transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
-              />
-              
-              {/* Multiple Orbiting Particles */}
-              <motion.span
-                className="absolute -top-1 left-1/2 h-1.5 w-1.5 bg-cyan-400 rounded-full shadow-lg"
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                style={{ originX: 0.5, originY: 2.5 }}
-              />
-              <motion.span
-                className="absolute top-1/2 -right-1 h-1 w-1 bg-purple-400 rounded-full shadow-lg"
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
-                style={{ originX: -2, originY: 0.5 }}
-              />
-              
-              <Image
-                src={getAgentImagePath(agent.id)}
-                alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
-                width={96}
-                height={96}
-                className="relative z-10 rounded-full border-2 border-teal-400/70 shadow-[0_0_20px_rgba(48,213,200,0.5)] hover:shadow-[0_0_30px_rgba(48,213,200,0.8)] transition-all duration-300"
-                style={{ objectFit: 'cover' }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLDivElement;
-                  if (fallback) fallback.style.display = 'flex';
+            className="h-full relative overflow-hidden group bg-gradient-to-br from-violet-800/90 via-purple-900/90 to-indigo-900/80 backdrop-blur-xl border-2 border-teal-400/80 shadow-[0_0_36px_#30D5C8AA,0_0_72px_#5B3DF544] hover:shadow-[0_0_72px_#30D5C8AA,0_8px_64px_#5B3DF566] rounded-2xl transition-all duration-500 agent-card-glow float-slow"
+            style={{
+                  background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  boxShadow: `
+                    0 0 40px rgba(48, 213, 200, 0.4),
+                    0 0 80px rgba(91, 61, 245, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                    inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                  `
                 }}
-              />
-              <div 
-                className="hidden absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full items-center justify-center text-3xl text-white border-2 border-teal-400/70 shadow-lg"
-                style={{ display: 'none' }}
               >
-                {agentConfig.emoji || getAgentEmoji(agent.id)}
-              </div>
-            </motion.div>
+                {/* Pulsing Border Animation */}
+                <motion.div 
+                  className="absolute inset-0 rounded-2xl border-2 border-teal-400/60 opacity-75"
+                  animate={{
+                    borderColor: [
+                      'rgba(48, 213, 200, 0.6)',
+                      'rgba(91, 61, 245, 0.8)',
+                      'rgba(168, 85, 247, 0.6)',
+                      'rgba(48, 213, 200, 0.6)'
+                    ]
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
 
-            {/* Agent Name & Superhero Title */}
-            <motion.h3 
-              className="text-xl font-bold bg-gradient-to-r from-[#00F0FF] via-purple-400 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] mb-1 text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              {agentConfig.personality.superheroName || agent.name}
-            </motion.h3>
+                {/* Auto-detected Badge from Agent Config */}
+                {badgeType && (
+                  <div className="absolute top-3 right-3 z-20">
+                    <motion.div 
+                      className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg backdrop-blur-sm ${
+                        badgeType === 'recommended' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' :
+                        badgeType === 'featured' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' :
+                        badgeType === 'new' ? 'bg-gradient-to-r from-green-500 to-teal-500 text-white' :
+                        'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {badgeType === 'recommended' && <Star className="w-3 h-3" />}
+                      {badgeType === 'featured' && <Crown className="w-3 h-3" />}
+                      {badgeType === 'new' && <Sparkles className="w-3 h-3" />}
+                      {badgeType.toUpperCase()}
+                    </motion.div>
+                  </div>
+                )}
 
-            {/* Catchphrase */}
-            <motion.p 
-              className="text-sm text-cyan-300 font-medium mb-2 text-center italic"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              "{agentConfig.personality.catchphrase}"
-            </motion.p>
-
-            {/* Capability Icons */}
-            <motion.div 
-              className="flex items-center gap-2 mb-3 flex-wrap justify-center"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              {agentConfig.capabilities.slice(0, 3).map((capability, idx) => (
-                <div 
-                  key={idx}
-                  className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 border border-cyan-400/30"
-                  title={capability.category}
-                >
-                  {getCapabilityIcon(capability.category)}
-                  <span className="text-xs text-cyan-300">{capability.category.split(' ')[0]}</span>
+                {/* Live Activity & Stats - Data-driven */}
+                <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
+                  <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-cyan-400/30">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-cyan-300 font-medium">{liveUsers} online</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-purple-400/30">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                    <span className="text-purple-300 font-medium">{agentConfig.powers.length} powers</span>
+                  </div>
                 </div>
-              ))}
-            </motion.div>
 
-            {/* Progress Bar (if user has progress) */}
-            {userProgress > 0 && (
-              <div className="w-full mb-3">
-                <div className="flex justify-between text-xs text-white/60 mb-1">
-                  <span>Progress</span>
-                  <span>{userProgress}%</span>
-                </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
+                {/* Power Rangers Agent Image with Cosmic Effects */}
+                <div className="flex flex-col items-center pt-6 pb-6 px-3">
                   <motion.div
-                    className="bg-gradient-to-r from-cyan-400 to-blue-600 h-2 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${userProgress}%` }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                  />
-                </div>
-              </div>
-            )}
+                    className="relative w-24 h-24 mb-4"
+                    whileHover={{ 
+                      scale: shouldReduceMotion ? 1 : 1.15,
+                      rotateY: shouldReduceMotion ? 0 : 15
+                    }}
+                    transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                  >
+                    {/* Cosmic Glow Background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/40 to-purple-600/40 rounded-full blur-lg animate-pulse"></div>
+                    
+                    {/* Single Clean Ring */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-cyan-400/50"
+                      animate={{ 
+                        borderColor: [
+                          'rgba(48, 213, 200, 0.5)',
+                          'rgba(168, 85, 247, 0.5)',
+                          'rgba(48, 213, 200, 0.5)'
+                        ]
+                      }}
+                      transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                    />
+                    
+                    {/* Multiple Orbiting Particles */}
+                    <motion.span
+                      className="absolute -top-1 left-1/2 h-1.5 w-1.5 bg-cyan-400 rounded-full shadow-lg"
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
+                      style={{ originX: 0.5, originY: 2.5 }}
+                    />
+                    <motion.span
+                      className="absolute top-1/2 -right-1 h-1 w-1 bg-purple-400 rounded-full shadow-lg"
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
+                      style={{ originX: -2, originY: 0.5 }}
+                    />
+                    
+                    <Image
+                      src={getAgentImagePath(agent.id)}
+                      alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
+                      width={96}
+                      height={96}
+                      className="relative z-10 rounded-full border-2 border-teal-400/70 shadow-[0_0_20px_rgba(48,213,200,0.5)] hover:shadow-[0_0_30px_rgba(48,213,200,0.8)] transition-all duration-300"
+                      style={{ objectFit: 'cover' }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLDivElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                    <div 
+                      className="hidden absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full items-center justify-center text-3xl text-white border-2 border-teal-400/70 shadow-lg"
+                      style={{ display: 'none' }}
+                    >
+                      {agentConfig.emoji || getAgentEmoji(agent.id)}
+                    </div>
+                  </motion.div>
 
-            {/* Mastery Level */}
-            {userMastery > 0 && (
-              <div className="flex items-center gap-1 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`w-4 h-4 ${
-                      i < userMastery ? 'text-yellow-400 fill-current' : 'text-gray-600'
-                    }`}
-                  />
-                ))}
-                <span className="text-xs text-white/60 ml-1">Level {userMastery}</span>
-              </div>
-            )}
-          </div>
+                  {/* Agent Name & Superhero Title */}
+                  <motion.h3 
+                    className="text-lg font-bold bg-gradient-to-r from-[#00F0FF] via-purple-400 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] mb-1 text-center px-2 leading-tight"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ 
+                      wordBreak: 'break-word',
+                      hyphens: 'auto',
+                      lineHeight: '1.2'
+                    }}
+                  >
+                    {agentConfig.personality.superheroName || agent.name}
+                  </motion.h3>
 
-          {/* Power Rangers Stats Section - Data-driven */}
-          <motion.div 
-            className="mx-4 mb-4 p-4 bg-gradient-to-br from-violet-700/40 via-purple-800/40 to-indigo-800/40 backdrop-blur-lg border border-teal-400/30 rounded-xl shadow-[0_0_20px_rgba(48,213,200,0.2)]"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 mb-1">
-                  <Brain className="w-4 h-4 text-cyan-400" />
-                  <div className="text-cyan-300 font-bold text-lg">
-                    {agentIntelligence?.intelligenceLevel || 85}
-                  </div>
-                </div>
-                <div className="text-xs text-white/60 font-medium">IQ Power</div>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 mb-1">
-                  <Zap className="w-4 h-4 text-[#00F0FF]" />
-                  <div className="text-[#00F0FF] font-bold text-lg">
-                    {agentConfig.capabilities.reduce((total, cap) => total + cap.skills.length, 0)}
-                  </div>
-                </div>
-                <div className="text-xs text-white/60 font-medium">Skills</div>
-              </div>
-              <div className="flex flex-col items-center">
-                <div className="flex items-center gap-1 mb-1">
-                  <Rocket className="w-4 h-4 text-orange-400" />
-                  <div className="text-orange-400 font-bold text-lg">
-                    {agentConfig.powers.length}
-                  </div>
-                </div>
-                <div className="text-xs text-white/60 font-medium">Powers</div>
-              </div>
-            </div>
-            
-            {/* Agent Category & Specialty */}
-            <div className="mt-3 pt-3 border-t border-white/10">
-              <div className="text-center">
-                <span className="text-xs text-purple-300 font-medium bg-purple-500/20 px-2 py-1 rounded-full">
-                  {agentConfig.category} Specialist
-                </span>
-              </div>
-            </div>
-          </motion.div>
+                  {/* Catchphrase */}
+                  <motion.p 
+                    className="text-xs text-cyan-300 font-medium mb-2 text-center italic px-2 leading-tight"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    style={{ 
+                      lineHeight: '1.3',
+                      maxHeight: '2.6em',
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical'
+                    }}
+                  >
+                    "{agentConfig.personality.catchphrase}"
+                  </motion.p>
 
-          {/* Power Rangers Action Buttons - Trigger Actual Agent Logic */}
-          <motion.div 
-            className="px-4 pb-4 space-y-3"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-          >
-            <div className="grid grid-cols-2 gap-3">
+                  {/* Capability Icons */}
+                  <motion.div 
+                    className="flex items-center gap-2 mb-3 flex-wrap justify-center"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    {agentConfig.capabilities.slice(0, 3).map((capability, idx) => (
+                      <div 
+                        key={idx}
+                        className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 border border-cyan-400/30"
+                        title={capability.category}
+                      >
+                        {getCapabilityIcon(capability.category)}
+                        <span className="text-xs text-cyan-300">{capability.category.split(' ')[0]}</span>
+                      </div>
+                    ))}
+                  </motion.div>
+                </div>
+
+                {/* Action Buttons */}
+                <motion.div 
+                    className="mt-4"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <div className="grid grid-cols-2 gap-3">
               <motion.button
                 onClick={() => {
                   if (onChat) {
@@ -450,8 +376,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Route to unified agent service page
-                    router.push(`/services/${agent.id}`);
+                    // FIXED: INFO button routes to agent backstory via service page
+                    router.push(`/services/${agent.id}?tab=backstory`);
                   }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/80 to-pink-600/80 hover:from-purple-400/90 hover:to-pink-500/90 text-white text-xs font-bold rounded-lg border border-purple-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300"
@@ -497,12 +423,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               ease: "easeInOut"
             }}
           />
-          
-          {/* Additional Glow on Hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-cyan-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
-        </div>
-      </motion.div>
-    </Agent3DCardProvider>
+        </motion.div>
+      </CardBase>
+    </motion.div>
   );
 };
 

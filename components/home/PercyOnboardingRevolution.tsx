@@ -109,6 +109,11 @@ export default function PercyOnboardingRevolution() {
     freeAnalysisResults,
     recommendedAgents,
     isProcessingAnalysis,
+    // Navigation and routing from Context
+    handleLaunch,
+    handleAgentChat,
+    handleContinue,
+    validateAndRoute,
     // Enhanced Percy Concierge Features from Context
     percyMood,
     setPercyMood,
@@ -130,28 +135,21 @@ export default function PercyOnboardingRevolution() {
   const [demoTargetAgent, setDemoTargetAgent] = useState<string | null>(null);
   const [demoStep, setDemoStep] = useState<'idle' | 'selecting' | 'handoff' | 'workflow'>('idle');
 
-  // Additional state variables
+  // UI-only state (business logic moved to context)
   const [currentSocialProof, setCurrentSocialProof] = useState<{ message: string } | null>(null);
   const [promptBarLoading, setPromptBarLoading] = useState(false);
-  const [businessInput, setBusinessInput] = useState<string>('');
-  
-  // Removed liveMetrics state - replaced with static value props
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [pulseActive, setPulseActive] = useState(true);
+  const [scanIntent, setScanIntent] = useState<string>(''); // UI state for scan detection
   
   // Constants for dynamic messaging
   const businessesTransformed = 47213;
   const intelligenceScore = 247;
 
-  // Enhanced Percy personality state (UI only - mood comes from context)
-  const [userInteracted, setUserInteracted] = useState(false);
-  
-  // Free Scan functionality (UI only - logic handled by context)
-  const [scanIntent, setScanIntent] = useState<string>('');
-  const [pulseActive, setPulseActive] = useState(true);
-
   // Use centralized choice handler from context
   // The handleUserChoice is now provided by useOnboarding()
   
-  // Enhanced feedback states
+  // Enhanced feedback states (UI only)
   const [lastInteractionType, setLastInteractionType] = useState<string>('');
   const [userReturnVisit, setUserReturnVisit] = useState(false);
   const [personalizedGreeting, setPersonalizedGreeting] = useState('');
@@ -181,7 +179,7 @@ export default function PercyOnboardingRevolution() {
   const handleAnyInteraction = useCallback((interactionType: string = 'general') => {
     if (!userInteracted) {
       setUserInteracted(true);
-      setPercyMood('nodding'); // Percy nods when user first interacts
+        setPercyMood('confident'); // Percy nods when user first interacts
       setTimeout(() => setPercyMood('excited'), 1500);
     }
     setPulseActive(false);
@@ -198,7 +196,7 @@ export default function PercyOnboardingRevolution() {
       setTimeout(() => setPercyMood('excited'), 2000);
     }
     
-    console.log('[Percy] Interaction:', interactionType);
+    // Interaction tracking for analytics
   }, [userInteracted]);
 
   // Typewriter effect for prompt bar
@@ -236,7 +234,7 @@ export default function PercyOnboardingRevolution() {
     if (action === 'dashboard') {
       setDashboardIntent(true);
       setPromptBarPlaceholder('Enter your email to access dashboard...');
-      console.log('[Percy] Dashboard intent detected from navbar');
+      // Dashboard intent from navbar
     }
     
     // Check for scan intent (from agent cards)
@@ -244,7 +242,7 @@ export default function PercyOnboardingRevolution() {
       setScanIntent(scanAction);
       setCurrentStep('business-input-collection');
       setPercyMood('excited');
-      console.log('[Percy] Scan intent detected:', scanAction);
+      // Scan intent from agent card
     }
     
     // Check if returning user
@@ -254,7 +252,7 @@ export default function PercyOnboardingRevolution() {
     if (hasVisited && userName) {
       setUserReturnVisit(true);
       setPersonalizedGreeting(`Welcome back, ${userName}! 👋`);
-      setPercyMood('waving');
+              setPercyMood('celebrating');
       // Show celebratory animation for returning users
       setTimeout(() => setPercyMood('celebrating'), 2000);
       setTimeout(() => setPercyMood('excited'), 4000);
@@ -300,29 +298,7 @@ export default function PercyOnboardingRevolution() {
     return () => clearTimeout(t);
   }, [userInteracted]);
 
-  // VIP Code validation
-  const validateVIPCode = async (code: string): Promise<{ isValid: boolean; tier: 'gold' | 'platinum' | 'diamond' | null }> => {
-    // VIP code patterns
-    const vipCodes = {
-      'SKRBL-VIP-GOLD-2024': 'gold',
-      'SKRBL-VIP-PLATINUM-2024': 'platinum', 
-      'SKRBL-VIP-DIAMOND-2024': 'diamond',
-      'PERCY-EXCLUSIVE-GOLD': 'gold',
-      'PERCY-EXCLUSIVE-PLATINUM': 'platinum',
-      'PERCY-EXCLUSIVE-DIAMOND': 'diamond',
-      'DOMINATE-VIP-ACCESS': 'platinum',
-      'COMPETITIVE-EDGE-VIP': 'diamond'
-    };
-
-    const upperCode = code.toUpperCase().trim();
-    const tier = vipCodes[upperCode as keyof typeof vipCodes];
-    
-    if (tier) {
-      return { isValid: true, tier: tier as 'gold' | 'platinum' | 'diamond' };
-    }
-    
-    return { isValid: false, tier: null };
-  };
+  // VIP validation moved to OnboardingContext
 
   const onboardingSteps: Record<string, OnboardingStep> = {
     greeting: {
@@ -900,12 +876,7 @@ export default function PercyOnboardingRevolution() {
     return step;
   };
 
-  // Percy thinking is now handled by context
-  const handlePercyThinking = async (duration = 2000) => {
-    setPercyMood('analyzing');
-    await new Promise(resolve => setTimeout(resolve, duration));
-    setPercyMood('confident');
-  };
+  // Percy thinking handled by OnboardingContext
 
   // Business Analysis Handler now handled by context - Percy focuses on UI!
 
@@ -946,7 +917,6 @@ export default function PercyOnboardingRevolution() {
         if (option.id === 'sports-analysis') {
           // Direct route to SkillSmith
           setPercyMood('excited');
-          await handlePercyThinking(800);
           setCurrentStep('fitness-skillsmith-handoff');
           trackBehavior('skillsmith_redirect', { type: option.id });
           return;
@@ -954,7 +924,6 @@ export default function PercyOnboardingRevolution() {
         
         // For other options, start AI analysis
         setPercyMood('analyzing');
-        await handlePercyThinking(1000);
         setCurrentStep('business-input-collection');
         setAnalysisIntent(freeAnalysisMapping[option.id]);
         trackBehavior('free_scan_started', { type: option.id, analysis: freeAnalysisMapping[option.id] });
@@ -964,7 +933,6 @@ export default function PercyOnboardingRevolution() {
       // Handle scanning animation flows
       if (option.action === 'trigger-scanning') {
         setPercyMood('analyzing');
-        await handlePercyThinking(3000);
         // Move to results step based on flow type
         const currentStepObj = getCurrentStep();
         if (currentStepObj.flowType) {
@@ -976,7 +944,6 @@ export default function PercyOnboardingRevolution() {
       // Handle handoff actions (See Demo, Chat Agent, Launch Automation)
       if (option.action.startsWith('open-') && option.modal) {
         // Open demo/walkthrough modals
-        console.log('[Percy] Opening demo modal:', option.modal);
         trackBehavior('demo_modal_opened', { modal: option.modal, from: currentStep });
         // TODO: Implement modal opening logic
         toast.success(`🎬 Opening ${option.label}...`, { duration: 2000 });
@@ -1085,20 +1052,20 @@ export default function PercyOnboardingRevolution() {
     if (option.action === 'back-to-business') {
       setCurrentStep('greeting');
       setPercyMood('excited');
-      await handlePercyThinking(1000);
+              // Percy thinking handled by context
       return;
     }
 
     if (option.action === 'select-goal' && option.data?.goal) {
       setUserGoal(option.data.goal as string);
       setCurrentStep('signup');
-      await handlePercyThinking(1500);
+              // Percy thinking handled by context
       return;
     }
 
     if (option.action === 'goal-selection') {
       setCurrentStep('goal-selection');
-      await handlePercyThinking(1000);
+              // Percy thinking handled by context
       return;
     }
 
@@ -1130,7 +1097,7 @@ export default function PercyOnboardingRevolution() {
 
     if (option.action === 'complete-verification') {
       setCurrentStep('welcome');
-      await handlePercyThinking(1500);
+              // Percy thinking handled by context
       return;
     }
 
@@ -1147,7 +1114,7 @@ export default function PercyOnboardingRevolution() {
     if (option.action === 'vip-code-entry') {
       setCurrentStep('vip-code-entry');
       setPercyMood('scanning');
-      await handlePercyThinking(1000);
+              // Percy thinking handled by context
       return;
     }
 
@@ -1201,14 +1168,14 @@ export default function PercyOnboardingRevolution() {
       setCurrentStep(option.action);
       setPercyMood('scanning');
       trackBehavior('analysis_started', { mode: option.action.replace('instant-', '') });
-      await handlePercyThinking(1000);
+              // Percy thinking handled by context
     }
   };
 
   // handleInputSubmit is now provided by useOnboarding() context
 
   const resendVerificationEmail = async () => {
-    await handlePercyThinking(1000);
+            // Percy thinking handled by context
     toast.success('📧 Verification email resent!');
   };
 
@@ -1252,17 +1219,19 @@ export default function PercyOnboardingRevolution() {
     // Initial fetch
     fetchLiveSocialProof();
     
-    // Update every 45 seconds
-    const interval = setInterval(fetchLiveSocialProof, 45000);
+    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating  
+    // const interval = setInterval(fetchLiveSocialProof, 45000);
     
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
+    return;
   }, []);
 
   // Rotate social proof messages
   useEffect(() => {
     if (socialProofMessages.length === 0) return;
 
-    const interval = setInterval(() => {
+    // 🚨 EMERGENCY FIX: Disabled interval causing CPU overheating
+    /* const interval = setInterval(() => {
       const randomMessage = socialProofMessages[Math.floor(Math.random() * socialProofMessages.length)];
       setCurrentSocialProof(randomMessage);
       
@@ -1270,9 +1239,11 @@ export default function PercyOnboardingRevolution() {
       setTimeout(() => {
         setCurrentSocialProof(null);
       }, 6000);
-    }, 12000 + Math.random() * 8000); // Random interval between 12-20 seconds
+    }, 12000 + Math.random() * 8000); // Random interval between 12-20 seconds */
 
-    return () => clearInterval(interval);
+    // 🚨 EMERGENCY FIX: No interval to clear
+    // return () => clearInterval(interval);
+    return;
   }, [socialProofMessages]);
 
   // Legacy recommendation engine - TODO: Consider removing if not actively used
@@ -1430,93 +1401,10 @@ export default function PercyOnboardingRevolution() {
     }
   }, [router, trackBehavior]);
 
-  // Route validation to prevent dead ends
-  const validateAndRoute = useCallback((route: string, context?: string) => {
-    const validRoutes = [
-      '/', '/dashboard', '/agents', '/services', '/sports', '/features', 
-      '/pricing', '/contact', '/about', '/academy', '/branding', '/book-publishing',
-      '/content-automation', '/social-media'
-    ];
-    
-    const isDynamicRoute = route.includes('/services/') || route.includes('/chat/') || 
-                          route.includes('/agent-backstory/') || route.includes('/dashboard?');
-    
-    if (!validRoutes.includes(route) && !isDynamicRoute) {
-      console.warn('[Percy] Invalid route detected:', route, 'Context:', context);
-      handleRouteError(new Error('Invalid route'), route, '/agents');
-      return false;
-    }
-    
-    console.log('[Percy] Route validated:', route, 'Context:', context);
-    return true;
-  }, [handleRouteError]);
+  // Route validation moved to OnboardingContext
 
-  // Enhanced routing functions for agent interactions
-  const handleLaunch = useCallback(async (agentId: string, context?: any) => {
-    console.log('[Percy] Launching agent:', agentId, context);
-    trackBehavior('agent_launch', { agentId, context, from: currentStep });
-    
-    const route = `/services/${agentId}`;
-    if (!validateAndRoute(route, `agent-launch-${agentId}`)) {
-      return;
-    }
-    
-    try {
-      // Show loading state
-      setPromptBarLoading(true);
-      
-      // Route to agent service page for instant launch
-      router.push(route);
-    } catch (error) {
-      console.error('[Percy] Agent launch error:', error);
-      handleRouteError(error, route, '/agents');
-    } finally {
-      setPromptBarLoading(false);
-    }
-  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
-
-  const handleContinue = useCallback(async (nextStep: string, routeTo?: string) => {
-    console.log('[Percy] Continuing to step:', nextStep, 'Route:', routeTo);
-    trackBehavior('continue_flow', { nextStep, routeTo, from: currentStep });
-    
-    if (routeTo) {
-      if (!validateAndRoute(routeTo, `continue-${nextStep}`)) {
-        return;
-      }
-      
-      try {
-        setPromptBarLoading(true);
-        router.push(routeTo);
-      } catch (error) {
-        console.error('[Percy] Continue routing error:', error);
-        handleRouteError(error, routeTo, '/dashboard');
-      } finally {
-        setPromptBarLoading(false);
-      }
-    } else {
-      setCurrentStep(nextStep);
-    }
-  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
-
-  const handleAgentChat = useCallback(async (agentId: string) => {
-    console.log('[Percy] Starting chat with agent:', agentId);
-    trackBehavior('agent_chat_start', { agentId, from: currentStep });
-    
-    const route = `/chat/${agentId}`;
-    if (!validateAndRoute(route, `agent-chat-${agentId}`)) {
-      return;
-    }
-    
-    try {
-      setPromptBarLoading(true);
-      router.push(route);
-    } catch (error) {
-      console.error('[Percy] Agent chat routing error:', error);
-      handleRouteError(error, route, '/agents');
-    } finally {
-      setPromptBarLoading(false);
-    }
-  }, [router, currentStep, trackBehavior, validateAndRoute, handleRouteError]);
+  // Routing functions moved to OnboardingContext
+  // Available via: handleLaunch, handleContinue, handleAgentChat, validateAndRoute
 
   const triggerAgentHandoff = useCallback((fromAgent: string, toAgent: string) => {
     setDemoStep('handoff');
@@ -2208,24 +2096,69 @@ export default function PercyOnboardingRevolution() {
                   </div>
                 )}
 
-                {/* NEW: Scanning Animation for Conversational Flows */}
-                {step.type === 'scanning' && (
+                {/* ENHANCED: Advanced Scanning Animation with Context States */}
+                {(step.type === 'scanning' || step.type === 'thinking' || isProcessingAnalysis) && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center py-8"
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
+                    className="flex flex-col items-center py-8 relative"
                   >
+                    {/* Enhanced Multi-Layer Scanning Animation */}
                     <div className="relative">
-                      <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-                      <div className="absolute inset-2 w-12 h-12 border-2 border-teal-400 border-b-transparent rounded-full animate-spin animate-reverse"></div>
+                      {/* Outer Ring */}
+                      <motion.div 
+                        className="w-20 h-20 border-4 border-cyan-400/30 rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                      />
+                      {/* Middle Ring */}
+                      <motion.div 
+                        className="absolute inset-2 w-16 h-16 border-3 border-teal-400/50 border-t-transparent rounded-full"
+                        animate={{ rotate: -360 }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                      />
+                      {/* Inner Ring */}
+                      <motion.div 
+                        className="absolute inset-4 w-12 h-12 border-2 border-cyan-300 border-b-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                      />
+                      {/* Core Pulse */}
+                      <motion.div 
+                        className="absolute inset-6 w-8 h-8 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-full"
+                        animate={{ 
+                          scale: [1, 1.3, 1],
+                          opacity: [0.8, 1, 0.8]
+                        }}
+                        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                      />
                     </div>
-                    <motion.p
-                      className="mt-4 text-cyan-300 font-semibold animate-pulse"
-                      animate={{ opacity: [0.7, 1, 0.7] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
+                    
+                    {/* Analysis Progress Messages */}
+                    <motion.div
+                      className="mt-6 text-center space-y-2"
+                      animate={{ opacity: [0.8, 1, 0.8] }}
+                      transition={{ duration: 2, repeat: Infinity }}
                     >
-                      {step.scanningMessage || 'Analyzing...'}
-                    </motion.p>
+                      <p className="text-cyan-300 font-semibold text-lg">
+                        {isProcessingAnalysis ? '🧠 AI Analysis in Progress' : step.scanningMessage || 'Analyzing...'}
+                      </p>
+                      <p className="text-cyan-400/70 text-sm">
+                        {percyMood === 'analyzing' ? 'Scanning for competitive advantages...' : 'Processing your request...'}
+                      </p>
+                    </motion.div>
+
+                    {/* Scanning Effects */}
+                    <motion.div
+                      className="absolute -inset-4 bg-gradient-to-r from-cyan-500/10 via-teal-500/20 to-cyan-500/10 rounded-3xl blur-xl"
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        opacity: [0.3, 0.6, 0.3]
+                      }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                    />
                   </motion.div>
                 )}
 
@@ -2253,35 +2186,90 @@ export default function PercyOnboardingRevolution() {
                   </motion.div>
                 )}
 
-                {/* NEW: Handoff Options for Agent/Demo/Launch Actions */}
+                {/* ENHANCED: Full-Width Results Cards with Agent Handoff */}
                 {(step.type === 'results' || step.type === 'agent-handoff') && step.handoffOptions && (
                   <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 }}
-                    className="mb-6"
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ 
+                      delay: 0.3,
+                      duration: 0.8, 
+                      ease: "easeOut",
+                      staggerChildren: 0.1
+                    }}
+                    className="mb-6 space-y-4"
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {/* Results Header */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="text-center mb-6"
+                    >
+                      <h3 className="text-xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                        <Sparkles className="w-5 h-5 text-cyan-400" />
+                        Recommended AI Agents
+                      </h3>
+                      <p className="text-cyan-300/80 text-sm">
+                        {percyMood === 'celebrating' ? '🎯 Perfect matches found!' : 'Launch your competitive advantage'}
+                      </p>
+                    </motion.div>
+
+                    {/* Full-Width Agent Cards */}
+                    <div className="space-y-3">
                       {step.handoffOptions.map((option, index) => (
-                        <motion.button
+                        <motion.div
                           key={option.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.7 + index * 0.1 }}
-                          onClick={() => { handleOptionClick(option); handleAnyInteraction('handoff_action'); }}
-                          whileHover={{ scale: 1.02, y: -2 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="flex items-center gap-3 p-4 bg-gradient-to-br from-cyan-900/40 to-teal-900/40 hover:from-cyan-800/50 hover:to-teal-800/50 border border-cyan-400/30 hover:border-cyan-400/50 rounded-xl transition-all duration-200 text-left group"
+                          initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{ 
+                            delay: 0.5 + index * 0.15,
+                            duration: 0.6,
+                            ease: "easeOut"
+                          }}
+                          className="w-full"
                         >
-                          <div className="p-2 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 rounded-lg group-hover:from-cyan-500/30 group-hover:to-teal-500/30 transition-all">
-                            {option.icon}
-                          </div>
-                          <div className="flex-1">
-                            <span className="text-white font-medium text-sm group-hover:text-cyan-200 transition-colors">
-                              {option.label}
-                            </span>
-                          </div>
-                        </motion.button>
+                          <motion.button
+                            onClick={() => { handleOptionClick(option); handleAnyInteraction('handoff_action'); }}
+                            whileHover={{ 
+                              scale: 1.02, 
+                              y: -3,
+                              boxShadow: "0 20px 40px rgba(45,212,191,0.2), 0 0 50px rgba(99,102,241,0.15)"
+                            }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full p-6 bg-gradient-to-br from-cyan-900/30 via-teal-900/40 to-cyan-800/30 hover:from-cyan-800/40 hover:via-teal-800/50 hover:to-cyan-700/40 border-2 border-cyan-400/30 hover:border-cyan-400/60 rounded-2xl transition-all duration-300 text-left group backdrop-blur-lg min-h-[80px] touch-manipulation shadow-[0_8px_32px_rgba(45,212,191,0.1),inset_0_1px_0_rgba(255,255,255,0.1)]"
+                          >
+                            <div className="flex items-center gap-4">
+                              {/* Agent Icon */}
+                              <motion.div 
+                                className="flex-shrink-0 p-3 bg-gradient-to-br from-cyan-500/20 to-teal-500/30 rounded-xl group-hover:from-cyan-500/30 group-hover:to-teal-500/40 transition-all duration-300 border border-cyan-400/20"
+                                whileHover={{ rotate: 5, scale: 1.1 }}
+                              >
+                                {option.icon}
+                              </motion.div>
+                              
+                              {/* Agent Info */}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-white font-bold text-lg group-hover:text-cyan-200 transition-colors mb-1">
+                                  {option.label}
+                                </h4>
+                                {option.data?.reason && (
+                                  <p className="text-cyan-300/70 text-sm leading-relaxed group-hover:text-cyan-300/90 transition-colors">
+                                    {option.data.reason}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Launch Arrow */}
+                              <motion.div
+                                className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/40 to-teal-500/40 flex items-center justify-center group-hover:from-cyan-500/60 group-hover:to-teal-500/60 transition-all"
+                                whileHover={{ x: 3 }}
+                              >
+                                <ArrowRight className="w-4 h-4 text-white" />
+                              </motion.div>
+                            </div>
+                          </motion.button>
+                        </motion.div>
                       ))}
                     </div>
                   </motion.div>
@@ -2495,8 +2483,19 @@ export default function PercyOnboardingRevolution() {
                 </div>
               </div>
               
-              {/* Enhanced Input Field */}
+              {/* Enhanced Input Field with Accessibility */}
             <div className="relative">
+                {/* ARIA-live region for Percy responses */}
+                <div 
+                  aria-live="polite" 
+                  aria-atomic="true"
+                  className="sr-only"
+                >
+                  {percyMood === 'analyzing' && 'Percy is analyzing your input'}
+                  {percyMood === 'thinking' && 'Percy is thinking'}
+                  {percyMood === 'celebrating' && 'Analysis complete'}
+                </div>
+
                 <motion.input
                 ref={promptBarRef}
                 type="text"
@@ -2510,11 +2509,19 @@ export default function PercyOnboardingRevolution() {
                     setPromptBarFocused(false);
                     setPercyMood('excited');
                   }}
-                  placeholder={promptBarPlaceholder}
-                  className="w-full px-6 py-4 pr-16 bg-gradient-to-br from-[rgba(15,18,25,0.8)] to-[rgba(25,30,40,0.8)] backdrop-blur-md border-2 border-teal-400/30 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20 text-base md:text-lg font-medium transition-all duration-300"
+                  placeholder={
+                    promptBarLoading ? 'Percy is processing...' : 
+                    isProcessingAnalysis ? 'Analysis in progress...' :
+                    promptBarPlaceholder || 'Ask Percy anything about your business...'
+                  }
+                  className={`w-full px-6 py-4 pr-16 bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-md border-2 rounded-2xl text-white placeholder:text-gray-400 focus:outline-none text-base md:text-lg font-medium transition-all duration-300 min-h-[56px] ${
+                    promptBarLoading || isProcessingAnalysis 
+                      ? 'border-amber-400/40 cursor-wait opacity-75' 
+                      : 'border-teal-400/30 hover:border-teal-400/50 focus:border-teal-300 focus:ring-4 focus:ring-teal-300/20'
+                  }`}
                   onKeyDown={handlePromptBarKeyDown}
-                  disabled={promptBarLoading}
-                  animate={promptBarFocused ? { 
+                  disabled={promptBarLoading || isProcessingAnalysis}
+                  animate={promptBarFocused && !promptBarLoading ? { 
                     scale: 1.02,
                     borderColor: "rgba(45, 212, 191, 0.6)",
                     boxShadow: [
@@ -2524,19 +2531,29 @@ export default function PercyOnboardingRevolution() {
                     ]
                   } : { 
                     scale: 1,
-                    borderColor: "rgba(45, 212, 191, 0.3)",
-                    boxShadow: "0 0 15px rgba(45,212,191,0.2), inset 0 1px 0 rgba(255,255,255,0.05)"
+                    borderColor: promptBarLoading || isProcessingAnalysis ? "rgba(251, 191, 36, 0.4)" : "rgba(45, 212, 191, 0.3)",
+                    boxShadow: promptBarLoading || isProcessingAnalysis 
+                      ? "0 0 15px rgba(251,191,36,0.3)" 
+                      : "0 0 15px rgba(45,212,191,0.2), inset 0 1px 0 rgba(255,255,255,0.05)"
                   }}
                   transition={{ 
                     type: 'spring', 
                     stiffness: 200, 
                     damping: 25,
-                    boxShadow: { duration: 1.5, repeat: promptBarFocused ? Infinity : 0 }
+                    boxShadow: { duration: 1.5, repeat: promptBarFocused && !promptBarLoading ? Infinity : 0 }
                   }}
-                  aria-label="Percy prompt input"
+                  aria-label="Ask Percy about your business"
+                  aria-describedby="percy-help-text"
+                  aria-expanded={promptBarFocused}
+                  aria-busy={promptBarLoading || isProcessingAnalysis}
                 />
+
+                {/* Help text for screen readers */}
+                <div id="percy-help-text" className="sr-only">
+                  Ask Percy about your business, website analysis, content creation, or any AI automation needs
+                </div>
               
-              {/* Enhanced Send Button */}
+              {/* Enhanced Send Button with Accessibility */}
               <motion.button
                 onClick={() => {
                   try {
@@ -2545,16 +2562,19 @@ export default function PercyOnboardingRevolution() {
                     toast.error('Message failed to send. Please try again.', { duration: 3000 });
                   }
                 }}
-                  disabled={!promptBarValue.trim() || promptBarLoading}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border-2 border-teal-400/50 shadow-[0_0_20px_rgba(45,212,191,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)] transition-all group disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer min-w-[48px] min-h-[48px] touch-manipulation"
+                  disabled={!promptBarValue.trim() || promptBarLoading || isProcessingAnalysis}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 w-12 h-12 rounded-xl border-2 transition-all group cursor-pointer min-w-[48px] min-h-[48px] touch-manipulation ${
+                    !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis
+                      ? 'bg-gray-600/50 border-gray-500/30 opacity-50 cursor-not-allowed'
+                      : 'bg-gradient-to-br from-teal-500/80 to-cyan-500/80 border-teal-400/50 shadow-[0_0_20px_rgba(45,212,191,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)]'
+                  }`}
                   whileHover={{ 
-                    scale: !promptBarValue.trim() || promptBarLoading ? 1 : 1.1,
-                    boxShadow: !promptBarValue.trim() || promptBarLoading ? "0 0 20px rgba(45,212,191,0.4)" : "0 0 30px rgba(45,212,191,0.6)",
-                    background: !promptBarValue.trim() || promptBarLoading ? undefined : "linear-gradient(135deg, rgba(45,212,191,0.9) 0%, rgba(34,197,194,0.9) 100%)",
-                    y: !promptBarValue.trim() || promptBarLoading ? 0 : -1
+                    scale: !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? 1 : 1.05,
+                    boxShadow: !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? undefined : "0 0 30px rgba(45,212,191,0.6)",
+                    y: !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? 0 : -1
                   }}
-                  whileTap={{ scale: !promptBarValue.trim() || promptBarLoading ? 1 : 0.95 }}
-                  animate={!promptBarValue.trim() || promptBarLoading ? {} : {
+                  whileTap={{ scale: !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? 1 : 0.95 }}
+                  animate={!promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? {} : {
                     boxShadow: [
                       "0 0 20px rgba(45,212,191,0.4)",
                       "0 0 30px rgba(45,212,191,0.6)",
@@ -2565,10 +2585,19 @@ export default function PercyOnboardingRevolution() {
                     type: "spring",
                     stiffness: 300,
                     damping: 25,
-                    boxShadow: { duration: 1.5, repeat: !promptBarValue.trim() || promptBarLoading ? 0 : Infinity }
+                    boxShadow: { duration: 1.5, repeat: !promptBarValue.trim() || promptBarLoading || isProcessingAnalysis ? 0 : Infinity }
                   }}
-                  aria-label="Send to Percy"
-                  title="Send Message to Percy"
+                  aria-label={
+                    promptBarLoading || isProcessingAnalysis ? 'Processing message' :
+                    !promptBarValue.trim() ? 'Enter a message to send' :
+                    'Send message to Percy'
+                  }
+                  title={
+                    promptBarLoading || isProcessingAnalysis ? 'Processing...' :
+                    !promptBarValue.trim() ? 'Enter a message first' :
+                    'Send to Percy (Enter)'
+                  }
+                  type="submit"
                 >
                   {promptBarLoading ? (
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

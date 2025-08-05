@@ -83,7 +83,6 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/30 via-blue-500/30 to-teal-500/30 rounded-3xl blur-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500" />
       
       <motion.button
-        aria-label={label}
         onClick={() => {
           setIsSelected(true);
           setShowSuccess(true);
@@ -93,6 +92,20 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           }, 800);
           onClick();
         }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsSelected(true);
+            setShowSuccess(true);
+            setTimeout(() => {
+              setIsSelected(false);
+              setShowSuccess(false);
+            }, 800);
+            onClick();
+          }
+        }}
+        role="button"
+        aria-label={`Select ${label}`}
         whileHover={{
           scale: 1.13,
           rotateY: 8,
@@ -129,11 +142,10 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           damping: 22,
           boxShadow: { duration: 0.8 }
         }}
-        className={`relative w-full h-40 md:h-48 lg:h-56 rounded-3xl bg-gradient-to-br from-[rgba(21,23,30,0.92)] via-[rgba(30,35,45,0.88)] to-[rgba(21,23,30,0.95)] backdrop-blur-2xl border-4 border-cosmic-animate shadow-[0_0_64px_#30d5c8cc,0_0_32px_#38bdf8cc,inset_0_1px_0_rgba(255,255,255,0.12)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/80 ${className} focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/80`}
+        className={`relative w-full h-40 md:h-48 lg:h-56 rounded-3xl bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/95 backdrop-blur-2xl border-4 border-cosmic-animate shadow-[0_0_64px_#30d5c8cc,0_0_32px_#38bdf8cc,inset_0_1px_0_rgba(255,255,255,0.12)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/80 ${className} focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/80`}
         style={{
           perspective: '1200px',
-          transformStyle: 'preserve-3d',
-          background: 'linear-gradient(135deg, rgba(21,23,30,0.92) 0%, rgba(30,35,45,0.88) 50%, rgba(21,23,30,0.95) 100%)'
+          transformStyle: 'preserve-3d'
         }}
         tabIndex={0}
         {...props}
@@ -160,11 +172,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           </motion.div>
           
           <motion.span 
-            className="text-white text-sm md:text-base lg:text-lg font-bold text-center leading-tight tracking-wide px-2"
-            style={{
-              textShadow: '0 0 12px rgba(48,213,200,0.4), 0 2px 4px rgba(0,0,0,0.8)',
-              fontSize: `clamp(0.75rem, 2.5vw, 1rem)`
-            }}
+            className="text-white text-sm md:text-base lg:text-lg font-bold text-center leading-tight tracking-wide px-2 shadow-[0_0_12px_rgba(48,213,200,0.4),0_2px_4px_rgba(0,0,0,0.8)]"
             animate={isHovered ? {
               scale: [1, 1.05, 1],
               textShadow: [

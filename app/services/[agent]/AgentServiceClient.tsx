@@ -716,6 +716,195 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
               </motion.div>
             )}
 
+            {activeTab === 'backstory' && backstory && (
+              <motion.div
+                key="backstory"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="max-w-4xl mx-auto space-y-8">
+                  {/* Agent Hero Section */}
+                  <div className="text-center mb-12">
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, duration: 0.5 }}
+                      className="relative w-32 h-32 mx-auto mb-6"
+                    >
+                      <Image
+                        src={agentImagePath}
+                        alt={backstory.superheroName}
+                        width={128}
+                        height={128}
+                        className="rounded-full border-4 border-cyan-400 shadow-[0_0_30px_rgba(48,213,200,0.4)]"
+                      />
+                      <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-teal-500/20 rounded-full blur-xl animate-pulse"></div>
+                    </motion.div>
+                    <h2 className="text-4xl font-bold text-white mb-4">
+                      {backstory.superheroName}
+                    </h2>
+                    <p className="text-2xl text-cyan-300 italic mb-6 font-light">
+                      "{backstory.catchphrase}"
+                    </p>
+                    <div className="flex justify-center gap-4 mb-8">
+                      <button
+                        onClick={handleLaunchAgent}
+                        disabled={isLaunching}
+                        className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                      >
+                        <Zap className="w-5 h-5" />
+                        Launch {agent.name}
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('chat')}
+                        className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                        Start Chat
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Origin Story */}
+                  <GlassmorphicCard className="p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 text-cyan-400" />
+                      Origin Story
+                    </h3>
+                    <div className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl p-6 border border-purple-500/20">
+                      <p className="text-gray-300 leading-relaxed text-lg">
+                        <span className="text-cyan-400 font-semibold">Origin:</span> {backstory.origin}
+                      </p>
+                      <p className="text-gray-300 leading-relaxed text-lg mt-4">
+                        {backstory.backstory}
+                      </p>
+                    </div>
+                  </GlassmorphicCard>
+
+                  {/* Powers & Abilities */}
+                  <GlassmorphicCard className="p-8">
+                    <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                      <Zap className="w-6 h-6 text-yellow-400" />
+                      Superpowers & Abilities
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {backstory.powers.map((power, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 * index, duration: 0.5 }}
+                          className="flex items-center gap-3 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/20"
+                        >
+                          <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
+                          <span className="text-gray-300 font-medium">{power}</span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </GlassmorphicCard>
+
+                  {/* Agent Intel */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <GlassmorphicCard className="p-6">
+                      <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-red-400" />
+                        Combat Profile
+                      </h4>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-red-400 font-semibold">Weakness:</span>
+                          <p className="text-gray-300">{backstory.weakness}</p>
+                        </div>
+                        <div>
+                          <span className="text-purple-400 font-semibold">Nemesis:</span>
+                          <p className="text-gray-300">{backstory.nemesis}</p>
+                        </div>
+                      </div>
+                    </GlassmorphicCard>
+
+                    <GlassmorphicCard className="p-6">
+                      <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                        <Users className="w-5 h-5 text-cyan-400" />
+                        Team Synergy
+                      </h4>
+                      <div className="space-y-3">
+                        <div>
+                          <span className="text-cyan-400 font-semibold">Best Partners:</span>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {backstory.handoffPreferences?.map((agentId) => (
+                              <Link
+                                key={agentId}
+                                href={`/services/${agentId}`}
+                                className="text-xs bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 hover:border-cyan-400 transition-colors"
+                              >
+                                {agentId.replace('-agent', '').replace('-', ' ')}
+                              </Link>
+                            )) || (
+                              <span className="text-gray-400 text-sm">Works great solo</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </GlassmorphicCard>
+                  </div>
+
+                  {/* Automation Capabilities */}
+                  {backstory.workflowCapabilities && backstory.workflowCapabilities.length > 0 && (
+                    <GlassmorphicCard className="p-8">
+                      <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <TrendingUp className="w-6 h-6 text-green-400" />
+                        Automation Powers
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {backstory.workflowCapabilities.map((capability, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 * index, duration: 0.5 }}
+                            className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/20 text-center"
+                          >
+                            <div className="text-green-400 font-semibold capitalize">
+                              {capability.replace(/_/g, ' ')}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </GlassmorphicCard>
+                  )}
+
+                  {/* Call to Action */}
+                  <div className="text-center py-8">
+                    <h3 className="text-2xl font-bold text-white mb-4">
+                      Ready to Unleash {backstory.superheroName}?
+                    </h3>
+                    <p className="text-gray-300 text-lg mb-6">
+                      Join {liveUsers} users already dominating their markets with this agent
+                    </p>
+                    <div className="flex justify-center gap-4">
+                      <button
+                        onClick={handleLaunchAgent}
+                        disabled={isLaunching}
+                        className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-lg"
+                      >
+                        <Zap className="w-5 h-5" />
+                        {isLaunching ? 'Launching...' : `Launch ${agent.name}`}
+                      </button>
+                      <Link 
+                        href="/agents"
+                        className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+                      >
+                        <ArrowRight className="w-5 h-5" />
+                        Explore More Agents
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {activeTab === 'chat' && (
               <motion.div
                 key="chat"
