@@ -10,6 +10,8 @@ import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolut
 import AgentsGrid from '../components/agents/AgentsGrid';
 import AgentPreviewSection from '../components/home/AgentPreviewSection';
 import SuperAgentPowers from '../components/home/SuperAgentPowers';
+import BusinessResultsShowcase from '../components/home/BusinessResultsShowcase';
+import UrgencyBanner from '../components/home/UrgencyBanner';
 // import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
 import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 // import AnimatedBackground from './AnimatedBackground';
@@ -18,6 +20,7 @@ import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 // import CosmicStarfield from '../components/background/CosmicStarfield';
 import { Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
 import toast from 'react-hot-toast';
+import { isFeatureEnabled } from '../lib/config/featureFlags';
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
@@ -26,7 +29,7 @@ export default function HomePage() {
   const { user, session, isLoading, isEmailVerified } = useAuth();
   
   // Feature flag for new AI Automation homepage [[memory:3004966]]
-  const [useAiAutomationHomepage] = useState(true); // Set to false to rollback
+  const useAiAutomationHomepage = isFeatureEnabled('AI_AUTOMATION_HOMEPAGE');
   
   // 🚨 EMERGENCY FIX: Removed scroll transforms causing constant repaints and white screen
   // const { scrollY } = useScroll();
@@ -155,13 +158,31 @@ export default function HomePage() {
           >
             <Pseudo3DFeature>
               {useAiAutomationHomepage ? (
-                <SuperAgentPowers useAiAutomationHomepage={useAiAutomationHomepage} />
+                <>
+                  <SuperAgentPowers useAiAutomationHomepage={useAiAutomationHomepage} />
+                  <BusinessResultsShowcase useAiAutomationHomepage={useAiAutomationHomepage} />
+                </>
               ) : (
-                <AgentPreviewSection />
+                <>
+                  <AgentPreviewSection />
+                  <AgentsGrid />
+                </>
               )}
-              <AgentsGrid />
             </Pseudo3DFeature>
           </motion.div>
+
+          {/* Urgency Banner for Free Business Scan */}
+          {useAiAutomationHomepage && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mt-16"
+            >
+              <UrgencyBanner useAiAutomationHomepage={useAiAutomationHomepage} />
+            </motion.div>
+          )}
 
           {/* Enhanced Banner Component with 3D and Stagger Animation */}
           {!useAiAutomationHomepage && (

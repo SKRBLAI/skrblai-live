@@ -5,8 +5,10 @@ import { useState, useEffect } from 'react';
 import { Star, Play, ShoppingCart, Sparkles, Trophy, Zap, Target, Flame } from 'lucide-react';
 import Image from 'next/image';
 import { products as skillsmithProducts, Product } from '../../lib/config/skillsmithProducts';
-import GlassmorphicCard from '../shared/GlassmorphicCard';
+import AgentLeagueCard from '../ui/AgentLeagueCard';
 import CosmicButton from '../shared/CosmicButton';
+import UniversalPromptBar from '../ui/UniversalPromptBar';
+import SkillSmithAvatar from './SkillSmithAvatar';
 
 interface SkillSmithProductsGridProps {
   className?: string;
@@ -14,18 +16,12 @@ interface SkillSmithProductsGridProps {
 
 export default function SkillSmithProductsGrid({ className = '' }: SkillSmithProductsGridProps) {
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
-  const [floatingMascot, setFloatingMascot] = useState({ x: 0, y: 0 });
 
-  // Floating mascot animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFloatingMascot({
-        x: Math.sin(Date.now() / 2000) * 20,
-        y: Math.cos(Date.now() / 3000) * 15
-      });
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+  // Sort products by ascending price
+  const sortedProducts = [...skillsmithProducts].sort((a, b) => a.price - b.price);
+
+  // Find the first popular product for the POPULAR badge
+  const popularProductId = sortedProducts.find(p => p.popular)?.id || sortedProducts[0].id;
 
   const handleProductClick = async (productId: string) => {
     // 🚀 LAUNCH FIX: Route directly to Stripe checkout instead of dead-end modal
@@ -81,26 +77,22 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
 
   return (
     <div className={`relative py-24 px-4 sm:px-6 lg:px-8 ${className}`}>
-      {/* Floating SkillSmith Mascot */}
-      <motion.div
-        className="fixed top-1/3 right-8 z-20 pointer-events-none"
-        animate={{
-          x: floatingMascot.x,
-          y: floatingMascot.y,
-          rotate: [0, 5, -5, 0]
-        }}
-        transition={{ duration: 2, ease: "easeInOut" }}
-      >
-        <div className="relative w-16 h-16 sm:w-20 sm:h-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-400/30 to-red-500/30 rounded-full blur-xl animate-pulse" />
-          <Image
-            src="/images/agents-skillsmith-nobg-skrblai.webp"
-            alt="SkillSmith Mascot"
-            fill
-            className="object-contain drop-shadow-2xl"
-          />
-        </div>
-      </motion.div>
+      {/* SkillSmith Mascot + Interactive Prompt Bar for SkillSmith */}
+      <div className="max-w-4xl mx-auto mb-12 flex flex-col items-center">
+        <SkillSmithAvatar size="lg" animate className="mb-4" />
+        <UniversalPromptBar
+          title="Instant AI Sports Analysis"
+          description="Upload your sports video or ask a question—Percy and SkillSmith will deliver instant AI-powered feedback!"
+          acceptedFileTypes="video/*"
+          fileCategory="sports_video"
+          intentType="analysis"
+          placeholder="Describe your goal or question (optional)"
+          promptLabel="What would you like analyzed? (optional):"
+          buttonText="Analyze Now"
+          theme="dark"
+          className="w-full"
+        />
+      </div>
 
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
@@ -145,11 +137,23 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                 onHoverEnd={() => setHoveredProduct(null)}
                 className="h-full"
               >
-                <GlassmorphicCard
-                  className="h-full flex flex-col p-6 group cursor-pointer relative overflow-hidden"
-                  glowColor={product.color}
-                  mode3D={true}
-                >
+                <AgentLeagueCard
+                  agent={{
+                    name: product.title,
+                    description: product.description,
+                    price: product.price,
+                    icon: getIconComponent(product.icon),
+                    features: product.features,
+                    badge: product.id === popularProductId ? 'POPULAR' : undefined,
+                    color: product.color || 'orange',
+                    id: product.id
+                  }}
+                  className="h-full flex flex-col group cursor-pointer"
+                  isRecommended={product.id === popularProductId}
+                  onLaunch={() => handleProductClick(product.id)}
+                  onInfo={() => handlePreviewDemo(product.id)}
+                  selected={hoveredProduct === product.id}
+                />
                   {/* Popularity Badge */}
                   {product.popular && (
                     <div className="absolute top-4 right-4 z-10">
@@ -277,7 +281,50 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-center"
         >
-          <GlassmorphicCard className="p-8 max-w-4xl mx-auto">
+          <AgentLeagueCard
+            agent={{
+              name: 'Transform Your Athletic Performance',
+              description: "Join thousands of athletes who've unlocked their potential with SkillSmith's AI-powered training tools",
+              icon: <Trophy className="w-8 h-8 text-orange-400" />,
+              color: 'orange',
+              id: 'cta-card',
+            }}
+            className="p-8 max-w-4xl mx-auto"
+            onLaunch={() => handleProductClick(sortedProducts[0].id)}
+            onInfo={() => handlePreviewDemo(sortedProducts[0].id)}
+          >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <CosmicButton
+                  variant="primary"
+                  size="lg"
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-bold px-8 py-4"
+                  onClick={() => handleProductClick(sortedProducts[0].id)}
+                >
+                  <Trophy className="w-5 h-5 mr-2" />
+                  Try All Products
+                </CosmicButton>
+              </motion.div>
+
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <CosmicButton
+                  variant="outline"
+                  size="lg"
+                  className="border-orange-400 text-orange-400 hover:bg-orange-400/10 font-bold px-8 py-4"
+                  onClick={() => handlePreviewDemo(sortedProducts[0].id)}
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  See What's Inside
+                </CosmicButton>
+              </motion.div>
+            </div>
+          </AgentLeagueCard>
             <h3 className="text-2xl font-bold text-white mb-4">
               Ready to Transform Your Athletic Performance?
             </h3>
