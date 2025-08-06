@@ -29,7 +29,7 @@ export default function HomePage() {
   const { user, session, isLoading, isEmailVerified } = useAuth();
   
   // Feature flag for new AI Automation homepage [[memory:3004966]]
-  const useAiAutomationHomepage = isFeatureEnabled('AI_AUTOMATION_HOMEPAGE');
+  const useAiAutomationHomepage = true; // Temporarily hardcoded to force new homepage
   
   // 🚨 EMERGENCY FIX: Removed scroll transforms causing constant repaints and white screen
   // const { scrollY } = useScroll();
