@@ -36,7 +36,7 @@
  * - User Memory: Interaction Tracking → Behavior Analysis → Personalized Suggestions
  */
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/context/AuthContext';
 import { usePercyContext } from '../components/assistant/PercyProvider';
@@ -157,7 +157,17 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [inputValue, setInputValue] = useState<string>('');
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, signInWithOtp, isEmailVerified } = useAuth();
+  // Debounced auto-redirect on email verification
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (isEmailVerified && user) {
+        console.log('[Onboarding] Email verified, redirecting to dashboard...');
+        router.push('/dashboard');
+      }
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [isEmailVerified, user, router]);
   const { trackBehavior, setIsOnboardingActive } = usePercyContext();
   const [isPercyThinking, setIsPercyThinking] = useState<boolean>(false);
   const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
@@ -881,22 +891,6 @@ const handleConversationalFlowInput = React.useCallback(async (step: string, inp
   } else if (step === 'custom-flow-start') {
     // Custom flow: challenge → analysis
     setCurrentStep('custom-analysis');
-  } else if (step === 'signup-flow-start') {
-    // Signup flow: email → confirmation
-    setCurrentStep('signup-confirmation');
-  } else if (step === 'code-flow-start') {
-    // Code flow: validate → success/error
-    const isValidCode = await validateVIPCode(input);
-    if (isValidCode.isValid) {
-      setCurrentStep('code-success');
-    } else {
-      toast.error('Invalid code. Please try again.');
-      setIsPercyThinking(false);
-      return;
-    }
-  } else if (step === 'dashboard-flow-start') {
-    // Dashboard flow: email/code → access
-    setCurrentStep('dashboard-access');
   }
   
   setIsPercyThinking(false);
@@ -942,65 +936,45 @@ const handleInputSubmit = React.useCallback(async () => {
       return;
     }
 
-      // Signup flow
+  // Signup flow: send magic link or SMS
   if (currentStep === 'signup') {
+    setInputValue('');
+    // Email magic-link
     if (trimmed.includes('@')) {
-      // Email authentication
-      const email = trimmed.toLowerCase();
-      if (!email.includes('@')) {
-        toast.error('Please enter a valid email address');
-        return;
-      }
-      
       try {
         setIsPercyThinking(true);
-        console.log('[Onboarding] Processing email authentication for:', email);
-        
-        const authResponse = await fetch('/api/auth/dashboard-signin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            email,
-            autoSignIn: true,
-            dashboardIntent: dashboardIntent
-          })
-        });
-        
-        const authData = await authResponse.json();
-        
-        if (authData.success) {
-          setUserEmail(email);
-          localStorage.setItem('user_email', email);
-          localStorage.setItem('user_name', email.split('@')[0]);
-          
-          toast.success(`🎉 Welcome${authData.isNewUser ? ' to SKRBL AI' : ' back'}!`, {
-            icon: authData.isNewUser ? '🚀' : '👋',
-            duration: 3000,
-          });
-          
-          // Route based on intent
-          if (dashboardIntent || authData.hasAccess) {
-            console.log('[Onboarding] Routing to dashboard after email authentication');
-            router.push('/dashboard');
-          } else {
-            setCurrentStep('welcome');
-          }
-          
-          setInputValue('');
-        } else {
-          throw new Error(authData.error || 'Authentication failed');
+        const { error } = await signInWithOtp(trimmed);
+        if (error) {
+          toast.error(error || 'Unable to send magic link.');
+          return;
         }
-      } catch (err: any) {
-        console.error('[Onboarding] Email authentication error:', err);
-        toast.error('Authentication issue. Try again or use code OWNER_ACCESS for immediate access.');
+        toast.success('Magic link sent! Check your email.', { duration: 5000 });
+        setCurrentStep('email-verification');
+      } catch (e) {
+        console.error('[Onboarding] signInWithOtp error:', e);
+        toast.error('Error sending magic link. Please try again.', { duration: 5000 });
       } finally {
         setIsPercyThinking(false);
       }
     } else {
-      // Phone entry
-      setPhoneNumber(trimmed);
-      setCurrentStep('phone-entry');
-      setInputValue('');
+      // SMS verification with email fallback
+      try {
+        setIsPercyThinking(true);
+        const res = await fetch('/api/sms/send-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: trimmed })
+        });
+        if (!res.ok) throw new Error(`SMS error ${res.status}`);
+        setPhoneNumber(trimmed);
+        setCurrentStep('code-entry');
+      } catch (e) {
+        console.error('[Onboarding] SMS verification error (logged for monitoring):', e);
+        toast.error('SMS unavailable, please use email.', { duration: 5000 });
+        setCurrentStep('signup');
+      } finally {
+        setIsPercyThinking(false);
+      }
     }
     return;
   }
@@ -1086,7 +1060,7 @@ const handleInputSubmit = React.useCallback(async () => {
 
       // Fallback: reset or other
   toast.error('Unable to process input at this step');
-}, [inputValue, currentStep, performAnalysis, validateVIPCode, router]);
+}, [inputValue, currentStep, performAnalysis, validateVIPCode, router, signInWithOtp, isEmailVerified]);
 
 // Handle prompt bar submission (unified input from the persistent prompt bar)
 const handlePromptBarSubmit = React.useCallback(async () => {
@@ -1371,6 +1345,15 @@ const handleContinue = React.useCallback(async (nextStep: string, routeTo?: stri
     contextualSuggestions,
     updateContextualSuggestions,
   };
+
+  // Debounced auto-redirect to dashboard upon email verification
+  React.useEffect(() => {
+    if (!isEmailVerified) return;
+    const handler = setTimeout(() => {
+      router.push('/dashboard');
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [isEmailVerified, router]);
 
   return (
     <OnboardingContext.Provider value={value}>

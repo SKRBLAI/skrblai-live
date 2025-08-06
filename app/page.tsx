@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // 🚨 EMERGENCY FIX: Removed performance-heavy imports
 // import FloatingParticles from '../components/ui/FloatingParticles';
 import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolution';
+import NavBar from '../components/layout/Navbar';
 import AgentsGrid from '../components/agents/AgentsGrid';
 import AgentPreviewSection from '../components/home/AgentPreviewSection';
 import SuperAgentPowers from '../components/home/SuperAgentPowers';
@@ -21,8 +22,58 @@ import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 import { Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
 import toast from 'react-hot-toast';
 import { isFeatureEnabled } from '../lib/config/featureFlags';
+import Hero from '../components/home/Hero';
+import Spotlight from '../components/home/Spotlight';
 
 export default function HomePage() {
+  const refacHomepage = process.env.NEXT_PUBLIC_REFAC_HOMEPAGE === 'true';
+  if (!refacHomepage) {
+    return (
+      <>
+        <NavBar />
+        <PercyOnboardingRevolution />
+        {/* New Homepage Skeleton */}
+        <Hero />
+        <Spotlight />
+        {/* Task-Focused Agents Grid */}
+        <div className="relative max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg text-white text-center">
+            <h3 className="text-xl font-semibold mb-2">Percy</h3>
+            <button
+              onClick={() => router.push('/services/percy')}
+              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg"
+            >
+              Launch Agent
+            </button>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg text-white text-center">
+            <h3 className="text-xl font-semibold mb-2">SkillSmith</h3>
+            <button
+              onClick={() => router.push('/services/skillsmith')}
+              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"
+            >
+              Launch Agent
+            </button>
+          </div>
+        </div>
+        {/* Footer CTAs */}
+        <div className="relative max-w-5xl mx-auto p-6 flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={() => {/* Open Percy modal start scan */}}
+            className="px-6 py-3 bg-electric-blue text-white rounded-lg"
+          >
+            🚀 Start My Free Scan
+          </button>
+          <button
+            onClick={() => router.push('/pricing')}
+            className="px-6 py-3 bg-gray-700 text-white rounded-lg"
+          >
+            See Pricing & ROI
+          </button>
+        </div>
+      </>
+    );
+  }
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -30,7 +30,7 @@ export default function PercyHero() {
             className="mb-4"
           >
             <Image
-              src="/images/agents-percy-nobg-skrblai.webp"
+              src="/images/Percy&Parker-skrblai.webp"
               alt="Percy the AI Concierge"
               width={180}
               height={260}

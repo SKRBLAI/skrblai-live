@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
-import Pseudo3DCard, { Pseudo3DHero, Pseudo3DFeature, Pseudo3DStats } from '../../components/shared/Pseudo3DCard';
+import Pseudo3DCard from '../../components/shared/Pseudo3DCard';
 import CosmicButton from '../../components/shared/CosmicButton';
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import PercyAvatar from '../../components/home/PercyAvatar';
@@ -625,50 +625,7 @@ export default function ServicesPage() {
             ))}
           </motion.div>
 
-          {/* Why Choose Us Section */}
-          <Pseudo3DFeature className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text text-transparent">
-              Why Businesses Choose <SkrblAiText variant="glow">SKRBL AI</SkrblAiText>
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-              We do not just compete - we redefine what AI automation can achieve.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {[
-                {
-                  title: "Real Workflow Execution",
-                  description: "While others offer workflows, we deliver entire business operations that run themselves.",
-                  metric: "10x faster execution"
-                },
-                {
-                  title: "Revenue Focused Design", 
-                  description: "Every feature built to drive measurable business results.",
-                  metric: "ROI within 14 days"
-                },
-                {
-                  title: "No Code Accessibility",
-                  description: "Advanced AI that requires zero technical expertise.",
-                  metric: "99% user success rate"
-                },
-                {
-                  title: "Enterprise Grade Security",
-                  description: "Bank level security with enterprise level capability.",
-                  metric: "SOC2 compliant"
-                }
-              ].map((feature, index) => (
-                <Pseudo3DStats
-                  key={feature.title}
-                  className="text-left"
-                >
-                  <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
-                  <p className="text-gray-300 text-sm mb-3">{feature.description}</p>
-                  <div className="text-teal-400 font-bold text-sm">{feature.metric}</div>
-                </Pseudo3DStats>
-              ))}
-            </div>
-          </Pseudo3DFeature>
-
+          {/* 'Why Choose Us' section removed for a focused business solution experience */}
 
 
           {/* Final CTA Section */}

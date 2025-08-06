@@ -26,6 +26,10 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
   const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
   const [isLaunching, setIsLaunching] = useState(false);
+  // Workflow progress modal states
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [executionIdState, setExecutionIdState] = useState<string | null>(null);
+  const [executionStatus, setExecutionStatus] = useState<'running' | 'success' | 'error' | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'backstory' | 'chat'>('overview');
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'agent', message: string, timestamp: Date}>>([]);
@@ -211,7 +215,6 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
 
   const handleLaunchAgent = async () => {
     if (!agent) return;
-    
     setIsLaunching(true);
     
     try {
@@ -221,11 +224,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
       const response = await fetch(`/api/agents/${agent.id}/trigger-n8n`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          payload: {}, 
-          userPrompt: `User launched ${agent.name} agent`, 
-          fileData: null 
-        })
+        body: JSON.stringify({ payload: {}, userPrompt: `User launched ${agent.name} agent`, fileData: null })
       });
       
       const result = await response.json();
@@ -233,19 +232,25 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
       if (!result.success) {
         throw new Error(result.error || 'Failed to launch agent workflow');
       }
-      
-      toast.success(`🚀 ${agent.name} launched successfully! Workflow is now running.`, {
-        duration: 4000,
-        icon: '⚡'
-      });
-      
-      // Navigate to dashboard or agent-specific route
-      if (agent.route) {
-        router.push(agent.route);
-      } else {
-        router.push(`/dashboard?agent=${agent.id}&action=launch`);
-      }
-      
+      // Show progress modal and start polling workflow status
+      toast.success(`🚀 ${agent.name} launched! Workflow is now running...`, { duration: 3000, icon: '⚡' });
+      setExecutionIdState(result.executionId || null);
+      setExecutionStatus('running');
+      setShowProgressModal(true);
+      // Poll for completion
+      const interval = setInterval(async () => {
+        if (executionIdState) {
+          const statusRes = await fetch(`/api/agents/${agent.id}/trigger-n8n?executionId=${executionIdState}`);
+          const statusJson = await statusRes.json();
+          if (statusJson.status === 'success') {
+            clearInterval(interval);
+            setExecutionStatus('success');
+            setShowProgressModal(false);
+            // After complete, navigate to dashboard
+            router.push('/dashboard');
+          }
+        }
+      }, 2000);
     } catch (error: any) {
       console.error(`[AgentServiceClient] Launch error for ${agent.name}:`, error);
       toast.error(`Failed to launch ${agent.name}: ${error.message}`, {
@@ -1102,6 +1107,25 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
           </Link>
         </motion.div>
       </div>
+      {/* Workflow Progress Modal */}
+      <AnimatePresence>
+        {showProgressModal && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-sm w-full text-center">
+              <h2 className="text-xl font-bold mb-4">Workflow In Progress</h2>
+              <p className="mb-4">Your agent is working—please wait...</p>
+              <div className="flex flex-col items-start space-y-2">
+                {workflowSteps.map((step, idx) => (
+                  <div key={step.step} className="flex items-center">
+                    <div className={`w-4 h-4 mr-2 rounded-full ${idx === 0 && executionStatus==='running' ? 'bg-blue-500 animate-pulse' : idx < 0 || executionStatus==='success' ? 'bg-green-500' : 'bg-gray-400'}`} />
+                    <span className="text-gray-700 dark:text-gray-200">{step.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
