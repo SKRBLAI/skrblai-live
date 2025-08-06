@@ -54,6 +54,7 @@
     "node_modules",
     ".next",
     "components/__archive__",
+    "components/percy/archive",
     "tests",
     "supabase/functions"
   ]

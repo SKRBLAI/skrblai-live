@@ -47,7 +47,7 @@ const AgentWalkthroughModal: React.FC<AgentWalkthroughModalProps> = ({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center relative"
+        className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center relative"
       >
         <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white" onClick={handleClose} aria-label="Close">
           <X className="w-6 h-6" />

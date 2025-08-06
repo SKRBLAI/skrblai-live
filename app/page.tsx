@@ -6,13 +6,15 @@ import { useAuth } from '../components/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
 // 🚨 EMERGENCY FIX: Removed performance-heavy imports
 // import FloatingParticles from '../components/ui/FloatingParticles';
-import PercyOnboardingRevolution from '../components/home/PercyOnboardingRevolution';
+// 🔄 MIGRATION: Using Percy wrapper for safe toggling between legacy and optimized versions
+import PercyWrapper from '../components/percy/PercyWrapper';
 import NavBar from '../components/layout/Navbar';
 import AgentsGrid from '../components/agents/AgentsGrid';
-import AgentPreviewSection from '../components/home/AgentPreviewSection';
-import SuperAgentPowers from '../components/home/SuperAgentPowers';
-import BusinessResultsShowcase from '../components/home/BusinessResultsShowcase';
-import UrgencyBanner from '../components/home/UrgencyBanner';
+// 🚨 PERFORMANCE FIX: Temporarily disable components with heavy intervals
+// import AgentPreviewSection from '../components/home/AgentPreviewSection';
+// import SuperAgentPowers from '../components/home/SuperAgentPowers';
+// import BusinessResultsShowcase from '../components/home/BusinessResultsShowcase';
+// import UrgencyBanner from '../components/home/UrgencyBanner';
 // import InteractiveFloatingElements from '../components/ui/InteractiveFloatingElements';
 import EmpowermentBanner from '../components/ui/EmpowermentBanner';
 // import AnimatedBackground from './AnimatedBackground';
@@ -26,56 +28,78 @@ import Hero from '../components/home/Hero';
 import Spotlight from '../components/home/Spotlight';
 
 export default function HomePage() {
-  const refacHomepage = process.env.NEXT_PUBLIC_REFAC_HOMEPAGE === 'true';
+  const router = useRouter();
+  // Force to use the feature flag OFF version (the working homepage)
+  const refacHomepage = false; // process.env.NEXT_PUBLIC_REFAC_HOMEPAGE === 'true';
   if (!refacHomepage) {
     return (
-      <>
-        <NavBar />
-        <PercyOnboardingRevolution />
-        {/* New Homepage Skeleton */}
-        <Hero />
-        <Spotlight />
-        {/* Task-Focused Agents Grid */}
-        <div className="relative max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="bg-gray-800 p-6 rounded-lg text-white text-center">
-            <h3 className="text-xl font-semibold mb-2">Percy</h3>
-            <button
-              onClick={() => router.push('/services/percy')}
-              className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg"
-            >
-              Launch Agent
-            </button>
-          </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-white text-center">
-            <h3 className="text-xl font-semibold mb-2">SkillSmith</h3>
-            <button
-              onClick={() => router.push('/services/skillsmith')}
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"
-            >
-              Launch Agent
-            </button>
+      <div className="min-h-screen relative text-white overflow-x-hidden">
+        {/* Static background gradients only - MUCH lighter performance */}
+        {/* Elegant Cosmic Background - Subtle and Professional */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-indigo-900" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,rgba(120,119,198,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(79,70,229,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        
+        <div className="relative z-10 w-full">
+          <NavBar />
+          <div className="container mx-auto px-4">
+            {/* 🔄 SAFE MIGRATION: Percy wrapper with rollback capability */}
+            <PercyWrapper 
+              className="mb-8"
+              onAnalysisComplete={(results) => {
+                console.log('Percy analysis complete:', results);
+              }}
+              onAgentSelection={(agentId) => {
+                console.log('Agent selected:', agentId);
+                // Could route to agent page here
+              }}
+            />
+            {/* New Homepage Skeleton */}
+            <Hero />
+            <Spotlight />
+            {/* Task-Focused Agents Grid */}
+            <div className="relative max-w-5xl mx-auto p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-6 text-white text-center shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
+                <h3 className="text-xl font-semibold mb-2">Percy</h3>
+                <button
+                  onClick={() => router.push('/services/percy')}
+                  className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg"
+                >
+                  Launch Agent
+                </button>
+              </div>
+              <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-6 text-white text-center shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
+                <h3 className="text-xl font-semibold mb-2">SkillSmith</h3>
+                <button
+                  onClick={() => router.push('/services/skillsmith')}
+                  className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"
+                >
+                  Launch Agent
+                </button>
+              </div>
+            </div>
+            {/* Footer CTAs */}
+            <div className="relative max-w-5xl mx-auto p-6 flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={() => {/* Open Percy modal start scan */}}
+                className="px-6 py-3 bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 text-white rounded-lg shadow-lg hover:scale-105 transition-all"
+              >
+                🚀 Start My Free Scan
+              </button>
+              <button
+                onClick={() => router.push('/pricing')}
+                className="px-6 py-3 bg-transparent backdrop-blur-xl border-2 border-teal-400/30 text-white rounded-lg hover:border-teal-400/50 hover:shadow-[0_8px_32px_rgba(0,212,255,0.18)] transition-all"
+              >
+                See Pricing & ROI
+              </button>
+            </div>
           </div>
         </div>
-        {/* Footer CTAs */}
-        <div className="relative max-w-5xl mx-auto p-6 flex flex-col sm:flex-row gap-4 justify-center">
-          <button
-            onClick={() => {/* Open Percy modal start scan */}}
-            className="px-6 py-3 bg-electric-blue text-white rounded-lg"
-          >
-            🚀 Start My Free Scan
-          </button>
-          <button
-            onClick={() => router.push('/pricing')}
-            className="px-6 py-3 bg-gray-700 text-white rounded-lg"
-          >
-            See Pricing & ROI
-          </button>
-        </div>
-      </>
+      </div>
     );
   }
   const [mounted, setMounted] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { user, session, isLoading, isEmailVerified } = useAuth();
   
@@ -195,8 +219,11 @@ export default function HomePage() {
 {/* Percy Onboarding Section - Enhanced with 3D and Micro-animations */}
               {/* FIXED: Percy onboarding now ALWAYS shows on homepage for ALL users */}
               <div id="onboarding" className="w-full max-w-4xl mx-auto">
-                {/* 🚨 EMERGENCY FIX: Removed motion animations and Pseudo3DFeature causing performance issues */}
-                <PercyOnboardingRevolution />
+                {/* 🔄 MIGRATION: Using new Percy wrapper with performance optimizations */}
+                <PercyWrapper 
+                  onAnalysisComplete={(results) => console.log('Percy analysis:', results)}
+                  onAgentSelection={(agentId) => console.log('Agent selected:', agentId)}
+                />
               </div>
             </div>
 
@@ -228,7 +255,8 @@ export default function HomePage() {
                 </>
               ) : (
                 <>
-                  <AgentPreviewSection />
+                  {/* 🚨 PERFORMANCE FIX: Disabled component with intervals */}
+            {/* <AgentPreviewSection /> */}
                   <AgentsGrid />
                 </>
               )}
@@ -244,7 +272,8 @@ export default function HomePage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="mt-16"
             >
-              <UrgencyBanner useAiAutomationHomepage={useAiAutomationHomepage} />
+              {/* 🚨 PERFORMANCE FIX: Disabled UrgencyBanner with countdown intervals */}
+            {/* <UrgencyBanner useAiAutomationHomepage={useAiAutomationHomepage} /> */}
             </motion.div>
           )}
 

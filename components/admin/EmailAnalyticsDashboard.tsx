@@ -33,7 +33,7 @@ export default function EmailAnalyticsDashboard() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg shadow-md p-6">
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -48,14 +48,14 @@ export default function EmailAnalyticsDashboard() {
 
   if (!metrics) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg shadow-md p-6">
         <p className="text-red-600">Failed to load email metrics</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg shadow-md p-6">
       <h3 className="text-xl font-bold mb-6 text-gray-900">📧 Email Automation Analytics</h3>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">

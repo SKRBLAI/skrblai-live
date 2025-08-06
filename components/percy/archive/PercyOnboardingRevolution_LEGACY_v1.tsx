@@ -1,30 +1,6 @@
 'use client';
 
-/**
- * 🚨 DEPRECATED COMPONENT - LEGACY PERCY v1
- * 
- * ⚠️  WARNING: This is the old 2,827-line Percy component with performance issues
- * ⚠️  Known Issues:
- *     - 25+ useState hooks causing excessive re-renders
- *     - Multiple unmanaged intervals causing CPU overheating
- *     - Heavy animations causing frame drops
- * 
- * 🔄 MIGRATION PLAN:
- *     - Archived copy: components/percy/archive/PercyOnboardingRevolution_LEGACY_v1.tsx
- *     - New optimized version: components/percy/PercyContainer.tsx
- *     - Toggle flag: lib/config/percyFeatureFlags.ts -> USE_OPTIMIZED_PERCY
- * 
- * 📅 DEPRECATION TIMELINE:
- *     - Phase 1: Mark as deprecated (current)
- *     - Phase 2: Enable optimized version by default
- *     - Phase 3: Remove legacy code (with approval)
- * 
- * 🚀 TO SWITCH TO OPTIMIZED VERSION:
- *     Set PERCY_FEATURE_FLAGS.USE_OPTIMIZED_PERCY = true in percyFeatureFlags.ts
- */
-
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { showPerformanceWarning } from '../../lib/config/percyFeatureFlags';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
@@ -104,11 +80,6 @@ interface AnalysisResults {
 }
 
 export default function PercyOnboardingRevolution() {
-  // 🚨 DEPRECATED: Show performance warning for legacy component
-  useEffect(() => {
-    showPerformanceWarning();
-  }, []);
-  
   const router = useRouter();
   // NEW: Use the auth context to check verification status
   const { user, session, isEmailVerified, shouldShowOnboarding /* TODO: REVIEW UNUSED */, setOnboardingComplete /* TODO: REVIEW UNUSED */ } = useAuth();

@@ -31,7 +31,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
     }
     
     try {
-      console.log('[SkillSmith] Creating Stripe checkout for:', product.title);
+      
       
       // Create Stripe checkout session
       const response = await fetch('/api/stripe/create-session', {
@@ -59,21 +59,13 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
       const { url } = await response.json();
       
       if (url) {
-        console.log('[SkillSmith] Redirecting to Stripe checkout:', url);
         window.location.href = url;
       } else {
         throw new Error('No checkout URL received');
       }
     } catch (error) {
-      console.error('[SkillSmith] Checkout error:', error);
       alert('Sorry, there was an error processing your request. Please try again.');
     }
-  };
-
-  const handlePreviewDemo = (productId: string) => {
-    console.log('[SkillSmith] Preview demo for product:', productId);
-    // For now, just show an alert - you can implement a proper demo modal later
-    alert(`Demo for ${skillsmithProducts.find(p => p.id === productId)?.title} coming soon!`);
   };
 
   // Map icon names to actual icon components
@@ -140,7 +132,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, y: -5 }}
+                whileHover={{ scale: 1.02, boxShadow: '0 0 10px rgba(45,212,191,0.6)' }}
                 className="relative"
                 onMouseEnter={() => setHoveredProduct(product.id)}
                 onMouseLeave={() => setHoveredProduct(null)}
@@ -157,9 +149,8 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                     recommendedHelpers: [],
                     handoffTriggers: []
                   }}
-                  className="h-full"
+                  className="h-full min-h-[320px] bg-white/10 backdrop-blur-md rounded-2xl shadow-md"
                   onLaunch={() => handleProductClick(product.id)}
-                  onInfo={() => handlePreviewDemo(product.id)}
                 >
                   {/* Popular Badge */}
                   {isPopular && (
@@ -204,6 +195,15 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                       {product.description}
                     </p>
 
+                    {/* Price and One-Time Purchase Badge */}
+                    <div className="flex items-center gap-2 mb-4 justify-center">
+                      <span className="text-3xl font-bold text-white">${product.price}</span>
+                      {product.originalPrice && (
+                        <span className="text-gray-500 line-through text-lg">${product.originalPrice}</span>
+                      )}
+                      <span className="ml-2 px-2 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold border border-teal-400/30">One-Time Purchase</span>
+                    </div>
+
                     {/* Features */}
                     <div className="w-full mb-6">
                       <div className="grid grid-cols-2 gap-3">
@@ -222,7 +222,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Action Button */}
                     <div className="flex gap-3 w-full">
                       <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                         <CosmicButton
@@ -233,17 +233,6 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                         >
                           <ShoppingCart className="w-4 h-4 mr-2" />
                           Buy ${product.price}
-                        </CosmicButton>
-                      </motion.div>
-                      <motion.div className="flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                        <CosmicButton
-                          variant="outline"
-                          size="sm"
-                          className="w-full border-orange-400 text-orange-400 hover:bg-orange-400/10 font-bold"
-                          onClick={() => handlePreviewDemo(product.id)}
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Preview
                         </CosmicButton>
                       </motion.div>
                     </div>
@@ -288,7 +277,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
             }}
             className="p-8 max-w-4xl mx-auto"
             onLaunch={() => handleProductClick(sortedProducts[0].id)}
-            onInfo={() => handlePreviewDemo(sortedProducts[0].id)}
+            
           >
             <div className="flex justify-center mb-6">
               <Trophy className="w-8 h-8 text-orange-400" />
@@ -309,20 +298,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                 </CosmicButton>
               </motion.div>
 
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <CosmicButton
-                  variant="outline"
-                  size="lg"
-                  className="border-orange-400 text-orange-400 hover:bg-orange-400/10 font-bold px-8 py-4"
-                  onClick={() => handlePreviewDemo(sortedProducts[0].id)}
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  See What's Inside
-                </CosmicButton>
-              </motion.div>
+
             </div>
           </AgentLeagueCard>
         </motion.div>
