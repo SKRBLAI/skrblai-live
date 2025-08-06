@@ -31,6 +31,10 @@ export default function HomePage() {
   // Feature flag for new AI Automation homepage [[memory:3004966]]
   const useAiAutomationHomepage = true; // Temporarily hardcoded to force new homepage
   
+  // Debug logging
+  console.log('[Homepage] useAiAutomationHomepage:', useAiAutomationHomepage);
+  console.log('[Homepage] mounted:', mounted);
+  
   // 🚨 EMERGENCY FIX: Removed scroll transforms causing constant repaints and white screen
   // const { scrollY } = useScroll();
   // const scale = useTransform(scrollY, [0, 300], [1, 0.8]);
@@ -159,8 +163,17 @@ export default function HomePage() {
             <Pseudo3DFeature>
               {useAiAutomationHomepage ? (
                 <>
-                  <SuperAgentPowers useAiAutomationHomepage={useAiAutomationHomepage} />
-                  <BusinessResultsShowcase useAiAutomationHomepage={useAiAutomationHomepage} />
+                  {/* DEBUG: Simple test component */}
+                  <div className="w-full py-16 text-center">
+                    <h2 className="text-4xl font-bold text-white mb-4">
+                      🚀 NEW HOMEPAGE LOADING...
+                    </h2>
+                    <p className="text-gray-300 text-lg">
+                      Feature flag: {useAiAutomationHomepage ? 'ENABLED' : 'DISABLED'}
+                    </p>
+                  </div>
+                  {/* <SuperAgentPowers useAiAutomationHomepage={useAiAutomationHomepage} /> */}
+                  {/* <BusinessResultsShowcase useAiAutomationHomepage={useAiAutomationHomepage} /> */}
                 </>
               ) : (
                 <>
