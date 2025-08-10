@@ -37,7 +37,7 @@ export default function Navbar() {
 
   // Prefetch heavy routes for a snappy UX.
   useEffect(() => {
-    ["/services", "/pricing", "/dashboard", "/agents", "/sports"].forEach((route) =>
+    ["/agents", "/pricing", "/dashboard", "/sports"].forEach((route) =>
       router.prefetch(route)
     );
   }, [router]);
@@ -163,7 +163,7 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
 
   const moreNavItems = [
     { href: "/agents", label: "Agent League" },
-    { href: "/services", label: "Services" },
+    { href: "/agents", label: "Agents" },
     { href: "/contact", label: "Contact" },
   ];
 

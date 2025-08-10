@@ -148,7 +148,8 @@ export default function PercyOnboardingRevolution() {
     setPercyMood,
     userHistory,
     contextualSuggestions,
-    updateContextualSuggestions
+    updateContextualSuggestions,
+    track
   } = useOnboarding();
   
   // Keep only UI-specific local state
@@ -242,6 +243,15 @@ export default function PercyOnboardingRevolution() {
     }, 300);
     return () => clearTimeout(timeoutId);
   }, [promptBarValue]);
+
+  // Helper: convert old /services routes to /agents and append track
+  const toAgentRouteWithTrack = useCallback((route?: string) => {
+    if (!route || typeof route !== 'string') return route;
+    if (!route.startsWith('/services/')) return route;
+    const swapped = route.replace('/services/', '/agents/');
+    const sep = swapped.includes('?') ? '&' : '?';
+    return `${swapped}${sep}track=${track || 'business'}`;
+  }, [track]);
 
   const chatRef = useRef<HTMLDivElement>(null);
   
@@ -984,7 +994,7 @@ export default function PercyOnboardingRevolution() {
         console.log('[Percy] Opening agent chat:', option.route);
         trackBehavior('agent_chat_opened', { route: option.route, from: currentStep });
         toast.success(`💬 Connecting to agent...`, { duration: 2000 });
-        router.push(option.route);
+        router.push(toAgentRouteWithTrack(option.route) || option.route);
         return;
       }
       
@@ -993,7 +1003,7 @@ export default function PercyOnboardingRevolution() {
         console.log('[Percy] Launching agent:', option.route);
         trackBehavior('agent_launched', { route: option.route, from: currentStep });
         toast.success(`🚀 ${option.label}...`, { duration: 2000 });
-        router.push(option.route);
+        router.push(toAgentRouteWithTrack(option.route) || option.route);
         return;
       }
       
@@ -1011,7 +1021,8 @@ export default function PercyOnboardingRevolution() {
         console.log('[Percy] View action:', option.route);
         trackBehavior('view_action', { route: option.route, from: currentStep });
         toast.success(`📊 ${option.label}...`, { duration: 2000 });
-        router.push(option.route);
+        const finalRoute = toAgentRouteWithTrack(option.route) || option.route;
+        router.push(finalRoute);
         return;
       }
       
@@ -1022,17 +1033,18 @@ export default function PercyOnboardingRevolution() {
           trackBehavior('recommended_agent_launch', { agentId: userAnalysisAgent, from: 'percy_quick_wins' });
           
           const agentRoutes: Record<string, string> = {
-            'SEO Dominator': '/services/seo-agent',
-            'Business Automation Agent': '/services/biz-agent', 
-            'Content Automation Agent': '/services/content-automation',
-            'Personal Branding Agent': '/services/branding',
-            'Book Publishing Agent': '/services/book-publishing',
-            'Skill Smith': '/services/skillsmith'
+            'SEO Dominator': `/agents/seo-agent?track=${track || 'business'}`,
+            'Business Automation Agent': `/agents/biz-agent?track=${track || 'business'}`, 
+            'Content Automation Agent': `/agents/content-automation?track=${track || 'business'}`,
+            'Personal Branding Agent': `/agents/branding?track=${track || 'business'}`,
+            'Book Publishing Agent': `/agents/book-publishing?track=${track || 'business'}`,
+            'Skill Smith': `/agents/skillsmith?track=${track || 'sports'}`
           };
           
           const route = agentRoutes[userAnalysisAgent] || '/agents';
           toast.success(`🚀 Launching ${userAnalysisAgent}...`, { duration: 2000 });
-          router.push(route);
+          const finalRoute = toAgentRouteWithTrack(route) || route;
+          router.push(finalRoute);
         } else {
           router.push('/agents');
         }
@@ -1043,7 +1055,7 @@ export default function PercyOnboardingRevolution() {
       console.error('Option click error:', error);
       return;
     }
-    if (option.action === 'have-code') {
+      if (option.action === 'have-code') {
       setPromptBarPlaceholder('Enter Code Here');
       setPromptBarValue('');
       promptBarRef.current?.focus();

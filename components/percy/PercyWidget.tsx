@@ -72,6 +72,10 @@ function PercyWidget() {
   const { setPercyIntent, closePercy, isOnboardingActive } = usePercyContext();
   const pathname = usePathname();
   const { agents } = useApiAgents();
+  // Track-aware suggestions
+  // Lazy import to avoid circular deps if any
+  const { useOnboarding } = require('../../contexts/OnboardingContext');
+  const { track } = useOnboarding();
 
   // Enhanced with intelligence sync
   const { 
@@ -134,10 +138,10 @@ function PercyWidget() {
       }
       setShowOnboarding(!complete);
       if (complete && typeof window !== 'undefined') {
-        const goal = localStorage.getItem('userGoal') || '';
-        const platform = localStorage.getItem('userPlatform') || '';
-        setUserProfile({ goal, platform });
-        setSuggestedAgents(getBestAgents(goal, platform, agents));
+          const goal = localStorage.getItem('userGoal') || '';
+          const platform = localStorage.getItem('userPlatform') || '';
+          setUserProfile({ goal, platform });
+          setSuggestedAgents(getBestAgents(goal, platform, agents, track));
       }
     }
     checkOnboarding();

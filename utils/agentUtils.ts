@@ -148,10 +148,13 @@ export function getAgentSets<T = any>(agents: T[], groupSize: number): T[][] {
 }
 
 // Percy Smart Agent Matching: Capability-based agent suggestion
-export function getBestAgents(prompt: string, agents?: any[]): any[] {
+export function getBestAgents(prompt: string, agents?: any[], track?: 'business' | 'sports'): any[] {
   if (!prompt || typeof prompt !== 'string' || !agents) return [];
   const lowerPrompt = prompt.toLowerCase();
   const promptWords = lowerPrompt.split(/\W+/).filter(Boolean);
+  const biasCategories = track === 'sports'
+    ? ['training', 'sports', 'nutrition']
+    : ['branding', 'publishing', 'automation', 'social'];
   const scored = agents.map(agent => {
     let score = 0;
     let matchedCapabilities: string[] = [];
@@ -169,7 +172,11 @@ export function getBestAgents(prompt: string, agents?: any[]): any[] {
     if (score > 0) {
       console.debug(`[PercyMatch] Matched agent '${agent.name}' with capabilities: [${matchedCapabilities.join(', ')}] for prompt: '${prompt}'`);
     }
-    return { agent, score, matchedCapabilities };
+    // Gentle biasing by category tags
+    const agentCats: string[] = Array.isArray(agent.agentCategory) ? agent.agentCategory : (agent.category ? [String(agent.category).toLowerCase()] : []);
+    const biasHits = agentCats.reduce((s, c) => s + (biasCategories.includes(String(c).toLowerCase()) ? 1 : 0), 0);
+    const finalScore = score + biasHits * 0.5;
+    return { agent, score: finalScore, matchedCapabilities };
   });
   scored.sort((a, b) => b.score - a.score || a.agent.name.localeCompare(b.agent.name));
   const top = scored.filter(s => s.score > 0).slice(0, 3).map(s => s.agent);

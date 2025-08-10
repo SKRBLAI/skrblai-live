@@ -31,11 +31,11 @@ describe('HomePage (feature flag off)', () => {
 
     // Click Percy button: first occurrence is Percy
     fireEvent.click(percyBtn);
-    expect(router.push).toHaveBeenCalledWith('/services/percy');
+    expect(router.push).toHaveBeenCalledWith('/agents/percy?track=business');
 
     // SkillSmith button
     const skillBtn = screen.getAllByText('Launch Agent', { selector: 'button' })[1];
     fireEvent.click(skillBtn);
-    expect(router.push).toHaveBeenCalledWith('/services/skillsmith');
+    expect(router.push).toHaveBeenCalledWith('/agents/skillsmith?track=sports');
   });
 });

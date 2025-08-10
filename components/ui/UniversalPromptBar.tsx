@@ -7,6 +7,7 @@ import { uploadFileToStorage } from '../../utils/supabase-helpers';
 import { supabase } from '../../utils/supabase';
 import { usePercyContext } from '../assistant/PercyProvider';
 import { BEHAVIOR_TYPES } from '../../lib/percy/contextManager';
+import { useOnboarding } from '../../contexts/OnboardingContext';
 
 export interface UniversalPromptBarProps {
   title?: string;
@@ -58,6 +59,7 @@ export default function UniversalPromptBar({
   
   // NEW: Percy Intelligence Integration
   const { generateSmartResponse, trackBehavior, conversationPhase, conversionScore } = usePercyContext();
+  const { isProcessingAnalysis } = useOnboarding();
 
   const [file, setFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -68,7 +70,8 @@ export default function UniversalPromptBar({
   const [focused, setFocused] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const isListening = focused || prompt.length > 0 || uploading;
+  const isListening = focused || prompt.length > 0 || uploading || isProcessingAnalysis;
+  const isBusy = uploading || isProcessingAnalysis;
   const themeCls = {
     container: theme === 'dark' ? 'cosmic-glass cosmic-gradient p-4 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20]' : 'glass-card p-4 sm:p-6 shadow-xl',
     input: theme === 'dark' ? 'bg-white/5 border border-white/10 text-white' : 'bg-gray-50 border-gray-200 text-gray-900',
@@ -181,28 +184,50 @@ export default function UniversalPromptBar({
   )}
 </AnimatePresence>
       {!minimalUI && <div className="flex items-center mb-4"><div className="mr-3">{icon}</div><div><h2 className={`text-xl ${themeCls.text}`}>{title}</h2><p className={themeCls.second}>{description}</p></div></div>}
-      {showPrompt && <div className="mb-4"><label htmlFor="uprompt" className={`block text-sm ${themeCls.text} mb-1`}>{promptLabel}</label><textarea id="uprompt" title={placeholder} placeholder={placeholder} value={prompt} onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)} onChange={e=>setPrompt(e.target.value)} className={`w-full ${themeCls.input} rounded p-2 h-24`} />{isListening && <p className="text-xs text-electric-blue animate-pulse">Percy is listening…</p>}</div>}
+      {showPrompt && (
+        <div className="mb-4">
+          <label htmlFor="uprompt" className={`block text-sm ${themeCls.text} mb-1`}>{promptLabel}</label>
+          <textarea
+            id="uprompt"
+            title={placeholder}
+            placeholder={placeholder}
+            value={prompt}
+            onFocus={()=>setFocused(true)}
+            onBlur={()=>setFocused(false)}
+            onChange={e=>setPrompt(e.target.value)}
+            disabled={isBusy}
+            aria-disabled={isBusy}
+            className={`w-full ${themeCls.input} rounded p-2 h-24 ${isBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
+          />
+          {isProcessingAnalysis && (
+            <div className="mt-2 h-2 w-24 rounded bg-white/10 animate-pulse" aria-hidden="true" />
+          )}
+          {isListening && <p className="text-xs text-electric-blue animate-pulse">Percy is listening…</p>}
+        </div>
+      )}
       {file ? (
   <div className="mb-4">
     <p className="truncate text-white flex items-center gap-2"><span className="text-lg">📄</span>{file.name}</p>
     <motion.button
       onClick={upload}
-      disabled={uploading}
+      disabled={isBusy}
       whileHover={{ scale: 1.02 }}
-      className={`mt-2 ${uploading ? 'bg-gray-500' : ' ' + themeCls.button} px-4 py-2 rounded ${uploading ? 'opacity-50 animate-pulse cursor-not-allowed' : ''}`}
+      className={`mt-2 ${isBusy ? 'bg-gray-500' : ' ' + themeCls.button} px-4 py-2 rounded ${isBusy ? 'opacity-50 animate-pulse cursor-not-allowed' : ''}`}
     >
-      {uploading ? 'Sending...' : buttonText}
+      {isBusy ? (uploading ? 'Sending...' : 'Analyzing...') : buttonText}
     </motion.button>
   </div>
 ) : (
   <motion.button
     onClick={selectFile}
+    disabled={isBusy}
     whileHover={{ scale: 1.03 }}
-    className="w-full py-8 border-2 border-dashed border-teal-400/40 rounded-2xl flex flex-col items-center justify-center cosmic-glass cosmic-gradient shadow-[0_0_24px_#30D5C880] transition hover:shadow-[0_0_40px_#30D5C8] relative mb-4"
+    className={`w-full py-8 border-2 border-dashed border-teal-400/40 rounded-2xl flex flex-col items-center justify-center cosmic-glass cosmic-gradient shadow-[0_0_24px_#30D5C880] transition hover:shadow-[0_0_40px_#30D5C8] relative mb-4 ${isBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
     style={{ minHeight: 120 }}
     type="button"
-    tabIndex={0}
+    tabIndex={isBusy ? -1 : 0}
     aria-label="Select or drop a file to upload"
+    aria-disabled={isBusy}
   >
     <span className="text-2xl mb-2 animate-bounce">🚀</span>
     <p className={`text-base font-semibold bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue bg-clip-text text-transparent drop-shadow`}>Drop or browse file</p>
@@ -218,7 +243,7 @@ export default function UniversalPromptBar({
     <span className="absolute right-4 top-4 px-2 py-1 rounded-full bg-teal-600/80 text-xs text-white shadow-glow select-none">Premium Ready</span>
   </motion.button>
 )}
-      {prompt.trim() && !file && <motion.button onClick={submitPromptOnly} disabled={uploading} whileHover={{scale:1.02}} className={`w-full py-2 rounded mt-4 ${themeCls.button} ${uploading?'opacity-50 animate-pulse cursor-not-allowed':''}`}>{uploading?'Sending...':'Submit'}</motion.button>}
+      {prompt.trim() && !file && <motion.button onClick={submitPromptOnly} disabled={isBusy} whileHover={{scale:1.02}} className={`w-full py-2 rounded mt-4 ${themeCls.button} ${isBusy?'opacity-50 animate-pulse cursor-not-allowed':''}`}>{isBusy ? (uploading ? 'Sending...' : 'Analyzing...') : 'Submit'}</motion.button>}
       <AnimatePresence>
   {error && (
     <motion.div
@@ -254,7 +279,22 @@ export default function UniversalPromptBar({
 
   return (
     <AnimatePresence>
-      <motion.div key={pathname} initial={{opacity:0,scale:0.95}} animate={{opacity:1,scale:1}} exit={{opacity:0,scale:0.95}} transition={{duration:0.3}} className={`${themeCls.container} ${className}`}> {render()} </motion.div>
+      <motion.div
+        key={pathname}
+        initial={{opacity:0,scale:0.95}}
+        animate={{opacity:1,scale:1}}
+        exit={{opacity:0,scale:0.95}}
+        transition={{duration:0.3}}
+        className={`${themeCls.container} relative ${className}`}
+        aria-busy={isProcessingAnalysis}
+      >
+        {render()}
+        {isProcessingAnalysis && (
+          <div className="pointer-events-none absolute inset-0 rounded-2xl">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse" />
+          </div>
+        )}
+      </motion.div>
     </AnimatePresence>
   );
 }

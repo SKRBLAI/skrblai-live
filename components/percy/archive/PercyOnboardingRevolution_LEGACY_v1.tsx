@@ -555,7 +555,7 @@ export default function PercyOnboardingRevolution() {
         id: 'recommended',
         name: userAnalysisAgent || 'AI Agent',
         description: 'Perfectly matched to your specific needs',
-        route: '/services/agent'
+        route: '/agents/agent'
       },
       options: [
         { id: 'launch-agent', label: `🚀 Launch ${userAnalysisAgent || 'Recommended'} Agent Now!`, icon: <Rocket className="w-8 h-8" />, action: 'launch-recommended-agent' },
@@ -599,7 +599,7 @@ export default function PercyOnboardingRevolution() {
       handoffOptions: [
         { id: 'get-seo-report', label: '📊 Get Free SEO Report', icon: <BarChart3 className="w-6 h-6" />, action: 'download-seo-report' },
         { id: 'chat-seo-agent', label: '💬 Chat SEO Agent', icon: <MessageCircle className="w-6 h-6" />, action: 'open-seo-chat', route: '/chat/seo-agent' },
-        { id: 'launch-seo-automation', label: '🚀 Launch SEO Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-seo-agent', route: '/services/seo-agent' }
+        { id: 'launch-seo-automation', label: '🚀 Launch SEO Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-seo-agent', route: '/agents/seo-agent' }
       ]
     },
     
@@ -632,7 +632,7 @@ export default function PercyOnboardingRevolution() {
       handoffOptions: [
         { id: 'see-content-demo', label: '👀 See Demo', icon: <Eye className="w-6 h-6" />, action: 'open-content-demo', modal: 'content-walkthrough' },
         { id: 'connect-contentrix', label: '💬 Connect to Contentrix', icon: <MessageCircle className="w-6 h-6" />, action: 'open-content-chat', route: '/chat/content-agent' },
-        { id: 'launch-content-automation', label: '🚀 Launch Content Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-content-agent', route: '/services/content-automation' }
+        { id: 'launch-content-automation', label: '🚀 Launch Content Automation', icon: <Rocket className="w-6 h-6" />, action: 'launch-content-agent', route: '/agents/content-automation' }
       ]
     },
     
@@ -655,7 +655,7 @@ export default function PercyOnboardingRevolution() {
       handoffOptions: [
         { id: 'download-template', label: '📥 Download Template', icon: <BookOpen className="w-6 h-6" />, action: 'download-book-template' },
         { id: 'chat-publishing-agent', label: '💬 Chat Publishing Agent', icon: <MessageCircle className="w-6 h-6" />, action: 'open-publishing-chat', route: '/chat/book-agent' },
-        { id: 'launch-book-publishing', label: '🚀 Launch Book Publishing', icon: <Rocket className="w-6 h-6" />, action: 'launch-book-agent', route: '/services/book-publishing' }
+        { id: 'launch-book-publishing', label: '🚀 Launch Book Publishing', icon: <Rocket className="w-6 h-6" />, action: 'launch-book-agent', route: '/agents/book-publishing' }
       ]
     },
     
@@ -719,7 +719,7 @@ export default function PercyOnboardingRevolution() {
       handoffOptions: [
         { id: 'see-brand-kit', label: '🎨 See Brand Kit', icon: <Palette className="w-6 h-6" />, action: 'view-brand-kit', modal: 'brand-showcase' },
         { id: 'chat-brandbot', label: '💬 Chat BrandBot', icon: <MessageCircle className="w-6 h-6" />, action: 'open-brand-chat', route: '/chat/brand-agent' },
-        { id: 'launch-brand-upgrade', label: '🚀 Launch Brand Upgrade', icon: <Rocket className="w-6 h-6" />, action: 'launch-brand-agent', route: '/services/branding' }
+        { id: 'launch-brand-upgrade', label: '🚀 Launch Brand Upgrade', icon: <Rocket className="w-6 h-6" />, action: 'launch-brand-agent', route: '/agents/branding' }
       ]
     },
     
@@ -867,7 +867,7 @@ export default function PercyOnboardingRevolution() {
           label: `🚀 Launch ${agent.name}`,
           icon: <Rocket className="w-6 h-6" />,
           action: 'launch-agent',
-          route: `/services/${agent.id}`,
+          route: `/agents/${agent.id}`,
           data: { agentId: agent.id, reason: agent.reason }
         })) || []
       };
@@ -993,12 +993,12 @@ export default function PercyOnboardingRevolution() {
           trackBehavior('recommended_agent_launch', { agentId: userAnalysisAgent, from: 'percy_quick_wins' });
           
           const agentRoutes: Record<string, string> = {
-            'SEO Dominator': '/services/seo-agent',
-            'Business Automation Agent': '/services/biz-agent', 
-            'Content Automation Agent': '/services/content-automation',
-            'Personal Branding Agent': '/services/branding',
-            'Book Publishing Agent': '/services/book-publishing',
-            'Skill Smith': '/services/skillsmith'
+            'SEO Dominator': '/agents/seo-agent',
+            'Business Automation Agent': '/agents/biz-agent', 
+            'Content Automation Agent': '/agents/content-automation',
+            'Personal Branding Agent': '/agents/branding',
+            'Book Publishing Agent': '/agents/book-publishing',
+            'Skill Smith': '/agents/skillsmith'
           };
           
           const route = agentRoutes[userAnalysisAgent] || '/agents';

@@ -78,7 +78,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
             <Link href="/agents" className="cosmic-btn-primary px-6 py-3 rounded-xl">
               Browse Agent League
             </Link>
-            <Link href="/services" className="cosmic-btn-secondary px-6 py-3 rounded-xl">
+            <Link href="/agents" className="cosmic-btn-secondary px-6 py-3 rounded-xl">
               View All Services
             </Link>
           </div>
@@ -841,7 +841,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                             {backstory.handoffPreferences?.map((agentId) => (
                               <Link
                                 key={agentId}
-                                href={`/services/${agentId}`}
+                                href={`/agents/${agentId}${searchParams.get('track') ? `?track=${searchParams.get('track')}` : ''}`}
                                 className="text-xs bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30 hover:border-cyan-400 transition-colors"
                               >
                                 {agentId.replace('-agent', '').replace('-', ' ')}

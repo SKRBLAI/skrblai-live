@@ -77,6 +77,8 @@ export interface OnboardingContextType {
   handleAgentChat: (agentId: string) => Promise<void>;
   handleContinue: (nextStep: string, routeTo?: string) => Promise<void>;
   validateAndRoute: (route: string, context?: string) => boolean;
+  track: 'business' | 'sports';
+  setTrack: (t: 'business' | 'sports') => void;
   
   // Enhanced Free Scan Logic (OpenAI Integration)
   /**
@@ -156,6 +158,7 @@ interface UserHistoryEntry {
 export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   const [currentStep, setCurrentStep] = useState<string>('greeting');
   const [inputValue, setInputValue] = useState<string>('');
+  const [track, setTrack] = useState<'business' | 'sports'>('business');
   const router = useRouter();
   const { user, signInWithOtp, isEmailVerified } = useAuth();
   // Debounced auto-redirect on email verification
@@ -431,13 +434,13 @@ const getRecommendedBusinessAgent = (businessType: string): string => {
 
 const getBusinessAgentRoute = (businessType: string): string => {
   switch (businessType) {
-    case 'ecommerce': return '/services/ecommerce-agent';
-    case 'saas': return '/services/saas-agent';
-    case 'local': return '/services/local-agent';
-    case 'professional': return '/services/professional-agent';
-    case 'realestate': return '/services/realestate-agent';
-    case 'coaching': return '/services/coaching-agent';
-    default: return '/services/biz-agent';
+    case 'ecommerce': return '/agents/ecommerce-agent';
+    case 'saas': return '/agents/saas-agent';
+    case 'local': return '/agents/local-agent';
+    case 'professional': return '/agents/professional-agent';
+    case 'realestate': return '/agents/realestate-agent';
+    case 'coaching': return '/agents/coaching-agent';
+    default: return '/agents/biz-agent';
   }
 };
 
@@ -573,12 +576,12 @@ const getRecommendedCustomAgent = (businessType: string): string => {
 
 const getCustomAgentRoute = (businessType: string): string => {
   switch (businessType) {
-    case 'ecommerce': return '/services/ecommerce-agent';
-    case 'saas': return '/services/saas-agent';
-    case 'local': return '/services/local-agent';
-    case 'professional': return '/services/professional-agent';
-    case 'creator': return '/services/content-automation';
-    case 'coaching': return '/services/coaching-agent';
+    case 'ecommerce': return '/agents/ecommerce-agent';
+    case 'saas': return '/agents/saas-agent';
+    case 'local': return '/agents/local-agent';
+    case 'professional': return '/agents/professional-agent';
+    case 'creator': return '/agents/content-automation';
+    case 'coaching': return '/agents/coaching-agent';
     default: return '/agents';
   }
 };
@@ -610,7 +613,7 @@ const performPercyDiagnosis = React.useCallback(async (diagnosisType: string, in
     case 'seo':
       quickWins = getTargetedSEOQuickWins(businessType, input);
       recommendedAgent = 'SEO Dominator';
-      agentRoute = '/services/seo-agent';
+      agentRoute = '/agents/seo-agent';
       break;
     case 'business':
       quickWins = getTargetedBusinessQuickWins(businessType, input);
@@ -620,22 +623,22 @@ const performPercyDiagnosis = React.useCallback(async (diagnosisType: string, in
     case 'content':
       quickWins = getTargetedContentQuickWins(businessType, input);
       recommendedAgent = 'Content Automation Agent';
-      agentRoute = '/services/content-automation';
+      agentRoute = '/agents/content-automation';
       break;
     case 'brand':
       quickWins = getTargetedBrandQuickWins(businessType, input);
       recommendedAgent = 'Personal Branding Agent';
-      agentRoute = '/services/branding';
+      agentRoute = '/agents/branding';
       break;
     case 'book':
       quickWins = getTargetedBookQuickWins(businessType, input);
       recommendedAgent = 'Book Publishing Agent';
-      agentRoute = '/services/book-publishing';
+      agentRoute = '/agents/book-publishing';
       break;
     case 'sports':
       quickWins = getTargetedSportsQuickWins(businessType, input);
       recommendedAgent = 'Skill Smith';
-      agentRoute = '/services/skillsmith';
+      agentRoute = '/agents/skillsmith';
       break;
     default:
       quickWins = getTargetedCustomQuickWins(businessType, input);
@@ -1120,7 +1123,7 @@ const validateAndRoute = React.useCallback((route: string, context?: string) => 
     '/content-automation', '/social-media'
   ];
   
-  const isDynamicRoute = route.includes('/services/') || route.includes('/chat/') || 
+  const isDynamicRoute = route.includes('/services/') || route.includes('/agents/') || route.includes('/chat/') || 
                         route.includes('/agent-backstory/') || route.includes('/dashboard?');
   
   if (!validRoutes.includes(route) && !isDynamicRoute) {
@@ -1170,7 +1173,7 @@ const handleLaunch = React.useCallback(async (agentId: string, context?: any) =>
   console.log('[Onboarding] Launching agent:', agentId, context);
   trackBehavior('agent_launch', { agentId, context, from: currentStep });
   
-  const route = `/services/${agentId}`;
+  const route = `/agents/${agentId}?track=${track}`;
   if (!validateAndRoute(route, `agent-launch-${agentId}`)) {
     return;
   }
@@ -1187,13 +1190,13 @@ const handleLaunch = React.useCallback(async (agentId: string, context?: any) =>
   } finally {
     setPromptBarLoading(false);
   }
-}, [router, currentStep, trackBehavior, validateAndRoute]);
+}, [router, currentStep, trackBehavior, validateAndRoute, track]);
 
 const handleAgentChat = React.useCallback(async (agentId: string) => {
   console.log('[Onboarding] Starting chat with agent:', agentId);
   trackBehavior('agent_chat_start', { agentId, from: currentStep });
   
-  const route = `/services/${agentId}?tab=chat`;
+  const route = `/agents/${agentId}?tab=chat&track=${track}`;
   if (!validateAndRoute(route, `agent-chat-${agentId}`)) {
     return;
   }
@@ -1207,7 +1210,7 @@ const handleAgentChat = React.useCallback(async (agentId: string) => {
   } finally {
     setPromptBarLoading(false);
   }
-}, [router, currentStep, trackBehavior, validateAndRoute]);
+}, [router, currentStep, trackBehavior, validateAndRoute, track]);
 
 const handleContinue = React.useCallback(async (nextStep: string, routeTo?: string) => {
   console.log('[Onboarding] Continuing to step:', nextStep, 'Route:', routeTo);

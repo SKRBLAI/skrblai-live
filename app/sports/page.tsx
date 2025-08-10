@@ -931,7 +931,7 @@ export default function SportsPage(): JSX.Element {
                     Continue your athletic journey with our full suite of training tools
                   </p>
                   <a 
-                    href="/services/skillsmith" 
+                    href="/agents/skillsmith?track=sports" 
                     className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-500 hover:via-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl"
                   >
                     Access Full Platform →

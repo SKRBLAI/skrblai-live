@@ -12,7 +12,7 @@ const Spotlight: React.FC = () => {
           Your Cosmic Concierge & Automation Orchestrator
         </h2>
         <button 
-          onClick={() => router.push('/services/percy')}
+          onClick={() => router.push('/agents/percy?track=business')}
           className="mt-4 px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg hover:scale-105 transition-all"
         >
           Chat with Percy
@@ -24,7 +24,7 @@ const Spotlight: React.FC = () => {
           Sports Performance Forger
         </h2>
         <button 
-          onClick={() => router.push('/services/skillsmith')}
+          onClick={() => router.push('/agents/skillsmith?track=sports')}
           className="mt-4 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg hover:scale-105 transition-all"
         >
           Upload to SkillSmith

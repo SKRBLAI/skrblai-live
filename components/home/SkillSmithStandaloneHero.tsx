@@ -360,7 +360,7 @@ export default function SkillSmithStandaloneHero({
                     )}
 
                     {userType === 'platform' && (
-                      <Link href="/services/skillsmith" className="text-orange-400 hover:text-orange-300 font-semibold text-lg flex items-center">
+                      <Link href="/agents/skillsmith?track=sports" className="text-orange-400 hover:text-orange-300 font-semibold text-lg flex items-center">
                         <Play className="w-5 h-5 mr-2" />
                         Explore All Sports Features →
                       </Link>

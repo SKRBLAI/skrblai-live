@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
+  // Basic static entries; dynamic agent entries can be added via build-time registry if needed
+  const items: MetadataRoute.Sitemap = [
     {
       url: 'https://skrblai.io',
       lastModified: new Date(),
@@ -23,4 +24,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
   ];
+  // Add common agents we ship (fallback; full dynamic can iterate registry)
+  const defaultAgents = ['percy', 'skillsmith'];
+  defaultAgents.forEach(a => {
+    items.push({ url: `https://skrblai.io/agents/${a}`, lastModified: new Date() });
+  });
+  return items;
 } 

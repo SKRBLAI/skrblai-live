@@ -376,7 +376,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     onInfo(agent);
                   } else {
                     // FIXED: INFO button routes to agent backstory via service page
-                    router.push(`/services/${agent.id}?tab=backstory`);
+                    router.push(`/agents/${agent.id}?tab=backstory`);
                   }
                 }}
                 className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/80 to-pink-600/80 hover:from-purple-400/90 hover:to-pink-500/90 text-white text-xs font-bold rounded-lg border border-purple-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300"
@@ -394,7 +394,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   onLaunch(agent);
                 } else {
                   // Launch Agent - route to unified service page
-                  router.push(`/services/${agent.id}`);
+                  router.push(`/agents/${agent.id}`);
                 }
               }}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500/80 to-emerald-600/80 hover:from-green-400/90 hover:to-emerald-500/90 text-white text-sm font-bold rounded-lg border border-green-400/50 backdrop-blur-sm shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-300"

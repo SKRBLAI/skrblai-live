@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // 🔄 MIGRATION: Using Percy wrapper for safe toggling between legacy and optimized versions
 import PercyWrapper from '../components/percy/PercyWrapper';
 import NavBar from '../components/layout/Navbar';
+import { useOnboarding } from '../contexts/OnboardingContext';
 import AgentsGrid from '../components/agents/AgentsGrid';
 // 🚨 PERFORMANCE FIX: Temporarily disable components with heavy intervals
 // import AgentPreviewSection from '../components/home/AgentPreviewSection';
@@ -29,6 +30,7 @@ import Spotlight from '../components/home/Spotlight';
 
 export default function HomePage() {
   const router = useRouter();
+  const { setTrack, setCurrentStep } = useOnboarding();
   // Force to use the feature flag OFF version (the working homepage)
   const refacHomepage = false; // process.env.NEXT_PUBLIC_REFAC_HOMEPAGE === 'true';
   if (!refacHomepage) {
@@ -63,19 +65,35 @@ export default function HomePage() {
               <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-6 text-white text-center shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
                 <h3 className="text-xl font-semibold mb-2">Percy</h3>
                 <button
-                  onClick={() => router.push('/services/percy')}
+                  onClick={() => {
+                    setTrack('business');
+                    setCurrentStep('greeting');
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('analytics', { detail: { event: 'homepage_card_click', track: 'business' } }));
+                    }
+                    const el = document.getElementById('onboarding');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
                   className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg"
                 >
-                  Launch Agent
+                  Automate My Business
                 </button>
               </div>
               <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-6 text-white text-center shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
                 <h3 className="text-xl font-semibold mb-2">SkillSmith</h3>
                 <button
-                  onClick={() => router.push('/services/skillsmith')}
+                  onClick={() => {
+                    setTrack('sports');
+                    setCurrentStep('greeting');
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('analytics', { detail: { event: 'homepage_card_click', track: 'sports' } }));
+                    }
+                    const el = document.getElementById('onboarding');
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
                   className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"
                 >
-                  Launch Agent
+                  Level Up My Game
                 </button>
               </div>
             </div>

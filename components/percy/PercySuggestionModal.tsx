@@ -62,7 +62,7 @@ export default function PercySuggestionModal({
         confidence: 95,
         recommendation: `${featureName} is PERFECT for startups like yours! You need to move fast and establish market presence.`,
         bestAgent: 'Marketing Warfare',
-        agentRoute: '/services/marketing',
+        agentRoute: '/agents/marketing',
         urgencyMessage: 'Startups using this feature see 312% faster market penetration!',
         benefits: [
           'Launch faster than competitors',
@@ -75,7 +75,7 @@ export default function PercySuggestionModal({
         confidence: 88,
         recommendation: `Small businesses LOVE ${featureName} - it levels the playing field against enterprise competitors!`,
         bestAgent: 'Business Automation',
-        agentRoute: '/services/biz-agent',
+        agentRoute: '/agents/biz-agent',
         urgencyMessage: 'SMBs report saving 40+ hours/week with this feature!',
         benefits: [
           'Compete with enterprise-level tools',
@@ -88,7 +88,7 @@ export default function PercySuggestionModal({
         confidence: 92,
         recommendation: `Agencies are CRUSHING it with ${featureName} - deliver 10x faster for clients!`,
         bestAgent: 'Content Automation',
-        agentRoute: '/services/content-automation',
+        agentRoute: '/agents/content-automation',
         urgencyMessage: 'Agencies using this feature increase client retention by 89%!',
         benefits: [
           'Deliver projects 10x faster',
