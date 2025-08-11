@@ -1319,6 +1319,8 @@ const handleContinue = React.useCallback(async (nextStep: string, routeTo?: stri
     setCurrentStep,
     inputValue,
     setInputValue,
+    track,
+    setTrack,
     handleUserChoice,
     handleInputSubmit,
     promptBarValue,

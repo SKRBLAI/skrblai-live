@@ -141,7 +141,7 @@ function PercyWidget() {
           const goal = localStorage.getItem('userGoal') || '';
           const platform = localStorage.getItem('userPlatform') || '';
           setUserProfile({ goal, platform });
-          setSuggestedAgents(getBestAgents(goal, platform, agents, track));
+          setSuggestedAgents(getBestAgents(goal, platform, agents));
       }
     }
     checkOnboarding();

@@ -148,11 +148,14 @@ export function getAgentSets<T = any>(agents: T[], groupSize: number): T[][] {
 }
 
 // Percy Smart Agent Matching: Capability-based agent suggestion
-export function getBestAgents(prompt: string, agents?: any[], track?: 'business' | 'sports'): any[] {
-  if (!prompt || typeof prompt !== 'string' || !agents) return [];
-  const lowerPrompt = prompt.toLowerCase();
-  const promptWords = lowerPrompt.split(/\W+/).filter(Boolean);
-  const biasCategories = track === 'sports'
+export function getBestAgents(goal: string, platform: string, agents: Agent[]): Agent[] {
+  // Temporary aliases for backward compatibility
+  const prompt = goal;
+  const track = platform as 'business' | 'sports';
+  if (!goal || typeof goal !== 'string' || !agents) return [];
+  const lowerGoal = goal.toLowerCase();
+  const goalWords = lowerGoal.split(/\W+/).filter(Boolean);
+  const biasCategories = platform === 'sports'
     ? ['training', 'sports', 'nutrition']
     : ['branding', 'publishing', 'automation', 'social'];
   const scored = agents.map(agent => {
@@ -161,7 +164,7 @@ export function getBestAgents(prompt: string, agents?: any[], track?: 'business'
     if (Array.isArray(agent.capabilities)) {
       for (const cap of agent.capabilities) {
         const capLower = cap.toLowerCase();
-        for (const word of promptWords) {
+        for (const word of goalWords) {
           if (capLower.includes(word)) {
             score++;
             matchedCapabilities.push(cap);
@@ -170,7 +173,7 @@ export function getBestAgents(prompt: string, agents?: any[], track?: 'business'
       }
     }
     if (score > 0) {
-      console.debug(`[PercyMatch] Matched agent '${agent.name}' with capabilities: [${matchedCapabilities.join(', ')}] for prompt: '${prompt}'`);
+      console.debug(`[PercyMatch] Matched agent '${agent.name}' with capabilities: [${matchedCapabilities.join(', ')}] for prompt: '${goal}'`);
     }
     // Gentle biasing by category tags
     const agentCats: string[] = Array.isArray(agent.agentCategory) ? agent.agentCategory : (agent.category ? [String(agent.category).toLowerCase()] : []);
