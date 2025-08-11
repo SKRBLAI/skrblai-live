@@ -1,431 +1,87 @@
-/*
-=================================================================================
-SKRBL AI GLOBAL CSS V2 - REBUILT FOR CONSISTENCY
-=================================================================================
-
-- Enforces cosmic background visibility with a clean, universal override.
-- Standardizes UI components like buttons and cards with dedicated classes.
-- Prioritizes component-driven styles over broad, aggressive overrides.
-
-=================================================================================
-*/
+/* ============================================================================
+   SKRBL AI – Global Styles (SSR-safe cosmic background + scoped glass utils)
+   ============================================================================ */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ========== Base / Resets ========== */
 @layer base {
-  html, body, #__next {
-    background: #0D1117 !important; /* Deep space black as fallback */
-    color: #E6F1FF; /* Light nebula blue for text */
+  /* Ensure the page can fill viewport on all browsers (incl. iOS) */
+  html, body, #__next { height: 100%; min-height: 100%; }
+
+  body {
+    /* SINGLE source of truth for background (renders on server) */
+    background-color: #0b1220; /* fallback */
+    background-image:
+      radial-gradient(80% 60% at 50% 0%,
+        rgba(8,27,52,0.98) 0%,
+        rgba(5,12,24,0.98) 60%,
+        rgba(3,8,16,1) 100%
+      ),
+      radial-gradient(24rem 24rem at 20% 20%, rgba(56,189,248,.12) 0%, transparent 60%),
+      radial-gradient(32rem 32rem at 80% 40%, rgba(168,85,247,.10) 0%, transparent 60%),
+      radial-gradient(28rem 28rem at 50% 85%, rgba(45,212,191,.08) 0%, transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    color: #E6F1FF;
+    min-height: 100svh;          /* safe viewport on mobile */
+    overflow-x: hidden;
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body {
-    overflow-x: hidden;
-    min-height: 100vh;
-    background-image: radial-gradient(circle at 30% 70%, rgba(30, 144, 255, 0.15) 0%, transparent 40%),
-                      radial-gradient(circle at 70% 30%, rgba(48, 213, 200, 0.1) 0%, transparent 40%),
-                      linear-gradient(135deg, #0D1117 0%, #161B22 50%, #0D1117 100%) !important;
-  }
+  /* Optional: inherit page bg for a wrapper if you need it */
+  .bg-skrbl-cosmic { background: inherit; }
 }
 
-/* Ensure full-height for correct fixed background sizing */
-html, body {
-  height: 100%;
-}
-
-/* SSR cosmic background (fast, no JS) */
-.bg-skrbl-cosmic {
-  background-color: #050c18 !important; /* fallback */
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.10) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
-  background-attachment: fixed !important;
-  background-size: cover !important;
-  background-repeat: no-repeat !important;
-}
-
+/* ========== Scoped Glass Utilities (use these on cards/sections) ========== */
 @layer components {
-  /* Premium Glass/Pill Button for Navbar */
+  .glass {
+    background: rgba(255,255,255,0.06);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .glass-strong {
+    background: rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(45,212,191,0.32);
+    box-shadow: 0 0 30px rgba(45,212,191,.10);
+  }
+
+  /* Premium glass button (navbar / CTAs) */
   .nav-button-glass {
     @apply relative inline-flex items-center justify-center px-5 py-2.5 overflow-hidden font-medium text-white transition-all duration-300 ease-out rounded-full shadow-lg;
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: rgba(255,255,255,0.08);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255,255,255,0.2);
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
   }
-
   .nav-button-glass:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.4);
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 0 15px rgba(45, 212, 191, 0.3), 0 0 30px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2);
   }
-
   .nav-button-glass.active {
-    background-color: rgba(45, 212, 191, 0.2);
-    border-color: rgba(45, 212, 191, 0.5);
-    box-shadow: 0 0 20px rgba(45, 212, 191, 0.5);
+    background-color: rgba(45,212,191,0.2);
+    border-color: rgba(45,212,191,0.5);
+    box-shadow: 0 0 20px rgba(45,212,191,0.5);
   }
+
+  /* Utility to explicitly clear bg on a stubborn element (opt‑in, not global) */
+  .no-bg { background: transparent !important; }
 }
 
-/* CRITICAL OVERRIDE: ELIMINATE OPAQUE BACKGROUNDS */
-.bg-white,
-.bg-gray-50,
-.bg-gray-100,
-.bg-slate-50,
-.bg-slate-100 {
-  background-color: transparent !important;
-}
-
-/* GLASSMORPHISM OVERRIDES - Must be at end of file to ensure it overrides all other styles */
-/* FIXED: Properly escaped Tailwind opacity classes */
-.bg-white,
-.bg-white\/5,
-.bg-white\/8,
-.bg-white\/10,
-.bg-white\/20,
-.bg-white\/30,
-.bg-white\/40,
-.bg-white\/50,
-.bg-white\/60,
-.bg-white\/70,
-.bg-white\/80,
-.bg-white\/90,
-.bg-white\/100 {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Alternative approach using attribute selectors - catches ALL Tailwind bg classes */
-[class*="bg-white/"] {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Gray/Slate overrides */
-.bg-gray-50, .bg-gray-100, .bg-gray-200, .bg-gray-300, .bg-gray-400, .bg-gray-500, .bg-gray-600, .bg-gray-700, .bg-gray-800, .bg-gray-900,
-.bg-slate-50, .bg-slate-100, .bg-slate-200, .bg-slate-300, .bg-slate-400, .bg-slate-500, .bg-slate-600, .bg-slate-700, .bg-slate-800, .bg-slate-900,
-.bg-neutral-50, .bg-neutral-100, .bg-neutral-200, .bg-neutral-300, .bg-neutral-400, .bg-neutral-500, .bg-neutral-600, .bg-neutral-700, .bg-neutral-800, .bg-neutral-900 {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Target specific page content cards only - avoid navbar/header interference */
-.ClientPageLayout .card, 
-.ClientPageLayout div[class*="card"], 
-.page-content .card,
-.page-content div[class*="card"],
-.features-section div[class*="card"],
-.about-section div[class*="card"] {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Enhanced hover effects for page content elements only */
-.ClientPageLayout .card:hover, 
-.ClientPageLayout div[class*="card"]:hover, 
-.page-content .card:hover,
-.page-content div[class*="card"]:hover,
-.features-section div[class*="card"]:hover,
-.about-section div[class*="card"]:hover {
-  box-shadow: 0 0 25px rgba(45, 212, 191, 0.5), 0 0 50px rgba(56, 189, 248, 0.3) !important;
-  border-color: rgba(45, 212, 191, 0.6) !important;
-  transform: translateY(-2px) !important;
-  transition: all 0.3s ease !important;
-}
-
-/* Page layout specific transparency - ONLY target page content, NOT navigation */
-.ClientPageLayout main,
-.page-content,
-div[class*="page-content"] {
-  background-color: transparent !important;
-}
-
-/* COMPREHENSIVE BACKGROUND OVERRIDES - Target all problematic backgrounds */
-
-/* CRITICAL: UNIVERSAL WHITE BACKGROUND OVERRIDE - HIGHEST PRIORITY */
-/* 
-COMPREHENSIVE NAVBAR PROTECTION:
-- Fixed overly broad selectors that were hiding navbar buttons
-- Added motion.div and framer-motion wrapper exclusions
-- Included all navbar-specific classes and custom elements
-- Protected both desktop and mobile navbar components
-*/
-*:not(nav):not(nav *):not(.navbar):not(.navbar *):not(button):not(button *):not(.dropdown):not(.dropdown *):not([class*="navbar"]):not([class*="navbar"] *):not(motion-div):not(.motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *) {
-  background-color: transparent !important;
-}
-
-/* UNIVERSAL FALLBACK - Override Tailwind's background system but more targeted */
-.ClientPageLayout *:not(nav):not(nav *):not(header):not(header *):not(.navbar):not(.navbar *):not([role="navigation"]):not([role="navigation"] *):not(.nav-item):not(.nav-item *):not(button):not(button *):not(.percy-widget):not(.percy-widget *):not(.floating-percy):not(.floating-percy *):not([class*="navbar"]):not([class*="navbar"] *):not(.motion-div):not(motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *),
-main *:not(nav):not(nav *):not(header):not(header *):not(.navbar):not(.navbar *):not([role="navigation"]):not([role="navigation"] *):not(.nav-item):not(.nav-item *):not(button):not(button *):not(.percy-widget):not(.percy-widget *):not(.floating-percy):not(.floating-percy *):not([class*="navbar"]):not([class*="navbar"] *):not(.motion-div):not(motion-div):not([data-framer-component]):not([data-framer-component] *):not(.logo-cosmic-glow):not(.logo-cosmic-glow *):not(.navbar-element-3d):not(.navbar-element-3d *) {
-  --tw-bg-opacity: 0 !important;
-  background-color: transparent !important;
-}
-
-/* --- NAVBAR RESTORATION --- */
-/* This rule restores the original styles for the entire navbar container and everything inside it, fixing button visibility. */
-.navbar-cosmic,
-.navbar-cosmic * {
-  --tw-bg-opacity: 1 !important;
-  background-color: revert !important;
-  color: revert !important;
-  border: revert !important;
-  box-shadow: revert !important;
-  backdrop-filter: revert !important;
-  -webkit-backdrop-filter: revert !important;
-}
-
-/* TARGET HIGH-IMPACT COMPONENTS - Override specific problematic elements */
-.upgrade-modal,
-.agent-modal,
-.pricing-card,
-.agent-stats-panel,
-.workflow-template-card,
-.percy-onboarding-auth,
-.percy-sms-onboarding,
-.branding-card,
-.dashboard-home,
-.file-upload-card,
-.publishing-assistant-panel,
-.floating-percy,
-.agent-modal,
-.trial-status {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Override any remaining white backgrounds in page content areas */
-main [class*="bg-white"],
-.ClientPageLayout [class*="bg-white"],
-.page-content [class*="bg-white"],
-section [class*="bg-white"] {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* TARGET SLATE AND GRAY GRADIENTS - These appear white due to opacity */
-[class*="bg-gradient-to-b"][class*="slate"],
-[class*="bg-gradient-to-r"][class*="slate"],
-[class*="bg-gradient-to-l"][class*="slate"],
-[class*="bg-gradient-to-t"][class*="slate"],
-[class*="from-slate"],
-[class*="to-slate"],
-[class*="via-slate"] {
-  background: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* TARGET GRAY GRADIENTS */
-[class*="bg-gradient-to-b"][class*="gray"],
-[class*="bg-gradient-to-r"][class*="gray"],
-[class*="bg-gradient-to-l"][class*="gray"],
-[class*="bg-gradient-to-t"][class*="gray"],
-[class*="from-gray"],
-[class*="to-gray"],
-[class*="via-gray"] {
-  background: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-  box-shadow: 0 0 15px rgba(45, 212, 191, 0.3) !important;
-}
-
-/* --- NEW: Deep Navy Background Overrides (ensure cosmic backdrop remains visible) --- */
-.bg-\[\#0d1117\],
-.bg-\[\#0D1117\],
-.bg-\[\#0d1117\]\/5,
-.bg-\[\#0d1117\]\/10,
-.bg-\[\#0d1117\]\/20,
-.bg-\[\#0d1117\]\/30,
-.bg-\[\#0d1117\]\/40,
-.bg-\[\#0d1117\]\/50,
-.bg-\[\#0d1117\]\/60,
-.bg-\[\#0d1117\]\/70,
-.bg-\[\#0d1117\]\/80,
-.bg-\[\#0d1117\]\/90,
-.bg-\[\#0d1117\]\/95,
-.bg-\[\#0d1117\]\/100,
-.bg-\[\#0D1117\]\/5,
-.bg-\[\#0D1117\]\/10,
-.bg-\[\#0D1117\]\/20,
-.bg-\[\#0D1117\]\/30,
-.bg-\[\#0D1117\]\/40,
-.bg-\[\#0D1117\]\/50,
-.bg-\[\#0D1117\]\/60,
-.bg-\[\#0D1117\]\/70,
-.bg-\[\#0D1117\]\/80,
-.bg-\[\#0D1117\]\/90,
-.bg-\[\#0D1117\]\/95,
-.bg-\[\#0D1117\]\/100 {
-  background-color: transparent !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  backdrop-filter: blur(12px) !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-/* ========================================= */
-/* COSMIC GLASSMORPHIC THEME RESTORATION     */
-/* ========================================= */
-
-html, body {
-  background: #0f172a !important; /* Cosmic background base */
-  min-height: 100%;
-  color: #fff;
-}
-
-/* Glassmorphic override for all cards/containers */
-.glassmorphic-card,
-.cosmic-card,
-.floating-container {
-  background: rgba(22, 38, 61, 0.45) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(180%);
-  backdrop-filter: blur(18px) saturate(180%);
-  border: 1.5px solid rgba(45, 212, 191, 0.40) !important;
-  box-shadow: 0 0 30px 0 rgba(45, 212, 191, 0.12), 0 0 60px 0 rgba(45, 212, 191, 0.08) !important;
-}
-
-/* Force root elements transparent - eliminate all grey/white backgrounds */
-html, body {
-  background: transparent !important;
-  background-color: transparent !important;
-}
-
-/* Cosmic starfield body background */
-.cosmic-starfield {
-  background: radial-gradient(ellipse at center, #0d1117 0%, #000000 100%);
-  background-attachment: fixed;
-}
-
-/* Cosmic gradient card background */
-.cosmic-gradient {
-  background: radial-gradient(circle at top left, rgba(0, 164, 255, 0.15), rgba(161, 0, 255, 0.12) 40%, rgba(0, 0, 0, 0.1) 100%);
-}
-
-/* CRITICAL: Force all opaque backgrounds to be transparent glassmorphic */
-/* Prevent bg-white/gray/slate and similar opaque backgrounds */
-/* Also target custom hex dark backgrounds like bg-[#0D1117] */
-[class*="bg-white"],
-[class*="bg-slate"],
-[class*="bg-gray"],
-[class*="bg-neutral"],
-[class*="bg-zinc"],
-[class*="bg-stone"],
-[class*="bg-black"],
-.bg-\[\#0D1117\],
-.bg-\[\#0d1117\],
-.bg-deep-navy {
-  background: transparent !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Force specific gray background classes to glassmorphic */
-.bg-gray-800, .bg-gray-900, .bg-gray-700, .bg-slate-800, .bg-slate-900, .bg-slate-700 {
-  background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-}
-
-/* Override hover states for glassmorphic elements */
-.hover\:bg-white\/10:hover, .hover\:bg-white\/20:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-600:hover {
-  background-color: rgba(45, 212, 191, 0.1) !important;
-  border-color: rgba(45, 212, 191, 0.5) !important;
-}
-
-/* COMPREHENSIVE: Force any remaining opaque backgrounds to glassmorphic */
-/* Target any RGB/RGBA values that create white or gray backgrounds */
-[style*="background-color: rgb(255"],
-[style*="background-color: rgba(255"],
-[style*="background-color: rgb(156"],
-[style*="background-color: rgba(156"],
-[style*="background-color: rgb(107"],
-[style*="background-color: rgba(107"],
-[style*="background-color: rgb(75"],
-[style*="background-color: rgba(75"],
-[style*="background-color: rgb(55"],
-[style*="background-color: rgba(55"],
-[style*="background-color: rgb(31"],
-[style*="background-color: rgba(31"],
-[style*="background-color: rgb(17"],
-[style*="background-color: rgba(17"],
-[style*="background-color: rgb(13"],
-[style*="background-color: rgba(13"],
-[style*="background-color: #fff"],
-[style*="background-color: #f9f9f9"],
-[style*="background-color: #f5f5f5"],
-[style*="background-color: #e5e5e5"],
-[style*="background-color: #d1d5db"],
-[style*="background-color: #9ca3af"],
-[style*="background-color: #6b7280"],
-[style*="background-color: #4b5563"],
-[style*="background-color: #374151"],
-[style*="background-color: #1f2937"],
-[style*="background-color: #111827"],
-[style*="background-color: #0d1117"] {
-  background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 1px solid rgba(45, 212, 191, 0.3) !important;
-}
-
-/* NUCLEAR OPTION: Force any component with white/gray background to be transparent */
-div[class*="bg-white"],
-div[class*="bg-gray"],
-div[class*="bg-slate"],
-section[class*="bg-white"],
-section[class*="bg-gray"],
-section[class*="bg-slate"],
-main[class*="bg-white"],
-main[class*="bg-gray"],
-main[class*="bg-slate"],
-*[class*="bg-white"],
-*[class*="bg-gray"],
-*[class*="bg-slate"] {
-  background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-}
-
-/* Target any div, section, or element with 'white' in class name - but exclude text colors */
-*[class*="bg-white"]:not([class*="text-white"]):not([class*="border-white"]) {
-  background-color: transparent !important;
-}
-
-/* Force dark mode styles to transparent */
-.dark *[class*="bg-gray-900"],
-.dark *[class*="bg-gray-800"],
-.dark *[class*="bg-slate-900"],
-.dark *[class*="bg-slate-800"] {
-  background-color: transparent !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+/* ========== Motion preferences (small polish) ========== */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
