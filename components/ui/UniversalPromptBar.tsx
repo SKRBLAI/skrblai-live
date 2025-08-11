@@ -196,7 +196,6 @@ export default function UniversalPromptBar({
             onBlur={()=>setFocused(false)}
             onChange={e=>setPrompt(e.target.value)}
             disabled={isBusy}
-            aria-disabled={isBusy}
             className={`w-full ${themeCls.input} rounded p-2 h-24 ${isBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
           />
           {isProcessingAnalysis && (

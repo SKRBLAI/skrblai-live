@@ -255,7 +255,7 @@ export default function SportsPage(): JSX.Element {
                 </motion.div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                  {products && products.length > 0 ? products.map((product, index) => (
+                  {products && products.length > 0 ? [...products].sort((a, b) => a.price - b.price).map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ 
@@ -396,20 +396,6 @@ export default function SportsPage(): JSX.Element {
 
                         {/* Enhanced CTAs with cosmic 3D effects */}
                         <div className="space-y-3 mt-auto">
-                          <motion.button
-                            whileHover={{ 
-                              scale: 1.05,
-                              rotateX: 5,
-                              rotateY: 2,
-                              boxShadow: '0 20px 40px rgba(99, 102, 241, 0.5)'
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => openPreviewFlow(product)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-blue-600/30 via-indigo-600/30 to-purple-600/30 border-2 border-blue-400/50 text-blue-200 rounded-xl hover:from-blue-500/40 hover:via-indigo-500/40 hover:to-purple-500/40 hover:border-blue-300/70 hover:text-white transition-all duration-300 backdrop-blur-sm font-semibold text-base"
-                          >
-                            <Eye className="w-5 h-5" />
-                            Preview Demo
-                          </motion.button>
                           
                           {/* ENHANCED: Revenue-optimized buy button with urgency */}
                           <div className="space-y-3">
@@ -549,16 +535,16 @@ export default function SportsPage(): JSX.Element {
               <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Bundle Deal Card */}
                 <motion.div
-                  className="bg-gradient-to-br from-yellow-500/20 via-orange-500/30 to-red-500/20 border-2 border-yellow-400/50 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden"
+                  className="bg-gradient-to-br from-cyan-400/15 via-teal-500/20 to-blue-500/15 border-2 border-cyan-400/40 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden"
                   whileHover={{
                     scale: 1.02,
-                    boxShadow: '0 25px 50px rgba(245, 158, 11, 0.5)'
+                    boxShadow: '0 25px 50px rgba(34, 211, 238, 0.35)'
                   }}
                   animate={{
                     borderColor: [
-                      'rgba(245, 158, 11, 0.5)',
-                      'rgba(249, 115, 22, 0.7)',
-                      'rgba(245, 158, 11, 0.5)'
+                      'rgba(34, 211, 238, 0.5)',
+                      'rgba(20, 184, 166, 0.6)',
+                      'rgba(34, 211, 238, 0.5)'
                     ]
                   }}
                   transition={{
@@ -567,7 +553,7 @@ export default function SportsPage(): JSX.Element {
                 >
                   {/* Animated background effect */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-orange-400/20 to-red-400/10"
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10"
                     animate={{
                       opacity: [0.3, 0.6, 0.3],
                       scale: [1, 1.05, 1]
@@ -583,22 +569,22 @@ export default function SportsPage(): JSX.Element {
                     <motion.h3 
                       className="text-3xl md:text-4xl font-bold mb-4"
                       animate={{
-                        color: ['#fbbf24', '#f97316', '#ef4444', '#fbbf24']
+                        color: ['#22d3ee', '#14b8a6', '#06b6d4', '#22d3ee']
                       }}
                       transition={{ duration: 3, repeat: Infinity }}
                     >
                       🎯 PAY-AS-YOU-GO OPTIONS
                     </motion.h3>
                     
-                    <p className="text-xl text-yellow-100 mb-6">
+                    <p className="text-xl text-cyan-100 mb-6">
                       Get ALL 4 SkillSmith Tools + BONUS Content - One-Time Purchase!
                     </p>
                     
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div className="text-gray-400 line-through text-2xl">$136</div>
-                      <div className="text-5xl font-bold text-yellow-300">$89</div>
+                      <div className="text-5xl font-bold text-cyan-300">$89</div>
                       <motion.div 
-                        className="bg-red-500 text-white px-4 py-2 rounded-full text-lg font-bold"
+                        className="bg-teal-500 text-white px-4 py-2 rounded-full text-lg font-bold"
                         animate={{
                           scale: [1, 1.1, 1],
                           rotate: [-5, 5, -5]
@@ -615,18 +601,18 @@ export default function SportsPage(): JSX.Element {
                     
                     {/* Pay-as-you-go options */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
-                      <div className="bg-white/10 rounded-lg p-3 text-center">
-                        <div className="text-green-400 font-bold text-lg">$5</div>
+                      <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
+                        <div className="text-teal-300 font-bold text-lg">$5</div>
                         <div className="text-gray-300">Single Analysis</div>
                         <div className="text-xs text-gray-400">Perfect for trying out</div>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3 text-center">
-                        <div className="text-blue-400 font-bold text-lg">$25</div>
+                      <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
+                        <div className="text-cyan-300 font-bold text-lg">$25</div>
                         <div className="text-gray-300">10 Analysis Pack</div>
                         <div className="text-xs text-gray-400">50% savings per scan</div>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3 text-center border-2 border-yellow-400/50">
-                        <div className="text-yellow-400 font-bold text-lg">$89</div>
+                      <div className="bg-white/10 rounded-lg p-3 text-center border-2 border-cyan-400/60">
+                        <div className="text-cyan-200 font-bold text-lg">$89</div>
                         <div className="text-gray-300">Unlimited + Tools</div>
                         <div className="text-xs text-gray-400">Best value forever</div>
                       </div>
@@ -642,7 +628,7 @@ export default function SportsPage(): JSX.Element {
                           price: 5,
                           sku: 'skillsmith_single_analysis'
                         } as Product)}
-                        className="bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-3 px-6 rounded-xl hover:from-green-400 hover:to-emerald-400 transition-all duration-300 shadow-lg"
+                        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold py-3 px-6 rounded-xl hover:from-teal-400 hover:to-emerald-400 transition-all duration-300 shadow-lg"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -658,7 +644,7 @@ export default function SportsPage(): JSX.Element {
                           originalPrice: 50,
                           sku: 'skillsmith_10_pack'
                         } as Product)}
-                        className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-3 px-6 rounded-xl hover:from-blue-400 hover:to-cyan-400 transition-all duration-300 shadow-lg"
+                        className="bg-gradient-to-r from-cyan-500 to-sky-500 text-white font-bold py-3 px-6 rounded-xl hover:from-cyan-400 hover:to-sky-400 transition-all duration-300 shadow-lg"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -674,7 +660,7 @@ export default function SportsPage(): JSX.Element {
                           originalPrice: 136,
                           sku: 'skillsmith_mega_bundle_2024'
                         } as Product)}
-                        className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold py-4 px-8 rounded-xl text-lg hover:from-yellow-400 hover:to-orange-400 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
+                        className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold py-4 px-8 rounded-xl text-lg hover:from-cyan-400 hover:to-teal-400 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -694,7 +680,7 @@ export default function SportsPage(): JSX.Element {
                       </motion.button>
                     </div>
                     
-                    <p className="text-yellow-200 text-sm mt-4">
+                    <p className="text-cyan-200 text-sm mt-4">
                       ⏰ Limited time: Next 50 customers only!
                     </p>
                   </div>
