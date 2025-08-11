@@ -31,6 +31,23 @@ SKRBL AI GLOBAL CSS V2 - REBUILT FOR CONSISTENCY
   }
 }
 
+/* Ensure full-height for correct fixed background sizing */
+html, body {
+  height: 100%;
+}
+
+/* SSR cosmic background (fast, no JS) */
+.bg-skrbl-cosmic {
+  background-color: #050c18 !important; /* fallback */
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.10) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.08) 0%, transparent 50%);
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
 @layer components {
   /* Premium Glass/Pill Button for Navbar */
   .nav-button-glass {

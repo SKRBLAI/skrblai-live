@@ -1,3 +1,7 @@
+// This decorative background is intentionally not a Client Component to
+// avoid delaying first paint. Keep this file free of hooks if used.
+// If client-side animation is required, a lightweight variant can be
+// dynamically imported on pages that need it.
 "use client";
 import { motion, Transition, TargetAndTransition } from "framer-motion";
 import React, { useState, useEffect } from 'react';

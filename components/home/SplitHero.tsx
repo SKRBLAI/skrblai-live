@@ -34,7 +34,7 @@ export default function SplitHero() {
   };
 
   return (
-    <div className="relative mx-auto max-w-6xl px-4 md:px-6 pt-16 pb-8 text-white">
+    <div className="relative mx-auto max-w-6xl px-4 md:px-6 pt-16 pb-8 text-white min-h-[100svh]">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -56,7 +56,7 @@ export default function SplitHero() {
         <motion.button
           aria-label="Automate my business with Percy"
           onClick={() => go("business")}
-          className="group relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 text-left overflow-hidden"
+          className="group relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm md:backdrop-blur-xl p-8 shadow-2xl hover:shadow-cyan-500/20 transition-all duration-300 text-left overflow-hidden"
           animate={floatAnimation}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -70,7 +70,7 @@ export default function SplitHero() {
                 src="/images/Percy&Parker-skrblai.webp"
                 alt="Percy with Parker — SKRBL AI business concierge"
                 fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width:768px) 100vw, 50vw"
                 priority
                 className="object-contain drop-shadow-2xl"
               />
@@ -97,7 +97,7 @@ export default function SplitHero() {
         <motion.button
           aria-label="Level up my game with SkillSmith"
           onClick={() => go("sports")}
-          className="group relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 text-left overflow-hidden"
+          className="group relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm md:backdrop-blur-xl p-8 shadow-2xl hover:shadow-purple-500/20 transition-all duration-300 text-left overflow-hidden"
           animate={floatAnimation}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -111,7 +111,7 @@ export default function SplitHero() {
                 src="/images/SkillSmith-Athletics-skrblai.png"
                 alt="SkillSmith — SKRBL AI sports coach"
                 fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width:768px) 100vw, 50vw"
                 priority
                 className="object-contain drop-shadow-2xl"
               />

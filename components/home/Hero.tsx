@@ -27,7 +27,7 @@ const Hero: React.FC = () => {
         </button>
         <button
           onClick={() => router.push('/pricing')}
-          className="px-6 py-3 bg-transparent backdrop-blur-xl border-2 border-teal-400/30 text-white rounded-lg hover:border-teal-400/50 hover:shadow-[0_8px_32px_rgba(0,212,255,0.18)] transition-all"
+          className="px-6 py-3 bg-transparent backdrop-blur-sm md:backdrop-blur-xl border-2 border-teal-400/30 text-white rounded-lg hover:border-teal-400/50 hover:shadow-[0_8px_32px_rgba(0,212,255,0.18)] transition-all"
         >
           See Pricing & ROI
         </button>

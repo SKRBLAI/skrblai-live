@@ -4,18 +4,19 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../components/context/AuthContext';
 import { useRouter, useSearchParams } from 'next/navigation';
-import PercyWrapper from '../components/percy/PercyWrapper';
-import NavBar from '../components/layout/Navbar';
+import dynamic from 'next/dynamic';
 import { useOnboarding } from '../contexts/OnboardingContext';
 import AgentsGrid from '../components/agents/AgentsGrid';
 import EmpowermentBanner from '../components/ui/EmpowermentBanner';
-import CosmicStarfield from '../components/background/CosmicStarfield';
 import { Pseudo3DFeature } from '../components/shared/Pseudo3DCard';
 import toast from 'react-hot-toast';
 import { FEATURE_FLAGS } from '../lib/config/featureFlags';
 import SplitHero from '../components/home/SplitHero';
 import Hero from '../components/home/Hero';
 import Spotlight from '../components/home/Spotlight';
+
+// Defer heavy onboarding widget to client to speed SSR/first paint
+const PercyWrapper = dynamic(() => import('../components/percy/PercyWrapper'), { ssr: false });
 
 export default function HomePage() {
   const router = useRouter();
@@ -50,18 +51,8 @@ export default function HomePage() {
   const useDualActionHomepage = FEATURE_FLAGS.AI_AUTOMATION_HOMEPAGE;
 
   return (
-    <div className="min-h-screen relative text-white overflow-x-hidden">
-      {/* Cosmic Starfield Background */}
-      <CosmicStarfield 
-        starCount={120}
-        parallax={true}
-        speed={0.8}
-        optimized={true}
-        className="fixed inset-0"
-      />
-      
+    <div className="min-h-[100svh] relative text-white overflow-x-hidden">
       <div className="relative z-10 w-full">
-        <NavBar />
         
         {useDualActionHomepage ? (
           <>
@@ -97,7 +88,7 @@ export default function HomePage() {
                   href="/pricing" 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="rounded-2xl px-8 py-4 border border-white/15 bg-white/5 backdrop-blur-xl text-center hover:border-white/25 hover:bg-white/10 transition-all duration-300 font-semibold"
+                  className="rounded-2xl px-8 py-4 border border-white/15 bg-white/5 backdrop-blur-sm md:backdrop-blur-xl text-center hover:border-white/25 hover:bg-white/10 transition-all duration-300 font-semibold"
                 >
                   See Pricing & ROI
                 </motion.a>

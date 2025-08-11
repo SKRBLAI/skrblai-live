@@ -9,8 +9,6 @@ import { BannerProvider } from '../components/context/BannerContext';
 import { AuthProvider } from '../components/context/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
-import CosmicBackground from '../components/ui/CosmicBackground';
-import ParticleGlowBackground from '../components/ui/ParticleGlowBackground';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { useState, useEffect, useCallback } from 'react';
@@ -38,22 +36,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const isHomepage = pathname === '/';
 
   return (
-    <html lang="en" className={`${inter.variable} dark overflow-x-hidden`}>
+    <html lang="en" className={`${inter.variable} dark overflow-x-hidden h-full`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
         <meta name="theme-color" content="#0d1117" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="cosmic-starfield min-h-screen antialiased font-sans overflow-x-hidden page-layout">
+      <body className="bg-skrbl-cosmic text-white min-h-[100svh] antialiased font-sans overflow-x-hidden page-layout">
         <AuthProvider>
           <PercyProvider>
             <BannerProvider>
               <OnboardingProvider>
-                {/* Global cosmic backgrounds for all pages */}
-                <CosmicBackground />
-                <ParticleGlowBackground />
-
                 {/* Global Navigation */}
                 <Navbar />
 

@@ -7,7 +7,7 @@ const Spotlight: React.FC = () => {
   return (
     <div className="relative max-w-5xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Percy Spotlight Card */}
-      <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-4 text-white shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
+      <div className="bg-transparent backdrop-blur-sm md:backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-4 text-white shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
         <h2 className="text-2xl font-semibold">
           Your Cosmic Concierge & Automation Orchestrator
         </h2>
@@ -19,7 +19,7 @@ const Spotlight: React.FC = () => {
         </button>
       </div>
       {/* SkillSmith Spotlight Card */}
-      <div className="bg-transparent backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-4 text-white shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
+      <div className="bg-transparent backdrop-blur-sm md:backdrop-blur-xl border-2 border-teal-400/30 rounded-lg p-4 text-white shadow-[0_8px_32px_rgba(0,212,255,0.18)] hover:shadow-[0_16px_48px_rgba(0,212,255,0.28)] transition-all duration-300">
         <h2 className="text-2xl font-semibold">
           Sports Performance Forger
         </h2>
