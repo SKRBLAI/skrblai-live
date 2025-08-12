@@ -152,8 +152,9 @@ function PercyWidget() {
     // eslint-disable-next-line
   }, [pathname, setPercyIntent]);
 
-  // Hide widget on homepage when main onboarding is active
-  const shouldHideWidget = pathname === '/' && isOnboardingActive;
+  // Hide widget on homepage when main onboarding is active, and on specific routes where inline chat is used
+  const hideWidgetRoutes = ['/pricing', '/contact', '/features', '/about'];
+  const shouldHideWidget = (pathname === '/' && isOnboardingActive) || hideWidgetRoutes.some((r) => pathname?.startsWith(r));
 
   if (!routerResult) {
     if (process.env.NODE_ENV === 'development') {

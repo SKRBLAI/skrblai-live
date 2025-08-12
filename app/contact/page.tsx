@@ -12,6 +12,8 @@ import CosmicHeading from '../../components/shared/CosmicHeading';
 import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, DollarSign, Target, Phone, Mail, Calendar } from 'lucide-react';
 import SkrblAiText from '../../components/shared/SkrblAiText';
+import PercyInlineChat from '@/components/percy/PercyInlineChat';
+import CardShell from '../../components/ui/CardShell';
 
 // Live contact metrics simulation
 const useLiveContactMetrics = () => {
@@ -379,8 +381,16 @@ export default function ContactPage() {
                   </motion.div>
                 </motion.div>
               </CosmicCardGlow>
-            </div>
-          </section>
+
+               {/* Inline Percy Chat */}
+               <PercyInlineChat
+                 className="mt-6 max-w-2xl mx-auto"
+                 onSubmit={async ({ prompt, files }) => {
+                   console.log('PercyInlineChat submit (contact):', { prompt, filesCount: files.length });
+                 }}
+               />
+             </div>
+           </section>
 
           {/* Quick Contact Methods - Like About Page Metrics */}
           <motion.div
@@ -460,7 +470,7 @@ export default function ContactPage() {
                       selectedOption === option.action ? 'ring-4 ring-cyan-400/50' : ''
                     }`}
                   >
-                    <CosmicCardGlass className="h-full p-6 relative overflow-hidden">
+                    <CardShell className="h-full p-6 relative overflow-hidden">
                   {/* Live Activity Badge */}
                   <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -516,7 +526,7 @@ export default function ContactPage() {
 
                   {/* Hover Glow Effect */}
                   <div className={`absolute inset-0 bg-gradient-to-r ${option.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none`}></div>
-                </CosmicCardGlass>
+                </CardShell>
                   </motion.div>
                 ))}
               </motion.div>

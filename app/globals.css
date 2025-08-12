@@ -79,6 +79,15 @@
 
   /* Utility to explicitly clear bg on a stubborn element (opt‑in, not global) */
   .no-bg { background: transparent !important; }
+
+  /* Reusable solid gradient button like the site’s CTAs */
+  .btn-solid-grad {
+    @apply inline-flex items-center rounded-xl px-5 py-2.5 font-semibold tracking-tight
+           bg-gradient-to-r from-fuchsia-500 to-cyan-400 text-white
+           shadow-[0_8px_30px_rgba(59,130,246,.25)]
+           transition-transform duration-150;
+  }
+  .btn-solid-grad:hover { transform: translateY(-1px); }
 }
 
 /* ========== Motion preferences (small polish) ========== */
