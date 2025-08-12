@@ -1,49 +1,87 @@
+/* ============================================================================
+   SKRBL AI – Global Styles (SSR-safe cosmic background + scoped glass utils)
+   ============================================================================ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Cosmic SSR background and minimal, scoped glass utilities */
+/* ========== Base / Resets ========== */
 @layer base {
-  html, body {
-    height: 100%;
-    background: #0b1220;
-    color: #e6f1ff;
+  /* Ensure the page can fill viewport on all browsers (incl. iOS) */
+  html, body, #__next { height: 100%; min-height: 100%; }
+
+  body {
+    /* SINGLE source of truth for background (renders on server) */
+    background-color: #0b1220; /* fallback */
+    background-image:
+      radial-gradient(80% 60% at 50% 0%,
+        rgba(8,27,52,0.98) 0%,
+        rgba(5,12,24,0.98) 60%,
+        rgba(3,8,16,1) 100%
+      ),
+      radial-gradient(24rem 24rem at 20% 20%, rgba(56,189,248,.12) 0%, transparent 60%),
+      radial-gradient(32rem 32rem at 80% 40%, rgba(168,85,247,.10) 0%, transparent 60%),
+      radial-gradient(28rem 28rem at 50% 85%, rgba(45,212,191,.08) 0%, transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    color: #E6F1FF;
+    min-height: 100svh;          /* safe viewport on mobile */
+    overflow-x: hidden;
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  body {
-    min-height: 100vh;
-    overflow-x: hidden;
-    background-image:
-      radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.10) 0%, transparent 40%),
-      radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.06) 0%, transparent 50%);
-    background-attachment: fixed;
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
+  /* Optional: inherit page bg for a wrapper if you need it */
+  .bg-skrbl-cosmic { background: inherit; }
 }
 
-/* SSR-friendly utility to apply the cosmic background to containers when needed */
-.bg-skrbl-cosmic {
-  background-color: #0b1220;
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.10) 0%, transparent 40%),
-    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(45, 212, 191, 0.06) 0%, transparent 50%);
-  background-attachment: fixed;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-
+/* ========== Scoped Glass Utilities (use these on cards/sections) ========== */
 @layer components {
-  /* Scoped glass utility for cards/containers only */
-  .glass-card {
-    background-color: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 0 24px rgba(56, 189, 248, 0.12);
+  .glass {
+    background: rgba(255,255,255,0.06);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.12);
   }
+
+  .glass-strong {
+    background: rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(45,212,191,0.32);
+    box-shadow: 0 0 30px rgba(45,212,191,.10);
+  }
+
+  /* Premium glass button (navbar / CTAs) */
+  .nav-button-glass {
+    @apply relative inline-flex items-center justify-center px-5 py-2.5 overflow-hidden font-medium text-white transition-all duration-300 ease-out rounded-full shadow-lg;
+    background-color: rgba(255,255,255,0.08);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+  .nav-button-glass:hover {
+    background-color: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 15px rgba(45,212,191,0.3), 0 0 30px rgba(56,189,248,0.2);
+  }
+  .nav-button-glass.active {
+    background-color: rgba(45,212,191,0.2);
+    border-color: rgba(45,212,191,0.5);
+    box-shadow: 0 0 20px rgba(45,212,191,0.5);
+  }
+
+  /* Utility to explicitly clear bg on a stubborn element (opt‑in, not global) */
+  .no-bg { background: transparent !important; }
+}
+
+/* ========== Motion preferences (small polish) ========== */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
