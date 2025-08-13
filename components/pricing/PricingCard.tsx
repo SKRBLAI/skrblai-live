@@ -13,6 +13,7 @@ import {
 } from '../../lib/config/pricing';
 import CosmicButton from '../shared/CosmicButton';
 import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
+import CardShell from '../ui/CardShell';
 
 interface PricingCardProps {
   plan: PricingPlan;
@@ -95,7 +96,7 @@ export default function PricingCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: animationDelay }}
-      className={`relative ${className}`}
+      className={`relative group ${className}`}
     >
       {/* Popular/Best Value Badge */}
       {(plan.isPopular || (plan.isBestValue && billingPeriod === 'annual')) && (
@@ -125,12 +126,12 @@ export default function PricingCard({
       }`} />
       
       {/* Main Cosmic Card */}
-      <div className={`relative group bg-[rgba(21,23,30,0.9)] backdrop-blur-2xl rounded-3xl p-8 h-full flex flex-col transition-all duration-500 ${
+      <CardShell className={`p-8 h-full flex flex-col transition-all duration-500 ${
         plan.isPopular 
-          ? 'border-2 border-yellow-400/60 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
+          ? 'ring-1 ring-yellow-400/20 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
           : plan.isEnterprise 
-          ? 'border-2 border-purple-400/50 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
-          : 'border-2 border-teal-400/40 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
+          ? 'ring-1 ring-purple-400/20 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
+          : 'ring-1 ring-teal-400/20 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
       }`}>
         {/* Agent Count Indicator */}
         <div className="absolute top-2 right-2">
@@ -263,7 +264,7 @@ export default function PricingCard({
           <div>Tasks: {plan.taskLimit}</div>
           <div>Support: {plan.support}</div>
         </div>
-      </div>
+      </CardShell>
     </motion.div>
   );
 }

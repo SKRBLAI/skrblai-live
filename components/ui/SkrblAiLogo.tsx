@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface SkrblAiLogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -14,12 +15,21 @@ const SkrblAiLogo: React.FC<SkrblAiLogoProps> = ({
   showTagline = false,
   className = ''
 }) => {
+  const [imageFailed, setImageFailed] = useState(false);
+
   const sizeClasses = {
     sm: 'text-lg',
     md: 'text-2xl',
     lg: 'text-4xl',
     xl: 'text-6xl'
-  };
+  } as const;
+
+  const imageHeights = {
+    sm: 24,
+    md: 32,
+    lg: 44,
+    xl: 56,
+  } as const;
 
   const baseLogoClasses = `
     font-extrabold 
@@ -88,13 +98,26 @@ const SkrblAiLogo: React.FC<SkrblAiLogoProps> = ({
       transition={{ duration: 0.5 }}
       className={`flex flex-col items-center ${className}`}
     >
-      <motion.h1
-        className={`${baseLogoClasses} ${getVariantClasses()}`}
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      >
-        SKRBL AI
-      </motion.h1>
+      {/* Prefer image wordmark if present; fallback to text logo */}
+      {!imageFailed ? (
+        <Image
+          src="/images/skrblai-wordmark.png"
+          alt="SKRBL AI"
+          width={320}
+          height={imageHeights[size]}
+          priority
+          onError={() => setImageFailed(true)}
+          className="h-auto w-auto max-h-14 object-contain"
+        />
+      ) : (
+        <motion.h1
+          className={`${baseLogoClasses} ${getVariantClasses()}`}
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+        >
+          SKRBL AI
+        </motion.h1>
+      )}
       
       {showTagline && (
         <motion.p

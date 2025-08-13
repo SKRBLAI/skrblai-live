@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { TrendingUp, Clock, Users, Target, Zap, DollarSign, BarChart3, Rocket, BookOpen, Palette, FilePenLine, Megaphone, Crown } from 'lucide-react';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import PercySuggestionModal from '../../components/percy/PercySuggestionModal';
+import PercyInlineChat from '@/components/percy/PercyInlineChat';
 
 // Business-Focused Features with metrics like Services page
 const businessFeatures = [
@@ -222,6 +223,14 @@ export default function FeaturesContent(): JSX.Element {
                 <div className="text-cyan-400 text-sm">🧠 Analyzing your perfect feature match...</div>
               </div>
             </div>
+
+            {/* Inline Percy Chat */}
+            <PercyInlineChat
+              className="mt-6 max-w-2xl mx-auto"
+              onSubmit={async ({ prompt, files }) => {
+                console.log('PercyInlineChat submit (features):', { prompt, filesCount: files.length });
+              }}
+            />
           </motion.div>
 
           {/* Features Arsenal Grid - Matching Services */}

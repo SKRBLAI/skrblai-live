@@ -26,6 +26,7 @@ import {
   METRICS_UPDATE_INTERVAL,
   TIMER_UPDATE_INTERVAL
 } from '../../lib/config/pricing';
+import PercyInlineChat from '@/components/percy/PercyInlineChat';
 
 // Pricing page now uses centralized config
 // Types and data imported from lib/config/pricing.ts
@@ -315,6 +316,15 @@ const socialProofMetrics = [
               <span className="text-cyan-400 font-bold text-xl">"Every plan includes me as your personal guide."</span> I'll connect you to the perfect agents, orchestrate your workflows, and ensure your competition becomes a distant memory.
             </motion.p>
           </motion.div>
+
+          {/* Inline Percy Chat */}
+          <PercyInlineChat
+            className="mt-6 max-w-2xl mx-auto"
+            onSubmit={async ({ prompt, files }) => {
+              // TODO: Wire to telemetry or /api endpoints if desired
+              console.log('PercyInlineChat submit (pricing):', { prompt, filesCount: files.length });
+            }}
+          />
 
           {/* Pricing Section with Integrated Toggle */}
           <motion.div

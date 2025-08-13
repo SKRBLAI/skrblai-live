@@ -13,6 +13,7 @@ import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import CosmicButton from '../../components/shared/CosmicButton';
 import PercySuggestionModal from '../../components/percy/PercySuggestionModal';
+import PercyInlineChat from '@/components/percy/PercyInlineChat';
 import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import { useLiveMetrics } from '../../hooks/useLiveMetrics';
@@ -176,6 +177,14 @@ export default function AboutPage(): JSX.Element {
                 </motion.div>
               </motion.div>
             </CosmicCardGlow>
+
+            {/* Inline Percy Chat */}
+            <PercyInlineChat
+              className="mt-6 max-w-2xl mx-auto"
+              onSubmit={async ({ prompt, files }) => {
+                console.log('PercyInlineChat submit (about):', { prompt, filesCount: files.length });
+              }}
+            />
           </div>
         </section>
 
