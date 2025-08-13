@@ -30,7 +30,7 @@ export interface QuickWin {
 }
 
 const STORAGE_KEY = 'skillsmith_guest_session';
-const FREE_SCANS_LIMIT = 5;
+const FREE_SCANS_LIMIT = 2;
 const FREE_QUICKWINS_LIMIT = 2;
 const TRIAL_DURATION_DAYS = 7;
 
@@ -160,7 +160,7 @@ export class SkillSmithGuestTracker {
   }
 
   shouldShowUpgradeOffer(): boolean {
-    return this.session.returnVisits >= 2 && !this.session.upgradeOffered;
+    return this.session.scansUsed >= FREE_SCANS_LIMIT && !this.session.upgradeOffered;
   }
 
   isTrialExpired(): boolean {

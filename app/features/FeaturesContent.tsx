@@ -226,6 +226,7 @@ export default function FeaturesContent(): JSX.Element {
 
             {/* Inline Percy Chat */}
             <PercyInlineChat
+              showAvatar={false}
               className="mt-6 max-w-2xl mx-auto"
               onSubmit={async ({ prompt, files }) => {
                 console.log('PercyInlineChat submit (features):', { prompt, filesCount: files.length });

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { JSX } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   TrendingUp, Rocket, DollarSign, Users, Clock, Target, 
   Zap, Award, Lightbulb, Shield, ArrowRight 
@@ -161,10 +162,30 @@ export default function AboutPage(): JSX.Element {
                 </motion.p>
 
                 <motion.div
-                  className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
+                  className="flex items-center justify-center gap-4 mb-8"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.4 }}
+                >
+                  <Image
+                    src="/images/agents-percy-nobg-skrblai.webp"
+                    alt="Percy the AI Concierge"
+                    width={80}
+                    height={80}
+                    className="rounded-full shadow-cosmic bg-white/10 border-2 border-cyan-400/30"
+                    priority
+                  />
+                  <div className="text-left">
+                    <div className="text-white font-bold">Chat with Percy</div>
+                    <div className="text-cyan-400 text-sm">🧠 Your Cosmic Concierge & Automation Orchestrator</div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
+                  transition={{ delay: 0.5 }}
                 >
                   <CosmicButton href="/agents" variant="primary" size="lg">
                     <Rocket className="w-5 h-5 mr-2" />
@@ -180,6 +201,7 @@ export default function AboutPage(): JSX.Element {
 
             {/* Inline Percy Chat */}
             <PercyInlineChat
+              showAvatar={false}
               className="mt-6 max-w-2xl mx-auto"
               onSubmit={async ({ prompt, files }) => {
                 console.log('PercyInlineChat submit (about):', { prompt, filesCount: files.length });

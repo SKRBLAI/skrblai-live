@@ -264,7 +264,7 @@ export default function SkillSmithStandaloneHero({
                         className="font-extrabold"
                       />
                     </div>
-                    
+
                     {isStandalone && (
                       <motion.div 
                         initial={{ scale: 0.9, opacity: 0 }}
@@ -367,6 +367,8 @@ export default function SkillSmithStandaloneHero({
                     )}
                   </motion.div>
 
+                  {/* removed caption under primary CTA per scope */}
+
                   {/* Trust Indicators */}
                   {isStandalone && (
                     <motion.div
@@ -379,7 +381,7 @@ export default function SkillSmithStandaloneHero({
                         ✅ No signup required • ✅ Works for ANY sport • ✅ Kid-friendly results
                       </div>
                       <div className="text-xs text-gray-400">
-                        🏀 Basketball • ⚽ Soccer • 🏈 Football • 🎾 Tennis • 🏐 Volleyball • 🏓 More!
+                        🏀 Basketball • Baseball ⚽ Soccer • 🏈 Football • 🎾 Tennis • 🏐 Volleyball • 🏆 More!
                       </div>
                     </motion.div>
                   )}

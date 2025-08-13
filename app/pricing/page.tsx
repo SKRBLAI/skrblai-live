@@ -319,6 +319,7 @@ const socialProofMetrics = [
 
           {/* Inline Percy Chat */}
           <PercyInlineChat
+            showAvatar={false}
             className="mt-6 max-w-2xl mx-auto"
             onSubmit={async ({ prompt, files }) => {
               // TODO: Wire to telemetry or /api endpoints if desired

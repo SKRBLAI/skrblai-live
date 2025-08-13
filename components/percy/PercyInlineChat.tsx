@@ -7,6 +7,7 @@ type PercyInlineChatProps = {
   subtitle?: string;        // defaults to "Upload files, ask questions, or get AI assistance."
   onSubmit?: (payload: { prompt: string; files: File[] }) => Promise<void> | void;
   className?: string;
+  showAvatar?: boolean;     // defaults to false to prevent duplicates
 };
 
 export default function PercyInlineChat({
@@ -14,6 +15,7 @@ export default function PercyInlineChat({
   subtitle = "Upload files, ask questions, or get AI assistance.",
   onSubmit,
   className = "",
+  showAvatar = false,
 }: PercyInlineChatProps) {
   const [prompt, setPrompt] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -39,21 +41,23 @@ export default function PercyInlineChat({
 
   return (
     <div className={`w-full max-w-3xl mx-auto ${className}`}>
-      {/* Header block with Percy avatar */}
-      <div className="flex items-center gap-4 mb-4">
-        <Image
-          src="/images/agents-percy-nobg-skrblai.webp"
-          alt="Percy"
-          width={56}
-          height={56}
-          className="rounded-full ring-2 ring-cyan-400/40 shadow-[0_0_25px_rgba(34,211,238,.25)]"
-          priority
-        />
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
-          <p className="text-sm text-white/70">{subtitle}</p>
+      {/* Header block with Percy avatar - intentionally not shown by default to prevent duplicates */}
+      {showAvatar && (
+        <div className="flex items-center gap-4 mb-4">
+          <Image
+            src="/images/agents-percy-nobg-skrblai.webp"
+            alt="Percy"
+            width={56}
+            height={56}
+            className="rounded-full ring-2 ring-cyan-400/40 shadow-[0_0_25px_rgba(34,211,238,.25)]"
+            priority
+          />
+          <div>
+            <h3 className="text-lg font-semibold tracking-tight">{title}</h3>
+            <p className="text-sm text-white/70">{subtitle}</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Glass panel */}
       <form

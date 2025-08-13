@@ -384,6 +384,7 @@ export default function ContactPage() {
 
                {/* Inline Percy Chat */}
                <PercyInlineChat
+                 showAvatar={false}
                  className="mt-6 max-w-2xl mx-auto"
                  onSubmit={async ({ prompt, files }) => {
                    console.log('PercyInlineChat submit (contact):', { prompt, filesCount: files.length });
