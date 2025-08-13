@@ -48,7 +48,6 @@
 
 /* Glassmorphic Card Utility */
 .glass-card {
-  background-color: transparent !important;
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border-radius: 1rem !important;

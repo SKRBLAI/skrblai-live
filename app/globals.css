@@ -8,11 +8,11 @@
 
 /* ========== Base / Resets ========== */
 @layer base {
-  /* Ensure the page can fill viewport on all browsers (incl. iOS) */
-  html, body, #__next { height: 100%; min-height: 100%; }
-
-  body {
-    /* SINGLE source of truth for background (renders on server) */
+  html, body {
+    height: 100%;
+    min-height: 100vh; /* Fallback for browsers that don't support svh */
+    min-height: 100svh; /* Safe viewport height for mobile */
+    overflow-x: hidden;
     background-color: #0b1220; /* fallback */
     background-image:
       radial-gradient(80% 60% at 50% 0%,
@@ -26,17 +26,10 @@
     background-attachment: fixed;
     background-repeat: no-repeat;
     background-size: cover;
-
     color: #E6F1FF;
-    min-height: 100svh;          /* safe viewport on mobile */
-    overflow-x: hidden;
-
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  /* Optional: inherit page bg for a wrapper if you need it */
-  .bg-skrbl-cosmic { background: inherit; }
 }
 
 /* ========== Scoped Glass Utilities (use these on cards/sections) ========== */

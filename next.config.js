@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
 
 const nextConfig = {
   reactStrictMode: true,
-
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Exclude archived-app pages
   images: {
     domains: [
       'lh3.googleusercontent.com',
