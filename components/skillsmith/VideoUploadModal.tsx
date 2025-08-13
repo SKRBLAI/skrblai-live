@@ -11,6 +11,8 @@ interface VideoUploadModalProps {
   onClose: () => void;
   userType: 'guest' | 'auth' | 'platform';
   onAnalysisComplete?: (result: AnalysisResult) => void;
+  // Optional: notify parent when free scans are exhausted after an analysis
+  onFreeLimitReached?: () => void;
 }
 
 interface AnalysisResult {
@@ -34,7 +36,8 @@ export default function VideoUploadModal({
   isOpen, 
   onClose, 
   userType,
-  onAnalysisComplete 
+  onAnalysisComplete,
+  onFreeLimitReached
 }: VideoUploadModalProps) {
   const [dragActive, setDragActive] = useState(false); // TODO: REVIEW UNUSED
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -197,6 +200,10 @@ export default function VideoUploadModal({
       
       setAnalyzing(false);
       onAnalysisComplete?.(result);
+      // If this analysis consumed the last free scan, notify parent to upsell
+      if (typeof scansRemaining === 'number' && scansRemaining - 1 <= 0) {
+        onFreeLimitReached?.();
+      }
       
     } catch (err) {
       setError('Analysis failed. Please try again.');
@@ -270,6 +277,15 @@ export default function VideoUploadModal({
 
           {/* Content */}
           <div className="p-6">
+          {/* Hidden trigger to programmatically open file chooser */}
+          <button
+            id="skillsmith-upload-trigger"
+            type="button"
+            className="hidden"
+            onClick={() => fileInputRef.current?.click()}
+            aria-hidden="true"
+            tabIndex={-1}
+          />
           {!selectedFile ? (
             /* Upload Area */
             <div

@@ -48,6 +48,7 @@ export default function SportsPage(): JSX.Element {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [emailCaptureModalOpen, setEmailCaptureModalOpen] = useState(false);
   const [resultsModalOpen, setResultsModalOpen] = useState(false);
+  const [showUpsell, setShowUpsell] = useState(false);
   // [CLEANUP] Remove UpgradeModal state and effect
   // const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [previewFlowOpen, setPreviewFlowOpen] = useState(false);
@@ -114,6 +115,11 @@ export default function SportsPage(): JSX.Element {
       setEmailCaptureModalOpen(true);
     } else {
       setUploadModalOpen(true);
+      // Also click hidden trigger once modal is open on next tick
+      setTimeout(() => {
+        const btn = document.getElementById('skillsmith-upload-trigger') as HTMLButtonElement | null;
+        btn?.click();
+      }, 0);
     }
   };
 
@@ -132,6 +138,12 @@ export default function SportsPage(): JSX.Element {
       // Authenticated users see results immediately
       setResultsModalOpen(true);
     }
+  };
+
+  // Called by upload modal when user hits free limit (2 scans)
+  const handleFreeLimitReached = () => {
+    // Trigger upsell offer
+    setShowUpsell(true);
   };
 
   const handleEmailCaptured = (email: string) => {
@@ -191,6 +203,7 @@ export default function SportsPage(): JSX.Element {
           productSku: product.sku,
           price: product.price,
           title: product.title,
+          metadata: { category: 'sports', source: 'free_upsell' },
           successUrl: `${window.location.origin}/sports?success=true`,
           cancelUrl: `${window.location.origin}/sports`,
         }),
@@ -566,15 +579,15 @@ export default function SportsPage(): JSX.Element {
                   />
                   
                   <div className="relative z-10 text-center">
-                    <motion.h3 
-                      className="text-3xl md:text-4xl font-bold mb-4"
-                      animate={{
-                        color: ['#22d3ee', '#14b8a6', '#06b6d4', '#22d3ee']
-                      }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                    >
-                      🎯 PAY-AS-YOU-GO OPTIONS
-                    </motion.h3>
+                  <motion.h3 
+                    className="text-3xl md:text-4xl font-bold mb-4"
+                    animate={{
+                      color: ['#22d3ee', '#14b8a6', '#06b6d4', '#22d3ee']
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    🎯 Bundles
+                  </motion.h3>
                     
                     <p className="text-xl text-cyan-100 mb-6">
                       Get ALL 4 SkillSmith Tools + BONUS Content - One-Time Purchase!
@@ -599,85 +612,39 @@ export default function SportsPage(): JSX.Element {
                       </motion.div>
                     </div>
                     
-                    {/* Pay-as-you-go options */}
+                    {/* Bundles (text only) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
                       <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
-                        <div className="text-teal-300 font-bold text-lg">$5</div>
-                        <div className="text-gray-300">Single Analysis</div>
-                        <div className="text-xs text-gray-400">Perfect for trying out</div>
+                        <div className="text-teal-300 font-bold text-lg">Rookie — $5</div>
+                        <div className="text-gray-300">3 scans + 1 Quick Win</div>
+                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
                       </div>
                       <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
-                        <div className="text-cyan-300 font-bold text-lg">$25</div>
-                        <div className="text-gray-300">10 Analysis Pack</div>
-                        <div className="text-xs text-gray-400">50% savings per scan</div>
+                        <div className="text-cyan-300 font-bold text-lg">Pro — $25</div>
+                        <div className="text-gray-300">10 scans + 2 Quick Wins</div>
+                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3 text-center border-2 border-cyan-400/60">
-                        <div className="text-cyan-200 font-bold text-lg">$89</div>
-                        <div className="text-gray-300">Unlimited + Tools</div>
-                        <div className="text-xs text-gray-400">Best value forever</div>
+                      <div className="bg-white/10 rounded-lg p-3 text-center border-2 border-cyan-400/60 relative">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
+                        <div className="text-cyan-200 font-bold text-lg">All‑Star — $67</div>
+                        <div className="text-gray-300">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
+                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
                       </div>
                     </div>
                     
-                    {/* Multiple purchase options */}
+                    {/* Yearly plan */}
                     <div className="flex flex-wrap justify-center gap-4">
-                      {/* Single Analysis */}
-                      <motion.button
-                        onClick={() => handleBuyNow({
-                          id: 'single-analysis',
-                          title: 'Single Sports Analysis',
-                          price: 5,
-                          sku: 'skillsmith_single_analysis'
-                        } as Product)}
-                        className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold py-3 px-6 rounded-xl hover:from-teal-400 hover:to-emerald-400 transition-all duration-300 shadow-lg"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        💚 Try for $5
-                      </motion.button>
-                      
-                      {/* 10-Pack */}
-                      <motion.button
-                        onClick={() => handleBuyNow({
-                          id: 'analysis-10-pack',
-                          title: '10 Sports Analysis Pack',
-                          price: 25,
-                          originalPrice: 50,
-                          sku: 'skillsmith_10_pack'
-                        } as Product)}
-                        className="bg-gradient-to-r from-cyan-500 to-sky-500 text-white font-bold py-3 px-6 rounded-xl hover:from-cyan-400 hover:to-sky-400 transition-all duration-300 shadow-lg"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        💎 10-Pack $25
-                      </motion.button>
-                      
-                      {/* Mega Bundle */}
-                      <motion.button
-                        onClick={() => handleBuyNow({
-                          id: 'mega-bundle',
-                          title: 'SkillSmith Mega Bundle',
-                          price: 89,
-                          originalPrice: 136,
-                          sku: 'skillsmith_mega_bundle_2024'
-                        } as Product)}
-                        className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-bold py-4 px-8 rounded-xl text-lg hover:from-cyan-400 hover:to-teal-400 transition-all duration-300 shadow-xl hover:shadow-2xl relative overflow-hidden"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <motion.div
-                          className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
-                          animate={{
-                            x: [-100, 300],
-                            opacity: [0, 1, 0]
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            repeatDelay: 3
-                          }}
-                        />
-                        <span className="relative z-10">🚀 UNLIMITED ACCESS $89</span>
-                      </motion.button>
+                      <div className="bg-white/10 rounded-xl p-5 text-center border border-cyan-400/30 max-w-xl">
+                        <div className="text-2xl font-bold text-cyan-300 mb-1">$149/year</div>
+                        <ul className="text-gray-300 text-sm space-y-1 mb-3">
+                          <li>30 scans every 30 days</li>
+                          <li>Custom 4‑week training plan</li>
+                          <li>2‑week mental health calendar</li>
+                          <li>Intro nutrition guide</li>
+                          <li>Specialty products ($19/$29/$39/$49)</li>
+                        </ul>
+                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
+                      </div>
                     </div>
                     
                     <p className="text-cyan-200 text-sm mt-4">
@@ -961,6 +928,7 @@ export default function SportsPage(): JSX.Element {
           onClose={() => setUploadModalOpen(false)}
           userType={userType}
           onAnalysisComplete={handleAnalysisComplete}
+          onFreeLimitReached={handleFreeLimitReached}
         />
 
         <EmailCaptureModal
@@ -986,6 +954,39 @@ export default function SportsPage(): JSX.Element {
             console.log('Download quick win:', quickWin);
           }}
         />
+
+        {/* Simple Upsell Modal after 2 free scans */}
+        {showUpsell && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/70" onClick={() => setShowUpsell(false)} />
+            <div className="relative max-w-2xl w-full mx-4 p-6 rounded-2xl bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 border border-cyan-400/30">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-white">Unlock More Scans</h3>
+                <button onClick={() => setShowUpsell(false)} className="text-gray-400 hover:text-white">✕</button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                {[
+                  { id: 'rookie', title: 'Rookie — $5', price: 5, sku: 'skillsmith_rookie_3scans_1qw' },
+                  { id: 'pro', title: 'Pro — $25', price: 25, sku: 'skillsmith_pro_10scans_2qw' },
+                  { id: 'allstar', title: 'All‑Star — $67', price: 67, sku: 'skillsmith_allstar_15scans_bundle' },
+                  { id: 'yearly', title: 'Yearly — $149', price: 149, sku: 'skillsmith_yearly_149' }
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: opt.price, sku: opt.sku } as Product)}
+                    className="bg-white/10 hover:bg-white/15 border border-cyan-400/30 rounded-xl p-4 text-left text-gray-200"
+                  >
+                    <div className="font-bold text-white">{opt.title}</div>
+                    <div className="text-xs text-gray-400 mt-1">metadata included</div>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 text-right">
+                <button onClick={() => setShowUpsell(false)} className="text-gray-300 hover:text-white">Maybe Later</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* [CLEANUP] Remove UpgradeModal JSX */}
         {/* <UpgradeModal

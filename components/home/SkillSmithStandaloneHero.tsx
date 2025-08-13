@@ -381,7 +381,7 @@ export default function SkillSmithStandaloneHero({
                         ✅ No signup required • ✅ Works for ANY sport • ✅ Kid-friendly results
                       </div>
                       <div className="text-xs text-gray-400">
-                        🏀 Basketball • Baseball ⚽ Soccer • 🏈 Football • 🎾 Tennis • 🏐 Volleyball • 🏆 More!
+                        Basketball • Baseball • Soccer • Football • Tennis • Volleyball • More.
                       </div>
                     </motion.div>
                   )}
