@@ -49,7 +49,7 @@ export default function VideoUploadModal({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const { canUseScan, useScan: triggerScan, scansRemaining } = useSkillSmithGuest();
+  const { canUseScan, useScan: triggerScan, scansRemaining, session } = useSkillSmithGuest();
 
   const MAX_DURATION = 30; // 30 seconds
   const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
@@ -193,10 +193,36 @@ export default function VideoUploadModal({
         return;
       }
 
+      const videoUrl = URL.createObjectURL(selectedFile);
+
+      // Send start event to n8n
+      await sendToN8n('free_scan_started', {
+        email: session.emailCaptured ? session.email : null,
+        videoUrl,
+        sport: 'general', // Would be selected by user in real implementation
+        sessionId: session.sessionId,
+        usedFreeScans: session.scansUsed,
+        source: 'sports_page'
+      });
+
       setUploading(false);
       setAnalyzing(true);
 
       const result = await simulateAnalysis(selectedFile);
+      
+      // Send completion event to n8n
+      await sendToN8n('free_scan_completed', {
+        email: session.emailCaptured ? session.email : null,
+        videoUrl,
+        sport: result.sport,
+        sessionId: session.sessionId,
+        usedFreeScans: session.scansUsed,
+        source: 'sports_page',
+        analysisResult: {
+          score: result.score,
+          feedback: result.feedback
+        }
+      });
       
       setAnalyzing(false);
       onAnalysisComplete?.(result);
@@ -206,9 +232,40 @@ export default function VideoUploadModal({
       }
       
     } catch (err) {
+      console.error('Analysis failed:', err);
       setError('Analysis failed. Please try again.');
       setUploading(false);
       setAnalyzing(false);
+    }
+  };
+
+  const sendToN8n = async (event: string, data: any) => {
+    if (!process.env.NEXT_PUBLIC_N8N_FREE_SCAN_URL) {
+      console.warn('N8N_FREE_SCAN_URL not configured, skipping n8n call');
+      return;
+    }
+
+    try {
+      const response = await fetch(process.env.NEXT_PUBLIC_N8N_FREE_SCAN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event,
+          ...data,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      if (!response.ok) {
+        console.warn(`N8N webhook failed for ${event}:`, response.status, response.statusText);
+      } else {
+        console.log(`Successfully sent ${event} to n8n`);
+      }
+    } catch (error) {
+      console.warn(`Error sending ${event} to n8n:`, error);
+      // Don't throw - n8n failures shouldn't break the UI
     }
   };
 

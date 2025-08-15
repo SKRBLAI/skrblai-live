@@ -37,7 +37,7 @@ export default function Navbar() {
 
   // Prefetch heavy routes for a snappy UX.
   useEffect(() => {
-    ["/agents", "/pricing", "/dashboard", "/sports"].forEach((route) =>
+    ["/agents", "/about", "/dashboard", "/sports"].forEach((route) =>
       router.prefetch(route)
     );
   }, [router]);
@@ -162,8 +162,7 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
   }, []);
 
   const moreNavItems = [
-    { href: "/agents", label: "Agent League" },
-    { href: "/agents", label: "Agents" },
+    { href: "/agents", label: "Agent League" },  
     { href: "/contact", label: "Contact" },
   ];
 
@@ -275,11 +274,10 @@ function MobileMenu({ pathname, onSmartLogin }: MobileMenuProps) {
     // Main nav items for mobile
     { href: "/about", label: "About" },
     { href: "/features", label: "Features" },
-    { href: "/sports", label: "Sports" },
-    { href: "/pricing", label: "Pricing" },
+    { href: "/sports", label: "Sports" },  
     // Hamburger menu items
     { href: "/agents", label: "Agent League", section: "More" },
-    { href: "/services", label: "Services", section: "More" },
+    { href: "/pricing", label: "Pricing" , section: "More" },
     { href: "/contact", label: "Contact", section: "More" },
   ];
 

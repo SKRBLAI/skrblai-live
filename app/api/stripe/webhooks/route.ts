@@ -74,34 +74,117 @@ async function handleCheckoutCompleted(session: any) {
   const userId = session.client_reference_id;
   const customerId = session.customer;
   const subscriptionId = session.subscription;
+  
+  console.log('Processing checkout completion:', {
+    sessionId: session.id,
+    category: session.metadata?.category,
+    source: session.metadata?.source,
+    amount: session.amount_total
+  });
 
   try {
-    // Update user's profile with Stripe customer ID
-    await supabase
-      .from('profiles')
-      .update({
+    // Handle SkillSmith sports purchases
+    if (session.metadata?.category === 'sports') {
+      await handleSkillSmithPurchase(session);
+    }
+
+    // Handle regular subscription logic if there's a subscription
+    if (subscriptionId && userId) {
+      // Update user's profile with Stripe customer ID
+      await supabase
+        .from('profiles')
+        .update({
+          stripe_customer_id: customerId,
+          subscription_status: 'active',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', userId);
+
+      // Create subscription record
+      await supabase.from('subscriptions').insert({
+        user_id: userId,
         stripe_customer_id: customerId,
-        subscription_status: 'active',
+        stripe_subscription_id: subscriptionId,
+        status: 'active',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancel_at_period_end: false,
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      })
-      .eq('id', userId);
+      });
+    }
 
-    // Create subscription record
-    await supabase.from('subscriptions').insert({
-      user_id: userId,
-      stripe_customer_id: customerId,
-      stripe_subscription_id: subscriptionId,
-      status: 'active',
-      current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      cancel_at_period_end: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-
-    console.log(`Checkout completed for user: ${userId}`);
+    console.log(`Checkout completed successfully for session: ${session.id}`);
   } catch (error) {
     console.error('Error handling checkout completion:', error);
+  }
+}
+
+async function handleSkillSmithPurchase(session: any) {
+  const { productSku, source, category } = session.metadata || {};
+  
+  try {
+    // Insert into skillsmith_orders
+    const { data: orderData, error: orderError } = await supabase
+      .from('skillsmith_orders')
+      .insert({
+        stripe_session_id: session.id,
+        product_sku: productSku,
+        amount: session.amount_total,
+        customer_email: session.customer_details?.email,
+        customer_name: session.customer_details?.name,
+        source,
+        category,
+        status: 'completed',
+        metadata: {
+          session_id: session.id,
+          payment_intent: session.payment_intent,
+          mode: session.mode
+        },
+        fulfilled_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (orderError) {
+      console.error('Error inserting SkillSmith order:', orderError);
+      return;
+    }
+
+    console.log('SkillSmith order created:', orderData.id);
+
+    // Forward to n8n if configured
+    if (process.env.N8N_STRIPE_WEBHOOK_URL) {
+      try {
+        const n8nResponse = await fetch(process.env.N8N_STRIPE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event: 'skillsmith_purchase',
+            session,
+            order: orderData,
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        if (!n8nResponse.ok) {
+          console.warn('N8N webhook failed:', n8nResponse.status, n8nResponse.statusText);
+        } else {
+          console.log('Successfully forwarded SkillSmith purchase to n8n');
+        }
+      } catch (n8nError) {
+        console.warn('Error forwarding to n8n:', n8nError);
+      }
+    } else {
+      console.log('N8N_STRIPE_WEBHOOK_URL not configured, skipping n8n forwarding');
+    }
+
+  } catch (error) {
+    console.error('Error handling SkillSmith purchase:', error);
   }
 }
 
