@@ -86,4 +86,9 @@
 /* ========== Motion preferences (small polish) ========== */
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  
+  .anim-float, .anim-bounce, .anim-parallax {
+    animation: none !important;
+    transform: none !important;
+  }
 }

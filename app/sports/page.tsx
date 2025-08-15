@@ -98,6 +98,9 @@ export default function SportsPage(): JSX.Element {
     recordsBroken: 847
   });
 
+  // Loading states for checkout buttons
+  const [loadingCheckout, setLoadingCheckout] = useState<string | null>(null);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setLiveMetrics(prev => ({
@@ -225,6 +228,37 @@ export default function SportsPage(): JSX.Element {
     }
   };
 
+  // Client-side checkout helper for bundles
+  const startCheckout = async (tier: 'rookie' | 'pro' | 'allstar' | 'yearly', source: string) => {
+    console.info('checkout_started', { tier, source });
+    setLoadingCheckout(tier);
+    
+    try {
+      const response = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tier,
+          source,
+          metadata: { productSku: tier, category: 'sports', source }
+        }),
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        window.location.href = url;
+      } else {
+        console.error('Checkout failed:', await response.text());
+        setLoadingCheckout(null);
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setLoadingCheckout(null);
+    }
+  };
+
   // `products` now imported from config
 
   return (
@@ -309,14 +343,14 @@ export default function SportsPage(): JSX.Element {
                       className="min-h-[420px] h-full flex flex-col justify-between relative bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-3xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-500 group cursor-pointer shadow-[0_0_40px_rgba(147,51,234,0.3),0_0_80px_rgba(99,102,241,0.2)]"
                     >
                       {/* Cosmic glassmorphic overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-blue-400/5 to-indigo-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-blue-400/5 to-indigo-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                       
                       {/* Subtle cosmic particles */}
                       <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
                         {[...Array(8)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className="absolute w-1 h-1 bg-purple-400/40 rounded-full"
+                            className="absolute w-1 h-1 bg-purple-400/40 rounded-full anim-float"
                             style={{
                               left: `${10 + i * 12}%`,
                               top: `${15 + (i % 3) * 25}%`,
@@ -324,10 +358,10 @@ export default function SportsPage(): JSX.Element {
                             animate={{
                               opacity: [0, 1, 0],
                               scale: [0, 1.5, 0],
-                              y: [0, -10, 0]
+                              y: [0, -5, 0] // Reduced from [0, -10, 0]
                             }}
                             transition={{
-                              duration: 3 + i * 0.5,
+                              duration: 6 + i * 1, // Increased from 3 + i * 0.5
                               repeat: Infinity,
                               delay: i * 0.3,
                               ease: "easeInOut"
@@ -496,7 +530,7 @@ export default function SportsPage(): JSX.Element {
                         {[...Array(12)].map((_, i) => (
                           <motion.div
                             key={i}
-                            className={`absolute w-1 h-1 rounded-full ${
+                            className={`absolute w-1 h-1 rounded-full anim-float ${
                               i % 3 === 0 ? 'bg-purple-400' : i % 3 === 1 ? 'bg-blue-400' : 'bg-indigo-400'
                             }`}
                             style={{
@@ -504,13 +538,13 @@ export default function SportsPage(): JSX.Element {
                               top: `${20 + (i % 4) * 20}%`,
                             }}
                             animate={{
-                              y: [-15, -30, -15],
+                              y: [-8, -15, -8], // Reduced from [-15, -30, -15]
                               opacity: [0, 1, 0],
                               scale: [0, 1.5, 0],
                               rotate: [0, 180, 360]
                             }}
                             transition={{
-                              duration: 2.5 + i * 0.1,
+                              duration: 5 + i * 0.2, // Increased from 2.5 + i * 0.1
                               repeat: Infinity,
                               delay: i * 0.15,
                               ease: "easeInOut"
@@ -566,7 +600,7 @@ export default function SportsPage(): JSX.Element {
                 >
                   {/* Animated background effect */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10"
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10 pointer-events-none"
                     animate={{
                       opacity: [0.3, 0.6, 0.3],
                       scale: [1, 1.05, 1]
@@ -612,30 +646,54 @@ export default function SportsPage(): JSX.Element {
                       </motion.div>
                     </div>
                     
-                    {/* Bundles (text only) */}
+                    {/* Bundles with Buy buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
-                      <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
+                      <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
                         <div className="text-teal-300 font-bold text-lg">Rookie — $5</div>
-                        <div className="text-gray-300">3 scans + 1 Quick Win</div>
-                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
+                        <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
+                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
+                        <button
+                          onClick={() => startCheckout('rookie', 'bundles_section')}
+                          disabled={loadingCheckout === 'rookie'}
+                          data-testid="buy-rookie"
+                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                        >
+                          {loadingCheckout === 'rookie' ? 'Loading...' : 'Buy Rookie'}
+                        </button>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3 text-center border border-cyan-400/20">
+                      <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
                         <div className="text-cyan-300 font-bold text-lg">Pro — $25</div>
-                        <div className="text-gray-300">10 scans + 2 Quick Wins</div>
-                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
+                        <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
+                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
+                        <button
+                          onClick={() => startCheckout('pro', 'bundles_section')}
+                          disabled={loadingCheckout === 'pro'}
+                          data-testid="buy-pro"
+                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                        >
+                          {loadingCheckout === 'pro' ? 'Loading...' : 'Buy Pro'}
+                        </button>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3 text-center border-2 border-cyan-400/60 relative">
+                      <div className="bg-white/10 rounded-lg p-4 text-center border-2 border-cyan-400/60 relative">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
                         <div className="text-cyan-200 font-bold text-lg">All‑Star — $67</div>
-                        <div className="text-gray-300">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
-                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
+                        <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
+                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
+                        <button
+                          onClick={() => startCheckout('allstar', 'bundles_section')}
+                          disabled={loadingCheckout === 'allstar'}
+                          data-testid="buy-allstar"
+                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                        >
+                          {loadingCheckout === 'allstar' ? 'Loading...' : 'Buy All-Star'}
+                        </button>
                       </div>
                     </div>
                     
                     {/* Yearly plan */}
                     <div className="flex flex-wrap justify-center gap-4">
                       <div className="bg-white/10 rounded-xl p-5 text-center border border-cyan-400/30 max-w-xl">
-                        <div className="text-2xl font-bold text-cyan-300 mb-1">$149/year</div>
+                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — $149</div>
                         <ul className="text-gray-300 text-sm space-y-1 mb-3">
                           <li>30 scans every 30 days</li>
                           <li>Custom 4‑week training plan</li>
@@ -643,7 +701,15 @@ export default function SportsPage(): JSX.Element {
                           <li>Intro nutrition guide</li>
                           <li>Specialty products ($19/$29/$39/$49)</li>
                         </ul>
-                        <div className="text-xs text-gray-400">Includes 5 scans + 1 Quick Win.</div>
+                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
+                        <button
+                          onClick={() => startCheckout('yearly', 'bundles_section')}
+                          disabled={loadingCheckout === 'yearly'}
+                          data-testid="buy-yearly"
+                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-3 text-base disabled:opacity-50"
+                        >
+                          {loadingCheckout === 'yearly' ? 'Loading...' : 'Buy Yearly'}
+                        </button>
                       </div>
                     </div>
                     
@@ -677,14 +743,14 @@ export default function SportsPage(): JSX.Element {
                   className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/40 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden shadow-[0_0_50px_rgba(147,51,234,0.3)]"
                 >
                   {/* Cosmic glassmorphic overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   
                   {/* Cosmic particle overlay */}
                   <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
                     {[...Array(20)].map((_, i) => (
                       <motion.div
                         key={i}
-                        className={`absolute w-0.5 h-0.5 rounded-full ${
+                        className={`absolute w-0.5 h-0.5 rounded-full anim-float ${
                           i % 4 === 0 ? 'bg-purple-400/30' : 
                           i % 4 === 1 ? 'bg-blue-400/30' : 
                           i % 4 === 2 ? 'bg-indigo-400/30' : 'bg-violet-400/30'
@@ -696,10 +762,10 @@ export default function SportsPage(): JSX.Element {
                         animate={{
                           opacity: [0, 1, 0],
                           scale: [0, 2, 0],
-                          y: [0, -20, 0]
+                          y: [0, -10, 0] // Reduced from [0, -20, 0]
                         }}
                         transition={{
-                          duration: 4 + Math.random() * 2,
+                          duration: 8 + Math.random() * 4, // Increased from 4 + Math.random() * 2
                           repeat: Infinity,
                           delay: Math.random() * 3,
                           ease: "easeInOut"

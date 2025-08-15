@@ -189,14 +189,14 @@ export default function SkillSmithStandaloneHero({
                   {/* Interactive breathing animation */}
                   <motion.div
                     animate={{
-                      scale: [1, 1.02, 1],
+                      scale: [1, 1.01, 1], // Reduced from [1, 1.02, 1]
                     }}
                     transition={{
-                      duration: 4,
+                      duration: 8, // Increased from 4 to 8
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
-                    className="relative z-10 w-full h-full"
+                    className="relative z-10 w-full h-full anim-float"
                   >
                     <Image
                       src="/images/agents-skillsmith-nobg-skrblai.webp"
@@ -211,18 +211,18 @@ export default function SkillSmithStandaloneHero({
                   {[...Array(6)].map((_, i) => (
                     <motion.div
                       key={i}
-                      className="absolute w-2 h-2 bg-orange-400/60 rounded-full"
+                      className="absolute w-2 h-2 bg-orange-400/60 rounded-full anim-float"
                       style={{
                         left: `${20 + Math.sin(i) * 60}%`,
                         top: `${30 + Math.cos(i) * 40}%`,
                       }}
                       animate={{
-                        y: [-10, 10, -10],
+                        y: [-5, 5, -5], // Reduced from [-10, 10, -10]
                         opacity: [0, 1, 0],
                         scale: [0.5, 1, 0.5]
                       }}
                       transition={{
-                        duration: 3 + i * 0.5,
+                        duration: 6 + i * 1, // Increased from 3 + i * 0.5 to 6 + i * 1
                         repeat: Infinity,
                         delay: i * 0.8,
                         ease: "easeInOut"
