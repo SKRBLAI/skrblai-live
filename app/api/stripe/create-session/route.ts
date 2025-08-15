@@ -1,49 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '../../../../utils/stripe';
+import { priceMap, getPriceId, getAmount } from '../../../../lib/config/skillsmithPriceMap';
 
 export async function POST(req: NextRequest) {
+  let finalTier: string;
+  
   try {
-    const { productSku, price, title, successUrl, cancelUrl, email, metadata } = await req.json();
+    const { tier, productSku, price, title, successUrl, cancelUrl, email, metadata } = await req.json();
 
-    // Validate required parameters
-    if (!productSku || !price || !title) {
+    // Validate required parameters - now we prefer tier over productSku/price
+    finalTier = tier || productSku;
+    if (!finalTier) {
       return NextResponse.json(
-        { error: 'Missing required parameters: productSku, price, title' },
+        { error: 'Missing required parameter: tier (or legacy productSku)' },
         { status: 400 }
       );
     }
 
-    // Create one-time product for this purchase
-    const product = await stripe.products.create({
-      name: title,
-      metadata: {
-        sku: productSku,
-        category: 'skillsmith'
-      }
-    });
+    // Get price ID from price map
+    let priceId: string;
+    let finalPrice: number;
+    
+    try {
+      priceId = getPriceId(finalTier);
+      finalPrice = getAmount(finalTier);
+    } catch (error) {
+      return NextResponse.json(
+        { error: `Unknown tier: ${finalTier}. Available tiers: ${Object.keys(priceMap).join(', ')}` },
+        { status: 400 }
+      );
+    }
 
-    // Create price for this product
-    const priceObject = await stripe.prices.create({
-      product: product.id,
-      unit_amount: price * 100, // Convert to cents
-      currency: 'usd',
-    });
-
-    // Create checkout session
+    // Create checkout session using existing Stripe price
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       billing_address_collection: 'required',
       line_items: [
         {
-          price: priceObject.id,
+          price: priceId,
           quantity: 1,
         },
       ],
       mode: 'payment', // One-time payment for products
-      success_url: successUrl || `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
+      success_url: successUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
       metadata: {
-        productSku,
+        tier: finalTier,
+        productSku: finalTier, // Keep legacy field for compatibility
         ...metadata,
         category: metadata?.category || 'sports',
         source: metadata?.source || 'sports_page'
@@ -58,7 +61,9 @@ export async function POST(req: NextRequest) {
 
     console.log('Checkout session created successfully:', {
       sessionId: session.id,
-      productSku,
+      tier: finalTier,
+      priceId,
+      amount: finalPrice,
       category: metadata?.category || 'sports',
       source: metadata?.source || 'sports_page'
     });
@@ -67,7 +72,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error creating checkout session:', {
       error: error instanceof Error ? error.message : 'Unknown error',
-      productSku,
+      tier: finalTier,
       metadata
     });
     return NextResponse.json(

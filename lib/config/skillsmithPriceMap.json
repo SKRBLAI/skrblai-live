@@ -1,0 +1,42 @@
+{
+  "rookie": {
+    "lookup_key": "skillsmith_rookie_3scans_1qw",
+    "price_id": "price_1RwSxzFxZMzukOVxGUDZRFBl",
+    "amount": 5
+  },
+  "pro": {
+    "lookup_key": "skillsmith_pro_10scans_2qw",
+    "price_id": "price_1RwSy0FxZMzukOVx25iamn5Y",
+    "amount": 25
+  },
+  "allstar": {
+    "lookup_key": "skillsmith_allstar_bundle",
+    "price_id": "price_1RwSy0FxZMzukOVxDwRAdTpw",
+    "amount": 67
+  },
+  "yearly": {
+    "lookup_key": "skillsmith_yearly_149",
+    "price_id": "price_1RwSy1FxZMzukOVxOnLGJlmI",
+    "amount": 149
+  },
+  "p19": {
+    "lookup_key": "skillsmith_progress_tracker_premium_19",
+    "price_id": "price_1RwSy2FxZMzukOVxMXil5Qm5",
+    "amount": 19
+  },
+  "p29": {
+    "lookup_key": "skillsmith_form_analysis_pro_29",
+    "price_id": "price_1RwSy2FxZMzukOVxmmiVvoFz",
+    "amount": 29
+  },
+  "p39": {
+    "lookup_key": "skillsmith_custom_training_plan_39",
+    "price_id": "price_1RwSy3FxZMzukOVxVnbzRaAC",
+    "amount": 39
+  },
+  "p49": {
+    "lookup_key": "skillsmith_performance_insights_elite_49",
+    "price_id": "price_1RwSy4FxZMzukOVx4JCHTgVw",
+    "amount": 49
+  }
+}

@@ -17,6 +17,7 @@ import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnbo
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
 import { products } from '../../lib/config/skillsmithProducts';
+import { priceMap, getAmount } from '../../lib/config/skillsmithPriceMap';
 
 interface AnalysisResult {
   feedback: string;
@@ -200,12 +201,11 @@ export default function SportsPage(): JSX.Element {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productSku: product.sku,
-          price: product.price,
+          tier: product.id,
           title: product.title,
           metadata: { category: 'sports', source: 'free_upsell' },
-          successUrl: `${window.location.origin}/sports?success=true`,
-          cancelUrl: `${window.location.origin}/sports`,
+          successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/checkout/cancel`,
         }),
       });
 
@@ -966,18 +966,18 @@ export default function SportsPage(): JSX.Element {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 {[
-                  { id: 'rookie', title: 'Rookie — $5', price: 5, sku: 'skillsmith_rookie_3scans_1qw' },
-                  { id: 'pro', title: 'Pro — $25', price: 25, sku: 'skillsmith_pro_10scans_2qw' },
-                  { id: 'allstar', title: 'All‑Star — $67', price: 67, sku: 'skillsmith_allstar_15scans_bundle' },
-                  { id: 'yearly', title: 'Yearly — $149', price: 149, sku: 'skillsmith_yearly_149' }
+                  { id: 'rookie', title: 'Rookie — $5' },
+                  { id: 'pro', title: 'Pro — $25' },
+                  { id: 'allstar', title: 'All‑Star — $67' },
+                  { id: 'yearly', title: 'Yearly — $149' }
                 ].map((opt) => (
                   <button
                     key={opt.id}
-                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: opt.price, sku: opt.sku } as Product)}
+                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: getAmount(opt.id) } as Product)}
                     className="bg-white/10 hover:bg-white/15 border border-cyan-400/30 rounded-xl p-4 text-left text-gray-200"
                   >
                     <div className="font-bold text-white">{opt.title}</div>
-                    <div className="text-xs text-gray-400 mt-1">metadata included</div>
+                    <div className="text-xs text-gray-400 mt-1">Live Stripe pricing</div>
                   </button>
                 ))}
               </div>
