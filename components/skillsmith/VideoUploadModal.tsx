@@ -197,7 +197,7 @@ export default function VideoUploadModal({
 
       // Send start event to n8n
       await sendToN8n('free_scan_started', {
-        email: session.emailCaptured ? session.email : null,
+        email: session.emailCaptured ? 'captured' : null,
         videoUrl,
         sport: 'general', // Would be selected by user in real implementation
         sessionId: session.sessionId,
@@ -212,7 +212,7 @@ export default function VideoUploadModal({
       
       // Send completion event to n8n
       await sendToN8n('free_scan_completed', {
-        email: session.emailCaptured ? session.email : null,
+        email: session.emailCaptured ? 'captured' : null,
         videoUrl,
         sport: result.sport,
         sessionId: session.sessionId,
