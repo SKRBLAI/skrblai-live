@@ -3,10 +3,13 @@ import { stripe } from '../../../../utils/stripe';
 import { priceMap, getPriceId, getAmount } from '../../../../lib/config/skillsmithPriceMap';
 
 export async function POST(req: NextRequest) {
-  let finalTier: string;
+  let finalTier: string = 'unknown';
+  let metadata: any = {};
   
   try {
-    const { tier, productSku, price, title, successUrl, cancelUrl, email, metadata } = await req.json();
+    const requestData = await req.json();
+    const { tier, productSku, price, title, successUrl, cancelUrl, email } = requestData;
+    metadata = requestData.metadata || {};
 
     // Validate required parameters - now we prefer tier over productSku/price
     finalTier = tier || productSku;
