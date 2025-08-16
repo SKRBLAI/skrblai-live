@@ -189,10 +189,10 @@ export default function SkillSmithStandaloneHero({
                   {/* Interactive breathing animation */}
                   <motion.div
                     animate={{
-                      scale: [1, 1.01, 1], // Reduced from [1, 1.02, 1]
+                      scale: [1, 1.005, 1], // Further reduced breathing
                     }}
                     transition={{
-                      duration: 8, // Increased from 4 to 8
+                      duration: 12, // Even slower breathing
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
@@ -217,12 +217,12 @@ export default function SkillSmithStandaloneHero({
                         top: `${30 + Math.cos(i) * 40}%`,
                       }}
                       animate={{
-                        y: [-5, 5, -5], // Reduced from [-10, 10, -10]
+                        y: [-3, 3, -3], // Further reduced motion
                         opacity: [0, 1, 0],
                         scale: [0.5, 1, 0.5]
                       }}
                       transition={{
-                        duration: 6 + i * 1, // Increased from 3 + i * 0.5 to 6 + i * 1
+                        duration: 8 + i * 1, // Even longer duration
                         repeat: Infinity,
                         delay: i * 0.8,
                         ease: "easeInOut"

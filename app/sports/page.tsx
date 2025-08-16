@@ -343,10 +343,10 @@ export default function SportsPage(): JSX.Element {
                       className="min-h-[420px] h-full flex flex-col justify-between relative bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-3xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-500 group cursor-pointer shadow-[0_0_40px_rgba(147,51,234,0.3),0_0_80px_rgba(99,102,241,0.2)]"
                     >
                       {/* Cosmic glassmorphic overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-blue-400/5 to-indigo-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-400/10 via-blue-400/5 to-indigo-500/10 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-bg" />
                       
                       {/* Subtle cosmic particles */}
-                      <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                      <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-bg">
                         {[...Array(8)].map((_, i) => (
                           <motion.div
                             key={i}
@@ -358,10 +358,10 @@ export default function SportsPage(): JSX.Element {
                             animate={{
                               opacity: [0, 1, 0],
                               scale: [0, 1.5, 0],
-                              y: [0, -5, 0] // Reduced from [0, -10, 0]
+                              y: [0, -3, 0] // Further reduced motion
                             }}
                             transition={{
-                              duration: 6 + i * 1, // Increased from 3 + i * 0.5
+                              duration: 8 + i * 1, // Increased duration for slower motion
                               repeat: Infinity,
                               delay: i * 0.3,
                               ease: "easeInOut"
@@ -522,7 +522,7 @@ export default function SportsPage(): JSX.Element {
 
                       {/* Enhanced cosmic particles effect on hover */}
                       <motion.div
-                        className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl"
+                        className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl z-bg"
                         initial={{ opacity: 0 }}
                         whileHover={{ opacity: 1 }}
                         transition={{ duration: 0.4 }}
@@ -538,13 +538,13 @@ export default function SportsPage(): JSX.Element {
                               top: `${20 + (i % 4) * 20}%`,
                             }}
                             animate={{
-                              y: [-8, -15, -8], // Reduced from [-15, -30, -15]
+                              y: [-3, -6, -3], // Much more reduced motion
                               opacity: [0, 1, 0],
                               scale: [0, 1.5, 0],
                               rotate: [0, 180, 360]
                             }}
                             transition={{
-                              duration: 5 + i * 0.2, // Increased from 2.5 + i * 0.1
+                              duration: 8 + i * 0.5, // Even slower animation
                               repeat: Infinity,
                               delay: i * 0.15,
                               ease: "easeInOut"
@@ -600,7 +600,7 @@ export default function SportsPage(): JSX.Element {
                 >
                   {/* Animated background effect */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10 pointer-events-none"
+                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10 pointer-events-none z-bg"
                     animate={{
                       opacity: [0.3, 0.6, 0.3],
                       scale: [1, 1.05, 1]
@@ -647,16 +647,20 @@ export default function SportsPage(): JSX.Element {
                     </div>
                     
                     {/* Bundles with Buy buttons */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm relative z-0">
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
                         <div className="text-teal-300 font-bold text-lg">Rookie — $5</div>
                         <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
-                          onClick={() => startCheckout('rookie', 'bundles_section')}
+                          type="button"
+                          onClick={() => {
+                            console.info('BUY_CLICK', 'rookie', Date.now());
+                            void startCheckout('rookie', 'bundles_section');
+                          }}
                           disabled={loadingCheckout === 'rookie'}
                           data-testid="buy-rookie"
-                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
                         >
                           {loadingCheckout === 'rookie' ? 'Loading...' : 'Buy Rookie'}
                         </button>
@@ -666,10 +670,14 @@ export default function SportsPage(): JSX.Element {
                         <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
-                          onClick={() => startCheckout('pro', 'bundles_section')}
+                          type="button"
+                          onClick={() => {
+                            console.info('BUY_CLICK', 'pro', Date.now());
+                            void startCheckout('pro', 'bundles_section');
+                          }}
                           disabled={loadingCheckout === 'pro'}
                           data-testid="buy-pro"
-                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
                         >
                           {loadingCheckout === 'pro' ? 'Loading...' : 'Buy Pro'}
                         </button>
@@ -680,10 +688,14 @@ export default function SportsPage(): JSX.Element {
                         <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
-                          onClick={() => startCheckout('allstar', 'bundles_section')}
+                          type="button"
+                          onClick={() => {
+                            console.info('BUY_CLICK', 'allstar', Date.now());
+                            void startCheckout('allstar', 'bundles_section');
+                          }}
                           disabled={loadingCheckout === 'allstar'}
                           data-testid="buy-allstar"
-                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50"
+                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
                         >
                           {loadingCheckout === 'allstar' ? 'Loading...' : 'Buy All-Star'}
                         </button>
@@ -703,10 +715,14 @@ export default function SportsPage(): JSX.Element {
                         </ul>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
-                          onClick={() => startCheckout('yearly', 'bundles_section')}
+                          type="button"
+                          onClick={() => {
+                            console.info('BUY_CLICK', 'yearly', Date.now());
+                            void startCheckout('yearly', 'bundles_section');
+                          }}
                           disabled={loadingCheckout === 'yearly'}
                           data-testid="buy-yearly"
-                          className="relative z-10 pointer-events-auto w-full btn-solid-grad py-3 text-base disabled:opacity-50"
+                          className="relative z-50 pointer-events-auto w-full btn-solid-grad py-3 text-base disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
                         >
                           {loadingCheckout === 'yearly' ? 'Loading...' : 'Buy Yearly'}
                         </button>
@@ -743,10 +759,10 @@ export default function SportsPage(): JSX.Element {
                   className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/40 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden shadow-[0_0_50px_rgba(147,51,234,0.3)]"
                 >
                   {/* Cosmic glassmorphic overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-bg" />
                   
                   {/* Cosmic particle overlay */}
-                  <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                  <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-bg">
                     {[...Array(20)].map((_, i) => (
                       <motion.div
                         key={i}
@@ -762,10 +778,10 @@ export default function SportsPage(): JSX.Element {
                         animate={{
                           opacity: [0, 1, 0],
                           scale: [0, 2, 0],
-                          y: [0, -10, 0] // Reduced from [0, -20, 0]
+                          y: [0, -3, 0] // Further reduced motion
                         }}
                         transition={{
-                          duration: 8 + Math.random() * 4, // Increased from 4 + Math.random() * 2
+                          duration: 10 + Math.random() * 4, // Even longer duration
                           repeat: Infinity,
                           delay: Math.random() * 3,
                           ease: "easeInOut"

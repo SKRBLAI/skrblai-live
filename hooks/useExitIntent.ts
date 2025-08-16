@@ -19,14 +19,31 @@ export function useExitIntent(options: UseExitIntentOptions = {}) {
 
   const [isExitIntent, setIsExitIntent] = useState(false);
   const [hasBeenTriggered, setHasBeenTriggered] = useState(false);
+  
+  // Check if mobile/tablet
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+  
+  // Check session storage for already shown
+  const hasShownThisSession = typeof window !== 'undefined' && sessionStorage.getItem('exit-intent-shown') === 'true';
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
+    // Don't show on mobile or if already shown this session
+    if (isMobile || hasShownThisSession) return;
+    
+    // Don't trigger if user is typing in an input
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+      return;
+    }
+    
     // Only trigger if mouse leaves from the top of the page
-    if (e.clientY <= threshold && !hasBeenTriggered) {
+    if (e.clientY <= 0 && !hasBeenTriggered) {
       setIsExitIntent(true);
       setHasBeenTriggered(true);
+      // Mark as shown in session storage
+      sessionStorage.setItem('exit-intent-shown', 'true');
     }
-  }, [threshold, hasBeenTriggered]);
+  }, [threshold, hasBeenTriggered, isMobile, hasShownThisSession]);
 
   const handleMouseEnter = useCallback(() => {
     // Reset if user comes back quickly

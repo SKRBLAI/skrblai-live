@@ -15,6 +15,14 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const pathname = usePathname();
+  
+  // Check if mobile/tablet
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+  
+  // Don't render on mobile
+  if (isMobile) {
+    return null;
+  }
 
   // Dynamic offers based on current page
   const getPageSpecificOffer = () => {
@@ -103,7 +111,12 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-          onClick={onClose}
+          onClick={(e) => {
+            // Only close if clicking the overlay itself, not on minor movements
+            if (e.target === e.currentTarget) {
+              onClose();
+            }
+          }}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}

@@ -83,6 +83,18 @@
   .btn-solid-grad:hover { transform: translateY(-1px); }
 }
 
+/* ========== Z-index guardrails for layering control ========== */
+@layer utilities {
+  .z-fg { z-index: 50; }
+  .z-bg { z-index: 0; }
+}
+
+/* ========== Animation controls and motion reduction ========== */
+@layer utilities {
+  .anim-float, .anim-bounce, .anim-parallax { will-change: transform; }
+  .reduce-float { animation: none !important; transform: none !important; }
+}
+
 /* ========== Motion preferences (small polish) ========== */
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
