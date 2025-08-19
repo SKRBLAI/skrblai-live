@@ -24,7 +24,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { showPerformanceWarning } from '../../lib/config/percyFeatureFlags';
+import { showPerformanceWarning } from '../../../lib/config/percyFeatureFlags';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
@@ -34,16 +34,16 @@ import {
   Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard,
   CornerUpLeft, Eye, Star, Calendar
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { usePercyContext } from '../assistant/PercyProvider';
-import { useOnboarding } from '../../contexts/OnboardingContext';
+import { useAuth } from '../../context/AuthContext';
+import { usePercyContext } from '../../assistant/PercyProvider';
+import { useOnboarding } from '../../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
-import SkrblAiText from '../ui/SkrblAiText';
-import UniversalPromptBar from '../ui/UniversalPromptBar';
-import PercyAvatar from './PercyAvatar';
-import StatCounter from '../features/StatCounter';
-import FounderDashboardOverlay from '../admin/FounderDashboardOverlay';
-import ChoiceCard from '../ui/ChoiceCard';
+import SkrblAiText from '../../ui/SkrblAiText';
+import UniversalPromptBar from '../../ui/UniversalPromptBar';
+import PercyAvatar from '../../home/PercyAvatar';
+import StatCounter from '../../features/StatCounter';
+import FounderDashboardOverlay from '../../admin/FounderDashboardOverlay';
+import ChoiceCard from '../../ui/ChoiceCard';
 
 interface OnboardingStep {
   id: string;

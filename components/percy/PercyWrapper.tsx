@@ -6,7 +6,7 @@ import { getPercyConfig, logPercySwitch } from '../../lib/config/percyFeatureFla
 
 // Import both versions
 import PercyOnboardingRevolutionOptimized from './PercyOnboardingRevolutionOptimized';
-import PercyOnboardingRevolutionLegacy from '../home/PercyOnboardingRevolution';
+import PercyOnboardingRevolutionLegacy from '../legacy/home/PercyOnboardingRevolution';
 
 interface PercyWrapperProps {
   className?: string;
