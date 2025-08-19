@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { emailAutomation } from '../../../lib/email/simpleAutomation';
+import { emailAutomation } from '../../../lib/email/n8nIntegration';
 import { EMAIL_SEQUENCES } from '../../../lib/email/sequences';
 import { systemLog } from '../../../utils/systemLog';
 import { getErrorMessage } from '../../../utils/errorHandling';

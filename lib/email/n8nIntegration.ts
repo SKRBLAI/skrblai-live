@@ -20,18 +20,28 @@ interface EmailTriggerPayload {
   };
 }
 
+// Normalize n8n webhook base URL so we can safely append /webhook/<path>
+function getN8nBase(): string {
+  const raw = (process.env.N8N_WEBHOOK_BASE_URL || process.env.N8N_BASE_URL || '').trim();
+  if (!raw) return '';
+  // Trim trailing slashes and a trailing /webhook if present
+  const noSlash = raw.replace(/\/+$/, '');
+  const withoutWebhook = noSlash.replace(/\/webhook$/i, '');
+  return withoutWebhook;
+}
+
 export class N8nEmailAutomation {
   private workflows: N8nWorkflow[] = [
     {
       id: 'welcome-sequence',
       name: 'Welcome Email Sequence',
-      webhookUrl: `${process.env.N8N_BASE_URL}/webhook/welcome-sequence`,
+      webhookUrl: `${getN8nBase()}/webhook/welcome-sequence`,
       active: true
     },
     {
       id: 'upgrade-nurture',
       name: 'Upgrade Nurture Campaign',
-      webhookUrl: `${process.env.N8N_BASE_URL}/webhook/upgrade-nurture`,
+      webhookUrl: `${getN8nBase()}/webhook/upgrade-nurture`,
       active: true
     }
   ];
@@ -43,17 +53,28 @@ export class N8nEmailAutomation {
         return { success: false, error: 'Workflow not found or inactive' };
       }
 
+      if (!workflow.webhookUrl || !getN8nBase()) {
+        return { success: false, error: 'N8N base URL not configured' };
+      }
+
       const response = await fetch(workflow.webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.N8N_API_KEY}`
+          'Authorization': `Bearer ${process.env.N8N_API_KEY}`,
+          'User-Agent': 'SKRBL-AI-Email/1.0'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        // 15s timeout to avoid hanging the route
+        signal: (globalThis as any).AbortSignal?.timeout
+          ? AbortSignal.timeout(15000)
+          : undefined
       });
 
       if (!response.ok) {
-        throw new Error(`N8n webhook failed: ${response.status}`);
+        let detail: string | undefined;
+        try { detail = await response.text(); } catch {}
+        throw new Error(`N8n webhook failed: ${response.status} ${response.statusText}${detail ? ` - ${detail.substring(0, 300)}` : ''}`);
       }
 
       const result = await response.json();
@@ -100,4 +121,4 @@ export class N8nEmailAutomation {
   }
 }
 
-export const emailAutomation = new N8nEmailAutomation(); 
+export const emailAutomation = new N8nEmailAutomation();
