@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const BusinessWizard = dynamic(() => import("@/components/onboarding/BusinessWizard"), { ssr: false });
 
 type Mode = "business" | "sports";
 
@@ -109,27 +112,15 @@ export default function HomeHeroScanFirst() {
         </div>
       </div>
 
-      {/* TODO: Replace with BusinessWizard in Phase B */}
       {drawer && (
-        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/40">
-          <div className="w-full sm:w-[560px] bg-[#0f1220] border border-white/10 rounded-2xl p-5 shadow-2xl">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-xl font-semibold text-white">Quick Wins Found!</h3>
-              <button onClick={() => setDrawer(null)} className="text-white/60 hover:text-white">✕</button>
-            </div>
-            <div className="mb-4 rounded-lg border border-emerald-400/30 bg-emerald-500/5 p-3 text-emerald-200 text-sm">
-              <div className="font-semibold mb-1">Instant opportunities:</div>
-              <ul className="list-disc pl-5 space-y-1">
-                {drawer.quickWins.map((q, i) => <li key={i}>{q}</li>)}
-              </ul>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setDrawer(null)} className="btn-solid-grad px-6 py-2">
-                Continue Setup
-              </button>
-            </div>
-          </div>
-        </div>
+        <BusinessWizard
+          preset={{ 
+            email, 
+            urls: urls.split(/[\s,]+/).filter(Boolean), 
+            quickWins: drawer.quickWins 
+          }}
+          onClose={() => setDrawer(null)}
+        />
       )}
     </section>
   );
