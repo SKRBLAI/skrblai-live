@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const UnifiedOnboarding = dynamic(() => import("@/components/onboarding/UnifiedOnboarding"), { ssr: false });
+const BusinessWizard = dynamic(() => import("@/components/onboarding/BusinessWizard"), { ssr: false });
 
 type Mode = "business" | "sports";
 
@@ -113,9 +113,8 @@ export default function HomeHeroScanFirst() {
       </div>
 
       {drawer && (
-        <UnifiedOnboarding
+        <BusinessWizard
           preset={{ 
-            path: "business", 
             email, 
             urls: urls.split(/[\s,]+/).filter(Boolean), 
             quickWins: drawer.quickWins 
