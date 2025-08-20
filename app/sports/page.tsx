@@ -197,6 +197,18 @@ export default function SportsPage(): JSX.Element {
   const handleBuyNow = async (product: Product) => {
     setSelectedProduct(product);
     try {
+      // Resolve correct Stripe tier key for one-time products and bundles
+      const bundleKeys = new Set(['rookie', 'pro', 'allstar', 'yearly']);
+      const tierKey = bundleKeys.has(product.id)
+        ? product.id
+        : Object.entries(priceMap).find(([key, val]) => key.startsWith('p') && val.amount === product.price)?.[0];
+
+      if (!tierKey) {
+        console.error('Unable to resolve price map key for product', { product, priceMap });
+        alert('Checkout is temporarily unavailable for this product. Please try again in a moment.');
+        return;
+      }
+
       // Create Stripe checkout session
       const response = await fetch('/api/stripe/create-session', {
         method: 'POST',
@@ -204,9 +216,9 @@ export default function SportsPage(): JSX.Element {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tier: product.id,
+          tier: tierKey,
           title: product.title,
-          metadata: { category: 'sports', source: 'free_upsell' },
+          metadata: { category: 'sports', source: 'sports_product_card', productId: product.id, productTitle: product.title },
           successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/checkout/cancel`,
         }),
@@ -242,7 +254,9 @@ export default function SportsPage(): JSX.Element {
         body: JSON.stringify({
           tier,
           source,
-          metadata: { productSku: tier, category: 'sports', source }
+          metadata: { productSku: tier, category: 'sports', source },
+          successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/checkout/cancel`,
         }),
       });
 
@@ -445,17 +459,17 @@ export default function SportsPage(): JSX.Element {
                         <div className="space-y-3 mt-auto">
                           
                           {/* ENHANCED: Revenue-optimized buy button with urgency */}
-                          <div className="space-y-3">
-                            {/* Quick preview button */}
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => setPreviewFlowOpen(true)}
-                              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/50 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all duration-300 font-medium text-sm"
-                            >
-                              <Eye className="w-4 h-4" />
-                              🎮 Try Demo (FREE)
-                            </motion.button>
+                        <div className="space-y-3">
+                          {/* Quick preview button */}
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => openPreviewFlow(product)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/20 border border-blue-400/50 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all duration-300 font-medium text-sm"
+                          >
+                            <Eye className="w-4 h-4" />
+                            🎮 Try Demo (FREE)
+                          </motion.button>
                             
                             {/* Main buy button with enhanced urgency */}
                             <motion.div className="relative">

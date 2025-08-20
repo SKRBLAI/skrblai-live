@@ -57,24 +57,22 @@ export default function WaitlistPopup() {
             Be among the first to access Pixar-level AI tools. Secure your spot on the waitlist or request early access!
           </div>
           <div className="flex gap-3 mt-2">
-            <Link href="/signup?source=waitlist" passHref legacyBehavior>
-              <motion.a
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.97 }}
+            <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/signup?source=waitlist"
                 className="px-5 py-2 rounded-lg glass-card text-electric-blue font-semibold hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-electric-blue/40"
               >
                 Join Waitlist
-              </motion.a>
-            </Link>
-            <Link href="/contact?ref=early" passHref legacyBehavior>
-              <motion.a
-                whileHover={{ scale: 1.07 }}
-                whileTap={{ scale: 0.97 }}
+              </Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.07 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/contact?ref=early"
                 className="px-5 py-2 rounded-lg glass-card text-teal-200 font-semibold hover:bg-white/20 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400/40"
               >
                 Request Access
-              </motion.a>
-            </Link>
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       </motion.div>

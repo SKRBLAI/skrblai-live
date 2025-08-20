@@ -62,11 +62,11 @@ export default function CosmicButton({
 
   if (href) {
     return (
-      <Link href={href} passHref>
-        <motion.a className={buttonStyles} {...motionProps}>
+      <motion.div {...motionProps}>
+        <Link href={href} className={buttonStyles}>
           {children}
-        </motion.a>
-      </Link>
+        </Link>
+      </motion.div>
     );
   }
 

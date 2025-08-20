@@ -11,6 +11,7 @@ import {
 import CardShell from "../ui/CardShell";
 
 interface BusinessWizardProps {
+  mode?: 'business' | 'sports';
   preset?: { 
     email?: string; 
     urls?: string[]; 
@@ -27,43 +28,79 @@ interface BusinessData {
   channels: string[];
 }
 
-const GOAL_OPTIONS = [
-  {
-    id: "dominate-seo",
-    label: "Dominate SEO",
-    description: "Crush your competition in search rankings",
-    icon: <Target className="w-6 h-6" />,
-    color: "from-emerald-500 to-teal-500"
-  },
-  {
-    id: "create-content", 
-    label: "Create Content",
-    description: "Generate high-converting content at scale",
-    icon: <TrendingUp className="w-6 h-6" />,
-    color: "from-blue-500 to-cyan-500"
-  },
-  {
-    id: "publish-book",
-    label: "Publish a Book", 
-    description: "Become an authority with professional publishing",
-    icon: <BookOpen className="w-6 h-6" />,
-    color: "from-purple-500 to-violet-500"
-  },
-  {
-    id: "automate-biz",
-    label: "Automate My Biz",
-    description: "Scale operations with intelligent automation", 
-    icon: <Zap className="w-6 h-6" />,
-    color: "from-orange-500 to-red-500"
-  },
-  {
-    id: "upgrade-brand",
-    label: "Upgrade My Brand",
-    description: "Transform your brand identity and presence",
-    icon: <Palette className="w-6 h-6" />,
-    color: "from-pink-500 to-rose-500"
-  }
-];
+  const GOAL_OPTIONS = isBusinessMode ? [
+    {
+      id: "dominate-seo",
+      label: "Dominate SEO",
+      description: "Crush your competition in search rankings",
+      icon: <Target className="w-6 h-6" />,
+      color: "from-emerald-500 to-teal-500"
+    },
+    {
+      id: "create-content", 
+      label: "Create Content",
+      description: "Generate high-converting content at scale",
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      id: "publish-book",
+      label: "Publish a Book", 
+      description: "Become an authority with professional publishing",
+      icon: <BookOpen className="w-6 h-6" />,
+      color: "from-purple-500 to-violet-500"
+    },
+    {
+      id: "automate-biz",
+      label: "Automate My Biz",
+      description: "Scale operations with intelligent automation", 
+      icon: <Zap className="w-6 h-6" />,
+      color: "from-orange-500 to-red-500"
+    },
+    {
+      id: "upgrade-brand",
+      label: "Upgrade My Brand",
+      description: "Transform your brand identity and presence",
+      icon: <Palette className="w-6 h-6" />,
+      color: "from-pink-500 to-rose-500"
+    }
+  ] : [
+    {
+      id: "improve-technique",
+      label: "Perfect Technique",
+      description: "Master form and mechanical precision",
+      icon: <Target className="w-6 h-6" />,
+      color: "from-emerald-500 to-teal-500"
+    },
+    {
+      id: "boost-performance", 
+      label: "Boost Performance",
+      description: "Increase speed, strength, and endurance",
+      icon: <TrendingUp className="w-6 h-6" />,
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      id: "mental-edge",
+      label: "Mental Edge", 
+      description: "Develop winning mindset and focus",
+      icon: <Zap className="w-6 h-6" />,
+      color: "from-purple-500 to-violet-500"
+    },
+    {
+      id: "injury-prevention",
+      label: "Injury Prevention",
+      description: "Stay healthy and recover faster", 
+      icon: <Users className="w-6 h-6" />,
+      color: "from-orange-500 to-red-500"
+    },
+    {
+      id: "nutrition-plan",
+      label: "Nutrition Optimization",
+      description: "Fuel your body for peak performance",
+      icon: <Palette className="w-6 h-6" />,
+      color: "from-pink-500 to-rose-500"
+    }
+  ];
 
 const INDUSTRY_OPTIONS = [
   "E-commerce", "SaaS/Tech", "Consulting", "Real Estate", "Health & Fitness",
@@ -114,13 +151,24 @@ const RECOMMENDED_AGENTS = [
   }
 ];
 
-export default function BusinessWizard({ preset, onClose }: BusinessWizardProps) {
+export default function BusinessWizard({ mode = 'business', preset, onClose }: BusinessWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [businessData, setBusinessData] = useState<BusinessData>({
     goals: [],
     channels: []
   });
+  
+  const isBusinessMode = mode === 'business';
+  const isSportsMode = mode === 'sports';
+
+  // Mode-specific copy
+  const COPY = {
+    title: isBusinessMode ? "Business Setup Wizard" : "Athletic Performance Wizard",
+    goals: isBusinessMode ? "What are your primary business goals?" : "What are your athletic performance goals?",
+    profile: isBusinessMode ? "Tell us about your business" : "Tell us about your training",
+    channels: isBusinessMode ? "Where do you want to dominate?" : "What's your training focus?",
+  };
   const [loading, setLoading] = useState(false);
 
   const handleGoalToggle = (goalId: string) => {
@@ -166,7 +214,8 @@ export default function BusinessWizard({ preset, onClose }: BusinessWizardProps)
         teamSize: businessData.teamSize,
         revenueBand: businessData.revenueBand,
         channels: businessData.channels,
-        source: "home_business_wizard"
+        source: "home_business_wizard",
+        vertical: isSportsMode ? 'sports' : 'business'
       };
 
       await fetch("/api/onboarding/business", {
@@ -227,7 +276,7 @@ export default function BusinessWizard({ preset, onClose }: BusinessWizardProps)
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <div>
-                <h2 className="text-xl font-bold text-white">Business Setup Wizard</h2>
+                <h2 className="text-xl font-bold text-white">{COPY.title}</h2>
                 <p className="text-white/60 text-sm">Step {step + 1} of 5</p>
               </div>
               <button 

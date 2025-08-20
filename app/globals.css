@@ -115,4 +115,42 @@
 }
 
 /* Hide any stray legacy wrappers */
+
+/* Revenue Guide Star - 2.5D Hero Plate */
+.gs-plate {
+  position: relative;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  transform: perspective(1100px) rotateX(6deg);
+  transform-origin: top center;
+}
+
+.gs-plate::after {
+  content: "";
+  position: absolute; left: 10%; right: 10%; bottom: -24px; height: 56px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.35), rgba(0,0,0,0.08) 60%, transparent 80%);
+  filter: blur(10px); z-index: -1;
+}
+
+.aura-h1 {
+  --aura-from: var(--brand-from, #8b5cf6);
+  --aura-to: var(--brand-to, #22d3ee);
+  font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;
+  background: linear-gradient(90deg, var(--aura-from), var(--aura-to));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-shadow: 0 0 18px color-mix(in oklab, var(--aura-to) 40%, transparent), 0 1px 0 rgba(255,255,255,0.2);
+}
+
+:root { --nav-h: 76px; }
+@media (max-width: 640px) { :root { --nav-h: 64px; } }
+
+.mode-pill {
+  @apply rounded-full px-4 py-2 text-sm font-medium border border-white/20 hover:bg-white/5 transition-all cursor-pointer;
+}
+.mode-pill.active {
+  @apply bg-cyan-500/20 border-cyan-400/50 text-cyan-300;
+}
 [data-legacy-home], .legacy-home, #legacy-onboarding { display:none !important; }

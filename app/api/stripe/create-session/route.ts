@@ -34,6 +34,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Resolve URLs with fallback to request origin if env not set
+    const requestUrl = new URL(req.url);
+    const defaultBase = process.env.NEXT_PUBLIC_BASE_URL || `${requestUrl.protocol}//${requestUrl.host}`;
+    const resolvedSuccess = successUrl || `${defaultBase}/checkout/success?session_id={CHECKOUT_SESSION_ID}`;
+    const resolvedCancel = cancelUrl || `${defaultBase}/checkout/cancel`;
+
     // Create checkout session using existing Stripe price
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -45,8 +51,8 @@ export async function POST(req: NextRequest) {
         },
       ],
       mode: 'payment', // One-time payment for products
-      success_url: successUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_BASE_URL}/checkout/cancel`,
+      success_url: resolvedSuccess,
+      cancel_url: resolvedCancel,
       metadata: {
         tier: finalTier,
         productSku: finalTier, // Keep legacy field for compatibility
@@ -72,14 +78,19 @@ export async function POST(req: NextRequest) {
     });
     
     return NextResponse.json({ sessionId: session.id, url: session.url });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating checkout session:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
+      // Log the full error object for detailed inspection
+      errorMessage: error.message,
+      errorStack: error.stack,
+      stripeError: error.raw, // Stripe-specific error details
       tier: finalTier,
       metadata
     });
+    // Return a more informative error message to the client
+    const clientErrorMessage = error.raw?.message || 'Failed to create checkout session due to an internal error.';
     return NextResponse.json(
-      { error: 'Failed to create checkout session' },
+      { error: clientErrorMessage },
       { status: 500 }
     );
   }
