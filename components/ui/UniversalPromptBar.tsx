@@ -19,7 +19,7 @@ export interface UniversalPromptBarProps {
   placeholder?: string;
   promptLabel?: string;
   showPrompt?: boolean;
-  buttonText?: string;
+  buttonText?: React.ReactNode;
   onPromptSubmit?: (prompt: string) => void;
   onFileUpload?: (fileUrl: string, metadata: any) => void;
   onComplete?: (data: { 

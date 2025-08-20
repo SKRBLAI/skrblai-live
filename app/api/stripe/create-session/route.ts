@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 import { stripe } from '../../../../utils/stripe';
 import { priceMap, getPriceId, getAmount } from '../../../../lib/config/skillsmithPriceMap';
 
@@ -18,6 +20,37 @@ export async function POST(req: NextRequest) {
         { error: 'Missing required parameter: tier (or legacy productSku)' },
         { status: 400 }
       );
+    }
+
+    // Create a server-side Supabase client
+    const supabase = createRouteHandlerClient({ cookies });
+
+    // Get authenticated user
+    let { data: { user } } = await supabase.auth.getUser();
+    let userId = user?.id;
+    let userEmail = user?.email;
+
+    // Handle GUEST checkout if no user is found
+    if (!user) {
+      console.log('[Stripe API] No authenticated user found. Creating a guest user for checkout.');
+      const guestEmail = `guest_${Date.now()}@skrbl.io`;
+      const { data: guestData, error: guestError } = await supabase.auth.signUp({
+        email: guestEmail,
+        password: `password-${Date.now()}` // Secure, temporary password
+      });
+
+      if (guestError || !guestData.user) {
+        console.error('[Stripe API] Failed to create guest user:', guestError);
+        return NextResponse.json(
+          { error: 'Failed to initialize guest checkout session.' },
+          { status: 500 }
+        );
+      }
+      
+      user = guestData.user;
+      userId = user.id;
+      userEmail = user.email;
+      console.log(`[Stripe API] Guest user created successfully: ${userId}`);
     }
 
     // Get price ID from price map
@@ -60,8 +93,9 @@ export async function POST(req: NextRequest) {
         category: metadata?.category || 'sports',
         source: metadata?.source || 'sports_page'
       },
+      client_reference_id: userId,
       allow_promotion_codes: true,
-      customer_email: email || undefined,
+      customer_email: userEmail || undefined,
       // Enable automatic tax calculation
       automatic_tax: {
         enabled: true,
