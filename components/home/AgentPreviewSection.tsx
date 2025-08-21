@@ -140,7 +140,7 @@ export default function AgentPreviewSection(): React.ReactElement {
   // Update button actions for unified routing
   const handleCardRoute = (agentId: string) => {
     const slug = AGENT_SLUGS[agentId] || agentId;
-    router.push(`/services/${slug}`);
+    router.push(`/agents/${slug}`);
   };
 
   // Handle demo action

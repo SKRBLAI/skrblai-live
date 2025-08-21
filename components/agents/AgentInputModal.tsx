@@ -1,11 +1,11 @@
 'use client';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 import PercyAvatar from '../home/PercyAvatar';
 
 interface AgentInputModalProps {
-  agent: Agent | null;
+  agent: SafeAgent | null;
   onClose: () => void;
   onSubmit: (input: string) => Promise<void>;
 }

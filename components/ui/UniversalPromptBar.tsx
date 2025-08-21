@@ -221,8 +221,7 @@ export default function UniversalPromptBar({
     onClick={selectFile}
     disabled={isBusy}
     whileHover={{ scale: 1.03 }}
-    className={`w-full py-8 border-2 border-dashed border-teal-400/40 rounded-2xl flex flex-col items-center justify-center cosmic-glass cosmic-gradient shadow-[0_0_24px_#30D5C880] transition hover:shadow-[0_0_40px_#30D5C8] relative mb-4 ${isBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
-    style={{ minHeight: 120 }}
+    className={`universal-prompt-bar-container w-full py-8 border-2 border-dashed border-teal-400/40 rounded-2xl flex flex-col items-center justify-center cosmic-glass cosmic-gradient shadow-[0_0_24px_#30D5C880] transition hover:shadow-[0_0_40px_#30D5C8] relative mb-4 ${isBusy ? 'opacity-60 cursor-not-allowed' : ''}`}
     type="button"
     tabIndex={isBusy ? -1 : 0}
     aria-label="Select or drop a file to upload"
@@ -268,8 +267,8 @@ export default function UniversalPromptBar({
       initial={{ width: 0 }}
       animate={{ width: `${progress}%` }}
       transition={{ duration: 0.5, ease: 'easeInOut' as const }}
-      className="absolute left-0 top-0 h-full bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue shadow-[0_0_12px_#30D5C8] animate-pulse"
-      style={{ borderRadius: 8 }}
+      className="universal-prompt-bar-progress absolute left-0 top-0 h-full bg-gradient-to-r from-electric-blue via-teal-400 to-electric-blue shadow-[0_0_12px_#30D5C8] animate-pulse"
+      
     />
   </div>
 )}

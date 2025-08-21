@@ -1,0 +1,6 @@
+/* AIChatInterface.css - External CSS for AIChatInterface component */
+
+/* Chat input with minimum height */
+.ai-chat-input {
+  min-height: 56px;
+}

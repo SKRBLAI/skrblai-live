@@ -9,8 +9,11 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { Agent } from '@/types/agent';
+import { toSafeAgent, type SafeAgent } from '@/utils/safeAgent';
 import { Toaster } from 'react-hot-toast';
 // import { useMediaQuery } from 'react-responsive'; // Commented out - using window.innerWidth instead
+import '../../styles/components/agent-card.css';
+import '../../styles/components/AgentLeagueDashboard.css';
 
 // Fetch Agent League data from the backend
 async function fetchAgentLeagueData(token?: string) {
@@ -108,7 +111,7 @@ export default function AgentLeagueDashboard() {
   };
 
   // Recommendation handoff logic
-  function handleHandoff(agent: Agent) {
+  function handleHandoff(agent: SafeAgent) {
     setSelectedAgent(agent);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Handoff to:', agent.name);
@@ -116,23 +119,23 @@ export default function AgentLeagueDashboard() {
   }
 
   // Navigation to unified agent service page
-  function handleAgentInfo(agent: Agent) {
-    router.push(`/services/${agent.id}`);
+  function handleAgentInfo(agent: SafeAgent) {
+    router.push(`/agents/${agent.id}`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] View info for:', agent.name);
     }
   }
 
   // Chat with agent - route to unified page with chat tab
-  function handleAgentChat(agent: Agent) {
-    router.push(`/services/${agent.id}?tab=chat`);
+  function handleAgentChat(agent: SafeAgent) {
+    router.push(`/agents/${agent.id}?tab=chat`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Chat with:', agent.name);
     }
   }
 
   // Launch agent functionality: trigger N8N workflow then navigate
-  const handleAgentLaunch = async (agent: Agent) => {
+  const handleAgentLaunch = async (agent: SafeAgent) => {
     try {
       if (process.env.NODE_ENV === 'development') {
         console.log('[AgentLeagueDashboard] Triggering N8N workflow for:', agent.name);
@@ -144,7 +147,7 @@ export default function AgentLeagueDashboard() {
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || 'Workflow trigger failed');
-      router.push(`/services/${agent.id}`);
+      router.push(`/agents/${agent.id}`);
     } catch (err: any) {
       console.error('[AgentLeagueDashboard] Launch error:', err);
       toast.error(err.message || 'Failed to launch agent. Please try again.');
@@ -166,10 +169,6 @@ export default function AgentLeagueDashboard() {
             width={400}
             height={400}
             className="animate-pulse"
-            style={{ 
-              filter: 'blur(1px)',
-              transform: 'scale(1.2)',
-            }}
           />
         </div>
         
@@ -208,54 +207,45 @@ export default function AgentLeagueDashboard() {
           {isMobile ? (
             <div className="relative">
               {/* Slider Navigation */}
-              <div className="flex justify-between items-center mb-4">
-                <button
+              <div className="agent-league-nav-buttons">
+                <button 
                   onClick={prevSlide}
-                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                   disabled={currentSlide === 0}
-                  aria-label="Previous agent"
-                  tabIndex={0}
+                  className="agent-league-nav-button"
+                  title="Previous agents"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                
-                <div className="text-center">
-                  <span className="text-sm text-gray-400">
-                    {currentSlide + 1} of {totalSlides}
-                  </span>
-                </div>
-                
-                <button
+                <button 
                   onClick={nextSlide}
-                  className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-all min-w-[44px] min-h-[44px] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80"
                   disabled={currentSlide === totalSlides - 1}
-                  aria-label="Next agent"
-                  tabIndex={0}
+                  className="agent-league-nav-button"
+                  title="Next agents"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Mobile Agent Slider */}
-              <div className="overflow-x-auto overflow-y-visible w-full scrollbar-thin scrollbar-thumb-cyan-700/30" style={{ WebkitOverflowScrolling: 'touch' }}>
-                <motion.div
-                  className="flex"
-                  animate={{ x: `-${currentSlide * 100}%` }}
+              {/* Mobile Slider */}
+              <div className="agent-league-mobile-slider">
+                <motion.div 
+                  className="flex" 
+                  animate={{ x: `-${currentSlide * 100}%` }} 
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 >
                   {otherAgents.map((agent, index) => (
-                    <div key={agent.id} className="w-full flex-shrink-0 px-1">
-                      <AgentLeagueCard
-                        agent={agent}
+                    <div key={agent.id} className="agent-league-card-wrapper">
+                      <AgentLeagueCard 
+                        agent={toSafeAgent(agent)} 
                         index={index}
                         onInfo={handleAgentInfo}
                         onChat={handleAgentChat}
                         onLaunch={handleAgentLaunch}
                         onHandoff={handleHandoff}
-                        selected={selectedAgent?.id === agent.id}
-                        isRecommended={userAgentData.recommended.includes(agent.id)}
-                        userProgress={userAgentData.progress[agent.id] || 0}
-                        userMastery={userAgentData.mastery[agent.id] || 0}
+                        isRecommended={recommendations.includes(agent.id)}
+                        userProgress={userAgentData.progress[agent.id as keyof typeof userAgentData.progress] || 0}
+                        userMastery={userAgentData.mastery[agent.id as keyof typeof userAgentData.mastery] || 0}
+                        className="h-full"
                       />
                     </div>
                   ))}
@@ -264,20 +254,20 @@ export default function AgentLeagueDashboard() {
             </div>
           ) : (
             /* Desktop Grid - Standardized Card Heights */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6" style={{ gridAutoRows: '320px' }}>
+            <div className="agent-league-desktop-grid">
               {otherAgents.map((agent, index) => (
-                <AgentLeagueCard
-                  key={agent.id}
-                  agent={agent}
+                <AgentLeagueCard 
+                  key={agent.id} 
+                  agent={toSafeAgent(agent)} 
                   index={index}
                   onInfo={handleAgentInfo}
                   onChat={handleAgentChat}
                   onLaunch={handleAgentLaunch}
                   onHandoff={handleHandoff}
-                  selected={selectedAgent?.id === agent.id}
-                  isRecommended={userAgentData.recommended.includes(agent.id)}
-                  userProgress={userAgentData.progress[agent.id] || 0}
-                  userMastery={userAgentData.mastery[agent.id] || 0}
+                  isRecommended={recommendations.includes(agent.id)}
+                  userProgress={userAgentData.progress[agent.id as keyof typeof userAgentData.progress] || 0}
+                  userMastery={userAgentData.mastery[agent.id as keyof typeof userAgentData.mastery] || 0}
+                  className="h-full"
                 />
               ))}
             </div>

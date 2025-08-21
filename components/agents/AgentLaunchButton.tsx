@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { useUser, useSession } from '@supabase/auth-helpers-react';
 import { useAgentTracking, useUpgradeTracking } from '../../lib/hooks/useAnalytics';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 import { motion } from 'framer-motion';
 
 interface AgentLaunchButtonProps {
-  agent: Agent;
-  onLaunch?: (agent: Agent) => void;
+  agent: SafeAgent;
+  onLaunch?: (agent: SafeAgent) => void;
   className?: string;
   variant?: 'default' | 'card'; // New prop for different contexts
 }

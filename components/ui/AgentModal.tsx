@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAgentEmoji, getAgentImagePath } from '../../utils/agentUtils';
-import { Agent } from '../../types/agent';
+import { SafeAgent } from '../../types/agent';
 import React, { useState, useCallback } from "react";
 import { submitPercyFeedback } from "../../utils/feedback";
 
@@ -16,7 +16,7 @@ const feedbackMotion = {
 };
 
 interface AgentModalProps {
-  agent: Agent | null;
+  agent: SafeAgent | null;
   open: boolean;
   onClose: () => void;
 }
@@ -112,12 +112,7 @@ export default function AgentModal({ agent, open, onClose }: AgentModalProps) {
                 <img
                   src={getAgentImagePath(agent)}
                   alt={agent.name}
-                  className="agent-image w-20 h-20 object-contain rounded-full"
-                  style={{ 
-                    transform: 'scale(0.95)',
-                    objectFit: 'contain',
-                    objectPosition: 'center center'
-                  }}
+                  className="agent-modal-image agent-image w-20 h-20 object-contain rounded-full"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.onerror = null;

@@ -178,3 +178,6 @@ export type AgentChatFunction = (
   conversationHistory?: ConversationMessage[],
   context?: any
 ) => Promise<ChatResponse>;
+
+// SafeAgent type excludes function properties to prevent serialization errors
+export type SafeAgent = Omit<Agent, 'runAgent' | 'handleOnboarding' | 'chat' | 'onInfo' | 'onChat' | 'onHandoff' | 'onLaunch'>;

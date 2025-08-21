@@ -1,18 +1,10 @@
 import React from 'react';
 import Link from 'next/link';
 
-type Agent = {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  route: string | null;
-  intent: string | null;
-  visible: boolean;
-};
+import { SafeAgent } from '@/types/agent';
 
 interface AgentModalProps {
-  agent: Agent;
+  agent: SafeAgent;
   onClose: () => void;
 }
 

@@ -20,15 +20,15 @@ const staggerContainer = {
 };
 import AgentCard from './AgentCard';
 import { usePercyContext } from '../assistant/PercyProvider';
-import { Agent } from '../../types/agent';
+import type { SafeAgent } from '../../types/agent';
 
 interface AgentGridProps {
-  agents?: Agent[];
+  agents?: SafeAgent[];
 }
 
 export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
   const { routeToAgent } = usePercyContext();
-  const [agents, setAgents] = React.useState<Agent[]>(agentsProp || []);
+  const [agents, setAgents] = React.useState<SafeAgent[]>(agentsProp || []);
   const [loading, setLoading] = React.useState<boolean>(!agentsProp);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -41,7 +41,7 @@ export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
         const response = await fetch('/api/agents');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-        setAgents(Array.isArray(data.agents) ? data.agents.filter((a: Agent) => a.visible !== false) : []);
+        setAgents(Array.isArray(data.agents) ? data.agents.filter((a: SafeAgent) => a.visible !== false) : []);
       } catch (err) {
         setError('Failed to load agents. Please try again later.');
         setAgents([]);
@@ -128,7 +128,7 @@ export default function AgentGrid({ agents: agentsProp }: AgentGridProps) {
       animate="show"
       className="cosmic-glass cosmic-gradient grid justify-items-center gap-6 grid-cols-[repeat(auto-fit,minmax(280px,1fr))] p-3 sm:p-6 rounded-2xl shadow-[0_0_32px_#1E90FF20] max-w-7xl mx-auto w-full"
     >
-      {agents.map((agent: Agent, idx: number) => {
+      {agents.map((agent: SafeAgent, idx: number) => {
         const isLocked = agent.unlocked === false;
         return (
           <motion.div

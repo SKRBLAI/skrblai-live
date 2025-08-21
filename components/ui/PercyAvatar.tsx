@@ -65,8 +65,7 @@ export default function PercyAvatar({ src = '/images/percy-chameleon.png', alt =
         {/* Eye animation overlay */}
         {animate && (
           <motion.div
-            className="absolute left-1/2 top-1/2 w-6 h-3 bg-black/80 rounded-b-full opacity-80"
-            style={{ transform: 'translate(-50%, -50%)' }}
+            className="percy-avatar-eye-overlay absolute left-1/2 top-1/2 w-6 h-3 bg-black/80 rounded-b-full opacity-80"
             animate={{ y: [0, 0.5, -0.5, 0], scaleX: [1, 1.08, 0.96, 1] }}
             transition={{ duration: 2.1, repeat: Infinity }}
           />

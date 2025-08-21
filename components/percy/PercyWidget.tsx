@@ -18,10 +18,10 @@ import { usePathname } from 'next/navigation';
 import { saveIntentMemory, clearPercyMemory } from '../../utils/memory';
 import { logPercyMessage, getPercyMessageHistory } from '../../utils/percy/logPercyMessage';
 import styles from '../../styles/PercyWidget.module.css';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 
 const useApiAgents = () => {
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agents, setAgents] = useState<SafeAgent[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchAgents = async () => {
@@ -42,7 +42,7 @@ const useApiAgents = () => {
   return { agents, loading };
 };
 
-function getBestAgents(goal: string, platform: string, agents: Agent[]): Agent[] {
+function getBestAgents(goal: string, platform: string, agents: SafeAgent[]): SafeAgent[] {
   if (!Array.isArray(agents)) return [];
   const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   const lowerGoal = (goal || '').toLowerCase();
@@ -99,11 +99,11 @@ function PercyWidget() {
   const [running, setRunning] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showUpsellModal, setShowUpsellModal] = useState(false);
-  const [pendingAgent, setPendingAgent] = useState<Agent | null>(null);
+  const [pendingAgent, setPendingAgent] = useState<SafeAgent | null>(null);
   const [userProfile, setUserProfile] = useState<{ goal: string; platform: string }>({ goal: '', platform: '' });
   const [showAgentSuggestions, setShowAgentSuggestions] = useState(false);
-  const [suggestedAgents, setSuggestedAgents] = useState<Agent[]>([]);
-  const [activeAgent, setActiveAgent] = useState<Agent | null>(null);
+  const [suggestedAgents, setSuggestedAgents] = useState<SafeAgent[]>([]);
+  const [activeAgent, setActiveAgent] = useState<SafeAgent | null>(null);
   const [lastUsedAgent, setLastUsedAgent] = useState<string | null>(null);
   const [intakeComplete, setIntakeComplete] = useState(false);
 
@@ -331,7 +331,7 @@ function PercyWidget() {
     }
   };
 
-  const handleAgentClick = (agent: Agent) => {
+  const handleAgentClick = (agent: SafeAgent) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('lastSelectedAgent', agent.intent || '');
     }

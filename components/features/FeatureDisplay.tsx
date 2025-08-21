@@ -82,7 +82,7 @@ export default function FeatureDisplay({ features }: FeatureDisplayProps): JSX.E
             <CosmicButton href="/" variant="outline">
               ← Back to Home
             </CosmicButton>
-            <CosmicButton href="/services/agents" variant="primary">
+            <CosmicButton href="/agents" variant="primary">
               Meet Percy
             </CosmicButton>
           </div>

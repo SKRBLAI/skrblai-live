@@ -27,7 +27,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-gradient-to-r from-cyan-400 to-white rounded-full"
+              className="choice-card-particle absolute w-1 h-1 bg-gradient-to-r from-cyan-400 to-white rounded-full"
               style={{
                 left: `${20 + Math.random() * 60}%`,
                 top: `${20 + Math.random() * 60}%`,
@@ -56,7 +56,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           {[...Array(12)].map((_, i) => (
             <motion.div
               key={`success-${i}`}
-              className="absolute w-2 h-2 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-full"
+              className="choice-card-particle absolute w-2 h-2 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 rounded-full"
               style={{
                 left: '50%',
                 top: '50%',
@@ -142,11 +142,7 @@ export default function ChoiceCard({ icon, label, onClick, className = '', ...pr
           damping: 22,
           boxShadow: { duration: 0.8 }
         }}
-        className={`relative w-full h-40 md:h-48 lg:h-56 rounded-3xl bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/95 backdrop-blur-2xl border-4 border-cosmic-animate shadow-[0_0_64px_#30d5c8cc,0_0_32px_#38bdf8cc,inset_0_1px_0_rgba(255,255,255,0.12)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/80 ${className} focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/80`}
-        style={{
-          perspective: '1200px',
-          transformStyle: 'preserve-3d'
-        }}
+        className={`choice-card-container relative w-full h-40 md:h-48 lg:h-56 rounded-3xl bg-gradient-to-br from-slate-900/90 via-slate-800/85 to-slate-900/95 backdrop-blur-2xl border-4 border-cosmic-animate shadow-[0_0_64px_#30d5c8cc,0_0_32px_#38bdf8cc,inset_0_1px_0_rgba(255,255,255,0.12)] transition-all flex flex-col items-center justify-center cursor-pointer group-hover:border-teal-300/80 ${className} focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/80`}
         tabIndex={0}
         {...props}
       >

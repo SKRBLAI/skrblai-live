@@ -225,7 +225,6 @@ const AIChatInterface: React.FC<AIChatInterfaceProps> = ({
                 }
               }
             }}
-            style={{ minHeight: '56px' }}
           />
           <motion.button
             type="submit"

@@ -7,9 +7,10 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import CardBase from './CardBase';
 
 import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap, Sparkles, Crown, Award, Brain, Target, Palette, BarChart3, BookOpen, Globe, Smartphone, Video, DollarSign, Shield } from 'lucide-react';
-import { Agent } from '../../types/agent';
 import '../../styles/components/agent-card.css';
+import '../../styles/components/AgentLeagueCard.css';
 import { getAgentImagePath, getAgentEmoji } from '../../utils/agentUtils';
+import { SafeAgent } from '../../types/agent';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 import { agentLeague, type AgentConfiguration } from '../../lib/agents/agentLeague';
 import AgentLaunchButton from '../agents/AgentLaunchButton';
@@ -18,7 +19,6 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
-
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -72,18 +72,20 @@ const getBadgeType = (agentConfig: AgentConfiguration): 'recommended' | 'new' | 
 };
 
 interface AgentLeagueCardProps {
-  agent: Agent;
+  agent: SafeAgent;
   index?: number;
   className?: string;
-  onChat?: (agent: Agent) => void;
-  onInfo?: (agent: Agent) => void;
-  onHandoff?: (agent: Agent) => void;
-  onLaunch?: (agent: Agent) => void;
+  onChat?: (agent: SafeAgent) => void;
+  onInfo?: (agent: SafeAgent) => void;
+  onHandoff?: (agent: SafeAgent) => void;
+  onLaunch?: (agent: SafeAgent) => void;
   isRecommended?: boolean;
   userProgress?: number;
   userMastery?: number;
   showIntelligence?: boolean;
   children?: React.ReactNode;
+  onClick?: (agent: SafeAgent) => void;
+  onInfoClick?: (agent: SafeAgent) => void;
 }
 
 const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> = ({
@@ -165,20 +167,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Power Rangers Cosmic Glass Card */}
-        <CardBase className="h-full relative overflow-hidden group float-slow" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
+        <CardBase className="agent-league-card-base" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
           <motion.div 
-            className="h-full relative overflow-hidden group bg-gradient-to-br from-violet-800/90 via-purple-900/90 to-indigo-900/80 backdrop-blur-xl border-2 border-teal-400/80 shadow-[0_0_36px_#30D5C8AA,0_0_72px_#5B3DF544] hover:shadow-[0_0_72px_#30D5C8AA,0_8px_64px_#5B3DF566] rounded-2xl transition-all duration-500 agent-card-glow float-slow"
-            style={{
-                  background: 'linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  boxShadow: `
-                    0 0 40px rgba(48, 213, 200, 0.4),
-                    0 0 80px rgba(91, 61, 245, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                    inset 0 -1px 0 rgba(0, 0, 0, 0.2)
-                  `
-                }}
-              >
+            className="agent-league-card-container agent-card-glow float-slow"
+          >
                 {/* Pulsing Border Animation */}
                 <motion.div 
                   className="absolute inset-0 rounded-2xl border-2 border-teal-400/60 opacity-75"
@@ -219,12 +211,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 )}
 
                 {/* Live Activity & Stats - Data-driven */}
-                <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
-                  <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-cyan-400/30">
+                <div className="agent-league-stats">
+                  <div className="agent-league-stat-item">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     <span className="text-cyan-300 font-medium">{liveUsers} online</span>
                   </div>
-                  <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md rounded-full px-3 py-1 text-xs border border-purple-400/30">
+                  <div className="agent-league-stat-item">
                     <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
                     <span className="text-purple-300 font-medium">{agentConfig.powers.length} powers</span>
                   </div>
@@ -258,16 +250,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     
                     {/* Multiple Orbiting Particles */}
                     <motion.span
-                      className="absolute -top-1 left-1/2 h-1.5 w-1.5 bg-cyan-400 rounded-full shadow-lg"
+                      className="agent-league-orbiting-particle absolute -top-1 left-1/2 h-1.5 w-1.5 bg-cyan-400"
                       animate={{ rotate: 360 }}
                       transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                      style={{ originX: 0.5, originY: 2.5 }}
                     />
                     <motion.span
-                      className="absolute top-1/2 -right-1 h-1 w-1 bg-purple-400 rounded-full shadow-lg"
+                      className="agent-league-orbiting-particle absolute top-1/2 -right-1 h-1 w-1 bg-purple-400"
                       animate={{ rotate: 360 }}
                       transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
-                      style={{ originX: -2, originY: 0.5 }}
                     />
                     
                     <Image
@@ -285,8 +275,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       }}
                     />
                     <div 
-                      className="hidden absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full items-center justify-center text-3xl text-white border-2 border-teal-400/70 shadow-lg"
-                      style={{ display: 'none' }}
+                      className="agent-league-fallback-avatar"
                     >
                       {agentConfig.emoji || getAgentEmoji(agent.id)}
                     </div>
@@ -294,40 +283,27 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                   {/* Agent Name & Superhero Title */}
                   <motion.h3 
-                    className="text-lg font-bold bg-gradient-to-r from-[#00F0FF] via-purple-400 to-[#00F0FF] bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] mb-1 text-center px-2 leading-tight"
+                    className="agent-league-name"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    style={{ 
-                      wordBreak: 'break-word',
-                      hyphens: 'auto',
-                      lineHeight: '1.2'
-                    }}
                   >
                     {agentConfig.personality.superheroName || agent.name}
                   </motion.h3>
 
                   {/* Catchphrase */}
                   <motion.p 
-                    className="text-xs text-cyan-300 font-medium mb-2 text-center italic px-2 leading-tight"
+                    className="agent-league-catchphrase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
-                    style={{ 
-                      lineHeight: '1.3',
-                      maxHeight: '2.6em',
-                      overflow: 'hidden',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical'
-                    }}
                   >
                     "{agentConfig.personality.catchphrase}"
                   </motion.p>
 
                   {/* Capability Icons */}
                   <motion.div 
-                    className="flex items-center gap-2 mb-3 flex-wrap justify-center"
+                    className="agent-league-capabilities"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4 }}
@@ -335,11 +311,11 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     {agentConfig.capabilities.slice(0, 3).map((capability, idx) => (
                       <div 
                         key={idx}
-                        className="flex items-center gap-1 bg-black/40 backdrop-blur-sm rounded-full px-2 py-1 border border-cyan-400/30"
+                        className="agent-league-capability-item"
                         title={capability.category}
                       >
                         {getCapabilityIcon(capability.category)}
-                        <span className="text-xs text-cyan-300">{capability.category.split(' ')[0]}</span>
+                        <span className="agent-league-capability-text">{capability.category.split(' ')[0]}</span>
                       </div>
                     ))}
                   </motion.div>
@@ -352,7 +328,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                   >
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="agent-league-button-grid">
               <motion.button
                 onClick={() => {
                   if (onChat) {
@@ -362,7 +338,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     router.push(`/?scan=${agent.id}`);
                   }
                 }}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 hover:from-cyan-400/90 hover:to-blue-500/90 text-white text-xs font-bold rounded-lg border border-cyan-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(48,213,200,0.3)] hover:shadow-[0_0_25px_rgba(48,213,200,0.5)] transition-all duration-300"
+                className="agent-league-chat-button"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -372,14 +348,15 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               
               <motion.button
                 onClick={() => {
-                  if (onInfo) {
+                  if (onInfoClick) {
+                    onInfoClick(agent);
+                  } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // FIXED: INFO button routes to agent backstory via service page
                     router.push(`/agents/${agent.id}?tab=backstory`);
                   }
                 }}
-                className="flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/80 to-pink-600/80 hover:from-purple-400/90 hover:to-pink-500/90 text-white text-xs font-bold rounded-lg border border-purple-400/50 backdrop-blur-sm shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)] transition-all duration-300"
+                className="agent-league-info-button"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -390,14 +367,16 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             
             <motion.button
               onClick={() => {
-                if (onLaunch) {
+                if (onClick) {
+                  onClick(agent);
+                } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
                   // Launch Agent - route to unified service page
                   router.push(`/agents/${agent.id}`);
                 }
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500/80 to-emerald-600/80 hover:from-green-400/90 hover:to-emerald-500/90 text-white text-sm font-bold rounded-lg border border-green-400/50 backdrop-blur-sm shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:shadow-[0_0_30px_rgba(34,197,94,0.5)] transition-all duration-300"
+              className="agent-league-launch-button"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -408,7 +387,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
           {/* Power Rangers Cosmic Hover Effects */}
           <motion.div 
-            className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/10 to-blue-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl pointer-events-none"
+            className="agent-league-hover-effect"
             animate={{
               background: [
                 'linear-gradient(45deg, rgba(48, 213, 200, 0.05), rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.05))',

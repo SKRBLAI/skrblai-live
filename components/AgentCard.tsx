@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
-import { Agent } from '../types/agent';
+import type { SafeAgent } from '../types/agent';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { getAgentEmoji, getAgentImagePath } from '../utils/agentUtils';
@@ -8,6 +8,7 @@ import AgentModal from './ui/AgentModal';
 import LockOverlay from './ui/LockOverlay';
 import GlassmorphicCard from './shared/GlassmorphicCard';
 import { useRouter } from 'next/navigation';
+import '../styles/components/AgentCard.css';
 
 // Cosmic Shadow Standard: Soft, premium, layered glow with teal, blue, and subtle fuchsia.
 const GLOW_COLOR = '0 0 24px 4px rgba(0,245,212,0.48), 0 0 60px 10px rgba(0,102,255,0.28), 0 0 32px 8px rgba(232,121,249,0.18)';
@@ -151,10 +152,11 @@ const getCtaVariants = (index: number) => ({
 });
 
 interface AgentCardProps {
-  agent: Agent;
+  agent: SafeAgent;
   index?: number;
   isPremiumUnlocked?: boolean;
   className?: string;
+  onSelect?: () => void;
   onClick?: () => void;
   onInfo?: () => void;
 }
@@ -249,7 +251,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
   const handleCardRoute = () => {
     const slug = AGENT_SLUGS[agent.id] || agent.id;
-    router.push(`/services/${slug}`);
+    router.push(`/agents/${slug}`);
   };
 
   return (
@@ -258,7 +260,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
       
       <motion.article
         ref={cardRef}
-        className={`min-h-[300px] h-full flex flex-col justify-between relative group cursor-pointer select-none bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] hover:shadow-[0_0_48px_#30D5C8AA,0_4px_48px_#5B3DF555] rounded-2xl transition-all ${className}`}
+        className={`agent-card-container ${className}`}
         onClick={handleCardRoute}
       >
         <motion.div
@@ -286,7 +288,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               variants={avatarVariants}
               style={{ transformStyle: 'preserve-3d', zIndex: 10 }}
             >
-              <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-violet-700/30 via-purple-800/30 to-indigo-800/30 backdrop-blur-lg border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA]">
+              <div className="agent-avatar-container">
                 {imgSrc && (
                   <img
                     src={imgSrc}
@@ -306,8 +308,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               
               {/* Emoji Indicator */}
               <div 
-                className="absolute -bottom-2 -right-2 w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center text-lg md:text-xl bg-gradient-to-br from-cyan-500 to-teal-600 shadow-lg border-2 border-white/10"
-                style={{ transform: 'translateZ(20px)' }}
+                className="agent-emoji-indicator"
               >
                 {emoji}
               </div>
@@ -318,10 +319,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
               className="mt-2 text-white/90 text-sm text-center min-h-[48px] leading-relaxed px-1 line-clamp-3"
               variants={contentVariants}
             >
-              <h3 className="text-lg md:text-xl font-bold mb-1 text-[#00F0FF] drop-shadow-glow">
+              <h3 className="agent-name">
                 {name}
               </h3>
-              <p className="text-sm md:text-base text-white/90 line-clamp-2">
+              <p className="agent-description">
                 {agent.description || `AI-powered ${agent.category} assistant`}
               </p>
             </motion.div>
@@ -333,7 +334,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
             >
               <button
                 onClick={e => { e.stopPropagation(); handleCardRoute(); }}
-                className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-medium text-sm md:text-base hover:shadow-glow transition-all duration-300"
+                className="agent-cta-button"
               >
                 {isLocked ? 'Unlock Agent' : 'Launch Agent'}
               </button>

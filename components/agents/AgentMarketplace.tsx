@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import AgentCard from '../ui/AgentCard';
 import AgentInputModal from './AgentInputModal';
-import { Agent } from '../../types/agent';
+import { SafeAgent } from '../../types/agent';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 
 // Remove agentRegistry import and static usage
 
-const getCategories = (agents: Agent[]): string[] => {
+const getCategories = (agents: SafeAgent[]): string[] => {
   const categories = agents.map(agent => agent.category);
   return ['All', ...Array.from(new Set(categories))];
 };
@@ -22,8 +22,8 @@ const sortOptions = [
 
 interface AgentMarketplaceProps {
   userRole: 'free' | 'premium';
-  recommendedAgents?: Agent[];
-  agents?: Agent[];
+  recommendedAgents?: SafeAgent[];
+  agents?: SafeAgent[];
 }
 
 // --- Cosmic Marketplace Copy ---
@@ -50,8 +50,8 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sort, setSort] = useState<string>('popular');
   const router = useRouter();
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [selectedAgent, setSelectedAgent] = useState<SafeAgent | null>(null);
+  const [agents, setAgents] = useState<SafeAgent[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -65,7 +65,7 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
         const fetchedAgents = Array.isArray(data.agents) ? data.agents : [];
-        setAgents(fetchedAgents.filter((a: Agent) => a.visible !== false));
+        setAgents(fetchedAgents.filter((a: SafeAgent) => a.visible !== false));
       } catch (err) {
         setError('Failed to load agents. Please try again later.');
         setAgents([]);
@@ -93,12 +93,12 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
     return list;
   }, [agents, selectedCategory, sort, recommendedAgents]);
 
-  const handleAgentClick = (agent: Agent) => {
+  const handleAgentClick = (agent: SafeAgent) => {
     setSelectedAgent(agent);
   };
 
-  const handleAgentInfo = (agent: Agent) => {
-    router.push(`/agent-backstory/${agent.id}`);
+  const handleAgentInfo = (agent: SafeAgent) => {
+    router.push(`/agents/${agent.id}`);
   };
 
   const handleCloseModal = () => {
@@ -109,20 +109,8 @@ const AgentMarketplace: React.FC<AgentMarketplaceProps> = ({ userRole, recommend
     if (!selectedAgent) return;
 
     try {
-      // Use optional chaining to safely access runAgent
-      if (typeof selectedAgent?.runAgent !== 'function') {
-        console.error('Agent does not have a runAgent method');
-        return;
-      }
-
-      // TypeScript will allow this now since we've checked if it's a function
-      const result = await selectedAgent.runAgent({
-        userId: 'demo', // TODO: Get actual userId
-        input,
-        agentId: selectedAgent.id
-      });
-
-      console.log('Agent result:', result);
+      // TODO: Implement proper agent execution logic
+      console.log('Running agent with input:', input);
       // TODO: Handle agent response (show in UI, save to history, etc.)
     } catch (error) {
       console.error('Error running agent:', error);

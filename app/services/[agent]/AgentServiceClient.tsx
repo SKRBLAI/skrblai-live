@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 import { agentBackstories } from '../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../utils/agentUtils';
 import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
@@ -14,7 +14,7 @@ import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star,
 import { toast } from 'react-hot-toast';
 
 interface AgentServiceClientProps {
-  agent: Agent | undefined;
+  agent: SafeAgent | undefined;
   params: { agent: string };
 }
 

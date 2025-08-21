@@ -1,0 +1,12 @@
+/* ChoiceCard.css - External CSS for ChoiceCard component */
+
+/* Choice card container with 3D perspective */
+.choice-card-container {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Floating particles */
+.choice-card-particle {
+  /* Position is set dynamically via JavaScript */
+}

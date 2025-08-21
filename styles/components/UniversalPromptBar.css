@@ -1,0 +1,11 @@
+/* UniversalPromptBar.css - External CSS for UniversalPromptBar component */
+
+/* Prompt bar container with minimum height */
+.universal-prompt-bar-container {
+  min-height: 120px;
+}
+
+/* Progress bar with border radius */
+.universal-prompt-bar-progress {
+  border-radius: 8px;
+}

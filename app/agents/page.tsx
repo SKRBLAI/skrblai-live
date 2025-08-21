@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Zap, Crown, TrendingUp, Lock } from 'lucide-react';
 import AgentLeagueCard from '../../components/ui/AgentLeagueCard';
-import { Agent } from '../../types/agent';
+import { toSafeAgent, type SafeAgent } from '../../utils/safeAgent';
 import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicCard, { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import CosmicHeading from '../../components/shared/CosmicHeading';
@@ -15,7 +15,7 @@ import { toast } from 'react-hot-toast';
 import ErrorBoundary from '../../components/layout/ErrorBoundary';
 
 // Enhanced Agent type with access control
-interface EnhancedAgent extends Agent {
+interface EnhancedAgent extends SafeAgent {
   isLocked: boolean;
   usageCount: number;
   popularityScore: number;
@@ -152,25 +152,25 @@ export default function AgentsPage() {
   }, [agents]);
 
   // Agent interaction handlers - All route to unified agent page
-  const handleAgentInfo = (agent: EnhancedAgent) => {
-    router.push(`/services/${agent.id}`);
+  const handleAgentInfo = (agent: SafeAgent) => {
+    router.push(`/agents/${agent.id}`);
   };
 
-  const handleAgentChat = (agent: EnhancedAgent) => {
+  const handleAgentChat = (agent: SafeAgent) => {
     if (agent.isLocked) {
       toast.error('Please sign in to chat with premium agents');
       return;
     }
     // Route to unified page with chat tab active
-    router.push(`/services/${agent.id}?tab=chat`);
+    router.push(`/agents/${agent.id}?tab=chat`);
   };
 
-  const handleAgentLaunch = (agent: EnhancedAgent) => {
+  const handleAgentLaunch = (agent: SafeAgent) => {
     if (agent.isLocked) {
       toast.error('Please sign in to launch premium agents');
       return;
     }
-    router.push(`/services/${agent.id}`);
+    router.push(`/agents/${agent.id}`);
   };
 
   const handleSearch = (term: string) => {
@@ -320,22 +320,8 @@ export default function AgentsPage() {
                     <CosmicCardGlass className="h-full p-6 relative overflow-hidden">
                       {/* Live Activity Badge */}
                       <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-green-400 font-bold">{Math.floor(Math.random() * 89) + 12}</span>
-                      </div>
-                      
-                      <AgentLeagueCard
-                        agent={agent}
-                        index={index}
-                        onInfo={() => handleAgentInfo(agent)}
-                        onChat={() => handleAgentChat(agent)}
-                        onLaunch={() => handleAgentLaunch(agent)}
-                        isRecommended={!agent.isLocked && agent.popularityScore > 80}
-                        userProgress={agent.usageCount / 10}
-                        userMastery={Math.floor(agent.popularityScore / 20)}
-                        showIntelligence={true}
                         className="w-full h-full bg-transparent border-0 shadow-none p-0 rounded-none"
-                      />
+                      </div>
                     </CosmicCardGlass>
                   </motion.div>
                 ))

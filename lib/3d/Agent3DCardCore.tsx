@@ -12,7 +12,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { use3DModules, type Device3DCapabilities } from './dynamicImports';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -32,7 +32,7 @@ export interface Agent3DCardState {
 
 export interface Agent3DCardProps {
   // Agent data
-  agent: Agent;
+  agent: SafeAgent;
   index?: number;
   
   // 3D Configuration

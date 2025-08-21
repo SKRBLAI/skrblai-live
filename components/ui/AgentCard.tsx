@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
-import { Agent } from '../../types/agent';
+import { SafeAgent } from '../../types/agent';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
 import { getAgentEmoji, getAgentImagePath } from '../../utils/agentUtils';
@@ -146,7 +146,7 @@ const getCtaVariants = (index: number) => ({
 });
 
 interface AgentCardProps {
-  agent: Agent;
+  agent: SafeAgent;
   index?: number;
   isPremiumUnlocked?: boolean;
   className?: string;
@@ -251,7 +251,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
   const handleCardRoute = () => {
     // Free Scan Flow: Route to Percy onboarding with scan intent
-    router.push(`/?scan=${agent.id}`);
+    const slug = AGENT_SLUGS[agent.category] || agent.id;
+    router.push(`/agents/${slug}`);
   };
 
   return (
@@ -282,12 +283,6 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 aria-label={agent.name}
                 title={usedFallback ? `${agent.name} avatar (fallback)` : `${agent.name} avatar`}
                 className="agent-image object-contain w-full h-full rounded-full"
-                style={{ 
-                  imageRendering: 'crisp-edges',
-                  transform: 'scale(0.95)',
-                  objectFit: 'contain',
-                  objectPosition: 'center center'
-                }}
                 loading="lazy"
                 width={112}
                 height={112}

@@ -1,0 +1,6 @@
+/* PercyAvatar.css - External CSS for PercyAvatar component */
+
+/* Eye animation overlay */
+.percy-avatar-eye-overlay {
+  transform: translate(-50%, -50%);
+}

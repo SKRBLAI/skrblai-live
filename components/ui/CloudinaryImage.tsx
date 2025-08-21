@@ -3,10 +3,10 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { getAgentImagePath } from '../../utils/agentUtils';
-import type { Agent } from '@/types/agent';
+import type { SafeAgent } from '@/types/agent';
 
 interface CloudinaryImageProps {
-  agent: Agent;
+  agent: SafeAgent;
   alt: string;
   width?: number;
   height?: number;
