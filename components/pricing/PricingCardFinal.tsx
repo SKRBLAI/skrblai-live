@@ -6,8 +6,8 @@ import { Check, Star, Zap, Rocket, Crown } from 'lucide-react';
 import CardShell from '../ui/CardShell';
 import CosmicButton from '../shared/CosmicButton';
 import CheckoutButton from '../payments/CheckoutButton';
-import { useAuth } from '../../contexts/AuthContext';
-import { getSupabase } from '../../utils/supabase';
+import { useAuth } from '../../components/context/AuthContext';
+import { getSupabase } from '../../lib/analytics/userFunnelTracking';
 import toast from 'react-hot-toast';
 
 interface Plan {

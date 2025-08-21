@@ -55,7 +55,7 @@ interface UserJourney {
 // Lazy initialization of Supabase client to prevent build errors
 let supabaseClient: SupabaseClient | null = null;
 
-function getSupabase(): SupabaseClient | null {
+export function getSupabase(): SupabaseClient | null {
   if (supabaseClient !== null) return supabaseClient;
   
   try {
