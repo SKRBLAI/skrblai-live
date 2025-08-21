@@ -10,7 +10,7 @@ interface PaymentButtonProps {
   label?: string;
   className?: string;
   metadata?: Record<string, string>;
-  vertical?: string;
+  vertical?: "sports" | "business";
 }
 
 export default function PaymentButton({ 

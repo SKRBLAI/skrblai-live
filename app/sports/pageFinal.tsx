@@ -20,13 +20,13 @@ import {
   Medal
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/context/AuthContext';
 import { getSupabase } from '@/utils/supabase';
 import toast from 'react-hot-toast';
 import CheckoutButton from '@/components/payments/CheckoutButton';
 import CosmicButton from '@/components/shared/CosmicButton';
 import AgentLeagueCard from '@/components/ui/AgentLeagueCard';
-import { tierConfigs } from '@/lib/config/skillsmithTiers';
+import { bundles } from '@/lib/config/skillsmithBundles';
 
 export default function SportsPage() {
   const { user } = useAuth();
@@ -189,7 +189,7 @@ export default function SportsPage() {
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto"
           >
             {features.map((feature, index) => (
-              <AgentLeagueCard key={feature.title} className="p-6">
+              <AgentLeagueCard key={feature.title} className="p-6" agent={{id: "skillsmith", name: "Skillsmith", description: "AI Sports Assistant", category: "sports", capabilities: [], powers: [], emoji: "🏀", visible: true, recommendedHelpers: [], handoffTriggers: [], canConverse: true}}>
                 <feature.icon className="w-10 h-10 text-purple-400 mb-4" />
                 <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
                 <p className="text-soft-gray">{feature.description}</p>
@@ -224,19 +224,22 @@ export default function SportsPage() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
           >
-            {Object.entries(tierConfigs).map(([tierId, tier], index) => (
+            {bundles.map((tier, index) => (
               <motion.div
-                key={tierId}
+                key={tier.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 * index }}
                 className="relative"
-                onMouseEnter={() => setHoveredTier(tierId)}
+                onMouseEnter={() => setHoveredTier(tier.id)}
                 onMouseLeave={() => setHoveredTier(null)}
               >
-                <AgentLeagueCard className={`h-full ${tier.popular ? 'ring-2 ring-purple-500/50' : ''}`}>
-                  {tier.popular && (
+                <AgentLeagueCard 
+                  className="h-full ring-2 ring-purple-500/50"
+                  agent={{id: tier.id, name: tier.title, description: `${tier.title} sports training package`, category: "sports", capabilities: [], powers: [], emoji: "🏆", visible: true, recommendedHelpers: [], handoffTriggers: [], canConverse: true}}
+                >
+                  {tier.badge && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
                       <motion.div
                         initial={{ scale: 0 }}
@@ -248,28 +251,33 @@ export default function SportsPage() {
                     </div>
                   )}
 
-                  <div className="p-6 flex flex-col h-full">
-                    <div className="mb-4">
-                      {tier.icon}
+                  <div className="p-8 flex flex-col h-full">
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-2xl font-bold text-white">{tier.title}</h3>
+                          {tier.subtitle && (
+                            <p className="text-soft-gray mt-1">{tier.subtitle}</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-3xl font-bold text-white">${tier.price}</p>
+                          <p className="text-soft-gray text-sm">one-time</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-400 mb-6">
+                        Perfect for {tier.title} athletes
+                      </p>
+                      <ul className="space-y-2 mb-6 flex-grow">
+                        {tier.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start text-soft-gray text-sm">
+                            <span className="mr-2 text-green-400">✓</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-
-                    <h3 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                      {tier.name}
-                      {tier.popular && <Medal className="w-5 h-5 text-yellow-400" />}
-                    </h3>
-
-                    <p className="text-soft-gray text-sm mb-6">
-                      {tier.description}
-                    </p>
-
-                    <ul className="space-y-2 mb-6 flex-grow">
-                      {tier.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start text-soft-gray text-sm">
-                          <span className="mr-2 text-green-400">✓</span>
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
 
                     <div className="space-y-4">
                       <div className="text-center">
@@ -283,16 +291,16 @@ export default function SportsPage() {
                       >
                         <CheckoutButton
                           label="Get Started"
-                          sku={tierId}
+                          sku={tier.sku}
                           mode="payment"
-                          vertical="skillsmith"
+                          vertical="sports"
                           className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 font-bold"
                         />
                       </motion.div>
                     </div>
                   </div>
 
-                  {hoveredTier === tierId && (
+                  {hoveredTier === tier.id && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}

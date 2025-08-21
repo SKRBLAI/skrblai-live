@@ -16,6 +16,7 @@ interface SkillSmithProductsGridProps {
 }
 
 export default function SkillSmithProductsGrid({ className = '' }: SkillSmithProductsGridProps) {
+  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   // Sort products by ascending price
   const sortedProducts = [...skillsmithProducts].sort((a, b) => a.price - b.price);
 
@@ -88,6 +89,8 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ scale: 1.02, boxShadow: '0 0 10px rgba(45,212,191,0.6)' }}
                 className="relative"
+                onMouseEnter={() => setHoveredProduct(product.id)}
+                onMouseLeave={() => setHoveredProduct(null)}
               >
                 <AgentLeagueCard
                   agent={{
@@ -99,7 +102,9 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
                     capabilities: product.features,
                     canConverse: false,
                     recommendedHelpers: [],
-                    handoffTriggers: []
+                    handoffTriggers: [],
+                    route: null,
+                    intent: null
                   }}
                   className="h-full min-h-[320px] bg-white/10 backdrop-blur-md rounded-2xl shadow-md"
                 >
@@ -222,7 +227,9 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
               capabilities: [],
               canConverse: false,
               recommendedHelpers: [],
-              handoffTriggers: []
+              handoffTriggers: [],
+              route: null,
+              intent: null
             }}
             className="p-8 max-w-4xl mx-auto"
           >
