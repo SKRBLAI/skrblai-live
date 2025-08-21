@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { 
   logSignInAttempt, 
   logSignInSuccess, 
@@ -6,12 +7,6 @@ import {
   logPromoRedemption,
   logSecurityViolation
 } from './authAuditLogger';
-
-// Initialize Supabase client with service role for admin operations
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export interface DashboardAuthRequest {
   email: string;
@@ -50,6 +45,16 @@ export async function authenticateForDashboard(
 ): Promise<DashboardAuthResponse> {
   try {
     console.log('[DashboardAuth] Authenticating user:', request.email);
+    
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return {
+        success: false,
+        error: 'Authentication service unavailable'
+      };
+    }
 
     // Enhanced audit logging for sign-in attempt
     await logSignInAttempt(request.email, {
@@ -244,6 +249,16 @@ export async function validateAndRedeemCode(
   error?: string;
 }> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return {
+        success: false,
+        error: 'Code validation service unavailable'
+      };
+    }
+    
     // Use the Supabase function to validate and redeem
     const { data, error } = await supabase.rpc('redeem_promo_code', {
       p_code: code,
@@ -286,6 +301,13 @@ export async function validateAndRedeemCode(
  */
 export async function checkVIPStatus(email: string): Promise<any> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return null;
+    }
+    
     const { data: vipData, error } = await supabase
       .from('vip_users')
       .select('*')
@@ -320,6 +342,13 @@ export async function checkVIPStatus(email: string): Promise<any> {
  */
 export async function getUserDashboardAccess(userId: string): Promise<any> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return null;
+    }
+    
     const { data, error } = await supabase
       .from('user_dashboard_access')
       .select('*')
@@ -344,6 +373,18 @@ export async function getUserDashboardAccess(userId: string): Promise<any> {
  */
 export async function validatePromoCode(code: string): Promise<PromoCodeValidation> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return {
+        isValid: false,
+        type: 'PROMO',
+        benefits: null,
+        error: 'Validation service unavailable'
+      };
+    }
+    
     const { data, error } = await supabase
       .from('promo_codes')
       .select('*')
@@ -418,6 +459,13 @@ export async function updateUserDashboardAccess(
   metadata: any = {}
 ): Promise<boolean> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return false;
+    }
+    
     const { error } = await supabase
       .from('user_dashboard_access')
       .upsert({
@@ -453,6 +501,13 @@ export async function logAuthEvent(
   metadata: any = {}
 ): Promise<void> {
   try {
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return;
+    }
+    
     await supabase.from('user_journey_events').insert({
       user_id: userId,
       session_id: `auth_${Date.now()}`,
@@ -485,6 +540,16 @@ export async function registerUserForDashboard(
 ): Promise<DashboardAuthResponse> {
   try {
     console.log('[DashboardAuth] Registering new user:', request.email);
+    
+    // Get Supabase client (lazy initialization)
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.error('[DashboardAuth] Failed to initialize Supabase client');
+      return {
+        success: false,
+        error: 'Registration service unavailable'
+      };
+    }
 
     // Enhanced audit logging for signup attempt
     await logSignInAttempt(request.email, {
@@ -547,6 +612,7 @@ export async function registerUserForDashboard(
     console.log('[DashboardAuth] User account created successfully:', user.id);
 
     // Log successful sign-up to auth_events
+    // We already have the supabase client initialized above
     await supabase.from('auth_events').insert({
       user_id: user.id,
       event_type: 'sign_up',
@@ -606,11 +672,12 @@ export async function registerUserForDashboard(
     // Step 4: Check VIP status (may exist from pre-registration)
     const vipStatus = await checkVIPStatus(user.email!);
 
-    // Step 5: Handle marketing consent if provided
+    // Step 4: Handle marketing consent if provided
     if (request.marketingConsent !== undefined) {
       try {
         console.log('[DashboardAuth] Recording marketing consent:', request.marketingConsent);
         
+        // We already have the supabase client initialized above
         const consentResult = await supabase.rpc('update_marketing_consent', {
           p_user_id: user.id,
           p_email: user.email!,

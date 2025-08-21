@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-// import { getAuth } from '@clerk/nextjs/server'; // Removed Clerk
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+
   // ✅ PROPER AUTH VALIDATION - Get user from auth header
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
@@ -45,13 +47,13 @@ export async function GET(req: Request) {
   try {
     switch (statType) {
       case 'usage':
-        return await getAgentUsage();
+        return await getAgentUsage(supabase);
       case 'power_levels':
-        return await getAgentPowerLevels();
+        return await getAgentPowerLevels(supabase);
       case 'failure_rates':
-        return await getAgentFailureRates();
+        return await getAgentFailureRates(supabase);
       case 'handoffs':
-        return await getHandoffStats();
+        return await getHandoffStats(supabase);
       default:
         return NextResponse.json({ error: 'Invalid stat type provided' }, { status: 400 });
     }
@@ -64,125 +66,203 @@ export async function GET(req: Request) {
   }
 }
 
-async function getAgentUsage() {
+async function getAgentUsage(supabase: any) {
   const { data, error } = await supabase
     .from('agent_launches')
-    .select('agent_id, count')
-    .order('count', { ascending: false });
+    .select('agent_id, status');
 
   if (error) throw error;
-  
-  // The query above assumes a view or table that pre-aggregates counts.
-  // Let's do the aggregation here for now.
+
+  return data;
+}
+
+interface AgentAnalytics {
+  agent_id: string;
+}
+
+interface UsageCount {
+  agent_id: string;
+  count: number;
+}
+
+async function getAgentUsageStats(supabase: any) {
   const { data: rawData, error: rawError } = await supabase
-    .from('agent_launches')
-    .select('agent_id');
-    
+    .from('agent_analytics')
+    .select('agent_id')
+    .eq('event_type', 'agent_launched');
+
   if (rawError) throw rawError;
 
-  const usageCounts = rawData.reduce((acc, { agent_id }) => {
+  const usageCounts = rawData.reduce((acc: Record<string, number>, { agent_id }: AgentAnalytics) => {
     acc[agent_id] = (acc[agent_id] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const sortedUsage = Object.entries(usageCounts)
-    .map(([agent_id, count]) => ({ agent_id, count }))
-    .sort((a, b) => b.count - a.count);
+  const sortedUsage: UsageCount[] = Object.entries(usageCounts)
+    .map(([agent_id, count]) => ({ agent_id, count: count as number }))
+    .sort((a, b) => (b.count as number) - (a.count as number));
 
   return NextResponse.json(sortedUsage);
 }
 
-async function getAgentPowerLevels() {
+interface LaunchStats {
+  total: number;
+  successes: number;
+}
+
+interface LaunchData {
+  agent_id: string;
+  status: string;
+}
+
+async function getAgentPowerLevels(supabase: any) {
   const { data: launches, error } = await supabase
     .from('agent_launches')
     .select('agent_id, status');
 
   if (error) throw error;
 
-  const stats = launches.reduce((acc, { agent_id, status }) => {
+  const stats = launches.reduce((acc: Record<string, LaunchStats>, { agent_id, status }: LaunchData) => {
     if (!acc[agent_id]) {
       acc[agent_id] = { total: 0, successes: 0 };
     }
     acc[agent_id].total++;
-    if (status === 'success') {
+    if (status === 'completed') {
       acc[agent_id].successes++;
     }
     return acc;
-  }, {} as Record<string, { total: number; successes: number; }>);
+  }, {} as Record<string, LaunchStats>);
 
-  const powerLevels = Object.entries(stats).map(([agent_id, { total, successes }]) => {
+  interface PowerLevelData {
+    agent_id: string;
+    powerLevel: number;
+    details: {
+      totalLaunches: number;
+      successRate: number;
+    };
+  }
+
+  const powerLevels: PowerLevelData[] = Object.entries(stats).map(([agent_id, stats]) => {
+    const { total, successes } = stats as LaunchStats;
     const successRate = total > 0 ? successes / total : 0;
-    const powerLevel = (total * successRate) / 10; // Simple formula for now
+    const powerLevel = Math.round(successRate * 100);
     return {
       agent_id,
-      powerLevel: parseFloat(powerLevel.toFixed(2)),
+      powerLevel,
       details: {
         totalLaunches: total,
         successRate: parseFloat(successRate.toFixed(2))
       }
     };
   }).sort((a, b) => b.powerLevel - a.powerLevel);
-  
+
   return NextResponse.json(powerLevels);
 }
 
-async function getAgentFailureRates() {
+async function getAgentFailureRates(supabase: any) {
   const { data: launches, error } = await supabase
     .from('agent_launches')
     .select('agent_id, status');
 
   if (error) throw error;
 
-  const stats = launches.reduce((acc, { agent_id, status }) => {
+  interface FailureStats {
+    total: number;
+    failures: number;
+  }
+
+  interface LaunchFailureData {
+    agent_id: string;
+    status: string;
+  }
+
+  const stats = launches.reduce((acc: Record<string, FailureStats>, { agent_id, status }: LaunchFailureData) => {
     if (!acc[agent_id]) {
       acc[agent_id] = { total: 0, failures: 0 };
     }
     acc[agent_id].total++;
-    if (status === 'failed' || status === 'critical_failure') {
+    if (status === 'failed') {
       acc[agent_id].failures++;
     }
     return acc;
-  }, {} as Record<string, { total: number; failures: number; }>);
+  }, {} as Record<string, FailureStats>);
 
-  const failureRates = Object.entries(stats).map(([agent_id, { total, failures }]) => ({
-    agent_id,
-    failureRate: total > 0 ? parseFloat((failures / total).toFixed(2)) : 0,
+  interface FailureRateData {
+    agent_id: string;
+    failureRate: number;
     details: {
+      totalLaunches: number;
+      totalFailures: number;
+    };
+  }
+
+  const failureRates: FailureRateData[] = Object.entries(stats).map(([agent_id, stats]) => {
+    const { total, failures } = stats as FailureStats;
+    const failureRate = total > 0 ? failures / total : 0;
+    return {
+      agent_id,
+      failureRate: parseFloat(failureRate.toFixed(2)),
+      details: {
         totalLaunches: total,
         totalFailures: failures
-    }
-  })).sort((a, b) => b.failureRate - a.failureRate);
-
+      }
+    };
+  }).sort((a, b) => b.failureRate - a.failureRate);
+  
   return NextResponse.json(failureRates);
 }
 
-async function getHandoffStats() {
-    const { data: handoffs, error } = await supabase
-        .from('agent_handoffs')
-        .select('source_agent_id, target_agent_id, status');
+async function getHandoffStats(supabase: any) {
+  const { data: handoffs, error } = await supabase
+    .from('handoffs')
+    .select('source_agent_id, target_agent_id, status');
 
-    if (error) throw error;
+  if (error) throw error;
 
-    const stats = handoffs.reduce((acc, { source_agent_id, target_agent_id, status }) => {
-        const path = `${source_agent_id} -> ${target_agent_id}`;
-        if (!acc[path]) {
-            acc[path] = { total: 0, completed: 0, failed: 0 };
-        }
-        acc[path].total++;
-        if (status === 'completed') {
-            acc[path].completed++;
-        } else if (status === 'failed') {
-            acc[path].failed++;
-        }
-        return acc;
-    }, {} as Record<string, { total: number; completed: number; failed: number; }>);
+  interface HandoffStats {
+    total: number;
+    completed: number;
+    failed: number;
+  }
 
-    const handoffStats = Object.entries(stats).map(([path, { total, completed, failed }]) => ({
-        path,
-        total,
-        successRate: total > 0 ? parseFloat((completed / total).toFixed(2)) : 0,
-        failureRate: total > 0 ? parseFloat((failed / total).toFixed(2)) : 0,
-    })).sort((a, b) => b.total - a.total);
+  interface HandoffData {
+    source_agent_id: string;
+    target_agent_id: string;
+    status: string;
+  }
 
-    return NextResponse.json(handoffStats);
-} 
+  const handoffStats = handoffs.reduce((acc: Record<string, HandoffStats>, { source_agent_id, target_agent_id, status }: HandoffData) => {
+    const path = `${source_agent_id} → ${target_agent_id}`;
+    if (!acc[path]) {
+      acc[path] = { total: 0, completed: 0, failed: 0 };
+    }
+    acc[path].total++;
+    if (status === 'completed') {
+      acc[path].completed++;
+    } else if (status === 'failed') {
+      acc[path].failed++;
+    }
+    return acc;
+  }, {} as Record<string, HandoffStats>);
+
+  interface SuccessRateData {
+    path: string;
+    total: number;
+    successRate: number;
+    failureRate: number;
+  }
+
+  const successRates: SuccessRateData[] = Object.entries(handoffStats).map(([path, stats]) => {
+    const { total, completed, failed } = stats as HandoffStats;
+    const successRate = total > 0 ? completed / total : 0;
+    const failureRate = total > 0 ? failed / total : 0;
+    return {
+      path,
+      total,
+      successRate: parseFloat(successRate.toFixed(2)),
+      failureRate: parseFloat(failureRate.toFixed(2))
+    };
+  }).sort((a, b) => b.successRate - a.successRate);
+
+  return NextResponse.json(successRates);
+}

@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
+import { type SupabaseClient } from '@supabase/supabase-js';
 
 interface FunnelEvent {
   event_type: 'page_view' | 'signup_start' | 'signup_complete' | 'signin_start' | 'signin_complete' | 
@@ -51,24 +52,31 @@ interface UserJourney {
   userTier: string;
 }
 
-// Supabase client with error handling for missing environment variables
-let supabase: any = null;
+// Lazy initialization of Supabase client to prevent build errors
+let supabaseClient: SupabaseClient | null = null;
 
-try {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+function getSupabase(): SupabaseClient | null {
+  if (supabaseClient !== null) return supabaseClient;
   
-  if (!supabaseUrl || !supabaseKey) {
-    console.warn('[Funnel Tracking] Missing Supabase environment variables - analytics will be disabled');
-    console.warn('Missing:', {
-      url: !supabaseUrl ? 'NEXT_PUBLIC_SUPABASE_URL' : null,
-      key: !supabaseKey ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : null
-    });
-  } else {
-    supabase = createClient(supabaseUrl, supabaseKey);
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('[Funnel Tracking] Missing Supabase environment variables - analytics will be disabled');
+      console.warn('Missing:', {
+        url: !supabaseUrl ? 'NEXT_PUBLIC_SUPABASE_URL' : null,
+        key: !supabaseKey ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : null
+      });
+      return null;
+    }
+    
+    supabaseClient = createClient(supabaseUrl, supabaseKey);
+    return supabaseClient;
+  } catch (error) {
+    console.error('[Funnel Tracking] Error initializing Supabase client:', error);
+    return null;
   }
-} catch (error) {
-  console.error('[Funnel Tracking] Error initializing Supabase client:', error);
 }
 
 /**
@@ -77,6 +85,7 @@ try {
 export async function trackFunnelEvent(event: Omit<FunnelEvent, 'timestamp'>): Promise<void> {
   try {
     // Skip if Supabase is not available
+    const supabase = getSupabase();
     if (!supabase) {
       console.warn('[Funnel Tracking] Supabase not available - skipping event tracking');
       return;
@@ -119,6 +128,7 @@ export async function trackFunnelEvent(event: Omit<FunnelEvent, 'timestamp'>): P
 async function updateUserJourneyCache(userId: string, event: FunnelEvent): Promise<void> {
   try {
     // Skip if Supabase is not available
+    const supabase = getSupabase();
     if (!supabase) {
       return;
     }
@@ -143,32 +153,38 @@ async function updateUserJourneyCache(userId: string, event: FunnelEvent): Promi
       const updatedEvents = [...(existingJourney.events || []), event];
       const conversionEvents = existingJourney.conversion_events + (isConversionEvent ? 1 : 0);
       
-      await supabase
-        .from('user_journeys')
-        .update({
-          events: updatedEvents,
-          end_time: event.timestamp,
-          total_duration: new Date(event.timestamp).getTime() - new Date(existingJourney.start_time).getTime(),
-          conversion_events: conversionEvents,
-          last_active_agent: event.agent_id || existingJourney.last_active_agent,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existingJourney.id);
+      const supabase = getSupabase();
+      if (supabase) {
+        await supabase
+          .from('user_journeys')
+          .update({
+            events: updatedEvents,
+            end_time: event.timestamp,
+            total_duration: new Date(event.timestamp).getTime() - new Date(existingJourney.start_time).getTime(),
+            conversion_events: conversionEvents,
+            last_active_agent: event.agent_id || existingJourney.last_active_agent,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', existingJourney.id);
+      }
     } else {
       // Create new journey
-      await supabase
-        .from('user_journeys')
-        .insert({
-          user_id: userId,
-          session_id: event.session_id,
-          events: [event],
-          start_time: event.timestamp,
-          end_time: event.timestamp,
-          total_duration: 0,
-          conversion_events: isConversionEvent ? 1 : 0,
-          last_active_agent: event.agent_id,
-          user_tier: 'starter' // Default, will be updated by user profile
-        });
+      // No need to get Supabase again, we already have it from earlier in the function
+      if (supabase) {
+        await supabase
+          .from('user_journeys')
+          .insert({
+            user_id: userId,
+            session_id: event.session_id,
+            events: [event],
+            start_time: event.timestamp,
+            end_time: event.timestamp,
+            total_duration: 0,
+            conversion_events: isConversionEvent ? 1 : 0,
+            last_active_agent: event.agent_id,
+            user_tier: 'starter' // Default, will be updated by user profile
+          });
+      }
     }
 
   } catch (error) {
@@ -184,6 +200,7 @@ export async function getFunnelMetrics(
 ): Promise<FunnelMetrics> {
   try {
     // Return default metrics if Supabase is not available
+    const supabase = getSupabase();
     if (!supabase) {
       console.warn('[Funnel Metrics] Supabase not available - returning default metrics');
       return {
@@ -209,6 +226,7 @@ export async function getFunnelMetrics(
     const startTime = new Date(Date.now() - timeRangeHours[timeRange] * 60 * 60 * 1000).toISOString();
 
     // Get basic funnel metrics
+    // We already have the Supabase client from earlier in the function
     const { data: events, error } = await supabase
       .from('user_funnel_events')
       .select('*')
@@ -293,6 +311,7 @@ export async function getFunnelMetrics(
 export async function getUserJourney(userId: string, sessionId?: string): Promise<UserJourney | null> {
   try {
     // Return null if Supabase is not available
+    const supabase = getSupabase();
     if (!supabase) {
       console.warn('[User Journey] Supabase not available - returning null');
       return null;

@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { withSafeJson } from '@/lib/api/safe';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // Cache for live metrics to avoid database overload
 let metricsCache: any = null;
@@ -80,6 +79,15 @@ function generateSocialProofMessage(type: keyof typeof socialProofTemplates): st
 
 async function getAnalyticsData() {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return {
+        realUsers: 0,
+        realAgentLaunches: 0,
+        realWorkflows: 0,
+        recentActivity: []
+      };
+    }
     // Get real data from Supabase for more accurate metrics
     const [
       { count: totalProfiles },
@@ -120,7 +128,7 @@ async function getAnalyticsData() {
  * GET /api/social-proof/live-feed
  * Returns live social proof data and metrics
  */
-export async function GET(req: NextRequest) {
+export const GET = withSafeJson(async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get('type') as keyof typeof socialProofTemplates || 'signup';
@@ -220,53 +228,45 @@ export async function GET(req: NextRequest) {
       }
     }, { status: 500 });
   }
-}
+});
 
 /**
  * POST /api/social-proof/live-feed
  * Track user activity for social proof
  */
-export async function POST(req: NextRequest) {
-  try {
-    const { eventType, data, userId } = await req.json();
+export const POST = withSafeJson(async (req: Request) => {
+  const { eventType, data, userId } = await req.json();
 
-    if (!eventType) {
-      return NextResponse.json(
-        { success: false, error: 'eventType is required' },
-        { status: 400 }
-      );
-    }
-
-    // Store the activity for real-time social proof
-    const activityRecord = {
-      event_type: eventType,
-      user_id: userId,
-      data: JSON.stringify(data),
-      timestamp: new Date().toISOString(),
-      ip_address: req.headers.get('x-forwarded-for') || 'unknown'
-    };
-
-    // Store in database (if needed for analytics)
-    if (supabase) {
-      await supabase
-        .from('social_proof_events')
-        .insert(activityRecord);
-    }
-
-    // Invalidate cache to include new activity
-    metricsCache = null;
-
-    return NextResponse.json({
-      success: true,
-      message: 'Activity tracked successfully'
-    });
-
-  } catch (error: any) {
-    console.error('[Social Proof API] Track error:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to track activity'
-    }, { status: 500 });
+  if (!eventType) {
+    return NextResponse.json(
+      { success: false, error: 'eventType is required' },
+      { status: 400 }
+    );
   }
-} 
+
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ success: false, error: 'Supabase not configured' }, { status: 503 });
+  }
+
+  // Store the activity for real-time social proof
+  const activityRecord = {
+    event_type: eventType,
+    user_id: userId,
+    data: JSON.stringify(data),
+    timestamp: new Date().toISOString(),
+    ip_address: (req as any).headers?.get?.('x-forwarded-for') || 'unknown'
+  };
+
+  await supabase
+    .from('social_proof_events')
+    .insert(activityRecord);
+
+  // Invalidate cache to include new activity
+  metricsCache = null;
+
+  return NextResponse.json({
+    success: true,
+    message: 'Activity tracked successfully'
+  });
+});

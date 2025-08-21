@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { 
   authenticateForDashboard, 
   validatePromoCode,
@@ -6,29 +6,37 @@ import {
   registerUserForDashboard,
   type DashboardAuthRequest 
 } from '../../../../lib/auth/dashboardAuth';
+import { withSafeJson } from '@/lib/api/safe';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-// Environment variable validation
-function validateEnvironment() {
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// Environment variable validation (non-throwing)
+function validateEnvironment(): string[] {
   const requiredEnvVars = [
     'NEXT_PUBLIC_SUPABASE_URL',
     'NEXT_PUBLIC_SUPABASE_ANON_KEY',
     'SUPABASE_SERVICE_ROLE_KEY'
   ];
-
   const missing = requiredEnvVars.filter(varName => !process.env[varName]);
-  
-  if (missing.length > 0) {
-    console.error('[AUTH API] Missing environment variables:', missing);
-    throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
-  }
-
-  console.log('[AUTH API] Environment validation passed');
+  return missing;
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withSafeJson(async (req: Request) => {
   try {
-    // Validate environment variables first
-    validateEnvironment();
+    // Validate environment variables first (guard instead of throw)
+    const missing = validateEnvironment();
+    if (missing.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Service misconfigured',
+          missingEnv: missing
+        },
+        { status: 503 }
+      );
+    }
 
     const body = await req.json();
     const { 
@@ -147,13 +155,23 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 // GET endpoint for validating codes without authentication  
-export async function GET(req: NextRequest) {
+export const GET = withSafeJson(async (req: Request) => {
   try {
-    // Validate environment variables first
-    validateEnvironment();
+    // Validate environment variables first (guard instead of throw)
+    const missing = validateEnvironment();
+    if (missing.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Service misconfigured',
+          missingEnv: missing
+        },
+        { status: 503 }
+      );
+    }
 
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
@@ -179,12 +197,19 @@ export async function GET(req: NextRequest) {
       }
 
       try {
-        // Import createClient here to avoid circular dependencies
-        const { createClient } = await import('@supabase/supabase-js');
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!
-        );
+        const supabase = getOptionalServerSupabase();
+        if (!supabase) {
+          // Fallback to free access if Supabase is not configured
+          return NextResponse.json({
+            success: true,
+            accessLevel: 'free',
+            isVIP: false,
+            vipStatus: { isVIP: false, vipLevel: 'none' },
+            benefits: { features: [] },
+            promoCodeUsed: null,
+            metadata: {}
+          });
+        }
 
         // Verify token and get user
         const { data: { user }, error: userError } = await supabase.auth.getUser(token);
@@ -316,4 +341,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+});

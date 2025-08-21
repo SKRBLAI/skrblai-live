@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs'; // Use Node.js runtime for this route
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const dynamic = 'force-dynamic'; // Force dynamic rendering, prevent static analysis
 
 /**
  * GET /api/activity/live-feed
@@ -14,6 +10,11 @@ const supabase = createClient(
  * Provides real-time updates on agent launches, completions, and system events
  */
 export async function GET(request: NextRequest) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ success: false, error: 'Supabase not configured' }, { status: 503 });
+  }
+
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get('userId');
   const agentFilter = searchParams.get('agent');

@@ -28,6 +28,18 @@ interface BusinessData {
   channels: string[];
 }
 
+
+export default function BusinessWizard({ mode = 'business', preset, onClose }: BusinessWizardProps) {
+  const router = useRouter();
+  const [step, setStep] = useState(0);
+  const [businessData, setBusinessData] = useState<BusinessData>({
+    goals: [],
+    channels: []
+  });
+  
+  const isBusinessMode = mode === 'business';
+  const isSportsMode = mode === 'sports';
+
   const GOAL_OPTIONS = isBusinessMode ? [
     {
       id: "dominate-seo",
@@ -150,18 +162,9 @@ const RECOMMENDED_AGENTS = [
     specialty: "Social Media Marketing"
   }
 ];
-
-export default function BusinessWizard({ mode = 'business', preset, onClose }: BusinessWizardProps) {
-  const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [businessData, setBusinessData] = useState<BusinessData>({
-    goals: [],
-    channels: []
-  });
   
-  const isBusinessMode = mode === 'business';
-  const isSportsMode = mode === 'sports';
-
+  
+  
   // Mode-specific copy
   const COPY = {
     title: isBusinessMode ? "Business Setup Wizard" : "Athletic Performance Wizard",
@@ -281,6 +284,7 @@ export default function BusinessWizard({ mode = 'business', preset, onClose }: B
               </div>
               <button 
                 onClick={onClose}
+                aria-label="Close wizard"
                 className="text-white/60 hover:text-white transition-colors relative z-10 pointer-events-auto"
               >
                 <X className="w-5 h-5" />
@@ -367,8 +371,9 @@ export default function BusinessWizard({ mode = 'business', preset, onClose }: B
                     <h3 className="text-lg font-semibold text-white mb-6">Tell us about your business</h3>
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-white/80 text-sm mb-2">Industry</label>
+                        <label htmlFor="industry-select" className="block text-white/80 text-sm mb-2">Industry</label>
                         <select 
+                          id="industry-select"
                           value={businessData.industry || ""}
                           onChange={(e) => setBusinessData(prev => ({ ...prev, industry: e.target.value }))}
                           className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white relative z-10 pointer-events-auto"
@@ -381,8 +386,9 @@ export default function BusinessWizard({ mode = 'business', preset, onClose }: B
                       </div>
                       
                       <div>
-                        <label className="block text-white/80 text-sm mb-2">Team Size</label>
+                        <label htmlFor="team-size-select" className="block text-white/80 text-sm mb-2">Team Size</label>
                         <select
+                          id="team-size-select"
                           value={businessData.teamSize || ""}
                           onChange={(e) => setBusinessData(prev => ({ ...prev, teamSize: e.target.value }))}
                           className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white relative z-10 pointer-events-auto"
@@ -395,8 +401,9 @@ export default function BusinessWizard({ mode = 'business', preset, onClose }: B
                       </div>
 
                       <div>
-                        <label className="block text-white/80 text-sm mb-2">Monthly Revenue</label>
+                        <label htmlFor="revenue-select" className="block text-white/80 text-sm mb-2">Monthly Revenue</label>
                         <select
+                          id="revenue-select"
                           value={businessData.revenueBand || ""}
                           onChange={(e) => setBusinessData(prev => ({ ...prev, revenueBand: e.target.value }))}
                           className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white relative z-10 pointer-events-auto"

@@ -1,76 +1,64 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@supabase/supabase-js';
-import { headers } from 'next/headers';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getStripe } from '@/lib/stripe/stripe';
+import { withSafeJson } from '@/lib/api/safe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const POST = withSafeJson(async (req: Request) => {
+  const body = await req.text();
+  const signature = req.headers.get('stripe-signature')!;
+
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Stripe webhook not configured' }, { status: 503 });
+  }
+
+  let event: Stripe.Event;
+  try {
+    const stripe = getStripe();
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+
+  console.log(`Processing webhook event: ${event.type}`);
+
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+
+  switch (event.type) {
+    case 'checkout.session.completed':
+      await handleCheckoutCompleted(supabase, (event as any).data.object);
+      break;
+    case 'customer.subscription.created':
+      await handleSubscriptionCreated(supabase, (event as any).data.object);
+      break;
+    case 'customer.subscription.updated':
+      await handleSubscriptionUpdated(supabase, (event as any).data.object);
+      break;
+    case 'customer.subscription.deleted':
+      await handleSubscriptionDeleted(supabase, (event as any).data.object);
+      break;
+    case 'invoice.payment_succeeded':
+      await handleInvoicePaymentSucceeded(supabase, (event as any).data.object);
+      break;
+    case 'invoice.payment_failed':
+      await handleInvoicePaymentFailed((event as any).data.object);
+      break;
+    default:
+      console.log(`Unhandled webhook event type: ${event.type}`);
+  }
+
+  return NextResponse.json({ received: true });
 });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-
-export const runtime = 'edge';
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.text();
-    const signature = req.headers.get('stripe-signature')!;
-
-    let event;
-    try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
-
-    console.log(`Processing webhook event: ${event.type}`);
-
-    switch (event.type) {
-      case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object);
-        break;
-      
-      case 'customer.subscription.created':
-        await handleSubscriptionCreated(event.data.object);
-        break;
-      
-      case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object);
-        break;
-      
-      case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object);
-        break;
-      
-      case 'invoice.payment_succeeded':
-        await handleInvoicePaymentSucceeded(event.data.object);
-        break;
-      
-      case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object);
-        break;
-      
-      default:
-        console.log(`Unhandled webhook event type: ${event.type}`);
-    }
-
-    return NextResponse.json({ received: true });
-  } catch (error) {
-    console.error('Webhook processing error:', error);
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    );
-  }
-}
-
-async function handleCheckoutCompleted(session: any) {
+async function handleCheckoutCompleted(supabase: SupabaseClient, session: any) {
   const userId = session.client_reference_id;
   const customerId = session.customer;
   const subscriptionId = session.subscription;
@@ -85,7 +73,7 @@ async function handleCheckoutCompleted(session: any) {
   try {
     // Handle SkillSmith sports purchases
     if (session.metadata?.category === 'sports') {
-      await handleSkillSmithPurchase(session);
+      await handleSkillSmithPurchase(supabase, session);
     }
 
     // Handle regular subscription logic if there's a subscription
@@ -120,7 +108,7 @@ async function handleCheckoutCompleted(session: any) {
   }
 }
 
-async function handleSkillSmithPurchase(session: any) {
+async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) {
   const { productSku, source, category } = session.metadata || {};
   
   try {
@@ -188,7 +176,7 @@ async function handleSkillSmithPurchase(session: any) {
   }
 }
 
-async function handleSubscriptionCreated(subscription: any) {
+async function handleSubscriptionCreated(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
 
   try {
@@ -224,7 +212,7 @@ async function handleSubscriptionCreated(subscription: any) {
   }
 }
 
-async function handleSubscriptionUpdated(subscription: any) {
+async function handleSubscriptionUpdated(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
 
   try {
@@ -259,7 +247,7 @@ async function handleSubscriptionUpdated(subscription: any) {
   }
 }
 
-async function handleSubscriptionDeleted(subscription: any) {
+async function handleSubscriptionDeleted(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
 
   try {
@@ -292,7 +280,7 @@ async function handleSubscriptionDeleted(subscription: any) {
   }
 }
 
-async function handleInvoicePaymentSucceeded(invoice: any) {
+async function handleInvoicePaymentSucceeded(supabase: SupabaseClient, invoice: any) {
   const customerId = invoice.customer;
   const subscriptionId = invoice.subscription;
 
@@ -323,4 +311,4 @@ async function handleInvoicePaymentSucceeded(invoice: any) {
 async function handleInvoicePaymentFailed(invoice: any) {
   console.log(`Invoice payment failed: ${invoice.id}`);
   // Handle failed payment - could trigger retry logic, notifications, etc.
-} 
+}

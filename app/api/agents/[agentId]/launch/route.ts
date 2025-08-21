@@ -1,21 +1,16 @@
 import { NextResponse } from 'next/server';
 import { runAgentWorkflow } from '../../../../../lib/agents/runAgentWorkflow';
-// import { getAuth } from '@clerk/nextjs/server'; // Removed Clerk
-import { createClient } from '@supabase/supabase-js';
+import { withSafeJson } from '@/lib/api/safe';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-// Initialize Supabase for logging
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-const N8N_WEBHOOK_URL = process.env.N8N_AGENT_LAUNCH_WEBHOOK_URL; // e.g., https://n8n.skrbl.com/webhook/skrbl-agent-launch
-
-export async function POST(
-  req: Request,
-  { params }: { params: { agentId: string } }
-) {
-  const { agentId } = params;
+export const POST = withSafeJson(async (req: Request) => {
+  // Parse agentId from URL path: /api/agents/{agentId}/launch
+  const url = new URL(req.url);
+  const segments = url.pathname.split('/').filter(Boolean);
+  const agentId = segments[segments.indexOf('agents') + 1];
   const payload = await req.json();
   
   // ✅ PROPER AUTH VALIDATION - Get user from auth header
@@ -24,6 +19,11 @@ export async function POST(
   
   if (!token) {
     return NextResponse.json({ error: 'Authorization token required' }, { status: 401 });
+  }
+
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
   }
 
   // Validate the token and get user
@@ -75,6 +75,7 @@ export async function POST(
     const result = await runAgentWorkflow(agentId, payload, userRole);
 
     // If workflow execution is successful, trigger n8n webhook
+    const N8N_WEBHOOK_URL = process.env.N8N_AGENT_LAUNCH_WEBHOOK_URL;
     if (result.status === 'success' && N8N_WEBHOOK_URL) {
       const webhookPayload = {
         launchId,
@@ -127,4 +128,4 @@ export async function POST(
       { status: 500 }
     );
   }
-} 
+});

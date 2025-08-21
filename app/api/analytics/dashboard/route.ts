@@ -1,18 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getFunnelMetrics } from '../../../../lib/analytics/userFunnelTracking';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { withSafeJson } from '@/lib/api/safe';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 /**
  * Get analytics dashboard data
  * GET /api/analytics/dashboard
  */
-export async function GET(request: NextRequest) {
+export const GET = withSafeJson(async (request: Request) => {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    }
     const { searchParams } = new URL(request.url);
     const timeRange = searchParams.get('timeRange') as '24h' | '7d' | '30d' | '90d' || '30d';
     const userId = searchParams.get('userId');
@@ -97,7 +100,7 @@ export async function GET(request: NextRequest) {
       error: error.message || 'Failed to fetch analytics data'
     }, { status: 500 });
   }
-}
+});
 
 /**
  * Get start date for time range

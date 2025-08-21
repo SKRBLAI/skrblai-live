@@ -1,11 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 import { authAuditLogger } from '../../../../lib/auth/authAuditLogger';
+import { withSafeJson } from '@/lib/api/safe';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/auth/analytics
@@ -13,7 +12,7 @@ const supabase = createClient(
  * Provides authentication analytics and monitoring data
  * Supports real-time monitoring of auth system health
  */
-export async function GET(req: NextRequest) {
+export const GET = withSafeJson(async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const timeRange = searchParams.get('timeRange') as '1h' | '24h' | '7d' || '24h';
@@ -31,6 +30,10 @@ export async function GET(req: NextRequest) {
     }
 
     // Verify user has admin access or is authenticated
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: 'Supabase not configured' }, { status: 503 });
+    }
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) {
       return NextResponse.json(
@@ -113,14 +116,14 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * POST /api/auth/analytics/alert
  * 
  * Creates security alerts based on authentication patterns
  */
-export async function POST(req: NextRequest) {
+export const POST = withSafeJson(async (req: Request) => {
   try {
     const body = await req.json();
     const { alertType, threshold, metadata } = body;
@@ -144,6 +147,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: 'Supabase not configured' }, { status: 503 });
+    }
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     if (authError || !user) {
       return NextResponse.json(
@@ -243,4 +250,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+});

@@ -1,15 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 import { logAuthEvent } from '../../../../lib/auth/dashboardAuth';
+import { withSafeJson } from '@/lib/api/safe';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // Helper function to check admin access
-async function checkAdminAccess(req: NextRequest): Promise<{ success: boolean; user?: any; error?: string }> {
+async function checkAdminAccess(req: Request): Promise<{ success: boolean; user?: any; error?: string }> {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return { success: false, error: 'Service unavailable' };
+    }
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
     
@@ -44,8 +47,15 @@ async function checkAdminAccess(req: NextRequest): Promise<{ success: boolean; u
  * POST /api/admin/promo-management
  * Create new promo/VIP codes or manage existing ones
  */
-export async function POST(req: NextRequest) {
+export const POST = withSafeJson(async (req: Request) => {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Supabase not configured' },
+        { status: 503 }
+      );
+    }
     const adminCheck = await checkAdminAccess(req);
     if (!adminCheck.success) {
       return NextResponse.json(
@@ -224,14 +234,21 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * GET /api/admin/promo-management
  * Get promo codes and VIP users for admin dashboard
  */
-export async function GET(req: NextRequest) {
+export const GET = withSafeJson(async (req: Request) => {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Supabase not configured' },
+        { status: 503 }
+      );
+    }
     const adminCheck = await checkAdminAccess(req);
     if (!adminCheck.success) {
       return NextResponse.json(
@@ -343,4 +360,4 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+});

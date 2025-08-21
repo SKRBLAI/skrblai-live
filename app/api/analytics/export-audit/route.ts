@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-// Initialize Supabase client for audit logs
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const format = searchParams.get('format') || 'json'; // 'json' or 'csv'
@@ -252,41 +254,63 @@ function generateAuditCSV(exportData: any): string {
 export async function POST(req: NextRequest) {
   try {
     const { action, days = 90 } = await req.json();
+    const supabaseInstance = getOptionalServerSupabase();
+    if (!supabaseInstance) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    }
 
     if (action === 'cleanup') {
-      // Clean up old audit logs older than specified days
+      // Clean up old audit logs (older than 90 days)
       const cleanupDate = new Date();
-      cleanupDate.setDate(cleanupDate.getDate() - days);
+      cleanupDate.setDate(cleanupDate.getDate() - 90);
 
-      const cleanupResults = {
-        analytics: 0,
-        n8nExecutions: 0,
-        percyContacts: 0
-      };
+      const { error: cleanupError } = await supabaseInstance
+        .from('audit_logs')
+        .delete()
+        .lt('timestamp', cleanupDate.toISOString());
 
-      // Cleanup analytics data
-      const { count: analyticsCount } = await supabase
+      if (cleanupError) {
+        console.error('Failed to clean up old audit logs:', cleanupError);
+      }
+
+      // Clean up old analytics data (older than 365 days)
+      const analyticsCleanupDate = new Date();
+      analyticsCleanupDate.setDate(analyticsCleanupDate.getDate() - 365);
+
+      const { error: analyticsCleanupError } = await supabaseInstance
         .from('agent_analytics')
         .delete()
-        .lt('timestamp', cleanupDate.toISOString());
+        .lt('timestamp', analyticsCleanupDate.toISOString());
 
-      cleanupResults.analytics = analyticsCount || 0;
+      if (analyticsCleanupError) {
+        console.error('Failed to clean up old analytics data:', analyticsCleanupError);
+      }
 
-      // Cleanup N8N execution logs
-      const { count: n8nCount } = await supabase
-        .from('n8n_executions')
+      // Clean up old handoff data (older than 180 days)
+      const handoffCleanupDate = new Date();
+      handoffCleanupDate.setDate(handoffCleanupDate.getDate() - 180);
+
+      const { error: handoffCleanupError } = await supabaseInstance
+        .from('agent_handoffs')
         .delete()
-        .lt('timestamp', cleanupDate.toISOString());
+        .lt('created_at', handoffCleanupDate.toISOString());
 
-      cleanupResults.n8nExecutions = n8nCount || 0;
+      if (handoffCleanupError) {
+        console.error('Failed to clean up old handoff data:', handoffCleanupError);
+      }
 
       // Cleanup Percy contact logs
-      const { count: percyCount } = await supabase
+      const { count: percyCount } = await supabaseInstance
         .from('percy_contacts')
         .delete()
         .lt('timestamp', cleanupDate.toISOString());
 
-      cleanupResults.percyContacts = percyCount || 0;
+      const cleanupResults = {
+        auditLogs: cleanupError ? 'Failed' : 'Success',
+        analyticsData: analyticsCleanupError ? 'Failed' : 'Success',
+        handoffData: handoffCleanupError ? 'Failed' : 'Success',
+        percyContacts: percyCount !== null ? `${percyCount} records deleted` : 'Unknown'
+      };
 
       return NextResponse.json({
         success: true,

@@ -1,9 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { SupabaseClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export interface AuthAuditEvent {
   eventType: 'signin_attempt' | 'signin_success' | 'signin_failure' | 'promo_redemption' | 'promo_validation' | 'vip_check' | 'security_violation' | 'rate_limit' | 'suspicious_activity' | 'system_health_check';
@@ -91,6 +87,13 @@ export class AuthAuditLogger {
     this.logBuffer = [];
 
     try {
+      const supabase = getOptionalServerSupabase();
+      if (!supabase) {
+        console.error('[AuthAuditLogger] Supabase client not available, keeping logs in buffer');
+        this.logBuffer.unshift(...logsToFlush);
+        return;
+      }
+
       const { error } = await supabase.from('auth_audit_logs').insert(
         logsToFlush.map(event => ({
           event_type: event.eventType,
@@ -277,6 +280,19 @@ export class AuthAuditLogger {
     const since = new Date(Date.now() - hoursBack * 60 * 60 * 1000).toISOString();
 
     try {
+      const supabase = getOptionalServerSupabase();
+      if (!supabase) {
+        console.error('[AuthAuditLogger] Supabase client not available for analytics');
+        return {
+          totalSignIns: 0,
+          successfulSignIns: 0,
+          failedSignIns: 0,
+          promoRedemptions: 0,
+          securityViolations: 0,
+          topFailureReasons: []
+        };
+      }
+
       const { data: logs, error } = await supabase
         .from('auth_audit_logs')
         .select('event_type, severity, metadata')

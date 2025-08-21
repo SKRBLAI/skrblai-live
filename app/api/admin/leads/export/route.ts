@@ -1,7 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { exportLeadsToCSV } from '../../../../../lib/utils/leadExport';
+import { NextResponse } from 'next/server';
+import { exportLeadsToCSV } from '@/lib/server/leadExport';
+import { withSafeJson } from '@/lib/api/safe';
 
-export async function GET(req: NextRequest) {
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export const GET = withSafeJson(async (req: Request) => {
   try {
     const url = new URL(req.url);
     const startDate = url.searchParams.get('startDate');
@@ -25,4 +29,4 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     return NextResponse.json({ error: 'Export failed' }, { status: 500 });
   }
-} 
+});

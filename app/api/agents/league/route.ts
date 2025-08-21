@@ -8,7 +8,7 @@
  * @author SKRBL AI Team
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { 
   agentLeague, 
   getAgent, 
@@ -18,6 +18,7 @@ import {
   findBestHandoff,
   DevHelpers
 } from '../../../../lib/agents/agentLeague';
+
 import { 
   powerEngine, 
   executePower,
@@ -30,13 +31,13 @@ import {
   executeHandoff,
   type HandoffContext 
 } from '../../../../lib/agents/handoffs/handoffSystem';
-import { createClient } from '@supabase/supabase-js';
+import { withSafeJson } from '@/lib/api/safe';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+// Supabase client is created lazily inside handlers via getOptionalServerSupabase()
 
 // =============================================================================
 // API ROUTE HANDLERS
@@ -46,7 +47,7 @@ const supabase = createClient(
  * GET /api/agents/league
  * Returns agent information and league status
  */
-export async function GET(req: NextRequest) {
+export const GET = withSafeJson(async (req: Request) => {
   try {
     const { searchParams } = new URL(req.url);
     const action = searchParams.get('action');
@@ -94,13 +95,13 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
-}
+});
 
 /**
  * POST /api/agents/league
  * Handles agent power execution and handoffs
  */
-export async function POST(req: NextRequest) {
+export const POST = withSafeJson(async (req: Request) => {
   try {
     const body = await req.json();
     const { action, ...params } = body;
@@ -116,7 +117,11 @@ export async function POST(req: NextRequest) {
       }, { status: 401 });
     }
 
-    // Get user from token
+    // Get user from token using a lazily-created Supabase client
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: 'Service unavailable' }, { status: 503 });
+    }
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (!user || userError) {
       return NextResponse.json({
@@ -163,7 +168,7 @@ export async function POST(req: NextRequest) {
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
-}
+});
 
 // =============================================================================
 // HANDLER FUNCTIONS
@@ -538,5 +543,3 @@ async function handleGetChatCapabilities(agentId: string | null) {
     }, { status: 500 });
   }
 }
-
-console.log('[AgentLeague API] Endpoint initialized - Ready to serve the league! 🚀'); 
