@@ -38,20 +38,14 @@ export default function PaymentButton({
 
   return (
     <div className="space-y-2">
-      <CheckoutButton
-        label={defaultButtonText}
-        priceId={priceId}
-        mode="subscription"
-        disabled={disabled || isLoading}
-        className={`
-          relative px-6 py-3 rounded-lg font-semibold text-white
-          bg-gradient-to-r from-electric-blue to-teal
-          hover:from-electric-blue/90 hover:to-teal/90
-          transition-all duration-200
-          disabled:opacity-50 disabled:cursor-not-allowed
-          ${className}
-        `}
-      />
+      <div className={disabled || isLoading ? "opacity-50 cursor-not-allowed" : ""}>
+        <CheckoutButton
+          label={defaultButtonText}
+          priceId={priceId}
+          mode="subscription"
+          className={className}
+        />
+      </div>
       
       <p className="text-xs text-soft-gray/60 text-center">
         💡 Tax will be calculated automatically based on your location
