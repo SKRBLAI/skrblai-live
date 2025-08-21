@@ -12,27 +12,15 @@ import { getOptionalServerSupabase } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-// Environment variable validation (non-throwing)
-function validateEnvironment(): string[] {
-  const requiredEnvVars = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-    'SUPABASE_SERVICE_ROLE_KEY'
-  ];
-  const missing = requiredEnvVars.filter(varName => !process.env[varName]);
-  return missing;
-}
-
 export const POST = withSafeJson(async (req: Request) => {
   try {
-    // Validate environment variables first (guard instead of throw)
-    const missing = validateEnvironment();
-    if (missing.length > 0) {
+    // Get Supabase client inside handler with proper null checking
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Service misconfigured',
-          missingEnv: missing
+        { 
+          success: false, 
+          error: 'Service temporarily unavailable' 
         },
         { status: 503 }
       );
@@ -160,14 +148,13 @@ export const POST = withSafeJson(async (req: Request) => {
 // GET endpoint for validating codes without authentication  
 export const GET = withSafeJson(async (req: Request) => {
   try {
-    // Validate environment variables first (guard instead of throw)
-    const missing = validateEnvironment();
-    if (missing.length > 0) {
+    // Get Supabase client inside handler with proper null checking
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Service misconfigured',
-          missingEnv: missing
+        { 
+          success: false, 
+          error: 'Service temporarily unavailable' 
         },
         { status: 503 }
       );
@@ -197,6 +184,7 @@ export const GET = withSafeJson(async (req: Request) => {
       }
 
       try {
+        // Get Supabase client inside handler with proper null checking
         const supabase = getOptionalServerSupabase();
         if (!supabase) {
           // Fallback to free access if Supabase is not configured

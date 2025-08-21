@@ -1,20 +1,5 @@
 /** @type {import('next').NextConfig} */
 
-// Validate required environment variables
-const requiredEnvVars = [
-  'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-];
-
-// Only enforce required env vars in production, not during builds
-if (process.env.NODE_ENV === 'production' && process.env.VERCEL !== '1') {
-  requiredEnvVars.forEach((envVar) => {
-    if (!process.env[envVar]) {
-      console.warn(`Warning: Missing environment variable: ${envVar}`);
-      // Don't throw error during build, just warn
-    }
-  });
-}
 
 const nextConfig = {
   reactStrictMode: true,
