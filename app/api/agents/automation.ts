@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWorkflowIdForAgentTask } from '../../../utils/agentAutomation';
 import { triggerN8nWorkflow } from '../../../lib/n8nClient';
 import { systemLog } from '../../../utils/systemLog';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '../../../lib/supabase/server';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import { runAgentWorkflow } from '../../../lib/agents/runAgentWorkflow';
 import { checkFeatureAccess, getUserLimits, PREMIUM_FEATURES, checkPremiumAccess } from '../../../lib/premiumGating';
 import { workflowQueue, getWorkflowTemplate } from '../../../lib/automation/workflowQueue';
 import { getErrorMessage } from '../../../utils/errorHandling';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // --- Simple in-memory rate limiter (per IP) ---
 const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
@@ -83,11 +86,14 @@ export async function POST(req: NextRequest) {
     // --- Fetch user and role for premium gating ---
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
       await systemLog({ type: 'warning', message: 'Unauthorized automation attempt', meta: { ip } });
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const { data: userRoleData } = await supabase
       .from('user_roles')
@@ -229,7 +235,10 @@ export async function GET(req: NextRequest) {
     // Verify user owns this job
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser(token);
     
     if (!user || job.userId !== user.id) {

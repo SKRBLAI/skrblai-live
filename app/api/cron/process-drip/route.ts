@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
+import { MarketingAutomationManager } from '../../../../lib/marketing/MarketingAutomationManager';
 import { systemLog } from '../../../../utils/systemLog';
 
 export async function POST(req: NextRequest) {
@@ -10,10 +10,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const pending = await marketingAutomation.getPendingDripActions();
+    const marketingManager = new MarketingAutomationManager();
+    const pending = await marketingManager.getPendingDripActions();
 
     for (const enrollment of pending) {
-      await marketingAutomation.processDripCampaignStep(enrollment.id);
+      await marketingManager.processDripCampaignStep(enrollment.id);
     }
 
     await systemLog({

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
+import { MarketingAutomationManager } from '../../../../lib/marketing/MarketingAutomationManager';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,8 +24,10 @@ export async function POST(req: NextRequest) {
 
     const leadId = insertedLead.id;
 
+    const marketingManager = new MarketingAutomationManager();
+
     // Record initial form submit activity for scoring
-    await marketingAutomation.recordLeadActivity({
+    await marketingManager.recordLeadActivity({
       lead_id: leadId,
       user_id: insertedLead.user_id || null,
       activity_type: 'form_submit' as any,
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
     // Optionally enroll lead/user in default onboarding drip campaign if exists
     try {
       if (insertedLead.user_id) {
-        await marketingAutomation.enrollUserInDripCampaign(
+        await marketingManager.enrollUserInDripCampaign(
           'welcome-sequence',
           insertedLead.user_id,
           leadId

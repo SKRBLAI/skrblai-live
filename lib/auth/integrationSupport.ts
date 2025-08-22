@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { authAuditLogger } from './authAuditLogger';
 import { 
   authenticateForDashboard,
@@ -7,10 +7,6 @@ import {
   getUserDashboardAccess
 } from './dashboardAuth';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 export interface AuthDebugInfo {
   userExists: boolean;
@@ -55,6 +51,11 @@ export class AuthIntegrationSupport {
 
     try {
       // Check if user exists in Supabase Auth
+      const supabase = getOptionalServerSupabase();
+      if (!supabase) {
+        debugInfo.suggestions.push('Supabase not configured');
+        return debugInfo;
+      }
       const { data: users, error: userError } = await supabase.auth.admin.listUsers();
       const user = users?.users?.find(u => u.email === email);
       debugInfo.userExists = !!user;
@@ -142,6 +143,13 @@ export class AuthIntegrationSupport {
         errorRate: 0
       }
     };
+
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      healthCheck.overall = 'error';
+      healthCheck.database = 'error';
+      return healthCheck;
+    }
 
     try {
       // Test database connectivity
@@ -315,6 +323,15 @@ export class AuthIntegrationSupport {
     const actionsPerformed: string[] = [];
     const warnings: string[] = [];
 
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      warnings.push('Supabase not configured');
+      return {
+        success: false,
+        actionsPerformed,
+        warnings
+      };
+    }
     try {
       // Clear rate limits
       const { error: rateLimitError } = await supabase
@@ -389,6 +406,14 @@ export class AuthIntegrationSupport {
     codes: Array<{ code: string; type: string; benefits: any }>;
     error?: string;
   }> {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return {
+        success: false,
+        codes: [],
+        error: 'Supabase not configured'
+      };
+    }
     try {
       const testCodes = [];
 

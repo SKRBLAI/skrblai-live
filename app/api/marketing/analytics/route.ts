@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
+import { MarketingAutomationManager } from '../../../../lib/marketing/MarketingAutomationManager';
 
 export async function GET(req: NextRequest) {
   try {
@@ -7,9 +7,8 @@ export async function GET(req: NextRequest) {
     const start = url.searchParams.get('start');
     const end = url.searchParams.get('end');
 
-    const analytics = await marketingAutomation.getMarketingAnalytics(
-      start && end ? { start, end } : undefined
-    );
+    const marketingManager = new MarketingAutomationManager();
+    const analytics = await marketingManager.getMarketingAnalytics();
 
     return NextResponse.json({ success: true, analytics });
   } catch (error) {

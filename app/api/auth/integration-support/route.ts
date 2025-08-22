@@ -1,5 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import { getBearer } from './getBearer';
 import { getOptionalServerSupabase } from '../../../../lib/supabase/server';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 import {
   debugUserAuth,
   performHealthCheck,
@@ -18,11 +22,15 @@ const DATABASE_ERROR_RESPONSE = NextResponse.json(
  * Provides debugging and support tools for authentication integration
  * Supports different operations via query parameters
  */
-export async function GET(req: NextRequest) {
-  const supabase = getOptionalServerSupabase();
-  if (!supabase) return DATABASE_ERROR_RESPONSE;
-
+export async function GET(req: Request) {
   try {
+    const token = await getBearer(req);
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = await getOptionalServerSupabase();
+    if (!supabase) {
+      console.warn('[integration-support GET] Supabase not configured – 503');
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    }
     const { searchParams } = new URL(req.url);
     const operation = searchParams.get('operation');
     const email = searchParams.get('email');
@@ -166,11 +174,15 @@ export async function GET(req: NextRequest) {
  * POST /api/auth/integration-support
  * Performs integration support actions that require POST requests
  */
-export async function POST(req: NextRequest) {
-  const supabase = getOptionalServerSupabase();
-  if (!supabase) return DATABASE_ERROR_RESPONSE;
-
+export async function POST(req: Request) {
   try {
+    const token = await getBearer(req);
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.warn('[integration-support POST] Supabase not configured – 503');
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    }
     const body = await req.json();
     const { operation, email, password, options = {} } = body;
 
@@ -317,11 +329,15 @@ export async function POST(req: NextRequest) {
  * DELETE /api/auth/integration-support
  * Cleanup operations for integration testing
  */
-export async function DELETE(req: NextRequest) {
-  const supabase = getOptionalServerSupabase();
-  if (!supabase) return DATABASE_ERROR_RESPONSE;
-
+export async function DELETE(req: Request) {
   try {
+    const token = await getBearer(req);
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      console.warn('[integration-support DELETE] Supabase not configured – 503');
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
+    }
     const { searchParams } = new URL(req.url);
     const operation = searchParams.get('operation');
 

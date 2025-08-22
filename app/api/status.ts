@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '../../lib/supabase/server';
 import { systemLog } from '../../utils/systemLog';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // Helper to fetch internal endpoints
 async function fetchInternal(url: string, token: string) {
@@ -17,7 +20,10 @@ export async function GET(req: NextRequest) {
   const meta: any = { ip: req.headers.get('x-forwarded-for') || 'unknown', timestamp: new Date().toISOString() };
   try {
     // Auth check
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json({ success: false, error: 'Service unavailable' }, { status: 503 });
+    }
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
       await systemLog({ type: 'warning', message: 'Unauthorized /api/status access attempt', meta });

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { marketingAutomation } from '../../../../lib/marketing/MarketingAutomationManager';
+import { MarketingAutomationManager } from '../../../../lib/marketing/MarketingAutomationManager';
 import { systemLog } from '../../../../utils/systemLog';
 import { getErrorMessage } from '../../../../utils/errorHandling';
 
@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    await marketingAutomation.recordLeadActivity({
+    const marketingManager = new MarketingAutomationManager();
+    await marketingManager.recordLeadActivity({
       lead_id: leadId,
       user_id: userId,
       activity_type: activityType,
