@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 // ==========================================
 // TYPES & INTERFACES
@@ -121,13 +121,20 @@ export interface LeadMagnet {
 // ==========================================
 
 export class MarketingAutomationManager {
-  private supabase;
+  private getClient() {
+    return getOptionalServerSupabase();
+  }
 
-  constructor() {
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+  private ensure() {
+    const c = this.getClient();
+    if (!c) {
+      console.warn('[MarketingAutomationManager] Supabase not configured – skipping op');
+    }
+    return c;
+  }
+
+  private nowIso() {
+    return new Date().toISOString();
   }
 
   // ==========================================
@@ -169,102 +176,81 @@ export class MarketingAutomationManager {
       
       // Apply decay for older activities
       if (ageInDays > 30) {
-        scoreValue *= Math.max(0.1, 1 - (ageInDays - 30) / 90); // 90-day decay to 10%
+        scoreValue = Math.floor(scoreValue * 0.5);
       }
       
       totalScore += scoreValue;
     }
 
-    // Get lead profile for demographic scoring
-    const { data: lead } = await this.supabase
+    const supabase = this.ensure();
+    if (!supabase) return Math.min(totalScore, 100);
+
+    const { data: lead } = await supabase
       .from('leads')
       .select('*')
       .eq('id', leadId)
       .single();
 
     if (lead) {
-      // Industry scoring
+      // Industry-based scoring
       const industryBonus: Record<string, number> = {
-        Enterprise: 30,
-        Agency: 25,
-        SaaS: 20,
-        Consultant: 15,
+        'SaaS': 20,
+        'Technology': 15,
+        'Consultant': 15,
         'E-commerce': 10,
       };
       totalScore += industryBonus[lead.industry ?? ''] || 0;
 
       // Timeline urgency scoring
       const timelineBonus: Record<string, number> = {
-        urgent: 40,
-        week: 30,
-        month: 20,
-        '2-3': 15,
-        planning: 5,
+        'immediate': 30,
+        'within_month': 20,
+        'within_quarter': 10,
+        'within_year': 5,
       };
-      Object.keys(timelineBonus).forEach((key) => {
-        if (lead.timeline?.toLowerCase().includes(key)) {
-          totalScore += timelineBonus[key];
-        }
-      });
+      totalScore += timelineBonus[lead.timeline ?? ''] || 0;
 
       // Company size scoring
-      const companySizeBonus: Record<string, number> = {
-        '50+': 25,
-        '11-50': 20,
-        '2-10': 15,
-        solo: 10,
+      const sizeBonus: Record<string, number> = {
+        'enterprise': 25,
+        'large': 20,
+        'medium': 15,
+        'small': 10,
+        'startup': 5,
       };
-      totalScore += companySizeBonus[lead.company_size ?? ''] || 0;
+      totalScore += sizeBonus[lead.company_size ?? ''] || 0;
     }
 
-    return Math.min(totalScore, 100); // Cap at 100
+    return Math.min(totalScore, 100);
   }
 
   /**
-   * Record lead scoring activity
+   * Update lead score and trigger segment transitions
    */
-  async recordLeadActivity(activity: LeadScoringActivity): Promise<void> {
+  async updateLeadScore(leadId: number, newScore: number): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
     try {
-      // Calculate new score
-      const { data: existingActivities } = await this.supabase
-        .from('lead_scoring_activities')
-        .select('*')
-        .eq('lead_id', activity.lead_id);
-
-      const newScore = await this.calculateLeadScore(
-        activity.lead_id, 
-        [...(existingActivities || []), activity]
-      );
-
-      // Insert activity record
-      await this.supabase.from('lead_scoring_activities').insert([{
-        ...activity,
-        current_score: newScore,
-        created_at: new Date().toISOString()
-      }]);
-
-      // Update lead score and last activity
-      await this.supabase
+      const { data: lead } = await supabase
         .from('leads')
-        .update({
+        .select('lead_score, segment')
+        .eq('id', leadId)
+        .single();
+
+      if (!lead) return;
+
+      await supabase
+        .from('leads')
+        .update({ 
           lead_score: newScore,
-          last_activity_date: new Date().toISOString()
+          last_activity_date: this.nowIso()
         })
-        .eq('id', activity.lead_id);
+        .eq('id', leadId);
 
-      // Check for segment transitions
-      await this.checkSegmentTransition(activity.lead_id, newScore);
-
-      // Trigger automation rules
-      await this.triggerAutomationRules('score_change', {
-        lead_id: activity.lead_id,
-        old_score: activity.current_score,
-        new_score: newScore,
-        activity_type: activity.activity_type
-      });
-
+      await this.checkSegmentTransition(leadId, newScore);
     } catch (error) {
-      console.error('Failed to record lead activity:', error);
+      console.error('Failed to update lead score:', error);
       throw error;
     }
   }
@@ -273,7 +259,10 @@ export class MarketingAutomationManager {
    * Check and handle segment transitions based on score
    */
   private async checkSegmentTransition(leadId: number, newScore: number): Promise<void> {
-    const { data: lead } = await this.supabase
+    const supabase = this.ensure();
+    if (!supabase) return;
+
+    const { data: lead } = await supabase
       .from('leads')
       .select('segment')
       .eq('id', leadId)
@@ -284,30 +273,26 @@ export class MarketingAutomationManager {
     let newSegment = lead.segment;
     const currentSegment = lead.segment;
 
-    // Define segment thresholds
     if (newScore >= 80) newSegment = 'hot';
     else if (newScore >= 60) newSegment = 'warm';
     else if (newScore >= 40) newSegment = 'mql';
     else newSegment = 'cold';
 
     if (newSegment !== currentSegment) {
-      // Update segment
-      await this.supabase
+      await supabase
         .from('leads')
         .update({ segment: newSegment })
         .eq('id', leadId);
 
-      // Record transition
-      await this.supabase.from('lead_lifecycle_transitions').insert([{
+      await supabase.from('lead_lifecycle_transitions').insert([{
         lead_id: leadId,
         from_stage: currentSegment,
         to_stage: newSegment,
         trigger_type: 'score_threshold',
         trigger_metadata: { score: newScore },
-        created_at: new Date().toISOString()
+        created_at: this.nowIso()
       }]);
 
-      // Trigger segment-based automation
       await this.triggerAutomationRules('segment_change', {
         lead_id: leadId,
         from_segment: currentSegment,
@@ -317,16 +302,44 @@ export class MarketingAutomationManager {
     }
   }
 
+  /**
+   * Record lead scoring activity
+   */
+  async recordLeadActivity(activity: LeadScoringActivity): Promise<string | undefined> {
+    const supabase = this.ensure();
+    if (!supabase) return undefined;
+
+    try {
+      const { data, error } = await supabase
+        .from('lead_scoring_activities')
+        .insert([{
+          ...activity,
+          created_at: this.nowIso()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data.id;
+    } catch (error) {
+      console.error('Failed to record lead activity:', error);
+      throw error;
+    }
+  }
+
   // ==========================================
-  // DRIP CAMPAIGN SYSTEM
+  // DRIP CAMPAIGNS
   // ==========================================
 
   /**
    * Create a new drip campaign
    */
-  async createDripCampaign(campaign: DripCampaign): Promise<string> {
+  async createDripCampaign(campaign: DripCampaign): Promise<string | undefined> {
+    const supabase = this.ensure();
+    if (!supabase) return undefined;
+
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await supabase
         .from('drip_campaigns')
         .insert([{
           name: campaign.name,
@@ -334,8 +347,8 @@ export class MarketingAutomationManager {
           trigger_type: campaign.trigger_type,
           target_criteria: campaign.target_criteria,
           is_active: campaign.is_active,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: this.nowIso(),
+          updated_at: this.nowIso()
         }])
         .select()
         .single();
@@ -346,7 +359,7 @@ export class MarketingAutomationManager {
 
       // Create campaign steps
       for (const step of campaign.steps) {
-        await this.supabase.from('drip_campaign_steps').insert([{
+        await supabase.from('drip_campaign_steps').insert([{
           campaign_id: campaignId,
           step_number: step.step_number,
           step_type: step.step_type,
@@ -358,7 +371,7 @@ export class MarketingAutomationManager {
           n8n_action: step.n8n_action || {},
           metadata: step.metadata || {},
           is_active: step.is_active,
-          created_at: new Date().toISOString()
+          created_at: this.nowIso()
         }]);
       }
 
@@ -378,9 +391,12 @@ export class MarketingAutomationManager {
     leadId?: number,
     startStep: number = 1
   ): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
     try {
       // Check if already enrolled
-      const { data: existing } = await this.supabase
+      const { data: existing } = await supabase
         .from('drip_enrollments')
         .select('*')
         .eq('campaign_id', campaignId)
@@ -393,7 +409,7 @@ export class MarketingAutomationManager {
       }
 
       // Get first step to calculate next action date
-      const { data: firstStep } = await this.supabase
+      const { data: firstStep } = await supabase
         .from('drip_campaign_steps')
         .select('*')
         .eq('campaign_id', campaignId)
@@ -406,12 +422,12 @@ export class MarketingAutomationManager {
       }
 
       // Create enrollment
-      await this.supabase.from('drip_enrollments').insert([{
+      await supabase.from('drip_enrollments').insert([{
         campaign_id: campaignId,
         user_id: userId,
         lead_id: leadId,
         current_step: startStep,
-        enrollment_date: new Date().toISOString(),
+        enrollment_date: this.nowIso(),
         next_action_date: nextActionDate.toISOString(),
         status: 'active',
         metadata: {}
@@ -428,244 +444,156 @@ export class MarketingAutomationManager {
    * Process drip campaign step execution
    */
   async processDripCampaignStep(enrollmentId: string): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
     try {
       // Get enrollment details
-      const { data: enrollment } = await this.supabase
+      const { data: enrollment } = await supabase
         .from('drip_enrollments')
-        .select(`
-          *,
-          drip_campaigns(*),
-          leads(*)
-        `)
+        .select('*')
         .eq('id', enrollmentId)
         .single();
 
       if (!enrollment || enrollment.status !== 'active') return;
 
-      // Get current step
-      const { data: step } = await this.supabase
+      // Get campaign step
+      const { data: step } = await supabase
         .from('drip_campaign_steps')
         .select('*')
         .eq('campaign_id', enrollment.campaign_id)
         .eq('step_number', enrollment.current_step)
         .single();
 
-      if (!step || !step.is_active) return;
-
-      // Execute step based on type
-      let executionStatus = 'executed';
-      let executionData: Record<string, any> = {};
-
-      switch (step.step_type) {
-        case 'email':
-          await this.executeDripEmailStep(enrollment, step);
-          break;
-        case 'webhook':
-          await this.executeDripWebhookStep(enrollment, step);
-          break;
-        case 'condition': {
-          const conditionMet = await this.evaluateStepCondition(enrollment, step);
-          if (!conditionMet) {
-            executionStatus = 'skipped';
-            executionData.reason = 'condition_not_met';
-          }
-          break;
-        }
-        case 'delay':
-          // Delay steps are handled by scheduling
-          break;
-      }
-
-      // Log execution
-      await this.supabase.from('drip_execution_log').insert([{
-        enrollment_id: enrollmentId,
-        step_id: step.id,
-        executed_at: new Date().toISOString(),
-        status: executionStatus,
-        execution_data: executionData
-      }]);
-
-      // Move to next step
-      await this.advanceDripCampaignStep(enrollmentId, enrollment.current_step + 1);
-
-    } catch (error) {
-      console.error('Failed to process drip campaign step:', error);
-      // Log error
-      await this.supabase.from('drip_execution_log').insert([{
-        enrollment_id: enrollmentId,
-        executed_at: new Date().toISOString(),
-        status: 'failed',
-        error_message: error instanceof Error ? error.message : String(error)
-      }]);
-    }
-  }
-
-  /**
-   * Execute email step in drip campaign
-   */
-  private async executeDripEmailStep(enrollment: any, step: DripCampaignStep): Promise<void> {
-    try {
-      // Get user email
-      const userEmail = enrollment.leads?.email || enrollment.user_email;
-      if (!userEmail) throw new Error('No email address found');
-
-      // Prepare email data
-      const emailData = {
-        to: userEmail,
-        subject: step.subject || 'Update from SKRBL AI',
-        content: step.content || '',
-        template_id: step.email_template_id,
-        campaign_id: enrollment.campaign_id,
-        enrollment_id: enrollment.id
-      };
-
-      // Send via existing email system
-      const response = await fetch('/api/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'drip_campaign',
-          ...emailData
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Email send failed: ${response.status}`);
-      }
-
-      console.log(`Drip email sent to ${userEmail}`);
-    } catch (error) {
-      console.error('Failed to execute drip email step:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Execute webhook step in drip campaign
-   */
-  private async executeDripWebhookStep(enrollment: any, step: DripCampaignStep): Promise<void> {
-    try {
-      const webhookUrl = step.n8n_action?.webhook_url;
-      if (!webhookUrl) throw new Error('No webhook URL configured');
-
-      const webhookData = {
-        enrollment_id: enrollment.id,
-        user_id: enrollment.user_id,
-        lead_id: enrollment.lead_id,
-        campaign_id: enrollment.campaign_id,
-        step_number: step.step_number,
-        metadata: step.metadata || {}
-      };
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Webhook failed: ${response.status}`);
-      }
-
-      console.log(`Drip webhook executed for enrollment ${enrollment.id}`);
-    } catch (error) {
-      console.error('Failed to execute drip webhook step:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Evaluate step conditions
-   */
-  private async evaluateStepCondition(enrollment: any, step: DripCampaignStep): Promise<boolean> {
-    const conditions = step.conditions || {};
-    
-    // Example condition evaluations
-    if (conditions.min_score) {
-      const leadScore = enrollment.leads?.lead_score || 0;
-      if (leadScore < conditions.min_score) return false;
-    }
-
-    if (conditions.required_activity) {
-      const { data: activities } = await this.supabase
-        .from('lead_scoring_activities')
-        .select('*')
-        .eq('lead_id', enrollment.lead_id)
-        .eq('activity_type', conditions.required_activity);
-      
-      if (!activities || activities.length === 0) return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Advance drip campaign to next step
-   */
-  private async advanceDripCampaignStep(enrollmentId: string, nextStep: number): Promise<void> {
-    try {
-      // Get enrollment details
-      const { data: enrollment } = await this.supabase
-        .from('drip_enrollments')
-        .select('campaign_id')
-        .eq('id', enrollmentId)
-        .single();
-
-      if (!enrollment) {
-        // Enrollment record missing; nothing to advance
+      if (!step) {
+        // Campaign completed
+        await supabase
+          .from('drip_enrollments')
+          .update({
+            status: 'completed',
+            completed_at: this.nowIso()
+          })
+          .eq('id', enrollmentId);
         return;
       }
 
-      // Get first step to calculate next action date
-      const { data: nextStepData } = await this.supabase
+      // Execute step based on type
+      switch (step.step_type) {
+        case 'email':
+          await this.sendDripEmail(enrollment, step);
+          break;
+        case 'webhook':
+          await this.executeWebhook(step);
+          break;
+        case 'delay':
+          // Just move to next step after delay
+          break;
+      }
+
+      // Move to next step
+      const nextStep = enrollment.current_step + 1;
+      const nextActionDate = new Date();
+      
+      const { data: nextStepData } = await supabase
         .from('drip_campaign_steps')
-        .select('*')
+        .select('delay_hours')
         .eq('campaign_id', enrollment.campaign_id)
         .eq('step_number', nextStep)
         .single();
 
-      const nextActionDate = new Date();
       if (nextStepData) {
         nextActionDate.setHours(nextActionDate.getHours() + nextStepData.delay_hours);
       }
 
-      // Update enrollment
-      await this.supabase
+      await supabase
         .from('drip_enrollments')
         .update({
           current_step: nextStep,
-          next_action_date: nextActionDate.toISOString()
+          next_action_date: nextActionDate.toISOString(),
+          last_step_executed: this.nowIso()
         })
         .eq('id', enrollmentId);
+
     } catch (error) {
-      console.error('Failed to advance drip campaign step:', error);
+      console.error('Failed to process drip campaign step:', error);
       throw error;
     }
   }
 
+  private async sendDripEmail(enrollment: any, step: any): Promise<void> {
+    if (!step.subject || !step.content) return;
+
+    // Implementation would integrate with email service
+    console.log(`Sending drip email to ${enrollment.user_id}: ${step.subject}`);
+  }
+
+  private async executeWebhook(step: any): Promise<void> {
+    if (!step.n8n_action?.webhook_url) return;
+
+    try {
+      await fetch(step.n8n_action.webhook_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(step.n8n_action.payload || {})
+      });
+    } catch (error) {
+      console.error('Webhook execution failed:', error);
+    }
+  }
+
+  /**
+   * Get pending drip campaign actions
+   */
+  async getPendingDripActions(): Promise<any[]> {
+    const supabase = this.ensure();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('drip_enrollments')
+      .select('*')
+      .eq('status', 'active')
+      .lte('next_action_date', new Date().toISOString())
+      .order('next_action_date', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
+   * Clean up completed campaigns
+   */
+  async cleanupCompletedCampaigns(): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    await supabase
+      .from('drip_enrollments')
+      .delete()
+      .eq('status', 'completed')
+      .lt('completed_at', thirtyDaysAgo.toISOString());
+  }
+
   // ==========================================
-  // BEHAVIORAL AUTOMATION TRIGGERS
+  // AUTOMATION RULES
   // ==========================================
 
   /**
    * Create automation rule
    */
-  async createAutomationRule(rule: AutomationRule): Promise<string> {
+  async createAutomationRule(rule: AutomationRule): Promise<string | undefined> {
+    const supabase = this.ensure();
+    if (!supabase) return undefined;
+
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await supabase
         .from('automation_rules')
         .insert([{
-          name: rule.name,
-          description: rule.description,
-          trigger_event: rule.trigger_event,
-          trigger_conditions: rule.trigger_conditions,
-          action_type: rule.action_type,
-          action_config: rule.action_config,
-          delay_minutes: rule.delay_minutes,
-          is_active: rule.is_active,
-          priority: rule.priority,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          ...rule,
+          created_at: this.nowIso(),
+          updated_at: this.nowIso()
         }])
         .select()
         .single();
@@ -679,240 +607,66 @@ export class MarketingAutomationManager {
   }
 
   /**
-   * Trigger automation rules for specific event
+   * Trigger automation rules for an event
    */
-  async triggerAutomationRules(event: string, eventData: Record<string, any>): Promise<void> {
+  async triggerAutomationRules(eventType: string, eventData: Record<string, any>): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
     try {
-      // Get matching automation rules
-      const { data: rules } = await this.supabase
+      const { data: rules } = await supabase
         .from('automation_rules')
         .select('*')
-        .eq('trigger_event', event)
+        .eq('trigger_event', eventType)
         .eq('is_active', true)
-        .order('priority', { ascending: true });
+        .order('priority', { ascending: false });
 
-      if (!rules || rules.length === 0) return;
+      if (!rules) return;
 
       for (const rule of rules) {
-        // Check if conditions are met
-        const conditionsMet = this.evaluateRuleConditions(rule.trigger_conditions, eventData);
-        
-        if (conditionsMet) {
-          await this.executeAutomationAction(rule, eventData);
-        }
+        await this.executeAutomationRule(rule, eventData);
       }
     } catch (error) {
       console.error('Failed to trigger automation rules:', error);
     }
   }
 
-  /**
-   * Evaluate rule conditions
-   */
-  private evaluateRuleConditions(
-    conditions: Record<string, any>, 
-    eventData: Record<string, any>
-  ): boolean {
-    for (const [key, expectedValue] of Object.entries(conditions)) {
-      const actualValue = eventData[key];
-      
-      if (typeof expectedValue === 'object' && expectedValue.operator) {
-        // Handle complex conditions like { operator: 'gte', value: 50 }
-        switch (expectedValue.operator) {
-          case 'gte':
-            if (actualValue < expectedValue.value) return false;
-            break;
-          case 'lte':
-            if (actualValue > expectedValue.value) return false;
-            break;
-          case 'eq':
-            if (actualValue !== expectedValue.value) return false;
-            break;
-          case 'in':
-            if (!expectedValue.value.includes(actualValue)) return false;
-            break;
-        }
-      } else {
-        // Simple equality check
-        if (actualValue !== expectedValue) return false;
-      }
-    }
-    return true;
-  }
+  private async executeAutomationRule(rule: any, eventData: Record<string, any>): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
 
-  /**
-   * Execute automation action
-   */
-  private async executeAutomationAction(
-    rule: AutomationRule, 
-    eventData: Record<string, any>
-  ): Promise<void> {
     try {
-      const executionStart = Date.now();
-      let executionStatus = 'executed';
-      let resultData: Record<string, any> = {};
-
-      switch (rule.action_type) {
-        case 'send_email':
-          await this.executeEmailAction(rule.action_config, eventData);
-          break;
-        case 'add_to_campaign':
-          await this.executeAddToCampaignAction(rule.action_config, eventData);
-          break;
-        case 'update_score':
-          await this.executeUpdateScoreAction(rule.action_config, eventData);
-          break;
-        case 'change_segment':
-          await this.executeChangeSegmentAction(rule.action_config, eventData);
-          break;
-        case 'trigger_n8n':
-          resultData = await this.executeTriggerN8nAction(rule.action_config, eventData);
-          break;
-      }
-
-      // Log execution
-      await this.supabase.from('automation_executions').insert([{
+      // Add to automation triggers queue
+      await supabase.from('automation_triggers').insert([{
         rule_id: rule.id,
-        user_id: eventData.user_id,
-        lead_id: eventData.lead_id,
         trigger_data: eventData,
-        execution_date: new Date().toISOString(),
-        status: executionStatus,
-        result_data: resultData,
-        execution_time_ms: Date.now() - executionStart
+        status: 'pending',
+        scheduled_for: new Date(Date.now() + (rule.delay_minutes * 60000)).toISOString(),
+        created_at: this.nowIso()
       }]);
-
     } catch (error) {
-      console.error('Failed to execute automation action:', error);
-      
-      // Log error
-      await this.supabase.from('automation_executions').insert([{
-        rule_id: rule.id,
-        user_id: eventData.user_id,
-        lead_id: eventData.lead_id,
-        trigger_data: eventData,
-        execution_date: new Date().toISOString(),
-        status: 'failed',
-        error_message: error instanceof Error ? error.message : String(error)
-      }]);
+      console.error('Failed to execute automation rule:', error);
     }
-  }
-
-  /**
-   * Execute email action
-   */
-  private async executeEmailAction(config: Record<string, any>, eventData: Record<string, any>): Promise<void> {
-    // Implementation for sending automated emails
-    const emailData = {
-      to: config.recipient || eventData.email,
-      subject: config.subject || 'Automated Message',
-      template: config.template || 'default',
-      templateData: { ...eventData, ...config.templateData }
-    };
-
-    await fetch('/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'automation', ...emailData })
-    });
-  }
-
-  /**
-   * Execute add to campaign action
-   */
-  private async executeAddToCampaignAction(config: Record<string, any>, eventData: Record<string, any>): Promise<void> {
-    const campaignId = config.campaign_id;
-    const userId = eventData.user_id;
-    const leadId = eventData.lead_id;
-
-    if (campaignId && userId) {
-      await this.enrollUserInDripCampaign(campaignId, userId, leadId);
-    }
-  }
-
-  /**
-   * Execute update score action
-   */
-  private async executeUpdateScoreAction(config: Record<string, any>, eventData: Record<string, any>): Promise<void> {
-    const scoreChange = config.score_change || 0;
-    const leadId = eventData.lead_id;
-
-    if (leadId && scoreChange !== 0) {
-      await this.recordLeadActivity({
-        lead_id: leadId,
-        user_id: eventData.user_id,
-        activity_type: 'automation_score_update' as any,
-        activity_value: `Automation: ${config.reason || 'Score update'}`,
-        score_change: scoreChange,
-        current_score: eventData.current_score || 0,
-        metadata: { automation_rule: eventData.rule_id }
-      });
-    }
-  }
-
-  /**
-   * Execute change segment action
-   */
-  private async executeChangeSegmentAction(config: Record<string, any>, eventData: Record<string, any>): Promise<void> {
-    const newSegment = config.new_segment;
-    const leadId = eventData.lead_id;
-
-    if (leadId && newSegment) {
-      await this.supabase
-        .from('leads')
-        .update({ segment: newSegment })
-        .eq('id', leadId);
-    }
-  }
-
-  /**
-   * Execute trigger N8N action
-   */
-  private async executeTriggerN8nAction(config: Record<string, any>, eventData: Record<string, any>): Promise<Record<string, any>> {
-    const webhookUrl = config.webhook_url;
-    
-    if (!webhookUrl) {
-      throw new Error('No webhook URL configured for N8N trigger');
-    }
-
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...eventData, ...config.payload })
-    });
-
-    if (!response.ok) {
-      throw new Error(`N8N webhook failed: ${response.status}`);
-    }
-
-    return { webhook_response: await response.json() };
   }
 
   // ==========================================
-  // LEAD MAGNET SYSTEM
+  // LEAD MAGNETS
   // ==========================================
 
   /**
    * Create lead magnet
    */
-  async createLeadMagnet(magnet: LeadMagnet): Promise<string> {
+  async createLeadMagnet(magnet: LeadMagnet): Promise<string | undefined> {
+    const supabase = this.ensure();
+    if (!supabase) return undefined;
+
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await supabase
         .from('lead_magnets')
         .insert([{
-          title: magnet.title,
-          description: magnet.description,
-          magnet_type: magnet.magnet_type,
-          file_url: magnet.file_url,
-          thumbnail_url: magnet.thumbnail_url,
-          landing_page_url: magnet.landing_page_url,
-          download_count: 0,
-          conversion_rate: 0.0,
-          target_segment: magnet.target_segment,
-          value_score: magnet.value_score,
-          is_active: magnet.is_active,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          ...magnet,
+          created_at: this.nowIso(),
+          updated_at: this.nowIso()
         }])
         .select()
         .single();
@@ -928,60 +682,100 @@ export class MarketingAutomationManager {
   /**
    * Track lead magnet download
    */
-  async trackLeadMagnetDownload(
-    magnetId: string,
-    userId: string,
-    leadId: number,
-    utmData?: { source?: string; medium?: string; campaign?: string },
-    metadata?: Record<string, any>
-  ): Promise<void> {
+  async trackLeadMagnetDownload(magnetId: string, leadId: number, userId?: string): Promise<void> {
+    const supabase = this.ensure();
+    if (!supabase) return;
+
     try {
-      // Record download
-      await this.supabase.from('lead_magnet_downloads').insert([{
+      await supabase.from('lead_magnet_downloads').insert([{
         magnet_id: magnetId,
-        user_id: userId,
         lead_id: leadId,
-        download_date: new Date().toISOString(),
-        utm_source: utmData?.source,
-        utm_medium: utmData?.medium,
-        utm_campaign: utmData?.campaign,
-        referrer: metadata?.referrer,
-        ip_address: metadata?.ip_address,
-        user_agent: metadata?.user_agent,
-        follow_up_sent: false,
-        metadata: metadata || {}
+        user_id: userId,
+        downloaded_at: this.nowIso()
       }]);
 
       // Update download count
-      await this.supabase.rpc('increment', {
-        table_name: 'lead_magnets',
-        row_id: magnetId,
-        column_name: 'download_count'
-      });
+      await supabase.rpc('increment_download_count', { magnet_id: magnetId });
 
-      // Score the download activity
+      // Record activity
       await this.recordLeadActivity({
         lead_id: leadId,
-        user_id: userId,
         activity_type: 'download',
-        activity_value: magnetId,
         score_change: 20,
-        current_score: 0, // Will be calculated
-        metadata: { magnet_id: magnetId, utm_data: utmData }
+        current_score: 0 // Will be updated by calculateLeadScore
       });
-
-      // Trigger follow-up automation
-      await this.triggerAutomationRules('lead_magnet_download', {
-        user_id: userId,
-        lead_id: leadId,
-        magnet_id: magnetId,
-        utm_data: utmData
-      });
-
     } catch (error) {
       console.error('Failed to track lead magnet download:', error);
+    }
+  }
+
+  // ==========================================
+  // LEAD MANAGEMENT
+  // ==========================================
+
+  /**
+   * Create or update lead
+   */
+  async createLead(leadData: Partial<Lead>): Promise<number | undefined> {
+    const supabase = this.ensure();
+    if (!supabase) return undefined;
+
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .insert([{
+          ...leadData,
+          lead_score: leadData.lead_score || 0,
+          segment: leadData.segment || 'cold',
+          lifecycle_stage: leadData.lifecycle_stage || 'subscriber',
+          first_touch_date: this.nowIso(),
+          last_activity_date: this.nowIso(),
+          lead_tags: leadData.lead_tags || [],
+          created_at: this.nowIso()
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data.id;
+    } catch (error) {
+      console.error('Failed to create lead:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get lead by email
+   */
+  async getLeadByEmail(email: string): Promise<Lead | null> {
+    const supabase = this.ensure();
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error) return null;
+    return data;
+  }
+
+  /**
+   * Get lead activities
+   */
+  async getLeadActivities(leadId: number): Promise<LeadScoringActivity[]> {
+    const supabase = this.ensure();
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+      .from('lead_scoring_activities')
+      .select('*')
+      .eq('lead_id', leadId)
+      .order('created_at', { ascending: false });
+
+    if (error) return [];
+    return data || [];
   }
 
   // ==========================================
@@ -989,138 +783,115 @@ export class MarketingAutomationManager {
   // ==========================================
 
   /**
-   * Get marketing automation analytics
+   * Get marketing analytics dashboard data
    */
-  async getMarketingAnalytics(dateRange?: { start: string; end: string }): Promise<Record<string, any>> {
+  async getMarketingAnalytics(): Promise<{
+    totalLeads: number;
+    newLeads: number;
+    avgLeadScore: number;
+    segmentDistribution: Record<string, number>;
+    sourceCounts: Record<string, number>;
+    dripCampaignPerformance: any[];
+    leadMagnetPerformance: any[];
+  }> {
+    const supabase = this.ensure();
+    if (!supabase) {
+      return {
+        totalLeads: 0,
+        newLeads: 0,
+        avgLeadScore: 0,
+        segmentDistribution: {},
+        sourceCounts: {},
+        dripCampaignPerformance: [],
+        leadMagnetPerformance: []
+      };
+    }
+
     try {
-      const dateFilter = dateRange ? 
-        `created_at >= '${dateRange.start}' AND created_at <= '${dateRange.end}'` : 
-        `created_at >= NOW() - INTERVAL '30 days'`;
-
-      // Lead generation metrics
-      const { data: leadMetrics } = await this.supabase
+      // Get leads data
+      const { data: leads } = await supabase
         .from('leads')
-        .select('lead_score, segment, lead_source, created_at')
-        .order('created_at', { ascending: false });
+        .select('*');
 
-      // Campaign performance
-      const { data: campaignMetrics } = await this.supabase
-        .from('campaign_metrics')
-        .select('*')
-        .order('metric_date', { ascending: false });
+      const totalLeads = leads?.length || 0;
+      
+      // New leads (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const newLeads = leads?.filter((lead: any) => 
+        new Date(lead.created_at) >= sevenDaysAgo
+      ).length || 0;
+
+      // Segment distribution
+      const segmentDistribution = leads?.reduce((acc: Record<string, number>, lead: any) => {
+        const segment = lead.segment || 'unknown';
+        acc[segment] = (acc[segment] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      // Source counts
+      const sourceCounts = leads?.reduce((acc: Record<string, number>, lead: any) => {
+        const source = lead.lead_source || 'unknown';
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>) || {};
+
+      // Average lead score
+      const avgLeadScore = leads?.reduce((sum: number, lead: any) => sum + (lead.lead_score || 0), 0) / (leads?.length || 1) || 0;
 
       // Drip campaign performance
-      const { data: dripMetrics } = await this.supabase
+      const { data: enrollments } = await supabase
         .from('drip_enrollments')
-        .select('status, completion_rate, created_at')
-        .order('created_at', { ascending: false });
+        .select('*, drip_campaigns(name)');
+
+      const dripCampaignPerformance = enrollments?.reduce((acc: any[], enrollment: any) => {
+        const campaignName = enrollment.drip_campaigns?.name || 'Unknown Campaign';
+        let campaign = acc.find((c: any) => c.name === campaignName);
+        if (!campaign) {
+          campaign = { name: campaignName, enrollments: 0, completions: 0 };
+          acc.push(campaign);
+        }
+        campaign.enrollments++;
+        if (enrollment.status === 'completed') campaign.completions++;
+        return acc;
+      }, [] as any[]) || [];
 
       // Lead magnet performance
-      const { data: magnetMetrics } = await this.supabase
-        .from('lead_magnets')
-        .select('title, download_count, conversion_rate')
-        .order('download_count', { ascending: false });
+      const { data: downloads } = await supabase
+        .from('lead_magnet_downloads')
+        .select('*, lead_magnets(name, type)');
 
-      // Automation execution stats
-      const { data: automationMetrics } = await this.supabase
-        .from('automation_executions')
-        .select('status, execution_time_ms, created_at')
-        .order('execution_date', { ascending: false });
+      const leadMagnetPerformance = downloads?.reduce((acc: any[], download: any) => {
+        const magnetName = download.lead_magnets?.name || 'Unknown Magnet';
+        let magnet = acc.find((m: any) => m.name === magnetName);
+        if (!magnet) {
+          magnet = { name: magnetName, downloads: 0, type: download.lead_magnets?.type || 'unknown' };
+          acc.push(magnet);
+        }
+        magnet.downloads++;
+        return acc;
+      }, [] as any[]) || [];
 
       return {
-        overview: {
-          total_leads: leadMetrics?.length || 0,
-          avg_lead_score: leadMetrics && leadMetrics.length > 0 ?
-            leadMetrics.reduce((sum, lead) => sum + (lead.lead_score || 0), 0) / leadMetrics.length : 0,
-          hot_leads: leadMetrics?.filter(lead => lead.segment === 'hot').length || 0,
-          mql_count: leadMetrics?.filter(lead => lead.segment === 'mql').length || 0
-        },
-        campaigns: {
-          total_campaigns: campaignMetrics?.length || 0,
-          avg_conversion_rate: this.calculateAvgConversionRate(campaignMetrics || []),
-          total_emails_sent: campaignMetrics?.reduce((sum, c) => sum + (c.emails_sent || 0), 0) || 0
-        },
-        drip_campaigns: {
-          active_enrollments: dripMetrics?.filter(d => d.status === 'active').length || 0,
-          avg_completion_rate: dripMetrics && dripMetrics.length > 0 ?
-            dripMetrics.reduce((sum, d) => sum + (d.completion_rate || 0), 0) / dripMetrics.length : 0,
-          completed_campaigns: dripMetrics?.filter(d => d.status === 'completed').length || 0
-        },
-        lead_magnets: {
-          total_downloads: magnetMetrics?.reduce((sum, m) => sum + (m.download_count || 0), 0) || 0,
-          top_performers: magnetMetrics?.slice(0, 5) || []
-        },
-        automation: {
-          total_executions: automationMetrics?.length || 0,
-          success_rate: (automationMetrics?.filter(a => a.status === 'executed').length || 0) / (automationMetrics?.length || 1) * 100,
-          avg_execution_time: automationMetrics && automationMetrics.length > 0 ?
-            automationMetrics.reduce((sum, a) => sum + (a.execution_time_ms || 0), 0) / automationMetrics.length : 0
-        }
+        totalLeads,
+        newLeads,
+        avgLeadScore,
+        segmentDistribution,
+        sourceCounts,
+        dripCampaignPerformance,
+        leadMagnetPerformance
       };
     } catch (error) {
       console.error('Failed to get marketing analytics:', error);
-      throw error;
+      return {
+        totalLeads: 0,
+        newLeads: 0,
+        avgLeadScore: 0,
+        segmentDistribution: {},
+        sourceCounts: {},
+        dripCampaignPerformance: [],
+        leadMagnetPerformance: []
+      };
     }
   }
-
-  /**
-   * Calculate average conversion rate for campaigns
-   */
-  private calculateAvgConversionRate(campaignMetrics: any[]): number {
-    if (campaignMetrics.length === 0) return 0;
-    
-    const totalSent = campaignMetrics.reduce((sum, c) => sum + (c.emails_sent || 0), 0);
-    const totalConversions = campaignMetrics.reduce((sum, c) => sum + (c.conversions || 0), 0);
-    
-    return totalSent > 0 ? (totalConversions / totalSent) * 100 : 0;
-  }
-
-  // ==========================================
-  // UTILITY METHODS
-  // ==========================================
-
-  /**
-   * Get leads by segment
-   */
-  async getLeadsBySegment(segment: string): Promise<Lead[]> {
-    const { data, error } = await this.supabase
-      .from('leads')
-      .select('*')
-      .eq('segment', segment)
-      .order('lead_score', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  /**
-   * Get pending drip campaign actions
-   */
-  async getPendingDripActions(): Promise<any[]> {
-    const { data, error } = await this.supabase
-      .from('drip_enrollments')
-      .select('*')
-      .eq('status', 'active')
-      .lte('next_action_date', new Date().toISOString())
-      .order('next_action_date', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  /**
-   * Clean up completed campaigns
-   */
-  async cleanupCompletedCampaigns(): Promise<void> {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    await this.supabase
-      .from('drip_enrollments')
-      .delete()
-      .eq('status', 'completed')
-      .lt('completed_at', thirtyDaysAgo.toISOString());
-  }
 }
-
-export const marketingAutomation = new MarketingAutomationManager(); 

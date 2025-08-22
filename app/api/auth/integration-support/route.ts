@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '../../../../lib/supabase/server';
 import {
   debugUserAuth,
   performHealthCheck,
@@ -8,9 +8,9 @@ import {
   generateTestPromoCodes
 } from '../../../../lib/auth/integrationSupport';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+const DATABASE_ERROR_RESPONSE = NextResponse.json(
+  { success: false, error: 'Database configuration error' },
+  { status: 500 }
 );
 
 /**
@@ -19,6 +19,9 @@ const supabase = createClient(
  * Supports different operations via query parameters
  */
 export async function GET(req: NextRequest) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) return DATABASE_ERROR_RESPONSE;
+
   try {
     const { searchParams } = new URL(req.url);
     const operation = searchParams.get('operation');
@@ -164,6 +167,9 @@ export async function GET(req: NextRequest) {
  * Performs integration support actions that require POST requests
  */
 export async function POST(req: NextRequest) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) return DATABASE_ERROR_RESPONSE;
+
   try {
     const body = await req.json();
     const { operation, email, password, options = {} } = body;
@@ -312,6 +318,9 @@ export async function POST(req: NextRequest) {
  * Cleanup operations for integration testing
  */
 export async function DELETE(req: NextRequest) {
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) return DATABASE_ERROR_RESPONSE;
+
   try {
     const { searchParams } = new URL(req.url);
     const operation = searchParams.get('operation');
