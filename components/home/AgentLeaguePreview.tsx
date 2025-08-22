@@ -41,7 +41,9 @@ const generateLiveActivity = () => ({
   }
 });
 
-const CORE_AGENTS = [
+import { useEffect, useState } from 'react';
+
+const BASE_CORE_AGENTS = [
   {
     id: 'brand-alexander',
     name: 'BrandAlexander',
@@ -124,6 +126,13 @@ interface AgentLeaguePreviewProps {
 }
 
 export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewProps) {
+  const [allowedIRA, setAllowedIRA] = useState(false);
+  useEffect(() => {
+    fetch('/api/agents/ira/is-allowed', { method: 'GET', credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setAllowedIRA(!!data.allowed));
+  }, []);
+
   const router = useRouter();
   const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
@@ -198,7 +207,21 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {CORE_AGENTS.map((agent, index) => {
+          {[...BASE_CORE_AGENTS, ...(allowedIRA ? [{
+  id: 'ira',
+  name: 'IRA',
+  image: '/images/agents-ira-nobg.webp',
+  role: 'Trading Mentor',
+  value: 'AOIs, volume profile, options flow, earnings catalysts',
+  description: 'Inner Rod’s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
+  freeTip: 'Always wait for confirmation at AOIs before entering a trade.',
+  action: 'Chat with IRA',
+  mode: 'business' as const,
+  intent: 'trading_mentor',
+  activityKey: 'percy', // Use a safe key for now
+  dominanceMetric: 'Market Timing Precision',
+  superheroName: 'The Risk-First Strategist',
+}] : [])].map((agent, index) => {
             const activity = liveActivity[agent.activityKey];
             const isHovered = hoveredAgent === agent.id;
             const showTip = showFreeTip === agent.id;

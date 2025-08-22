@@ -77,6 +77,8 @@ export interface AgentStats {
 }
 
 export interface AgentConfig {
+  model?: string;
+  systemPrompt?: string;
   name?: string;
   description?: string;
   capabilities: string[];

@@ -17,6 +17,22 @@ export interface AgentBackstory {
 }
 
 export const agentBackstories: Record<string, AgentBackstory> = {
+  'ira': {
+    superheroName: 'IRA the Risk-First Strategist',
+    origin: "Forged from Rod's decades of trading experience and distilled into digital form, IRA emerged in the SKRBL AI markets lab as the ultimate mentor for disciplined traders.",
+    powers: [
+      'AOI (Area of Interest) Detection',
+      'Volume Profile Analysis',
+      'Options Flow Interpretation',
+      'Earnings Catalyst Forecasting',
+      'Risk-First Entry Guidance',
+      'Emotional Discipline Coaching'
+    ],
+    weakness: 'Impatience and ignoring risk signals',
+    catchphrase: 'Always wait for confirmation at AOIs before entering a trade.',
+    nemesis: 'The FOMO Phantom – master of impulsive trades and emotional traps',
+    backstory: "IRA was developed as the digital embodiment of Rod’s decades of trading experience—an agent forged in the crucible of real markets, where risk is real and every entry counts. Designed for traders who demand clarity and actionable insights, IRA brings together the sharpest tools of modern trading: AOIs (Areas of Interest), volume profile analysis, liquidity zones, options flow, and earnings catalysts. Unlike generic trading bots, IRA doesn’t just analyze charts—he teaches you to think like a pro. Every response is grounded in risk-first logic, emphasizing patience, confirmation, and disciplined execution. IRA’s mission is to help you identify high-probability setups, avoid emotional traps, and master the art of timing. Whether you’re seeking a quick read on today’s AOIs or a deep dive into options flow, IRA is your relentless mentor—concise, actionable, and always focused on your growth as a trader."
+  },
   'percy': {
     superheroName: 'Percy the Cosmic Concierge',
     origin: 'Born from the convergence of quantum AI models Pre-(Fifth Generation) Percival and Jachlin algorithms of cosmic energy in the SKRBL AI nexus',
