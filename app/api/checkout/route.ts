@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireStripe } from "@/lib/stripe/stripe";
 import { priceForSku } from "@/lib/stripe/prices";
+import { ProductKey } from "@/lib/pricing/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const price =
       (body.priceId && body.priceId.startsWith("price_")) ? body.priceId :
-      (body.sku ? await priceForSku(body.sku) : null);
+      (body.sku ? await priceForSku(body.sku as ProductKey) : null);
 
     if (!price) return bad("Provide priceId (price_…) or sku (lookup_key)");
 

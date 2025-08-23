@@ -131,7 +131,7 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
     };
     const planKey = upgradeReason === 'usage_limit' ? 'starter' : upgradeReason === 'high_velocity' ? 'star' : 'crusher';
     const plan = getDisplayPlan(planKey, 'monthly');
-    const accessLabel = `${plan.label} (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})`;
+    const accessLabel = `${plan.name} (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})`;
     switch (upgradeReason) {
       case 'usage_limit':
         return { ...baseContent, title: '🚨 Daily Agent Limit Reached', message: `You've used all 3 free agents today! Upgrade for unlimited agents.`, benefits: ['Unlimited agents', '50 Scans per month', 'Unlimited Percy conversations', 'Priority support'], subtitle: `Premium Agent requires ${accessLabel} access. Your competition is already using this firepower!` };
