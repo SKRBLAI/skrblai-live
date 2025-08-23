@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { PricingPlan, getBadgeText, getCTAText, getHref } from '../../lib/config/pricing';
-import { BillingPeriod } from '../../lib/pricing/types';
+import type { BillingPeriod } from '../../lib/pricing/types';
 import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
 import CosmicButton from '../shared/CosmicButton';
 import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
