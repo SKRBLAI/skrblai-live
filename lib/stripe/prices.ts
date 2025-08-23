@@ -1,6 +1,7 @@
 import { requireStripe } from "./stripe";
+import { ProductKey } from '../pricing/types';
 
-export async function priceForSku(lookupKey: string): Promise<string> {
+export async function priceForSku(lookupKey: ProductKey): Promise<string> {
   const stripe = requireStripe();
   const res = await stripe.prices.list({
     lookup_keys: [lookupKey],

@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
 import React, { useEffect, useState } from "react";
 import { X, Zap, Star, Lock, Crown, TrendingUp } from 'lucide-react';
 import { SafeAgent } from '../../types/agent';
@@ -125,16 +126,19 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
   const getUpgradePromptContent = () => {
     const baseContent = {
       title: `🚀 Unlock ${agent.name}`,
-      subtitle: 'Premium Agent',
-      cta: 'Upgrade to Starter ($27/mo)'
+      subtitle: 'Premium Agent requires',
+      cta: 'Upgrade to Starter'
     };
+    const planKey = upgradeReason === 'usage_limit' ? 'starter' : upgradeReason === 'high_velocity' ? 'star' : 'crusher';
+    const plan = getDisplayPlan(planKey, 'monthly');
+    const accessLabel = `${plan.label} (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})`;
     switch (upgradeReason) {
       case 'usage_limit':
-        return { ...baseContent, title: '🚨 Daily Agent Limit Reached', message: `You've used all 3 free agents today! Upgrade for unlimited agents.`, benefits: ['Unlimited agents', '50 Scans per month', 'Unlimited Percy conversations', 'Priority support'] };
+        return { ...baseContent, title: '🚨 Daily Agent Limit Reached', message: `You've used all 3 free agents today! Upgrade for unlimited agents.`, benefits: ['Unlimited agents', '50 Scans per month', 'Unlimited Percy conversations', 'Priority support'], subtitle: `Premium Agent requires ${accessLabel} access. Your competition is already using this firepower!` };
       case 'high_velocity':
-        return { ...baseContent, title: '🔥 High Usage Velocity Detected!', message: `You're on a roll! Upgrade to unlock ${agent.name} and more.`, benefits: [`Unlock ${agent.name}`, '6 total agents available', '50 tasks per agent/month', 'Advanced automation features'] };
+        return { ...baseContent, title: '🔥 High Usage Velocity Detected!', message: `You're on a roll! Upgrade to unlock ${agent.name} and more.`, benefits: [`Unlock ${agent.name}`, '6 total agents available', '50 tasks per agent/month', 'Advanced automation features'], subtitle: `Premium Agent requires ${accessLabel} access.` };
       default:
-        return { ...baseContent, message: `${agent.name} is a premium agent. Upgrade to access.`, benefits: [`${agent.name} access`, '6 specialized agents', 'Content automation suite', 'Growing business features'] };
+        return { ...baseContent, message: `${agent.name} is a premium agent. Upgrade to access.`, benefits: [`${agent.name} access`, '6 specialized agents', 'Content automation suite', 'Growing business features'], subtitle: `Premium Agent requires ${accessLabel} access.` };
     }
   };
 

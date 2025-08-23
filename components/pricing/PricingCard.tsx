@@ -2,15 +2,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { 
-  PricingPlan, 
-  BillingPeriod, 
-  getFormattedPrice, 
-  getSavingsAmount, 
-  getBadgeText,
-  getCTAText,
-  getHref 
-} from '../../lib/config/pricing';
+import { PricingPlan, getBadgeText, getCTAText, getHref } from '../../lib/config/pricing';
+import { BillingPeriod } from '../../lib/pricing/types';
+import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
 import CosmicButton from '../shared/CosmicButton';
 import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
 import CardShell from '../ui/CardShell';
@@ -43,12 +37,13 @@ export default function PricingCard({
     
     try {
       // Get the current price based on billing period
-      const priceId = billingPeriod === 'monthly' ? plan.stripePriceIds?.monthly : plan.stripePriceIds?.annual;
+      const periodKey = (billingPeriod === 'monthly' || billingPeriod === 'annual') ? billingPeriod : 'monthly';
+      const priceId = plan.stripePriceIds?.[periodKey];
       
       if (!priceId || priceId.includes('price_') && priceId.includes('_monthly')) {
         // Stripe price IDs not configured - redirect to sign up for now
         console.log('Stripe price IDs not configured, redirecting to sign up');
-        const planHref = plan.href[billingPeriod];
+        const planHref = plan.href[periodKey];
         window.location.href = planHref;
         return;
       }
@@ -83,8 +78,10 @@ export default function PricingCard({
       setIsLoading(false);
     }
   };
-  const formattedPrice = getFormattedPrice(plan, billingPeriod);
-  const savingsAmount = getSavingsAmount(plan);
+  const displayPlan = getDisplayPlan(plan.id as any, billingPeriod);
+  const formattedPrice = formatMoney(displayPlan.amountCents, 'USD');
+  const compareAtCents = displayPlan.compareAtCents;
+  const savingsAmount = compareAtCents ? compareAtCents - displayPlan.amountCents : 0;
   const badgeText = getBadgeText(plan, billingPeriod);
   const ctaText = getCTAText(plan, billingPeriod);
   const href = getHref(plan, billingPeriod);

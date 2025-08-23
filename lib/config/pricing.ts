@@ -1,7 +1,5 @@
 import React from 'react';
 
-export type BillingPeriod = 'monthly' | 'annual';
-
 export interface PricingFeature {
   name: string;
   included: boolean;
@@ -208,6 +206,8 @@ export const getPlanById = (id: string): PricingPlan | undefined => {
   return pricingPlans.find(plan => plan.id === id);
 };
 
+import { BillingPeriod } from '../pricing/catalog';
+
 export const getPrice = (plan: PricingPlan, period: BillingPeriod): number => {
   return period === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
 };
@@ -245,12 +245,24 @@ export const getBadgeText = (plan: PricingPlan, period: BillingPeriod): string =
   return plan.badges?.primary || '';
 };
 
+function isLegacyPeriod(period: BillingPeriod): period is 'monthly' | 'annual' {
+  return period === 'monthly' || period === 'annual';
+}
+
 export const getCTAText = (plan: PricingPlan, period: BillingPeriod): string => {
-  return plan.cta[period];
+  if (isLegacyPeriod(period)) {
+    return plan.cta[period];
+  }
+  // fallback or error for 'one_time'
+  return plan.cta['monthly'];
 };
 
 export const getHref = (plan: PricingPlan, period: BillingPeriod): string => {
-  return plan.href[period];
+  if (isLegacyPeriod(period)) {
+    return plan.href[period];
+  }
+  // fallback or error for 'one_time'
+  return plan.href['monthly'];
 };
 
 // Live metrics for engagement (moved from pricing page)

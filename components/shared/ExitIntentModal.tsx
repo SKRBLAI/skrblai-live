@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, Gift, Timer, Star } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -37,7 +38,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
     } else if (pathname?.includes('/agents')) {
       return {
         headline: "🤖 Unlock Agent Intelligence Before You Go",
-        description: "Get instant access to our 'Agent Selection Masterclass' - a $97 value, free for the next 15 minutes.",
+        description: `Get instant access to our 'Agent Selection Masterclass' - a ${formatMoney(getDisplayPlan('crusher', 'one_time').amount, getDisplayPlan('crusher', 'one_time').currency)} value, free for the next 15 minutes.`,
         buttonText: "📚 Get Free Masterclass",
         incentive: "✨ Plus: 7-day trial of all agents",
         urgency: "⏰ Limited time: 15 minutes remaining"
@@ -55,7 +56,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
         headline: "🚀 One More Thing Before You Go...",
         description: "We're giving away free 'Industry Domination Blueprints' for the next 12 minutes. Which industry should we analyze for you?",
         buttonText: "📈 Get My Blueprint",
-        incentive: "🎁 $197 value - completely free",
+        incentive: `🎁 ${formatMoney(getDisplayPlan('crusher', 'one_time').amount, getDisplayPlan('crusher', 'one_time').currency)} value - completely free`,
         urgency: "⏱️ Expires in 12 minutes"
       };
     }
@@ -134,6 +135,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
             {/* Close Button */}
             <button
               onClick={onClose}
+              title="Close modal"
               className="absolute top-4 right-4 p-2 rounded-full bg-slate-800/50 hover:bg-slate-700/70 transition-colors text-gray-400 hover:text-white border border-teal-400/30 backdrop-blur-sm"
             >
               <X className="w-5 h-5" />
@@ -144,10 +146,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gradient-to-r from-orange-900/70 to-red-900/70 backdrop-blur-xl border border-orange-400/50 rounded-full text-white text-sm font-bold shadow-[0_0_15px_rgba(255,100,50,0.4)]"
-              style={{
-                boxShadow: '0 0 15px rgba(255,100,50,0.4)'
-              }}
+              className="absolute -top-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-gradient-to-r from-orange-900/70 to-red-900/70 backdrop-blur-xl border border-orange-400/50 rounded-full text-white text-sm font-bold urgency-badge-shadow"
             >
               <Timer className="w-4 h-4 inline mr-1" />
               {offer.urgency}
@@ -215,10 +214,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-4 bg-slate-800/40 border border-teal-400/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg backdrop-blur-md focus:bg-slate-800/60 transition-colors"
-                  style={{
-                    background: 'rgba(30, 41, 59, 0.4)'
-                  }}
+                  className="w-full px-4 py-4 bg-slate-800/40 border border-teal-400/40 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-lg backdrop-blur-md focus:bg-slate-800/60 transition-colors input-bg-blur"
                 />
               </div>
 

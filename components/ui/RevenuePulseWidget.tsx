@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
 import { TrendingUp, DollarSign, Zap, Crown, Target, ArrowUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { trackFunnelEvent } from '../../lib/analytics/userFunnelTracking';
@@ -53,7 +54,7 @@ export default function RevenuePulseWidget({
         urgency: 'high',
         title: '🔥 Usage Momentum Detected',
         message: 'You\'ve used 2+ agents today! Upgrade now to unlock 11+ more agents and avoid hitting limits.',
-        cta: 'Unlock Full Arsenal ($27/mo)',
+        cta: `Unlock Full Arsenal (${formatMoney(getDisplayPlan('starter', 'monthly').amount, getDisplayPlan('starter', 'monthly').currency)}/${getDisplayPlan('starter', 'monthly').intervalLabel})`,
         potentialRevenue: 27,
         href: '/pricing?offer=usage_momentum',
         icon: '🚀',
@@ -68,7 +69,7 @@ export default function RevenuePulseWidget({
         urgency: 'critical',
         title: '⚡ Intelligence Gathering Velocity',
         message: 'You\'ve maxed out today\'s scans! Upgrade to 50 scans/month and never hit limits again.',
-        cta: 'Unlimited Intelligence ($27/mo)',
+        cta: `Unlimited Intelligence (${formatMoney(getDisplayPlan('starter', 'monthly').amount, getDisplayPlan('starter', 'monthly').currency)}/${getDisplayPlan('starter', 'monthly').intervalLabel})`,
         potentialRevenue: 27,
         href: '/pricing?offer=scan_limit',
         icon: '🧠',
@@ -85,7 +86,7 @@ export default function RevenuePulseWidget({
         urgency: 'medium',
         title: '💼 Business Hours = Revenue Hours',
         message: 'Your competitors are automating RIGHT NOW. Don\'t let them gain unfair advantage.',
-        cta: 'Beat Competition ($27/mo)',
+        cta: `Beat Competition (${formatMoney(getDisplayPlan('starter', 'monthly').amount, getDisplayPlan('starter', 'monthly').currency)}/${getDisplayPlan('starter', 'monthly').intervalLabel})`,
         potentialRevenue: 27,
         href: '/pricing?offer=competition_pressure',
         icon: '⏰',
@@ -102,7 +103,7 @@ export default function RevenuePulseWidget({
         urgency: 'medium',
         title: '📈 Growth Pattern Detected',
         message: 'Heavy usage detected! Business Dominator tier offers 4x more agents and advanced analytics.',
-        cta: 'Scale to Business Dominator ($67/mo)',
+        cta: `Scale to Business Dominator (${formatMoney(getDisplayPlan('star', 'monthly').amount, getDisplayPlan('star', 'monthly').currency)}/${getDisplayPlan('star', 'monthly').intervalLabel})`,
         potentialRevenue: 67,
         href: '/pricing?offer=growth_expansion',
         icon: '📊',
@@ -118,7 +119,7 @@ export default function RevenuePulseWidget({
         urgency: 'high',
         title: '🏆 Friday Competition Alert',
         message: '2,847 businesses upgraded this week. Your industry leaders are already automating.',
-        cta: 'Join the Leaders ($27/mo)',
+        cta: `Join the Leaders (${formatMoney(getDisplayPlan('starter', 'monthly').amount, getDisplayPlan('starter', 'monthly').currency)}/${getDisplayPlan('starter', 'monthly').intervalLabel})`,
         potentialRevenue: 27,
         href: '/pricing?offer=friday_momentum',
         icon: '🔥',

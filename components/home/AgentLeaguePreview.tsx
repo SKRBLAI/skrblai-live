@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,6 @@ const generateLiveActivity = () => ({
   }
 });
 
-import { useEffect, useState } from 'react';
 
 const BASE_CORE_AGENTS = [
   {
@@ -55,7 +54,7 @@ const BASE_CORE_AGENTS = [
     action: 'Build My Brand',
     mode: 'business' as const,
     intent: 'branding_package',
-    activityKey: 'branding' as const,
+    activityKey: 'branding',
     dominanceMetric: 'Brand Identity Domination',
     superheroName: 'The Brand Transformer'
   },
@@ -70,7 +69,7 @@ const BASE_CORE_AGENTS = [
     action: 'Plan Posts',
     mode: 'business' as const,
     intent: 'social_media_planning',
-    activityKey: 'social' as const,
+    activityKey: 'social',
     dominanceMetric: 'Social Media Conquest',
     superheroName: 'The Engagement Amplifier'
   },
@@ -85,7 +84,7 @@ const BASE_CORE_AGENTS = [
     action: 'Chat with Percy',
     mode: 'business' as const,
     intent: 'general_consultation',
-    activityKey: 'percy' as const,
+    activityKey: 'percy',
     dominanceMetric: 'Business Automation Mastery',
     superheroName: 'The Growth Orchestrator'
   },
@@ -100,7 +99,7 @@ const BASE_CORE_AGENTS = [
     action: 'Upload Video',
     mode: 'sports' as const,
     intent: 'video_analysis',
-    activityKey: 'skillsmith' as const,
+    activityKey: 'skillsmith',
     dominanceMetric: 'Athletic Performance Optimization',
     superheroName: 'The Performance Enhancer'
   },
@@ -115,14 +114,14 @@ const BASE_CORE_AGENTS = [
     action: 'Generate Ideas',
     mode: 'business' as const,
     intent: 'content_generation',
-    activityKey: 'content' as const,
+    activityKey: 'content',
     dominanceMetric: 'Content Creation Supremacy',
     superheroName: 'The Content Multiplier'
   }
 ];
 
 interface AgentLeaguePreviewProps {
-  onAgentClick: (agent: typeof CORE_AGENTS[0]) => void;
+  onAgentClick: (agent: typeof BASE_CORE_AGENTS[0]) => void;
 }
 
 export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewProps) {
@@ -149,7 +148,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   
   if (!isGuideStarEnabled) return null;
 
-  const handleAgentInteraction = (agent: typeof CORE_AGENTS[0], action: 'learn' | 'chat' | 'demo') => {
+  const handleAgentInteraction = (agent: typeof BASE_CORE_AGENTS[0], action: 'learn' | 'chat' | 'demo') => {
     // Analytics
     if (typeof window !== 'undefined') {
       (window as any).gtag?.('event', 'agent_interaction', { 
@@ -222,7 +221,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   dominanceMetric: 'Market Timing Precision',
   superheroName: 'The Risk-First Strategist',
 }] : [])].map((agent, index) => {
-            const activity = liveActivity[agent.activityKey];
+            const activity = liveActivity[agent.activityKey as keyof typeof liveActivity];
             const isHovered = hoveredAgent === agent.id;
             const showTip = showFreeTip === agent.id;
             

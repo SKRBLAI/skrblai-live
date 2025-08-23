@@ -1,0 +1,7 @@
+.urgency-badge-shadow {
+  box-shadow: 0 0 15px rgba(255,100,50,0.4);
+}
+
+.input-bg-blur {
+  background: rgba(30, 41, 59, 0.4);
+}

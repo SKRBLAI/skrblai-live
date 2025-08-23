@@ -17,19 +17,19 @@ import {
   Check, Shield, Sparkles, Crown, Zap, Rocket, 
   Star, MessageCircle, ArrowRight, Users, TrendingUp 
 } from 'lucide-react';
-import { 
-  pricingPlans, 
-  liveMetrics, 
-  BillingPeriod, 
-  LiveMetric,
-  URGENCY_TIMER_INITIAL,
-  METRICS_UPDATE_INTERVAL,
-  TIMER_UPDATE_INTERVAL
-} from '../../lib/config/pricing';
+import {
+  getDisplayPlan,
+  formatMoney,
+  PRICING_CATALOG,
+  BillingPeriod
+} from '../../lib/pricing/catalog';
+import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
 import PercyInlineChat from '@/components/percy/PercyInlineChat';
 
 // Pricing page now uses centralized config
 // Types and data imported from lib/config/pricing.ts
+const TIMER_UPDATE_INTERVAL = 1000; // 1 second
+const METRICS_UPDATE_INTERVAL = 3000; // 3 seconds
 
 export default function PricingPage() {
   const { openPercy } = usePercyContext();
@@ -345,15 +345,18 @@ const socialProofMetrics = [
 
             {/* Enhanced Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-              {pricingPlans.map((plan, index) => (
-                <PricingCard
-                  key={plan.id}
-                  plan={plan}
-                  billingPeriod={billingPeriod}
-                  animationDelay={0.5 + index * 0.1}
-                  isHighlighted={plan.isPopular}
-                />
-              ))}
+              {Object.keys(PRICING_CATALOG).map((productKey, index) => {
+  const plan = getDisplayPlan(productKey as any, billingPeriod);
+  return (
+    <PricingCard
+      key={productKey}
+      plan={plan}
+      billingPeriod={billingPeriod}
+      animationDelay={0.5 + index * 0.1}
+      isHighlighted={index === 1} // TODO: update if you want to highlight a specific plan
+    />
+  );
+})}
             </div>
           </motion.div>
 

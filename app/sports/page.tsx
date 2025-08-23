@@ -3,21 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../components/context/AuthContext';
+import { getDisplayPlan, formatMoney, getAmount } from '../../lib/pricing/sportsPricing';
+import { PRICING_CATALOG } from '../../lib/pricing/catalog';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
+import { useDashboardAuth } from '../../hooks/useDashboardAuth';
+import { ProductKey, BillingPeriod } from '../../lib/pricing/types';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
 import SkillSmithStandaloneHero from '../../components/home/SkillSmithStandaloneHero';
 import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
-// [CLEANUP] Remove UpgradeModal import and usage
-// import UpgradeModal from '../../components/skillsmith/UpgradeModal';
 import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
 import { products } from '../../lib/config/skillsmithProducts';
-import { priceMap, getAmount } from '../../lib/config/skillsmithPriceMap';
 
 interface AnalysisResult {
   feedback: string;
@@ -37,7 +37,7 @@ interface QuickWin {
 }
 
 export default function SportsPage(): JSX.Element {
-  const { user, isEmailVerified } = useAuth();
+  const { user, isLoading } = useDashboardAuth();
   const { 
     scansRemaining, 
     shouldShowUpgradeOffer, 
@@ -71,7 +71,7 @@ export default function SportsPage(): JSX.Element {
 
   // Determine user type for different flows
   const getUserType = (): 'guest' | 'auth' | 'platform' => {
-    if (user && isEmailVerified) return 'platform';
+    if (user) return 'platform';
     if (session.emailCaptured) return 'auth';
     return 'guest';
   };
@@ -197,14 +197,18 @@ export default function SportsPage(): JSX.Element {
   const handleBuyNow = async (product: Product) => {
     setSelectedProduct(product);
     try {
-      // Resolve correct Stripe tier key for one-time products and bundles
-      const bundleKeys = new Set(['rookie', 'pro', 'allstar', 'yearly']);
-      const tierKey = bundleKeys.has(product.id)
-        ? product.id
-        : Object.entries(priceMap).find(([key, val]) => key.startsWith('p') && val.amount === product.price)?.[0];
+      // Catalog-driven: Find the ProductKey for this product based on price and name
+      const catalogEntry = Object.entries(PRICING_CATALOG).find(([_key, entry]) => {
+        const e = entry as any;
+        if (e.one_time && e.one_time.amount === product.price && e.one_time.name === product.title) {
+          return true;
+        }
+        return false;
+      });
+      const tierKey = catalogEntry ? catalogEntry[0] : undefined;
 
       if (!tierKey) {
-        console.error('Unable to resolve price map key for product', { product, priceMap });
+        console.error('Unable to resolve catalog key for product', { product });
         alert('Checkout is temporarily unavailable for this product. Please try again in a moment.');
         return;
       }
@@ -642,8 +646,10 @@ export default function SportsPage(): JSX.Element {
                     </p>
                     
                     <div className="flex items-center justify-center gap-4 mb-4">
-                      <div className="text-gray-400 line-through text-2xl">$136</div>
-                      <div className="text-5xl font-bold text-cyan-300">$89</div>
+                      {getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents && (
+  <div className="text-gray-400 line-through text-2xl">{formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents!, 'USD')}</div>
+)}
+                      <div className="text-5xl font-bold text-cyan-300">{formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}</div>
                       <motion.div 
                         className="bg-teal-500 text-white px-4 py-2 rounded-full text-lg font-bold"
                         animate={{
@@ -656,14 +662,16 @@ export default function SportsPage(): JSX.Element {
                           ease: "easeInOut"
                         }}
                       >
-                        SAVE $47!
+                        {getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents && (
+  <>SAVE {formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents! - getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}!</>
+)}
                       </motion.div>
                     </div>
                     
                     {/* Bundles with Buy buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm relative z-0">
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-teal-300 font-bold text-lg">Rookie — $5</div>
+                        <div className="text-teal-300 font-bold text-lg">Rookie — {formatMoney(getDisplayPlan('SPORTS_STARTER', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
@@ -680,7 +688,7 @@ export default function SportsPage(): JSX.Element {
                         </button>
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-cyan-300 font-bold text-lg">Pro — $25</div>
+                        <div className="text-cyan-300 font-bold text-lg">Pro — {formatMoney(getDisplayPlan('SPORTS_PRO', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
@@ -698,7 +706,7 @@ export default function SportsPage(): JSX.Element {
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border-2 border-cyan-400/60 relative">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
-                        <div className="text-cyan-200 font-bold text-lg">All‑Star — $67</div>
+                        <div className="text-cyan-200 font-bold text-lg">All‑Star — {formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
@@ -719,13 +727,13 @@ export default function SportsPage(): JSX.Element {
                     {/* Yearly plan */}
                     <div className="flex flex-wrap justify-center gap-4">
                       <div className="bg-white/10 rounded-xl p-5 text-center border border-cyan-400/30 max-w-xl">
-                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — $149</div>
+                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — {formatMoney(getDisplayPlan('BUS_STARTER', 'annual').amountCents, 'USD')}</div>
                         <ul className="text-gray-300 text-sm space-y-1 mb-3">
                           <li>30 scans every 30 days</li>
                           <li>Custom 4‑week training plan</li>
                           <li>2‑week mental health calendar</li>
                           <li>Intro nutrition guide</li>
-                          <li>Specialty products ($19/$29/$39/$49)</li>
+                          <li>Specialty products ({[19,29,39,49].map(p=>formatMoney(p*100,'USD')).join('/')})</li>
                         </ul>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <button
@@ -1062,14 +1070,14 @@ export default function SportsPage(): JSX.Element {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 {[
-                  { id: 'rookie', title: 'Rookie — $5' },
-                  { id: 'pro', title: 'Pro — $25' },
-                  { id: 'allstar', title: 'All‑Star — $67' },
-                  { id: 'yearly', title: 'Yearly — $149' }
+                  { id: 'rookie', title: `Rookie — ${formatMoney(getDisplayPlan('SPORTS_STARTER', 'one_time').amountCents, 'USD')}` },
+                  { id: 'pro', title: `Pro — ${formatMoney(getDisplayPlan('SPORTS_PRO', 'one_time').amountCents, 'USD')}` },
+                  { id: 'allstar', title: `All‑Star — ${formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}` },
+                  { id: 'yearly', title: `Yearly — ${formatMoney(getDisplayPlan('BUS_STARTER', 'annual').amountCents, 'USD')}` }
                 ].map((opt) => (
                   <button
                     key={opt.id}
-                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: getAmount(opt.id) } as Product)}
+                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: getAmount(opt.id as ProductKey, opt.id === 'yearly' ? 'annual' : 'one_time') } as Product)}
                     className="bg-white/10 hover:bg-white/15 border border-cyan-400/30 rounded-xl p-4 text-left text-gray-200"
                   >
                     <div className="font-bold text-white">{opt.title}</div>
