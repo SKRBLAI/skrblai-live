@@ -528,16 +528,21 @@ export class MarketingAutomationManager {
   }
 
   private async executeWebhook(step: any): Promise<void> {
-    if (!step.n8n_action?.webhook_url) return;
-
+    // Centralized N8N relay usage
+    const agentId = step.n8n_action?.agent_id || step.agent_id;
+    if (!agentId) {
+      console.error('[MarketingAutomationManager] No agentId provided for N8N workflow trigger');
+      return;
+    }
     try {
-      await fetch(step.n8n_action.webhook_url, {
+      const relayUrl = `/api/agents/${agentId}/trigger-n8n`;
+      await fetch(relayUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(step.n8n_action.payload || {})
       });
     } catch (error) {
-      console.error('Webhook execution failed:', error);
+      console.error('[MarketingAutomationManager] Relay workflow trigger failed:', error);
     }
   }
 

@@ -21,8 +21,37 @@ import {
   getDisplayPlan,
   formatMoney,
   PRICING_CATALOG,
-  BillingPeriod
 } from '../../lib/pricing/catalog';
+import { BillingPeriod } from '../../lib/pricing/types';
+import { PricingPlan } from '../../lib/config/pricing';
+
+// Mapping function to convert DisplayPlan to PricingPlan
+function displayPlanToPricingPlan(plan: any, productKey: string): PricingPlan {
+  return {
+    id: productKey,
+    title: plan.name,
+    description: plan.blurb || '',
+    monthlyPrice: plan.interval === 'monthly' ? plan.amount : 0,
+    annualPrice: plan.interval === 'annual' ? plan.amount : 0,
+    features: plan.features || [],
+    stripePriceIds: {
+      monthly: plan.interval === 'monthly' ? plan.stripeProductKey : undefined,
+      annual: plan.interval === 'annual' ? plan.stripeProductKey : undefined,
+    },
+    agentCount: 1, // set as needed
+    isFree: plan.amount === 0,
+    href: {
+      monthly: '#',
+      annual: '#',
+    }, // set as needed
+    icon: '',
+    gradient: plan.gradient || '',
+    cta: plan.cta || 'Get Started',
+    taskLimit: plan.taskLimit || 0,
+    support: plan.support || '',
+  };
+}
+
 import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
 import PercyInlineChat from '@/components/percy/PercyInlineChat';
 
@@ -184,6 +213,13 @@ const socialProofMetrics = [
   
         
         <div className="container mx-auto px-4 py-24 relative z-10">
+  {/* One-Time Purchase Banner */}
+  <div className="max-w-3xl mx-auto mb-8">
+    <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-600/80 to-blue-600/80 rounded-full border-2 border-cyan-400/40 shadow-glow justify-center">
+      <span className="text-xl">💸</span>
+      <span className="text-white font-bold text-lg">All purchases are <span className="text-teal-300">one-time</span>. No subscriptions. No recurring fees.</span>
+    </div>
+  </div>
           {/* Disruption Hero Section */}
           <div className="max-w-6xl mx-auto text-center mb-16">
             <motion.div
@@ -217,7 +253,7 @@ const socialProofMetrics = [
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              Every tier includes Percy's cosmic intelligence, N8N automation, and starts with our risk-free trial.
+              <span className="text-teal-300 font-bold">One-time purchase. No subscriptions. No recurring fees.</span> Every tier includes Percy's cosmic intelligence, N8N automation, and starts with our risk-free trial.
               <span className="text-cyan-400 font-semibold"> No contracts. No limits. Just pure automation domination.</span>
             </motion.p>
 
@@ -342,15 +378,15 @@ const socialProofMetrics = [
                 className=""
               />
             </div>
-
             {/* Enhanced Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
               {Object.keys(PRICING_CATALOG).map((productKey, index) => {
   const plan = getDisplayPlan(productKey as any, billingPeriod);
+  const pricingPlan = displayPlanToPricingPlan(plan, productKey);
   return (
     <PricingCard
       key={productKey}
-      plan={plan}
+      plan={pricingPlan}
       billingPeriod={billingPeriod}
       animationDelay={0.5 + index * 0.1}
       isHighlighted={index === 1} // TODO: update if you want to highlight a specific plan
@@ -359,8 +395,6 @@ const socialProofMetrics = [
 })}
             </div>
           </motion.div>
-
-          {/* Disruption Guarantee */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -368,6 +402,9 @@ const socialProofMetrics = [
             className="max-w-4xl mx-auto text-center mb-16"
           >
             <GlassmorphicCard className="p-8 bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-2 border-green-400/30">
+  <div className="mb-3">
+    <span className="inline-block px-4 py-1 rounded-full bg-teal-600/30 text-teal-200 font-semibold text-base">One-Time Payment Guarantee</span>
+  </div>
               <h3 className="text-2xl font-bold text-green-400 mb-4">🛡️ Zero-Risk Domination Guarantee</h3>
               <p className="text-lg text-gray-300 mb-4">
                 <span className="text-green-400 font-bold">30-day money-back guarantee.</span> If <SkrblAiText variant="glow" size="sm">SKRBL AI</SkrblAiText> doesn't give you an unfair advantage over your competition, we'll refund every penny.

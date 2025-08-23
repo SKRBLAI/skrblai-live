@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
+import { routeForAgent } from '../../lib/agents/routes';
 import { SafeAgent } from '../../types/agent';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Lock } from 'lucide-react';
@@ -250,9 +251,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
   };
 
   const handleCardRoute = () => {
-    // Free Scan Flow: Route to Percy onboarding with scan intent
-    const slug = AGENT_SLUGS[agent.category] || agent.id;
-    router.push(`/agents/${slug}`);
+    // Route to agentbackstory using centralized helper
+    router.push(routeForAgent(agent.id));
   };
 
   return (

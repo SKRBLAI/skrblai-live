@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { routeForAgent } from '../../lib/agents/routes';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -167,7 +168,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         break;
       case 'demo':
         // Route to agent page or open demo
-        router.push(`/agents/${agent.id}?demo=true`);
+        router.push(routeForAgent(agent.id));
         break;
     }
   };

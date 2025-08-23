@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BillingPeriod, getSavingsPercentage } from '../../lib/config/pricing';
+import { getSavingsPercentage } from '../../lib/config/pricing';
+import type { BillingPeriod } from '../../lib/pricing/types';
 
 interface BillingToggleProps {
   currentPeriod: BillingPeriod;

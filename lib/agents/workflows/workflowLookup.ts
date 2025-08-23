@@ -45,7 +45,10 @@ export interface WorkflowExecutionContext {
 // ENVIRONMENT CONFIGURATION
 // =============================================================================
 
-const N8N_BASE_URL = process.env.N8N_BASE_URL || process.env.NEXT_PUBLIC_N8N_BASE_URL || '';
+function getN8nBaseUrl(): string {
+  return process.env.N8N_BASE_URL || process.env.NEXT_PUBLIC_N8N_BASE_URL || '';
+} // Always call this at runtime
+
 
 // =============================================================================
 // CORE WORKFLOW LOOKUP FUNCTIONS
@@ -196,8 +199,18 @@ export function getHandoffSuggestions(agentId: string, context?: string): AgentW
  * Build webhook URL from workflow ID
  */
 function buildWebhookUrl(workflowId?: string): string | undefined {
-  if (!workflowId || !N8N_BASE_URL) return undefined;
-  return `${N8N_BASE_URL}/webhook/${workflowId}`;
+  const baseUrl = getN8nBaseUrl();
+  if (!workflowId || !baseUrl) return undefined;
+  return `${baseUrl}/webhook/${workflowId}`;
+}
+
+/**
+ * Returns the webhook URL for an agent, or null if not configured.
+ */
+export function ensureAgentWebhook(agentId: string): string | null {
+  const config = getAgentWorkflowConfig(agentId);
+  if (!config || !config.n8nWebhookUrl) return null;
+  return config.n8nWebhookUrl;
 }
 
 /**
