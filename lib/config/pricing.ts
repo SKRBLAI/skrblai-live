@@ -206,7 +206,7 @@ export const getPlanById = (id: string): PricingPlan | undefined => {
   return pricingPlans.find(plan => plan.id === id);
 };
 
-import { BillingPeriod } from '../pricing/catalog';
+import { BillingPeriod } from '../pricing/types';
 
 export const getPrice = (plan: PricingPlan, period: BillingPeriod): number => {
   return period === 'monthly' ? plan.monthlyPrice : plan.annualPrice;

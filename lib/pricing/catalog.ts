@@ -167,6 +167,34 @@ export const PRICING_CATALOG: Record<ProductKey, {
       stripeProductKey: 'BUNDLE_ALL_ACCESS',
     },
   },
+  SPORTS_VIDEO_PACK: {
+    one_time: {
+      name: 'Sports Video Pack',
+      blurb: 'AI-powered video analysis tools',
+      currency: 'USD',
+      interval: 'one_time',
+      amountCents: 1900, // TODO: verify
+      amount: 19,
+      intervalLabel: 'one-time',
+      features: ['Video Analysis AI', 'Performance Metrics', 'Training Insights'],
+      mode: 'payment',
+      stripeProductKey: 'SPORTS_VIDEO_PACK',
+    },
+  },
+  SPORTS_PLAYBOOK_PACK: {
+    one_time: {
+      name: 'Sports Playbook Pack',
+      blurb: 'Strategic playbook & analysis',
+      currency: 'USD',
+      interval: 'one_time',
+      amountCents: 2900, // TODO: verify
+      amount: 29,
+      intervalLabel: 'one-time',
+      features: ['Strategic Analysis', 'Custom Playbooks', 'Game Planning'],
+      mode: 'payment',
+      stripeProductKey: 'SPORTS_PLAYBOOK_PACK',
+    },
+  },
   starter: {
     monthly: {
       name: 'Starter',
