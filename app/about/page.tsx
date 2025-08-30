@@ -14,7 +14,7 @@ import ClientPageLayout from '../../components/layout/ClientPageLayout';
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import CosmicButton from '../../components/shared/CosmicButton';
 import PercySuggestionModal from '../../components/percy/PercySuggestionModal';
-import PercyInlineChat from '@/components/percy/PercyInlineChat';
+import PercyInlineChat from '../../components/percy/PercyInlineChat';
 import { CosmicCardGlow, CosmicCardGlass } from '../../components/shared/CosmicCard';
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import { useLiveMetrics } from '../../hooks/useLiveMetrics';

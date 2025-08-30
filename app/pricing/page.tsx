@@ -53,7 +53,7 @@ function displayPlanToPricingPlan(plan: any, productKey: string): PricingPlan {
 }
 
 import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
-import PercyInlineChat from '@/components/percy/PercyInlineChat';
+import PercyInlineChat from '../../components/percy/PercyInlineChat';
 
 // Pricing page now uses centralized config
 // Types and data imported from lib/config/pricing.ts

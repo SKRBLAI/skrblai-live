@@ -8,6 +8,8 @@ import { PRICING_CATALOG } from '../../lib/pricing/catalog';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import { useDashboardAuth } from '../../hooks/useDashboardAuth';
 import { ProductKey, BillingPeriod } from '../../lib/pricing/types';
+import CheckoutButton from '../../components/payments/CheckoutButton';
+import { bundles } from '../../lib/config/skillsmithBundles';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
 import SkillSmithStandaloneHero from '../../components/home/SkillSmithStandaloneHero';
@@ -588,6 +590,92 @@ export default function SportsPage(): JSX.Element {
             </motion.section>
           )}
 
+          {/* Enhanced SkillSmith Bundles Section - Simplified Checkout */}
+          {(userType === 'guest' || userType === 'auth') && (
+            <motion.section
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative mb-24"
+            >
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center mb-12"
+                >
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                    ⚡ SkillSmith Arsenal
+                  </h2>
+                  <p className="text-orange-200 text-lg max-w-2xl mx-auto">
+                    Choose the perfect plan to elevate your sports performance with AI-powered insights.
+                  </p>
+                </motion.div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                  {bundles.map((bundle, index) => (
+                    <motion.div
+                      key={bundle.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.1 * index }}
+                      className="relative"
+                    >
+                      <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-300 h-full flex flex-col">
+                        
+                        {/* Badge for popular/best-value */}
+                        {bundle.badge && (
+                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                            <div className="px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-purple-400/30 bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-lg text-white">
+                              {bundle.badge === 'best-value' ? '🏆 BEST VALUE' : '⭐ POPULAR'}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex-grow">
+                          <div className="text-center mb-4">
+                            <h3 className="text-xl font-bold text-white mb-1">{bundle.title}</h3>
+                            {bundle.subtitle && (
+                              <p className="text-gray-400 text-sm">{bundle.subtitle}</p>
+                            )}
+                          </div>
+                          
+                          <div className="text-center mb-6">
+                            <span className="text-3xl font-bold text-white">${bundle.price}</span>
+                            <span className="text-gray-400 text-sm ml-1">one-time</span>
+                          </div>
+                          
+                          <ul className="space-y-2 mb-6 text-sm">
+                            {bundle.features.map((feature, idx) => (
+                              <li key={idx} className="flex items-start text-gray-300">
+                                <span className="mr-2 text-green-400 font-bold">✓</span>
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="mt-auto">
+                          <CheckoutButton
+                            label="Get Started"
+                            sku={bundle.sku}
+                            mode="payment"
+                            vertical="sports"
+                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.section>
+          )}
+
           {/* ADDED: Instant Revenue Booster - Bundle Deals & Subscriptions */}
           {(userType === 'guest' || userType === 'auth') && (
             <motion.section
@@ -674,53 +762,38 @@ export default function SportsPage(): JSX.Element {
                         <div className="text-teal-300 font-bold text-lg">Rookie — {formatMoney(getDisplayPlan('SPORTS_STARTER', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            console.info('BUY_CLICK', 'rookie', Date.now());
-                            void startCheckout('rookie', 'bundles_section');
-                          }}
-                          disabled={loadingCheckout === 'rookie'}
-                          data-testid="buy-rookie"
+                        <CheckoutButton
+                          label="Buy Rookie"
+                          sku="SPORTS_STARTER"
+                          mode="payment"
+                          vertical="sports"
                           className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        >
-                          {loadingCheckout === 'rookie' ? 'Loading...' : 'Buy Rookie'}
-                        </button>
+                        />
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
                         <div className="text-cyan-300 font-bold text-lg">Pro — {formatMoney(getDisplayPlan('SPORTS_PRO', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            console.info('BUY_CLICK', 'pro', Date.now());
-                            void startCheckout('pro', 'bundles_section');
-                          }}
-                          disabled={loadingCheckout === 'pro'}
-                          data-testid="buy-pro"
+                        <CheckoutButton
+                          label="Buy Pro"
+                          sku="SPORTS_PRO"
+                          mode="payment"
+                          vertical="sports"
                           className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        >
-                          {loadingCheckout === 'pro' ? 'Loading...' : 'Buy Pro'}
-                        </button>
+                        />
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border-2 border-cyan-400/60 relative">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
                         <div className="text-cyan-200 font-bold text-lg">All‑Star — {formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}</div>
                         <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            console.info('BUY_CLICK', 'allstar', Date.now());
-                            void startCheckout('allstar', 'bundles_section');
-                          }}
-                          disabled={loadingCheckout === 'allstar'}
-                          data-testid="buy-allstar"
+                        <CheckoutButton
+                          label="Buy All-Star"
+                          sku="BUNDLE_ALL_ACCESS"
+                          mode="payment"
+                          vertical="sports"
                           className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        >
-                          {loadingCheckout === 'allstar' ? 'Loading...' : 'Buy All-Star'}
-                        </button>
+                        />
                       </div>
                     </div>
                     
@@ -736,18 +809,13 @@ export default function SportsPage(): JSX.Element {
                           <li>Specialty products ({[19,29,39,49].map(p=>formatMoney(p*100,'USD')).join('/')})</li>
                         </ul>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            console.info('BUY_CLICK', 'yearly', Date.now());
-                            void startCheckout('yearly', 'bundles_section');
-                          }}
-                          disabled={loadingCheckout === 'yearly'}
-                          data-testid="buy-yearly"
+                        <CheckoutButton
+                          label="Buy Yearly"
+                          sku="BUS_STARTER"
+                          mode="subscription"
+                          vertical="sports"
                           className="relative z-50 pointer-events-auto w-full btn-solid-grad py-3 text-base disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        >
-                          {loadingCheckout === 'yearly' ? 'Loading...' : 'Buy Yearly'}
-                        </button>
+                        />
                       </div>
                     </div>
                     

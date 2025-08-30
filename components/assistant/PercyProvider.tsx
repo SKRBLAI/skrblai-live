@@ -7,15 +7,9 @@ import percyIntelligence, { generatePercyResponse, checkAgentAccess as checkAgen
 import { agentAccessController, checkAgentAccess, filterAgentsByAccess } from '../../lib/agents/accessControl';
 import { percyContextManager, initializePercyContext, trackPercyBehavior, getPercyContext, BEHAVIOR_TYPES } from '../../lib/percy/contextManager';
 
-// Safely import agentRegistry with fallback
-let agentRegistry: any[] = [];
-try {
-  const registryModule = require('@/lib/agents/agentRegistry');
-  agentRegistry = registryModule.default || registryModule.agentDashboardList || [];
-} catch (error) {
-  console.error('Failed to load agent registry in PercyProvider:', error);
-  agentRegistry = [];
-}
+// Import agentRegistry properly for client-side code
+import agentRegistryModule from '../../lib/agents/agentRegistry';
+const agentRegistry = agentRegistryModule || [];
 
 // --- Enhanced Types ---
 type WorkflowSessionType = string[];
