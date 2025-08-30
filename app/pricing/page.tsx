@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import {
   getDisplayPlan,
+  getDisplayPlanOrNull,
   formatMoney,
   PRICING_CATALOG,
 } from '../../lib/pricing/catalog';
@@ -381,9 +382,10 @@ const socialProofMetrics = [
             {/* Enhanced Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
               {Object.keys(PRICING_CATALOG).map((productKey, index) => {
-  const plan = getDisplayPlan(productKey as any, billingPeriod);
-  const pricingPlan = displayPlanToPricingPlan(plan, productKey);
-  return (
+              const plan = getDisplayPlanOrNull(productKey as any, billingPeriod);
+              if (!plan) return null; // Skip if plan not found
+              const pricingPlan = displayPlanToPricingPlan(plan, productKey);
+              return (
     <PricingCard
       key={productKey}
       plan={pricingPlan}

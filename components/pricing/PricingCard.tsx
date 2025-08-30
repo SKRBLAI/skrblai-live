@@ -4,7 +4,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { PricingPlan, getBadgeText, getCTAText, getHref } from '../../lib/config/pricing';
 import type { BillingPeriod } from '../../lib/pricing/types';
-import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import CosmicButton from '../shared/CosmicButton';
 import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
 import CardShell from '../ui/CardShell';
@@ -78,7 +78,23 @@ export default function PricingCard({
       setIsLoading(false);
     }
   };
-  const displayPlan = getDisplayPlan(plan.id as any, billingPeriod);
+  const displayPlan = getDisplayPlanOrNull(plan.id as any, billingPeriod);
+  if (!displayPlan) {
+    // Return minimal card without pricing if plan not found
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: animationDelay }}
+        className={`relative group ${className}`}
+      >
+        <CardShell className="p-8 h-full flex flex-col">
+          <h3 className="text-xl font-bold text-white mb-2">{plan.title}</h3>
+          <p className="text-gray-400 text-sm">Coming soon...</p>
+        </CardShell>
+      </motion.div>
+    );
+  }
   const formattedPrice = formatMoney(displayPlan.amountCents, 'USD');
   const compareAtCents = displayPlan.compareAtCents;
   const savingsAmount = compareAtCents ? compareAtCents - displayPlan.amountCents : 0;

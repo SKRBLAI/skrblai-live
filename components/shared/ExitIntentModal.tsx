@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Zap, Gift, Timer, Star } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -38,7 +38,10 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
     } else if (pathname?.includes('/agents')) {
       return {
         headline: "🤖 Unlock Agent Intelligence Before You Go",
-        description: `Get instant access to our 'Agent Selection Masterclass' - a ${formatMoney(getDisplayPlan('crusher', 'one_time').amount, getDisplayPlan('crusher', 'one_time').currency)} value, free for the next 15 minutes.`,
+        description: `Get instant access to our 'Agent Selection Masterclass' - a ${(() => {
+          const plan = getDisplayPlanOrNull('crusher', 'monthly');
+          return plan ? formatMoney(plan.amountCents, plan.currency) : '$49';
+        })()} value, free for the next 15 minutes.`,
         buttonText: "📚 Get Free Masterclass",
         incentive: "✨ Plus: 7-day trial of all agents",
         urgency: "⏰ Limited time: 15 minutes remaining"
@@ -56,7 +59,10 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
         headline: "🚀 One More Thing Before You Go...",
         description: "We're giving away free 'Industry Domination Blueprints' for the next 12 minutes. Which industry should we analyze for you?",
         buttonText: "📈 Get My Blueprint",
-        incentive: `🎁 ${formatMoney(getDisplayPlan('crusher', 'one_time').amount, getDisplayPlan('crusher', 'one_time').currency)} value - completely free`,
+        incentive: `🎁 ${(() => {
+          const plan = getDisplayPlanOrNull('crusher', 'monthly');
+          return plan ? formatMoney(plan.amountCents, plan.currency) : '$49';
+        })()} value - completely free`,
         urgency: "⏱️ Expires in 12 minutes"
       };
     }
