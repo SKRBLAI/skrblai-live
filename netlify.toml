@@ -1,6 +1,10 @@
 [build]
   command = "npm run build"
   publish = ".next"
+  
+# Next.js compatibility
+[build.environment]
+  NEXT_PRIVATE_STANDALONE = "true"
 
 # Fix CSP headers for Next.js compatibility
 [[headers]]

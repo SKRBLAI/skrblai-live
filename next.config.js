@@ -64,9 +64,9 @@ const nextConfig = {
       { source: '/agent-backstory/:agentId', destination: '/services/:agentId', permanent: true },
       { source: '/chat/:agentId', destination: '/services/:agentId', permanent: true },
 
-      // Services → Agents migration
-      { source: '/services', destination: '/agents', permanent: true },
-      { source: '/services/:id', destination: '/agents/:id', permanent: true },
+      // Services → Agents migration (commented out to prevent conflicts with /services/[agent] pages)
+      // { source: '/services', destination: '/agents', permanent: true },
+      // { source: '/services/:id', destination: '/agents/:id', permanent: true },
 
       // Existing auth redirects
       { source: '/sign-in', destination: '/dashboard', permanent: false },

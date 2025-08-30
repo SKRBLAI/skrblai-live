@@ -2,8 +2,8 @@ import agentRegistry from "../../../lib/agents/agentRegistry";
 import AgentServiceClient from "../../services/[agent]/AgentServiceClient";
 import type { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { agent: string } }): Promise<Metadata> {
-  const agentId = params.agent;
+export async function generateMetadata({ params }: { params: Promise<{ agent: string }> }): Promise<Metadata> {
+  const agentId = (await params).agent;
   return {
     alternates: {
       canonical: `https://skrblai.io/agents/${agentId}`,
@@ -14,13 +14,15 @@ export async function generateMetadata({ params }: { params: { agent: string } }
 export const dynamic = 'force-dynamic';
 
 type PageProps = {
-  params: { agent: string };
+  params: Promise<{ agent: string }>;
   searchParams?: { track?: 'business' | 'sports' };
 };
 
-export default function AgentPage({ params }: PageProps) {
-  const agent = agentRegistry.find(a => a.id === params.agent && a.visible);
-  return <AgentServiceClient agent={agent} params={params} />;
+export default async function AgentPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const { agent: agentId } = resolvedParams;
+  const agent = agentRegistry.find(a => a.id === agentId && a.visible);
+  return <AgentServiceClient agent={agent} params={resolvedParams} />;
 }
 
 
