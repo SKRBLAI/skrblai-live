@@ -6,8 +6,11 @@ import { createSafeSupabaseClient } from '../../../../../lib/supabase/client';
 // Initialize Supabase client for execution logging with safe fallback
 const supabase = createSafeSupabaseClient();
 
-export const POST = withSafeJson(async (request: NextRequest, { params }: { params: { agentId: string } }) => {
-  const { agentId } = params;
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export const POST = withSafeJson(async (request: NextRequest, { params }: { params: Promise<{ agentId: string }> }) => {
+  const { agentId } = await params;
   const correlationId = `${agentId}_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
   const body = await request.json();
   const { payload, userPrompt, fileData } = body;
@@ -89,9 +92,9 @@ export const POST = withSafeJson(async (request: NextRequest, { params }: { para
 });
 
 // GET endpoint to check execution status
-export async function GET(request: NextRequest, { params }: { params: { agentId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     const { searchParams } = new URL(request.url);
     const executionId = searchParams.get('executionId');
 

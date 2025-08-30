@@ -10,18 +10,21 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 /**
  * POST /api/agents/workflow/[agentId]
  * Trigger agent workflow with enhanced personality injection and context tracking
  */
 export async function POST(
   request: NextRequest, 
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   const startTime = Date.now();
   
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     
     // Parse request body
     const body = await request.json();
@@ -156,12 +159,13 @@ export async function POST(
     console.error('[Workflow API] Error processing workflow request:', error);
 
     // Log error
-    await logWorkflowError(params.agentId, error, request);
+    const { agentId: errorAgentId } = await params;
+    await logWorkflowError(errorAgentId, error, request);
 
     return NextResponse.json({
       success: false,
       error: error.message || 'Internal server error',
-      agentId: params.agentId,
+      agentId: errorAgentId,
       timestamp: new Date().toISOString(),
       requestProcessingTime: Date.now() - startTime
     }, { status: 500 });
@@ -174,10 +178,10 @@ export async function POST(
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     const { searchParams } = new URL(request.url);
     const executionId = searchParams.get('executionId');
 
@@ -236,10 +240,11 @@ export async function GET(
 
   } catch (error: any) {
     console.error('[Workflow API] Error getting agent configuration:', error);
+    const { agentId: errorAgentId } = await params;
     return NextResponse.json({
       success: false,
       error: error.message || 'Internal server error',
-      agentId: params.agentId
+      agentId: errorAgentId
     }, { status: 500 });
   }
 }

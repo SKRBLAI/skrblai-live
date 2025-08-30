@@ -1,9 +1,12 @@
 // Alias for deprecated /api/agents/[agentId]/trigger route. Forwards to /api/agents/[agentId]/trigger-n8n with deprecation warning.
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest, { params }: { params: { agentId: string } }) {
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+export async function POST(request: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   // Forward request to /trigger-n8n
-  const { agentId } = params;
+  const { agentId } = await params;
   const url = new URL(request.url);
   const baseUrl = url.origin;
   const relayUrl = `${baseUrl}/api/agents/${agentId}/trigger-n8n`;
@@ -26,9 +29,9 @@ export async function POST(request: NextRequest, { params }: { params: { agentId
   }, { status: response.status });
 }
 
-export async function GET(request: NextRequest, { params }: { params: { agentId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ agentId: string }> }) {
   // Forward GET to /trigger-n8n (for status checks)
-  const { agentId } = params;
+  const { agentId } = await params;
   const url = new URL(request.url);
   const baseUrl = url.origin;
   const relayUrl = `${baseUrl}/api/agents/${agentId}/trigger-n8n${url.search}`;

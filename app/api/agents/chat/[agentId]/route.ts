@@ -20,6 +20,9 @@ import { callOpenAI } from '../../../../../utils/agentUtils';
 // Initialize Supabase client with safe fallback
 const supabase = createSafeSupabaseClient();
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // =============================================================================
 // CHAT API ROUTE HANDLERS
 // =============================================================================
@@ -30,10 +33,10 @@ const supabase = createSafeSupabaseClient();
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     const body = await req.json();
     
     // Validate required fields
@@ -102,10 +105,10 @@ export async function POST(
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { agentId: string } }
+  { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
-    const { agentId } = params;
+    const { agentId } = await params;
     
     const capabilities = getAgentConversationCapabilities(agentId);
     const agent = getAgent(agentId);
