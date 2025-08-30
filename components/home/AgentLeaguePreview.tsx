@@ -128,9 +128,21 @@ interface AgentLeaguePreviewProps {
 export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewProps) {
   const [allowedIRA, setAllowedIRA] = useState(false);
   useEffect(() => {
-    fetch('/api/agents/ira/is-allowed', { method: 'GET', credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setAllowedIRA(!!data.allowed));
+    const checkIRAAccess = async () => {
+      try {
+        const res = await fetch('/api/agents/ira/is-allowed', { method: 'GET', credentials: 'include' });
+        if (!res.ok) { 
+          setAllowedIRA(false); 
+          return; 
+        }
+        const data = await res.json();
+        setAllowedIRA(!!data.allowed);
+      } catch (error) {
+        console.log('[AgentLeague] IRA access check failed (expected if not logged in):', error);
+        setAllowedIRA(false);
+      }
+    };
+    checkIRAAccess();
   }, []);
 
   const router = useRouter();

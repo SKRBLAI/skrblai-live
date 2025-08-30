@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import { getDisplayPlan, formatMoney, getAmount } from '../../lib/pricing/sportsPricing';
-import { PRICING_CATALOG } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull as getSportsDisplayPlanOrNull, formatMoney, getAmount, getAmountOrNull } from '../../lib/pricing/sportsPricing';
+import { PRICING_CATALOG, getDisplayPlanOrNull } from '../../lib/pricing/catalog';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import { useDashboardAuth } from '../../hooks/useDashboardAuth';
 import { ProductKey, BillingPeriod } from '../../lib/pricing/types';
@@ -734,10 +734,16 @@ export default function SportsPage(): JSX.Element {
                     </p>
                     
                     <div className="flex items-center justify-center gap-4 mb-4">
-                      {getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents && (
-  <div className="text-gray-400 line-through text-2xl">{formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents!, 'USD')}</div>
-)}
-                      <div className="text-5xl font-bold text-cyan-300">{formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}</div>
+                      {(() => {
+                        const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
+                        return plan?.compareAtCents ? (
+                          <div className="text-gray-400 line-through text-2xl">{formatMoney(plan.compareAtCents, 'USD')}</div>
+                        ) : null;
+                      })()}
+                      <div className="text-5xl font-bold text-cyan-300">{(() => {
+                        const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
+                        return plan ? formatMoney(plan.amountCents, 'USD') : '$99';
+                      })()}</div>
                       <motion.div 
                         className="bg-teal-500 text-white px-4 py-2 rounded-full text-lg font-bold"
                         animate={{
@@ -750,16 +756,22 @@ export default function SportsPage(): JSX.Element {
                           ease: "easeInOut"
                         }}
                       >
-                        {getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents && (
-  <>SAVE {formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').compareAtCents! - getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}!</>
-)}
+                        {(() => {
+                          const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
+                          return plan?.compareAtCents ? (
+                            <>SAVE {formatMoney(plan.compareAtCents - plan.amountCents, 'USD')}!</>
+                          ) : null;
+                        })()}
                       </motion.div>
                     </div>
                     
                     {/* Bundles with Buy buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm relative z-0">
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-teal-300 font-bold text-lg">Rookie — {formatMoney(getDisplayPlan('SPORTS_STARTER', 'one_time').amountCents, 'USD')}</div>
+                        <div className="text-teal-300 font-bold text-lg">Rookie — {(() => {
+                          const plan = getDisplayPlanOrNull('SPORTS_STARTER', 'one_time');
+                          return plan ? formatMoney(plan.amountCents, 'USD') : '$19';
+                        })()}</div>
                         <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <CheckoutButton
@@ -771,7 +783,10 @@ export default function SportsPage(): JSX.Element {
                         />
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-cyan-300 font-bold text-lg">Pro — {formatMoney(getDisplayPlan('SPORTS_PRO', 'one_time').amountCents, 'USD')}</div>
+                        <div className="text-cyan-300 font-bold text-lg">Pro — {(() => {
+                          const plan = getDisplayPlanOrNull('SPORTS_PRO', 'one_time');
+                          return plan ? formatMoney(plan.amountCents, 'USD') : '$29';
+                        })()}</div>
                         <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <CheckoutButton
@@ -784,7 +799,10 @@ export default function SportsPage(): JSX.Element {
                       </div>
                       <div className="bg-white/10 rounded-lg p-4 text-center border-2 border-cyan-400/60 relative">
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
-                        <div className="text-cyan-200 font-bold text-lg">All‑Star — {formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}</div>
+                        <div className="text-cyan-200 font-bold text-lg">All‑Star — {(() => {
+                          const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
+                          return plan ? formatMoney(plan.amountCents, 'USD') : '$99';
+                        })()}</div>
                         <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
                         <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
                         <CheckoutButton
@@ -800,7 +818,10 @@ export default function SportsPage(): JSX.Element {
                     {/* Yearly plan */}
                     <div className="flex flex-wrap justify-center gap-4">
                       <div className="bg-white/10 rounded-xl p-5 text-center border border-cyan-400/30 max-w-xl">
-                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — {formatMoney(getDisplayPlan('BUS_STARTER', 'annual').amountCents, 'USD')}</div>
+                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — {(() => {
+                          const plan = getDisplayPlanOrNull('BUS_STARTER', 'annual');
+                          return plan ? formatMoney(plan.amountCents, 'USD') : '$290';
+                        })()}</div>
                         <ul className="text-gray-300 text-sm space-y-1 mb-3">
                           <li>30 scans every 30 days</li>
                           <li>Custom 4‑week training plan</li>
@@ -1138,10 +1159,22 @@ export default function SportsPage(): JSX.Element {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 {[
-                  { id: 'rookie', title: `Rookie — ${formatMoney(getDisplayPlan('SPORTS_STARTER', 'one_time').amountCents, 'USD')}` },
-                  { id: 'pro', title: `Pro — ${formatMoney(getDisplayPlan('SPORTS_PRO', 'one_time').amountCents, 'USD')}` },
-                  { id: 'allstar', title: `All‑Star — ${formatMoney(getDisplayPlan('BUNDLE_ALL_ACCESS', 'one_time').amountCents, 'USD')}` },
-                  { id: 'yearly', title: `Yearly — ${formatMoney(getDisplayPlan('BUS_STARTER', 'annual').amountCents, 'USD')}` }
+                  { id: 'rookie', title: `Rookie — ${(() => {
+                    const plan = getDisplayPlanOrNull('SPORTS_STARTER', 'one_time');
+                    return plan ? formatMoney(plan.amountCents, 'USD') : '$19';
+                  })()}` },
+                  { id: 'pro', title: `Pro — ${(() => {
+                    const plan = getDisplayPlanOrNull('SPORTS_PRO', 'one_time');
+                    return plan ? formatMoney(plan.amountCents, 'USD') : '$29';
+                  })()}` },
+                  { id: 'allstar', title: `All‑Star — ${(() => {
+                    const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
+                    return plan ? formatMoney(plan.amountCents, 'USD') : '$99';
+                  })()}` },
+                  { id: 'yearly', title: `Yearly — ${(() => {
+                    const plan = getDisplayPlanOrNull('BUS_STARTER', 'annual');
+                    return plan ? formatMoney(plan.amountCents, 'USD') : '$290';
+                  })()}` }
                 ].map((opt) => (
                   <button
                     key={opt.id}

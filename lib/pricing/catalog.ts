@@ -1,5 +1,32 @@
 import { ProductKey, BillingPeriod } from './types';
 
+// === Legacy Key Aliases and Safe Accessors ===
+const KEY_ALIASES: Record<string, string> = {
+  // Map legacy/marketing keys to real catalog keys
+  'SPORTS_STARTER': 'SPORTS_STARTER',
+  'sports_starter': 'SPORTS_STARTER',
+  'starter': 'starter',
+  'crusher': 'crusher',
+  'sports_rookie_monthly': 'SPORTS_STARTER',
+  'sports_all_star_one_time': 'SPORTS_ELITE',
+  // Add any other legacy keys found in code
+};
+
+function normalizeKey(input: string): string {
+  if (!input) return input;
+  const k = input.trim();
+  return KEY_ALIASES[k] ?? k;
+}
+
+type Period = 'monthly' | 'annual' | 'one_time';
+function normalizePeriod(p: string): Period {
+  const x = p.replace('-', '_').toLowerCase();
+  if (x === 'one_time' || x === 'onetime') return 'one_time';
+  if (x === 'monthly') return 'monthly';
+  if (x === 'annual' || x === 'yearly') return 'annual';
+  return x as Period;
+}
+
 export interface DisplayPlan {
   name: string;                 // "Starter", "Pro", etc
   blurb?: string;               // short marketing blurb
@@ -280,6 +307,27 @@ export function getDisplayPlan(key: ProductKey, period: BillingPeriod): DisplayP
   if (!entry) throw new Error(`No pricing catalog entry for key: ${key}`);
   const plan = entry[period];
   if (!plan) throw new Error(`No display plan for key ${key} and period ${period}`);
+  return plan;
+}
+
+// === New safe accessor (non-throwing) ===
+export function getDisplayPlanOrNull(key: string, period: string): DisplayPlan | null {
+  const k = normalizeKey(key);
+  const p = normalizePeriod(period);
+  const entry = (PRICING_CATALOG as any)?.[k];
+  if (!entry) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[catalog] missing catalog entry for key=${key}→${k}`);
+    }
+    return null;
+  }
+  const plan = entry[p];
+  if (!plan) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[catalog] missing plan for key=${key}→${k}, period=${period}→${p}`);
+    }
+    return null;
+  }
   return plan;
 }
 
