@@ -1,5 +1,5 @@
 import agentRegistry from "../../../lib/agents/agentRegistry";
-import AgentServiceClient from "../../services/[agent]/AgentServiceClient";
+import AgentServiceClient from "../../../components/legacy/services/services/[agent]/AgentServiceClient";
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ agent: string }> }): Promise<Metadata> {
