@@ -57,16 +57,17 @@ const nextConfig = {
   productionBrowserSourceMaps: true, // Enable source maps for debugging
   async redirects() {
     return [
-      // Legacy agent redirects
-      { source: '/social-media', destination: '/services/socialnino', permanent: true },
-      { source: '/branding', destination: '/services/branding', permanent: true },
-      { source: '/book-publishing', destination: '/services/book-publishing', permanent: true },
-      { source: '/agent-backstory/:agentId', destination: '/services/:agentId', permanent: true },
-      { source: '/chat/:agentId', destination: '/services/:agentId', permanent: true },
+      // Legacy agent redirects - Updated to point to /agents
+      { source: '/social-media', destination: '/agents/socialnino', permanent: true },
+      { source: '/branding', destination: '/agents/branding', permanent: true },
+      { source: '/book-publishing', destination: '/agents/book-publishing', permanent: true },
+      { source: '/agent-backstory/:agentId', destination: '/agents/:agentId', permanent: true },
+      { source: '/chat/:agentId', destination: '/agents/:agentId', permanent: true },
 
-      // Services → Agents migration (commented out to prevent conflicts with /services/[agent] pages)
-      // { source: '/services', destination: '/agents', permanent: true },
-      // { source: '/services/:id', destination: '/agents/:id', permanent: true },
+      // Services → Agents migration - ACTIVE
+      { source: '/services', destination: '/agents', permanent: true },
+      { source: '/services/:slug', destination: '/agents/:slug', permanent: true },
+      { source: '/services/:path*', destination: '/agents/:path*', permanent: true },
 
       // Existing auth redirects
       { source: '/sign-in', destination: '/dashboard', permanent: false },
