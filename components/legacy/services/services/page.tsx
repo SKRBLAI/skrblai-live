@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ClientPageLayout from '../../components/layout/ClientPageLayout';
-import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
-import Pseudo3DCard from '../../components/shared/Pseudo3DCard';
-import CosmicButton from '../../components/shared/CosmicButton';
-import CosmicHeading from '../../components/shared/CosmicHeading';
-import PercyAvatar from '../../components/home/PercyAvatar';
+import ClientPageLayout from '../../../layout/ClientPageLayout';
+import GlassmorphicCard from '../../../shared/GlassmorphicCard';
+import Pseudo3DCard from '../../../shared/Pseudo3DCard';
+import CosmicButton from '../../../shared/CosmicButton';
+import CosmicHeading from '../../../shared/CosmicHeading';
+import PercyAvatar from '../../../home/PercyAvatar';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -15,10 +15,10 @@ import {
   Users, TrendingUp, Zap, Crown, DollarSign, Clock, Sparkles, Play, 
   MessageCircle, ArrowRight, Star, Target, Rocket, Eye, X
 } from 'lucide-react';
-import SkrblAiText from '../../components/shared/SkrblAiText';
-import { businessSolutions, globalMetrics, LiveMetrics, ServiceSolution } from '../../lib/config/services';
-import { getPercyRecommendation, PercyRecommendation } from '../../lib/percy/recommendationEngine';
-import { agentHandoffAnimations } from '../../lib/animations/agentHandoff';
+import SkrblAiText from '../../../shared/SkrblAiText';
+import { businessSolutions, globalMetrics, LiveMetrics, ServiceSolution } from '../../../../lib/config/services';
+import { getPercyRecommendation, PercyRecommendation } from '../../../../lib/percy/recommendationEngine';
+import { agentHandoffAnimations } from '../../../../lib/animations/agentHandoff';
 import toast from 'react-hot-toast';
 
 

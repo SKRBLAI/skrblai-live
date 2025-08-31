@@ -1,4 +1,4 @@
-import agentRegistry from "../../../lib/agents/agentRegistry";
+import agentRegistry from "../../../../../lib/agents/agentRegistry";
 import AgentServiceClient from "./AgentServiceClient"; // Import the new client component
 
 export default async function AgentPage({ params }: { params: Promise<{ agent: string }> }) {

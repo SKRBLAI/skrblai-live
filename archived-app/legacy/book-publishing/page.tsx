@@ -393,7 +393,7 @@ export default function BookPublishingPage(): JSX.Element {
               </CosmicButton>
               <div className="text-center">
                 <p className="text-sm text-gray-400">or</p>
-                <Link href="/services/publishing" className="text-orange-400 hover:text-orange-300 font-semibold underline">
+                <Link href="/agents/publishing" className="text-orange-400 hover:text-orange-300 font-semibold underline">
                   Learn About Our Publishing Agent
                 </Link>
               </div>

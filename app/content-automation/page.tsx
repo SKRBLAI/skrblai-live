@@ -206,7 +206,7 @@ export default function ContentAutomationPage() {
                 ← Back to Home
               </CosmicButton>
             </Link>
-            <Link href="/services/agents" aria-label="Meet Percy">
+            <Link href="/agents" aria-label="Meet Percy">
               <CosmicButton variant="secondary">
                 Meet Percy
               </CosmicButton>
