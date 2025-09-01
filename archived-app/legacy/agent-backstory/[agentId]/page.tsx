@@ -1,4 +1,4 @@
-// DEPRECATED: Legacy agent backstory page. Redirects to /services/[agentId] via next.config.js. Use /services/[agentId] instead.
+// DEPRECATED: Legacy agent backstory page. Redirects to /agents/[agentId] via next.config.js. Use /agents/[agentId] instead.
 'use client';
 
 import React, { useEffect, useState } from 'react';

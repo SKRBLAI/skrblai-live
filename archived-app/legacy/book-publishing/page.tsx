@@ -1,4 +1,4 @@
-// DEPRECATED: Legacy marketing page. Redirects to /services/book-publishing via next.config.js. Use /services/[agentId] instead.
+// DEPRECATED: Legacy marketing page. Redirects to /agents/book-publishing via next.config.js. Use /agents/[agentId] instead.
 'use client';
 
 import React, { useState, useEffect } from 'react';

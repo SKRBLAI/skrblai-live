@@ -343,7 +343,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   };
 
   const handleViewBackstory = () => {
-    router.push(`/agent-backstory/${agent.id}`);
+    router.push(`/agents/${agent.id}`);
   };
 
   return (

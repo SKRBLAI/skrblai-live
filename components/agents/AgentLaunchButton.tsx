@@ -4,7 +4,7 @@ import { useUser, useSession } from '@supabase/auth-helpers-react';
 import { useAgentTracking, useUpgradeTracking } from '../../lib/hooks/useAnalytics';
 import type { SafeAgent } from '../../types/agent';
 import { motion } from 'framer-motion';
-import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 
 interface AgentLaunchButtonProps {
   agent: SafeAgent;
@@ -102,9 +102,18 @@ export default function AgentLaunchButton({
       <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-lg p-4">
         <h4 className="font-semibold text-amber-800 mb-2">🚀 Agent Power Locked</h4>
         <p className="text-amber-700 mb-3">
-          {agent.name} requires {upgradeRequired === 'starter' ? `Upgrade to Starter (${formatMoney(getDisplayPlan('starter', 'monthly').amount, getDisplayPlan('starter', 'monthly').currency)}/${getDisplayPlan('starter', 'monthly').intervalLabel})` : 
-           upgradeRequired === 'star' ? `Upgrade to Business Dominator (${formatMoney(getDisplayPlan('crusher', 'monthly').amount, getDisplayPlan('crusher', 'monthly').currency)}/${getDisplayPlan('crusher', 'monthly').intervalLabel})` : 
-           `Upgrade to Industry Crusher (${formatMoney(getDisplayPlan('crusher', 'monthly').amount, getDisplayPlan('crusher', 'monthly').currency)}/${getDisplayPlan('crusher', 'monthly').intervalLabel})`} access. Your competition is already using this firepower!
+          {agent.name} requires {upgradeRequired === 'starter' ? (() => {
+            const plan = getDisplayPlanOrNull('starter', 'monthly');
+            return plan ? `Upgrade to Starter (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})` : 'Upgrade to Starter';
+          })() : 
+           upgradeRequired === 'star' ? (() => {
+            const plan = getDisplayPlanOrNull('crusher', 'monthly');
+            return plan ? `Upgrade to Business Dominator (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})` : 'Upgrade to Business Dominator';
+          })() : 
+           (() => {
+            const plan = getDisplayPlanOrNull('crusher', 'monthly');
+            return plan ? `Upgrade to Industry Crusher (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})` : 'Upgrade to Industry Crusher';
+          })()} access. Your competition is already using this firepower!
         </p>
         <button
           onClick={() => window.open('/pricing', '_blank')}
