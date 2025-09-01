@@ -83,10 +83,19 @@ export async function middleware(request: NextRequest) {
     });
   }
   
+  // Public API allowlist
+  const PUBLIC_API_PATHS = [
+    '/api/auth/',
+    '/api/public/',
+    '/api/sports/intake',
+    '/api/checkout',
+    '/api/stripe/webhooks',
+    '/api/analytics/percy'
+  ];
+  
   // Handle API routes without auth
   if (!session && path.startsWith('/api/') && 
-      !path.startsWith('/api/auth/') && 
-      !path.startsWith('/api/public/')) {
+      !PUBLIC_API_PATHS.some(publicPath => path.startsWith(publicPath))) {
     
     console.log('[MIDDLEWARE] API request without auth:', path);
     
