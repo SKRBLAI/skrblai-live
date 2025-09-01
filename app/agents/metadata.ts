@@ -39,4 +39,7 @@ export const metadata: Metadata = {
     'Content Creation',
     'Brand Management'
   ],
+  alternates: {
+    canonical: 'https://skrblai.io/agents',
+  },
 };

@@ -242,7 +242,7 @@ export default function BrandingPage(): JSX.Element {
               </CosmicButton>
               <div className="text-center">
                 <p className="text-sm text-gray-400">or</p>
-                <Link href="/services/branding" className="text-purple-400 hover:text-purple-300 font-semibold underline">
+                <Link href="/agents/branding" className="text-purple-400 hover:text-purple-300 font-semibold underline">
                   Meet Our Branding Agent
                 </Link>
               </div>

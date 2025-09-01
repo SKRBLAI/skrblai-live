@@ -36,7 +36,11 @@ export async function middleware(request: NextRequest) {
     // Create redirect URL with reason parameter
     const redirectUrl = new URL('/sign-in', request.url);
     redirectUrl.searchParams.set('reason', 'session-expired');
-    redirectUrl.searchParams.set('from', path);
+    
+    // Only set 'from' if it wouldn't create a loop
+    if (path !== '/sign-in' && !path.startsWith('/sign-in')) {
+      redirectUrl.searchParams.set('from', path);
+    }
     
     return NextResponse.redirect(redirectUrl);
   }
@@ -79,10 +83,19 @@ export async function middleware(request: NextRequest) {
     });
   }
   
+  // Public API allowlist
+  const PUBLIC_API_PATHS = [
+    '/api/auth/',
+    '/api/public/',
+    '/api/sports/intake',
+    '/api/checkout',
+    '/api/stripe/webhooks',
+    '/api/analytics/percy'
+  ];
+  
   // Handle API routes without auth
   if (!session && path.startsWith('/api/') && 
-      !path.startsWith('/api/auth/') && 
-      !path.startsWith('/api/public/')) {
+      !PUBLIC_API_PATHS.some(publicPath => path.startsWith(publicPath))) {
     
     console.log('[MIDDLEWARE] API request without auth:', path);
     

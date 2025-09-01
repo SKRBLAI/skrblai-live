@@ -366,7 +366,7 @@ export default function AgentsPage() {
                     🚀 Start Free Trial (No Credit Card)
                   </motion.button>
                   <motion.button
-                    onClick={() => router.push('/services')}
+                    onClick={() => router.push('/features')}
                     className="flex-1 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-fuchsia-600/80 to-purple-600/80 hover:from-fuchsia-400 hover:to-purple-400 text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.97 }}

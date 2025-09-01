@@ -11,7 +11,7 @@ import { useAuth } from "../context/AuthContext";
 /**
  * Premium minimal Navbar with clean 3-link design + hamburger menu.
  * - Only 3 visible links: About | Features | Pricing
- * - Hamburger menu: Agent League, Services, Sports, Contact
+ * - Hamburger menu: Agent League, Sports, Contact
  * - Dual CTAs: Login + Try Percy Free
  * - Premium gradient animations with glass morphism.
  */

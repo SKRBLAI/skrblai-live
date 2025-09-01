@@ -1,4 +1,4 @@
-// DEPRECATED: Legacy agent backstory page. Redirects to /services/[agentId] via next.config.js. Use /services/[agentId] instead.
+// DEPRECATED: Legacy agent backstory page. Redirects to /agents/[agentId] via next.config.js. Use /agents/[agentId] instead.
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -199,7 +199,7 @@ export default function AgentBackstoryPage({ params }: { params: { agentId: stri
             {/* Action Buttons */}
             <div className="bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/40 shadow-[0_0_24px_#30D5C8AA] rounded-2xl p-6">
               <button 
-                onClick={() => router.push(`/services/${agent.id}`)}
+                onClick={() => router.push(`/agents/${agent.id}`)}
                 className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold py-3 px-4 rounded-lg hover:from-cyan-600 hover:to-teal-700 transition-all duration-200 mb-3"
               >
                 Launch Agent

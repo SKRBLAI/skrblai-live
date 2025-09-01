@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import React, { useEffect, useState } from "react";
 import { X, Zap, Star, Lock, Crown, TrendingUp } from 'lucide-react';
 import { SafeAgent } from '../../types/agent';
@@ -130,8 +130,8 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
       cta: 'Upgrade to Starter'
     };
     const planKey = upgradeReason === 'usage_limit' ? 'starter' : upgradeReason === 'high_velocity' ? 'star' : 'crusher';
-    const plan = getDisplayPlan(planKey, 'monthly');
-    const accessLabel = `${plan.name} (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})`;
+    const plan = getDisplayPlanOrNull(planKey, 'monthly');
+    const accessLabel = plan ? `${plan.name} (${formatMoney(plan.amount, plan.currency)}/${plan.intervalLabel})` : 'Premium';
     switch (upgradeReason) {
       case 'usage_limit':
         return { ...baseContent, title: '🚨 Daily Agent Limit Reached', message: `You've used all 3 free agents today! Upgrade for unlimited agents.`, benefits: ['Unlimited agents', '50 Scans per month', 'Unlimited Percy conversations', 'Priority support'], subtitle: `Premium Agent requires ${accessLabel} access. Your competition is already using this firepower!` };

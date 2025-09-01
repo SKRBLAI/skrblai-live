@@ -12,7 +12,10 @@ import CheckoutButton from '../../components/payments/CheckoutButton';
 import { bundles } from '../../lib/config/skillsmithBundles';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
-import SkillSmithStandaloneHero from '../../components/home/SkillSmithStandaloneHero';
+import SportsHero from '../../components/sports/SportsHero';
+import IntakeSheet from '../../components/sports/IntakeSheet';
+import PlansAndBundles from '../../components/sports/PlansAndBundles';
+import EncouragementFooter from '../../components/sports/EncouragementFooter';
 import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
@@ -58,6 +61,7 @@ export default function SportsPage(): JSX.Element {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [intakeData, setIntakeData] = useState<any>(null);
 
   // Check for successful purchase from URL params
   useEffect(() => {
@@ -289,12 +293,24 @@ export default function SportsPage(): JSX.Element {
         {/* Main Content */}
         <div className="relative z-10 pt-8">
           {/* Hero Section */}
-          <SkillSmithStandaloneHero
+          <SportsHero
             userType={userType}
             freeScansRemaining={scansRemaining}
             onUploadClick={handleUploadClick}
             onEmailCaptureClick={handleEmailCaptureClick}
+            liveMetrics={liveMetrics}
           />
+
+          {/* Intake Sheet */}
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+            <IntakeSheet onIntakeComplete={(data) => {
+              // Store intake data for checkout metadata and U13 mode
+              setIntakeData(data);
+              if (data.intakeId) {
+                sessionStorage.setItem('sports_intake_id', data.intakeId);
+              }
+            }} />
+          </div>
 
           {/* Products Section - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
@@ -313,11 +329,14 @@ export default function SportsPage(): JSX.Element {
                   transition={{ duration: 0.6 }}
                   className="text-center mb-12"
                 >
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    🚀 AI Sports Tools for <span className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-500 bg-clip-text text-transparent">Every Athlete</span>
+                  <h2 className="text-2xl md:text-3xl font-semibold text-gray-300 mb-4">
+                    Add-Ons (Optional)
                   </h2>
-                  <p className="text-orange-200 text-lg max-w-2xl mx-auto">
-                    🏆 Perfect for kids to adults! Get AI analysis, mental health support, nutrition guidance, and foundational training – all in one place.
+                  <p className="text-gray-400 text-base max-w-2xl mx-auto mb-4">
+                    These are optional upgrades you can add anytime.
+                  </p>
+                  <p className="text-orange-200 text-sm max-w-2xl mx-auto">
+                    Perfect for kids to adults! Get AI analysis, Mastery of Emotion (MOE), nutrition guidance, and foundational training.
                   </p>
                 </motion.div>
 
@@ -325,36 +344,16 @@ export default function SportsPage(): JSX.Element {
                   {products && products.length > 0 ? [...products].sort((a, b) => a.price - b.price).map((product, index) => (
                     <motion.div
                       key={product.id}
-                      initial={{ 
-                        opacity: 0, 
-                        y: 40,
-                        rotateY: -15,
-                        scale: 0.9
-                      }}
-                      whileInView={{ 
-                        opacity: 1, 
-                        y: 0,
-                        rotateY: 0,
-                        scale: 1
-                      }}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ 
-                        delay: index * 0.15, 
-                        duration: 0.8,
-                        type: "spring",
-                        stiffness: 120,
-                        damping: 15
+                        delay: index * 0.1, 
+                        duration: 0.5
                       }}
                       whileHover={{ 
-                        scale: 1.03,
-                        rotateY: 8,
-                        rotateX: 3,
-                        y: -8,
-                        boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 80px 20px rgba(147,51,234,0.6), 0 0 120px 30px rgba(99,102,241,0.4), 0 0 60px 15px rgba(168,85,247,0.5)'
-                      }}
-                      whileTap={{ 
-                        scale: 0.98,
-                        rotateY: 2
+                        scale: 1.02,
+                        y: -4
                       }}
                       style={{
                         transformStyle: 'preserve-3d',
@@ -825,7 +824,7 @@ export default function SportsPage(): JSX.Element {
                         <ul className="text-gray-300 text-sm space-y-1 mb-3">
                           <li>30 scans every 30 days</li>
                           <li>Custom 4‑week training plan</li>
-                          <li>2‑week mental health calendar</li>
+                          <li>2‑week Mastery of Emotion (MOE) calendar</li>
                           <li>Intro nutrition guide</li>
                           <li>Specialty products ({[19,29,39,49].map(p=>formatMoney(p*100,'USD')).join('/')})</li>
                         </ul>
@@ -849,214 +848,32 @@ export default function SportsPage(): JSX.Element {
             </motion.section>
           )}
 
-          {/* Live Metrics Section - Only for standalone users */}
+          {/* Plans & Bundles - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
-            <motion.section
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative mb-24"
-            >
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <motion.div 
-                  whileHover={{ 
-                    scale: 1.02,
-                    rotateX: 3,
-                    y: -5,
-                    boxShadow: '0 30px 60px -12px rgba(0, 0, 0, 0.6), 0 0 100px 25px rgba(147,51,234,0.4), 0 0 150px 35px rgba(99,102,241,0.25), 0 0 60px 15px rgba(168,85,247,0.5)'
-                  }}
-                  style={{ transformStyle: 'preserve-3d' }}
-                  className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/40 rounded-3xl p-8 backdrop-blur-xl group relative overflow-hidden shadow-[0_0_50px_rgba(147,51,234,0.3)]"
-                >
-                  {/* Cosmic glassmorphic overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-blue-500/10 to-indigo-500/15 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-bg" />
-                  
-                  {/* Cosmic particle overlay */}
-                  <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none z-bg">
-                    {[...Array(20)].map((_, i) => (
-                      <motion.div
-                        key={i}
-                        className={`absolute w-0.5 h-0.5 rounded-full anim-float ${
-                          i % 4 === 0 ? 'bg-purple-400/30' : 
-                          i % 4 === 1 ? 'bg-blue-400/30' : 
-                          i % 4 === 2 ? 'bg-indigo-400/30' : 'bg-violet-400/30'
-                        }`}
-                        style={{
-                          left: `${Math.random() * 100}%`,
-                          top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                          opacity: [0, 1, 0],
-                          scale: [0, 2, 0],
-                          y: [0, -3, 0] // Further reduced motion
-                        }}
-                        transition={{
-                          duration: 10 + Math.random() * 4, // Even longer duration
-                          repeat: Infinity,
-                          delay: Math.random() * 3,
-                          ease: "easeInOut"
-                        }}
-                      />
-                    ))}
-                  </div>
-                  
-                  <div className="relative z-10">
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6 }}
-                      className="text-center mb-12"
-                    >
-                      <motion.h2 
-                        className="text-3xl md:text-4xl font-bold text-white mb-4"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        Join 50,000+ <span className="bg-gradient-to-r from-orange-400 via-red-400 to-pink-400 bg-clip-text text-transparent">Young Athletes</span>
-                      </motion.h2>
-                      <p className="text-orange-200 text-lg">
-                        🎆 Kids, teens, and adults crushing their sports goals with AI!
-                      </p>
-                    </motion.div>
+            <PlansAndBundles showLimitedOffer={true} />
+          )}
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.1, duration: 0.6 }}
-                        whileHover={{ 
-                          scale: 1.08,
-                          rotateY: 5,
-                          y: -5,
-                          boxShadow: '0 20px 40px rgba(147,51,234,0.4)'
-                        }}
-                        className="text-center bg-purple-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-purple-400/30 hover:border-purple-300/60 transition-all duration-300 shadow-lg"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
-                          <Users className="w-8 h-8 text-purple-400" />
-                          <motion.span 
-                            className="text-3xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent"
-                            whileHover={{ scale: 1.15 }}
-                            animate={{ 
-                              textShadow: [
-                                '0 0 10px rgba(147,51,234,0.5)',
-                                '0 0 20px rgba(147,51,234,0.8)',
-                                '0 0 10px rgba(147,51,234,0.5)'
-                              ]
-                            }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            {liveMetrics.athletesTransformed.toLocaleString()}
-                          </motion.span>
-                        </div>
-                        <p className="text-purple-200 text-sm font-medium">Athletes Improved</p>
-                      </motion.div>
-                      
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2, duration: 0.6 }}
-                        whileHover={{ 
-                          scale: 1.08,
-                          rotateY: 5,
-                          y: -5,
-                          boxShadow: '0 20px 40px rgba(59,130,246,0.4)'
-                        }}
-                        className="text-center bg-blue-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-blue-400/30 hover:border-blue-300/60 transition-all duration-300 shadow-lg"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
-                          <BarChart3 className="w-8 h-8 text-blue-400" />
-                          <motion.span 
-                            className="text-3xl font-bold bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent"
-                            whileHover={{ scale: 1.15 }}
-                            animate={{ 
-                              textShadow: [
-                                '0 0 10px rgba(59,130,246,0.5)',
-                                '0 0 20px rgba(59,130,246,0.8)',
-                                '0 0 10px rgba(59,130,246,0.5)'
-                              ]
-                            }}
-                            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
-                          >
-                            {liveMetrics.performanceImprovement}%
-                          </motion.span>
-                        </div>
-                        <p className="text-blue-200 text-sm font-medium">Avg Improvement</p>
-                      </motion.div>
-                      
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.3, duration: 0.6 }}
-                        whileHover={{ 
-                          scale: 1.08,
-                          rotateY: 5,
-                          y: -5,
-                          boxShadow: '0 20px 40px rgba(99,102,241,0.4)'
-                        }}
-                        className="text-center bg-indigo-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-indigo-400/30 hover:border-indigo-300/60 transition-all duration-300 shadow-lg"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
-                          <Zap className="w-8 h-8 text-indigo-400" />
-                          <motion.span 
-                            className="text-3xl font-bold bg-gradient-to-r from-indigo-300 to-purple-300 bg-clip-text text-transparent"
-                            whileHover={{ scale: 1.15 }}
-                            animate={{ 
-                              textShadow: [
-                                '0 0 10px rgba(99,102,241,0.5)',
-                                '0 0 20px rgba(99,102,241,0.8)',
-                                '0 0 10px rgba(99,102,241,0.5)'
-                              ]
-                            }}
-                            transition={{ duration: 3, repeat: Infinity, delay: 1 }}
-                          >
-                            {liveMetrics.injuriesPrevented.toLocaleString()}
-                          </motion.span>
-                        </div>
-                        <p className="text-indigo-200 text-sm font-medium">Injuries Prevented</p>
-                      </motion.div>
-                      
-                      <motion.div 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.4, duration: 0.6 }}
-                        whileHover={{ 
-                          scale: 1.08,
-                          rotateY: 5,
-                          y: -5,
-                          boxShadow: '0 20px 40px rgba(168,85,247,0.4)'
-                        }}
-                        className="text-center bg-violet-900/20 rounded-2xl p-6 backdrop-blur-sm border-2 border-violet-400/30 hover:border-violet-300/60 transition-all duration-300 shadow-lg"
-                      >
-                        <div className="flex flex-col items-center justify-center gap-3 mb-2">
-                          <Trophy className="w-8 h-8 text-violet-400" />
-                          <motion.span 
-                            className="text-3xl font-bold bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent"
-                            whileHover={{ scale: 1.15 }}
-                            animate={{ 
-                              textShadow: [
-                                '0 0 10px rgba(168,85,247,0.5)',
-                                '0 0 20px rgba(168,85,247,0.8)',
-                                '0 0 10px rgba(168,85,247,0.5)'
-                              ]
-                            }}
-                            transition={{ duration: 2.2, repeat: Infinity, delay: 1.5 }}
-                          >
-                            {liveMetrics.recordsBroken}
-                          </motion.span>
-                        </div>
-                        <p className="text-violet-200 text-sm font-medium">Records Broken</p>
-                      </motion.div>
-                    </div>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.section>
+          {/* Encouragement Footer - Only for standalone users */}
+          {(userType === 'guest' || userType === 'auth') && (
+            <EncouragementFooter 
+              isU13Mode={intakeData?.age === '8-18'}
+              onStartQuickWin={() => {
+                // Scroll to upload section
+                const uploadSection = document.querySelector('[data-upload-section]');
+                if (uploadSection) {
+                  uploadSection.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  handleUploadClick();
+                }
+              }}
+              onSeePlans={() => {
+                // Scroll to plans section
+                const plansSection = document.querySelector('[data-plans-section]');
+                if (plansSection) {
+                  plansSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            />
           )}
 
           {/* Platform users see original content */}
