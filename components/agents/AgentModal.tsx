@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { getDisplayPlan, formatMoney } from '../../lib/pricing/catalog';
+import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import React, { useEffect, useState } from "react";
 import { X, Zap, Star, Lock, Crown, TrendingUp } from 'lucide-react';
 import { SafeAgent } from '../../types/agent';
