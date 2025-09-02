@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs'; // Specify Node.js runtime for this complex API route
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // =============================================================================
 // ACHIEVEMENT DEFINITIONS
@@ -223,7 +218,15 @@ const AGENT_UNLOCK_REQUIREMENTS = {
  * Get user's achievements, progress, and unlocked agents
  */
 export async function GET(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action') || 'status';
 
@@ -248,13 +251,13 @@ export async function GET(request: NextRequest) {
 
     switch (action) {
       case 'status':
-        return await getUserAchievementStatus(user.id);
+        return await getUserAchievementStatus(supabase, user.id);
       
       case 'leaderboard':
-        return await getLeaderboard();
+        return await getLeaderboard(supabase);
       
       case 'available':
-        return await getAvailableAchievements(user.id);
+        return await getAvailableAchievements(supabase, user.id);
       
       case 'unlock-check': {
         const agentId = searchParams.get('agentId');
@@ -282,7 +285,15 @@ export async function GET(request: NextRequest) {
  * Update user progress, check for new achievements, unlock agents
  */
 export async function POST(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const body = await request.json();
     const { action, ...data } = body;
 
@@ -335,7 +346,11 @@ export async function POST(request: NextRequest) {
 // HELPER FUNCTIONS
 // =============================================================================
 
-async function getUserAchievementStatus(userId: string) {
+async function getUserAchievementStatus(supabase: any, userId: string) {
+  if (!supabase) {
+    return { achievements: [], stats: { total: 0, unlocked: 0, progress: 0 } };
+  }
+  
   // Get user's achievement progress
   const { data: userProgress, error: progressError } = await supabase
     .from('user_achievements')
@@ -357,13 +372,13 @@ async function getUserAchievementStatus(userId: string) {
   }
 
   // Calculate current statistics
-  const stats = await calculateUserStats(userId);
+  const stats = await calculateUserStats(supabase, userId);
   
   // Check for newly earned achievements
-  const newAchievements = await checkForNewAchievements(userId, stats);
+  const newAchievements = await checkForNewAchievements(supabase, userId, stats);
   
   // Get total points and ranking
-  const totalPoints = (userProgress || []).reduce((sum, achievement) => 
+  const totalPoints = (userProgress || []).reduce((sum: number, achievement: any) => 
     sum + (ACHIEVEMENTS.find(a => a.id === achievement.achievement_id)?.points || 0), 0
   );
 
@@ -376,7 +391,7 @@ async function getUserAchievementStatus(userId: string) {
       unlockedAgents: unlockedAgents || [],
       currentStats: stats,
       newAchievements,
-      availableUnlocks: await getAvailableAgentUnlocks(userId),
+      availableUnlocks: await getAvailableAgentUnlocks(supabase, userId),
       nextMilestones: getNextMilestones(stats),
       timestamp: new Date().toISOString()
     }
@@ -385,7 +400,7 @@ async function getUserAchievementStatus(userId: string) {
   return NextResponse.json(response);
 }
 
-async function calculateUserStats(userId: string) {
+async function calculateUserStats(supabase: any, userId: string) {
   const [
     agentLaunches,
     successfulWorkflows,
@@ -438,7 +453,7 @@ async function calculateUserStats(userId: string) {
 
   // Calculate unique agents
   const uniqueAgentIds = new Set(
-    (uniqueAgents.data || []).map(item => item.agent_id)
+    (uniqueAgents.data || []).map((item: any) => item.agent_id)
   );
 
   // Calculate daily usage streak
@@ -455,13 +470,17 @@ async function calculateUserStats(userId: string) {
   };
 }
 
-async function checkForNewAchievements(userId: string, stats: any) {
+async function checkForNewAchievements(supabase: any, userId: string, stats: any) {
+  if (!supabase) {
+    return [];
+  }
+  
   const { data: earnedAchievements } = await supabase
     .from('user_achievements')
     .select('achievement_id')
     .eq('user_id', userId);
 
-  const earnedIds = new Set((earnedAchievements || []).map(a => a.achievement_id));
+  const earnedIds = new Set((earnedAchievements || []).map((a: any) => a.achievement_id));
   const newAchievements = [];
 
   for (const achievement of ACHIEVEMENTS) {
@@ -547,11 +566,11 @@ function calculateDailyStreak(events: any[]): number {
   return streak;
 }
 
-async function getAvailableAgentUnlocks(userId: string) {
+async function getAvailableAgentUnlocks(supabase: any, userId: string) {
   const availableUnlocks = [];
   
   for (const [agentId, requirements] of Object.entries(AGENT_UNLOCK_REQUIREMENTS)) {
-    const canUnlock = await checkAgentUnlockRequirements(userId, requirements);
+    const canUnlock = await checkAgentUnlockRequirements(supabase, userId, requirements);
     if (canUnlock) {
       availableUnlocks.push(agentId);
     }
@@ -560,15 +579,19 @@ async function getAvailableAgentUnlocks(userId: string) {
   return availableUnlocks;
 }
 
-async function checkAgentUnlockRequirements(userId: string, requirements: any): Promise<boolean> {
+async function checkAgentUnlockRequirements(supabase: any, userId: string, requirements: any): Promise<boolean> {
   // Check required achievements
   if (requirements.achievements) {
+    if (!supabase) {
+      return false;
+    }
+    
     const { data: userAchievements } = await supabase
       .from('user_achievements')
       .select('achievement_id')
       .eq('user_id', userId);
     
-    const earnedIds = new Set((userAchievements || []).map(a => a.achievement_id));
+    const earnedIds = new Set((userAchievements || []).map((a: any) => a.achievement_id));
     
     for (const requiredAchievement of requirements.achievements) {
       if (!earnedIds.has(requiredAchievement)) {
@@ -591,7 +614,7 @@ async function checkAgentUnlockRequirements(userId: string, requirements: any): 
   }
 
   // Check other criteria (workflows, handoffs, etc.)
-  const stats = await calculateUserStats(userId);
+  const stats = await calculateUserStats(supabase, userId);
   
   return Object.entries(requirements)
     .filter(([key]) => !['achievements', 'userRole', 'OR'].includes(key))
@@ -626,7 +649,7 @@ function getNextMilestones(stats: any) {
   return milestones.slice(0, 5); // Return top 5 next milestones
 }
 
-async function getLeaderboard() {
+async function getLeaderboard(supabase: any) {
   // Use a simpler approach for leaderboard since Supabase client doesn't support group by in this context
   const { data: achievements, error } = await supabase
     .from('user_achievements')
@@ -637,7 +660,7 @@ async function getLeaderboard() {
   }
 
   // Calculate leaderboard in JavaScript
-  const leaderboard = (achievements || []).reduce((acc: any[], achievement) => {
+  const leaderboard = (achievements || []).reduce((acc: any[], achievement: any) => {
     const existing = acc.find(item => item.user_id === achievement.user_id);
     if (existing) {
       existing.total_points += achievement.points_awarded;
@@ -663,13 +686,13 @@ async function getLeaderboard() {
   });
 }
 
-async function getAvailableAchievements(userId: string) {
+async function getAvailableAchievements(supabase: any, userId: string) {
   const { data: earnedAchievements } = await supabase
     .from('user_achievements')
     .select('achievement_id')
     .eq('user_id', userId);
 
-  const earnedIds = new Set((earnedAchievements || []).map(a => a.achievement_id));
+  const earnedIds = new Set((earnedAchievements || []).map((a: any) => a.achievement_id));
   const availableAchievements = ACHIEVEMENTS.filter(a => !earnedIds.has(a.id));
 
   return NextResponse.json({
@@ -719,8 +742,8 @@ async function checkAgentUnlock(userId: string, agentId: string | null) {
 async function updateUserProgress(userId: string, data: any) {
   // This would be called by other parts of the system to update progress
   // For now, just trigger a progress check
-  const stats = await calculateUserStats(userId);
-  const newAchievements = await checkForNewAchievements(userId, stats);
+  const stats = await calculateUserStats(supabase, userId);
+  const newAchievements = await checkForNewAchievements(supabase, userId, stats);
   
   return NextResponse.json({
     success: true,
@@ -759,7 +782,7 @@ async function unlockAgent(userId: string, agentId: string) {
   // Check if agent can be unlocked
   const requirements = AGENT_UNLOCK_REQUIREMENTS[agentId as keyof typeof AGENT_UNLOCK_REQUIREMENTS];
   if (requirements) {
-    const canUnlock = await checkAgentUnlockRequirements(userId, requirements);
+    const canUnlock = await checkAgentUnlockRequirements(supabase, userId, requirements);
     if (!canUnlock) {
       return NextResponse.json(
         { success: false, error: 'Requirements not met for agent unlock' },

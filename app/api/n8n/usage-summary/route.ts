@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { getQuotaStatus } from '../../../../lib/n8nClient';
 
 // Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(req.url);
     const format = searchParams.get('format') || 'json';
     const days = parseInt(searchParams.get('days') || '7');
@@ -83,7 +86,15 @@ export async function GET(req: NextRequest) {
 
 // POST endpoint to trigger alerts manually
 export async function POST(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { alertType, recipients, customMessage } = await req.json();
 
     if (!alertType || !recipients) {
@@ -94,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     const quotaStatus = getQuotaStatus();
-    const summary = await generateDailySummary();
+    const summary = await generateDailySummary(supabase);
 
     let alertSent = false;
     let alertMessage = '';
@@ -451,7 +462,24 @@ function generateRecommendation(successRate: number, totalExecutions: number) {
 }
 
 // Generate daily summary
-async function generateDailySummary() {
+async function generateDailySummary(supabase: any) {
+  if (!supabase) {
+    return { 
+      overview: { 
+        totalExecutions: 0, 
+        successfulExecutions: 0, 
+        failedExecutions: 0, 
+        successRate: '0%',
+        averageDaily: 0,
+        periodDays: 1
+      },
+      dailyBreakdown: [],
+      topAgents: [],
+      topWorkflows: [],
+      trends: {}
+    };
+  }
+  
   const { data: executions } = await supabase
     .from('n8n_executions')
     .select('*')

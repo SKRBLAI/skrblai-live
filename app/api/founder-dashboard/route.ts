@@ -1,12 +1,7 @@
 /* eslint-disable no-unreachable */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { getFunnelMetrics } from '../../../lib/analytics/userFunnelTracking';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // Master codes configuration - extensible for future codes
 const MASTER_CODES = {
@@ -23,7 +18,15 @@ const MASTER_CODES = {
  * GET /api/founder-dashboard?code=MMM_mstr
  */
 export async function GET(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(request.url);
     const masterCode = searchParams.get('code');
     
@@ -46,12 +49,12 @@ export async function GET(request: NextRequest) {
       healthData,
       errorData
     ] = await Promise.allSettled([
-      getAgentsStats(),
-      getAnalyticsStats(),
-      getSalesStats(), 
-      getUserStats(),
-      getHealthStats(),
-      getRecentErrors()
+      getAgentsStats(supabase),
+      getAnalyticsStats(supabase),
+      getSalesStats(supabase), 
+      getUserStats(supabase),
+      getHealthStats(supabase),
+      getRecentErrors(supabase)
     ]);
 
     // Format response with fallbacks for any failed requests
@@ -84,7 +87,7 @@ export async function GET(request: NextRequest) {
 /**
  * Get agents summary stats
  */
-async function getAgentsStats() {
+async function getAgentsStats(supabase: any) {
   try {
     // Get agent performance metrics
     const { data: agentMetrics, error } = await supabase
@@ -95,9 +98,9 @@ async function getAgentsStats() {
 
     if (error) throw error;
 
-    const totalLaunches = agentMetrics?.reduce((sum, agent) => sum + agent.total_launches, 0) || 0;
-    const totalCompletions = agentMetrics?.reduce((sum, agent) => sum + agent.successful_completions, 0) || 0;
-    const totalErrors = agentMetrics?.reduce((sum, agent) => sum + agent.error_count, 0) || 0;
+    const totalLaunches = agentMetrics?.reduce((sum: number, agent: any) => sum + (agent.total_launches || 0), 0) || 0;
+    const totalCompletions = agentMetrics?.reduce((sum: number, agent: any) => sum + (agent.successful_completions || 0), 0) || 0;
+    const totalErrors = agentMetrics?.reduce((sum: number, agent: any) => sum + (agent.error_count || 0), 0) || 0;
     const successRate = totalLaunches > 0 ? (totalCompletions / totalLaunches * 100) : 0;
 
     // Determine status based on success rate
@@ -123,7 +126,7 @@ async function getAgentsStats() {
 /**
  * Get analytics stats (traffic, engagement, conversions)
  */
-async function getAnalyticsStats() {
+async function getAnalyticsStats(supabase: any) {
   try {
     const funnelMetrics = await getFunnelMetrics('30d');
     
@@ -155,7 +158,7 @@ async function getAnalyticsStats() {
 /**
  * Get sales/revenue stats
  */
-async function getSalesStats() {
+async function getSalesStats(supabase: any) {
   try {
     // This would connect to Stripe API or payment database
     // For now, providing placeholder structure
@@ -178,7 +181,7 @@ async function getSalesStats() {
 /**
  * Get user info stats
  */
-async function getUserStats() {
+async function getUserStats(supabase: any) {
   try {
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     
@@ -201,7 +204,7 @@ async function getUserStats() {
       .gte('timestamp', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
       .eq('event_type', 'page_view');
 
-    const activeSessions = new Set(recentSessions?.map(s => s.user_id) || []).size;
+    const activeSessions = new Set(recentSessions?.map((s: any) => s.user_id) || []).size;
     const totalCount = totalUsers?.length || 0;
     const newCount = newUsers?.length || 0;
 
@@ -224,7 +227,7 @@ async function getUserStats() {
 /**
  * Get system health stats
  */
-async function getHealthStats() {
+async function getHealthStats(supabase: any) {
   try {
     const { data: healthMetrics, error } = await supabase
       .from('system_health_metrics')
@@ -247,12 +250,12 @@ async function getHealthStats() {
 
     // Calculate averages
     const avgResponseTime = healthMetrics
-      .filter(m => m.metric_type === 'api_response_time')
-      .reduce((sum, m) => sum + m.metric_value, 0) / Math.max(healthMetrics.filter(m => m.metric_type === 'api_response_time').length, 1);
+      .filter((m: any) => m.metric_type === 'api_response_time')
+      .reduce((sum: number, m: any) => sum + (m.metric_value || 0), 0) / Math.max(healthMetrics.filter((m: any) => m.metric_type === 'api_response_time').length, 1);
 
     const avgErrorRate = healthMetrics
-      .filter(m => m.metric_type === 'error_rate')
-      .reduce((sum, m) => sum + m.metric_value, 0) / Math.max(healthMetrics.filter(m => m.metric_type === 'error_rate').length, 1);
+      .filter((m: any) => m.metric_type === 'error_rate')
+      .reduce((sum: number, m: any) => sum + (m.metric_value || 0), 0) / Math.max(healthMetrics.filter((m: any) => m.metric_type === 'error_rate').length, 1);
 
     let status = 'green';
     if (avgResponseTime > 500 || avgErrorRate > 5) status = 'red';
@@ -274,7 +277,7 @@ async function getHealthStats() {
 /**
  * Get recent error logs
  */
-async function getRecentErrors() {
+async function getRecentErrors(supabase: any) {
   try {
     const { data: errorLogs, error } = await supabase
       .from('system_logs')

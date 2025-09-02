@@ -2,7 +2,7 @@ import agentRegistry from '../../../lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
 import { getAgentImagePath, getAgentSets, getAgentImageSlug } from '../../../utils/agentUtils';
 import type { Agent } from '../../../types/agent';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { systemLog } from '../../../utils/systemLog';
 import { checkPremiumAccess, getAvailableFeatures } from '../../../lib/premiumGating';
 
@@ -49,7 +49,15 @@ function selfHealAgent(agent: Agent) {
 }
 
 export async function GET(req: Request) {
-  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
     await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/agents', meta: { ip } });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
@@ -58,7 +66,7 @@ export async function GET(req: Request) {
   const token = authHeader?.replace('Bearer ', '');
   const meta: any = { ip: req.headers.get('x-forwarded-for') || 'unknown', timestamp: new Date().toISOString() };
   try {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
       await systemLog({ type: 'warning', message: 'Unauthorized /api/agents access attempt', meta });

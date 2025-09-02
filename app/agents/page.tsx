@@ -42,7 +42,7 @@ export default function AgentsPage() {
         setIsLoading(true);
         setError(null);
         
-        // Get all visible agents from Agent League
+        // Get all visible agents from Agent League (IRA is hidden by default)
         const visibleAgents = agentLeague.getVisibleAgents();
         
         // Transform to Agent format and add enhancement metadata
@@ -317,12 +317,14 @@ export default function AgentsPage() {
                     whileHover={{ scale: 1.02, y: -5 }}
                     className="relative group cursor-pointer transition-all duration-300"
                   >
-                    <CosmicCardGlass className="h-full p-6 relative overflow-hidden">
-                      {/* Live Activity Badge */}
-                      <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
-                        className="w-full h-full bg-transparent border-0 shadow-none p-0 rounded-none"
-                      </div>
-                    </CosmicCardGlass>
+                    <AgentLeagueCard
+                      agent={agent}
+                      index={index}
+                      onInfo={handleAgentInfo}
+                      onChat={handleAgentChat}
+                      onLaunch={handleAgentLaunch}
+                      className="w-full h-full bg-transparent border-0 shadow-none p-0 rounded-none"
+                    />
                   </motion.div>
                 ))
               )}

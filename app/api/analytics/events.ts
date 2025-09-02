@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { systemLog } from '../../../utils/systemLog';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // Rate limiting for analytics (more permissive than other APIs)
 const rateLimitMap = new Map<string, { count: number; reset: number }>();
@@ -28,7 +23,15 @@ function checkRateLimit(ip: string): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+const ip = req.headers.get('x-forwarded-for') || 'unknown';
   
   if (checkRateLimit(ip)) {
     return NextResponse.json({ success: false, error: 'Rate limit exceeded' }, { status: 429 });
@@ -86,7 +89,15 @@ export async function POST(req: NextRequest) {
 
 // Optional: GET endpoint for analytics dashboard
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   
   if (!token) {

@@ -44,7 +44,7 @@ const allAgents: Agent[] = [
 ].map((agent, idx) => {
   const imageSlug = agent.imageSlug || getAgentImageSlug(agent);
   const hoverSummary = agent.hoverSummary || agent.description || '';
-  const route = agent.route || `/services/${agent.id}`;
+  const route = agent.route || `/agents/${agent.id}`;
   const orbit = agent.orbit || getDefaultOrbitParams(idx);
   
   // Get backstory for this agent

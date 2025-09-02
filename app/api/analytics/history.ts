@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { systemLog } from '../../../utils/systemLog';
 
 // --- Simple in-memory rate limiter (per IP) ---
@@ -31,7 +31,15 @@ function checkRateLimit(ip: string): boolean {
  * }
  */
 export async function GET(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
     await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/analytics/history', meta: { ip } });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
@@ -42,7 +50,7 @@ export async function GET(req: NextRequest) {
     const agentId = searchParams.get('agentId');
     const workflow = searchParams.get('workflow');
     const limit = parseInt(searchParams.get('limit') || '30', 10);
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    
     let query = supabase
       .from('workflowLogs')
       .select('*')

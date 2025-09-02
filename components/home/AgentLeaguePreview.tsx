@@ -47,7 +47,8 @@ const BASE_CORE_AGENTS = [
   {
     id: 'brand-alexander',
     name: 'BrandAlexander',
-    image: '/images/agents-branding-nobg-skrblai.webp',
+    image: '/images/agents/brand-alexander.png',
+    imageSlug: 'brand-alexander',
     role: 'Brand Identity Architect', 
     value: 'Complete professional brand systems in 60 seconds',
     description: 'Creates comprehensive brand kits: logos, style guides, color palettes, and brand strategy.',
@@ -62,7 +63,8 @@ const BASE_CORE_AGENTS = [
   {
     id: 'social-nino', 
     name: 'Social Nino',
-    image: '/images/agents-social-nobg-skrblai.webp',
+    image: '/images/agents/social-nino.png',
+    imageSlug: 'social-nino',
     role: 'Social Media Growth Expert',
     value: 'Automated posting, analytics, and engagement optimization',
     description: 'Schedules content, tracks analytics, and optimizes engagement across all platforms.',
@@ -77,7 +79,8 @@ const BASE_CORE_AGENTS = [
   {
     id: 'percy',
     name: 'Percy', 
-    image: '/images/agents-percy-nobg-skrblai.webp',
+    image: '/images/agents/percy.png',
+    imageSlug: 'percy',
     role: 'Business Automation Concierge',
     value: 'Coordinates your entire business automation ecosystem',
     description: 'The master orchestrator who connects all your business systems and automates growth workflows.',
@@ -92,7 +95,8 @@ const BASE_CORE_AGENTS = [
   {
     id: 'skillsmith',
     name: 'SkillSmith',
-    image: '/images/agents-skillsmith-nobg-skrblai.webp', 
+    image: '/images/agents/skillsmith.png',
+    imageSlug: 'skillsmith', 
     role: 'Elite Sports Performance Coach',
     value: 'AI-powered technique analysis and performance optimization',
     description: 'Advanced video analysis and personalized training programs for athletic excellence.',
@@ -107,7 +111,8 @@ const BASE_CORE_AGENTS = [
   {
     id: 'content-carltig',
     name: 'Content Carltig', 
-    image: '/images/agents-contentcreation-nobg-skrblai.webp',
+    image: '/images/agents/content-carltig.png',
+    imageSlug: 'content-carltig',
     role: 'Content Creation Machine',
     value: 'SEO-optimized articles, blogs, and content calendars',
     description: 'Generates high-converting content, SEO strategies, and comprehensive content calendars.',
@@ -176,10 +181,11 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         setShowFreeTip(showFreeTip === agent.id ? null : agent.id);
         break;
       case 'chat':
-        onAgentClick(agent);
+        // Route to agent backstory page
+        router.push(routeForAgent(agent.id));
         break;
       case 'demo':
-        // Route to agent page or open demo
+        // Route to agent backstory page
         router.push(routeForAgent(agent.id));
         break;
     }
@@ -222,7 +228,8 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           {[...BASE_CORE_AGENTS, ...(allowedIRA ? [{
   id: 'ira',
   name: 'IRA',
-  image: '/images/agents-ira-nobg.webp',
+  image: '/images/agents/ira.png',
+  imageSlug: 'ira',
   role: 'Trading Mentor',
   value: 'AOIs, volume profile, options flow, earnings catalysts',
   description: 'Inner Rod’s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
@@ -288,13 +295,26 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
 
                   {/* Agent Image */}
                   <div className="aspect-[3/4] relative w-full mt-12">
-                    <Image 
-                      src={agent.image}
-                      alt={agent.name}
-                      fill
-                      className="object-cover rounded-lg"
-                      priority
-                    />
+                    <div className="relative w-full h-full">
+                      <Image 
+                        src={`/images/agents/${agent.imageSlug ?? agent.id}.png`}
+                        alt={agent.name}
+                        fill
+                        className="object-cover rounded-lg"
+                        priority
+                        onError={(e) => { 
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                          const fallback = e.currentTarget.parentElement?.querySelector('.agent-fallback') as HTMLElement;
+                          if (fallback) {
+                            fallback.style.display = "flex";
+                          }
+                        }}
+                      />
+                      {/* Fallback avatar (shown if image hides) */}
+                      <div className="absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300 agent-fallback">
+                        <span className="text-3xl font-bold">{agent.name?.[0] ?? "A"}</span>
+                      </div>
+                    </div>
                     
                     {/* Agent Name */}
                     <motion.h3

@@ -2,7 +2,7 @@ import agentRegistry from '../../../lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
 import { getAgentImagePath, getAgentImageSlug } from '../../../utils/agentUtils';
 import type { Agent } from '@/types/agent';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { systemLog } from '../../../utils/systemLog';
 
 const ORBIT_TIERS = ['inner', 'mid', 'outer'] as const;
@@ -44,11 +44,19 @@ function selfHealAgent(agent: Agent): OrbitAgent {
 }
 
 export async function GET(req: Request) {
-  const authHeader = req.headers.get('authorization');
+  
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   const meta: any = { ip: req.headers.get('x-forwarded-for') || 'unknown', timestamp: new Date().toISOString() };
   try {
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
       await systemLog({ type: 'warning', message: 'Unauthorized /api/agents/featured access attempt', meta });

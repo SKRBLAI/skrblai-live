@@ -11,7 +11,7 @@
 import { triggerN8nWorkflow } from '../n8nClient';
 import { agentLeague, type AgentPower, type AgentConfiguration } from './agentLeague';
 import { getAgentWorkflowConfig, type AgentWorkflowConfig, type WorkflowExecutionContext } from './workflowLookup';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '../supabase/server';
 
 // =============================================================================
 // POWER EXECUTION TYPES
@@ -64,13 +64,12 @@ export interface HandoffSuggestion {
 }
 
 // =============================================================================
-// SUPABASE CLIENT
+// SUPABASE CLIENT HELPER
 // =============================================================================
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  return getOptionalServerSupabase();
+}
 
 // =============================================================================
 // POWER ENGINE CLASS
@@ -490,6 +489,12 @@ export class PowerEngine {
     result?: PowerExecutionResult
   ): Promise<void> {
     try {
+      const supabase = getSupabase();
+      if (!supabase) {
+        console.warn('[POWER_ENGINE] Supabase not available, skipping execution logging');
+        return;
+      }
+      
       await supabase.from('agent_power_executions').insert({
         execution_id: executionId,
         agent_id: agent.id,
@@ -525,6 +530,12 @@ export class PowerEngine {
    */
   public async getPowerExecutionStatus(executionId: string): Promise<PowerExecutionResult | null> {
     try {
+      const supabase = getSupabase();
+      if (!supabase) {
+        console.warn('[POWER_ENGINE] Supabase not available, cannot get execution status');
+        return null;
+      }
+      
       const { data, error } = await supabase
         .from('agent_power_executions')
         .select('*')
@@ -857,6 +868,12 @@ async function logWorkflowExecution(
   n8nResult: any
 ): Promise<void> {
   try {
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.warn('[POWER_ENGINE] Supabase not available, skipping workflow execution logging');
+      return;
+    }
+    
     await supabase.from('agent_workflow_executions').insert({
       execution_id: executionId,
       agent_id: agentId,

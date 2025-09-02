@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-// Initialize Supabase client for analytics
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+    
     const {
       eventType, // 'agent_call', 'agent_error', 'agent_selection', 'agent_success', 'agent_timeout'
       agentId,
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
 
     // Update agent usage counters
     if (eventType === 'agent_call') {
-      await updateAgentUsageCounters(agentId, success, executionTime);
+      await updateAgentUsageCounters(supabase, agentId, success, executionTime);
     }
 
     console.log(`[Analytics] Logged ${eventType} for agent ${agentId}`);
@@ -92,6 +94,14 @@ export async function POST(req: NextRequest) {
 // GET endpoint for analytics data
 export async function GET(req: NextRequest) {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+    
     const { searchParams } = new URL(req.url);
     const agentId = searchParams.get('agentId');
     const timeframe = searchParams.get('timeframe') || '7d'; // 1d, 7d, 30d, 90d
@@ -163,7 +173,7 @@ export async function GET(req: NextRequest) {
 }
 
 // Helper function to update agent usage counters
-async function updateAgentUsageCounters(agentId: string, success: boolean, executionTime?: number) {
+async function updateAgentUsageCounters(supabase: any, agentId: string, success: boolean, executionTime?: number) {
   try {
     // Get or create agent usage record
     const { data: existingRecord } = await supabase

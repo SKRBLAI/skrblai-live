@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
-  // Auth: get user from Supabase JWT
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+// Auth: get user from Supabase JWT
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   const { data: { user }, error: userError } = await supabase.auth.getUser(token);

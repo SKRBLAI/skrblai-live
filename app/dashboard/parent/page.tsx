@@ -6,9 +6,37 @@ import { UserCheck, BarChart3, Trophy, Star, Settings, ArrowRight } from 'lucide
 export default async function ParentPortalPage() {
   const supabase = getOptionalServerSupabase();
   
-  // Check if Supabase is configured
+  // Graceful fallback if Supabase is not configured
   if (!supabase) {
-    redirect('/sign-in?error=configuration');
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="container mx-auto px-4 py-24">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-12 border border-slate-700/50">
+              <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <UserCheck className="w-8 h-8 text-white" />
+              </div>
+              
+              <h1 className="text-3xl font-bold text-white mb-4">
+                Parent Portal
+              </h1>
+              
+              <p className="text-gray-300 mb-8">
+                Service temporarily unavailable. Please try again later.
+              </p>
+              
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300"
+              >
+                Back to Dashboard
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
   
   // Get authenticated user
@@ -18,12 +46,23 @@ export default async function ParentPortalPage() {
     redirect('/sign-in?from=/dashboard/parent');
   }
 
-  // Try to get parent profile
-  const { data: parentProfile, error: profileError } = await supabase
-    .from('parent_profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single();
+  // Try to get parent profile (null-safe)
+  let parentProfile = null;
+  let profileError = null;
+  
+  try {
+    const result = await supabase
+      .from('parent_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
+    parentProfile = result.data;
+    profileError = result.error;
+  } catch (error) {
+    console.error('Error fetching parent profile:', error);
+    profileError = error;
+  }
 
   // If no profile exists, show provision link
   if (profileError || !parentProfile) {
@@ -41,7 +80,7 @@ export default async function ParentPortalPage() {
               </h1>
               
               <p className="text-gray-300 mb-8">
-                Set up your parent profile to track your child's athletic progress, view training insights, and manage their sports development journey.
+                You don't have Parent access yet. Set up your parent profile to track your child's athletic progress, view training insights, and manage their sports development journey.
               </p>
               
               <div className="space-y-4">
