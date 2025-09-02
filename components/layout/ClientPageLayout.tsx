@@ -68,12 +68,7 @@ export default function ClientPageLayout({ children, title }: PageLayoutProps) {
               {title}
             </motion.h1>
           )}
-          {/* 3-Day Trial Button — show on all pages except homepage, contact, and dashboard */}
-          {pathname && pathname !== "/" && pathname !== "/contact" && !pathname.startsWith("/dashboard") && (
-            <div className="flex justify-center py-4">
-              <TrialButton />
-            </div>
-          )}
+          {/* 3-Day Trial Button removed per requirements */}
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={pathname}

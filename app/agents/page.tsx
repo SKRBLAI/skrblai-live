@@ -42,7 +42,7 @@ export default function AgentsPage() {
         setIsLoading(true);
         setError(null);
         
-        // Get all visible agents from Agent League
+        // Get all visible agents from Agent League (IRA is hidden by default)
         const visibleAgents = agentLeague.getVisibleAgents();
         
         // Transform to Agent format and add enhancement metadata
