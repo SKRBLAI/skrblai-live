@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import type { JSX } from 'react';
 import { motion } from 'framer-motion';
-import { getDisplayPlan, getDisplayPlanOrNull as getSportsDisplayPlanOrNull, formatMoney, getAmount, getAmountOrNull } from '../../lib/pricing/sportsPricing';
+import { getDisplayPlanOrNull as getSportsDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import { PRICING_CATALOG, getDisplayPlanOrNull } from '../../lib/pricing/catalog';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import { useDashboardAuth } from '../../hooks/useDashboardAuth';
@@ -589,7 +589,7 @@ export default function SportsPage(): JSX.Element {
             </motion.section>
           )}
 
-          {/* Enhanced SkillSmith Bundles Section - Simplified Checkout */}
+          {/* Unified 4-Tier Pricing Section */}
           {(userType === 'guest' || userType === 'auth') && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
@@ -607,246 +607,129 @@ export default function SportsPage(): JSX.Element {
                   className="text-center mb-12"
                 >
                   <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    ⚡ SkillSmith Arsenal
+                    ⚡ Choose Your Training Tier
                   </h2>
                   <p className="text-orange-200 text-lg max-w-2xl mx-auto">
-                    Choose the perfect plan to elevate your sports performance with AI-powered insights.
+                    Monthly subscriptions designed for athletes at every level - cancel anytime.
                   </p>
                 </motion.div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                  {bundles.map((bundle, index) => (
-                    <motion.div
-                      key={bundle.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.1 * index }}
-                      className="relative"
-                    >
-                      <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-300 h-full flex flex-col">
-                        
-                        {/* Badge for popular/best-value */}
-                        {bundle.badge && (
-                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                            <div className="px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-purple-400/30 bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-lg text-white">
-                              {bundle.badge === 'best-value' ? '🏆 BEST VALUE' : '⭐ POPULAR'}
+                  {(['ROOKIE', 'PRO', 'ALL_STAR', 'FRANCHISE'] as ProductKey[]).map((planKey, index) => {
+                    const plan = getSportsDisplayPlanOrNull(planKey, 'monthly');
+                    if (!plan) {
+                      console.warn(`Sports plan not found: ${planKey}`);
+                      return (
+                        <motion.div
+                          key={planKey}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 * index }}
+                          className="relative"
+                        >
+                          <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl h-full flex flex-col">
+                            <h3 className="text-xl font-bold text-white mb-2">{planKey}</h3>
+                            <p className="text-gray-400 text-sm mb-4">—</p>
+                            <div className="mt-auto">
+                              <button disabled className="w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed">
+                                Coming Soon
+                              </button>
                             </div>
                           </div>
+                        </motion.div>
+                      );
+                    }
+                    
+                    const isPopular = planKey === 'PRO';
+                    const isEnterprise = planKey === 'FRANCHISE';
+                    
+                    return (
+                      <motion.div
+                        key={planKey}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * index }}
+                        className="relative"
+                      >
+                        {/* Popular Badge */}
+                        {isPopular && (
+                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: 0.3 + index * 0.1, type: 'spring' }}
+                              className="px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-purple-400/30 bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse"
+                            >
+                              🏆 MOST POPULAR
+                            </motion.div>
+                          </div>
                         )}
+                        
+                        <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-300 h-full flex flex-col">
+                          <div className="flex-grow">
+                            <div className="text-center mb-4">
+                              <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
+                              {(plan as any).subtitle && (
+                                <p className="text-gray-400 text-sm">{(plan as any).subtitle}</p>
+                              )}
+                            </div>
+                            
+                            <div className="text-center mb-6">
+                              {isEnterprise ? (
+                                <div>
+                                  <span className="text-2xl font-bold text-white">Contact Us</span>
+                                  <p className="text-gray-400 text-sm mt-1">Custom pricing</p>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="text-3xl font-bold text-white">{formatMoney(plan.amountCents, 'USD')}</span>
+                                  <span className="text-gray-400 text-sm ml-1">/month</span>
+                                </>
+                              )}
+                            </div>
+                            
+                            <p className="text-sm text-gray-300 mb-4">{plan.blurb}</p>
+                            
+                            <ul className="space-y-2 mb-6 text-sm">
+                              {plan.features?.map((feature, idx) => (
+                                <li key={idx} className="flex items-start text-gray-300">
+                                  <span className="mr-2 text-green-400 font-bold">✓</span>
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
 
-                        <div className="flex-grow">
-                          <div className="text-center mb-4">
-                            <h3 className="text-xl font-bold text-white mb-1">{bundle.title}</h3>
-                            {bundle.subtitle && (
-                              <p className="text-gray-400 text-sm">{bundle.subtitle}</p>
+                          <div className="mt-auto">
+                            {isEnterprise ? (
+                              <a 
+                                href="/contact"
+                                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
+                              >
+                                Contact Sales
+                              </a>
+                            ) : (
+                              <CheckoutButton
+                                label="Get Started"
+                                sku={planKey}
+                                mode="subscription"
+                                vertical="sports"
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
+                              />
                             )}
                           </div>
-                          
-                          <div className="text-center mb-6">
-                            <span className="text-3xl font-bold text-white">${bundle.price}</span>
-                            <span className="text-gray-400 text-sm ml-1">one-time</span>
-                          </div>
-                          
-                          <ul className="space-y-2 mb-6 text-sm">
-                            {bundle.features.map((feature, idx) => (
-                              <li key={idx} className="flex items-start text-gray-300">
-                                <span className="mr-2 text-green-400 font-bold">✓</span>
-                                <span>{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
                         </div>
-
-                        <div className="mt-auto">
-                          <CheckoutButton
-                            label="Get Started"
-                            sku={bundle.sku}
-                            mode="payment"
-                            vertical="sports"
-                            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.section>
           )}
 
-          {/* ADDED: Instant Revenue Booster - Bundle Deals & Subscriptions */}
-          {(userType === 'guest' || userType === 'auth') && (
-            <motion.section
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative mb-16"
-            >
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Bundle Deal Card */}
-                <motion.div
-                  className="bg-gradient-to-br from-cyan-400/15 via-teal-500/20 to-blue-500/15 border-2 border-cyan-400/40 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden"
-                  whileHover={{
-                    scale: 1.02,
-                    boxShadow: '0 25px 50px rgba(34, 211, 238, 0.35)'
-                  }}
-                  animate={{
-                    borderColor: [
-                      'rgba(34, 211, 238, 0.5)',
-                      'rgba(20, 184, 166, 0.6)',
-                      'rgba(34, 211, 238, 0.5)'
-                    ]
-                  }}
-                  transition={{
-                    borderColor: { duration: 3, repeat: Infinity }
-                  }}
-                >
-                  {/* Animated background effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-400/10 via-teal-400/20 to-blue-400/10 pointer-events-none z-bg"
-                    animate={{
-                      opacity: [0.3, 0.6, 0.3],
-                      scale: [1, 1.05, 1]
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
-                  
-                  <div className="relative z-10 text-center">
-                  <motion.h3 
-                    className="text-3xl md:text-4xl font-bold mb-4"
-                    animate={{
-                      color: ['#22d3ee', '#14b8a6', '#06b6d4', '#22d3ee']
-                    }}
-                    transition={{ duration: 3, repeat: Infinity }}
-                  >
-                    🎯 Bundles
-                  </motion.h3>
-                    
-                    <p className="text-xl text-cyan-100 mb-6">
-                      Get ALL 4 SkillSmith Tools + BONUS Content - One-Time Purchase!
-                    </p>
-                    
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                      {(() => {
-                        const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
-                        return plan?.compareAtCents ? (
-                          <div className="text-gray-400 line-through text-2xl">{formatMoney(plan.compareAtCents, 'USD')}</div>
-                        ) : null;
-                      })()}
-                      <div className="text-5xl font-bold text-cyan-300">{(() => {
-                        const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
-                        return plan ? formatMoney(plan.amountCents, 'USD') : '$99';
-                      })()}</div>
-                      <motion.div 
-                        className="bg-teal-500 text-white px-4 py-2 rounded-full text-lg font-bold"
-                        animate={{
-                          scale: [1, 1.1, 1],
-                          rotate: [-5, 5, -5]
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      >
-                        {(() => {
-                          const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
-                          return plan?.compareAtCents ? (
-                            <>SAVE {formatMoney(plan.compareAtCents - plan.amountCents, 'USD')}!</>
-                          ) : null;
-                        })()}
-                      </motion.div>
-                    </div>
-                    
-                    {/* Bundles with Buy buttons */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 text-sm relative z-0">
-                      <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-teal-300 font-bold text-lg">Rookie — {(() => {
-                          const plan = getDisplayPlanOrNull('SPORTS_STARTER', 'one_time');
-                          return plan ? formatMoney(plan.amountCents, 'USD') : '$19';
-                        })()}</div>
-                        <div className="text-gray-300 mb-3">3 scans + 1 Quick Win</div>
-                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <CheckoutButton
-                          label="Buy Rookie"
-                          sku="SPORTS_STARTER"
-                          mode="payment"
-                          vertical="sports"
-                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        />
-                      </div>
-                      <div className="bg-white/10 rounded-lg p-4 text-center border border-cyan-400/20">
-                        <div className="text-cyan-300 font-bold text-lg">Pro — {(() => {
-                          const plan = getDisplayPlanOrNull('SPORTS_PRO', 'one_time');
-                          return plan ? formatMoney(plan.amountCents, 'USD') : '$29';
-                        })()}</div>
-                        <div className="text-gray-300 mb-3">10 scans + 2 Quick Wins</div>
-                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <CheckoutButton
-                          label="Buy Pro"
-                          sku="SPORTS_PRO"
-                          mode="payment"
-                          vertical="sports"
-                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        />
-                      </div>
-                      <div className="bg-white/10 rounded-lg p-4 text-center border-2 border-cyan-400/60 relative">
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-cyan-500 to-teal-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow">Best Value</div>
-                        <div className="text-cyan-200 font-bold text-lg">All‑Star — {(() => {
-                          const plan = getDisplayPlanOrNull('BUNDLE_ALL_ACCESS', 'one_time');
-                          return plan ? formatMoney(plan.amountCents, 'USD') : '$99';
-                        })()}</div>
-                        <div className="text-gray-300 mb-3">15 scans + 1 specialty product ($19–$49) + monthly eBook</div>
-                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <CheckoutButton
-                          label="Buy All-Star"
-                          sku="BUNDLE_ALL_ACCESS"
-                          mode="payment"
-                          vertical="sports"
-                          className="relative z-fg pointer-events-auto w-full btn-solid-grad py-2 text-sm disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        />
-                      </div>
-                    </div>
-                    
-                    {/* Yearly plan */}
-                    <div className="flex flex-wrap justify-center gap-4">
-                      <div className="bg-white/10 rounded-xl p-5 text-center border border-cyan-400/30 max-w-xl">
-                        <div className="text-2xl font-bold text-cyan-300 mb-1">Yearly — {(() => {
-                          const plan = getDisplayPlanOrNull('BUS_STARTER', 'annual');
-                          return plan ? formatMoney(plan.amountCents, 'USD') : '$290';
-                        })()}</div>
-                        <ul className="text-gray-300 text-sm space-y-1 mb-3">
-                          <li>30 scans every 30 days</li>
-                          <li>Custom 4‑week training plan</li>
-                          <li>2‑week Mastery of Emotion (MOE) calendar</li>
-                          <li>Intro nutrition guide</li>
-                          <li>Specialty products ({[19,29,39,49].map(p=>formatMoney(p*100,'USD')).join('/')})</li>
-                        </ul>
-                        <div className="text-xs text-gray-400 mb-4">Includes 5 scans + 1 Quick Win.</div>
-                        <CheckoutButton
-                          label="Buy Yearly"
-                          sku="BUS_STARTER"
-                          mode="subscription"
-                          vertical="sports"
-                          className="relative z-50 pointer-events-auto w-full btn-solid-grad py-3 text-base disabled:opacity-50 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-400"
-                        />
-                      </div>
-                    </div>
-                    
-                    <p className="text-cyan-200 text-sm mt-4">
-                      ⏰ Limited time: Next 50 customers only!
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.section>
-          )}
+
 
           {/* Plans & Bundles - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
@@ -995,7 +878,7 @@ export default function SportsPage(): JSX.Element {
                 ].map((opt) => (
                   <button
                     key={opt.id}
-                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: getAmount(opt.id as ProductKey, opt.id === 'yearly' ? 'annual' : 'one_time') } as Product)}
+                    onClick={() => handleBuyNow({ id: opt.id, title: opt.title, price: 0 } as Product)}
                     className="bg-white/10 hover:bg-white/15 border border-cyan-400/30 rounded-xl p-4 text-left text-gray-200"
                   >
                     <div className="font-bold text-white">{opt.title}</div>
