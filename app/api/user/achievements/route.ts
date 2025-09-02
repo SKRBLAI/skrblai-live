@@ -251,13 +251,13 @@ try {
 
     switch (action) {
       case 'status':
-        return await getUserAchievementStatus(user.id);
+        return await getUserAchievementStatus(supabase, user.id);
       
       case 'leaderboard':
-        return await getLeaderboard();
+        return await getLeaderboard(supabase);
       
       case 'available':
-        return await getAvailableAchievements(user.id);
+        return await getAvailableAchievements(supabase, user.id);
       
       case 'unlock-check': {
         const agentId = searchParams.get('agentId');
@@ -346,7 +346,11 @@ try {
 // HELPER FUNCTIONS
 // =============================================================================
 
-async function getUserAchievementStatus(userId: string) {
+async function getUserAchievementStatus(supabase: any, userId: string) {
+  if (!supabase) {
+    return { achievements: [], stats: { total: 0, unlocked: 0, progress: 0 } };
+  }
+  
   // Get user's achievement progress
   const { data: userProgress, error: progressError } = await supabase
     .from('user_achievements')
@@ -637,7 +641,7 @@ function getNextMilestones(stats: any) {
   return milestones.slice(0, 5); // Return top 5 next milestones
 }
 
-async function getLeaderboard() {
+async function getLeaderboard(supabase: any) {
   // Use a simpler approach for leaderboard since Supabase client doesn't support group by in this context
   const { data: achievements, error } = await supabase
     .from('user_achievements')
@@ -674,7 +678,7 @@ async function getLeaderboard() {
   });
 }
 
-async function getAvailableAchievements(userId: string) {
+async function getAvailableAchievements(supabase: any, userId: string) {
   const { data: earnedAchievements } = await supabase
     .from('user_achievements')
     .select('achievement_id')
