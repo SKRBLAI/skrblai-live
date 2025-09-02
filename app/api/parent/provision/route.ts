@@ -8,6 +8,11 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = getOptionalServerSupabase();
     
+    // Check if Supabase is configured
+    if (!supabase) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
+    }
+    
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     

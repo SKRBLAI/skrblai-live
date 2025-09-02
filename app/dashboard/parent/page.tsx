@@ -6,6 +6,11 @@ import { UserCheck, BarChart3, Trophy, Star, Settings, ArrowRight } from 'lucide
 export default async function ParentPortalPage() {
   const supabase = getOptionalServerSupabase();
   
+  // Check if Supabase is configured
+  if (!supabase) {
+    redirect('/sign-in?error=configuration');
+  }
+  
   // Get authenticated user
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   

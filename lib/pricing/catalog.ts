@@ -171,7 +171,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
         seats: -1 // unlimited
       },
       verticals: ['business', 'sports'],
-      lookupKey: null, // No checkout, contact only
+      // lookupKey: undefined, // No checkout, contact only
       mode: 'subscription',
       stripeProductKey: 'FRANCHISE',
     },
