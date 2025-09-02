@@ -93,14 +93,14 @@ try {
 
     switch (type) {
       case 'performance':
-        result = await handlePerformanceMetric(enrichedData);
+        result = await handlePerformanceMetric(supabase, enrichedData);
         break;
       case 'crash':
       case 'error':
-        result = await handleCrashReport(enrichedData);
+        result = await handleCrashReport(supabase, enrichedData);
         break;
       case 'vitals':
-        result = await handleWebVitals(enrichedData);
+        result = await handleWebVitals(supabase, enrichedData);
         break;
       default:
         return NextResponse.json(
@@ -111,7 +111,7 @@ try {
 
     // Log critical issues immediately
     if (type === 'crash' || (type === 'performance' && data.performanceData?.memoryUsage > 100)) {
-      await logCriticalIssue(type, enrichedData);
+      await logCriticalIssue(supabase, type, enrichedData);
     }
 
     console.log(`[Mobile Performance] Logged ${type} event: ${data.sessionId}`);
@@ -164,7 +164,7 @@ try {
     const since = timeRanges[timeframe as keyof typeof timeRanges] || timeRanges['24h'];
 
     if (format === 'dashboard') {
-      const dashboard = await generatePerformanceDashboard(since, { sessionId, userId, type });
+      const dashboard = await generatePerformanceDashboard(supabase, since, { sessionId, userId, type });
       return NextResponse.json({
         success: true,
         dashboard,
@@ -174,7 +174,7 @@ try {
     }
 
     if (format === 'summary') {
-      const summary = await generatePerformanceSummary(since, { sessionId, userId, type });
+      const summary = await generatePerformanceSummary(supabase, since, { sessionId, userId, type });
       return NextResponse.json({
         success: true,
         summary,
@@ -225,7 +225,12 @@ try {
 
 // Helper Functions
 
-async function handlePerformanceMetric(data: any) {
+async function handlePerformanceMetric(supabase: any, data: any) {
+  if (!supabase) {
+    console.warn('[MOBILE_PERFORMANCE] Supabase not available, skipping metric logging');
+    return { success: false, error: 'Database unavailable' };
+  }
+  
   const { error, data: result } = await supabase
     .from('mobile_performance_logs')
     .insert({
@@ -247,7 +252,7 @@ async function handlePerformanceMetric(data: any) {
   return result;
 }
 
-async function handleCrashReport(data: any) {
+async function handleCrashReport(supabase: any, data: any) {
   const { error, data: result } = await supabase
     .from('mobile_crash_reports')
     .insert({
@@ -274,7 +279,7 @@ async function handleCrashReport(data: any) {
   return result;
 }
 
-async function handleWebVitals(data: any) {
+async function handleWebVitals(supabase: any, data: any) {
   const { error, data: result } = await supabase
     .from('web_vitals_logs')
     .insert({
@@ -297,8 +302,13 @@ async function handleWebVitals(data: any) {
   return result;
 }
 
-async function logCriticalIssue(type: string, data: any) {
+async function logCriticalIssue(supabase: any, type: string, data: any) {
   try {
+    if (!supabase) {
+      console.warn('[MOBILE_PERFORMANCE] Supabase not available, skipping critical issue logging');
+      return;
+    }
+    
     await supabase
       .from('critical_issues')
       .insert({
@@ -316,7 +326,11 @@ async function logCriticalIssue(type: string, data: any) {
   }
 }
 
-async function generatePerformanceDashboard(since: Date, filters: any) {
+async function generatePerformanceDashboard(supabase: any, since: Date, filters: any) {
+  if (!supabase) {
+    return { error: 'Database unavailable' };
+  }
+  
   // Get performance metrics summary
   const { data: performanceData } = await supabase
     .from('mobile_performance_logs')
@@ -350,11 +364,15 @@ async function generatePerformanceDashboard(since: Date, filters: any) {
       daily: generateDailyTrends(performanceData || [], crashData || [])
     },
     devices: analyzeDevicePerformance(performanceData || [], crashData || []),
-    issues: await getTopIssues(since)
+    issues: await getTopIssues(supabase, since)
   };
 }
 
-async function generatePerformanceSummary(since: Date, filters: any) {
+async function generatePerformanceSummary(supabase: any, since: Date, filters: any) {
+  if (!supabase) {
+    return { error: 'Database unavailable' };
+  }
+  
   const { data: recentIssues } = await supabase
     .from('critical_issues')
     .select('*')
@@ -372,7 +390,7 @@ async function generatePerformanceSummary(since: Date, filters: any) {
     avgMemoryUsage: calculateAverageMemoryUsage(performanceStats || []),
     slowLoadTimes: countSlowLoadTimes(performanceStats || []),
     mobileDeviceRatio: calculateMobileRatio(performanceStats || []),
-    topErrors: await getTopErrors(since),
+    topErrors: await getTopErrors(supabase, since),
     recommendations: generatePerformanceRecommendations(performanceStats || [], recentIssues || [])
   };
 }
@@ -422,7 +440,11 @@ function analyzeDevicePerformance(performanceData: any[], crashData: any[]) {
   return { mobile: {}, desktop: {} };
 }
 
-async function getTopIssues(since: Date) {
+async function getTopIssues(supabase: any, since: Date) {
+  if (!supabase) {
+    return [];
+  }
+  
   const { data } = await supabase
     .from('critical_issues')
     .select('issue_type, description, created_at')
@@ -482,7 +504,11 @@ function calculateMobileRatio(data: any[]): string {
   return Math.round(ratio) + '%';
 }
 
-async function getTopErrors(since: Date) {
+async function getTopErrors(supabase: any, since: Date) {
+  if (!supabase) {
+    return [];
+  }
+  
   const { data } = await supabase
     .from('mobile_crash_reports')
     .select('error_message, error_type, created_at')

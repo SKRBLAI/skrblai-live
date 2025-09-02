@@ -90,6 +90,7 @@ export async function POST(req: NextRequest) {
 
 // Placeholder handler for all HTTP methods
 import { NextRequest, NextResponse } from 'next/server';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export async function GET(req: NextRequest) {
   
