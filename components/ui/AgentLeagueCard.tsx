@@ -355,7 +355,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    router.push(`/agents/${agent.id}?tab=backstory`);
+                    router.push(`/agents/${agent.id}`);
                   }
                 }}
                 className="agent-league-info-button"
@@ -374,7 +374,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Launch Agent - route to unified service page
+                  // Launch Agent - route to agent backstory page
                   router.push(`/agents/${agent.id}`);
                 }
               }}
