@@ -263,7 +263,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     />
                     
                     <Image
-                      src={getAgentImagePath(agent.id)}
+                      src={`/images/agents/${agentConfig.imageSlug || agent.id}.webp`}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       width={96}
                       height={96}
@@ -277,7 +277,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       }}
                     />
                     <div 
-                      className="agent-league-fallback-avatar"
+                      className="agent-league-fallback-avatar hidden absolute inset-0 flex items-center justify-center rounded-full bg-zinc-800/60 text-zinc-300 text-2xl font-semibold"
                     >
                       {agentConfig.emoji || getAgentEmoji(agent.id)}
                     </div>
