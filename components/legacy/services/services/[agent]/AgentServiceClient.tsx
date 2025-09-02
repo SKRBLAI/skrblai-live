@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
-import AgentImage from '../../../ui/AgentImage';
+import AgentImage from '../../../../ui/AgentImage';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { SafeAgent } from '@/types/agent';
