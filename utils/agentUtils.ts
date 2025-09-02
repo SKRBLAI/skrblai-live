@@ -205,9 +205,9 @@ export function getAgentImagePath(
   type: AgentImageType = "nobg"
 ): string {
   /*
-   * Agent Image Policy v3 - SKRBL AI (MMM Protocol Update)
+   * Agent Image Policy v4 - SKRBL AI (Wind1MMM Update)
    * --------------------------------------------------
-   * NOBG: /images/agents-{slug}-nobg-skrblai.webp (DEFAULT - for all League, Dashboard, Backstory)
+   * NOBG: /images/agents/{slug}.png (DEFAULT - for all League, Dashboard, Backstory)
    * LEGACY: /images/Agents-{Slug}-Buttons.png (DEPRECATED - only for specific legacy components)
    */
 
@@ -218,7 +218,7 @@ export function getAgentImagePath(
     console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
     return type === "legacy"
       ? '/images/Agents-Default-Buttons.png'
-      : '/images/agents-default-nobg-skrblai.webp';
+      : '/images/agents/default.png';
   }
 
   // Clean the ID and map to correct image slug
@@ -271,8 +271,8 @@ export function getAgentImagePath(
     const legacySlug = slug.charAt(0).toUpperCase() + slug.slice(1);
     return `/images/Agents-${legacySlug}-Buttons.png`;
   } else {
-    // Modern format - clean nobg images (DEFAULT)
-    return `/images/agents-${slug}-nobg-skrblai.webp`;
+    // Modern format - clean images in agents directory (Wind1MMM Update)
+    return `/images/agents/${slug}.png`;
   }
 }
 
