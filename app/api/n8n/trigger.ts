@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { triggerN8nWorkflow, getWorkflowStatus } from '../../../lib/n8nClient';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 // Initialize Supabase client for execution logging
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { workflowId, agentId, agentAction, chained, userPrompt, ...payload } = await req.json();
     
     if (!workflowId) {
@@ -84,7 +87,15 @@ export async function POST(req: NextRequest) {
 
 // Enhanced GET endpoint for webhook health check and execution status
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+const { searchParams } = new URL(req.url);
   const executionId = searchParams.get('executionId');
   const healthCheck = searchParams.get('health');
 

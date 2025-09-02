@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 // Initialize Supabase client with service role
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 // GET - Retrieve user's current marketing consent status
 export async function GET(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
     
@@ -59,7 +62,15 @@ export async function GET(req: NextRequest) {
 
 // POST - Update user's marketing consent
 export async function POST(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
     

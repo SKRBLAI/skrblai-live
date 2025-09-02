@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs'; // Specify Node.js runtime for this complex API route
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // =============================================================================
 // ACHIEVEMENT DEFINITIONS
@@ -223,7 +218,15 @@ const AGENT_UNLOCK_REQUIREMENTS = {
  * Get user's achievements, progress, and unlocked agents
  */
 export async function GET(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action') || 'status';
 
@@ -282,7 +285,15 @@ export async function GET(request: NextRequest) {
  * Update user progress, check for new achievements, unlock agents
  */
 export async function POST(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const body = await request.json();
     const { action, ...data } = body;
 

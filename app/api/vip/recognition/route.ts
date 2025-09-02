@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 // Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 // Enhanced VIP domains with reputation scoring
 const VIP_DOMAINS = [
   // Fortune 500 Tech (40 points)
@@ -99,7 +94,15 @@ const VIP_AGENT_SQUADS = {
 };
 
 export async function POST(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { 
       email, 
       domain, 
@@ -627,7 +630,15 @@ function getVIPBenefits(vipLevel: string) {
 
 // GET endpoint remains the same but now includes enhanced data
 export async function GET(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
     const domain = searchParams.get('domain');

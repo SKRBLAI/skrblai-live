@@ -2,20 +2,23 @@
 BACKUP OF ORIGINAL /api/invite LOGIC (restore when ready):
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { randomBytes } from 'crypto';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 function generateInviteCode(length = 8) {
   return randomBytes(length).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, length).toUpperCase();
 }
 
 export async function GET(req: NextRequest) {
-  // Auth: get user from Supabase JWT
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+// Auth: get user from Supabase JWT
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   const { data: { user }, error: userError } = await supabase.auth.getUser(token);
@@ -35,7 +38,15 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  // Auth: get user from Supabase JWT
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+// Auth: get user from Supabase JWT
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.replace('Bearer ', '');
   const { data: { user }, error: userError } = await supabase.auth.getUser(token);
@@ -81,21 +92,61 @@ export async function POST(req: NextRequest) {
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  return NextResponse.json({ message: 'Invite API coming soon.' });
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+return NextResponse.json({ message: 'Invite API coming soon.' });
 }
 
 export async function POST(req: NextRequest) {
-  return NextResponse.json({ message: 'Invite API coming soon.' });
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+return NextResponse.json({ message: 'Invite API coming soon.' });
 }
 
 export async function PUT(req: NextRequest) {
-  return NextResponse.json({ message: 'Invite API coming soon.' });
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+return NextResponse.json({ message: 'Invite API coming soon.' });
 }
 
 export async function DELETE(req: NextRequest) {
-  return NextResponse.json({ message: 'Invite API coming soon.' });
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+return NextResponse.json({ message: 'Invite API coming soon.' });
 }
 
 export async function PATCH(req: NextRequest) {
-  return NextResponse.json({ message: 'Invite API coming soon.' });
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+return NextResponse.json({ message: 'Invite API coming soon.' });
 }
