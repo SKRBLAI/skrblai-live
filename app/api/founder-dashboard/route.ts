@@ -1,12 +1,7 @@
 /* eslint-disable no-unreachable */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { getFunnelMetrics } from '../../../lib/analytics/userFunnelTracking';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 // Master codes configuration - extensible for future codes
 const MASTER_CODES = {
@@ -23,7 +18,15 @@ const MASTER_CODES = {
  * GET /api/founder-dashboard?code=MMM_mstr
  */
 export async function GET(request: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { searchParams } = new URL(request.url);
     const masterCode = searchParams.get('code');
     

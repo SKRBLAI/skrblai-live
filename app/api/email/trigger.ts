@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { emailAutomation } from '../../../lib/email/n8nIntegration';
 import { EMAIL_SEQUENCES } from '../../../lib/email/sequences';
 import { systemLog } from '../../../utils/systemLog';
 import { getErrorMessage } from '../../../utils/errorHandling';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(req: NextRequest) {
-  try {
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+try {
     const { 
       triggerType, 
       userId, 
@@ -136,7 +139,15 @@ export async function POST(req: NextRequest) {
 
 // GET endpoint to check user's email sequences
 export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
+  
+  const supabase = getOptionalServerSupabase();
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
+const url = new URL(req.url);
   const userId = url.searchParams.get('userId');
 
   if (!userId) {

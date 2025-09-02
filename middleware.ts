@@ -23,9 +23,11 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
-  // Prevent redirect loops - never redirect from sign-in itself
-  if (path === '/sign-in' || path.startsWith('/sign-in')) {
-    console.log('[MIDDLEWARE] On sign-in page, allowing access');
+  // Prevent redirect loops - never redirect from auth pages
+  if (path === '/sign-in' || path.startsWith('/sign-in') || 
+      path === '/sign-up' || path.startsWith('/sign-up') ||
+      path.startsWith('/auth/redirect')) {
+    console.log('[MIDDLEWARE] On auth page, allowing access');
     return res;
   }
   

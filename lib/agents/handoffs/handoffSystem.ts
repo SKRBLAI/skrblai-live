@@ -10,7 +10,7 @@
 
 import { agentLeague, type AgentConfiguration, type CrossAgentHandoff } from '../agentLeague';
 import { powerEngine, type PowerExecutionResult, type HandoffSuggestion } from '../powerEngine';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '../../supabase/server';
 import { runAgentWorkflow } from '../runAgentWorkflow';
 
 // =============================================================================
@@ -78,13 +78,12 @@ export interface HandoffExecution {
 }
 
 // =============================================================================
-// SUPABASE CLIENT
+// SUPABASE CLIENT HELPER
 // =============================================================================
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  return getOptionalServerSupabase();
+}
 
 // =============================================================================
 // HANDOFF SYSTEM CLASS
@@ -522,6 +521,12 @@ export class HandoffSystem {
       recommendation_details: rec as any,
     }));
 
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.warn('[HANDOFF_SYSTEM] Supabase not available, skipping handoff logging');
+      return;
+    }
+    
     const { error } = await supabase.from('agent_handoffs').insert(handoffRecords);
     if (error) {
       console.error('[HandoffSystem] Error logging handoff analysis:', error);
@@ -537,6 +542,12 @@ export class HandoffSystem {
     context: HandoffContext,
     error?: string
   ): Promise<void> {
+    const supabase = getSupabase();
+    if (!supabase) {
+      console.warn('[HANDOFF_SYSTEM] Supabase not available, skipping handoff execution logging');
+      return;
+    }
+    
     const { data, error: updateError } = await supabase
       .from('agent_handoffs')
       .update({

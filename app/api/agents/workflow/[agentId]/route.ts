@@ -2,13 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { triggerAgentWorkflow } from '../../../../../lib/agents/powerEngine';
 import { getAgentWorkflowConfig, getHandoffSuggestions } from '../../../../../lib/agents/workflows/workflowLookup';
 import type { WorkflowExecutionContext } from '../../../../../lib/agents/workflows/workflowLookup';
-import { createClient } from '@supabase/supabase-js';
+import { getOptionalServerSupabase } from '@/lib/supabase/server';
 
 // Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,8 +19,17 @@ export async function POST(
   { params }: { params: Promise<{ agentId: string }> }
 ) {
   const startTime = Date.now();
+  const supabase = getOptionalServerSupabase();
+  
+  if (!supabase) {
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable' },
+      { status: 503 }
+    );
+  }
   
   try {
+    
     const { agentId } = await params;
     
     // Parse request body
@@ -97,7 +103,7 @@ export async function POST(
     };
 
     // Log workflow request
-    await logWorkflowRequest(agentId, workflowConfig, executionContext, request);
+    await logWorkflowRequest(supabase, agentId, workflowConfig, executionContext, request);
 
     // Trigger the workflow
     const result = await triggerAgentWorkflow(agentId, payload, executionContext);
@@ -160,7 +166,7 @@ export async function POST(
 
     // Log error
     const { agentId: errorAgentId } = await params;
-    await logWorkflowError(errorAgentId, error, request);
+    await logWorkflowError(supabase, errorAgentId, error, request);
 
     return NextResponse.json({
       success: false,
@@ -181,6 +187,14 @@ export async function GET(
   { params }: { params: Promise<{ agentId: string }> }
 ) {
   try {
+    const supabase = getOptionalServerSupabase();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database service unavailable' },
+        { status: 503 }
+      );
+    }
+
     const { agentId } = await params;
     const { searchParams } = new URL(request.url);
     const executionId = searchParams.get('executionId');
@@ -257,6 +271,7 @@ export async function GET(
  * Log workflow request for analytics
  */
 async function logWorkflowRequest(
+  supabase: any,
   agentId: string,
   config: any,
   context: WorkflowExecutionContext,
@@ -296,6 +311,7 @@ async function logWorkflowRequest(
  * Log workflow errors for debugging
  */
 async function logWorkflowError(
+  supabase: any,
   agentId: string,
   error: Error,
   request: NextRequest
