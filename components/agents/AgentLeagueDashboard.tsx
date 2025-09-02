@@ -72,31 +72,53 @@ export default function AgentLeagueDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!session?.access_token) return;
-    fetchAgentLeagueData(session.access_token).then(data => {
-      // Production-optimized logging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[AgentLeagueDashboard] Loaded agents:', data.agents); // TODO: REVIEW UNUSED
-        console.log('[AgentLeagueDashboard] Agent count:', data.agents.length); // TODO: REVIEW UNUSED
-        console.log('[AgentLeagueDashboard] Agent details:', data.agents.map((a: Agent) => ({ id: a.id, name: a.name, visible: a.visible }))); // TODO: REVIEW UNUSED
+    const loadAgents = async () => {
+      try {
+        if (session?.access_token) {
+          // Try to fetch from API if authenticated
+          const data = await fetchAgentLeagueData(session.access_token);
+          setAgents(data.agents);
+          setRecommendations(data.recommendations || []);
+        } else {
+          // Fallback: Load directly from agentLeague for unauthenticated users
+          const { agentLeague } = await import('../../lib/agents/agentLeague');
+          const visibleAgents = agentLeague.getVisibleAgents();
+          
+          // Convert AgentConfiguration to Agent format
+          const convertedAgents = visibleAgents.map(config => ({
+            id: config.id,
+            name: config.name,
+            category: config.category,
+            description: config.description,
+            visible: config.visible,
+            premium: config.premium,
+            imageSlug: config.imageSlug,
+            capabilities: config.capabilities.map(cap => cap.category),
+            superheroName: config.personality?.superheroName,
+            emoji: config.emoji
+          }));
+          
+          setAgents(convertedAgents);
+          setRecommendations([]);
+        }
+      } catch (error: any) {
+        console.error('[CRITICAL][AgentLeagueDashboard] Error loading agents:', error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
-      setAgents(data.agents);
-      setRecommendations(data.recommendations || []);
-    }).catch(error => {
-      console.error('[CRITICAL][AgentLeagueDashboard] Error loading agents:', error);
-      setError(error.message);
-    }).finally(() => {
-      setLoading(false);
-    });
+    };
+    
+    loadAgents();
   }, [session]);
 
-  // Percy centerpiece logic: filter out Percy from agent display
+  // Show all agents including Percy in the grid
   const percy = agents.find(a => a.id === 'percy' || a.name === 'Percy');
-  const otherAgents = agents.filter(a => a.id !== 'percy' && a.name !== 'Percy');
+  const allVisibleAgents = agents; // Show all agents in the grid
 
   // Mobile slider controls
-  const agentsPerPage = isMobile ? 1 : otherAgents.length;
-  const totalSlides = isMobile ? otherAgents.length : 1;
+  const agentsPerPage = isMobile ? 1 : allVisibleAgents.length;
+  const totalSlides = isMobile ? allVisibleAgents.length : 1;
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -159,51 +181,105 @@ export default function AgentLeagueDashboard() {
       {/* Toast container */}
       <Toaster position="bottom-right" />
       
-      {/* New Header with Percy Background Treatment */}
-      <div className="relative mb-8 md:mb-12">
-        {/* Background Percy Hero - Subtle and Large */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10">
-          <Image
-            src="/images/percy-hero.png"
-            alt="Percy Background"
-            width={400}
-            height={400}
-            className="animate-pulse"
-          />
-        </div>
-        
-        {/* Header Content */}
-        <div className="relative z-10 text-center mobile-text-safe py-8">
-          <motion.h2 
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 no-text-cutoff"
-            initial={{ opacity: 0, y: -20 }}
+      {/* Percy Centerpiece */}
+      {percy && (
+        <div className="relative mb-8 md:mb-12 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="relative"
           >
-            Percy And the{' '}
-            <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
-              SKRBL AI League
-            </span>
-            {' '}of Digital Superheroes
-          </motion.h2>
-          <motion.p 
-            className="text-sm md:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto no-text-cutoff"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Your cosmic concierge orchestrates the perfect AI team to dominate your industry
-          </motion.p>
+            <div className="relative w-24 h-24 mx-auto mb-4">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
+              <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
+                <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
+                  <Image
+                    src="/images/agents/percy.png"
+                    alt="Percy - Cosmic Concierge"
+                    width={88}
+                    height={88}
+                    className="agent-image object-contain w-full h-full"
+                    style={{ transform: 'scale(0.85)' }}
+                    priority
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.parentElement?.parentElement?.querySelector('.percy-fallback') as HTMLElement;
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div className="percy-fallback absolute inset-0 hidden items-center justify-center text-cyan-400 text-2xl font-bold">
+                    🎭
+                  </div>
+                </div>
+              </div>
+              <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">Welcome to Percy's League of Superheroes</h2>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Your cosmic concierge orchestrates the perfect AI team to dominate your industry
+            </p>
+          </motion.div>
         </div>
-      </div>
+      )}
+
+      {/* Agent League Header for when Percy is not available */}
+      {!percy && (
+        <div className="relative mb-8 md:mb-12">
+          <div className="relative z-10 text-center mobile-text-safe py-8">
+            <motion.h2 
+              className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 no-text-cutoff"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <span className="bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
+                SKRBL AI League
+              </span>
+              {' '}of Digital Superheroes
+            </motion.h2>
+            <motion.p 
+              className="text-sm md:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto no-text-cutoff"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              Your specialized AI team ready to automate and dominate your industry
+            </motion.p>
+          </div>
+        </div>
+      )}
 
       {/* Agent League - Mobile Slider / Desktop Grid */}
-      {agents.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
+          <p className="text-gray-300">Loading Agent League...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center text-red-400 py-12">
+          <p className="mobile-text-safe">Error: {error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      ) : agents.length === 0 ? (
         <div className="text-center text-gray-400 py-12">
           <p className="mobile-text-safe">No agents available. Please try again later.</p>
         </div>
       ) : (
-        <div className="relative" role="region" aria-label="Agent League">
+        <>
+          {/* Debug info - show agent count */}
+          <div className="text-center mb-6">
+            <p className="text-cyan-400 font-semibold">
+              {allVisibleAgents.length} Agents Available
+            </p>
+          </div>
+          <div className="relative" role="region" aria-label="Agent League">
           {isMobile ? (
             <div className="relative">
               {/* Slider Navigation */}
@@ -233,7 +309,7 @@ export default function AgentLeagueDashboard() {
                   animate={{ x: `-${currentSlide * 100}%` }} 
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 >
-                  {otherAgents.map((agent, index) => (
+                  {allVisibleAgents.map((agent, index) => (
                     <div key={agent.id} className="agent-league-card-wrapper">
                       <AgentLeagueCard 
                         agent={toSafeAgent(agent)} 
@@ -255,7 +331,7 @@ export default function AgentLeagueDashboard() {
           ) : (
             /* Desktop Grid - Standardized Card Heights */
             <div className="agent-league-desktop-grid">
-              {otherAgents.map((agent, index) => (
+              {allVisibleAgents.map((agent, index) => (
                 <AgentLeagueCard 
                   key={agent.id} 
                   agent={toSafeAgent(agent)} 
@@ -272,7 +348,8 @@ export default function AgentLeagueDashboard() {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </>
       )}
 
       {/* Cross-agent recommendations/handoff */}

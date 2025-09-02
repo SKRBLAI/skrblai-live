@@ -263,7 +263,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     />
                     
                     <Image
-                      src={getAgentImagePath(agent.id)}
+                      src={`/images/agents/${agent.imageSlug || agent.id}.png`}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       width={96}
                       height={96}
@@ -277,9 +277,9 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       }}
                     />
                     <div 
-                      className="agent-league-fallback-avatar"
+                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-full bg-zinc-900/60 text-zinc-300"
                     >
-                      {agentConfig.emoji || getAgentEmoji(agent.id)}
+                      <span className="text-2xl font-bold">{agentConfig.emoji || getAgentEmoji(agent.id)}</span>
                     </div>
                   </motion.div>
 
@@ -355,7 +355,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    router.push(`/agents/${agent.id}?tab=backstory`);
+                    router.push(`/agents/${agent.id}`);
                   }
                 }}
                 className="agent-league-info-button"
@@ -374,7 +374,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Launch Agent - route to unified service page
+                  // Launch Agent - route to agent backstory page
                   router.push(`/agents/${agent.id}`);
                 }
               }}
