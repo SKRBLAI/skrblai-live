@@ -1,0 +1,10 @@
+[33md5b78761[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m merge flex
+[33ma0de1918[m fix: restore public pages by hardening catalog lookups, guarding 401s, Next15 params, image path, and redirect loops (no visual changes)
+[33mf8a37706[m Merge pull request #28 from SKRBLAI/static-to-dynamic
+[33mcaf7c3ef[m[33m ([m[1;31morigin/static-to-dynamic[m[33m, [m[1;32mstatic-to-dynamic[m[33m)[m fix: restore public pages by hardening catalog lookups, guarding 401s, Next15 params, image path, and redirect loops (no visual changes)
+[33m98fe9092[m SSR hardening: async params everywhere + API runtime guards; polish sports hero; agent backstory routing; copy update
+[33md3b65f16[m Dual Hero, Stripe Duplicate Sports fix (friday).
+[33mfb24da84[m fix(next15): await Promise params in dynamic routes + metadata; keep SSR on Railway, no hosting changes
+[33mfa516d81[m Latest Wind1MMM P4: agents+n8n — centralize triggers via relay + workflow Lookup; replace direct webhooks; add client helper
+[33m1bed182a[m Wind1MMM P3: agents+n8n — centralize triggers via relay + workflowLookup; replace direct webhooks; add client helper
+[33mda4ebd7f[m Wind1MMM P3: agents+n8n  centralize triggers via relay + workflowLookup; replace direct webhooks; add client helper
