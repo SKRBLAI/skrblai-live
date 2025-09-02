@@ -2,9 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { Upload, Play, Users, Trophy, Zap, Star, BarChart3 } from 'lucide-react';
+import { Upload, Play, Users, Trophy, Zap, Star, BarChart3, UserCheck } from 'lucide-react';
 import Image from 'next/image';
 import CosmicButton from '../shared/CosmicButton';
+import { useRouter } from 'next/navigation';
+import { useDashboardAuth } from '@/hooks/useDashboardAuth';
 
 interface SportsHeroProps {
   userType?: 'guest' | 'auth' | 'platform';
@@ -31,6 +33,8 @@ export default function SportsHero({
     recordsBroken: 847
   }
 }: SportsHeroProps) {
+  const router = useRouter();
+  const { user, isLoading } = useDashboardAuth();
   const [displayText, setDisplayText] = useState("Level Up Your Game with AI! 🚀");
   const [isTyping, setIsTyping] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -106,6 +110,37 @@ export default function SportsHero({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  const handleParentPortalClick = async () => {
+    if (isLoading) return;
+    
+    if (!user) {
+      // Redirect to sign-in with return path
+      router.push('/sign-in?from=/dashboard/parent');
+      return;
+    }
+    
+    try {
+      // Provision parent profile
+      const response = await fetch('/api/parent/provision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        // Redirect to parent dashboard
+        router.push('/dashboard/parent');
+      } else {
+        console.error('Failed to provision parent profile');
+        // Fallback - still redirect to dashboard
+        router.push('/dashboard/parent');
+      }
+    } catch (error) {
+      console.error('Error accessing parent portal:', error);
+      // Fallback - still redirect to dashboard
+      router.push('/dashboard/parent');
+    }
+  };
 
   return (
     <motion.section
@@ -193,7 +228,7 @@ export default function SportsHero({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8"
             >
               <CosmicButton 
                 size="lg" 
@@ -216,15 +251,34 @@ export default function SportsHero({
                 </CosmicButton>
               )}
             </motion.div>
+            
+            {/* Parent Portal CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="flex justify-center mb-12"
+            >
+              <CosmicButton 
+                variant="outline"
+                size="md"
+                onClick={handleParentPortalClick}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-6 py-3 border-cyan-400/50 text-cyan-400 hover:bg-cyan-400/10 transition-all duration-300"
+              >
+                <UserCheck className="w-4 h-4" />
+                {isLoading ? 'Loading...' : user ? 'Parent Portal' : 'Parent Portal (Sign In)'}
+              </CosmicButton>
+            </motion.div>
           </div>
 
           {/* Integrated Stats Row */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-          >
+                      <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+            >
             <div className="text-center bg-purple-900/20 rounded-xl p-4 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-2">
                 <Users className="w-6 h-6 text-purple-400" />

@@ -15,43 +15,16 @@ import { usePercyContext } from '../../components/assistant/PercyProvider';
 import Link from 'next/link';
 import { 
   Check, Shield, Sparkles, Crown, Zap, Rocket, 
-  Star, MessageCircle, ArrowRight, Users, TrendingUp 
+  Star, MessageCircle, ArrowRight, Users, TrendingUp, ExternalLink 
 } from 'lucide-react';
 import {
-  getDisplayPlan,
   getDisplayPlanOrNull,
   formatMoney,
   PRICING_CATALOG,
+  UnifiedDisplayPlan,
 } from '../../lib/pricing/catalog';
-import { BillingPeriod } from '../../lib/pricing/types';
-import { PricingPlan } from '../../lib/config/pricing';
-
-// Mapping function to convert DisplayPlan to PricingPlan
-function displayPlanToPricingPlan(plan: any, productKey: string): PricingPlan {
-  return {
-    id: productKey,
-    title: plan.name,
-    description: plan.blurb || '',
-    monthlyPrice: plan.interval === 'monthly' ? plan.amount : 0,
-    annualPrice: plan.interval === 'annual' ? plan.amount : 0,
-    features: plan.features || [],
-    stripePriceIds: {
-      monthly: plan.interval === 'monthly' ? plan.stripeProductKey : undefined,
-      annual: plan.interval === 'annual' ? plan.stripeProductKey : undefined,
-    },
-    agentCount: 1, // set as needed
-    isFree: plan.amount === 0,
-    href: {
-      monthly: '#',
-      annual: '#',
-    }, // set as needed
-    icon: '',
-    gradient: plan.gradient || '',
-    cta: plan.cta || 'Get Started',
-    taskLimit: plan.taskLimit || 0,
-    support: plan.support || '',
-  };
-}
+import { BillingPeriod, ProductKey } from '../../lib/pricing/types';
+import CheckoutButton from '../../components/payments/CheckoutButton';
 
 import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
 import PercyInlineChat from '../../components/percy/PercyInlineChat';
@@ -214,11 +187,11 @@ const socialProofMetrics = [
   
         
         <div className="container mx-auto px-4 py-24 relative z-10">
-  {/* One-Time Purchase Banner */}
+            {/* Monthly Subscription Banner */}
   <div className="max-w-3xl mx-auto mb-8">
     <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-cyan-600/80 to-blue-600/80 rounded-full border-2 border-cyan-400/40 shadow-glow justify-center">
-      <span className="text-xl">💸</span>
-      <span className="text-white font-bold text-lg">All purchases are <span className="text-teal-300">one-time</span>. No subscriptions. No recurring fees.</span>
+      <span className="text-xl">💳</span>
+      <span className="text-white font-bold text-lg">Monthly subscriptions with <span className="text-teal-300">cancel anytime</span>. No long-term contracts.</span>
     </div>
   </div>
           {/* Disruption Hero Section */}
@@ -236,7 +209,7 @@ const socialProofMetrics = [
             </motion.div>
 
             <CosmicHeading level={1} className="mb-6">
-              Stop Playing Small.<br />Choose Your Domination Level.
+              Choose Your AI Automation Tier
             </CosmicHeading>
             
             <motion.p
@@ -254,8 +227,8 @@ const socialProofMetrics = [
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <span className="text-teal-300 font-bold">One-time purchase. No subscriptions. No recurring fees.</span> Every tier includes Percy's cosmic intelligence, N8N automation, and starts with our risk-free trial.
-              <span className="text-cyan-400 font-semibold"> No contracts. No limits. Just pure automation domination.</span>
+              <span className="text-teal-300 font-bold">Monthly subscriptions with cancel anytime flexibility.</span> Every tier includes Percy's cosmic intelligence, AI agents, and advanced automation tools.
+              <span className="text-cyan-400 font-semibold"> Choose your power level and scale as you grow.</span>
             </motion.p>
 
             {/* Bold Claims & Social Proof */}
@@ -379,24 +352,240 @@ const socialProofMetrics = [
                 className=""
               />
             </div>
-            {/* Enhanced Pricing Cards */}
+            {/* Unified 4-Tier Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-              {Object.keys(PRICING_CATALOG).map((productKey, index) => {
-              const plan = getDisplayPlanOrNull(productKey as any, billingPeriod);
-              if (!plan) return null; // Skip if plan not found
-              const pricingPlan = displayPlanToPricingPlan(plan, productKey);
-              return (
-    <PricingCard
-      key={productKey}
-      plan={pricingPlan}
-      billingPeriod={billingPeriod}
-      animationDelay={0.5 + index * 0.1}
-      isHighlighted={index === 1} // TODO: update if you want to highlight a specific plan
-    />
-  );
-})}
+              {(['ROOKIE', 'PRO', 'ALL_STAR', 'FRANCHISE'] as ProductKey[]).map((planKey, index) => {
+                const plan = getDisplayPlanOrNull(planKey, 'monthly');
+                if (!plan) {
+                  console.warn(`Plan not found: ${planKey}`);
+                  return (
+                    <motion.div
+                      key={planKey}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 + index * 0.1 }}
+                      className="relative group"
+                    >
+                      <GlassmorphicCard className="p-8 h-full flex flex-col">
+                        <h3 className="text-xl font-bold text-white mb-2">{planKey}</h3>
+                        <p className="text-gray-400 text-sm">—</p>
+                        <div className="mt-auto">
+                          <button disabled className="w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed">
+                            Coming Soon
+                          </button>
+                        </div>
+                      </GlassmorphicCard>
+                    </motion.div>
+                  );
+                }
+                
+                const isPopular = planKey === 'PRO';
+                const isEnterprise = planKey === 'FRANCHISE';
+                
+                return (
+                  <motion.div
+                    key={planKey}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                    className="relative group"
+                  >
+                    {/* Popular Badge */}
+                    {isPopular && (
+                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.7 + index * 0.1, type: 'spring' }}
+                          className="px-4 py-2 rounded-full text-sm font-bold shadow-lg border border-white/20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse"
+                        >
+                          🏆 MOST POPULAR
+                        </motion.div>
+                      </div>
+                    )}
+                    
+                    {/* Cosmic Glow Effect */}
+                    <div className={`absolute inset-0 rounded-3xl blur-2xl transition-all duration-500 ${
+                      isPopular 
+                        ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 opacity-100'
+                        : isEnterprise 
+                        ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 opacity-0 group-hover:opacity-100'
+                        : 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100'
+                    }`} />
+                    
+                    <GlassmorphicCard className={`p-8 h-full flex flex-col transition-all duration-500 ${
+                      isPopular 
+                        ? 'ring-1 ring-yellow-400/20 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
+                        : isEnterprise 
+                        ? 'ring-1 ring-purple-400/20 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
+                        : 'ring-1 ring-teal-400/20 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
+                    }`}>
+                      {/* Plan Title */}
+                      <h3 className="text-xl sm:text-2xl font-bold text-electric-blue mb-2">
+                        {plan.name}
+                      </h3>
+                      
+                      {/* Subtitle */}
+                      {(plan as UnifiedDisplayPlan).subtitle && (
+                        <p className="text-sm text-gray-400 mb-4">
+                          {(plan as UnifiedDisplayPlan).subtitle}
+                        </p>
+                      )}
+                      
+                      {/* Price Section */}
+                      <div className="mb-6">
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
+                          className="relative"
+                        >
+                          {isEnterprise ? (
+                            <div className="text-center">
+                              <span className="text-2xl sm:text-3xl font-bold text-white">
+                                Contact Us
+                              </span>
+                              <p className="text-gray-400 text-sm mt-1">
+                                Custom pricing
+                              </p>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+                                {formatMoney(plan.amountCents, 'USD')}
+                              </span>
+                              <span className="text-gray-400 ml-1 text-sm">
+                                /month
+                              </span>
+                            </>
+                          )}
+                        </motion.div>
+                      </div>
+                      
+                      {/* Description */}
+                      <p className="text-sm text-gray-300 mb-6 font-medium leading-tight">
+                        {plan.blurb}
+                      </p>
+                      
+                      {/* Features List */}
+                      <ul className="space-y-2 mb-8 text-left flex-grow" role="list">
+                        {plan.features?.map((feature, idx) => (
+                          <li 
+                            key={idx}
+                            className="flex items-start text-gray-300 text-sm"
+                          >
+                            <span className="mr-2 text-base font-bold text-green-400" aria-hidden="true">
+                              ✓
+                            </span>
+                            <span className="flex-1 leading-tight">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      
+                      {/* CTA Button */}
+                      <div className="mt-auto">
+                        {isEnterprise ? (
+                          <CosmicButton
+                            href="/contact"
+                            variant="outline"
+                            size="md"
+                            className="w-full font-bold text-sm border-purple-400 text-purple-400 hover:bg-purple-500/20"
+                          >
+                            Contact Sales <ExternalLink className="w-4 h-4 ml-2" />
+                          </CosmicButton>
+                        ) : (
+                          <CheckoutButton
+                            label="Get Started"
+                            sku={planKey}
+                            mode="subscription"
+                            vertical="business"
+                            className={`w-full font-bold text-sm transition-all duration-200 ${
+                              isPopular 
+                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white'
+                                : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-white'
+                            } py-3 px-4 rounded-lg shadow-lg hover:shadow-xl`}
+                          />
+                        )}
+                      </div>
+                    </GlassmorphicCard>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
+          
+          {/* Add-ons Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="max-w-7xl mx-auto mb-16"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                ⚡ Power-ups & Add-ons
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Enhance any plan with specialized tools and capabilities
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {(['ADDON_SCANS_10', 'ADDON_MOE', 'ADDON_NUTRITION', 'ADDON_ADV_ANALYTICS', 'ADDON_AUTOMATION', 'ADDON_SEAT'] as ProductKey[]).map((addonKey, index) => {
+                const addon = getDisplayPlanOrNull(addonKey, 'monthly');
+                if (!addon) return null;
+                
+                return (
+                  <motion.div
+                    key={addonKey}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 + index * 0.05 }}
+                    className="group"
+                  >
+                    <GlassmorphicCard className="p-6 h-full flex flex-col hover:ring-1 hover:ring-cyan-400/30 transition-all duration-300">
+                      <h4 className="text-lg font-bold text-cyan-400 mb-2">
+                        {addon.name}
+                      </h4>
+                      <p className="text-sm text-gray-400 mb-4 flex-grow">
+                        {addon.blurb}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xl font-bold text-white">
+                          {formatMoney(addon.amountCents, 'USD')}
+                          <span className="text-gray-400 text-sm ml-1">/month</span>
+                        </span>
+                        <span className="text-xs text-cyan-400 bg-cyan-400/10 px-2 py-1 rounded-full">
+                          Add-on
+                        </span>
+                      </div>
+                      
+                      {/* Features */}
+                      {addon.features && addon.features.length > 0 && (
+                        <ul className="mt-4 space-y-1 text-xs text-gray-300">
+                          {addon.features.map((feature, idx) => (
+                            <li key={idx} className="flex items-start">
+                              <span className="mr-1 text-green-400">✓</span>
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </GlassmorphicCard>
+                  </motion.div>
+                );
+              })}
+            </div>
+            
+            <div className="text-center mt-8">
+              <p className="text-sm text-gray-400">
+                Add-ons can be included when subscribing to any plan. Contact us for custom combinations.
+              </p>
+            </div>
+          </motion.div>
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

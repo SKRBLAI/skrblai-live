@@ -1,16 +1,19 @@
 'use client';
 import { useState } from "react";
 
+import { ProductKey } from '@/lib/pricing/types';
+
 export default function CheckoutButton(
-  { label, sku, priceId, mode="subscription", className, metadata, vertical }:
+  { label, sku, priceId, mode="subscription", className, metadata, vertical, addons }:
   {
     label: string;
-    sku?: string;
+    sku?: string | ProductKey;
     priceId?: string;
     mode?: "subscription" | "payment";
     className?: string;
     metadata?: Record<string, string>;
     vertical?: "sports" | "business";
+    addons?: ProductKey[]; // Add-on product keys
   }
 ){
   const [loading,setLoading]=useState(false);
@@ -20,7 +23,7 @@ export default function CheckoutButton(
       const r = await fetch("/api/checkout", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ sku, priceId, mode, metadata, vertical }),
+        body: JSON.stringify({ sku, priceId, mode, metadata, vertical, addons }),
       });
       if(!r.ok) throw new Error(await r.text());
       const { url } = await r.json();
