@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import AgentImage from '../../../ui/AgentImage';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { SafeAgent } from '@/types/agent';
@@ -386,15 +387,13 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                 className="flex items-center gap-6 mb-8"
               >
                 <div className="relative">
-                  <Image
-                    src={agentImagePath}
+                  <AgentImage
+                    slug={agent.id as any}
                     alt={agent.name}
                     width={120}
                     height={120}
                     className="rounded-2xl shadow-2xl border-4 border-cyan-400/30"
-                    onError={(e) => {
-                      e.currentTarget.src = '/images/agents-default-nobg-skrblai.webp';
-                    }}
+                    sizes="120px"
                   />
                   <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-cyan-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
                     LIVE

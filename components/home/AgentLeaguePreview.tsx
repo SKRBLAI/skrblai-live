@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { routeForAgent } from '../../lib/agents/routes';
 import Image from 'next/image';
+import AgentImage from '../ui/AgentImage';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import CardShell from '../ui/CardShell';
@@ -288,11 +289,12 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
 
                   {/* Agent Image */}
                   <div className="aspect-[3/4] relative w-full mt-12">
-                    <Image 
-                      src={agent.image}
+                    <AgentImage 
+                      slug={agent.id as any}
                       alt={agent.name}
-                      fill
-                      className="object-cover rounded-lg"
+                      width={320}
+                      height={427}
+                      className="object-cover rounded-lg w-full h-full"
                       priority
                     />
                     

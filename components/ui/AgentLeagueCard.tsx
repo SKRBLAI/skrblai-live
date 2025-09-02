@@ -19,6 +19,7 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
+import AgentImage from './AgentImage';
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -262,25 +263,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
                     />
                     
-                    <Image
-                      src={`/images/agents/${agentConfig.imageSlug || agent.id}.webp`}
+                    <AgentImage
+                      slug={(agentConfig.imageSlug || agent.id) as any}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       width={96}
                       height={96}
                       className="relative z-10 rounded-full border-2 border-teal-400/70 shadow-[0_0_20px_rgba(48,213,200,0.5)] hover:shadow-[0_0_30px_rgba(48,213,200,0.8)] transition-all duration-300"
-                      style={{ objectFit: 'cover' }}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const fallback = target.nextElementSibling as HTMLDivElement;
-                        if (fallback) fallback.style.display = 'flex';
-                      }}
+                      sizes="96px"
                     />
-                    <div 
-                      className="agent-league-fallback-avatar hidden absolute inset-0 flex items-center justify-center rounded-full bg-zinc-800/60 text-zinc-300 text-2xl font-semibold"
-                    >
-                      {agentConfig.emoji || getAgentEmoji(agent.id)}
-                    </div>
                   </motion.div>
 
                   {/* Agent Name & Superhero Title */}
