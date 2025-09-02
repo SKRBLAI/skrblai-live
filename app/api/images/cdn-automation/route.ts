@@ -105,7 +105,7 @@ try {
     }
 
     // Log the operation
-    await logImageOperation(action, result, requestData);
+    await logImageOperation(supabase, action, result, requestData);
 
     console.log(`[CDN Automation] ${action} completed:`, result.success ? 'Success' : 'Failed');
 
@@ -142,16 +142,16 @@ try {
 
     switch (operation) {
       case 'status':
-        return await getOptimizationStatus();
+        return await getOptimizationStatus(supabase);
       case 'analytics':
-        return await getImageAnalytics(format);
+        return await getImageAnalytics(supabase, format);
       case 'image-info':
         if (!imageId) {
           return NextResponse.json({ success: false, error: 'Missing imageId parameter' }, { status: 400 });
         }
         return await getImageInfo(imageId);
       case 'bulk-status':
-        return await getBulkProcessingStatus();
+        return await getBulkProcessingStatus(supabase);
       default:
         return NextResponse.json({ success: false, error: 'Invalid operation' }, { status: 400 });
     }
@@ -519,8 +519,13 @@ async function estimateFileSize(url: string): Promise<number> {
   }
 }
 
-async function logImageOperation(action: string, result: ImageProcessingResult, requestData: any) {
+async function logImageOperation(supabase: any, action: string, result: ImageProcessingResult, requestData: any) {
   try {
+    if (!supabase) {
+      console.warn('[CDN_AUTOMATION] Supabase not available, skipping operation logging');
+      return;
+    }
+    
     await supabase
       .from('image_operations_log')
       .insert({
@@ -542,7 +547,11 @@ async function logImageOperation(action: string, result: ImageProcessingResult, 
 
 // GET endpoint helpers
 
-async function getOptimizationStatus() {
+async function getOptimizationStatus(supabase: any) {
+  if (!supabase) {
+    return { recentOperations: [], totalOperations: 0, successRate: 0 };
+  }
+  
   const { data: recentOperations } = await supabase
     .from('image_operations_log')
     .select('*')
@@ -554,8 +563,8 @@ async function getOptimizationStatus() {
     .select('savings_bytes, savings_percent, success')
     .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
-  const totalSavings = stats?.reduce((sum, op) => sum + (op.savings_bytes || 0), 0) || 0;
-  const successRate = stats?.length ? (stats.filter(op => op.success).length / stats.length) * 100 : 0;
+  const totalSavings = stats?.reduce((sum: number, op: any) => sum + (op.savings_bytes || 0), 0) || 0;
+  const successRate = stats?.length ? (stats.filter((op: any) => op.success).length / stats.length) * 100 : 0;
 
   return NextResponse.json({
     success: true,
@@ -569,7 +578,14 @@ async function getOptimizationStatus() {
   });
 }
 
-async function getImageAnalytics(format: string) {
+async function getImageAnalytics(supabase: any, format: string) {
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Database service unavailable'
+    }, { status: 503 });
+  }
+  
   const { data: analytics } = await supabase
     .from('image_operations_log')
     .select('*')
@@ -577,11 +593,11 @@ async function getImageAnalytics(format: string) {
 
   const summary = {
     totalOperations: analytics?.length || 0,
-    totalSavings: analytics?.reduce((sum, op) => sum + (op.savings_bytes || 0), 0) || 0,
+    totalSavings: analytics?.reduce((sum: number, op: any) => sum + (op.savings_bytes || 0), 0) || 0,
     avgSavingsPercent: analytics?.length ? 
-      analytics.reduce((sum, op) => sum + (op.savings_percent || 0), 0) / analytics.length : 0,
+      analytics.reduce((sum: number, op: any) => sum + (op.savings_percent || 0), 0) / analytics.length : 0,
     successRate: analytics?.length ? 
-      (analytics.filter(op => op.success).length / analytics.length) * 100 : 0,
+      (analytics.filter((op: any) => op.success).length / analytics.length) * 100 : 0,
     topActions: getTopActions(analytics || [])
   };
 
@@ -612,7 +628,14 @@ async function getImageInfo(imageId: string) {
   }
 }
 
-async function getBulkProcessingStatus() {
+async function getBulkProcessingStatus(supabase: any) {
+  if (!supabase) {
+    return NextResponse.json({
+      success: false,
+      error: 'Database service unavailable'
+    }, { status: 503 });
+  }
+  
   // Check if there are any ongoing bulk operations
   const { data: bulkOps } = await supabase
     .from('image_operations_log')
