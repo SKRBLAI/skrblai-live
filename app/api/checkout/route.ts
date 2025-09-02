@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       successPath?: string;
       cancelPath?: string;
       vertical?: "sports" | "business";
+      addons?: ProductKey[]; // Add-on product keys
     };
 
     const mode = body.mode || "subscription";
@@ -33,6 +34,23 @@ export async function POST(req: NextRequest) {
 
     if (!price) return bad("Provide priceId (price_…) or sku (lookup_key)");
 
+    // Build line items array starting with main plan
+    const lineItems = [{ price, quantity: 1 }];
+
+    // Add line items for add-ons if provided
+    if (body.addons && body.addons.length > 0) {
+      for (const addon of body.addons) {
+        try {
+          const addonPrice = await priceForSku(addon);
+          if (addonPrice) {
+            lineItems.push({ price: addonPrice, quantity: 1 });
+          }
+        } catch (e) {
+          console.warn(`[checkout] Failed to resolve addon price for ${addon}:`, e);
+        }
+      }
+    }
+
     const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const success_url = `${origin}${body.successPath || "/thanks"}?session_id={CHECKOUT_SESSION_ID}`;
     const cancel_url  = `${origin}${body.cancelPath  || "/pricing"}`;
@@ -41,12 +59,13 @@ export async function POST(req: NextRequest) {
       source: "web",
       vertical: body.vertical || (body.sku?.includes("skill") ? "sports" : "business"),
       plan: body.sku || body.priceId || "unknown",
+      addons: body.addons ? body.addons.join(',') : '',
       ...(body.metadata || {}),
     };
 
     const session = await stripe.checkout.sessions.create({
       mode,
-      line_items: [{ price, quantity: 1 }],
+      line_items: lineItems,
       success_url,
       cancel_url,
       allow_promotion_codes: true,

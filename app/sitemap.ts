@@ -24,8 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
   ];
+  // Add agents main page
+  items.push({
+    url: 'https://skrblai.io/agents',
+    lastModified: new Date(),
+  });
+  
   // Add common agents we ship (fallback; full dynamic can iterate registry)
-  const defaultAgents = ['percy', 'skillsmith'];
+  const defaultAgents = ['percy', 'skillsmith', 'socialnino', 'branding', 'book-publishing', 'analytics'];
   defaultAgents.forEach(a => {
     items.push({ url: `https://skrblai.io/agents/${a}`, lastModified: new Date() });
   });

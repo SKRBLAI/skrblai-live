@@ -36,7 +36,11 @@ export async function middleware(request: NextRequest) {
     // Create redirect URL with reason parameter
     const redirectUrl = new URL('/sign-in', request.url);
     redirectUrl.searchParams.set('reason', 'session-expired');
-    redirectUrl.searchParams.set('from', path);
+    
+    // Only set 'from' if it wouldn't create a loop
+    if (path !== '/sign-in' && !path.startsWith('/sign-in')) {
+      redirectUrl.searchParams.set('from', path);
+    }
     
     return NextResponse.redirect(redirectUrl);
   }
@@ -79,10 +83,26 @@ export async function middleware(request: NextRequest) {
     });
   }
   
+  // Public API allowlist (no auth required) and Auth-required API allowlist
+  const PUBLIC_API_PATHS = [
+    '/api/auth/',
+    '/api/public/',
+    '/api/sports/intake',
+    '/api/checkout',
+    '/api/stripe/webhooks',
+    '/api/analytics/percy'
+  ];
+  
+  // Auth-required API paths that should not be blocked by middleware
+  // (these require auth but should not trigger redirect loops)
+  const AUTH_API_PATHS = [
+    '/api/parent/'
+  ];
+  
   // Handle API routes without auth
   if (!session && path.startsWith('/api/') && 
-      !path.startsWith('/api/auth/') && 
-      !path.startsWith('/api/public/')) {
+      !PUBLIC_API_PATHS.some(publicPath => path.startsWith(publicPath)) &&
+      !AUTH_API_PATHS.some(authPath => path.startsWith(authPath))) {
     
     console.log('[MIDDLEWARE] API request without auth:', path);
     
@@ -94,6 +114,13 @@ export async function middleware(request: NextRequest) {
       }, 
       { status: 401 }
     );
+  }
+  
+  // Handle auth-required API routes - let them handle their own auth
+  if (path.startsWith('/api/') && 
+      AUTH_API_PATHS.some(authPath => path.startsWith(authPath))) {
+    console.log('[MIDDLEWARE] Auth-required API request:', path, session ? 'with session' : 'without session');
+    return res; // Let the API route handle auth validation
   }
 
   // If we get here, user is authenticated (or accessing allowed routes)

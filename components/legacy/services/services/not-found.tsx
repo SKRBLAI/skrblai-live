@@ -2,9 +2,9 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MessageCircle, Search, ArrowRight } from 'lucide-react';
-import GlassmorphicCard from '../../components/shared/GlassmorphicCard';
-import CosmicButton from '../../components/shared/CosmicButton';
-import { usePercyContext } from '../../components/assistant/PercyProvider';
+import GlassmorphicCard from '../../../shared/GlassmorphicCard';
+import CosmicButton from '../../../shared/CosmicButton';
+import { usePercyContext } from '../../../assistant/PercyProvider';
 
 export default function ServicesNotFound() {
   const { openPercy } = usePercyContext();
@@ -58,10 +58,10 @@ export default function ServicesNotFound() {
                   Browse All Agents
                 </CosmicButton>
               </Link>
-              <Link href="/services">
+              <Link href="/agents">
                 <CosmicButton variant="outline" className="w-full">
                   <ArrowRight className="w-4 h-4 mr-2" />
-                  View Services
+                  View Agent League
                 </CosmicButton>
               </Link>
             </div>
@@ -77,16 +77,16 @@ export default function ServicesNotFound() {
           <GlassmorphicCard className="p-6">
             <h3 className="text-lg font-bold text-white mb-4">Popular Agents</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-              <Link href="/services/social-bot-agent" className="text-cyan-400 hover:text-cyan-300 transition-colors">
+              <Link href="/agents/social-bot-agent" className="text-cyan-400 hover:text-cyan-300 transition-colors">
                 Social Media
               </Link>
-              <Link href="/services/content-creator-agent" className="text-green-400 hover:text-green-300 transition-colors">
+              <Link href="/agents/content-creator-agent" className="text-green-400 hover:text-green-300 transition-colors">
                 Content Creation
               </Link>
-              <Link href="/services/branding-agent" className="text-purple-400 hover:text-purple-300 transition-colors">
+              <Link href="/agents/branding-agent" className="text-purple-400 hover:text-purple-300 transition-colors">
                 Branding
               </Link>
-              <Link href="/services/analytics-agent" className="text-yellow-400 hover:text-yellow-300 transition-colors">
+              <Link href="/agents/analytics-agent" className="text-yellow-400 hover:text-yellow-300 transition-colors">
                 Analytics
               </Link>
             </div>

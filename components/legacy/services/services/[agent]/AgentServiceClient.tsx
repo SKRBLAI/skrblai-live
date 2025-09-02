@@ -6,10 +6,10 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { SafeAgent } from '@/types/agent';
-import { agentBackstories } from '../../../lib/agents/agentBackstories';
-import { getAgentImagePath } from '../../../utils/agentUtils';
-import GlassmorphicCard from '../../../components/shared/GlassmorphicCard';
-import CosmicButton from '../../../components/shared/CosmicButton';
+import { agentBackstories } from '../../../../../lib/agents/agentBackstories';
+import { getAgentImagePath } from '../../../../../utils/agentUtils';
+import GlassmorphicCard from '../../../../shared/GlassmorphicCard';
+import CosmicButton from '../../../../shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -343,7 +343,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   };
 
   const handleViewBackstory = () => {
-    router.push(`/agent-backstory/${agent.id}`);
+    router.push(`/agents/${agent.id}`);
   };
 
   return (
@@ -888,21 +888,28 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                     <p className="text-gray-300 text-lg mb-6">
                       Join {liveUsers} users already dominating their markets with this agent
                     </p>
-                    <div className="flex justify-center gap-4">
+                    <div className="flex flex-wrap justify-center gap-4">
+                      <Link 
+                        href="/agents"
+                        className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 pointer-events-auto"
+                      >
+                        <Users className="w-5 h-5" />
+                        Meet League
+                      </Link>
                       <button
                         onClick={handleLaunchAgent}
                         disabled={isLaunching}
-                        className="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 text-lg"
+                        className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 pointer-events-auto"
                       >
                         <Zap className="w-5 h-5" />
-                        {isLaunching ? 'Launching...' : `Launch ${agent.name}`}
+                        Start Free Scan
                       </button>
                       <Link 
-                        href="/agents"
-                        className="px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+                        href="/contact"
+                        className="px-6 py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 pointer-events-auto"
                       >
-                        <ArrowRight className="w-5 h-5" />
-                        Explore More Agents
+                        <MessageCircle className="w-5 h-5" />
+                        Talk to Percy
                       </Link>
                     </div>
                   </div>
@@ -1093,7 +1100,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
             {backstory?.handoffPreferences?.slice(0, 3).map((agentId) => (
               <Link 
                 key={agentId}
-                href={`/services/${agentId}`}
+                href={`/agents/${agentId}`}
                 className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 text-white px-4 py-2 rounded-full border border-purple-500/30 hover:border-cyan-400/50 transition-all duration-200 font-medium"
               >
                 {agentId.replace('-agent', '').replace('-', ' ')}
@@ -1110,8 +1117,8 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
       {/* Workflow Progress Modal */}
       <AnimatePresence>
         {showProgressModal && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-sm w-full text-center">
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-sm w-full text-center pointer-events-auto">
               <h2 className="text-xl font-bold mb-4">Workflow In Progress</h2>
               <p className="mb-4">Your agent is working—please wait...</p>
               <div className="flex flex-col items-start space-y-2">

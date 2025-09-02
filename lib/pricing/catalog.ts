@@ -2,13 +2,20 @@ import { ProductKey, BillingPeriod } from './types';
 
 // === Legacy Key Aliases and Safe Accessors ===
 const KEY_ALIASES: Record<string, string> = {
-  // Map legacy/marketing keys to real catalog keys
-  'SPORTS_STARTER': 'SPORTS_STARTER',
-  'sports_starter': 'SPORTS_STARTER',
-  'starter': 'starter',
-  'crusher': 'crusher',
-  'sports_rookie_monthly': 'SPORTS_STARTER',
-  'sports_all_star_one_time': 'SPORTS_ELITE',
+  // Map legacy/marketing keys to new unified keys
+  'SPORTS_STARTER': 'ROOKIE',
+  'sports_starter': 'ROOKIE',
+  'BUS_STARTER': 'ROOKIE',
+  'starter': 'ROOKIE',
+  'SPORTS_PRO': 'PRO',
+  'BUS_PRO': 'PRO',
+  'star': 'PRO',
+  'SPORTS_ELITE': 'ALL_STAR',
+  'BUS_ELITE': 'ALL_STAR',
+  'crusher': 'ALL_STAR',
+  'BUNDLE_ALL_ACCESS': 'ALL_STAR',
+  'sports_rookie_monthly': 'ROOKIE',
+  'sports_all_star_one_time': 'ALL_STAR',
   // Add any other legacy keys found in code
 };
 
@@ -42,19 +49,240 @@ export interface DisplayPlan {
   stripeProductKey: ProductKey; // maps to Stripe price ID via lib/stripe/prices.ts
 }
 
-// Seeded with current SKUs and placeholders where unknown
+// Enhanced DisplayPlan interface for unified pricing
+export interface UnifiedDisplayPlan extends DisplayPlan {
+  subtitle?: string;           // Additional subtitle for cards
+  allowances?: {
+    scans_per_month?: number;
+    projects?: number;
+    seats?: number;
+  };
+  verticals?: ('business' | 'sports')[];  // Which verticals this plan applies to
+  lookupKey?: string;          // Stripe lookup key for easy resolution
+}
+
+// Unified 4-tier catalog (shared by Business + Sports)
 export const PRICING_CATALOG: Record<ProductKey, {
-  monthly?: DisplayPlan;
-  annual?: DisplayPlan;
-  one_time?: DisplayPlan;
+  monthly?: UnifiedDisplayPlan;
+  annual?: UnifiedDisplayPlan;
+  one_time?: UnifiedDisplayPlan;
 }> = {
+  // === UNIFIED 4-TIER PLANS ===
+  ROOKIE: {
+    monthly: {
+      name: 'Rookie',
+      subtitle: 'Perfect for getting started',
+      blurb: 'Essential tools for individuals and small teams',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 999,
+      amount: 9.99,
+      intervalLabel: 'month',
+      features: [
+        '5 scans per month',
+        '1 project workspace', 
+        'Basic AI agents access',
+        'Community support'
+      ],
+      allowances: {
+        scans_per_month: 5,
+        projects: 1,
+        seats: 1
+      },
+      verticals: ['business', 'sports'],
+      lookupKey: 'plan.ROOKIE.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ROOKIE',
+    },
+  },
+  PRO: {
+    monthly: {
+      name: 'Pro',
+      subtitle: 'Most popular choice',
+      blurb: 'Advanced features for growing teams',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 1699,
+      amount: 16.99,
+      intervalLabel: 'month',
+      features: [
+        '25 scans per month',
+        '5 project workspaces',
+        'Advanced AI agents',
+        'Priority support'
+      ],
+      allowances: {
+        scans_per_month: 25,
+        projects: 5,
+        seats: 3
+      },
+      verticals: ['business', 'sports'],
+      lookupKey: 'plan.PRO.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'PRO',
+    },
+  },
+  ALL_STAR: {
+    monthly: {
+      name: 'All-Star',
+      subtitle: 'Everything you need',
+      blurb: 'Complete access for serious users',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 2999,
+      amount: 29.99,
+      intervalLabel: 'month',
+      features: [
+        '100 scans per month',
+        'Unlimited projects',
+        'All AI agents & tools',
+        'Dedicated support'
+      ],
+      allowances: {
+        scans_per_month: 100,
+        projects: -1, // unlimited
+        seats: 10
+      },
+      verticals: ['business', 'sports'],
+      lookupKey: 'plan.ALL_STAR.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ALL_STAR',
+    },
+  },
+  FRANCHISE: {
+    monthly: {
+      name: 'Franchise',
+      subtitle: 'Enterprise solution',
+      blurb: 'Custom solution for large organizations',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 0, // Contact for pricing
+      amount: 0,
+      intervalLabel: 'month',
+      features: [
+        'Custom scan limits',
+        'White-label options',
+        'Custom integrations',
+        'Dedicated success manager'
+      ],
+      allowances: {
+        scans_per_month: -1, // unlimited
+        projects: -1, // unlimited
+        seats: -1 // unlimited
+      },
+      verticals: ['business', 'sports'],
+      lookupKey: null, // No checkout, contact only
+      mode: 'subscription',
+      stripeProductKey: 'FRANCHISE',
+    },
+  },
+
+  // === ADD-ONS (RECURRING) ===
+  ADDON_SCANS_10: {
+    monthly: {
+      name: '+10 Scans',
+      blurb: 'Additional scans per month',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 500,
+      amount: 5.00,
+      intervalLabel: 'month',
+      features: ['10 additional scans per month'],
+      verticals: ['business', 'sports'],
+      lookupKey: 'addon.SCANS_10.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_SCANS_10',
+    },
+  },
+  ADDON_MOE: {
+    monthly: {
+      name: 'Mastery of Emotion (MOE)',
+      blurb: 'Mental performance training',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 900,
+      amount: 9.00,
+      intervalLabel: 'month',
+      features: ['Mental performance training', 'Emotion regulation tools'],
+      verticals: ['sports'],
+      lookupKey: 'addon.MOE.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_MOE',
+    },
+  },
+  ADDON_NUTRITION: {
+    monthly: {
+      name: 'Nutrition Guidance',
+      blurb: 'Personalized nutrition plans',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 700,
+      amount: 7.00,
+      intervalLabel: 'month',
+      features: ['Custom meal plans', 'Nutrition tracking'],
+      verticals: ['sports'],
+      lookupKey: 'addon.NUTRITION.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_NUTRITION',
+    },
+  },
+  ADDON_ADV_ANALYTICS: {
+    monthly: {
+      name: 'Advanced Analytics',
+      blurb: 'Deep performance insights',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 900,
+      amount: 9.00,
+      intervalLabel: 'month',
+      features: ['Advanced reporting', 'Performance trends'],
+      verticals: ['business', 'sports'],
+      lookupKey: 'addon.ADV_ANALYTICS.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_ADV_ANALYTICS',
+    },
+  },
+  ADDON_AUTOMATION: {
+    monthly: {
+      name: 'Automation Suite',
+      blurb: 'Advanced workflow automation',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 1900,
+      amount: 19.00,
+      intervalLabel: 'month',
+      features: ['Custom workflows', 'API integrations'],
+      verticals: ['business'],
+      lookupKey: 'addon.AUTOMATION.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_AUTOMATION',
+    },
+  },
+  ADDON_SEAT: {
+    monthly: {
+      name: 'Additional Seat',
+      blurb: 'Per additional team member',
+      currency: 'USD',
+      interval: 'monthly',
+      amountCents: 300,
+      amount: 3.00,
+      intervalLabel: 'month',
+      features: ['1 additional team member'],
+      verticals: ['business', 'sports'],
+      lookupKey: 'addon.SEAT.monthly',
+      mode: 'subscription',
+      stripeProductKey: 'ADDON_SEAT',
+    },
+  },
+
+  // === LEGACY COMPATIBILITY (maintain existing structure for backward compatibility) ===
   BUS_STARTER: {
     monthly: {
       name: 'Business Starter',
       blurb: 'For solopreneurs & small teams',
       currency: 'USD',
       interval: 'monthly',
-      amountCents: 2900, // TODO: verify
+      amountCents: 2900,
       amount: 29,
       intervalLabel: 'month',
       compareAtCents: 3900,
@@ -68,7 +296,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
       blurb: 'For solopreneurs & small teams',
       currency: 'USD',
       interval: 'annual',
-      amountCents: 29000, // TODO: verify
+      amountCents: 29000,
       amount: 290,
       intervalLabel: 'year',
       compareAtCents: 39000,
@@ -84,7 +312,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
       blurb: 'Growth for scaling teams',
       currency: 'USD',
       interval: 'monthly',
-      amountCents: 4900, // TODO: verify
+      amountCents: 4900,
       amount: 49,
       intervalLabel: 'month',
       compareAtCents: 5900,
@@ -98,7 +326,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
       blurb: 'Growth for scaling teams',
       currency: 'USD',
       interval: 'annual',
-      amountCents: 49000, // TODO: verify
+      amountCents: 49000,
       amount: 490,
       intervalLabel: 'year',
       compareAtCents: 59000,
@@ -114,7 +342,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
       blurb: 'All-access for enterprises',
       currency: 'USD',
       interval: 'monthly',
-      amountCents: 9900, // TODO: verify
+      amountCents: 9900,
       amount: 99,
       intervalLabel: 'month',
       compareAtCents: 12900,
@@ -128,7 +356,7 @@ export const PRICING_CATALOG: Record<ProductKey, {
       blurb: 'All-access for enterprises',
       currency: 'USD',
       interval: 'annual',
-      amountCents: 99000, // TODO: verify
+      amountCents: 99000,
       amount: 990,
       intervalLabel: 'year',
       compareAtCents: 129000,
@@ -311,7 +539,7 @@ export function getDisplayPlan(key: ProductKey, period: BillingPeriod): DisplayP
 }
 
 // === New safe accessor (non-throwing) ===
-export function getDisplayPlanOrNull(key: string, period: string): DisplayPlan | null {
+export function getDisplayPlanOrNull(key: string, period: string): UnifiedDisplayPlan | null {
   const k = normalizeKey(key);
   const p = normalizePeriod(period);
   const entry = (PRICING_CATALOG as any)?.[k];
