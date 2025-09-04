@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createSafeSupabaseClient } from '../supabase/client';
 
 /**
  * Lightweight session helper that matches our existing auth mechanism
@@ -6,7 +6,12 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
  */
 export async function getSession() {
   try {
-    const supabase = createClientComponentClient();
+    const supabase = createSafeSupabaseClient();
+    if (!supabase || typeof supabase.auth?.getSession !== 'function') {
+      console.warn('[Auth] Supabase not configured');
+      return null;
+    }
+    
     const { data: { session }, error } = await supabase.auth.getSession();
     
     if (error) {

@@ -2,24 +2,37 @@ import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 // Supabase client instance, created lazily
 export let supabase: any = null;
-// Attempt initial instantiation, suppress errors during build
-try {
-  supabase = createClientComponentClient();
-} catch {
-  // Missing env vars during build; will instantiate at runtime
-}
 
-// Function to get (or create) the Supabase client
+// Function to get (or create) the Supabase client safely
 export function getSupabase() {
   if (!supabase) {
-    supabase = createClientComponentClient();
+    try {
+      // Check if environment variables are available
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.warn('[Supabase] Environment variables not configured');
+        return null;
+      }
+      supabase = createClientComponentClient();
+    } catch (error) {
+      console.warn('[Supabase] Failed to create client:', error);
+      return null;
+    }
   }
   return supabase;
 }
 
+// Initialize supabase safely
+supabase = getSupabase();
+
 // Helper functions to replace Firebase equivalents
 export const saveToSupabase = async (table: string, data: any) => {
-  const { data: result, error } = await supabase
+  const client = getSupabase();
+  if (!client) {
+    console.warn('[Supabase] Client not available, skipping save operation');
+    return null;
+  }
+  
+  const { data: result, error } = await client
     .from(table)
     .insert([data])
     .select();
@@ -56,7 +69,13 @@ export const querySupabase = async (table: string, options: {
   orderBy?: { column: string, ascending?: boolean },
   limit?: number
 }) => {
-  let query = supabase.from(table).select(options.select || '*');
+  const client = getSupabase();
+  if (!client) {
+    console.warn('[Supabase] Client not available, returning empty results');
+    return [];
+  }
+  
+  let query = client.from(table).select(options.select || '*');
 
   if (options.eq) {
     Object.entries(options.eq).forEach(([column, value]) => {
