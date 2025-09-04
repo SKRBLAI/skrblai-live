@@ -23,7 +23,6 @@ import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnbo
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
 import { products } from '../../lib/config/skillsmithProducts';
-import CosmicTile from '../../components/ui/CosmicTile';
 import AskPercy from '../../components/common/AskPercy';
 
 interface AnalysisResult {
@@ -116,7 +115,7 @@ export default function SportsPage(): JSX.Element {
   useEffect(() => {
     const handleOpenPromptPanel = () => {
       setPromptOpen(true);
-      // Scroll to the prompt panel (will be in PlansAndBundles or added separately)
+      // Scroll to the prompt panel
       setTimeout(() => {
         const promptElement = document.getElementById('ask-percy');
         if (promptElement) {
@@ -367,11 +366,7 @@ export default function SportsPage(): JSX.Element {
                 </motion.div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                  {products && products.length > 0 ? [...products].sort((a, b) => a.price - b.price).map((product, index) => {
-                    // Add scope badge for sports products
-                    const scopeBadge = 'Sports';
-                    
-                    return (
+                  {products && products.length > 0 ? [...products].sort((a, b) => a.price - b.price).map((product, index) => (
                     <motion.div
                       key={product.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -462,7 +457,7 @@ export default function SportsPage(): JSX.Element {
                               {product.title}
                             </h3>
                             <span className="bg-orange-500/20 text-orange-300 border border-orange-400/30 text-xs px-2 py-1 rounded-full font-medium ml-2">
-                              {scopeBadge}
+                              Sports
                             </span>
                           </div>
                           
@@ -625,9 +620,144 @@ export default function SportsPage(): JSX.Element {
           )}
 
           {/* REMOVED: Duplicate pricing section - using PlansAndBundles component instead */}
-          {/* This duplicate pricing section has been removed to ensure only one pricing section exists on /sports */}
+          {(userType === 'guest' || userType === 'auth') && false && (
+            <motion.section
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative mb-24"
+            >
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center mb-12"
+                >
+                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                    ⚡ Choose Your Training Tier
+                  </h2>
+                  <p className="text-orange-200 text-lg max-w-2xl mx-auto">
+                    Monthly subscriptions designed for athletes at every level - cancel anytime.
+                  </p>
+                </motion.div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+                  {(['ROOKIE', 'PRO', 'ALL_STAR', 'FRANCHISE'] as ProductKey[]).map((planKey, index) => {
+                    const plan = getSportsDisplayPlanOrNull(planKey, 'monthly');
+                    if (!plan) {
+                      console.warn(`Sports plan not found: ${planKey}`);
+                      return (
+                        <motion.div
+                          key={planKey}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ delay: 0.1 * index }}
+                          className="relative"
+                        >
+                          <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl h-full flex flex-col">
+                            <h3 className="text-xl font-bold text-white mb-2">{planKey}</h3>
+                            <p className="text-gray-400 text-sm mb-4">—</p>
+                            <div className="mt-auto">
+                              <button disabled className="w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed">
+                                Coming Soon
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    }
+                    
+                    const isPopular = planKey === 'PRO';
+                    const isEnterprise = planKey === 'FRANCHISE';
+                    
+                    return (
+                      <motion.div
+                        key={planKey}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * index }}
+                        className="relative"
+                      >
+                        {/* Popular Badge */}
+                        {isPopular && (
+                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: 0.3 + index * 0.1, type: 'spring' }}
+                              className="px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-purple-400/30 bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse"
+                            >
+                              🏆 MOST POPULAR
+                            </motion.div>
+                          </div>
+                        )}
+                        
+                        <div className="bg-gradient-to-br from-[rgba(30,25,50,0.8)] via-[rgba(15,20,40,0.9)] to-[rgba(25,15,45,0.8)] border-2 border-purple-400/30 rounded-2xl p-6 backdrop-blur-xl hover:border-blue-400/60 transition-all duration-300 h-full flex flex-col">
+                          <div className="flex-grow">
+                            <div className="text-center mb-4">
+                              <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
+                              {(plan as any).subtitle && (
+                                <p className="text-gray-400 text-sm">{(plan as any).subtitle}</p>
+                              )}
+                            </div>
+                            
+                            <div className="text-center mb-6">
+                              {isEnterprise ? (
+                                <div>
+                                  <span className="text-2xl font-bold text-white">Contact Us</span>
+                                  <p className="text-gray-400 text-sm mt-1">Custom pricing</p>
+                                </div>
+                              ) : (
+                                <>
+                                  <span className="text-3xl font-bold text-white">{formatMoney(plan.amountCents, 'USD')}</span>
+                                  <span className="text-gray-400 text-sm ml-1">/month</span>
+                                </>
+                              )}
+                            </div>
+                            
+                            <p className="text-sm text-gray-300 mb-4">{plan.blurb}</p>
+                            
+                            <ul className="space-y-2 mb-6 text-sm">
+                              {plan.features?.map((feature, idx) => (
+                                <li key={idx} className="flex items-start text-gray-300">
+                                  <span className="mr-2 text-green-400 font-bold">✓</span>
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
 
+                          <div className="mt-auto">
+                            {isEnterprise ? (
+                              <a 
+                                href="/contact"
+                                className="w-full inline-flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
+                              >
+                                Contact Sales
+                              </a>
+                            ) : (
+                              <CheckoutButton
+                                label="Get Started"
+                                sku={planKey}
+                                mode="subscription"
+                                vertical="sports"
+                                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.section>
+          )}
 
           {/* Plans & Bundles - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
