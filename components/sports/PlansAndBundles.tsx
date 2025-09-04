@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Star, Crown, Zap, Trophy } from 'lucide-react';
 import { getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import CheckoutButton from '../payments/CheckoutButton';
+import CosmicTile from '../ui/CosmicTile';
 
 interface PlansAndBundlesProps {
   showLimitedOffer?: boolean;
@@ -102,7 +103,7 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
           )}
         </motion.div>
 
-        {/* Plans Grid */}
+        {/* Plans Grid using CosmicTile */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {plans.map((plan, index) => {
             const displayPlan = getDisplayPlanOrNull(plan.key, 'monthly');
@@ -114,67 +115,33 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                className={`relative bg-gradient-to-br from-slate-900/80 to-slate-800/80 backdrop-blur-sm border rounded-2xl p-6 ${
-                  plan.popular ? 'border-cyan-400/50 shadow-[0_0_30px_rgba(34,211,238,0.2)]' : 'border-gray-600/30'
-                }`}
               >
-                {/* Badge */}
-                {plan.badge && (
-                  <div className={`absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold ${
-                    plan.badge === 'POPULAR' ? 'bg-cyan-500 text-white' :
-                    plan.badge === 'BEST VALUE' ? 'bg-green-500 text-white' :
-                    'bg-orange-500 text-white'
-                  }`}>
-                    {plan.badge}
-                  </div>
-                )}
-
-                {/* Plan Content */}
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-white mb-2">{plan.title}</h3>
-                  
-                  {displayPlan ? (
-                    <div className="mb-4">
-                      <span className="text-3xl font-bold text-white">
-                        {formatMoney(displayPlan.amountCents)}
-                      </span>
-                      <span className="text-gray-400 text-sm">/{displayPlan.intervalLabel}</span>
-                    </div>
-                  ) : (
-                    <div className="mb-4">
-                      <span className="text-3xl font-bold text-gray-500">—</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-2 mb-6 text-sm">
-                  {plan.bullets.slice(0, 3).map((bullet, i) => (
-                    <li key={i} className="flex items-center gap-2 text-gray-300">
-                      <Star className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                      <span className="line-clamp-1">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                {displayPlan ? (
-                  <CheckoutButton 
-                    label={`Choose ${plan.title}`}
-                    sku={plan.key}
-                    mode="subscription"
-                    vertical="sports"
-                    className="w-full"
-                  />
-                ) : (
-                  <button 
-                    disabled
-                    className="w-full bg-gray-600/50 text-gray-400 py-3 rounded-lg cursor-not-allowed"
-                    title="Temporarily unavailable"
-                  >
-                    Temporarily Unavailable
-                  </button>
-                )}
+                <CosmicTile
+                  title={plan.title}
+                  subtitle={displayPlan ? `${formatMoney(displayPlan.amountCents)}/${displayPlan.intervalLabel}` : '—'}
+                  badge={plan.badge || undefined}
+                  bullets={plan.bullets}
+                  footer={
+                    displayPlan ? (
+                      <CheckoutButton 
+                        label={`Choose ${plan.title}`}
+                        sku={plan.key}
+                        mode="subscription"
+                        vertical="sports"
+                        className="w-full"
+                      />
+                    ) : (
+                      <button 
+                        disabled
+                        className="w-full bg-gray-600/50 text-gray-400 py-3 rounded-lg cursor-not-allowed"
+                        title="Temporarily unavailable"
+                      >
+                        Temporarily Unavailable
+                      </button>
+                    )
+                  }
+                  disabled={!displayPlan}
+                />
               </motion.div>
             );
           })}
@@ -203,53 +170,33 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1, duration: 0.6 }}
-                className="relative bg-gradient-to-br from-slate-900/60 to-slate-800/60 backdrop-blur-sm border border-gray-600/20 rounded-2xl p-6"
               >
-                <div className="text-center mb-6">
-                  <h4 className="text-lg font-bold text-white mb-2">{bundle.title}</h4>
-                  
-                  {displayPlan ? (
-                    <div className="mb-4">
-                      <span className="text-2xl font-bold text-white">
-                        {formatMoney(displayPlan.amountCents)}
-                      </span>
-                      <span className="text-gray-400 text-xs block">one-time</span>
-                    </div>
-                  ) : (
-                    <div className="mb-4">
-                      <span className="text-2xl font-bold text-gray-500">—</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Features */}
-                <ul className="space-y-2 mb-6 text-sm">
-                  {bundle.bullets.map((bullet, i) => (
-                    <li key={i} className="flex items-center gap-2 text-gray-300">
-                      <Trophy className="w-3 h-3 text-orange-400 flex-shrink-0" />
-                      <span className="line-clamp-1">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                {displayPlan ? (
-                  <CheckoutButton 
-                    label="Get Bundle"
-                    sku={bundle.key}
-                    mode={bundle.period === 'one_time' ? 'payment' : 'subscription'}
-                    vertical="sports"
-                    className="w-full text-sm py-2"
-                  />
-                ) : (
-                  <button 
-                    disabled
-                    className="w-full bg-gray-600/50 text-gray-400 py-2 rounded-lg cursor-not-allowed text-sm"
-                    title="Temporarily unavailable"
-                  >
-                    Unavailable
-                  </button>
-                )}
+                <CosmicTile
+                  title={bundle.title}
+                  subtitle={displayPlan ? `${formatMoney(displayPlan.amountCents)} one-time` : '—'}
+                  icon={<Trophy className="w-6 h-6 text-orange-400" />}
+                  bullets={bundle.bullets}
+                  footer={
+                    displayPlan ? (
+                      <CheckoutButton 
+                        label="Get Bundle"
+                        sku={bundle.key}
+                        mode={bundle.period === 'one_time' ? 'payment' : 'subscription'}
+                        vertical="sports"
+                        className="w-full text-sm py-2"
+                      />
+                    ) : (
+                      <button 
+                        disabled
+                        className="w-full bg-gray-600/50 text-gray-400 py-2 rounded-lg cursor-not-allowed text-sm"
+                        title="Temporarily unavailable"
+                      >
+                        Unavailable
+                      </button>
+                    )
+                  }
+                  disabled={!displayPlan}
+                />
               </motion.div>
             );
           })}
