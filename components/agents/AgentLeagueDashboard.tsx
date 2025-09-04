@@ -95,7 +95,11 @@ export default function AgentLeagueDashboard() {
             imageSlug: config.imageSlug,
             capabilities: config.capabilities.map(cap => cap.category),
             superheroName: config.personality?.superheroName,
-            emoji: config.emoji
+            emoji: config.emoji,
+            // Required fields for Agent type
+            canConverse: config.canConverse ?? true,
+            recommendedHelpers: config.recommendedHelpers ?? [],
+            handoffTriggers: config.handoffTriggers ?? []
           }));
           
           setAgents(convertedAgents);

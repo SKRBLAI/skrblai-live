@@ -261,7 +261,7 @@ try {
       
       case 'unlock-check': {
         const agentId = searchParams.get('agentId');
-        return await checkAgentUnlock(user.id, agentId);
+        return await checkAgentUnlock(supabase, user.id, agentId);
       }
       
       default:
@@ -318,13 +318,13 @@ try {
 
     switch (action) {
       case 'update_progress':
-        return await updateUserProgress(user.id, data);
+        return await updateUserProgress(supabase, user.id, data);
       
       case 'claim_achievement':
-        return await claimAchievement(user.id, data.achievementId);
+        return await claimAchievement(supabase, user.id, data.achievementId);
       
       case 'unlock_agent':
-        return await unlockAgent(user.id, data.agentId);
+        return await unlockAgent(supabase, user.id, data.agentId);
       
       default:
         return NextResponse.json(
@@ -660,7 +660,13 @@ async function getLeaderboard(supabase: any) {
   }
 
   // Calculate leaderboard in JavaScript
-  const leaderboard = (achievements || []).reduce((acc: any[], achievement: any) => {
+  interface LeaderboardEntry {
+    user_id: string;
+    total_points: number;
+    achievements_count: number;
+  }
+
+  const leaderboard = (achievements || []).reduce((acc: LeaderboardEntry[], achievement: any) => {
     const existing = acc.find(item => item.user_id === achievement.user_id);
     if (existing) {
       existing.total_points += achievement.points_awarded;
@@ -674,7 +680,7 @@ async function getLeaderboard(supabase: any) {
     }
     return acc;
   }, [])
-  .sort((a, b) => b.total_points - a.total_points)
+  .sort((a: LeaderboardEntry, b: LeaderboardEntry) => b.total_points - a.total_points)
   .slice(0, 50);
 
   return NextResponse.json({
@@ -706,7 +712,7 @@ async function getAvailableAchievements(supabase: any, userId: string) {
   });
 }
 
-async function checkAgentUnlock(userId: string, agentId: string | null) {
+async function checkAgentUnlock(supabase: any, userId: string, agentId: string | null) {
   if (!agentId) {
     return NextResponse.json(
       { success: false, error: 'agentId parameter required' },
@@ -726,7 +732,7 @@ async function checkAgentUnlock(userId: string, agentId: string | null) {
     });
   }
 
-  const canUnlock = await checkAgentUnlockRequirements(userId, requirements);
+  const canUnlock = await checkAgentUnlockRequirements(supabase, userId, requirements);
   
   return NextResponse.json({
     success: true,
@@ -739,7 +745,7 @@ async function checkAgentUnlock(userId: string, agentId: string | null) {
   });
 }
 
-async function updateUserProgress(userId: string, data: any) {
+async function updateUserProgress(supabase: any, userId: string, data: any) {
   // This would be called by other parts of the system to update progress
   // For now, just trigger a progress check
   const stats = await calculateUserStats(supabase, userId);
@@ -756,7 +762,7 @@ async function updateUserProgress(userId: string, data: any) {
   });
 }
 
-async function claimAchievement(userId: string, achievementId: string) {
+async function claimAchievement(supabase: any, userId: string, achievementId: string) {
   // Mark achievement as claimed (for UI purposes)
   const { error } = await supabase
     .from('user_achievements')
@@ -778,7 +784,7 @@ async function claimAchievement(userId: string, achievementId: string) {
   });
 }
 
-async function unlockAgent(userId: string, agentId: string) {
+async function unlockAgent(supabase: any, userId: string, agentId: string) {
   // Check if agent can be unlocked
   const requirements = AGENT_UNLOCK_REQUIREMENTS[agentId as keyof typeof AGENT_UNLOCK_REQUIREMENTS];
   if (requirements) {

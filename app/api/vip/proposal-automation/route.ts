@@ -208,7 +208,7 @@ try {
     const proposalContent = await generatePersonalizedProposal(vipUser, selectedTemplate, customRequirements);
     
     // Save proposal to database
-    const proposalId = await saveProposalToDatabase(vipUser, proposalContent, selectedTemplate);
+    const proposalId = await saveProposalToDatabase(supabase, vipUser, proposalContent, selectedTemplate);
 
     // Generate PDF if requested
     let pdfUrl = null;
@@ -222,7 +222,7 @@ try {
     }
 
     // Log the proposal generation
-    await logProposalActivity(vipUser.email, 'proposal_generated', {
+    await logProposalActivity(supabase, vipUser.email, 'proposal_generated', {
       templateId: selectedTemplate.id,
       vipLevel: vipUser.vip_level,
       hasPDF: !!pdfUrl,
@@ -404,7 +404,7 @@ function calculateEstimatedROI(vipUser: any, investment: any[]): string {
   return `Estimated ${Math.round(annualSavings / totalInvestment * 100)}% annual ROI with breakeven in ${monthsToBreakeven} months`;
 }
 
-async function saveProposalToDatabase(vipUser: any, proposalContent: any, template: ProposalTemplate) {
+async function saveProposalToDatabase(supabase: any, vipUser: any, proposalContent: any, template: ProposalTemplate) {
   const proposalId = `prop_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
   
   const { error } = await supabase.from('vip_proposals').insert({
@@ -571,7 +571,7 @@ async function sendProposalEmail(vipUser: any, proposalContent: any, pdfUrl?: st
   // In production, implement actual email sending
 }
 
-async function logProposalActivity(email: string, action: string, metadata: any) {
+async function logProposalActivity(supabase: any, email: string, action: string, metadata: any) {
   try {
     await supabase.from('vip_proposal_activity').insert({
       email,
