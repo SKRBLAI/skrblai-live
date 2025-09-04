@@ -64,10 +64,13 @@ const nextConfig = {
       { source: '/agent-backstory/:agentId', destination: '/agents/:agentId', permanent: true },
       { source: '/chat/:agentId', destination: '/agents/:agentId', permanent: true },
 
-      // Services → Agents migration - ACTIVE
+      // Canonical agent backstory routing - 308 redirects
+      { source: '/agentbackstory/:slug*', destination: '/agents/:slug*', permanent: true },
+      { source: '/services/:slug*', destination: '/agents/:slug*', permanent: true },
+      { source: '/agents/:slug/backstory', destination: '/agents/:slug', permanent: true },
+
+      // Services → Agents migration - ACTIVE (keeping existing for compatibility)
       { source: '/services', destination: '/agents', permanent: true },
-      { source: '/services/:slug', destination: '/agents/:slug', permanent: true },
-      { source: '/services/:path*', destination: '/agents/:path*', permanent: true },
 
       // Existing auth redirects
       { source: '/sign-in', destination: '/dashboard', permanent: false },
