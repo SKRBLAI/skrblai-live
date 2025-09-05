@@ -13,6 +13,7 @@ import { getAgentImagePath, getAgentEmoji } from '../../utils/agentUtils';
 import { SafeAgent } from '../../types/agent';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 import { agentLeague, type AgentConfiguration } from '../../lib/agents/agentLeague';
+import { routeForAgent } from '../../lib/agents/routes';
 import AgentLaunchButton from '../agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence } from '../../lib/agents/agentIntelligence';
 import CosmicButton from '../shared/CosmicButton';
@@ -355,7 +356,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    router.push(`/agents/${agent.id}`);
+                    router.push(routeForAgent(agent.id));
                   }
                 }}
                 className="agent-league-info-button"
