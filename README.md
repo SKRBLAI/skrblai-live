@@ -61,6 +61,7 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 ### **Backend & Integration**
 - **Supabase** - Database, authentication, and real-time features
 - **N8N Workflows** - Agent automation and task processing
+- **Secure API Proxy** - Protected webhook endpoints with rate limiting
 - **Cloudinary** - Image optimization and CDN
 - **Stripe** - Payment processing and subscription management
 - **Resend** - Email automation and communication
@@ -132,7 +133,7 @@ npm install
 2. **Environment Configuration**
 ```bash
 # Copy environment template
-cp .env.example .env.local
+cp .env.local.example .env.local
 
 # Configure required variables:
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -140,8 +141,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 RESEND_API_KEY=your_resend_key
 OPENAI_API_KEY=your_openai_key
-N8N_API_URL=your_n8n_url
-N8N_API_KEY=your_n8n_key
+N8N_BUSINESS_ONBOARDING_URL=your_n8n_business_url
+N8N_WEBHOOK_FREE_SCAN=your_n8n_free_scan_webhook
+N8N_API_KEY=your_n8n_api_key
 ```
 
 3. **Launch Development Server**
@@ -210,6 +212,42 @@ npm start
 - **End-to-End Encryption** - All data transmission secured
 - **Regular Security Audits** - Continuous security monitoring
 - **24/7 Monitoring** - Real-time threat detection
+
+### **Free Scan Proxy Security**
+
+Our secure `/api/scan` endpoint protects sensitive webhook URLs and implements robust security measures:
+
+- **Rate Limiting** - 10 requests per 10 minutes per IP address
+- **Input Validation** - File type and size verification (video files, max 100MB)
+- **Server-side Proxying** - N8N webhooks never exposed to frontend
+- **Optional Authentication** - Automatic user session detection via Supabase
+- **Request Sanitization** - IP address redaction and payload validation
+- **Error Handling** - Graceful failure without exposing internal details
+
+**Environment Variables:**
+- `N8N_WEBHOOK_FREE_SCAN` - Server-side webhook URL (required)
+- `N8N_API_KEY` - Optional API key for enhanced security
+- ❌ `NEXT_PUBLIC_N8N_FREE_SCAN_URL` - **REMOVED** (was public, now secure)
+
+**Expected Payload:**
+```json
+{
+  "type": "free-scan",
+  "source": "sports",
+  "input": {
+    "event": "free_scan_started",
+    "videoUrl": "...",
+    "sport": "general",
+    "sessionId": "...",
+    "timestamp": "2025-01-24T..."
+  }
+}
+```
+
+**Rate Limit Headers:**
+- `X-RateLimit-Limit` - Maximum requests allowed
+- `X-RateLimit-Remaining` - Requests remaining in current window
+- `X-RateLimit-Reset` - When the rate limit resets (Unix timestamp)
 
 ## 🤝 SUPPORT & RESOURCES
 
