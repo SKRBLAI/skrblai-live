@@ -240,32 +240,37 @@ export default function VideoUploadModal({
   };
 
   const sendToN8n = async (event: string, data: any) => {
-    if (!process.env.NEXT_PUBLIC_N8N_FREE_SCAN_URL) {
-      console.warn('N8N_FREE_SCAN_URL not configured, skipping n8n call');
-      return;
-    }
-
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_N8N_FREE_SCAN_URL, {
+      const response = await fetch('/api/scan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          event,
-          ...data,
-          timestamp: new Date().toISOString()
+          type: 'free-scan',
+          source: 'sports',
+          input: {
+            event,
+            ...data,
+            timestamp: new Date().toISOString()
+          }
         })
       });
 
       if (!response.ok) {
-        console.warn(`N8N webhook failed for ${event}:`, response.status, response.statusText);
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after');
+          console.warn(`Rate limited - retry after ${retryAfter} seconds`);
+          setError(`Too many requests. Please try again in ${retryAfter} seconds.`);
+        } else {
+          console.warn(`Scan API failed for ${event}:`, response.status, response.statusText);
+        }
       } else {
-        console.log(`Successfully sent ${event} to n8n`);
+        console.log(`Successfully sent ${event} to scan API`);
       }
     } catch (error) {
-      console.warn(`Error sending ${event} to n8n:`, error);
-      // Don't throw - n8n failures shouldn't break the UI
+      console.warn(`Error sending ${event} to scan API:`, error);
+      // Don't throw - API failures shouldn't break the UI
     }
   };
 
