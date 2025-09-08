@@ -35,13 +35,14 @@ export async function POST(request: NextRequest) {
         );
         break;
         
-      case 'set':
+      case 'set': {
         const count = Math.min(body.count || 3, 5); // Max 5 recommendations
         result = await percyRecommendationEngine.getRecommendationSet(
           recommendationContext, 
           count
         );
         break;
+      }
         
       default:
         result = await percyRecommendationEngine.generateRecommendation(

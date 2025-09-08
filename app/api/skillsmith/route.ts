@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// Initialize OpenAI client
+// Initialize OpenAI client with fallback
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'placeholder-key-for-build',
 });
 
 // ENFJ personality system prompt for Skill Smith
@@ -52,6 +52,14 @@ Remember: You're not just giving advice - you're building champions by developin
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if API key is available at runtime
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder-key-for-build') {
+      return NextResponse.json(
+        { error: 'OpenAI API key not configured' },
+        { status: 503 }
+      );
+    }
+
     const { messages, preferences } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {

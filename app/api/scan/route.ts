@@ -16,8 +16,8 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000); // Cleanup every 5 minutes
 
-function getClientIp(): string {
-  const headersList = headers();
+async function getClientIp(): Promise<string> {
+  const headersList = await headers();
   const forwardedFor = headersList.get('x-forwarded-for');
   const realIp = headersList.get('x-real-ip');
   const cfConnectingIp = headersList.get('cf-connecting-ip'); // Cloudflare
@@ -137,7 +137,9 @@ async function validateFileUrl(fileUrl: string): Promise<{ valid: boolean; error
 }
 
 export async function POST(req: NextRequest) {
-  const ip = getClientIp();
+  const ip = await getClientIp();
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || undefined;
   const rl = checkRate(ip);
   
   if (!rl.ok) {
@@ -198,7 +200,7 @@ export async function POST(req: NextRequest) {
       user_id: user?.id || null,
       email: user?.email || null,
       source: payload.source || 'sports',
-      user_agent: headers().get('user-agent') || undefined,
+      user_agent: userAgent,
       timestamp: new Date().toISOString()
     },
     input: payload.input || null,
