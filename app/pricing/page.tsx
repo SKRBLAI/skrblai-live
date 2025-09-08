@@ -25,6 +25,8 @@ import {
 } from '../../lib/pricing/catalog';
 import { BillingPeriod, ProductKey } from '../../lib/pricing/types';
 import CheckoutButton from '../../components/payments/CheckoutButton';
+import CosmicTile from '../../components/ui/CosmicTile';
+import AskPercy from '../../components/common/AskPercy';
 
 import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
 import PercyInlineChat from '../../components/percy/PercyInlineChat';
@@ -43,6 +45,26 @@ export default function PricingPage() {
   // Live metrics state
   const [metrics, setMetrics] = useState(liveMetrics);
   const [urgencyTimer, setUrgencyTimer] = useState(URGENCY_TIMER_INITIAL);
+  
+  // Prompt panel state for AskPercy event bridge
+  const [promptOpen, setPromptOpen] = useState(false);
+
+  // Event listener for AskPercy component
+  useEffect(() => {
+    const handleOpenPromptPanel = () => {
+      setPromptOpen(true);
+      // Scroll to the prompt panel
+      setTimeout(() => {
+        const promptElement = document.getElementById('ask-percy');
+        if (promptElement) {
+          promptElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    window.addEventListener('openPromptPanel', handleOpenPromptPanel);
+    return () => window.removeEventListener('openPromptPanel', handleOpenPromptPanel);
+  }, []);
 
 /*
 OLD HARDCODED PLANS - Now using pricingPlans from config
@@ -327,15 +349,20 @@ const socialProofMetrics = [
             </motion.p>
           </motion.div>
 
+          {/* AskPercy Component */}
+          <AskPercy className="mb-8" />
+
           {/* Inline Percy Chat */}
-          <PercyInlineChat
-            showAvatar={false}
-            className="mt-6 max-w-2xl mx-auto"
-            onSubmit={async ({ prompt, files }) => {
-              // TODO: Wire to telemetry or /api endpoints if desired
-              console.log('PercyInlineChat submit (pricing):', { prompt, filesCount: files.length });
-            }}
-          />
+          <div id="ask-percy">
+            <PercyInlineChat
+              showAvatar={false}
+              className="mt-6 max-w-2xl mx-auto"
+              onSubmit={async ({ prompt, files }) => {
+                // TODO: Wire to telemetry or /api endpoints if desired
+                console.log('PercyInlineChat submit (pricing):', { prompt, filesCount: files.length });
+              }}
+            />
+          </div>
 
           {/* Pricing Section with Integrated Toggle */}
           <motion.div
@@ -352,7 +379,7 @@ const socialProofMetrics = [
                 className=""
               />
             </div>
-            {/* Unified 4-Tier Pricing Cards */}
+            {/* Unified 4-Tier Pricing Cards using CosmicTile */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
               {(['ROOKIE', 'PRO', 'ALL_STAR', 'FRANCHISE'] as ProductKey[]).map((planKey, index) => {
                 const plan = getDisplayPlanOrNull(planKey, 'monthly');
@@ -366,21 +393,27 @@ const socialProofMetrics = [
                       transition={{ delay: 0.5 + index * 0.1 }}
                       className="relative group"
                     >
-                      <GlassmorphicCard className="p-8 h-full flex flex-col">
-                        <h3 className="text-xl font-bold text-white mb-2">{planKey}</h3>
-                        <p className="text-gray-400 text-sm">—</p>
-                        <div className="mt-auto">
+                      <CosmicTile
+                        title={planKey}
+                        subtitle="—"
+                        footer={
                           <button disabled className="w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed">
                             Coming Soon
                           </button>
-                        </div>
-                      </GlassmorphicCard>
+                        }
+                        disabled={true}
+                      />
                     </motion.div>
                   );
                 }
                 
                 const isPopular = planKey === 'PRO';
                 const isEnterprise = planKey === 'FRANCHISE';
+                const badge = isPopular ? '🏆 MOST POPULAR' : 
+                           isEnterprise ? '👑 ENTERPRISE' :
+                           planKey === 'ALL_STAR' ? '⭐ BEST VALUE' : undefined;
+                
+                const subtitle = isEnterprise ? 'Custom pricing' : '/month';
                 
                 return (
                   <motion.div
@@ -390,103 +423,13 @@ const socialProofMetrics = [
                     transition={{ delay: 0.5 + index * 0.1 }}
                     className="relative group"
                   >
-                    {/* Popular Badge */}
-                    {isPopular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.7 + index * 0.1, type: 'spring' }}
-                          className="px-4 py-2 rounded-full text-sm font-bold shadow-lg border border-white/20 bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse"
-                        >
-                          🏆 MOST POPULAR
-                        </motion.div>
-                      </div>
-                    )}
-                    
-                    {/* Cosmic Glow Effect */}
-                    <div className={`absolute inset-0 rounded-3xl blur-2xl transition-all duration-500 ${
-                      isPopular 
-                        ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 opacity-100'
-                        : isEnterprise 
-                        ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 opacity-0 group-hover:opacity-100'
-                        : 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100'
-                    }`} />
-                    
-                    <GlassmorphicCard className={`p-8 h-full flex flex-col transition-all duration-500 ${
-                      isPopular 
-                        ? 'ring-1 ring-yellow-400/20 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
-                        : isEnterprise 
-                        ? 'ring-1 ring-purple-400/20 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
-                        : 'ring-1 ring-teal-400/20 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
-                    }`}>
-                      {/* Plan Title */}
-                      <h3 className="text-xl sm:text-2xl font-bold text-electric-blue mb-2">
-                        {plan.name}
-                      </h3>
-                      
-                      {/* Subtitle */}
-                      {(plan as UnifiedDisplayPlan).subtitle && (
-                        <p className="text-sm text-gray-400 mb-4">
-                          {(plan as UnifiedDisplayPlan).subtitle}
-                        </p>
-                      )}
-                      
-                      {/* Price Section */}
-                      <div className="mb-6">
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ duration: 0.3, delay: 0.6 + index * 0.1 }}
-                          className="relative"
-                        >
-                          {isEnterprise ? (
-                            <div className="text-center">
-                              <span className="text-2xl sm:text-3xl font-bold text-white">
-                                Contact Us
-                              </span>
-                              <p className="text-gray-400 text-sm mt-1">
-                                Custom pricing
-                              </p>
-                            </div>
-                          ) : (
-                            <>
-                              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-                                {formatMoney(plan.amountCents, 'USD')}
-                              </span>
-                              <span className="text-gray-400 ml-1 text-sm">
-                                /month
-                              </span>
-                            </>
-                          )}
-                        </motion.div>
-                      </div>
-                      
-                      {/* Description */}
-                      <p className="text-sm text-gray-300 mb-6 font-medium leading-tight">
-                        {plan.blurb}
-                      </p>
-                      
-                      {/* Features List */}
-                      <ul className="space-y-2 mb-8 text-left flex-grow" role="list">
-                        {plan.features?.map((feature, idx) => (
-                          <li 
-                            key={idx}
-                            className="flex items-start text-gray-300 text-sm"
-                          >
-                            <span className="mr-2 text-base font-bold text-green-400" aria-hidden="true">
-                              ✓
-                            </span>
-                            <span className="flex-1 leading-tight">
-                              {feature}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                      
-                      {/* CTA Button */}
-                      <div className="mt-auto">
-                        {isEnterprise ? (
+                    <CosmicTile
+                      title={plan.name}
+                      subtitle={subtitle}
+                      badge={badge}
+                      bullets={plan.features || []}
+                      footer={
+                        isEnterprise ? (
                           <CosmicButton
                             href="/contact"
                             variant="outline"
@@ -496,20 +439,27 @@ const socialProofMetrics = [
                             Contact Sales <ExternalLink className="w-4 h-4 ml-2" />
                           </CosmicButton>
                         ) : (
-                          <CheckoutButton
-                            label="Get Started"
-                            sku={planKey}
-                            mode="subscription"
-                            vertical="business"
-                            className={`w-full font-bold text-sm transition-all duration-200 ${
-                              isPopular 
-                                ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white'
-                                : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-white'
-                            } py-3 px-4 rounded-lg shadow-lg hover:shadow-xl`}
-                          />
-                        )}
-                      </div>
-                    </GlassmorphicCard>
+                          <div className="space-y-3">
+                            <div className="text-center">
+                              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+                                {formatMoney(plan.amountCents, 'USD')}
+                              </span>
+                            </div>
+                            <CheckoutButton
+                              label="Get Started"
+                              sku={planKey}
+                              mode="subscription"
+                              vertical="business"
+                              className={`w-full font-bold text-sm transition-all duration-200 ${
+                                isPopular 
+                                  ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white'
+                                  : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-white'
+                              } py-3 px-4 rounded-lg shadow-lg hover:shadow-xl`}
+                            />
+                          </div>
+                        )
+                      }
+                    />
                   </motion.div>
                 );
               })}
@@ -527,15 +477,28 @@ const socialProofMetrics = [
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
                 ⚡ Power-ups & Add-ons
               </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-4">
                 Enhance any plan with specialized tools and capabilities
               </p>
+              <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-300 text-sm font-medium">
+                <span>💡</span>
+                Add-ons are optional. You can pick them now or later from your dashboard.
+              </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(['ADDON_SCANS_10', 'ADDON_MOE', 'ADDON_NUTRITION', 'ADDON_ADV_ANALYTICS', 'ADDON_AUTOMATION', 'ADDON_SEAT'] as ProductKey[]).map((addonKey, index) => {
                 const addon = getDisplayPlanOrNull(addonKey, 'monthly');
                 if (!addon) return null;
+                
+                // Determine scope badge based on addon type
+                const getScopeBadge = (key: string) => {
+                  if (key.includes('NUTRITION') || key.includes('SCANS')) return 'Sports';
+                  if (key.includes('ANALYTICS') || key.includes('AUTOMATION') || key.includes('SEAT')) return 'Business';
+                  return 'Both';
+                };
+                
+                const scopeBadge = getScopeBadge(addonKey);
                 
                 return (
                   <motion.div
@@ -546,9 +509,18 @@ const socialProofMetrics = [
                     className="group"
                   >
                     <GlassmorphicCard className="p-6 h-full flex flex-col hover:ring-1 hover:ring-cyan-400/30 transition-all duration-300">
-                      <h4 className="text-lg font-bold text-cyan-400 mb-2">
-                        {addon.name}
-                      </h4>
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-lg font-bold text-cyan-400 flex-1">
+                          {addon.name}
+                        </h4>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ml-2 ${
+                          scopeBadge === 'Sports' ? 'bg-orange-500/20 text-orange-300 border border-orange-400/30' :
+                          scopeBadge === 'Business' ? 'bg-green-500/20 text-green-300 border border-green-400/30' :
+                          'bg-purple-500/20 text-purple-300 border border-purple-400/30'
+                        }`}>
+                          {scopeBadge}
+                        </span>
+                      </div>
                       <p className="text-sm text-gray-400 mb-4 flex-grow">
                         {addon.blurb}
                       </p>

@@ -23,6 +23,7 @@ import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnbo
 import { Trophy, Zap, Target, Star, Users, BarChart3, Eye, ShoppingCart, X } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
 import { products } from '../../lib/config/skillsmithProducts';
+import AskPercy from '../../components/common/AskPercy';
 
 interface AnalysisResult {
   feedback: string;
@@ -106,6 +107,26 @@ export default function SportsPage(): JSX.Element {
 
   // Loading states for checkout buttons
   const [loadingCheckout, setLoadingCheckout] = useState<string | null>(null);
+  
+  // Prompt panel state for AskPercy event bridge
+  const [promptOpen, setPromptOpen] = useState(false);
+
+  // Event listener for AskPercy component
+  useEffect(() => {
+    const handleOpenPromptPanel = () => {
+      setPromptOpen(true);
+      // Scroll to the prompt panel
+      setTimeout(() => {
+        const promptElement = document.getElementById('ask-percy');
+        if (promptElement) {
+          promptElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    window.addEventListener('openPromptPanel', handleOpenPromptPanel);
+    return () => window.removeEventListener('openPromptPanel', handleOpenPromptPanel);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -335,6 +356,10 @@ export default function SportsPage(): JSX.Element {
                   <p className="text-gray-400 text-base max-w-2xl mx-auto mb-4">
                     These are optional upgrades you can add anytime.
                   </p>
+                  <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-4 py-2 text-cyan-300 text-sm font-medium mb-4">
+                    <span>💡</span>
+                    Add-ons are optional. You can pick them now or later from your dashboard.
+                  </div>
                   <p className="text-orange-200 text-sm max-w-2xl mx-auto">
                     Perfect for kids to adults! Get AI analysis, Mastery of Emotion (MOE), nutrition guidance, and foundational training.
                   </p>
@@ -427,9 +452,14 @@ export default function SportsPage(): JSX.Element {
                             <div className="absolute inset-0 w-16 h-16 mx-auto mb-4 bg-purple-400/20 rounded-full blur-xl" />
                           </motion.div>
                           
-                          <h3 className="text-xl font-bold text-white mb-3 group-hover:text-purple-200 transition-colors drop-shadow-lg">
-                            {product.title}
-                          </h3>
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-xl font-bold text-white group-hover:text-purple-200 transition-colors drop-shadow-lg flex-1">
+                              {product.title}
+                            </h3>
+                            <span className="bg-orange-500/20 text-orange-300 border border-orange-400/30 text-xs px-2 py-1 rounded-full font-medium ml-2">
+                              Sports
+                            </span>
+                          </div>
                           
                           {/* ADDED: Social proof indicator */}
                           <motion.div 
@@ -589,8 +619,8 @@ export default function SportsPage(): JSX.Element {
             </motion.section>
           )}
 
-          {/* Unified 4-Tier Pricing Section */}
-          {(userType === 'guest' || userType === 'auth') && (
+          {/* REMOVED: Duplicate pricing section - using PlansAndBundles component instead */}
+          {(userType === 'guest' || userType === 'auth') && false && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -729,11 +759,36 @@ export default function SportsPage(): JSX.Element {
             </motion.section>
           )}
 
-
-
           {/* Plans & Bundles - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
             <PlansAndBundles showLimitedOffer={true} />
+          )}
+
+          {/* AskPercy Component - Only for standalone users */}
+          {(userType === 'guest' || userType === 'auth') && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative mb-16"
+            >
+              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <AskPercy />
+                
+                {/* Inline Percy Chat with id for event bridge */}
+                <div id="ask-percy" className="mt-8">
+                  <div className="max-w-3xl mx-auto">
+                    {/* Placeholder for future Percy chat integration */}
+                    <div className="text-center p-6 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
+                      <p className="text-cyan-300 font-medium">
+                        💬 Percy chat integration coming soon - for now, use the contact form below!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           )}
 
           {/* Encouragement Footer - Only for standalone users */}
