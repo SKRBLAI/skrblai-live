@@ -71,6 +71,27 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 - **Competitive Analysis Engine** - Market intelligence
 - **Predictive Analytics** - Business forecasting
 
+## 🔧 API ENDPOINTS
+
+### **Environment & Health**
+- `GET /api/env-check` - Environment variable status and health check
+- `GET /api/health` - System health and uptime status
+
+### **Skill Smith Sports AI**
+- `POST /api/skillsmith` - Sports coaching chat API
+  - Rate limited: 20 messages/session (auth), 8 messages/session (guest)
+  - Fallback responses when OpenAI unavailable
+  - Configurable model via `OPENAI_MODEL` environment variable
+
+### **Authentication & User Management**
+- Supabase-powered authentication with proper client/server separation
+- Browser client: Only uses anon key (secure for client-side)
+- Server client: Uses service role key (server-side only)
+
+### **Pricing & Checkout**
+- `GET /checkout?plan=<id>` - Checkout page (Stripe integration pending)
+- Bundle redirects: `/bundle*` → `/sports#plans` (301 permanent)
+
 ## 📁 PROJECT STRUCTURE
 
 ```
@@ -104,6 +125,13 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 - **Reset Functionality** - Complete session management
 - **Mobile Optimized** - Responsive across all devices
 
+### **Skill Smith Sports AI**
+- **Real-time Performance Analysis** - AI-powered sports coaching
+- **Rate Limited Chat System** - 20 messages per session (authenticated), 8 for guests
+- **Fallback Error Handling** - Graceful degradation when OpenAI is unavailable
+- **Guest User Experience** - Free trial with upgrade prompts
+- **Mobile-First Design** - Touch-optimized chat interface
+
 ### **Agent Intelligence System**
 - **Autonomous Decision Making** - Agents work independently
 - **Collaborative Workflows** - Multi-agent coordination
@@ -135,16 +163,34 @@ npm install
 cp .env.example .env.local
 
 # Configure required variables:
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-4o-mini
+ENCRYPTION_SECRET=your-32-plus-character-random-encryption-secret
+NODE_ENV=development
+
+# Optional services:
+N8N_WEBHOOK_URL=https://your-n8n-endpoint
 RESEND_API_KEY=your_resend_key
-OPENAI_API_KEY=your_openai_key
-N8N_API_URL=your_n8n_url
-N8N_API_KEY=your_n8n_key
+
+# Stripe Configuration (for pricing):
+NEXT_PUBLIC_STRIPE_PRICE_ROOKIE=price_rookie_id
+NEXT_PUBLIC_STRIPE_PRICE_PRO=price_pro_id
+NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR=price_allstar_id
+NEXT_PUBLIC_STRIPE_PRICE_YEARLY=price_yearly_id
 ```
 
-3. **Launch Development Server**
+3. **Environment Verification**
+```bash
+# Check environment configuration
+curl http://localhost:3000/api/env-check
+
+# Or visit in browser: http://localhost:3000/api/env-check
+```
+
+4. **Launch Development Server**
 ```bash
 npm run dev
 ```

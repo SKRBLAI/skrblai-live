@@ -5,7 +5,10 @@ import type { NextRequest } from 'next/server';
 export const config = {
   matcher: [
     '/dashboard/:path*',
-    '/api/:path*'
+    '/api/:path*',
+    '/bundle/:path*',
+    '/bundles/:path*',
+    '/sports/bundle/:path*'
   ],
   runtime: 'experimental-edge'
 };
@@ -22,6 +25,15 @@ export async function middleware(request: NextRequest) {
   // Get URL info
   const url = request.nextUrl.clone();
   const path = url.pathname;
+
+  // Bundle redirect rules - redirect all bundle-related paths to /sports#plans
+  if (path.startsWith('/bundle') || 
+      path.startsWith('/bundles') || 
+      path.includes('/bundle')) {
+    console.log('[MIDDLEWARE] Redirecting bundle path to sports plans:', path);
+    const redirectUrl = new URL('/sports#plans', request.url);
+    return NextResponse.redirect(redirectUrl, 301); // Permanent redirect
+  }
   
   // Prevent redirect loops - never redirect from auth pages
   if (path === '/sign-in' || path.startsWith('/sign-in') || 

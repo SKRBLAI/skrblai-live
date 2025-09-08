@@ -27,56 +27,56 @@ export default function PricingCard({
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePurchase = async () => {
+    // Analytics stub
+    console.log('event:pricing_cta_click', { 
+      plan: plan.id, 
+      billingPeriod, 
+      price: plan.monthlyPrice 
+    });
+
     if (plan.monthlyPrice === 0) {
       // Free plan - redirect to sign up
       window.location.href = '/sign-up?plan=free';
       return;
     }
 
-    setIsLoading(true);
+    // For now, redirect to checkout page with plan parameter
+    const planId = plan.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const checkoutUrl = `/checkout?plan=${planId}&period=${billingPeriod}`;
     
-    try {
-      // Get the current price based on billing period
-      const periodKey = (billingPeriod === 'monthly' || billingPeriod === 'annual') ? billingPeriod : 'monthly';
-      const priceId = plan.stripePriceIds?.[periodKey];
-      
-      if (!priceId || priceId.includes('price_') && priceId.includes('_monthly')) {
-        // Stripe price IDs not configured - redirect to sign up for now
-        console.log('Stripe price IDs not configured, redirecting to sign up');
-        const planHref = plan.href[periodKey];
-        window.location.href = planHref;
-        return;
-      }
+    console.log('Redirecting to checkout:', checkoutUrl);
+    window.location.href = checkoutUrl;
 
-      // For demo purposes, using placeholder user data
-      // TODO: Replace with actual user data from auth context
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId,
-          userId: 'demo-user', // TODO: Replace with actual user ID from auth
-          email: 'user@example.com', // TODO: Replace with actual user email
-          successUrl: `${window.location.origin}/dashboard?success=true&plan=${plan.id}`,
-          cancelUrl: window.location.href
-        })
-      });
-
-      const { url, error } = await response.json();
-      
-      if (error) {
-        throw new Error(error);
-      }
-
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      toast.error(`Checkout failed: ${error.message}`);
-    } finally {
-      setIsLoading(false);
-    }
+    // TODO: Implement full Stripe integration
+    // setIsLoading(true);
+    // 
+    // try {
+    //   const response = await fetch('/api/stripe/create-checkout-session', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       planId: plan.id,
+    //       billingPeriod,
+    //       successUrl: `${window.location.origin}/checkout/success`,
+    //       cancelUrl: `${window.location.origin}/checkout/cancel`
+    //     })
+    //   });
+    //
+    //   const { url, error } = await response.json();
+    //   
+    //   if (error) {
+    //     throw new Error(error);
+    //   }
+    //
+    //   if (url) {
+    //     window.location.href = url;
+    //   }
+    // } catch (error: any) {
+    //   console.error('Checkout error:', error);
+    //   toast.error(`Checkout failed: ${error.message}`);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
   const displayPlan = getDisplayPlanOrNull(plan.id as any, billingPeriod);
   if (!displayPlan) {
