@@ -1,283 +1,229 @@
+'use client';
+
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
-import { PricingPlan, getBadgeText, getCTAText, getHref } from '../../lib/config/pricing';
-import type { BillingPeriod } from '../../lib/pricing/types';
-import { getDisplayPlan, getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
-import CosmicButton from '../shared/CosmicButton';
-import { Check, Crown, Zap, Star, Rocket, ArrowRight } from 'lucide-react';
-import CardShell from '../ui/CardShell';
+import { motion } from 'framer-motion';
+import { Check, Star, Crown, Zap, ShoppingCart } from 'lucide-react';
+import { PricingItem, formatPrice, calculateSavings, getBadgeText, getCategoryColor } from '../../lib/sports/pricingData';
+import { getCardClass, getButtonClass, cn } from '../../styles/ui';
 
 interface PricingCardProps {
-  plan: PricingPlan;
-  billingPeriod: BillingPeriod;
-  isHighlighted?: boolean;
-  animationDelay?: number;
+  item: PricingItem;
+  onPurchase?: (item: PricingItem) => void;
   className?: string;
+  animationDelay?: number;
 }
 
 export default function PricingCard({ 
-  plan, 
-  billingPeriod, 
-  isHighlighted = false,
-  animationDelay = 0,
-  className = ''
+  item, 
+  onPurchase,
+  className = '',
+  animationDelay = 0
 }: PricingCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const savings = calculateSavings(item);
+  const badgeText = getBadgeText(item.badge);
+  const categoryGradient = getCategoryColor(item.category);
 
   const handlePurchase = async () => {
-    if (plan.monthlyPrice === 0) {
-      // Free plan - redirect to sign up
-      window.location.href = '/sign-up?plan=free';
-      return;
-    }
-
-    setIsLoading(true);
+    if (isLoading) return;
     
+    setIsLoading(true);
     try {
-      // Get the current price based on billing period
-      const periodKey = (billingPeriod === 'monthly' || billingPeriod === 'annual') ? billingPeriod : 'monthly';
-      const priceId = plan.stripePriceIds?.[periodKey];
-      
-      if (!priceId || priceId.includes('price_') && priceId.includes('_monthly')) {
-        // Stripe price IDs not configured - redirect to sign up for now
-        console.log('Stripe price IDs not configured, redirecting to sign up');
-        const planHref = plan.href[periodKey];
-        window.location.href = planHref;
-        return;
-      }
-
-      // For demo purposes, using placeholder user data
-      // TODO: Replace with actual user data from auth context
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId,
-          userId: 'demo-user', // TODO: Replace with actual user ID from auth
-          email: 'user@example.com', // TODO: Replace with actual user email
-          successUrl: `${window.location.origin}/dashboard?success=true&plan=${plan.id}`,
-          cancelUrl: window.location.href
-        })
-      });
-
-      const { url, error } = await response.json();
-      
-      if (error) {
-        throw new Error(error);
-      }
-
-      if (url) {
-        window.location.href = url;
-      }
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      toast.error(`Checkout failed: ${error.message}`);
+      onPurchase?.(item);
     } finally {
       setIsLoading(false);
     }
   };
-  const displayPlan = getDisplayPlanOrNull(plan.id as any, billingPeriod);
-  if (!displayPlan) {
-    // Return minimal card without pricing if plan not found
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: animationDelay }}
-        className={`relative group ${className}`}
-      >
-        <CardShell className="p-8 h-full flex flex-col">
-          <h3 className="text-xl font-bold text-white mb-2">{plan.title}</h3>
-          <p className="text-gray-400 text-sm">Coming soon...</p>
-        </CardShell>
-      </motion.div>
-    );
-  }
-  const formattedPrice = formatMoney(displayPlan.amountCents, 'USD');
-  const compareAtCents = displayPlan.compareAtCents;
-  const savingsAmount = compareAtCents ? compareAtCents - displayPlan.amountCents : 0;
-  const badgeText = getBadgeText(plan, billingPeriod);
-  const ctaText = getCTAText(plan, billingPeriod);
-  const href = getHref(plan, billingPeriod);
-  
-  const showSavings = billingPeriod === 'annual' && savingsAmount > 0;
-  
+
+  const getBadgeIcon = () => {
+    switch (item.badge) {
+      case 'popular':
+        return <Star className="w-3 h-3" />;
+      case 'best-value':
+        return <Crown className="w-3 h-3" />;
+      case 'new':
+        return <Zap className="w-3 h-3" />;
+      default:
+        return null;
+    }
+  };
+
+  const getBadgeColor = () => {
+    switch (item.badge) {
+      case 'popular':
+        return 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white';
+      case 'best-value':
+        return 'bg-gradient-to-r from-green-400 to-emerald-500 text-white';
+      case 'new':
+        return 'bg-gradient-to-r from-purple-400 to-pink-500 text-white';
+      default:
+        return 'bg-slate-600 text-slate-200';
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: animationDelay }}
-      className={`relative group ${className}`}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: animationDelay }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      className={cn('relative group', className)}
     >
-      {/* Popular/Best Value Badge */}
-      {(plan.isPopular || (plan.isBestValue && billingPeriod === 'annual')) && (
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
+      {/* Badge */}
+      {item.badge && (
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: animationDelay + 0.2, type: 'spring' }}
-            className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg border border-white/20 ${
-              plan.isBestValue && billingPeriod === 'annual'
-                ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-white animate-pulse'
-                : 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white animate-pulse'
-            }`}
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: animationDelay + 0.3, type: 'spring', stiffness: 200 }}
+            className={cn(
+              'flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white/20',
+              getBadgeColor()
+            )}
           >
-            🏆 {badgeText.toUpperCase()}
+            {getBadgeIcon()}
+            <span>{badgeText.toUpperCase()}</span>
           </motion.div>
         </div>
       )}
-      
-      {/* Cosmic Glow Effect */}
-      <div className={`absolute inset-0 rounded-3xl blur-2xl transition-all duration-500 ${
-        plan.isPopular 
-          ? 'bg-gradient-to-r from-yellow-500/30 to-orange-500/30 opacity-100'
-          : plan.isEnterprise 
-          ? 'bg-gradient-to-r from-purple-500/30 to-pink-500/30 opacity-0 group-hover:opacity-100'
-          : 'bg-gradient-to-r from-teal-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100'
-      }`} />
-      
-      {/* Main Cosmic Card */}
-      <CardShell className={`p-8 h-full flex flex-col transition-all duration-500 ${
-        plan.isPopular 
-          ? 'ring-1 ring-yellow-400/20 shadow-[0_0_60px_rgba(251,191,36,0.4)]'
-          : plan.isEnterprise 
-          ? 'ring-1 ring-purple-400/20 shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5)]'
-          : 'ring-1 ring-teal-400/20 shadow-[0_0_30px_rgba(45,212,191,0.3)] hover:shadow-[0_0_60px_rgba(45,212,191,0.4)]'
-      }`}>
-        {/* Agent Count Indicator */}
-        <div className="absolute top-2 right-2">
-          <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 px-2 py-1 rounded-full border border-cyan-400/30">
-            <span className="text-cyan-400 text-xs font-bold" aria-label={`${plan.agentCount} AI agents included`}>
-              {plan.agentCount} Agents
-            </span>
-          </div>
+
+      <div className={cn(
+        getCardClass('base'),
+        'p-6 h-full flex flex-col relative overflow-hidden',
+        item.badge === 'popular' && 'ring-2 ring-yellow-400/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]',
+        item.badge === 'best-value' && 'ring-2 ring-green-400/50 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
+      )}>
+        {/* Category Icon & Gradient */}
+        <div className="absolute top-0 right-0 w-20 h-20 opacity-10">
+          <div className={cn('w-full h-full bg-gradient-to-br rounded-bl-full', categoryGradient)} />
         </div>
 
-        {/* Plan Badge */}
-        {plan.badges?.primary && (
-          <div className="mb-3">
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs text-electric-blue bg-electric-blue/10 rounded-full border border-electric-blue/30">
-              <span className="text-sm" role="img" aria-label={plan.title}>
-                {plan.icon}
-              </span>
-              {plan.badges.primary}
-            </span>
+        {/* Header */}
+        <div className="relative z-10 mb-4">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2">
+              {item.icon && <span className="text-2xl">{item.icon}</span>}
+              <div>
+                <h3 className="text-xl font-bold text-white">{item.title}</h3>
+                {item.subtitle && (
+                  <p className="text-sm text-slate-400">{item.subtitle}</p>
+                )}
+              </div>
+            </div>
+            <div className={cn(
+              'px-2 py-1 rounded-full text-xs font-medium border',
+              `bg-gradient-to-r ${categoryGradient} bg-opacity-20 border-current text-white`
+            )}>
+              {item.category}
+            </div>
           </div>
-        )}
-        
-        {/* Plan Title */}
-        <h3 className="text-xl sm:text-2xl font-bold text-electric-blue mb-2">
-          {plan.title}
-        </h3>
-        
-        {/* Price Section */}
-        <div className="mb-3">
-          <motion.div
-            key={`${plan.id}-${billingPeriod}-${formattedPrice}`}
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="relative"
-          >
-            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
-              {formattedPrice}
-            </span>
-            {!plan.isFree && (
-              <span className="text-gray-400 ml-1 text-sm">
-                {billingPeriod === 'annual' ? ' billed annually' : '/month'}
+
+          <p className="text-sm text-slate-300 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+
+        {/* Price */}
+        <div className="relative z-10 mb-6">
+          <div className="flex items-baseline gap-2">
+            {item.originalPrice && (
+              <span className="text-lg text-slate-500 line-through">
+                {formatPrice(item.originalPrice)}
               </span>
             )}
-          </motion.div>
+            <span className="text-3xl font-bold text-white">
+              {formatPrice(item.price)}
+            </span>
+            {item.period && item.period !== 'one-time' && (
+              <span className="text-slate-400 text-sm">
+                /{item.period === 'annual' ? 'year' : 'month'}
+              </span>
+            )}
+          </div>
           
-          {/* Savings Indicator */}
-          {showSavings && (
+          {savings > 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               className="mt-2"
             >
-              <span className="inline-block px-2 py-1 text-xs text-green-400 bg-green-400/10 rounded-full border border-green-400/30 font-bold">
-                💰 Save ${savingsAmount} per year
+              <span className="inline-block px-2 py-1 text-xs font-bold text-green-400 bg-green-400/10 rounded-full border border-green-400/30">
+                💰 Save {formatPrice(savings)}
               </span>
             </motion.div>
           )}
-        </div>
-        
-        {/* Description */}
-        <p className="text-sm text-gray-300 mb-4 font-medium leading-tight">
-          {plan.description}
-        </p>
-        
-        {/* Features List */}
-        <ul className="space-y-1.5 mb-6 text-left" role="list">
-          {plan.features.map((feature, idx) => (
-            <li 
-              key={`${feature.name}-${idx}`} 
-              className="flex items-start text-gray-300 text-sm"
-              title={feature.tooltip}
-            >
-              <span 
-                className={`mr-2 text-base font-bold ${
-                  feature.included ? 'text-green-400' : 'text-gray-500'
-                }`}
-                aria-hidden="true"
-              >
-                {feature.included ? '✓' : '✗'}
-              </span>
-              <span 
-                className={`flex-1 leading-tight ${
-                  feature.included ? 'text-gray-300' : 'text-gray-500'
-                }`}
-              >
-                {feature.name}
-              </span>
-            </li>
-          ))}
-        </ul>
-        
-        {/* CTA Button */}
-        <CosmicButton
-          variant={plan.isEnterprise ? 'outline' : plan.isPopular ? 'primary' : 'secondary'}
-          size="md"
-          onClick={handlePurchase}
-          disabled={isLoading}
-          className={`w-full font-bold text-sm transition-all duration-200 ${
-            isHighlighted || plan.isPopular ? 'animate-pulse' : ''
-          } ${
-            plan.isEnterprise ? 'hover:bg-purple-500/20 border-purple-400' : ''
-          } ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-          aria-label={`${ctaText} - ${plan.title} plan`}
-        >
-          {isLoading ? 'Processing...' : `${ctaText} ${plan.icon}`}
-        </CosmicButton>
-        
-        {/* Additional Badges */}
-        {plan.isPopular && !plan.isBestValue && (
-          <div className="mt-2">
-            <span className="inline-block px-2 py-1 text-xs text-yellow-400 bg-yellow-400/10 rounded-full border border-yellow-400/30">
-              💰 Revenue Accelerator
-            </span>
-          </div>
-        )}
 
-        {plan.isEnterprise && (
-          <div className="mt-2">
-            <span className="inline-block px-2 py-1 text-xs text-purple-400 bg-purple-400/10 rounded-full border border-purple-400/30">
-              👑 Enterprise Arsenal
-            </span>
-          </div>
-        )}
-        
-        {/* Task Limit & Support Info */}
-        <div className="mt-4 pt-4 border-t border-gray-700/50 text-xs text-gray-400 space-y-1">
-          <div>Tasks: {plan.taskLimit}</div>
-          <div>Support: {plan.support}</div>
+          {item.period === 'annual' && (
+            <p className="text-xs text-slate-400 mt-1">
+              {formatPrice(Math.round(item.price / 12))}/month billed annually
+            </p>
+          )}
         </div>
-      </CardShell>
+
+        {/* Features */}
+        <div className="relative z-10 flex-1 mb-6">
+          <ul className="space-y-2">
+            {item.features.map((feature, index) => (
+              <li key={index} className="flex items-start gap-2 text-sm text-slate-300">
+                <Check className="w-4 h-4 text-green-400 flex-shrink-0 mt-0.5" />
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* CTA Button */}
+        <div className="relative z-10">
+          <button
+            onClick={handlePurchase}
+            disabled={isLoading}
+            className={cn(
+              getButtonClass('primary'),
+              'w-full flex items-center justify-center gap-2 text-base font-bold relative overflow-hidden',
+              isLoading && 'opacity-50 cursor-not-allowed',
+              item.badge === 'popular' && 'animate-pulse'
+            )}
+          >
+            {/* Shimmer effect for popular items */}
+            {item.badge === 'popular' && (
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                animate={{
+                  x: [-100, 300],
+                  opacity: [0, 1, 0]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  repeatDelay: 3
+                }}
+              />
+            )}
+            
+            <ShoppingCart className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">
+              {isLoading ? 'Processing...' : 
+               item.type === 'addon' ? 'Get Add-On' : 'Start Plan'}
+            </span>
+          </button>
+
+          {/* Trust indicators */}
+          <div className="flex justify-center gap-4 mt-3 text-xs text-slate-500">
+            <span className="flex items-center gap-1">
+              ⚡ Instant access
+            </span>
+            <span className="flex items-center gap-1">
+              🔒 Secure payment
+            </span>
+            {item.type === 'subscription' && (
+              <span className="flex items-center gap-1">
+                🔄 Cancel anytime
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }

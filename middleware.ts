@@ -23,6 +23,13 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname;
   
+  // Redirect bundle routes to sports page with plans anchor
+  if (path.includes('/bundle') || path.includes('/bundles')) {
+    const sportsUrl = new URL('/sports', request.url);
+    sportsUrl.hash = '#plans';
+    return NextResponse.redirect(sportsUrl);
+  }
+  
   // Prevent redirect loops - never redirect from auth pages
   if (path === '/sign-in' || path.startsWith('/sign-in') || 
       path === '/sign-up' || path.startsWith('/sign-up') ||
