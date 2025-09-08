@@ -39,8 +39,8 @@ export default function SkillSmithChat({ className }: SkillSmithChatProps) {
       handleSendMessage(userMessage);
     };
 
-    window.addEventListener('skillsmith-prompt', handlePromptEvent as EventListener);
-    return () => window.removeEventListener('skillsmith-prompt', handlePromptEvent as EventListener);
+    window.addEventListener('skillsmith-prompt', handlePromptEvent as any);
+    return () => window.removeEventListener('skillsmith-prompt', handlePromptEvent as any);
   }, []);
 
   // Auto-scroll to bottom

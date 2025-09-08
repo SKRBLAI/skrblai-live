@@ -220,7 +220,7 @@ export default function MetricsStrip({
                     )}>
                       {metric.prefix}{formatNumber(metric.value)}{metric.suffix}
                     </span>
-                  </div>
+                  </motion.div>
 
                   {/* Label */}
                   <p className="text-xs font-medium text-slate-300 leading-tight">
