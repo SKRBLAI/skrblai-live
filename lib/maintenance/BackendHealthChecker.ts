@@ -65,10 +65,16 @@ export class BackendHealthChecker {
   private maintenanceTasks: Map<string, MaintenanceTask> = new Map();
   
   constructor() {
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // Initialize Supabase only if environment variables are available
+    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      this.supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+    } else {
+      this.supabase = null;
+      console.warn('[Backend Health] Supabase not configured - some health checks will be skipped');
+    }
     
     this.initializeMaintenanceTasks();
   }
@@ -720,6 +726,26 @@ export class BackendHealthChecker {
 
   // Placeholder implementations for remaining checks
   private async checkSupabaseConnection(): Promise<HealthCheckResult> {
+    if (!this.supabase) {
+      return {
+        component: 'Supabase Connection',
+        status: 'warning',
+        responseTime: 0,
+        lastChecked: new Date(),
+        issues: [{
+          severity: 'medium',
+          category: 'functionality',
+          description: 'Supabase not configured',
+          impact: 'Database functionality may be limited',
+          resolution: 'Configure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables',
+          autoFixable: false,
+          estimatedFixTime: 5
+        }],
+        metrics: { connectionStatus: 'not_configured' },
+        recommendations: ['Configure Supabase environment variables']
+      };
+    }
+    
     return {
       component: 'Supabase Connection',
       status: 'healthy',

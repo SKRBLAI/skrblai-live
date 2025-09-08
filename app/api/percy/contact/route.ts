@@ -4,7 +4,7 @@ import { Resend } from 'resend';
 import twilio from 'twilio';
 
 // Initialize services
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN 
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
   : null;
@@ -119,8 +119,8 @@ async function sendTwilioVoice(phone: string, message: string) {
 async function sendResendEmail(email: string, subject: string, message: string) {
   console.log(`[Percy Contact] Attempting email to ${email.replace(/(.{3}).*@/, '$1***@')}`);
   
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('[Percy Contact] Resend API key not configured - using mock mode');
+  if (!resend) {
+    console.warn('[Percy Contact] Resend not configured - using mock mode');
     return { 
       success: true, 
       messageId: `mock_email_${Date.now()}`,

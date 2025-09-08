@@ -1,10 +1,10 @@
 // Client-safe Percy analytics - NO SERVICE KEY
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createSafeSupabaseClient } from '../supabase/client';
 
-// This file is used on the client side only, so we should use createClientComponentClient
+// This file is used on the client side only, so we should use createSafeSupabaseClient
 // which handles client-side initialization properly
 
-const supabase = createClientComponentClient();
+const supabase = createSafeSupabaseClient();
 
 export interface PercyConversationEvent {
   event_type: 'conversation_start' | 'step_completed' | 'step_abandoned' | 'lead_captured' | 'agent_selected';

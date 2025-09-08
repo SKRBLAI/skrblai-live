@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createSafeSupabaseClient } from '../../../lib/supabase/client';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function SignInPage() {
@@ -17,7 +17,7 @@ export default function SignInPage() {
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const reason = searchParams.get('reason');
-  const supabase = createClientComponentClient();
+  const supabase = createSafeSupabaseClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +25,11 @@ export default function SignInPage() {
     setError('');
 
     try {
+      if (!supabase || typeof supabase.auth?.signInWithPassword !== 'function') {
+        setError('Authentication service is not available. Please try again later.');
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,

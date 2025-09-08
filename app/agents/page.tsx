@@ -13,6 +13,7 @@ import { useAuth } from '../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import ErrorBoundary from '../../components/layout/ErrorBoundary';
+import { routeForAgent } from '../../lib/agents/routes';
 
 // Enhanced Agent type with access control
 interface EnhancedAgent extends SafeAgent {
@@ -153,7 +154,7 @@ export default function AgentsPage() {
 
   // Agent interaction handlers - All route to unified agent page
   const handleAgentInfo = (agent: SafeAgent) => {
-    router.push(`/agents/${agent.id}`);
+    router.push(routeForAgent(agent.id));
   };
 
   const handleAgentChat = (agent: SafeAgent) => {
@@ -162,7 +163,7 @@ export default function AgentsPage() {
       return;
     }
     // Route to unified page with chat tab active
-    router.push(`/agents/${agent.id}?tab=chat`);
+    router.push(`${routeForAgent(agent.id)}?tab=chat`);
   };
 
   const handleAgentLaunch = (agent: SafeAgent) => {
@@ -170,7 +171,7 @@ export default function AgentsPage() {
       toast.error('Please sign in to launch premium agents');
       return;
     }
-    router.push(`/agents/${agent.id}`);
+    router.push(routeForAgent(agent.id));
   };
 
   const handleSearch = (term: string) => {

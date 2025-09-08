@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { SafeAgent } from '@/types/agent';
 import { agentBackstories } from '../../../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../../../utils/agentUtils';
+import { routeForAgent } from '../../../../../lib/agents/routes';
 import GlassmorphicCard from '../../../../shared/GlassmorphicCard';
 import CosmicButton from '../../../../shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
@@ -343,7 +344,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   };
 
   const handleViewBackstory = () => {
-    router.push(`/agents/${agent.id}`);
+    router.push(routeForAgent(agent.id));
   };
 
   return (
