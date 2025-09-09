@@ -7,7 +7,7 @@ import { useDashboardAuth } from '../../hooks/useDashboardAuth';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
-import SkillSmithHero from '../../components/sports/SkillSmithHero';
+import UnifiedSportsHero from '../../components/sports/UnifiedSportsHero';
 import PricingGrid from '../../components/pricing/PricingGrid';
 import MetricsStrip from '../../components/sports/MetricsStrip';
 import IntakeSheet from '../../components/sports/IntakeSheet';
@@ -205,8 +205,18 @@ export default function SportsPage(): JSX.Element {
         
         {/* Main Content */}
         <div className="relative z-10 pt-8">
-          {/* Skill Smith Hero - Replaces Percy Block */}
-          <SkillSmithHero
+          {/* Unified Sports Hero */}
+          <UnifiedSportsHero
+            headline="Master Your Sport with"
+            highlight="AI Skill Smith"
+            subhead="Upload your game footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
+            keywords={["Analysis","Mental Health","Nutrition","Training Plans"]}
+            images={[
+              { src: "/skillsmith/soccer.png",     alt: "Skill Smith in soccer gear" },
+              { src: "/skillsmith/basketball.png", alt: "Skill Smith in basketball gear" },
+              { src: "/skillsmith/baseball.png",   alt: "Skill Smith in baseball gear" },
+              { src: "/skillsmith/tennis.png",     alt: "Skill Smith in tennis gear" },
+            ]}
             onUploadClick={handleUploadClick}
             onSampleAnalysisClick={handleSampleAnalysisClick}
             onParentPortalClick={handleParentPortalClick}

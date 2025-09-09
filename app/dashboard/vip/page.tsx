@@ -58,9 +58,6 @@ export default function VIPDashboard() {
     }
   }, [vipStatus, user, isLoading, router]);
 
-  if (isLoading) return <Spinner />;
-  if (!user || !vipStatus?.isVIP) return null;
-  
   const [vipTier, setVipTier] = useState<'gold' | 'platinum' | 'diamond'>('diamond'); // Demo with Diamond
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -72,6 +69,9 @@ export default function VIPDashboard() {
     const timer = setTimeout(() => setShowWelcomeAnimation(false), 3000);
     return () => clearTimeout(timer);
   }, []);
+
+  if (isLoading) return <Spinner />;
+  if (!user || !vipStatus?.isVIP) return null;
 
   const vipStats = [
     { label: 'AI Agents Deployed', value: '47', trend: '+12%', icon: <Users className="w-5 h-5" /> },
