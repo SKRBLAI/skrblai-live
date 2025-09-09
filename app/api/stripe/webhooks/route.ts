@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { requireStripe } from '@/lib/stripe/stripe';
 import { withSafeJson } from '@/lib/api/safe';
+import { logger } from '@/lib/observability/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -25,7 +26,11 @@ export const POST = withSafeJson(async (req: Request) => {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
-  console.log(`Processing webhook event: ${event.type}`);
+  logger.info('Stripe webhook received', {
+    eventType: event.type,
+    eventId: event.id,
+    livemode: event.livemode
+  });
 
   const supabase = getOptionalServerSupabase();
   if (!supabase) {
