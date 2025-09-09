@@ -1,5 +1,16 @@
-// Shared UI styles and tokens for consistent design across components
-// SDM color scheme: Neon green accents + Glassmorphism
+// styles/ui.ts — design tokens (merged)
+export const btnPrimary   = 'inline-flex items-center justify-center rounded-xl px-4 py-2 font-semibold bg-gradient-to-r from-violet-500 to-emerald-400 text-white hover:opacity-90 transition';
+export const btnGhost     = 'inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 transition';
+export const cardBase     = 'rounded-3xl border border-white/10 bg-black/30 backdrop-blur';
+export const cardGlass    = 'rounded-3xl border border-white/10 bg-white/5 backdrop-blur';
+export const cardNeon     = 'rounded-3xl border border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_40px_-10px_rgba(16,185,129,.6)]';
+export const containerPad = 'px-4 sm:px-6 lg:px-8';
+
+// Fluid type + hero helpers
+export const h1ClampStrong = 'text-[clamp(1.8rem,4.6vw,3.2rem)] font-extrabold leading-tight';
+export const h2ClampSub    = 'text-[clamp(1rem,2.6vw,1.25rem)] text-white/70 leading-relaxed';
+export const chip          = 'rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[13px] md:text-sm backdrop-blur';
+export const heroCard      = 'rounded-3xl border border-white/10 bg-black/30 shadow-[0_0_40px_-10px_rgba(0,255,120,0.25)]';
 
 export const colors = {
   // SDM Brand Colors

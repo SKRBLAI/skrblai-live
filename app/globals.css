@@ -10,7 +10,21 @@
 @layer base {
   /* ensure hero never hides under navbar */
   :root { 
-    scroll-padding-top: 7rem; 
+    scroll-padding-top: 7rem;
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe { 
+    padding-top: max(1rem, var(--safe-top)); 
+  }
+  
+  .pb-safe { 
+    padding-bottom: max(1rem, var(--safe-bottom)); 
+  }
+  
+  * { 
+    min-width: 0; 
   }
 
   html, body {
