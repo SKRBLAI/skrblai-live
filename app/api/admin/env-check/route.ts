@@ -12,7 +12,7 @@ const ENV_CATEGORIES: Record<string, string[]> = {
   AUTH: ["NEXTAUTH_URL", "NEXTAUTH_SECRET"],
   STRIPE: ["NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
   OPENAI: ["OPENAI_API_KEY"],
-  N8N: ["N8N_BUSINESS_ONBOARDING_URL"],
+  N8N: ["N8N_BUSINESS_ONBOARDING_URL", "N8N_WEBHOOK_FREE_SCAN", "N8N_API_KEY"],
   ANALYTICS: ["NEXT_PUBLIC_GOOGLE_ANALYTICS_ID"],
   OPTIONAL: ["NEXT_PUBLIC_SITE_URL", "IRA_ALLOWED_EMAILS"],
 };
@@ -25,6 +25,7 @@ function getEnvPresence() {
       result[group][key] = Boolean(process.env[key]);
     }
   }
+  
   // Add PRICE_* keys if present
   Object.keys(process.env).forEach(key => {
     if (key.startsWith('PRICE_')) {
@@ -32,6 +33,12 @@ function getEnvPresence() {
       result.PRICING[key] = true;
     }
   });
+  
+  // Check for deprecated/removed environment variables (should be false)
+  result.DEPRECATED = {
+    'NEXT_PUBLIC_N8N_FREE_SCAN_URL': Boolean(process.env.NEXT_PUBLIC_N8N_FREE_SCAN_URL)
+  };
+  
   return result;
 }
 

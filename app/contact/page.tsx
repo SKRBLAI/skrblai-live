@@ -14,6 +14,8 @@ import { MessageCircle, Rocket, TrendingUp, Users, Zap, Clock, Star, Crown, Doll
 import SkrblAiText from '../../components/shared/SkrblAiText';
 import PercyInlineChat from '@/components/percy/PercyInlineChat';
 import CardShell from '../../components/ui/CardShell';
+import CosmicTile from '../../components/ui/CosmicTile';
+import AskPercy from '../../components/common/AskPercy';
 
 // Live contact metrics simulation
 const useLiveContactMetrics = () => {
@@ -129,6 +131,26 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  
+  // Prompt panel state for AskPercy event bridge
+  const [promptOpen, setPromptOpen] = useState(false);
+
+  // Event listener for AskPercy component
+  useEffect(() => {
+    const handleOpenPromptPanel = () => {
+      setPromptOpen(true);
+      // Scroll to the prompt panel
+      setTimeout(() => {
+        const promptElement = document.getElementById('ask-percy');
+        if (promptElement) {
+          promptElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    };
+
+    window.addEventListener('openPromptPanel', handleOpenPromptPanel);
+    return () => window.removeEventListener('openPromptPanel', handleOpenPromptPanel);
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -461,73 +483,56 @@ export default function ContactPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 + 0.9 }}
-                    whileHover={{ 
-                      scale: 1.05, 
-                      y: -10,
-                      boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 60px 15px rgba(147,51,234,0.4)'
-                    }}
-                    onClick={() => handleQuickContact(option)}
-                    className={`relative group cursor-pointer transition-all duration-300 ${
-                      selectedOption === option.action ? 'ring-4 ring-cyan-400/50' : ''
+                    className={`relative ${
+                      selectedOption === option.action ? 'ring-4 ring-cyan-400/50 rounded-2xl' : ''
                     }`}
                   >
-                    <CardShell className="h-full p-6 relative overflow-hidden">
-                  {/* Live Activity Badge */}
-                  <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 font-bold">{option.liveActivity.users}</span>
-                  </div>
-                  
-                  {/* Problem Header */}
-                  <div className="flex flex-col items-center mb-2">
-                    <div className={`p-3 rounded-lg bg-gradient-to-r ${option.color} shadow-glow mb-2 group-hover:scale-110 transition-transform`}>
-                      {option.icon}
-                    </div>
-                    <h3 className="text-xl font-bold text-white min-h-[2.5rem] break-words text-center mb-1">
-                      {option.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm text-center mb-2">
-                      {option.priority} Priority
-                    </p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-gray-300 mb-4 line-clamp-2 text-center">
-                    {option.description}
-                  </p>
-
-                  {/* Separated Stat Block (Premium Style) */}
-                  <div className="mt-auto pt-4 border-t border-cyan-400/20">
-                    <div className="flex flex-row gap-6 justify-center">
-                      <div className="flex flex-col items-center">
-                        <span className="text-lg font-bold text-green-400">{option.urgency}</span>
-                        <span className="text-xs text-gray-400">Response</span>
+                    <div className="relative">
+                      {/* Live Activity Badge in top-right */}
+                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/40 px-2 py-1 rounded-full text-xs z-20">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-green-400 font-bold">{option.liveActivity.users}</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-lg font-bold text-cyan-400">{option.valueProposition}</span>
-                        <span className="text-xs text-gray-400">Value</span>
-                      </div>
+                      
+                      <CosmicTile
+                        title={option.title}
+                        subtitle={`${option.priority} Priority`}
+                        icon={option.icon}
+                        bullets={[option.description]}
+                        onClick={() => handleQuickContact(option)}
+                        footer={
+                          <div className="space-y-4">
+                            {/* Stats */}
+                            <div className="flex flex-row gap-6 justify-center pt-4 border-t border-cyan-400/20">
+                              <div className="flex flex-col items-center">
+                                <span className="text-lg font-bold text-green-400">{option.urgency}</span>
+                                <span className="text-xs text-gray-400">Response</span>
+                              </div>
+                              <div className="flex flex-col items-center">
+                                <span className="text-lg font-bold text-cyan-400">{option.valueProposition}</span>
+                                <span className="text-xs text-gray-400">Value</span>
+                              </div>
+                            </div>
+                            
+                            {/* Action Button */}
+                            <CosmicButton 
+                              variant="primary" 
+                              className="w-full group-hover:shadow-xl transition-all"
+                            >
+                              🎯 Select This Priority
+                            </CosmicButton>
+                            
+                            {/* Selection Indicator */}
+                            {selectedOption === option.action && (
+                              <div className="p-2 bg-cyan-400/20 rounded-lg border border-cyan-400/30">
+                                <p className="text-sm text-cyan-300 font-bold text-center">SELECTED</p>
+                              </div>
+                            )}
+                          </div>
+                        }
+                        className="relative overflow-visible"
+                      />
                     </div>
-                  </div>
-                  
-                  {/* Action Button */}
-                  <CosmicButton 
-                    variant="primary" 
-                    className="w-full group-hover:shadow-xl transition-all mt-4"
-                  >
-                    🎯 Select This Priority
-                  </CosmicButton>
-                  
-                  {/* Selection Indicator */}
-                  {selectedOption === option.action && (
-                    <div className="mt-2 p-2 bg-cyan-400/20 rounded-lg border border-cyan-400/30">
-                      <p className="text-sm text-cyan-300 font-bold text-center">SELECTED</p>
-                    </div>
-                  )}
-
-                  {/* Hover Glow Effect */}
-                  <div className={`absolute inset-0 bg-gradient-to-r ${option.color} opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl pointer-events-none`}></div>
-                </CardShell>
                   </motion.div>
                 ))}
               </motion.div>
@@ -677,6 +682,24 @@ export default function ContactPage() {
                 </GlassmorphicForm>
                 </motion.div>
               </CosmicCardGlow>
+            </div>
+          </section>
+
+          {/* AskPercy Component */}
+          <section className="relative z-10 mb-16">
+            <div className="max-w-7xl mx-auto px-4 md:px-8">
+              <AskPercy />
+              
+              {/* Inline Percy Chat with id for event bridge */}
+              <div id="ask-percy" className="mt-8">
+                <PercyInlineChat
+                  showAvatar={false}
+                  className="max-w-3xl mx-auto"
+                  onSubmit={async ({ prompt, files }) => {
+                    console.log('PercyInlineChat submit (contact):', { prompt, filesCount: files.length });
+                  }}
+                />
+              </div>
             </div>
           </section>
 
