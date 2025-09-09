@@ -112,7 +112,7 @@ export default function FloatingPercy() {
   const pathname = usePathname();
   const hideWidgetRoutes = ['/pricing', '/contact', '/features', '/about'];
   const shouldHideWidget = pathname ? hideWidgetRoutes.some((r) => pathname.startsWith(r)) : false;
-  if (shouldHideWidget) return null;
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognition = useRef<any>(null);
@@ -128,6 +128,8 @@ export default function FloatingPercy() {
     getFilteredAgents 
   } = usePercyContext();
   const { session } = useAuth();
+  
+  if (shouldHideWidget) return null;
   
   // Initialize with enhanced welcome message based on user context
   useEffect(() => {
