@@ -1,12 +1,12 @@
 'use client';
-
-import React, { useState } from 'react';
-
-// Prevent static generation for this auth page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createSafeSupabaseClient } from '../../../lib/supabase/client';
+import { getBrowserSupabase } from '../../../lib/supabase/client';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function SignInPage() {
@@ -15,12 +15,26 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [ready, setReady] = useState(false);
+  const [supabase, setSupabase] = useState<any>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const reason = searchParams.get('reason');
-  const supabase = createSafeSupabaseClient();
+
+  useEffect(() => {
+    // Initialize Supabase client only on client after mount
+    try {
+      const client = getBrowserSupabase();
+      setSupabase(client);
+      setReady(true);
+    } catch (error) {
+      console.error('Failed to initialize Supabase:', error);
+      setError('Authentication service is not available. Please try again later.');
+      setReady(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +67,22 @@ export default function SignInPage() {
       setLoading(false);
     }
   };
+
+  // Show loading state while initializing
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-8 border border-slate-700/50">
+            <div className="text-center">
+              <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-gray-300">Initializing...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">

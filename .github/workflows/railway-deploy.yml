@@ -52,25 +52,21 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      - name: Verify Railway token
+      - name: Print Railway context (debug)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "::error::Missing RAILWAY_TOKEN secret. Add it in GitHub → Settings → Secrets → Actions."
-            exit 1
-          fi
+          railway --version
           railway whoami || true
           railway status || true
+          railway services --json || true
 
+      # If you have ONE service connected to this repo, this is enough:
       - name: Deploy via Railway CLI
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          SERVICE="${{ github.event.inputs.service || 'skrbai-live' }}"
-          ENV_NAME="${{ github.event.inputs.environment || 'production' }}"
-          echo "Deploying service=$SERVICE env=$ENV_NAME branch=master"
-          railway deploy --service "$SERVICE" --environment "$ENV_NAME" --branch master --yes
+          railway up --yes
 
       - name: Smoke checks (non-fatal)
         run: |

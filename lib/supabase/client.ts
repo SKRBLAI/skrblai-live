@@ -1,13 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
+import { getPublicEnv } from '@/lib/safeEnv';
 
-// Safe Supabase client creation that handles missing environment variables
+export function getBrowserSupabase() {
+  const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY } = getPublicEnv();
+  return createBrowserClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
+// Legacy function for backward compatibility - now creates client safely
 export function createSafeSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  // During build time or when environment variables are missing, return a mock client
-  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('placeholder')) {
-    console.warn('Supabase client created with placeholder values - database operations will not work');
+  try {
+    return getBrowserSupabase();
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
     
     // Return a mock client that prevents build errors
     return {
@@ -21,6 +25,7 @@ export function createSafeSupabaseClient() {
       auth: {
         getUser: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase not configured') }),
         signOut: () => Promise.resolve({ error: new Error('Supabase not configured') }),
+        signInWithPassword: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
       },
       storage: {
         from: () => ({
@@ -30,15 +35,7 @@ export function createSafeSupabaseClient() {
       },
     } as any;
   }
-
-  try {
-    return createClient(supabaseUrl, supabaseKey);
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-    return createSafeSupabaseClient(); // Return mock client on error
-  }
 }
 
 // Legacy export for backward compatibility
-export { createClient };
 export default createSafeSupabaseClient;
