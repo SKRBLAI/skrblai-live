@@ -66,7 +66,7 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --yes
+          railway up --ci
 
       - name: Smoke checks (non-fatal)
         run: |
