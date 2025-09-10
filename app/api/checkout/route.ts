@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireStripe } from "@/lib/stripe/stripe";
 import { priceForSku } from "@/lib/stripe/prices";
 import { ProductKey } from "@/lib/pricing/types";
+import { withLogging } from "@/lib/observability/logger";
+import crypto from 'crypto';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -11,7 +13,12 @@ function bad(msg: string, status = 400) {
   return NextResponse.json({ error: msg }, { status });
 }
 
-export async function POST(req: NextRequest) {
+function generateIdempotencyKey(userId: string, plan: string, timestamp: string): string {
+  const data = `${userId}-${plan}-${timestamp}`;
+  return crypto.createHash('sha256').update(data).digest('hex').substring(0, 32);
+}
+
+async function handleCheckout(req: NextRequest) {
   try {
     const body = (await req.json().catch(() => ({}))) as {
       sku?: string;
@@ -23,10 +30,17 @@ export async function POST(req: NextRequest) {
       cancelPath?: string;
       vertical?: "sports" | "business";
       addons?: ProductKey[]; // Add-on product keys
+      userId?: string; // For idempotency
     };
 
     const mode = body.mode || "subscription";
     const stripe = requireStripe();
+
+    // Generate idempotency key for duplicate prevention
+    const timestamp = Math.floor(Date.now() / 1000).toString(); // 1-second precision
+    const userId = body.userId || body.customerEmail || 'anonymous';
+    const plan = body.sku || body.priceId || 'unknown';
+    const idempotencyKey = generateIdempotencyKey(userId, plan, timestamp);
 
     const price =
       (body.priceId && body.priceId.startsWith("price_")) ? body.priceId :
@@ -72,6 +86,8 @@ export async function POST(req: NextRequest) {
       customer_email: body.customerEmail,
       metadata,
       payment_method_types: ["card"],
+    }, {
+      idempotencyKey // Add idempotency key to prevent duplicate sessions
     });
 
     return NextResponse.json({ url: session.url }, { status: 200 });
@@ -80,3 +96,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: e?.message || "Unknown error" }, { status: 500 });
   }
 }
+
+export const POST = withLogging(handleCheckout);

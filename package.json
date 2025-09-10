@@ -14,7 +14,11 @@
     "image-audit": "node -e \"const fs=require('fs'),path=require('path'); fs.readdirSync('public/images').filter(f=>f.includes('agents-')).forEach(f=>{const stat=fs.statSync(path.join('public/images',f)); console.log(`${f}: ${(stat.size/1024/1024).toFixed(1)}MB`)})\"",
     "image-performance": "node scripts/image-performance-monitor.js",
     "validate:agents": "ts-node scripts/validateAgents.ts",
-    "snap:mobile": "tsx scripts/snap-mobile.ts"
+    "snap:mobile": "tsx scripts/snap-mobile.ts",
+    "test": "jest --passWithNoTests",
+    "test:smoke": "playwright test tests/smoke.spec.ts --reporter=line",
+    "test:smoke:ui": "playwright test tests/smoke.spec.ts --ui",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",
@@ -67,6 +71,7 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@types/next": "^8.0.7",
     "@types/node": "^20.19.4",
     "@types/react": "^18.3.23",

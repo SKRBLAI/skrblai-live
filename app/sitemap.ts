@@ -1,39 +1,87 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Basic static entries; dynamic agent entries can be added via build-time registry if needed
-  const items: MetadataRoute.Sitemap = [
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skrblai.io';
+  const currentDate = new Date().toISOString();
+  
+  // Static pages
+  const staticPages = [
     {
-      url: 'https://skrblai.io',
-      lastModified: new Date(),
+      url: baseUrl,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 1,
     },
     {
-      url: 'https://skrblai.io/pricing',
-      lastModified: new Date(),
+      url: `${baseUrl}/sports`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
     },
     {
-      url: 'https://skrblai.io/dashboard',
-      lastModified: new Date(),
+      url: `${baseUrl}/features`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
     },
     {
-      url: 'https://skrblai.io/contact',
-      lastModified: new Date(),
+      url: `${baseUrl}/about`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     },
     {
-      url: 'https://skrblai.io/blog',
-      lastModified: new Date(),
+      url: `${baseUrl}/contact`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/pricing`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/agents`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/academy`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.6,
     },
   ];
-  // Add agents main page
-  items.push({
-    url: 'https://skrblai.io/agents',
-    lastModified: new Date(),
-  });
   
-  // Add common agents we ship (fallback; full dynamic can iterate registry)
-  const defaultAgents = ['percy', 'skillsmith', 'socialnino', 'branding', 'book-publishing', 'analytics'];
-  defaultAgents.forEach(a => {
-    items.push({ url: `https://skrblai.io/agents/${a}`, lastModified: new Date() });
-  });
-  return items;
-} 
+  // Agent pages - you might want to fetch these dynamically from your database
+  const agentSlugs = [
+    'percy',
+    'biz',
+    'branding',
+    'contentcreation',
+    'socialnino',
+    'publishing',
+    'skillsmith',
+    'ira',
+    'adcreative',
+    'videocontent',
+    'sync',
+    'analytics',
+    'clientsuccess',
+    'payment',
+    'proposal',
+    'site'
+  ];
+  
+  const agentPages = agentSlugs.map(slug => ({
+    url: `${baseUrl}/agents/${slug}`,
+    lastModified: currentDate,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+  
+  return [...staticPages, ...agentPages];
+}
