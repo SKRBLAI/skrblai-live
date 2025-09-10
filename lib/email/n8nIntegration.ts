@@ -66,14 +66,14 @@ export class N8nEmailAutomation {
         },
         body: JSON.stringify(payload),
         // 15s timeout to avoid hanging the route
-        signal: (globalThis as any).AbortSignal?.timeout
+        signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout
           ? AbortSignal.timeout(15000)
           : undefined
       });
 
       if (!response.ok) {
         let detail: string | undefined;
-        try { detail = await response.text(); } catch {}
+        try { detail = await response.text(); } catch (e) { /* ignore */ }
         throw new Error(`N8n webhook failed: ${response.status} ${response.statusText}${detail ? ` - ${detail.substring(0, 300)}` : ''}`);
       }
 

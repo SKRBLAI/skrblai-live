@@ -110,9 +110,6 @@ export default function FloatingPercy() {
   const [isVisibleOnPage, setIsVisibleOnPage] = useState(true);
   
   const pathname = usePathname();
-  const hideWidgetRoutes = ['/pricing', '/contact', '/features', '/about'];
-  const shouldHideWidget = pathname ? hideWidgetRoutes.some((r) => pathname.startsWith(r)) : false;
-  if (shouldHideWidget) return null;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const recognition = useRef<any>(null);
@@ -128,6 +125,11 @@ export default function FloatingPercy() {
     getFilteredAgents 
   } = usePercyContext();
   const { session } = useAuth();
+  
+  // All useEffect and useCallback hooks must be called before any conditional returns
+  
+  const hideWidgetRoutes = ['/pricing', '/contact', '/features', '/about'];
+  const shouldHideWidget = pathname ? hideWidgetRoutes.some((r) => pathname.startsWith(r)) : false;
   
   // Initialize with enhanced welcome message based on user context
   useEffect(() => {
@@ -473,6 +475,9 @@ export default function FloatingPercy() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+  
+  // Conditional return after all hooks
+  if (shouldHideWidget) return null;
   
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-4">

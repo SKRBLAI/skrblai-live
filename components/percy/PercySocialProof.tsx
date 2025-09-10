@@ -35,7 +35,7 @@ const PercySocialProof: React.FC<PercySocialProofProps> = ({
 
   // Optimized: Use single interval manager
   const intervalManager = useMemo(() => {
-    let intervalId: NodeJS.Timeout | null = null;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
     
     const start = (callback: () => void, delay: number) => {
       stop();

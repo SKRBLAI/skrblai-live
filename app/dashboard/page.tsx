@@ -9,6 +9,7 @@ import {
   CheckCircle, BarChart3, Zap, Globe
 } from 'lucide-react';
 import CardShell from '../../components/ui/CardShell';
+import PageLayout from '../../components/layout/PageLayout';
 
 const RECOMMENDED_AGENTS = [
   {
@@ -78,16 +79,24 @@ const QUICK_ACTIONS = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isEmailVerified } = useAuth();
   const [quickWins, setQuickWins] = useState<string[]>([]);
 
-  // Auth gating
+  // Enhanced auth gating with proper Supabase integration
   useEffect(() => {
-    if (!isLoading && !user) {
-      // Redirect to signup with return path
-      router.push('/auth/signup?next=/dashboard');
+    if (!isLoading) {
+      if (!user) {
+        // No user - redirect to sign-in with return path
+        router.push('/sign-in?from=dashboard');
+      } else if (!isEmailVerified) {
+        // User exists but email not verified - show verification message
+        console.log('User email not verified, but allowing dashboard access');
+        // Note: We're allowing access but could redirect to verification if needed
+        // router.push('/auth/verify-email?from=dashboard');
+      }
+      // If user exists (regardless of email verification), allow access to dashboard
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, isEmailVerified, router]);
 
   // Load quick wins from localStorage if present
   useEffect(() => {
@@ -119,8 +128,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <PageLayout>
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         {/* Welcome Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -264,7 +273,7 @@ export default function DashboardPage() {
           </CardShell>
         </motion.div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
 

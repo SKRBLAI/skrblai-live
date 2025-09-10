@@ -61,6 +61,7 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 ### **Backend & Integration**
 - **Supabase** - Database, authentication, and real-time features
 - **N8N Workflows** - Agent automation and task processing
+- **Secure API Proxy** - Protected webhook endpoints with rate limiting
 - **Cloudinary** - Image optimization and CDN
 - **Stripe** - Payment processing and subscription management
 - **Resend** - Email automation and communication
@@ -160,7 +161,7 @@ npm install
 2. **Environment Configuration**
 ```bash
 # Copy environment template
-cp .env.example .env.local
+cp .env.local.example .env.local
 
 # Configure required variables:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
@@ -175,6 +176,7 @@ NODE_ENV=development
 N8N_WEBHOOK_URL=https://your-n8n-endpoint
 RESEND_API_KEY=your_resend_key
 
+
 # Stripe Configuration (for pricing):
 NEXT_PUBLIC_STRIPE_PRICE_ROOKIE=price_rookie_id
 NEXT_PUBLIC_STRIPE_PRICE_PRO=price_pro_id
@@ -188,7 +190,11 @@ NEXT_PUBLIC_STRIPE_PRICE_YEARLY=price_yearly_id
 curl http://localhost:3000/api/env-check
 
 # Or visit in browser: http://localhost:3000/api/env-check
-```
+
+OPENAI_API_KEY=your_openai_key
+N8N_BUSINESS_ONBOARDING_URL=your_n8n_business_url
+N8N_WEBHOOK_FREE_SCAN=your_n8n_free_scan_webhook
+N8N_API_KEY=your_n8n_api_key
 
 4. **Launch Development Server**
 ```bash
@@ -257,6 +263,42 @@ npm start
 - **Regular Security Audits** - Continuous security monitoring
 - **24/7 Monitoring** - Real-time threat detection
 
+### **Free Scan Proxy Security**
+
+Our secure `/api/scan` endpoint protects sensitive webhook URLs and implements robust security measures:
+
+- **Rate Limiting** - 10 requests per 10 minutes per IP address
+- **Input Validation** - File type and size verification (video files, max 100MB)
+- **Server-side Proxying** - N8N webhooks never exposed to frontend
+- **Optional Authentication** - Automatic user session detection via Supabase
+- **Request Sanitization** - IP address redaction and payload validation
+- **Error Handling** - Graceful failure without exposing internal details
+
+**Environment Variables:**
+- `N8N_WEBHOOK_FREE_SCAN` - Server-side webhook URL (required)
+- `N8N_API_KEY` - Optional API key for enhanced security
+- ❌ `NEXT_PUBLIC_N8N_FREE_SCAN_URL` - **REMOVED** (was public, now secure)
+
+**Expected Payload:**
+```json
+{
+  "type": "free-scan",
+  "source": "sports",
+  "input": {
+    "event": "free_scan_started",
+    "videoUrl": "...",
+    "sport": "general",
+    "sessionId": "...",
+    "timestamp": "2025-01-24T..."
+  }
+}
+```
+
+**Rate Limit Headers:**
+- `X-RateLimit-Limit` - Maximum requests allowed
+- `X-RateLimit-Remaining` - Requests remaining in current window
+- `X-RateLimit-Reset` - When the rate limit resets (Unix timestamp)
+
 ## 🤝 SUPPORT & RESOURCES
 
 ### **Documentation**
@@ -306,3 +348,9 @@ SKRBL AI doesn't just automate—it **DOMINATES**. Our platform provides:
 **🎯 Mission**: Making Competition Extinct Through AI Automation
 
 *Last Updated: January 2025*
+
+## Deploying to Railway
+- CI deploys are handled by **.github/workflows/railway-deploy.yml**.
+- Auto-triggers on pushes to **master** and can be run manually:
+  1. Go to **GitHub → Actions → Deploy to Railway → Run workflow**
+  2. Ensure repo secret **RAILWAY_TOKEN** is set (Railway → Account → Generate token).

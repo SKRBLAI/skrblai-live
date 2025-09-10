@@ -55,6 +55,37 @@ const nextConfig = {
     return config;
   },
   productionBrowserSourceMaps: true, // Enable source maps for debugging
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/public/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=604800',
+          },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=604800',
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       // Legacy agent redirects - Updated to point to /agents

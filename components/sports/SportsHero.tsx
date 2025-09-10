@@ -37,8 +37,8 @@ export default function SportsHero({
   const { user, isLoading } = useDashboardAuth();
   const [displayText, setDisplayText] = useState("Level Up Your Game with AI! 🚀");
   const [isTyping, setIsTyping] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   const typewriterWords = [
     "Level Up Your Game with AI! 🚀",
