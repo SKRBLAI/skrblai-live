@@ -104,7 +104,10 @@ export async function middleware(request: NextRequest) {
     '/api/sports/intake',
     '/api/checkout',
     '/api/stripe/webhooks',
-    '/api/analytics/percy'
+    '/api/analytics/percy',
+    '/api/env-check',
+    '/api/health',
+    '/api/skillsmith'
   ];
   
   // Auth-required API paths that should not be blocked by middleware

@@ -15,7 +15,7 @@ function getSessionId(request: NextRequest): string {
   // Try to get session from headers or generate based on IP
   const sessionId = request.headers.get('x-session-id') || 
                    request.headers.get('x-forwarded-for') || 
-                   request.ip || 
+                   request.headers.get('x-real-ip') ||
                    'anonymous';
   return sessionId;
 }
