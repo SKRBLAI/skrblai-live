@@ -531,11 +531,6 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
 
     return () => clearInterval(interval);
   }, [autoRefresh, refreshInterval, loadAgents]);
-
-  // =============================================================================
-  // RETURN HOOK INTERFACE
-  // =============================================================================
-
   return {
     // Agent Data
     agents,

@@ -30,10 +30,10 @@ export default function PricingCard({
     console.log('event:pricing_cta_click', { 
       plan: item.id, 
       billingPeriod: 'monthly', 
-      price: item.monthlyPrice 
+      price: item.price 
     });
 
-    if (item.monthlyPrice === 0) {
+    if (item.price === 0) {
       // Free plan - redirect to sign up
       window.location.href = '/sign-up?plan=free';
       return;

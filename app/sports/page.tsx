@@ -174,17 +174,6 @@ export default function SportsPage(): JSX.Element {
 
 
   // Client-side checkout helper for bundles
-  const startCheckout = async (tier: 'rookie' | 'pro' | 'allstar' | 'yearly', source: string) => {
-    // Analytics stub
-    console.log('event:create_plan_click', { 
-      tier, 
-      source, 
-      userType,
-      timestamp: new Date().toISOString() 
-    });
-    
-    setLoadingCheckout(tier);
-
   // Handle pricing item purchases
   const handlePricingPurchase = async (item: PricingItem) => {
     console.log('Purchase initiated for:', item);
@@ -237,9 +226,9 @@ export default function SportsPage(): JSX.Element {
           {/* Unified Sports Hero */}
           <UnifiedSportsHero
             headline="Master Your Sport with"
-            highlight="AI Skill Smith"
-            subhead="Upload your game footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
-            keywords={["Analysis","Mental Health","Nutrition","Training Plans"]}
+            highlight="Skill Smith AI"
+            subhead="Upload your sports footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
+            keywords={["Analysis","Mastery of Emotion","Nutrition","Training Plans"]}
             images={[
               { src: "/skillsmith/soccer.png",     alt: "Skill Smith in soccer gear" },
               { src: "/skillsmith/basketball.png", alt: "Skill Smith in basketball gear" },
