@@ -9,8 +9,7 @@ export const config = {
     '/api/:path*',
     '/bundle/:path*',
     '/bundles/:path*',
-    '/sports/bundle/:path*'
-
+    '/sports/bundle/:path*',
     '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
 
   ],

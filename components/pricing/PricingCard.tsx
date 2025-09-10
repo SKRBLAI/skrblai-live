@@ -28,20 +28,20 @@ export default function PricingCard({
 
     // Analytics stub
     console.log('event:pricing_cta_click', { 
-      plan: plan.id, 
-      billingPeriod, 
-      price: plan.monthlyPrice 
+      plan: item.id, 
+      billingPeriod: 'monthly', 
+      price: item.monthlyPrice 
     });
 
-    if (plan.monthlyPrice === 0) {
+    if (item.monthlyPrice === 0) {
       // Free plan - redirect to sign up
       window.location.href = '/sign-up?plan=free';
       return;
     }
 
     // For now, redirect to checkout page with plan parameter
-    const planId = plan.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const checkoutUrl = `/checkout?plan=${planId}&period=${billingPeriod}`;
+    const planId = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const checkoutUrl = `/checkout?plan=${planId}&period=monthly`;
     
     console.log('Redirecting to checkout:', checkoutUrl);
     window.location.href = checkoutUrl;
