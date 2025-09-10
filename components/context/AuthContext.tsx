@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [vipStatus, setVipStatus] = useState<any>(null);
   const [benefits, setBenefits] = useState<any>(null);
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createSafeSupabaseClient();
 
   // NEW: Percy onboarding state
   const [isEmailVerified, setIsEmailVerified] = useState(false);
