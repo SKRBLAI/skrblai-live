@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
   ],
   runtime: 'experimental-edge'
 };

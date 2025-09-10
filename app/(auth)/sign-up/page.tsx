@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+
+// Prevent static generation for this auth page
+export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createSafeSupabaseClient } from '../../../lib/supabase/client';
