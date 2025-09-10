@@ -52,21 +52,23 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      - name: Print Railway context (debug)
+      - name: Railway login (CI)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway --version
-          railway whoami || true
-          railway status || true
-          railway services --json || true
+        run: railway login --token "$RAILWAY_TOKEN"
 
-      # If you have ONE service connected to this repo, this is enough:
-      - name: Deploy via Railway CLI
+      - name: Railway link to project
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway up --ci
+          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+        run: railway link --project "$RAILWAY_PROJECT_ID"
+
+      - name: Select environment
+        env:
+          RAILWAY_ENV_ID: ${{ vars.RAILWAY_ENV_ID }}
+        run: railway environment --environment "$RAILWAY_ENV_ID"
+
+      - name: Deploy via Railway CLI
+        run: railway up --ci
 
       - name: Smoke checks (non-fatal)
         run: |
