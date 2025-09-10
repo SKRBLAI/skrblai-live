@@ -49,6 +49,11 @@ jobs:
       - name: Build (safe)
         run: npm run build
 
+      - name: Print env presence (debug)
+        run: |
+          echo "Has SUPABASE_URL? " ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}
+          echo "Has SUPABASE_ANON?" ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
+
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
