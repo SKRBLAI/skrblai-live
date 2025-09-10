@@ -94,6 +94,13 @@ export default function SportsPage(): JSX.Element {
   }, [shouldShowUpgradeOffer, userType]);
 
   const handleUploadClick = () => {
+    // Analytics stub
+    console.log('event:upload_click', { 
+      userType, 
+      scansRemaining, 
+      timestamp: new Date().toISOString() 
+    });
+
     if (userType === 'guest' && scansRemaining === 0) {
       setEmailCaptureModalOpen(true);
     } else {
@@ -119,6 +126,14 @@ export default function SportsPage(): JSX.Element {
   };
 
   const handleAnalysisComplete = (result: AnalysisResult) => {
+    // Analytics stub
+    console.log('event:first_chat_reply', { 
+      userType, 
+      sport: result.sport, 
+      score: result.score,
+      timestamp: new Date().toISOString() 
+    });
+
     setAnalysisResult(result);
     setUploadModalOpen(false);
     
@@ -157,9 +172,23 @@ export default function SportsPage(): JSX.Element {
     }
   };
 
+
+  // Client-side checkout helper for bundles
+  const startCheckout = async (tier: 'rookie' | 'pro' | 'allstar' | 'yearly', source: string) => {
+    // Analytics stub
+    console.log('event:create_plan_click', { 
+      tier, 
+      source, 
+      userType,
+      timestamp: new Date().toISOString() 
+    });
+    
+    setLoadingCheckout(tier);
+
   // Handle pricing item purchases
   const handlePricingPurchase = async (item: PricingItem) => {
     console.log('Purchase initiated for:', item);
+
     
     try {
       // Create Stripe checkout session

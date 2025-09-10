@@ -1,30 +1,59 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Returns a Supabase client for server-side code or null if not configured.
- * NEVER throws during import/build; only returns null when envs missing.
- * Call this INSIDE route handlers and handle null gracefully.
+ * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
+ * This client bypasses RLS and should ONLY be used in server-side code.
+ * NEVER expose this client to the browser.
+ */
+export function getServerSupabaseAdmin(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRoleKey) {
+    console.warn('Server Supabase client: Missing URL or service role key');
+    return null;
+  }
+
+  return createClient(url, serviceRoleKey, {
+    auth: { persistSession: false },
+    global: { 
+      headers: { 
+        'X-Client-Source': 'server-admin',
+        'Authorization': `Bearer ${serviceRoleKey}`
+      } 
+    },
+  });
+}
+
+/**
+ * Returns a Supabase client for server-side code with ANON permissions.
+ * This client respects RLS and is safer for general server-side operations.
+ */
+export function getServerSupabaseAnon(): SupabaseClient | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anonKey) {
+    console.warn('Server Supabase client: Missing URL or anon key');
+    return null;
+  }
+
+  return createClient(url, anonKey, {
+    auth: { persistSession: false },
+    global: { 
+      headers: { 
+        'X-Client-Source': 'server-anon'
+      } 
+    },
+  });
+}
+
+/**
+ * Legacy function - returns admin client for backwards compatibility
+ * @deprecated Use getServerSupabaseAdmin() or getServerSupabaseAnon() instead
  */
 export function getOptionalServerSupabase(): SupabaseClient | null {
-  const url =
-    process.env.SUPABASE_URL ??
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? // fallback if only public vars exist
-    '';
-
-  // Prefer service role on server, fall back to anon/public if that's all we have
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE ??
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    process.env.SUPABASE_ANON_KEY ??
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-    '';
-
-  if (!url || !key) return null;
-
-  return createClient(url, key, {
-    auth: { persistSession: false },
-    global: { headers: { 'X-Client-Source': 'server' } },
-  });
+  return getServerSupabaseAdmin();
 }
 
 /** Convenience: throw an explicit error if missing (use only if you catch it). */

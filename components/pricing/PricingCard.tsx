@@ -25,6 +25,58 @@ export default function PricingCard({
   const categoryGradient = getCategoryColor(item.category);
 
   const handlePurchase = async () => {
+
+    // Analytics stub
+    console.log('event:pricing_cta_click', { 
+      plan: plan.id, 
+      billingPeriod, 
+      price: plan.monthlyPrice 
+    });
+
+    if (plan.monthlyPrice === 0) {
+      // Free plan - redirect to sign up
+      window.location.href = '/sign-up?plan=free';
+      return;
+    }
+
+    // For now, redirect to checkout page with plan parameter
+    const planId = plan.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const checkoutUrl = `/checkout?plan=${planId}&period=${billingPeriod}`;
+    
+    console.log('Redirecting to checkout:', checkoutUrl);
+    window.location.href = checkoutUrl;
+
+    // TODO: Implement full Stripe integration
+    // setIsLoading(true);
+    // 
+    // try {
+    //   const response = await fetch('/api/stripe/create-checkout-session', {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({
+    //       planId: plan.id,
+    //       billingPeriod,
+    //       successUrl: `${window.location.origin}/checkout/success`,
+    //       cancelUrl: `${window.location.origin}/checkout/cancel`
+    //     })
+    //   });
+    //
+    //   const { url, error } = await response.json();
+    //   
+    //   if (error) {
+    //     throw new Error(error);
+    //   }
+    //
+    //   if (url) {
+    //     window.location.href = url;
+    //   }
+    // } catch (error: any) {
+    //   console.error('Checkout error:', error);
+    //   toast.error(`Checkout failed: ${error.message}`);
+    // } finally {
+    //   setIsLoading(false);
+    // }
+
     if (isLoading) return;
     
     setIsLoading(true);

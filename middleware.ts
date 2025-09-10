@@ -4,7 +4,15 @@ import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
+
+    '/dashboard/:path*',
+    '/api/:path*',
+    '/bundle/:path*',
+    '/bundles/:path*',
+    '/sports/bundle/:path*'
+
     '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
+
   ],
   runtime: 'experimental-edge'
 };
@@ -63,12 +71,24 @@ export async function middleware(request: NextRequest) {
 
   // Get URL info
   const url = request.nextUrl.clone();
+
+  const path = url.pathname;
+
+  // Bundle redirect rules - redirect all bundle-related paths to /sports#plans
+  if (path.startsWith('/bundle') || 
+      path.startsWith('/bundles') || 
+      path.includes('/bundle')) {
+    console.log('[MIDDLEWARE] Redirecting bundle path to sports plans:', path);
+    const redirectUrl = new URL('/sports#plans', request.url);
+    return NextResponse.redirect(redirectUrl, 301); // Permanent redirect
+
   
   // Redirect bundle routes to sports page with plans anchor
   if (path.includes('/bundle') || path.includes('/bundles')) {
     const sportsUrl = new URL('/sports', request.url);
     sportsUrl.hash = '#plans';
     return NextResponse.redirect(sportsUrl);
+
   }
   
   // Prevent redirect loops - never redirect from auth pages
@@ -140,7 +160,10 @@ export async function middleware(request: NextRequest) {
     '/api/sports/intake',
     '/api/checkout',
     '/api/stripe/webhooks',
-    '/api/analytics/percy'
+    '/api/analytics/percy',
+    '/api/env-check',
+    '/api/health',
+    '/api/skillsmith'
   ];
   
   // Auth-required API paths that should not be blocked by middleware

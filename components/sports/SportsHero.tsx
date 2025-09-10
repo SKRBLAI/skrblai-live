@@ -112,6 +112,13 @@ export default function SportsHero({
   }, []);
 
   const handleParentPortalClick = async () => {
+    // Analytics stub
+    console.log('event:parent_portal_click', { 
+      userType, 
+      isAuthenticated: !!user,
+      timestamp: new Date().toISOString() 
+    });
+
     if (isLoading) return;
     
     if (!user) {
