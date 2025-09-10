@@ -298,3 +298,9 @@ SKRBL AI doesn't just automate—it **DOMINATES**. Our platform provides:
 **🎯 Mission**: Making Competition Extinct Through AI Automation
 
 *Last Updated: January 2025*
+
+## Deploying to Railway
+- CI deploys are handled by **.github/workflows/railway-deploy.yml**.
+- Auto-triggers on pushes to **master** and can be run manually:
+  1. Go to **GitHub → Actions → Deploy to Railway → Run workflow**
+  2. Ensure repo secret **RAILWAY_TOKEN** is set (Railway → Account → Generate token).

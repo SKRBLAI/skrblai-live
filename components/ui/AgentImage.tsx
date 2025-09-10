@@ -52,7 +52,11 @@ export default function AgentImage({
   if (fill) {
     return (
       <Image
-        {...imageProps}
+        src={imageSrc}
+        alt={altText}
+        className={className}
+        onError={handleImageError}
+        priority={priority}
         fill
       />
     );
@@ -60,7 +64,11 @@ export default function AgentImage({
 
   return (
     <Image
-      {...imageProps}
+      src={imageSrc}
+      alt={altText}
+      className={className}
+      onError={handleImageError}
+      priority={priority}
       width={width}
       height={height}
     />

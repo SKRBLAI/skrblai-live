@@ -4,15 +4,57 @@ import type { NextRequest } from 'next/server';
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/api/:path*'
+    '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
   ],
   runtime: 'experimental-edge'
 };
 
+function addSecurityHeaders(response: NextResponse) {
+  // Strict security headers
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  
+  // Content Security Policy - Report-Only mode first
+  const csp = [
+    "default-src 'self'",
+    "img-src 'self' https: data: blob:",
+    "media-src 'self' https: blob:",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
+    "style-src 'self' 'unsafe-inline' https:",
+    "font-src 'self' https: data:",
+    "connect-src 'self' https: wss:",
+    "frame-ancestors 'none'"
+  ].join('; ');
+  
+  response.headers.set('Content-Security-Policy-Report-Only', csp);
+  
+  return response;
+}
+
 export async function middleware(request: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req: request, res });
+  let response = NextResponse.next();
+  
+  // Handle apex → www redirect (if needed)
+  const hostname = request.headers.get('host');
+  if (hostname === 'skrblai.io') {
+    const url = request.nextUrl.clone();
+    url.hostname = 'www.skrblai.io';
+    response = NextResponse.redirect(url);
+  }
+  
+  // Add security headers to all responses
+  response = addSecurityHeaders(response);
+  
+  // Skip auth logic for static files and API health
+  const path = request.nextUrl.pathname;
+  if (path.startsWith('/_next/') || path.startsWith('/api/health')) {
+    return response;
+  }
+  
+  const supabase = createMiddlewareClient({ req: request, res: response });
   
   // Check if user is authenticated
   const {
@@ -21,7 +63,6 @@ export async function middleware(request: NextRequest) {
 
   // Get URL info
   const url = request.nextUrl.clone();
-  const path = url.pathname;
   
   // Redirect bundle routes to sports page with plans anchor
   if (path.includes('/bundle') || path.includes('/bundles')) {
@@ -35,7 +76,7 @@ export async function middleware(request: NextRequest) {
       path === '/sign-up' || path.startsWith('/sign-up') ||
       path.startsWith('/auth/redirect')) {
     console.log('[MIDDLEWARE] On auth page, allowing access');
-    return res;
+    return response;
   }
   
   // Protect dashboard routes
@@ -129,11 +170,11 @@ export async function middleware(request: NextRequest) {
   if (path.startsWith('/api/') && 
       AUTH_API_PATHS.some(authPath => path.startsWith(authPath))) {
     console.log('[MIDDLEWARE] Auth-required API request:', path, session ? 'with session' : 'without session');
-    return res; // Let the API route handle auth validation
+    return response; // Let the API route handle auth validation
   }
 
   // If we get here, user is authenticated (or accessing allowed routes)
   console.log('[MIDDLEWARE] Request authorized for:', path);
   
-  return res;
+  return response;
 }

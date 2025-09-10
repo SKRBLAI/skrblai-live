@@ -1,40 +1,82 @@
-'use client';
 import './globals.css';
 import '../styles/components.css';
 import '../styles/cosmic-theme.css';
 import '../styles/pseudo-3d-effects.css';
-import PageTransition from '../components/ui/PageTransition';
-import PercyProvider from '../components/assistant/PercyProvider';
-import { BannerProvider } from '../components/context/BannerContext';
-import { AuthProvider } from '../components/context/AuthContext';
-import Navbar from '../components/layout/Navbar';
-import Footer from '../components/layout/Footer';
 import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
-import { useState, useEffect, useCallback } from 'react';
-import { usePathname } from 'next/navigation';
-import { validateHomepageUI } from '../utils/agentUtils';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
-import { OnboardingProvider } from '../contexts/OnboardingContext';
+import { Metadata } from 'next';
+import ClientLayout from './ClientLayout';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://skrblai.io'),
+  title: {
+    default: 'SKRBL AI - AI-Powered Business Automation & Content Creation',
+    template: '%s | SKRBL AI'
+  },
+  description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents to streamline your operations and boost productivity.',
+  keywords: [
+    'AI automation',
+    'business intelligence',
+    'content creation',
+    'AI agents',
+    'digital transformation',
+    'productivity tools',
+    'artificial intelligence',
+    'business optimization'
+  ],
+  authors: [{ name: 'SKRBL AI Team' }],
+  creator: 'SKRBL AI',
+  publisher: 'SKRBL AI',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: '/',
+    siteName: 'SKRBL AI',
+    title: 'SKRBL AI - AI-Powered Business Automation & Content Creation',
+    description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents to streamline your operations.',
+    images: [
+      {
+        url: '/images/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'SKRBL AI - AI-Powered Business Automation',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SKRBL AI - AI-Powered Business Automation',
+    description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents.',
+    images: ['/images/og-image.png'],
+    creator: '@skrblai',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
+  alternates: {
+    canonical: '/',
+  },
+};
+
 export default function RootLayout({ children }: { children: ReactNode }) {
-  // Core state for app
-  const [mounted, setMounted] = useState(false);
-  const pathname = usePathname();
-  
-  // Set mounted on client-side
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Pages that use ClientPageLayout and should have their own cosmic background
-  const clientPageLayoutPages = ['/about', '/features', '/content-automation', '/branding', '/book-publishing', '/academy', '/services', '/contact', '/pricing'];
-  const isClientPageLayoutPage = pathname && clientPageLayoutPages.some(page => pathname.startsWith(page));
-  const isHomepage = pathname === '/';
-
   return (
     <html lang="en" className={`${inter.variable} dark overflow-x-hidden h-full`}>
       <head>
@@ -45,37 +87,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="text-white min-h-[100svh] antialiased font-sans overflow-x-hidden page-layout">
-        <AuthProvider>
-          <PercyProvider>
-            <BannerProvider>
-              <OnboardingProvider>
-                {/* Global Navigation */}
-                <Navbar />
-
-                {/* Main Content */}
-                <div className="min-h-screen overflow-x-hidden">
-                  <div className="pt-safe pb-safe">
-                    <div className="relative z-10">
-                      <PageTransition>
-                        {mounted ? children : (
-                          <div className="min-h-screen flex items-center justify-center">
-                            <div className="text-center">
-                              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                              <p className="text-gray-300">Loading...</p>
-                            </div>
-                          </div>
-                        )}
-                      </PageTransition>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Site Footer */}
-                <Footer />
-              </OnboardingProvider>
-            </BannerProvider>
-          </PercyProvider>
-        </AuthProvider>
+        {/* Skip to main content link for accessibility */}
+        <a 
+          href="#main-content" 
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Skip to main content
+        </a>
+        
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
