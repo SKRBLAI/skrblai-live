@@ -29,7 +29,7 @@ export default function PricingCard({
     // Analytics stub
     console.log('event:pricing_cta_click', { 
       plan: item.id, 
-      billingPeriod: 'monthly', 
+      billingPeriod: item.period || 'one-time', 
       price: item.price 
     });
 
