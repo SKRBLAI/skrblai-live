@@ -183,7 +183,8 @@ export default function SportsPage(): JSX.Element {
       timestamp: new Date().toISOString() 
     });
     
-    setLoadingCheckout(tier);
+    // TODO: Implement checkout logic
+  };
 
   // Handle pricing item purchases
   const handlePricingPurchase = async (item: PricingItem) => {
