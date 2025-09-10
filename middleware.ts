@@ -71,8 +71,6 @@ export async function middleware(request: NextRequest) {
   // Get URL info
   const url = request.nextUrl.clone();
 
-  const path = url.pathname;
-
   // Bundle redirect rules - redirect all bundle-related paths to /sports#plans
   if (path.startsWith('/bundle') || 
       path.startsWith('/bundles') || 
@@ -80,14 +78,6 @@ export async function middleware(request: NextRequest) {
     console.log('[MIDDLEWARE] Redirecting bundle path to sports plans:', path);
     const redirectUrl = new URL('/sports#plans', request.url);
     return NextResponse.redirect(redirectUrl, 301); // Permanent redirect
-
-  
-  // Redirect bundle routes to sports page with plans anchor
-  if (path.includes('/bundle') || path.includes('/bundles')) {
-    const sportsUrl = new URL('/sports', request.url);
-    sportsUrl.hash = '#plans';
-    return NextResponse.redirect(sportsUrl);
-
   }
   
   // Prevent redirect loops - never redirect from auth pages
