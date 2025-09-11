@@ -49,6 +49,7 @@ jobs:
       - name: Build (safe)
         run: npm run build
 
+
       - name: Upload build artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -57,6 +58,12 @@ jobs:
           path: .next
           if-no-files-found: error
           retention-days: 1
+
+      - name: Print env presence (debug)
+        run: |
+          echo "Has SUPABASE_URL? " ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}
+          echo "Has SUPABASE_ANON?" ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
+
 
       - name: Install Railway CLI
         run: npm i -g @railway/cli
@@ -76,6 +83,7 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway up --ci
+
 
       - name: Smoke tests
         run: |
@@ -116,3 +124,11 @@ jobs:
           echo "Running security audit (non-blocking)..."
           npm audit --audit-level=critical || true
           echo "Security scan completed (non-blocking)"
+
+      - name: Run smoke tests (non-fatal)
+        env:
+          NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || secrets.NEXT_PUBLIC_BASE_URL || '' }}
+        run: |
+          echo "Starting smoke tests (non-fatal)"
+          npm run test:smoke || true
+
