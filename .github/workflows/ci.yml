@@ -28,10 +28,9 @@ jobs:
       - run: npm run lint -- --fix || true
       - run: npm run build
 
-      # Upload Next output for downstream jobs
       - name: Upload build artifact
-        if: success() && hashFiles('.next/BUILD_ID') != ''
         uses: actions/upload-artifact@v4
+        if: success() && hashFiles('.next/BUILD_ID') != ''
         with:
           name: build-files
           path: .next/
