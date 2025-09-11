@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 
 // Supabase client instance, created lazily
 export let supabase: any = null;
@@ -12,7 +12,7 @@ export function getSupabase() {
         console.warn('[Supabase] Environment variables not configured');
         return null;
       }
-      supabase = createClientComponentClient();
+      supabase = createSafeSupabaseClient();
     } catch (error) {
       console.warn('[Supabase] Failed to create client:', error);
       return null;
