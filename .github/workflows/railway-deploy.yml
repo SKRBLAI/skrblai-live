@@ -49,20 +49,20 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      - name: Print Railway context (debug)
+      - name: Railway auth debug
         run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "RAILWAY_TOKEN is EMPTY"; exit 1
+          fi
+          echo "::add-mask::$RAILWAY_TOKEN"
           railway --version
           railway whoami || true
-          railway status || true
-          railway services --json || true
 
-      # ❌ removed: “Railway login (CI)”
+      - name: Link project
+        run: railway link --project "$RAILWAY_PROJECT_ID" --yes
 
-      - name: Link & select project/env
-        run: |
-          # With RAILWAY_TOKEN in env, these are authorized
-          railway link --project "$RAILWAY_PROJECT_ID"
-          railway environment --environment "$RAILWAY_ENVIRONMENT_ID"
+      - name: Select environment
+        run: railway environment --environment "$RAILWAY_ENVIRONMENT_ID" --yes
 
       - name: Deploy via Railway CLI (non-interactive)
         run: railway up --ci
