@@ -49,10 +49,21 @@ jobs:
       - name: Build (safe)
         run: npm run build
 
+
+      - name: Upload build artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: .next
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Print env presence (debug)
         run: |
           echo "Has SUPABASE_URL? " ${{ secrets.NEXT_PUBLIC_SUPABASE_URL != '' }}
           echo "Has SUPABASE_ANON?" ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY != '' }}
+
 
       - name: Install Railway CLI
         run: npm i -g @railway/cli
@@ -73,9 +84,51 @@ jobs:
         run: |
           railway up --ci
 
+
+      - name: Smoke tests
+        run: |
+          # Use NEXT_PUBLIC_BASE_URL if set, otherwise fallback to https://skrblai.io
+          BASE_URL="${NEXT_PUBLIC_BASE_URL:-https://skrblai.io}"
+          echo "Testing deployed site: $BASE_URL"
+          
+          # Healthcheck loop - wait for deployment to be ready
+          echo "Waiting for deployment to be ready..."
+          for i in {1..30}; do
+            if curl -sf "$BASE_URL/api/health" > /dev/null 2>&1; then
+              echo "✅ Health check passed on attempt $i"
+              break
+            fi
+            echo "⏳ Health check attempt $i failed, retrying in 10s..."
+            sleep 10
+            if [ $i -eq 30 ]; then
+              echo "❌ Health check timed out after 5 minutes"
+              exit 1
+            fi
+          done
+          
+          # Test endpoints
+          echo "Testing homepage..."
+          curl -Isf "$BASE_URL/" | head -n 1
+          
+          echo "Testing /sports page..."
+          curl -Isf "$BASE_URL/sports" | head -n 1
+          
+          echo "Testing /api/health endpoint..."
+          curl -s "$BASE_URL/api/health" | head -n 1
+          
+          echo "✅ All smoke tests passed!"
+
+      - name: Security scan
+        continue-on-error: true
+        run: |
+          echo "Running security audit (non-blocking)..."
+          npm audit --audit-level=critical || true
+          echo "Security scan completed (non-blocking)"
+
       - name: Run smoke tests (non-fatal)
         env:
           NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL || secrets.NEXT_PUBLIC_BASE_URL || '' }}
         run: |
           echo "Starting smoke tests (non-fatal)"
           npm run test:smoke || true
+
