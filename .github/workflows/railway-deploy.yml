@@ -57,15 +57,22 @@ jobs:
           railway --version
           railway whoami || echo "Using RAILWAY_TOKEN from env (no interactive login)"
 
+      - name: Railway link to project
+        env:
+          RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+        run: railway link --project "$RAILWAY_PROJECT_ID"
+
+      - name: Select environment
+        env:
+          RAILWAY_ENV_ID: ${{ vars.RAILWAY_ENV_ID }}
+        run: railway environment --environment "$RAILWAY_ENV_ID"
+
       - name: Deploy via Railway CLI (non-interactive)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
           RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
-        run: |
-          railway up --ci \
-            --project "$RAILWAY_PROJECT_ID" \
-            --environment "$RAILWAY_ENVIRONMENT_ID"
+        run: railway up --ci
 
       - name: Smoke checks (non-fatal)
         continue-on-error: true
