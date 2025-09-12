@@ -14,25 +14,21 @@ jobs:
       SKIP_ENV_VALIDATION: "true"
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon"
-
-      # ✅ Make token available to all steps (no explicit login step needed)
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      # Project/Env IDs pulled from repo “Variables” (Settings → Secrets and variables → Variables)
       RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
       RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
 
     steps:
-      - name: Checkout
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Print context
+      - name: Print GitHub context (debug)
         run: |
           echo "Actor:   $GITHUB_ACTOR"
           echo "Branch:  $GITHUB_REF"
           echo "SHA:     $GITHUB_SHA"
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -43,7 +39,7 @@ jobs:
       - name: Lint (non-blocking)
         run: npm run lint -- --fix || true
 
-      - name: Build (safe)
+      - name: Build project
         run: npm run build
 
       - name: Install Railway CLI
@@ -56,11 +52,8 @@ jobs:
           railway status || true
           railway services --json || true
 
-      # ❌ removed: “Railway login (CI)”
-
-      - name: Link & select project/env
+      - name: Link and select Railway project/environment
         run: |
-          # With RAILWAY_TOKEN in env, these are authorized
           railway link --project "$RAILWAY_PROJECT_ID"
           railway environment --environment "$RAILWAY_ENVIRONMENT_ID"
 
@@ -68,6 +61,7 @@ jobs:
         run: railway up --ci
 
       - name: Smoke checks (non-fatal)
+        continue-on-error: true
         run: |
           BASE_URL="https://skrblai.io"
           echo "HEAD /        ->" && curl -Isf "$BASE_URL/"        | head -n 1 || true
