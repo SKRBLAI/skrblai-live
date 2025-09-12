@@ -46,7 +46,9 @@ jobs:
         run: npm i -g @railway/cli
 
       - name: Authenticate with Railway
-        run: railway login ${{ secrets.RAILWAY_TOKEN }}
+        run: railway login
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Print Railway context (debug)
         run: |
@@ -54,14 +56,20 @@ jobs:
           railway whoami || true
           railway status || true
           railway service --json || true
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Link and select Railway project/environment
         run: |
           railway link --project "$RAILWAY_PROJECT_ID"
           railway environment --environment "$RAILWAY_ENVIRONMENT_ID"
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Deploy via Railway CLI (non-interactive)
         run: railway up --ci
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Smoke checks (non-fatal)
         continue-on-error: true
