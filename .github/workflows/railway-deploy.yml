@@ -47,8 +47,8 @@ jobs:
 
       - name: Link and select Railway project/environment
         run: |
-          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}"
-          railway environment --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}"
+          railway link --project "${{ secrets.RAILWAY_PROJECT_ID }}"
+          railway environment --environment "${{ secrets.RAILWAY_ENVIRONMENT_ID }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
