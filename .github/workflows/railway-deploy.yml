@@ -42,7 +42,6 @@ jobs:
           railway --version
           railway whoami || true
           railway status || true
-          railway service --json || true
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
