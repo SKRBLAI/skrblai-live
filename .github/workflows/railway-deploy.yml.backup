@@ -18,7 +18,7 @@ jobs:
       # ✅ Make token available to all steps (no explicit login step needed)
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
-      # Project/Env IDs pulled from repo “Variables” (Settings → Secrets and variables → Variables)
+      # Project/Env IDs pulled from repo "Variables" (Settings → Secrets and variables → Variables)
       RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
       RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
 
