@@ -9,14 +9,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    env:
-      NODE_OPTIONS: --max-old-space-size=4096
-      SKIP_ENV_VALIDATION: "true"
-      NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co"
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon"
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
-      RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
 
     steps:
       - name: Checkout source code
@@ -45,8 +37,6 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      # Removed 'Authenticate with Railway' (railway login) step
-
       - name: Print Railway context (debug)
         run: |
           railway --version
@@ -58,8 +48,8 @@ jobs:
 
       - name: Link and select Railway project/environment
         run: |
-          railway link --project "$RAILWAY_PROJECT_ID"
-          railway environment --environment "$RAILWAY_ENVIRONMENT_ID"
+          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}"
+          railway environment --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
