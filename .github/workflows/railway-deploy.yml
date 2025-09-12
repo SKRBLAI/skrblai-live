@@ -45,10 +45,7 @@ jobs:
       - name: Install Railway CLI
         run: npm i -g @railway/cli
 
-      - name: Authenticate with Railway
-        run: railway login
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      # Removed 'Authenticate with Railway' (railway login) step
 
       - name: Print Railway context (debug)
         run: |
