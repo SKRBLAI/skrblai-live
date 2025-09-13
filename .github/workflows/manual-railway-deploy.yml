@@ -1,0 +1,90 @@
+name: Manual Deploy to Railway
+
+on:
+  workflow_dispatch:
+    inputs:
+      service_dir:
+        description: 'Service directory (leave blank to auto-detect from scripts/.service_dir)'
+        required: false
+        default: ''
+        type: string
+      commit:
+        description: 'Specific commit/branch to deploy (optional)'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_ENVIRONMENT_ID: ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
+      NODE_OPTIONS: --max-old-space-size=4096
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | bash
+          railway version || true
+
+      - name: Checkout specific commit
+        if: ${{ github.event.inputs.commit != '' }}
+        run: |
+          echo "Checking out commit/ref: ${{ github.event.inputs.commit }}"
+          git checkout ${{ github.event.inputs.commit }}
+
+      - name: Determine service directory
+        id: service_dir
+        run: |
+          if [ -n "${{ github.event.inputs.service_dir }}" ]; then
+            SERVICE_DIR="${{ github.event.inputs.service_dir }}"
+          else
+            SERVICE_DIR=$(cat scripts/.service_dir 2>/dev/null || echo ".")
+          fi
+          echo "SERVICE_DIR=$SERVICE_DIR" >> $GITHUB_OUTPUT
+          echo "Using service directory: $SERVICE_DIR"
+
+      - name: Build application
+        working-directory: ${{ steps.service_dir.outputs.SERVICE_DIR }}
+        run: |
+          echo "Building in directory: $(pwd)"
+          npm ci
+          npm run build
+
+      - name: Configure Railway authentication
+        run: |
+          mkdir -p ~/.railway
+          echo '{"token":"${{ secrets.RAILWAY_TOKEN }}"}' > ~/.railway/config.json
+          chmod 600 ~/.railway/config.json
+          railway whoami
+
+      - name: Link and deploy to Railway
+        working-directory: ${{ steps.service_dir.outputs.SERVICE_DIR }}
+        run: |
+          echo "Deploying from directory: $(pwd)"
+          railway link --project "${{ secrets.RAILWAY_PROJECT_ID }}" --environment "${{ secrets.RAILWAY_ENVIRONMENT_ID }}" --service "skrblai-live" || true
+          railway up --yes --detach --verbose
+
+      - name: Post-deploy smoke checks
+        continue-on-error: true
+        run: |
+          echo "Running post-deploy smoke checks..."
+          echo "HEAD / ->" 
+          curl -Isf https://skrblai.io/ | head -n 1 || true
+          echo "HEAD /sports ->"
+          curl -Isf https://skrblai.io/sports | head -n 1 || true
+          echo "GET /api/health ->"
+          curl -s https://skrblai.io/api/health | head -n 1 || true
