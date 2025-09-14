@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { getBaseUrl } from '../lib/url';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skrblai.io';
+  const baseUrl = getBaseUrl() || 'https://skrblai.io';
   const currentDate = new Date().toISOString();
   
   // Static pages

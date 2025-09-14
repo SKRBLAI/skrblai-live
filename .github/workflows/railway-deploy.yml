@@ -1,4 +1,5 @@
 name: Deploy to Railway (Dockerfile)
+
 on:
   push:
     branches: [ master ]
@@ -9,75 +10,42 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    defaults:
-      run:
-        working-directory: .
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+      RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
+      RAILWAY_SERVICE_NAME: ${{ vars.RAILWAY_SERVICE_NAME }}
+      SITE_BASE_URL: ${{ vars.SITE_BASE_URL }}
     steps:
-
-      - name: Checkout source code
-        uses: actions/checkout@v4
-
-      - name: Print GitHub context (debug)
-        run: |
-          echo "Actor:   $GITHUB_ACTOR"
-          echo "Branch:  $GITHUB_REF"
-          echo "SHA:     $GITHUB_SHA"
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint (non-blocking)
-        run: npm run lint --fix || true
-
-      - name: Build project
-        run: npm run build
-
       - uses: actions/checkout@v4
-
 
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | bash
 
-
-      - name: Verify railway.json configuration
-        run: |
-          echo "Verifying railway.json exists and has correct configuration..."
-          cat railway.json
-          echo "Railway CLI version:"
-          railway --version
-
-      - name: Deploy via Railway CLI using railway.json
-        run: railway up --service "skrblai-live" --detach --ci
-
-      - name: Smoke checks (non-fatal)
-        continue-on-error: true
-        run: |
-          BASE_URL="https://skrblai.io"
-          echo "HEAD /        ->" && curl -Isf "$BASE_URL/"        | head -n 1 || true
-          echo "HEAD /sports  ->" && curl -Isf "$BASE_URL/sports"  | head -n 1 || true
-          echo "GET  /api/health ->" && curl -s "$BASE_URL/api/health" | head -n 1 || true
-
-      - name: Preflight env (debug)
+      - name: Preflight (Docker + config present)
         run: |
           echo "Service root: $(pwd)"
-          ls -la
-          test -f Dockerfile || (echo "Dockerfile not found at working dir" && exit 1)
-          test -f railway.json || (echo "railway.json not found at working dir" && exit 1)
+          test -f Dockerfile || (echo "Missing Dockerfile" && exit 1)
+          test -f railway.json || (echo "Missing railway.json" && exit 1)
 
-      - name: Auth & Link
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Verify token is present and valid
         run: |
-          railway whoami
-          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" --service "${{ vars.RAILWAY_SERVICE_NAME }}"
+          test -n "$RAILWAY_TOKEN" || (echo "RAILWAY_TOKEN missing" && exit 1)
+          railway whoami || (echo "Invalid RAILWAY_TOKEN" && exit 1)
+
+      - name: Link project/env/service (non-interactive)
+        run: |
+          railway link --project "$RAILWAY_PROJECT_ID" \
+                       --environment "$RAILWAY_ENVIRONMENT_ID" \
+                       --service "$RAILWAY_SERVICE_NAME"
 
       - name: Deploy (Dockerfile)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway up --yes --verbose
 
+      - name: Post-deploy smoke (non-blocking)
+        continue-on-error: true
+        run: |
+          BASE_URL="${SITE_BASE_URL:-https://skrblai.io}"
+          echo "Smoke on ${BASE_URL}"
+          curl -Isf "$BASE_URL/" | head -n1
+          curl -s "$BASE_URL/api/health" || true

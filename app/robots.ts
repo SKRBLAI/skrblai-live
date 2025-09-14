@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
+import { getBaseUrl } from '../lib/url';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://skrblai.io';
+  const baseUrl = getBaseUrl() || 'https://skrblai.io';
   
   return {
     rules: [
