@@ -1,8 +1,8 @@
-# INTENTIONALLY MANUAL to avoid flaky auto-trigger. Use manual-railway-deploy.yml.
-name: Deploy to Railway
-
+name: Deploy to Railway (Dockerfile)
 on:
-  workflow_dispatch: {}
+  push:
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -12,49 +12,27 @@ jobs:
     defaults:
       run:
         working-directory: .
-    env:
-      NODE_OPTIONS: --max-old-space-size=4096
-      SKIP_ENV_VALIDATION: "true"
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node (for optional local build)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | bash
 
-      - name: Install Railway CLI (pinned)
+      - name: Preflight env (debug)
         run: |
-          curl -fsSL https://railway.app/install.sh | bash
-          railway version || true
+          echo "Service root: $(pwd)"
+          ls -la
+          test -f Dockerfile || (echo "Dockerfile not found at working dir" && exit 1)
+          test -f railway.json || (echo "railway.json not found at working dir" && exit 1)
 
-      - name: Verify Railway auth
+      - name: Auth & Link
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           railway whoami
+          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" --service "${{ vars.RAILWAY_SERVICE_NAME }}"
 
-      - name: Link project/env/service (explicit)
+      - name: Deploy (Dockerfile)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway link \
-            --project "${{ secrets.RAILWAY_PROJECT_ID }}" \
-            --environment "${{ secrets.RAILWAY_ENV }}" \
-            --service "${{ secrets.RAILWAY_SERVICE }}"
-
-      # Optional build; remove if Railway builds from Dockerfile only
-      - name: Build (optional, safe)
-        run: |
-          if [ -f package.json ]; then
-            npm ci
-            npm run build || true
-          fi
-
-      - name: Deploy (stream logs, fail on errors)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway up --verbose
+        run: railway up --yes --verbose
