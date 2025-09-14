@@ -1,30 +1,39 @@
-# ---- Build stage ----
+# ---- deps ----
 FROM node:20-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package*.json ./
 RUN npm ci
 
+# ---- build ----
 FROM node:20-alpine AS builder
 WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Prevent Next from inlining env at build unless explicitly provided
-ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
 RUN npm run build
 
-# ---- Runtime stage ----
+# ---- runtime (standalone) ----
 FROM node:20-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
-# Since standalone is disabled in next.config.js, copy full build
-COPY --from=builder /app .
+# Railway provides PORT; default to 3000 for local runs
+ENV PORT=3000
 
-# Healthcheck (optional)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget -qO- http://localhost:3000/api/health || exit 1
+# Run as non-root
+RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
+# Copy standalone output
+# This puts server.js at /app/server.js
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./.next/static
+
+USER nextjs
 EXPOSE 3000
-CMD ["npm","run","start"]
+
+# Basic healthcheck hitting our health route
+HEALTHCHECK --interval=20s --timeout=3s --retries=5 CMD wget -qO- http://127.0.0.1:${PORT}/api/health || exit 1
+
+# Next standalone respects PORT and binds 0.0.0.0
+CMD ["node","server.js"]
