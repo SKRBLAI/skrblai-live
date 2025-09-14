@@ -31,4 +31,10 @@ fi
 echo "Last 5 commits on master:"
 git log --oneline -n 5
 
+# CI post-deploy smoke (non-blocking)
+BASE_URL="${SITE_BASE_URL:-https://skrblai.io}"
+echo "Smoke: $BASE_URL"
+curl -Isf "$BASE_URL/" | head -n1 || echo "warn: / failed"
+curl -s "$BASE_URL/api/health" || echo "warn: /api/health failed"
+
 echo "Deployment process completed!"
