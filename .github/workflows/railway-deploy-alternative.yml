@@ -1,8 +1,7 @@
+# INTENTIONALLY MANUAL to avoid flaky auto-trigger. Use manual-railway-deploy.yml.
 name: Deploy to Railway (Alternative - GitHub Action)
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
 
 jobs:
