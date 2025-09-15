@@ -44,13 +44,7 @@ function addSecurityHeaders(response: NextResponse) {
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next();
   
-  // Handle apex → www redirect (if needed)
-  const hostname = request.headers.get('host');
-  if (hostname === 'skrblai.io') {
-    const url = request.nextUrl.clone();
-    url.hostname = 'www.skrblai.io';
-    response = NextResponse.redirect(url);
-  }
+  // Removed forced www redirect - serve apex domain directly
   
   // Add security headers to all responses
   response = addSecurityHeaders(response);

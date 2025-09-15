@@ -6,11 +6,12 @@ import type { ReactNode } from "react";
 import { Inter } from 'next/font/google';
 import { Metadata } from 'next';
 import ClientLayout from './ClientLayout';
+import { getBaseUrl } from '../lib/url';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://skrblai.io'),
+  metadataBase: new URL(getBaseUrl() || 'https://skrblai.io'),
   title: {
     default: 'SKRBL AI - AI-Powered Business Automation & Content Creation',
     template: '%s | SKRBL AI'

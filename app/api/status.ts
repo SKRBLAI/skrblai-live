@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOptionalServerSupabase } from '../../lib/supabase/server';
 import { systemLog } from '../../utils/systemLog';
+import { getBaseUrl } from '../../lib/url';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     // Aggregate health checks
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl = getBaseUrl() || `http://localhost:${process.env.PORT || 3000}`;
     const [n8n, agents] = await Promise.all([
       fetchInternal(`${baseUrl}/api/n8n/health`, token ?? ''),
       fetchInternal(`${baseUrl}/api/agents/featured`, token ?? ''),
