@@ -1,5 +1,6 @@
 import { loadStripe } from '@stripe/stripe-js';
 import Stripe from 'stripe';
+import { getBaseUrl } from '../lib/url';
 
 // Client-side Stripe instance
 export const getStripePromise = () => {
@@ -24,8 +25,8 @@ export const createCheckoutSession = async (userId: string, priceId: string) => 
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/account?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/pricing`,
+      success_url: `${getBaseUrl()}/account?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${getBaseUrl()}/pricing`,
       metadata: {
         userId,
       },

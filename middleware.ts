@@ -2,18 +2,12 @@ import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+const ALLOWED = new Set(['skrblai.io','www.skrblai.io']);
+
 export const config = {
   matcher: [
-
-    '/dashboard/:path*',
-    '/api/:path*',
-    '/bundle/:path*',
-    '/bundles/:path*',
-    '/sports/bundle/:path*',
-    '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
-
+    '/((?!_next|static|favicon.ico|robots.txt|sitemap.xml|api/health).*)',
   ],
-  runtime: 'experimental-edge'
 };
 
 function addSecurityHeaders(response: NextResponse) {
@@ -42,15 +36,19 @@ function addSecurityHeaders(response: NextResponse) {
 }
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next();
-  
-  // Handle apex → www redirect (if needed)
-  const hostname = request.headers.get('host');
-  if (hostname === 'skrblai.io') {
-    const url = request.nextUrl.clone();
-    url.hostname = 'www.skrblai.io';
-    response = NextResponse.redirect(url);
+  const url = new URL(request.nextUrl);
+  const forwardedHost = request.headers.get('x-forwarded-host') ?? url.host;
+  const hostNoPort = forwardedHost.replace(/:\d+$/, '');
+
+  if (!ALLOWED.has(hostNoPort)) {
+    return NextResponse.next(); // don't rewrite unknown preview hosts
   }
+  if (hostNoPort === 'www.skrblai.io') {
+    url.host = 'skrblai.io';
+    return NextResponse.redirect(url, 308);
+  }
+  
+  let response = NextResponse.next();
   
   // Add security headers to all responses
   response = addSecurityHeaders(response);
