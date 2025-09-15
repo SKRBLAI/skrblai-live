@@ -1,0 +1,31 @@
+# Stack Trace Analysis
+
+## Issue Confirmed
+- Main site: https://skrblai.io/ returns HTTP 500 
+- Health endpoint: Redirects to www.skrblai.io:8080 (DNS/proxy config issue)
+- Container is running (getting 500, not 504)
+- Next.js server is responding but erroring during page render
+
+## Without Railway CLI Access
+Unable to pull live logs directly. However, the 500 error indicates:
+- Container is running and binding correctly
+- Docker/Railway deployment is working
+- Issue is in application code during request handling
+
+## Most Likely Root Causes (Based on Codebase Analysis)
+1. Missing environment variables (Supabase keys, API keys)
+2. Database connection failure at startup/first request
+3. Missing required secrets causing initialization errors
+
+## Recommended Investigation
+1. Check Railway Variables for missing/malformed env vars
+2. Look for Supabase connection errors
+3. Verify all required API keys are set and valid
+
+## Stack Trace Placeholder
+[Would contain actual error from: railway logs -s skrblai-live --since 30m]
+Expected patterns:
+- "Cannot read properties of undefined" (missing env vars)
+- "Missing env var" (explicit env validation)
+- "Connection refused" (database/external service issues)
+- "Invalid API key" (auth/service integration failures)

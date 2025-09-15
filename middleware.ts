@@ -1,46 +1,17 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export const config = {
-  matcher: [
-
-    '/dashboard/:path*',
-    '/api/:path*',
-    '/bundle/:path*',
-    '/bundles/:path*',
-    '/sports/bundle/:path*',
-    '/((?!_next/static|_next/image|favicon.ico|_not-found).*)',
-
-  ],
-  runtime: 'experimental-edge'
-};
-
-function addSecurityHeaders(response: NextResponse) {
-  // Strict security headers
-  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-  
-  // Content Security Policy - Report-Only mode first
-  const csp = [
-    "default-src 'self'",
-    "img-src 'self' https: data: blob:",
-    "media-src 'self' https: blob:",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
-    "style-src 'self' 'unsafe-inline' https:",
-    "font-src 'self' https: data:",
-    "connect-src 'self' https: wss:",
-    "frame-ancestors 'none'"
-  ].join('; ');
-  
-  response.headers.set('Content-Security-Policy-Report-Only', csp);
-  
-  return response;
+export function middleware(req: NextRequest) {
+  const host = req.headers.get("host") || "";
+  if (host.startsWith("www.")) {
+    const url = new URL(req.url);
+    url.host = host.slice(4); // strip "www."
+    return NextResponse.redirect(url, 308);
+  }
+  return NextResponse.next();
 }
 
+<<<<<<< HEAD
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next();
   
@@ -186,3 +157,8 @@ export async function middleware(request: NextRequest) {
   
   return response;
 }
+=======
+export const config = {
+  matcher: ["/((?!_next|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks).*)"],
+};
+>>>>>>> eec37664357c25a47c50c3909fad9cd7fe005d4c

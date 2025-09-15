@@ -9,30 +9,38 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    defaults:
-      run:
-        working-directory: .
     steps:
       - uses: actions/checkout@v4
 
       - name: Install Railway CLI
         run: curl -fsSL https://railway.app/install.sh | bash
 
-      - name: Preflight env (debug)
-        run: |
-          echo "Service root: $(pwd)"
-          ls -la
-          test -f Dockerfile || (echo "Dockerfile not found at working dir" && exit 1)
-          test -f railway.json || (echo "railway.json not found at working dir" && exit 1)
+      - name: Login
+        env: { RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} }
+        run: railway login --token "$RAILWAY_TOKEN"
 
-      - name: Auth & Link
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - name: Link (explicit)
+        env: { RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} }
         run: |
+          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" \
+                       --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" \
+                       --service "${{ vars.RAILWAY_SERVICE_NAME }}"
           railway whoami
-          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" --service "${{ vars.RAILWAY_SERVICE_NAME }}"
+          railway status || true
 
-      - name: Deploy (Dockerfile)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --yes --verbose
+      - name: Preflight
+        run: |
+          test -f Dockerfile
+          test -f railway.json
+          node -v && npm -v
+
+      - name: Deploy
+        env: { RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} }
+        run: railway up --service "${{ vars.RAILWAY_SERVICE_NAME }}" --yes --verbose --ci
+
+      - name: Post-deploy smoke (non-blocking)
+        run: |
+          BASE="https://skrblai.io"
+          echo "Smoke $BASE"
+          curl -Is "$BASE/" | head -n1 || true
+          curl -Is "$BASE/api/health" | head -n1 || true

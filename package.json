@@ -6,7 +6,7 @@
     "verify:env": "tsx scripts/verifyEnv.ts",
     "dev": "next dev",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
-    "start": "next start -p 3000",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "next lint",
     "health": "node -e \"require('http').createServer((_,r)=>r.end('ok')).listen(3000)\"",
     "clean": "rm -rf .next node_modules",

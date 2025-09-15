@@ -29,6 +29,8 @@ export default function PricingGrid({
   promoLabel,
   displayPrice
 }: PricingGridProps) {
+  const byPriceAsc = <T extends { price:number }>(a:T,b:T)=>a.price-b.price;
+  const itemsSorted = [...items].sort(byPriceAsc);
   
   const getGridCols = () => {
     switch (columns) {
@@ -44,7 +46,7 @@ export default function PricingGrid({
     }
   };
 
-  if (!items || items.length === 0) {
+  if (!itemsSorted || itemsSorted.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="text-6xl mb-4">🏃‍♂️</div>
@@ -82,7 +84,7 @@ export default function PricingGrid({
       )}
 
       <div className={cn('grid gap-6', getGridCols())}>
-        {items.map((item, index) => (
+        {itemsSorted.map((item, index) => (
           <PricingCard
             key={item.id}
             item={item}
