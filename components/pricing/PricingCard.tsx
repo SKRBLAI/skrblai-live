@@ -4,25 +4,30 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Star, Crown, Zap, ShoppingCart } from 'lucide-react';
 import { PricingItem, formatPrice, calculateSavings, getBadgeText, getCategoryColor } from '../../lib/sports/pricingData';
-import { getCardClass, getButtonClass, cn } from '../../styles/ui';
+import { getCardClass, getButtonClass, cn, chip } from '../../styles/ui';
 
 interface PricingCardProps {
   item: PricingItem;
   onPurchase?: (item: PricingItem) => void;
   className?: string;
   animationDelay?: number;
+  promoLabel?: string;
+  displayPrice?: number | string;
 }
 
 export default function PricingCard({ 
   item, 
   onPurchase,
   className = '',
-  animationDelay = 0
+  animationDelay = 0,
+  promoLabel,
+  displayPrice
 }: PricingCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const savings = calculateSavings(item);
   const badgeText = getBadgeText(item.badge);
   const categoryGradient = getCategoryColor(item.category);
+  const shownPrice = typeof displayPrice !== 'undefined' ? displayPrice : item.price;
 
   const handlePurchase = async () => {
 
@@ -30,7 +35,7 @@ export default function PricingCard({
     console.log('event:pricing_cta_click', { 
       plan: item.id, 
       billingPeriod: item.period || 'one-time', 
-      price: item.price 
+      price: shownPrice 
     });
 
     if (item.price === 0) {
@@ -39,43 +44,7 @@ export default function PricingCard({
       return;
     }
 
-    // For now, redirect to checkout page with plan parameter
-    const planId = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const checkoutUrl = `/checkout?plan=${planId}&period=monthly`;
-    
-    console.log('Redirecting to checkout:', checkoutUrl);
-    window.location.href = checkoutUrl;
-
-    // TODO: Implement full Stripe integration
-    // setIsLoading(true);
-    // 
-    // try {
-    //   const response = await fetch('/api/stripe/create-checkout-session', {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({
-    //       planId: plan.id,
-    //       billingPeriod,
-    //       successUrl: `${window.location.origin}/checkout/success`,
-    //       cancelUrl: `${window.location.origin}/checkout/cancel`
-    //     })
-    //   });
-    //
-    //   const { url, error } = await response.json();
-    //   
-    //   if (error) {
-    //     throw new Error(error);
-    //   }
-    //
-    //   if (url) {
-    //     window.location.href = url;
-    //   }
-    // } catch (error: any) {
-    //   console.error('Checkout error:', error);
-    //   toast.error(`Checkout failed: ${error.message}`);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    // Delegate to parent for actual checkout handling (unified /api/checkout)
 
     if (isLoading) return;
     
@@ -135,7 +104,9 @@ export default function PricingCard({
             )}
           >
             {getBadgeIcon()}
-            <span>{badgeText.toUpperCase()}</span>
+            <span className="inline-flex max-w-[92px] overflow-hidden text-ellipsis whitespace-nowrap leading-none">
+              {badgeText.toUpperCase()}
+            </span>
           </motion.div>
         </div>
       )}
@@ -164,7 +135,7 @@ export default function PricingCard({
               </div>
             </div>
             <div className={cn(
-              'px-2 py-1 rounded-full text-xs font-medium border',
+              'inline-flex items-center rounded-full bg-white/8 ring-1 ring-white/10 px-2 py-0.5 text-[11px] font-medium leading-none max-w-[92px] overflow-hidden text-ellipsis whitespace-nowrap',
               `bg-gradient-to-r ${categoryGradient} bg-opacity-20 border-current text-white`
             )}>
               {item.category}
@@ -185,7 +156,7 @@ export default function PricingCard({
               </span>
             )}
             <span className="text-3xl font-bold text-white">
-              {formatPrice(item.price)}
+              {typeof shownPrice === 'number' ? formatPrice(shownPrice) : shownPrice}
             </span>
             {item.period && item.period !== 'one-time' && (
               <span className="text-slate-400 text-sm">
@@ -193,6 +164,13 @@ export default function PricingCard({
               </span>
             )}
           </div>
+
+          {/* Promo pill (UI only) */}
+          {promoLabel && (
+            <div className="mt-2">
+              <span className={cn(chip, 'text-amber-300 ring-amber-400/30')}>{promoLabel}</span>
+            </div>
+          )}
           
           {savings > 0 && (
             <motion.div
@@ -274,6 +252,11 @@ export default function PricingCard({
               </span>
             )}
           </div>
+
+          {/* Micro-copy footnote */}
+          <p className="text-[11px] text-white/70 mt-2 text-center">
+            Limited-time promo shown. Final price is confirmed at checkout.
+          </p>
         </div>
       </div>
     </motion.div>

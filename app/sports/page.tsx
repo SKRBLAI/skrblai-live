@@ -10,7 +10,7 @@ import FloatingParticles from '../../components/ui/FloatingParticles';
 import UnifiedSportsHero from '../../components/sports/UnifiedSportsHero';
 import PricingGrid from '../../components/pricing/PricingGrid';
 import MetricsStrip from '../../components/sports/MetricsStrip';
-import IntakeSheet from '../../components/sports/IntakeSheet';
+// Removed separate IntakeSheet in favor of unified form inside SkillSmithPromptBar
 import EncouragementFooter from '../../components/sports/EncouragementFooter';
 import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
@@ -173,45 +173,44 @@ export default function SportsPage(): JSX.Element {
   };
 
 
-  // Client-side checkout helper for bundles
-  // Handle pricing item purchases
+  // Handle pricing item purchases using unified checkout
   const handlePricingPurchase = async (item: PricingItem) => {
     console.log('Purchase initiated for:', item);
-
-    
     try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/stripe/create-session', {
+      const mode = item.type === 'addon' || item.period === 'one-time' ? 'payment' : 'subscription';
+      const r = await fetch('/api/checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tier: item.sku,
-          title: item.title,
-          metadata: { 
-            category: 'sports', 
-            source: 'sports_pricing_grid', 
-            itemId: item.id, 
+          sku: item.sku,
+          mode,
+          vertical: 'sports',
+          metadata: {
+            category: 'sports',
+            source: 'sports_pricing_grid',
+            itemId: item.id,
             itemTitle: item.title,
-            itemType: item.type
+            itemType: item.type,
+            period: item.period || 'one-time',
           },
-          successUrl: `${window.location.origin}/sports?success=true`,
-          cancelUrl: `${window.location.origin}/sports`,
+          successPath: '/sports?success=true',
+          cancelPath: '/sports',
         }),
       });
-
-      if (response.ok) {
-        const { url } = await response.json();
-        window.location.href = url;
-      } else {
-        console.error('Checkout failed:', await response.text());
-        // Fallback to email capture for now
+      if (!r.ok) {
+        console.error('Checkout failed:', await r.text());
         setEmailCaptureModalOpen(true);
+        return;
       }
+      const { url } = await r.json();
+      if (!url) {
+        console.error('Checkout error: missing URL');
+        setEmailCaptureModalOpen(true);
+        return;
+      }
+      window.location.assign(url);
     } catch (error) {
       console.error('Payment error:', error);
-      // Fallback to email capture
       setEmailCaptureModalOpen(true);
     }
   };
@@ -230,26 +229,16 @@ export default function SportsPage(): JSX.Element {
             subhead="Upload your sports footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
             keywords={["Analysis","Mastery of Emotion","Nutrition","Training Plans"]}
             images={[
-              { src: "/skillsmith/soccer.png",     alt: "Skill Smith in soccer gear" },
-              { src: "/skillsmith/basketball.png", alt: "Skill Smith in basketball gear" },
-              { src: "/skillsmith/baseball.png",   alt: "Skill Smith in baseball gear" },
-              { src: "/skillsmith/tennis.png",     alt: "Skill Smith in tennis gear" },
+              { src: "/images/skillsmith/skillsmith-athlete-stand.png",   alt: "Skill Smith athlete standing pose" },
+              { src: "/images/skillsmith/skillsmith-soccer-dribble.png",  alt: "Skill Smith soccer dribble" },
+              { src: "/images/skillsmith/skillsmith-coach-hoodie.png",    alt: "Skill Smith coach hoodie pose" },
             ]}
             onUploadClick={handleUploadClick}
             onSampleAnalysisClick={handleSampleAnalysisClick}
             onParentPortalClick={handleParentPortalClick}
           />
 
-          {/* Intake Sheet */}
-          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-            <IntakeSheet onIntakeComplete={(data) => {
-              // Store intake data for checkout metadata and U13 mode
-              setIntakeData(data);
-              if (data.intakeId) {
-                sessionStorage.setItem('sports_intake_id', data.intakeId);
-              }
-            }} />
-          </div>
+          {/* Unified intake is now part of the plan builder inside the hero prompt bar */}
 
           {/* Add-Ons Section - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
@@ -267,6 +256,8 @@ export default function SportsPage(): JSX.Element {
                   subtitle="These are optional upgrades you can add anytime. Perfect for kids to adults! Get AI analysis, Mastery of Emotion (MOE), nutrition guidance, and foundational training."
                   onPurchase={handlePricingPurchase}
                   columns={4}
+                  promoLabel="14-Day Special $9.99"
+                  displayPrice={19.99}
                 />
               </div>
             </motion.section>
@@ -344,10 +335,17 @@ export default function SportsPage(): JSX.Element {
             />
           )}
 
-          {/* Metrics Strip in Footer */}
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-            <MetricsStrip />
-          </div>
+          {/* Metrics Strip in Footer with subtle page grounding */}
+          <section className="relative mt-8">
+            <div className="pointer-events-none absolute inset-x-0 -bottom-24 h-48 bg-gradient-to-b from-transparent to-black/40" />
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] shadow-[0_-40px_80px_-20px_rgba(0,0,0,0.5)_inset]">
+                <div className="px-4 sm:px-6 lg:px-8 py-6">
+                  <MetricsStrip />
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
 
         {/* Modals */}

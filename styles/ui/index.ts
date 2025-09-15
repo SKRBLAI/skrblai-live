@@ -51,7 +51,7 @@ export const btnPrimary = 'bg-gradient-to-r from-blue-500 to-purple-600 hover:fr
 export const btnGhost = 'border-2 border-gray-700 hover:border-teal-400 text-gray-300 hover:text-white px-6 py-3 rounded-lg font-medium transition-all duration-300';
 
 // Chip styles
-export const chip = 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-teal-500/20 text-teal-300 border border-teal-500/30';
+export const chip = 'inline-flex items-center rounded-full bg-white/8 ring-1 ring-white/10 px-2 py-0.5 text-[11px] font-medium leading-none max-w-[92px] overflow-hidden text-ellipsis whitespace-nowrap text-teal-300';
 
 // Container styles
 export const containerPad = 'px-4 md:px-6 lg:px-8 xl:px-12';

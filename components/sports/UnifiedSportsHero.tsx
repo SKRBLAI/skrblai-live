@@ -14,7 +14,7 @@ import {
 } from '../../styles/ui';
 import GlowCarousel from '../common/GlowCarousel';
 import SkillSmithPromptBar from './SkillSmithPromptBar';
-import SkillSmithChat from './SkillSmithChat';
+import AgentChat from '../chat/AgentChat';
 
 export interface UnifiedSportsHeroProps {
   headline?: string;
@@ -145,7 +145,7 @@ export default function UnifiedSportsHero({
                   className={`${btnGhost} w-full flex items-center justify-center gap-2`}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Chat with Skill Smith</span>
+                  <span>Chat with SkillSmith</span>
                   {isChatOpen ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (
@@ -164,7 +164,7 @@ export default function UnifiedSportsHero({
                       className="overflow-hidden mt-4"
                     >
                       <div className="max-h-[40vh] overflow-y-auto">
-                        <SkillSmithChat />
+                        <AgentChat agentId="skillsmith" />
                       </div>
                     </motion.div>
                   )}

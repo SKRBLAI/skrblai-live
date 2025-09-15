@@ -8,6 +8,7 @@ import PercyButton from './PercyButton';
 import agentRegistry from '../lib/agents/agentRegistry';
 import FloatingParticles from '../components/ui/FloatingParticles';
 import { getAgentImagePath } from '../utils/agentUtils';
+import AgentChat from '../components/chat/AgentChat';
 
 interface PercyChatProps {
   onComplete?: (data: { name: string; email: string; plan: string; intent: string }) => void;
@@ -187,6 +188,7 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
   const [isTyping, setIsTyping] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [percyState, setPercyState] = useState<'idle' | 'thinking' | 'speaking'>('idle');
+  const [showAgentChat, setShowAgentChat] = useState(false);
   
   // Workflow state
   const [workflowId, setWorkflowId] = useState<WorkflowId | null>(null);
@@ -766,6 +768,41 @@ export default function PercyChat({ onComplete }: PercyChatProps) {
 
       {/* Rest of your existing component UI */}
       {/* Workflow UI, Agent Intents, etc. */}
+
+      {/* Shared Agent Chat for Percy (API-backed) */}
+      <div className="mt-8">
+        <button
+          onClick={() => setShowAgentChat(!showAgentChat)}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-white/20 bg-white/5 hover:bg-white/10 text-white transition-colors"
+          aria-expanded={showAgentChat ? 'true' : 'false'}
+          aria-controls="percy-agent-chat"
+        >
+          <span>💬 Chat with Percy</span>
+          <svg
+            className={`w-4 h-4 transition-transform ${showAgentChat ? 'rotate-180' : ''}`}
+            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+          >
+            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+          </svg>
+        </button>
+
+        <AnimatePresence>
+          {showAgentChat && (
+            <motion.div
+              id="percy-agent-chat"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden mt-4"
+            >
+              <div className="max-h-[60vh] overflow-y-auto rounded-2xl border border-white/10 bg-white/5">
+                <AgentChat agentId="percy" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

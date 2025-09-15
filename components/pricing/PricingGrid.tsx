@@ -14,6 +14,8 @@ interface PricingGridProps {
   className?: string;
   columns?: 1 | 2 | 3 | 4;
   showHeader?: boolean;
+  promoLabel?: string;
+  displayPrice?: number | string;
 }
 
 export default function PricingGrid({
@@ -23,7 +25,9 @@ export default function PricingGrid({
   onPurchase,
   className = '',
   columns = 4,
-  showHeader = true
+  showHeader = true,
+  promoLabel,
+  displayPrice
 }: PricingGridProps) {
   
   const getGridCols = () => {
@@ -84,6 +88,8 @@ export default function PricingGrid({
             item={item}
             onPurchase={onPurchase}
             animationDelay={index * 0.1}
+            promoLabel={promoLabel}
+            displayPrice={displayPrice}
           />
         ))}
       </div>

@@ -24,23 +24,70 @@ const TIME_COMMITMENTS = [
 ];
 
 export default function SkillSmithPromptBar({ onCreatePlan }: SkillSmithPromptBarProps) {
+  // Quick Profile fields (merged from Quick Profile)
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [ageGroup, setAgeGroup] = useState('');
+  const [gender, setGender] = useState('');
+
+  // Plan builder selections
   const [selectedSport, setSelectedSport] = useState('');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [customInput, setCustomInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSportDropdown, setShowSportDropdown] = useState(false);
   const [showGoalDropdown, setShowGoalDropdown] = useState(false);
   const [showTimeDropdown, setShowTimeDropdown] = useState(false);
 
-  const handleCreatePlan = () => {
+  const handleCreatePlan = async () => {
     if (!selectedSport || !selectedGoal || !selectedTime) return;
     
+    // Fire optional callback for downstream usage
     onCreatePlan?.({
       sport: selectedSport,
       goal: selectedGoal,
       time: selectedTime,
       input: customInput
     });
+
+    // Submit unified intake payload (non-blocking UI)
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        name: name?.trim() || '',
+        email: email?.trim() || '',
+        age: ageGroup || '',
+        gender: gender || '',
+        sport: selectedSport,
+        sport_other: '',
+        goal: selectedGoal,
+        time: selectedTime,
+        notes: customInput || ''
+      };
+
+      const res = await fetch('/api/sports/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json().catch(() => ({}));
+      if (res.ok || result?.localOnly || result?.saved) {
+        // Store locally as backup
+        try {
+          localStorage.setItem('sports_intake', JSON.stringify({
+            ...payload,
+            intakeId: result?.intakeId,
+            timestamp: new Date().toISOString()
+          }));
+        } catch { /* ignore quota errors */ }
+      }
+    } catch (e) {
+      console.warn('Unified intake submit failed, continuing UX:', e);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isComplete = selectedSport && selectedGoal && selectedTime;
@@ -60,6 +107,60 @@ export default function SkillSmithPromptBar({ onCreatePlan }: SkillSmithPromptBa
           <p className="text-gray-400">
             Tell Skill Smith about your sport and goals to get a personalized training plan
           </p>
+        </div>
+
+        {/* Quick Profile (merged) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Email (optional)</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com"
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label htmlFor="ageGroup" className="block text-sm font-medium text-gray-300 mb-2">Age Group</label>
+            <select
+              id="ageGroup"
+              title="Age Group"
+              value={ageGroup}
+              onChange={(e) => setAgeGroup(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            >
+              <option value="">Select age</option>
+              <option value="8-18">8-18</option>
+              <option value="19+">19+</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="gender" className="block text-sm font-medium text-gray-300 mb-2">Gender</label>
+            <select
+              id="gender"
+              title="Gender"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+            >
+              <option value="">Select gender</option>
+              <option value="M">Male</option>
+              <option value="F">Female</option>
+              <option value="Nonbinary">Nonbinary</option>
+              <option value="Prefer not">Prefer not to say</option>
+            </select>
+          </div>
         </div>
 
         {/* Selection Grid */}
@@ -194,17 +295,16 @@ export default function SkillSmithPromptBar({ onCreatePlan }: SkillSmithPromptBa
         <div className="text-center">
           <button
             onClick={handleCreatePlan}
-            disabled={!isComplete}
+            disabled={!isComplete || isSubmitting}
             className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 mx-auto ${
-              isComplete
+              isComplete && !isSubmitting
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 shadow-lg shadow-orange-500/25'
                 : 'bg-gray-700 text-gray-400 cursor-not-allowed'
             }`}
           >
             <Zap className="w-5 h-5" />
-            Create Training Plan
+            {isSubmitting ? 'Saving...' : 'Create Training Plan'}
           </button>
-          
           {!isComplete && (
             <p className="text-gray-500 text-sm mt-2">
               Please select sport, goal, and time commitment

@@ -170,7 +170,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Power Rangers Cosmic Glass Card */}
-        <CardBase className="agent-league-card-base" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
+        <CardBase className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
           <motion.div 
             className="agent-league-card-container agent-card-glow float-slow"
           >
@@ -194,7 +194,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                 {/* Auto-detected Badge from Agent Config */}
                 {badgeType && (
-                  <div className="absolute top-3 right-3 z-20">
+                  <div className="absolute top-2 right-2 z-10 truncate max-w-[60%]">
                     <motion.div 
                       className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg backdrop-blur-sm ${
                         badgeType === 'recommended' ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white' :
@@ -212,7 +212,6 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     </motion.div>
                   </div>
                 )}
-
                 {/* Live Activity & Stats - Data-driven */}
                 <div className="agent-league-stats">
                   <div className="agent-league-stat-item">
@@ -225,51 +224,21 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   </div>
                 </div>
 
-                {/* Power Rangers Agent Image with Cosmic Effects */}
+                {/* Power Rangers Agent Image with standardized frame (glass + ring + soft shadow) */}
                 <div className="flex flex-col items-center pt-6 pb-6 px-3">
                   <motion.div
-                    className="relative w-24 h-24 mb-4"
+                    className="relative mx-auto mt-3 h-28 w-28 rounded-xl bg-white/[0.03] ring-1 ring-white/10 shadow-lg shadow-black/20 mb-4"
                     whileHover={{ 
-                      scale: shouldReduceMotion ? 1 : 1.15,
-                      rotateY: shouldReduceMotion ? 0 : 15
+                      scale: shouldReduceMotion ? 1 : 1.05
                     }}
-                    transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                    transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
-                    {/* Cosmic Glow Background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/40 to-purple-600/40 rounded-full blur-lg animate-pulse"></div>
-                    
-                    {/* Single Clean Ring */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-cyan-400/50"
-                      animate={{ 
-                        borderColor: [
-                          'rgba(48, 213, 200, 0.5)',
-                          'rgba(168, 85, 247, 0.5)',
-                          'rgba(48, 213, 200, 0.5)'
-                        ]
-                      }}
-                      transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-                    />
-                    
-                    {/* Multiple Orbiting Particles */}
-                    <motion.span
-                      className="agent-league-orbiting-particle absolute -top-1 left-1/2 h-1.5 w-1.5 bg-cyan-400"
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
-                    />
-                    <motion.span
-                      className="agent-league-orbiting-particle absolute top-1/2 -right-1 h-1 w-1 bg-purple-400"
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 5, ease: 'linear' }}
-                    />
-                    
                     <Image
                       src={`/images/agents/${agent.imageSlug || agent.id}.png`}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
-                      width={96}
-                      height={96}
-                      className="relative z-10 rounded-full border-2 border-teal-400/70 shadow-[0_0_20px_rgba(48,213,200,0.5)] hover:shadow-[0_0_30px_rgba(48,213,200,0.8)] transition-all duration-300"
-                      style={{ objectFit: 'cover' }}
+                      fill
+                      sizes="112px"
+                      className="object-contain p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.style.display = 'none';
@@ -278,7 +247,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       }}
                     />
                     <div 
-                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-full bg-zinc-900/60 text-zinc-300"
+                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300"
                     >
                       <span className="text-2xl font-bold">{agentConfig.emoji || getAgentEmoji(agent.id)}</span>
                     </div>

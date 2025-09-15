@@ -46,10 +46,10 @@ export async function middleware(request: NextRequest) {
   
   // Handle apex → www redirect (if needed)
   const hostname = request.headers.get('host');
-  if (hostname === 'skrblai.io') {
+  if (hostname === 'www.skrblai.io') {
     const url = request.nextUrl.clone();
-    url.hostname = 'www.skrblai.io';
-    response = NextResponse.redirect(url);
+    url.hostname = 'skrblai.io';
+    response = NextResponse.redirect(url, 308);
   }
   
   // Add security headers to all responses
@@ -125,13 +125,9 @@ export async function middleware(request: NextRequest) {
     const allowDashboardAccess = isEmailVerified || isExistingUser || user.user_metadata?.dashboard_access;
     
     if (!allowDashboardAccess) {
-      console.log('[MIDDLEWARE] New unverified user, redirecting to onboarding');
-      
-      // Only redirect genuinely new, unverified users to homepage for Percy onboarding
-      const homeUrl = new URL('/', request.url);
-      homeUrl.searchParams.set('reason', 'email-not-verified');
-      
-      return NextResponse.redirect(homeUrl);
+      console.log('[MIDDLEWARE] New unverified user - allowing dashboard access (no silent redirect)');
+      // Allow access; Dashboard page will handle any UI gating or messaging
+      return response;
     }
     
     console.log('[MIDDLEWARE] User verified or existing, allowing dashboard access:', {

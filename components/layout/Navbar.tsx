@@ -24,14 +24,14 @@ export default function Navbar() {
   const handleSmartLogin = () => {
     if (isLoading) return; // Wait for auth to load
     
-    if (user && isEmailVerified) {
-      // Verified user - go directly to dashboard
-      console.log('[NAVBAR] Verified user clicking dashboard - routing to dashboard');
+    if (user) {
+      // Authenticated user - go directly to dashboard (middleware will handle any gating)
+      console.log('[NAVBAR] Auth user clicking dashboard - routing to /dashboard');
       router.push('/dashboard');
     } else {
-      // Any other case (unverified or no user) - go to Percy onboarding
-      console.log('[NAVBAR] User needs authentication - routing to Percy onboarding');
-      router.push('/?action=dashboard');
+      // Not signed in - show login gate and return to dashboard after
+      console.log('[NAVBAR] No user - routing to /sign-in with next=/dashboard');
+      router.push('/sign-in?next=/dashboard');
     }
   };
 

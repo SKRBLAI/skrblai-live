@@ -5,8 +5,8 @@ import React from 'react';
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
-    <footer className="w-full bg-[#0d1117] text-gray-400 border-t border-gray-700/50">
-      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="relative z-10 w-full bg-[#0d1117] text-gray-400 border-t border-gray-700/50 pt-8 pb-[calc(env(safe-area-inset-bottom)+24px)]">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center justify-center gap-2">
           {/* Animated Brandmark */}
           <span

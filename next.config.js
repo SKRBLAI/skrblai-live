@@ -103,11 +103,7 @@ const nextConfig = {
       // Services → Agents migration - ACTIVE (keeping existing for compatibility)
       { source: '/services', destination: '/agents', permanent: true },
 
-      // Existing auth redirects
-      { source: '/sign-in', destination: '/dashboard', permanent: false },
-      { source: '/sign-up', destination: '/dashboard', permanent: false },
-      { source: '/auth', destination: '/dashboard', permanent: false },
-      { source: '/login', destination: '/dashboard', permanent: false },
+      // Removed auth redirects to allow actual auth pages to render
     ];
   },
 };

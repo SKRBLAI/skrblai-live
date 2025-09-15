@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 interface CarouselImage {
   src: string;
@@ -103,12 +104,16 @@ export default function GlowCarousel({
         >
           {images.map((image, index) => (
             <div key={index} className="min-w-full h-full flex items-center justify-center">
-              <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-auto max-h-[420px] md:max-h-[520px] object-contain"
-                loading={index === 0 ? 'eager' : 'lazy'}
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority={index === 0}
+                  className="object-contain"
+                />
+              </div>
             </div>
           ))}
         </div>
