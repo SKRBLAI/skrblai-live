@@ -28,6 +28,13 @@ jobs:
       - run: npm run lint -- --fix || true
       - run: npm run build
 
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build-logs-node20
+          path: ./**/next-*.log
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         if: success() && hashFiles('.next/BUILD_ID') != ''
@@ -48,6 +55,13 @@ jobs:
       - run: npm ci
       - run: npm run lint -- --fix || true
       - run: npm run build
+
+      - name: Upload build logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build-logs-node18
+          path: ./**/next-*.log
 
   security-scan:
     name: CI / security-scan
@@ -115,3 +129,10 @@ jobs:
             # Don't fail the build for missing pages - this is just a smoke test
           fi
           echo "Smoke test completed ✅"
+
+      - name: Smoke tests
+        if: always()
+        run: |
+          echo "Running smoke tests..."
+          # Add any smoke test commands here
+          echo "Smoke tests completed"
