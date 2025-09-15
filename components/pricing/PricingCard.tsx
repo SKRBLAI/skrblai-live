@@ -6,6 +6,9 @@ import { Check, Star, Crown, Zap, ShoppingCart } from 'lucide-react';
 import { PricingItem, formatPrice, calculateSavings, getBadgeText, getCategoryColor } from '../../lib/sports/pricingData';
 import { getCardClass, getButtonClass, cn } from '../../styles/ui';
 
+export const pricingCardClass =
+  "group relative rounded-2xl border border-white/10 bg-white/[0.02] p-5 shadow-lg shadow-black/20 backdrop-blur-md";
+
 interface PricingCardProps {
   item: PricingItem;
   onPurchase?: (item: PricingItem) => void;
@@ -141,7 +144,7 @@ export default function PricingCard({
       )}
 
       <div className={cn(
-        getCardClass('base'),
+        pricingCardClass,
         'p-6 h-full flex flex-col relative overflow-hidden',
         item.badge === 'popular' && 'ring-2 ring-yellow-400/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]',
         item.badge === 'best-value' && 'ring-2 ring-green-400/50 shadow-[0_0_30px_rgba(34,197,94,0.3)]'
