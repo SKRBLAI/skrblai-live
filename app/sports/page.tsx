@@ -180,30 +180,24 @@ export default function SportsPage(): JSX.Element {
 
     
     try {
-      // Create Stripe checkout session
-      const response = await fetch('/api/stripe/create-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // Create checkout session using unified API
+      const mode = item.type === "addon" || item.period === "one-time" ? "payment" : "subscription";
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          tier: item.sku,
-          title: item.title,
-          metadata: { 
-            category: 'sports', 
-            source: 'sports_pricing_grid', 
-            itemId: item.id, 
-            itemTitle: item.title,
-            itemType: item.type
-          },
-          successUrl: `${window.location.origin}/sports?success=true`,
-          cancelUrl: `${window.location.origin}/sports`,
-        }),
+          sku: item.sku,
+          mode,
+          vertical: "sports",
+          metadata: { source: "sports-page", sku: item.sku },
+          successPath: "/sports?success=true",
+          cancelPath: "/sports"
+        })
       });
 
       if (response.ok) {
         const { url } = await response.json();
-        window.location.href = url;
+        window.location.assign(url);
       } else {
         console.error('Checkout failed:', await response.text());
         // Fallback to email capture for now

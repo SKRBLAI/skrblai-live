@@ -33,23 +33,19 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
     try {
       
       
-      // Create Stripe checkout session
-      const response = await fetch('/api/stripe/create-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      // Create checkout session using unified API
+      const mode = "payment"; // SkillSmith products are one-time purchases
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          productSku: product.sku,
-          price: product.price,
-          title: product.title,
-          successUrl: `${window.location.origin}/sports?success=true&product=${productId}`,
-          cancelUrl: `${window.location.origin}/sports`,
-          productMetadata: {
-            category: product.category,
-            features: product.features.join(',')
-          }
-        }),
+          sku: product.sku,
+          mode,
+          vertical: "sports",
+          metadata: { source: "skillsmith-grid", sku: product.sku },
+          successPath: "/sports?success=true",
+          cancelPath: "/sports"
+        })
       });
 
       if (!response.ok) {
@@ -59,7 +55,7 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
       const { url } = await response.json();
       
       if (url) {
-        window.location.href = url;
+        window.location.assign(url);
       } else {
         throw new Error('No checkout URL received');
       }
