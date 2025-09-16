@@ -41,19 +41,12 @@ jobs:
           test -f railway.json
           node -v && npm -v
 
-      - name: Login
-        env: 
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
-        run: railway login --token "$RAILWAY_TOKEN"
-
-      - name: Link (explicit)
-        env: 
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
+      - name: Railway Auth & Link
         run: |
-          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" \
-                       --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" \
-                       --service "${{ vars.RAILWAY_SERVICE_NAME }}"
           railway whoami
+          railway link --project "$RAILWAY_PROJECT_ID" \
+                       --environment "$RAILWAY_ENVIRONMENT_ID" \
+                       --service "$RAILWAY_SERVICE_NAME"
           railway status || true
 
       - name: Local build (optional)
@@ -62,9 +55,7 @@ jobs:
           npm run build
 
       - name: Deploy
-        env: 
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
-        run: railway up --service "${{ vars.RAILWAY_SERVICE_NAME }}" --yes --verbose --ci
+        run: railway up --service "$RAILWAY_SERVICE_NAME" --yes --verbose --ci
 
       - name: Post-deploy smoke (non-blocking)
         run: |
@@ -72,5 +63,3 @@ jobs:
           echo "Smoke $BASE"
           curl -Is "$BASE/" | head -n1 || true
           curl -Is "$BASE/api/health" | head -n1 || true
-
-
