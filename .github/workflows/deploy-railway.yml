@@ -56,7 +56,9 @@ jobs:
       - name: Auth & link
         run: |
           railway --version
-          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --service "$RAILWAY_SERVICE_NAME" --yes
+          railway link "$RAILWAY_PROJECT_ID"
+          railway environment "$RAILWAY_ENVIRONMENT_ID"
+          railway service "$RAILWAY_SERVICE_NAME"
           railway status || true
 
       - name: Force Dockerfile builder configuration
@@ -65,37 +67,30 @@ jobs:
           set -e
           echo "🔧 Configuring Railway service to use Dockerfile builder..."
           # Set environment variables that Railway recognizes
-          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile --service "$RAILWAY_SERVICE_NAME" || echo "Variable already set or failed to set"
-          railway variables set NIXPACKS_NO_DEFAULT=1 --service "$RAILWAY_SERVICE_NAME" || echo "Variable already set or failed to set"
+          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile || echo "Variable already set or failed to set"
+          railway variables set NIXPACKS_NO_DEFAULT=1 || echo "Variable already set or failed to set"
           
           echo "📋 Current Railway configuration:"
           railway status || true
           echo "📋 Current variables:"
-          railway variables --service "$RAILWAY_SERVICE_NAME" || true
+          railway variables || true
 
       - name: Local build (optional)
         run: |
           npm ci
           npm run build
 
-      - name: Force redeploy (no skips)
+      - name: Deploy via Railway Up (Dockerfile, no skips)
         shell: bash
         run: |
           set -e
-          echo "🔧 Ensuring Dockerfile builder is set..."
-          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile --service "$RAILWAY_SERVICE_NAME" || true
-          
-          echo "🚀 Attempting redeploy first..."
-          if railway redeploy --service "$RAILWAY_SERVICE_NAME" --yes --ci; then
-            echo "✅ Redeploy triggered successfully"
-          else
-            echo "ℹ️ Redeploy unavailable, forcing fresh build with 'railway up'"
-            echo "📁 Current directory contents:"
-            ls -la
-            echo "📋 Railway status before deploy:"
-            railway status || true
-            railway up --service "$RAILWAY_SERVICE_NAME" --yes --ci --verbose
-          fi
+          echo "🚀 Starting Railway deployment with Dockerfile..."
+          echo "📁 Current directory contents:"
+          ls -la
+          echo "📋 Railway status before deploy:"
+          railway status || true
+          echo "🔨 Deploying with Railway up..."
+          railway up --detach
 
       - name: Post-deploy smoke (non-blocking)
         if: always()
