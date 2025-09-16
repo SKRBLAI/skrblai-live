@@ -175,67 +175,47 @@ export default function SportsPage(): JSX.Element {
 
   // Handle pricing item purchases using unified checkout
   const handlePricingPurchase = async (item: PricingItem) => {
-    console.log('Purchase initiated for:', item);
+    console.log("Purchase initiated for:", item);
     try {
-<<<<<<< HEAD
-      const mode = item.type === 'addon' || item.period === 'one-time' ? 'payment' : 'subscription';
-      const r = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sku: item.sku,
-          mode,
-          vertical: 'sports',
-          metadata: {
-            category: 'sports',
-            source: 'sports_pricing_grid',
-            itemId: item.id,
-            itemTitle: item.title,
-            itemType: item.type,
-            period: item.period || 'one-time',
-          },
-          successPath: '/sports?success=true',
-          cancelPath: '/sports',
-        }),
-      });
-      if (!r.ok) {
-        console.error('Checkout failed:', await r.text());
-=======
-      // Create checkout session using unified API
-      const mode = item.type === "addon" || item.period === "one-time" ? "payment" : "subscription";
-      const response = await fetch("/api/checkout", {
+      // Unified checkout API: one-time = 'payment', otherwise 'subscription'
+      const mode =
+        item.type === "addon" || item.period === "one-time"
+          ? "payment"
+          : "subscription";
+
+      const resp = await fetch("/api/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           sku: item.sku,
           mode,
           vertical: "sports",
-          metadata: { source: "sports-page", sku: item.sku },
+          metadata: {
+            source: "sports_page",
+            title: item.title,
+          },
           successPath: "/sports?success=true",
-          cancelPath: "/sports"
-        })
+          cancelPath: "/sports",
+        }),
       });
 
-      if (response.ok) {
-        const { url } = await response.json();
-        window.location.assign(url);
-      } else {
-        console.error('Checkout failed:', await response.text());
-        // Fallback to email capture for now
->>>>>>> eec37664357c25a47c50c3909fad9cd7fe005d4c
-        setEmailCaptureModalOpen(true);
+      if (!resp.ok) {
+        console.error("Checkout failed:", await resp.text());
+        setEmailCaptureModalOpen?.(true);
         return;
       }
-      const { url } = await r.json();
+
+      const { url } = await resp.json();
       if (!url) {
-        console.error('Checkout error: missing URL');
-        setEmailCaptureModalOpen(true);
+        console.error("Checkout response missing URL");
+        setEmailCaptureModalOpen?.(true);
         return;
       }
+
       window.location.assign(url);
     } catch (error) {
-      console.error('Payment error:', error);
-      setEmailCaptureModalOpen(true);
+      console.error("Payment error:", error);
+      setEmailCaptureModalOpen?.(true);
     }
   };
 

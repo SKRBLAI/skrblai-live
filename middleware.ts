@@ -1,20 +1,23 @@
 // middleware.ts
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Only run on real app routes (skip static assets & webhook)
+const APEX = "skrblai.io";
+
+// Run only on real app routes (skip static assets & webhooks/health)
 export const config = {
   matcher: [
-    "/((?!_next|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks).*)",
+    "/((?!_next|images|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks|api/health).*)",
   ],
 };
 
 export function middleware(request: NextRequest) {
-  // 1) Host canonicalization: strip "www."
+  // 1) Canonicalize host: www → apex
   const host = request.headers.get("host") || "";
   if (host.startsWith("www.")) {
     const currentUrl = request.nextUrl.clone();
-    currentUrl.hostname = host.slice(4); // remove "www."
+    currentUrl.hostname = APEX; // strip www
+    currentUrl.port = "";       // avoid :8080 in public URLs
     return NextResponse.redirect(currentUrl, 308);
   }
 
@@ -31,6 +34,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(currentUrl, 301);
   }
 
-  // Otherwise continue
+  // 3) Continue
   return NextResponse.next();
 }
