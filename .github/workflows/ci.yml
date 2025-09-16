@@ -23,16 +23,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-
       - run: npm ci
       - run: npm run lint -- --fix || true
       - run: npm run build
-
       - name: Upload build artifact
         if: success() && hashFiles('.next/BUILD_ID') != ''
         uses: actions/upload-artifact@v4
@@ -44,7 +41,6 @@ jobs:
   build-18:
     name: CI / lint-build-test (18.x)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -76,17 +72,14 @@ jobs:
     if: always()
     steps:
       - uses: actions/checkout@v4
-
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-files
           path: .next/
         continue-on-error: true
-
       - name: List downloaded files (debug)
         run: ls -la .next || echo "No .next directory found"
-
       - name: Setup Node (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         uses: actions/setup-node@v4
@@ -99,7 +92,6 @@ jobs:
       - name: Build (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         run: npm run build
-
       - name: Verify Next build output exists
         run: |
           if [ ! -f .next/BUILD_ID ]; then
@@ -107,7 +99,6 @@ jobs:
             exit 1
           fi
           echo "BUILD_ID: $(cat .next/BUILD_ID)"
-
       - name: Check critical pages exist (compiled)
         run: |
           if ! ls -R .next | grep -qi "sports"; then
@@ -116,19 +107,21 @@ jobs:
           echo "Smoke test ✅"
 
   deploy:
-    name: Deploy to Railway
+    name: Deploy to Railway (one-shot)
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: [build-20, build-18]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install Railway CLI (pinned)
-        run: npm i -g @railway/cli@3.13.0
+      - name: Install Railway CLI (latest, with retry)
+        run: |
+          set -euxo pipefail
+          npm i -g @railway/cli || (npm cache clean --force && npm i -g @railway/cli)
+          railway --version
 
       - name: Assert Railway secrets present
         env:
@@ -141,22 +134,11 @@ jobs:
           [ -z "$RAILWAY_SERVICE_ID" ] && echo "❌ Missing RAILWAY_SERVICE_ID" && exit 1 || true
           echo "✅ Railway secrets present"
 
-      - name: Link project/service (env-based auth)
+      - name: Link project/service (env auth)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
         run: |
-          railway --version
-          # CLI reads RAILWAY_TOKEN from env automatically; no login step
-          railway link --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID"
-
-      - name: Deploy
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
-        run: railway up --ci --detach --service "$RAILWAY_SERVICE_ID"
-
-      - name: Post-deploy note
-        if: always()
-        run: echo "Deployment attempted. Check Railway dashboard for status/logs."
+          set -euxo pipefail
+          railway
