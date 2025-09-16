@@ -1,10 +1,7 @@
 // middleware.ts
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-
 const APEX = "skrblai.io";
-
-// Run only on real app routes (skip static assets & webhooks/health)
 export const config = {
   matcher: [
     "/((?!_next|images|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks|api/health).*)",
@@ -17,7 +14,7 @@ export function middleware(request: NextRequest) {
   if (host.startsWith("www.")) {
     const currentUrl = request.nextUrl.clone();
     currentUrl.hostname = APEX; // strip www
-    currentUrl.port = "";       // avoid :8080 in public URLs
+    currentUrl.port = "";       // avoid :8080 etc.
     return NextResponse.redirect(currentUrl, 308);
   }
 
