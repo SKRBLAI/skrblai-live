@@ -47,6 +47,11 @@ jobs:
           [ -f "Dockerfile" ] || { echo "❌ Dockerfile not found in $PWD (WORKDIR=${WORKDIR})"; exit 1; }
           if [ ! -f "railway.json" ]; then
             echo "⚠️ railway.json not found (ok if builder is configured in Railway service)"
+          else
+            echo "railway.json:" && cat railway.json || true
+            if ! grep -q '"builder"\s*:\s*"DOCKERFILE"' railway.json; then
+              echo "⚠️ railway.json does not set builder to DOCKERFILE; service may default to Nixpacks"
+            fi
           fi
           echo "✅ Preflight ok"
 
@@ -62,17 +67,12 @@ jobs:
           npm ci
           npm run build
 
-      - name: Force redeploy (no skips)
+      - name: Deploy via Railway Up (Dockerfile, no skips)
         shell: bash
         run: |
           set -e
-          # Prefer redeploy to avoid “no changes in context” skips.
-          if railway redeploy --service "$RAILWAY_SERVICE_NAME" --yes --ci; then
-            echo "✅ Redeploy triggered"
-          else
-            echo "ℹ️ Redeploy unavailable; using 'railway up'"
-            railway up --service "$RAILWAY_SERVICE_NAME" --yes --ci --verbose
-          fi
+          echo "Starting 'railway up' to build from current repo context"
+          railway up --service "$RAILWAY_SERVICE_NAME" --yes --ci --verbose
 
       - name: Post-deploy smoke (non-blocking)
         if: always()
