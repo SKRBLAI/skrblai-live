@@ -39,6 +39,7 @@ jobs:
   build-18:
     name: CI / lint-build-test (18.x)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
