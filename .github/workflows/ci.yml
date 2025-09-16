@@ -2,6 +2,7 @@ name: CI
 
 on:
   pull_request:
+    branches: [ master ]
   push:
     branches: [ master ]
 
@@ -12,25 +13,26 @@ env:
   NODE_OPTIONS: --max-old-space-size=4096
   SKIP_ENV_VALIDATION: "true"
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-20:
     name: CI / lint-build-test (20.x)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-
       - run: npm ci
       - run: npm run lint -- --fix || true
       - run: npm run build
-
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
         if: success() && hashFiles('.next/BUILD_ID') != ''
+        uses: actions/upload-artifact@v4
         with:
           name: build-files
           path: .next/
@@ -50,7 +52,7 @@ jobs:
       - run: npm run build
 
   security-scan:
-    name: CI / security-scan
+    name: CI / security-scan (soft)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,59 +61,47 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      # Soft fail: report but don't block merges
-      - name: Run security audit (soft)
+      - name: Run npm audit (soft)
         run: |
-          set -e
-          echo "Running npm audit (soft)…"
-          npm audit --audit-level=moderate || echo "npm audit had findings (soft)"
+          npm audit --audit-level=moderate || echo "audit findings (soft); continuing"
 
   smoke-tests:
     name: CI / smoke-tests
     runs-on: ubuntu-latest
     needs: [build-20]
+    if: always()
     steps:
       - uses: actions/checkout@v4
-
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-files
           path: .next/
         continue-on-error: true
-
       - name: List downloaded files (debug)
         run: ls -la .next || echo "No .next directory found"
-
-      # If artifact missing, do a tiny local build as fallback
-      - name: Setup Node for fallback build
+      - name: Setup Node (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          
-      - name: Install dependencies for fallback
+      - name: Install deps (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         run: npm ci
-        
-      - name: Build for fallback
+      - name: Build (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         run: npm run build
-
       - name: Verify Next build output exists
         run: |
           if [ ! -f .next/BUILD_ID ]; then
-            echo "Missing .next/BUILD_ID - build artifacts not available"
+            echo "Missing .next/BUILD_ID"
             exit 1
           fi
-          echo "Build ID found: $(cat .next/BUILD_ID)"
-
+          echo "BUILD_ID: $(cat .next/BUILD_ID)"
       - name: Check critical pages exist (compiled)
         run: |
-          echo "Checking compiled pages..."
           if ! ls -R .next | grep -qi "sports"; then
-            echo "Warning: sports page not found in compiled output"
-            # Don't fail the build for missing pages - this is just a smoke test
+            echo "Warn: compiled output did not show 'sports' path"
           fi
-          echo "Smoke test completed ✅"
+          echo "Smoke test ✅"
