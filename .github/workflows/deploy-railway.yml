@@ -53,44 +53,23 @@ jobs:
           fi
           echo "✅ Preflight ok"
 
-      - name: Auth & link
+      - name: Railway Login & Setup
         run: |
           railway --version
-          railway link "$RAILWAY_PROJECT_ID"
-          railway environment "$RAILWAY_ENVIRONMENT_ID"
-          railway service "$RAILWAY_SERVICE_NAME"
-          railway status || true
-
-      - name: Force Dockerfile builder configuration
-        shell: bash
-        run: |
-          set -e
-          echo "🔧 Configuring Railway service to use Dockerfile builder..."
-          # Set environment variables that Railway recognizes
-          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile || echo "Variable already set or failed to set"
-          railway variables set NIXPACKS_NO_DEFAULT=1 || echo "Variable already set or failed to set"
-          
-          echo "📋 Current Railway configuration:"
-          railway status || true
-          echo "📋 Current variables:"
-          railway variables || true
+          railway login --browserless
+          railway link $RAILWAY_PROJECT_ID
+          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile
+          railway status
 
       - name: Local build (optional)
         run: |
           npm ci
           npm run build
 
-      - name: Deploy via Railway Up (Dockerfile, no skips)
-        shell: bash
+      - name: Deploy to Railway
         run: |
-          set -e
-          echo "🚀 Starting Railway deployment with Dockerfile..."
-          echo "📁 Current directory contents:"
-          ls -la
-          echo "📋 Railway status before deploy:"
-          railway status || true
-          echo "🔨 Deploying with Railway up..."
-          railway up --detach
+          echo "🚀 Deploying to Railway..."
+          railway up
 
       - name: Post-deploy smoke (non-blocking)
         if: always()
