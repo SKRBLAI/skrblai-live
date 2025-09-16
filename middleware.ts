@@ -4,42 +4,36 @@ import { NextResponse } from "next/server";
 
 const APEX = "skrblai.io";
 
-export function middleware(req: NextRequest) {
-  const url = req.nextUrl;
-  const path = url.pathname;
-
-  // Exclusions (matcher also excludes)
-  if (
-    path.startsWith("/_next") ||
-    path.startsWith("/images") ||
-    path === "/favicon.ico" ||
-    path === "/robots.txt" ||
-    path === "/sitemap.xml" ||
-    path.startsWith("/api/stripe/webhooks") ||
-    path.startsWith("/api/health")
-  ) {
-    return NextResponse.next();
-  }
-
-  // Optional: bundle paths → sports plans
-  if (path.startsWith("/bundle") || path.startsWith("/bundles")) {
-    return NextResponse.redirect(new URL("/sports#plans", url), 308);
-  }
-
-  // Canonicalize www → apex
-  const host = req.headers.get("host") || "";
-  if (host.startsWith("www.")) {
-    const to = new URL(url);
-    to.hostname = APEX;   // strip www
-    to.port = "";         // avoid :8080 in public URLs
-    return NextResponse.redirect(to, 308);
-  }
-
-  return NextResponse.next();
-}
-
+// Run only on real app routes (skip static assets & webhooks/health)
 export const config = {
   matcher: [
-    "/((?!_next/|images/|favicon.ico|robots.txt|sitemap.xml|api/stripe/webhooks|api/health).*)",
+    "/((?!_next|images|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks|api/health).*)",
   ],
 };
+
+export function middleware(request: NextRequest) {
+  // 1) Canonicalize host: www → apex
+  const host = request.headers.get("host") || "";
+  if (host.startsWith("www.")) {
+    const currentUrl = request.nextUrl.clone();
+    currentUrl.hostname = APEX; // strip www
+    currentUrl.port = "";       // avoid :8080 in public URLs
+    return NextResponse.redirect(currentUrl, 308);
+  }
+
+  // 2) Bundle routes → /sports#plans
+  const path = request.nextUrl.pathname.toLowerCase();
+  if (
+    path.startsWith("/bundle") ||
+    path.startsWith("/bundles") ||
+    path.includes("/bundle")
+  ) {
+    const currentUrl = request.nextUrl.clone();
+    currentUrl.pathname = "/sports";
+    currentUrl.hash = "#plans";
+    return NextResponse.redirect(currentUrl, 301);
+  }
+
+  // 3) Continue
+  return NextResponse.next();
+}
