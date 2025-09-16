@@ -1,0 +1,85 @@
+name: Deploy to Railway (one-shot)
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
+  RAILWAY_PROJECT_ID: ${{ vars.RAILWAY_PROJECT_ID }}
+  RAILWAY_ENVIRONMENT_ID: ${{ vars.RAILWAY_ENVIRONMENT_ID }}
+  RAILWAY_SERVICE_NAME: ${{ vars.RAILWAY_SERVICE_NAME }}
+  WORKDIR: "."
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Railway CLI via npm
+        run: npm i -g @railway/cli
+
+      - name: Preflight (fail fast)
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Checking required env…"
+          [ -n "${RAILWAY_TOKEN:-}" ] || { echo "❌ RAILWAY_TOKEN missing"; exit 1; }
+          [ -n "${RAILWAY_PROJECT_ID:-}" ] || { echo "❌ RAILWAY_PROJECT_ID missing"; exit 1; }
+          [ -n "${RAILWAY_ENVIRONMENT_ID:-}" ] || { echo "❌ RAILWAY_ENVIRONMENT_ID missing"; exit 1; }
+          [ -n "${RAILWAY_SERVICE_NAME:-}" ] || { echo "❌ RAILWAY_SERVICE_NAME missing"; exit 1; }
+          [ -f "Dockerfile" ] || { echo "❌ Dockerfile not found in $PWD (WORKDIR=${WORKDIR})"; exit 1; }
+          if [ ! -f "railway.json" ]; then
+            echo "⚠️ railway.json not found (ok if builder is configured in Railway service)"
+          fi
+          echo "✅ Preflight ok"
+
+      - name: Auth & context
+        run: |
+          railway --version
+          railway link --project "$RAILWAY_PROJECT_ID" --environment "$RAILWAY_ENVIRONMENT_ID" --service "$RAILWAY_SERVICE_NAME" --yes
+          railway status || true
+
+      # Optional: local build to surface issues earlier (does not ship this build)
+      - name: Local build (optional)
+        run: |
+          npm ci
+          npm run build
+
+      - name: Force redeploy (no skips)
+        shell: bash
+        run: |
+          set -e
+          # Prefer redeploy to avoid “no changes in context” skips.
+          if railway redeploy --service "$RAILWAY_SERVICE_NAME" --yes --ci; then
+            echo "✅ Redeploy triggered"
+          else
+            echo "ℹ️ Redeploy unavailable; using 'railway up'"
+            railway up --service "$RAILWAY_SERVICE_NAME" --yes --ci --verbose
+          fi
+
+      - name: Post-deploy smoke (non-blocking)
+        if: always()
+        run: |
+          set +e
+          echo "⏳ Waiting 20s for health…"; sleep 20
+          curl -sf https://skrblai.io/api/health && echo "✅ Health OK" || echo "⚠️ Health check failed (non-blocking)"
+          curl -sI https://www.skrblai.io/sports | grep -E ' 308|Location: https://skrblai.io' && echo "✅ Canonical redirect OK" || echo "⚠️ Redirect check failed (non-blocking)"
+
+
