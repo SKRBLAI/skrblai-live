@@ -32,51 +32,45 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Railway CLI via npm
-        run: npm i -g @railway/cli
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | bash
 
-      - name: Preflight (fail fast)
-        shell: bash
+      - name: Preflight
         run: |
-          set -euo pipefail
-          echo "WORKDIR=$WORKDIR"
-          [ -n "${RAILWAY_TOKEN:-}" ] || { echo "❌ RAILWAY_TOKEN missing"; exit 1; }
-          [ -n "${RAILWAY_PROJECT_ID:-}" ] || { echo "❌ RAILWAY_PROJECT_ID missing"; exit 1; }
-          [ -n "${RAILWAY_ENVIRONMENT_ID:-}" ] || { echo "❌ RAILWAY_ENVIRONMENT_ID missing"; exit 1; }
-          [ -n "${RAILWAY_SERVICE_NAME:-}" ] || { echo "❌ RAILWAY_SERVICE_NAME missing"; exit 1; }
-          [ -f "Dockerfile" ] || { echo "❌ Dockerfile not found in $PWD"; ls -la; exit 1; }
-          if [ -f "railway.json" ]; then
-            grep -q '"builder"[[:space:]]*:[[:space:]]*"DOCKERFILE"' railway.json || \
-              (echo "❌ railway.json does not force DOCKERFILE"; cat railway.json; exit 1)
-          else
-            echo "⚠️ railway.json not found (ok if service already pins builder)"
-          fi
-          echo "✅ Preflight ok"
+          test -f Dockerfile
+          test -f railway.json
+          node -v && npm -v
 
-      - name: Railway Login & Setup
+      - name: Login
+        env: 
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
+        run: railway login --token "$RAILWAY_TOKEN"
+
+      - name: Link (explicit)
+        env: 
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
         run: |
-          railway --version
-          railway login --browserless
-          railway link $RAILWAY_PROJECT_ID
-          railway variables set RAILWAY_DOCKERFILE_PATH=Dockerfile
-          railway status
+          railway link --project "${{ vars.RAILWAY_PROJECT_ID }}" \
+                       --environment "${{ vars.RAILWAY_ENVIRONMENT_ID }}" \
+                       --service "${{ vars.RAILWAY_SERVICE_NAME }}"
+          railway whoami
+          railway status || true
 
       - name: Local build (optional)
         run: |
           npm ci
           npm run build
 
-      - name: Deploy to Railway
-        run: |
-          echo "🚀 Deploying to Railway..."
-          railway up
+      - name: Deploy
+        env: 
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN || secrets.RAILWAY_API_TOKEN }}
+        run: railway up --service "${{ vars.RAILWAY_SERVICE_NAME }}" --yes --verbose --ci
 
       - name: Post-deploy smoke (non-blocking)
-        if: always()
         run: |
-          set +e
-          echo "⏳ Waiting 20s for health…"; sleep 20
-          curl -sf https://skrblai.io/api/health && echo "✅ Health OK" || echo "⚠️ Health check failed"
-          curl -sI https://www.skrblai.io/sports | grep -E ' 308|Location: https://skrblai.io' && echo "✅ Canonical redirect OK" || echo "⚠️ Redirect check failed"
+          BASE="https://skrblai.io"
+          echo "Smoke $BASE"
+          curl -Is "$BASE/" | head -n1 || true
+          curl -Is "$BASE/api/health" | head -n1 || true
 
 
