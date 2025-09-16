@@ -9,7 +9,6 @@ on:
 permissions:
   contents: read
 
-# Global env (kept from your file)
 env:
   NODE_OPTIONS: --max-old-space-size=4096
   SKIP_ENV_VALIDATION: "true"
@@ -31,10 +30,7 @@ jobs:
           cache: npm
 
       - run: npm ci
-
-      # Keep soft-fix, don't fail the job because of lint formatting
       - run: npm run lint -- --fix || true
-
       - run: npm run build
 
       - name: Upload build artifact
@@ -51,18 +47,16 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
-
       - run: npm ci
       - run: npm run lint -- --fix || true
       - run: npm run build
 
   security-scan:
-    name: CI / security-scan
+    name: CI / security-scan (soft)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -71,19 +65,14 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-
-      # Soft fail: report but don't block merges
-      - name: Run security audit (soft)
+      - name: Run npm audit (soft)
         run: |
-          set -e
-          echo "Running npm audit (soft)…"
-          npm audit --audit-level=moderate || echo "npm audit had findings (soft)"
+          npm audit --audit-level=moderate || echo "audit findings (soft); continuing"
 
   smoke-tests:
     name: CI / smoke-tests
     runs-on: ubuntu-latest
     needs: [build-20]
-    # Always run to surface logs even if prior job failed
     if: always()
     steps:
       - uses: actions/checkout@v4
@@ -98,39 +87,36 @@ jobs:
       - name: List downloaded files (debug)
         run: ls -la .next || echo "No .next directory found"
 
-      # If artifact missing, do a tiny local build as fallback
-      - name: Setup Node for fallback build
+      - name: Setup Node (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies for fallback
+      - name: Install deps (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         run: npm ci
-      - name: Build for fallback
+      - name: Build (fallback)
         if: ${{ !hashFiles('.next/BUILD_ID') }}
         run: npm run build
 
       - name: Verify Next build output exists
         run: |
           if [ ! -f .next/BUILD_ID ]; then
-            echo "Missing .next/BUILD_ID - build artifacts not available"
+            echo "Missing .next/BUILD_ID"
             exit 1
           fi
-          echo "Build ID found: $(cat .next/BUILD_ID)"
+          echo "BUILD_ID: $(cat .next/BUILD_ID)"
 
       - name: Check critical pages exist (compiled)
         run: |
-          echo "Checking compiled pages..."
           if ! ls -R .next | grep -qi "sports"; then
-            echo "Warning: sports page not found in compiled output"
+            echo "Warn: compiled output did not show 'sports' path"
           fi
-          echo "Smoke test completed ✅"
+          echo "Smoke test ✅"
 
   deploy:
-    name: Deploy to Railway (one-shot)
-    # ✅ Only deploy on push to master so secrets are available
+    name: Deploy to Railway
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: [build-20, build-18]
     runs-on: ubuntu-latest
@@ -141,25 +127,36 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
+      - name: Install Railway CLI (pinned)
+        run: npm i -g @railway/cli@3.13.0
 
-      - name: Railway Auth & Link
+      - name: Assert Railway secrets present
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
           RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
         run: |
-          railway login --token "$RAILWAY_TOKEN"
+          [ -z "$RAILWAY_TOKEN" ] && echo "❌ Missing RAILWAY_TOKEN" && exit 1 || true
+          [ -z "$RAILWAY_PROJECT_ID" ] && echo "❌ Missing RAILWAY_PROJECT_ID" && exit 1 || true
+          [ -z "$RAILWAY_SERVICE_ID" ] && echo "❌ Missing RAILWAY_SERVICE_ID" && exit 1 || true
+          echo "✅ Railway secrets present"
+
+      - name: Link project/service (env-based auth)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
+        run: |
+          railway --version
+          # CLI reads RAILWAY_TOKEN from env automatically; no login step
           railway link --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID"
-          railway whoami
 
       - name: Deploy
         env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
         run: railway up --ci --detach --service "$RAILWAY_SERVICE_ID"
 
-      # Non-blocking quick check step; keeps logs flowing even on deploy failures
-      - name: Post-deploy smoke (non-blocking)
+      - name: Post-deploy note
         if: always()
-        run: echo "Post-deploy placeholder - add curl healthcheck if desired"
+        run: echo "Deployment attempted. Check Railway dashboard for status/logs."
