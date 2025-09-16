@@ -1,4 +1,6 @@
 node_modules
-.next
-supabase/functions 
-archived-app 
+npm-debug.log*
+.git
+.gitignore
+.next/cache
+.env
