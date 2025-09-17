@@ -62,43 +62,44 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Run npm audit (soft)
-        run: |
-          npm audit --audit-level=moderate || echo "audit findings (soft); continuing"
+        run: npm audit --audit-level=moderate || echo "audit findings (soft); continuing"
 
   smoke-tests:
     name: CI / smoke-tests
     runs-on: ubuntu-latest
     needs: [build-20]
-    if: always()
     steps:
       - uses: actions/checkout@v4
-      - name: Download build artifacts
+
+      - name: Download build artifacts (if present)
         uses: actions/download-artifact@v4
         with:
           name: build-files
           path: .next/
         continue-on-error: true
+
       - name: List downloaded files (debug)
         run: ls -la .next || echo "No .next directory found"
-      - name: Setup Node (fallback)
+
+      # Fallback local build if artifact missing
+      - uses: actions/setup-node@v4
         if: ${{ !hashFiles('.next/BUILD_ID') }}
-        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - name: Install deps (fallback)
+      - run: npm ci
         if: ${{ !hashFiles('.next/BUILD_ID') }}
-        run: npm ci
-      - name: Build (fallback)
+      - run: npm run build
         if: ${{ !hashFiles('.next/BUILD_ID') }}
-        run: npm run build
+
       - name: Verify Next build output exists
         run: |
           if [ ! -f .next/BUILD_ID ]; then
-            echo "Missing .next/BUILD_ID"
+            echo "Missing .next/BUILD_ID - build artifacts not available"
             exit 1
           fi
           echo "BUILD_ID: $(cat .next/BUILD_ID)"
+
       - name: Check critical pages exist (compiled)
         run: |
           if ! ls -R .next | grep -qi "sports"; then
