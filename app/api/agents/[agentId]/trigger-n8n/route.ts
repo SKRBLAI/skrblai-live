@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAgentWorkflowConfig, ensureAgentWebhook } from '../../../../../lib/agents/workflows/workflowLookup';
 import { withSafeJson } from '../../../../../utils/withSafeJson';
-import { createSafeSupabaseClient } from '../../../../../lib/supabase/client';
+import { getServerSupabaseAnon } from '../../../../../lib/supabase/server';
 
 // Initialize Supabase client for execution logging with safe fallback
-const supabase = createSafeSupabaseClient();
+const supabase = getServerSupabaseAnon();
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -57,7 +57,8 @@ export const POST = withSafeJson(async (request: NextRequest, { params }: { para
 
   // Log execution to Supabase for analytics
   try {
-    await supabase.from('agent_executions').insert({
+    if (supabase) {
+      await supabase.from('agent_executions').insert({
       agent_id: config.agentId,
       agent_name: config.agentName,
       n8n_workflow_id: config.n8nWorkflowId,
@@ -66,9 +67,10 @@ export const POST = withSafeJson(async (request: NextRequest, { params }: { para
       success: n8nRes.ok,
       user_prompt: userPrompt,
       timestamp: new Date().toISOString(),
-      error_message: n8nRes.ok ? null : (n8nData?.error || null),
-      correlation_id: correlationId
-    });
+        error_message: n8nRes.ok ? null : (n8nData?.error || null),
+        correlation_id: correlationId
+      });
+    }
   } catch (logError) {
     console.error('[N8N] Failed to log execution:', logError);
   }
@@ -120,10 +122,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Log status check to Supabase for analytics
     try {
-      await supabase.from('agent_executions').update({ 
-        status: status.status,
-        finished_at: status.data?.finished ? new Date().toISOString() : null
-      }).eq('execution_id', executionId);
+      if (supabase) {
+        await supabase.from('agent_executions').update({ 
+          status: status.status,
+          finished_at: status.data?.finished ? new Date().toISOString() : null
+        }).eq('execution_id', executionId);
+      }
     } catch (logError) {
       console.error('[N8N] Failed to log status update:', logError);
     }

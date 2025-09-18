@@ -1,14 +1,27 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { getSupabaseEnvSafe } from '@/lib/env';
+"use client";
 
-export function getBrowserSupabase() {
-  const env = getSupabaseEnvSafe();
-  
-  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error('Supabase environment not properly configured');
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+let supabase: SupabaseClient | null = null;
+
+/** Returns a real Supabase client when public envs are present, otherwise null (no-op mode). */
+export function getBrowserSupabase(): SupabaseClient | null {
+  if (supabase) return supabase;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !anon) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(
+        "[supabase] Missing NEXT_PUBLIC_SUPABASE_URL/ANON_KEY; browser auth disabled."
+      );
+    }
+    return null;
   }
-  
-  return createBrowserClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+  supabase = createClient(url, anon);
+  return supabase;
 }
 
 // Legacy function for backward compatibility - now creates client safely

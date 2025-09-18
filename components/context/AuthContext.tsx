@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
-import { createSafeSupabaseClient } from '@/lib/supabase/client';
+import { getBrowserSupabase } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [vipStatus, setVipStatus] = useState<any>(null);
   const [benefits, setBenefits] = useState<any>(null);
   const router = useRouter();
-  const supabase = createSafeSupabaseClient();
+  const supabase = getBrowserSupabase();
 
   // NEW: Percy onboarding state
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -115,9 +115,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, currentSession: Session | null) => {
+    if (!supabase || !supabase.auth || typeof supabase.auth.onAuthStateChange !== "function") {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(
+          "[Auth] Supabase auth not available; check public envs or client creation."
+        );
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    const { data } = supabase.auth.onAuthStateChange((event: AuthChangeEvent, currentSession: Session | null) => {
       console.log('[AUTH] Auth state change:', event);
       if (currentSession) {
         setUser(currentSession.user);
@@ -134,10 +142,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     const initializeAuth = async () => {
-      const { data: { session: initialSession } } = await supabase.auth.getSession();
-      if (initialSession) {
-        setUser(initialSession.user);
-        setSession(initialSession);
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession) {
+          setUser(initialSession.user);
+          setSession(initialSession);
+        }
+      } catch (error) {
+        console.warn('[AUTH] Failed to get initial session:', error);
       }
       setIsLoading(false);
     };
@@ -145,7 +157,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
 
     return () => {
-      subscription.unsubscribe();
+      // v2 unsubscribe shape
+      data?.subscription?.unsubscribe?.();
+      // some wrappers expose .unsubscribe directly
+      // @ts-ignore - optional legacy
+      data?.unsubscribe?.();
     };
   }, [supabase, checkEmailVerification]);
 
@@ -191,6 +207,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => {
     try {
       setError(null);
+      
+      if (!supabase) {
+        const errorMsg = 'Authentication not available - Supabase not configured';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
       
       // Step 1: Authenticate with Supabase only - no redundant dashboard call
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -285,6 +307,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithOAuth = async (provider: 'google') => {
     try {
       setError(null);
+      
+      if (!supabase) {
+        const errorMsg = 'Authentication not available - Supabase not configured';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+      
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -309,6 +338,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithOtp = async (email: string) => {
     try {
       setError(null);
+      
+      if (!supabase) {
+        const errorMsg = 'Authentication not available - Supabase not configured';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
+      
       const { error: otpError } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -333,6 +369,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, options?: { promoCode?: string; vipCode?: string; marketingConsent?: boolean }) => {
     try {
       setError(null);
+      
+      if (!supabase) {
+        const errorMsg = 'Authentication not available - Supabase not configured';
+        setError(errorMsg);
+        return { success: false, error: errorMsg };
+      }
       
       // Get client IP and user agent for logging
       const metadata = {
@@ -414,7 +456,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     try {
       console.log('[AUTH] Signing out user');
-      await supabase.auth.signOut();
+      
+      if (supabase) {
+        await supabase.auth.signOut();
+      }
+      
       setUser(null);
       setSession(null);
       router.push('/');
@@ -427,6 +473,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const validatePromoCode = async (code: string) => {
     try {
+      if (!supabase) {
+        return { isValid: false, type: 'PROMO' as const, benefits: null, error: 'Supabase not configured' };
+      }
+      
       const { data, error: validateError } = await supabase.from('promo_codes').select('*').eq('code', code);
 
       if (validateError) {

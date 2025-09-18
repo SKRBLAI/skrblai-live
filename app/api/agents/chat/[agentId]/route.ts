@@ -14,11 +14,11 @@ import {
   getAgentConversationCapabilities,
   getAgent
 } from '../../../../../lib/agents/agentLeague';
-import { createSafeSupabaseClient } from '../../../../../lib/supabase/client';
+import { getServerSupabaseAnon } from '../../../../../lib/supabase/server';
 import { callOpenAI } from '../../../../../utils/agentUtils';
 
 // Initialize Supabase client with safe fallback
-const supabase = createSafeSupabaseClient();
+const supabase = getServerSupabaseAnon();
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -370,18 +370,20 @@ async function logConversation(
   agentResponse: any
 ): Promise<void> {
   try {
-    await supabase
-      .from('agent_conversations')
-      .insert({
-        agent_id: agentId,
-        user_id: userId,
-        user_message: userMessage,
-        agent_response: agentResponse.message,
-        handoff_suggestions: agentResponse.handoffSuggestions || [],
-        conversation_analytics: agentResponse.conversationAnalytics || {},
-        personality_injected: agentResponse.personalityInjected || false,
-        created_at: new Date().toISOString()
-      });
+    if (supabase) {
+      await supabase
+        .from('agent_conversations')
+        .insert({
+          agent_id: agentId,
+          user_id: userId,
+          user_message: userMessage,
+          agent_response: agentResponse.message,
+          handoff_suggestions: agentResponse.handoffSuggestions || [],
+          conversation_analytics: agentResponse.conversationAnalytics || {},
+          personality_injected: agentResponse.personalityInjected || false,
+          created_at: new Date().toISOString()
+        });
+    }
   } catch (error) {
     console.error('[AgentChat] Failed to log conversation:', error);
     // Don't throw error as this shouldn't break the chat flow

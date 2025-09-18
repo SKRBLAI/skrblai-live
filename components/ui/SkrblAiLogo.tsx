@@ -98,26 +98,14 @@ const SkrblAiLogo: React.FC<SkrblAiLogoProps> = ({
       transition={{ duration: 0.5 }}
       className={`flex flex-col items-center ${className}`}
     >
-      {/* Prefer image wordmark if present; fallback to text logo */}
-      {!imageFailed ? (
-        <Image
-          src="/images/skrblai-wordmark.png"
-          alt="SKRBL AI"
-          width={320}
-          height={imageHeights[size]}
-          priority
-          onError={() => setImageFailed(true)}
-          className="h-auto w-auto max-h-14 object-contain"
-        />
-      ) : (
-        <motion.h1
-          className={`${baseLogoClasses} ${getVariantClasses()}`}
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-        >
-          SKRBL AI
-        </motion.h1>
-      )}
+      {/* Use text logo as wordmark image doesn't exist */}
+      <motion.h1
+        className={`${baseLogoClasses} ${getVariantClasses()}`}
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 400, damping: 10 }}
+      >
+        SKRBL AI
+      </motion.h1>
       
       {showTagline && (
         <motion.p
