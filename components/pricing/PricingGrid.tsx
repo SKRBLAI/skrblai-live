@@ -84,16 +84,40 @@ export default function PricingGrid({
       )}
 
       <div className={cn('grid gap-6', getGridCols())}>
-        {itemsSorted.map((item, index) => (
-          <PricingCard
-            key={item.id}
-            item={item}
-            onPurchase={onPurchase}
-            animationDelay={index * 0.1}
-            promoLabel={promoLabel}
-            displayPrice={displayPrice}
-          />
-        ))}
+        {itemsSorted.map((item, index) => {
+          // Create a CTA component for the item
+          const cta = onPurchase ? (
+            <button
+              onClick={() => onPurchase(item)}
+              className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-400 hover:to-purple-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Get Started
+            </button>
+          ) : (
+            <div className="w-full py-3 px-4 bg-gray-500 text-white font-bold rounded-lg text-center">
+              Coming Soon
+            </div>
+          );
+
+          return (
+            <PricingCard
+              key={item.id}
+              title={item.title}
+              priceText={item.period ? `$${item.price}/${item.period === 'monthly' ? 'mo' : item.period === 'annual' ? 'yr' : 'one-time'}` : `$${item.price}`}
+              displayPrice={
+                typeof displayPrice === "number"
+                  ? `$${displayPrice.toFixed(2)}`
+                  : displayPrice || `$${item.price}`
+              }
+              originalPriceText={item.originalPrice ? `$${item.originalPrice}` : undefined}
+              promoLabel={promoLabel}
+              features={item.features}
+              badge={item.badge === 'popular' ? 'Most Popular' : item.badge === 'best-value' ? 'Best Value' : undefined}
+              cta={cta}
+              animationDelay={index * 0.1}
+            />
+          );
+        })}
       </div>
 
       {/* Additional Info */}

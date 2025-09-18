@@ -21,7 +21,7 @@ interface HealthResponse {
   };
 }
 
-async function testSupabaseConnectivity(url: string, anonKey: string): Promise<{ reachable: boolean; status?: number }> {
+async function testSupabaseConnectivity(url: string, anonKey: string): Promise<{ authReachable: boolean; status?: number }> {
   try {
     const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
       method: 'POST',
@@ -36,12 +36,12 @@ async function testSupabaseConnectivity(url: string, anonKey: string): Promise<{
     
     // We expect 400 or 422 for invalid credentials (good: reached Auth)
     if (status === 400 || status === 422) {
-      return { reachable: true, status };
+      return { authReachable: true, status };
     } else {
-      return { reachable: false, status };
+      return { authReachable: false, status };
     }
   } catch (error) {
-    return { reachable: false };
+    return { authReachable: false };
   }
 }
 
@@ -59,10 +59,11 @@ export async function GET(request: NextRequest) {
     // Test network connectivity if we have the required vars
     let networkCheck = { authReachable: false, status: undefined as number | undefined };
     if (validation.env.NEXT_PUBLIC_SUPABASE_URL && validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      networkCheck = await testSupabaseConnectivity(
+      const net = await testSupabaseConnectivity(
         validation.env.NEXT_PUBLIC_SUPABASE_URL,
         validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
+      networkCheck = { authReachable: net.authReachable, status: net.status };
     }
     
     // Determine overall health
