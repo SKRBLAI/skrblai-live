@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { getSupabaseEnvSafe } from '@/lib/env';
 
 /**
  * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
@@ -6,20 +7,19 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  * NEVER expose this client to the browser.
  */
 export function getServerSupabaseAdmin(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceRoleKey) {
+  const env = getSupabaseEnvSafe();
+  
+  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.warn('Server Supabase client: Missing URL or service role key');
     return null;
   }
 
-  return createClient(url, serviceRoleKey, {
+  return createClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
     global: { 
       headers: { 
         'X-Client-Source': 'server-admin',
-        'Authorization': `Bearer ${serviceRoleKey}`
+        'Authorization': `Bearer ${env.env.SUPABASE_SERVICE_ROLE_KEY}`
       } 
     },
   });
@@ -30,15 +30,14 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
  * This client respects RLS and is safer for general server-side operations.
  */
 export function getServerSupabaseAnon(): SupabaseClient | null {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !anonKey) {
+  const env = getSupabaseEnvSafe();
+  
+  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     console.warn('Server Supabase client: Missing URL or anon key');
     return null;
   }
 
-  return createClient(url, anonKey, {
+  return createClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
     auth: { persistSession: false },
     global: { 
       headers: { 

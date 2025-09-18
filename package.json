@@ -19,7 +19,8 @@
     "test": "echo 'No tests configured' && exit 0",
     "test:smoke": "playwright test tests/smoke.spec.ts --reporter=line",
     "test:smoke:ui": "playwright test tests/smoke.spec.ts --ui",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "diag:supabase": "npx tsx scripts/diagnostics/check-supabase.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",

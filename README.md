@@ -77,6 +77,14 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 ### **Environment & Health**
 - `GET /api/env-check` - Environment variable status and health check
 - `GET /api/health` - System health and uptime status
+- `GET /api/health/auth` - Supabase authentication health check with network connectivity test
+
+### **Supabase Diagnostics**
+- `npm run diag:supabase` - Local diagnostics script that validates:
+  - Environment variables (URL, anon key, service role key)
+  - Key format validation (prefixes: `sbp_` for anon, `sbs_` for service)
+  - Network connectivity to Supabase Auth API
+  - Returns PASS/FAIL with redacted configuration details
 
 ### **Skill Smith Sports AI**
 - `POST /api/skillsmith` - Sports coaching chat API

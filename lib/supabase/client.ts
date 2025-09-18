@@ -1,9 +1,14 @@
 import { createBrowserClient } from '@supabase/ssr';
-import { getPublicEnv } from '@/lib/safeEnv';
+import { getSupabaseEnvSafe } from '@/lib/env';
 
 export function getBrowserSupabase() {
-  const { NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY } = getPublicEnv();
-  return createBrowserClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const env = getSupabaseEnvSafe();
+  
+  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    throw new Error('Supabase environment not properly configured');
+  }
+  
+  return createBrowserClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
 
 // Legacy function for backward compatibility - now creates client safely
