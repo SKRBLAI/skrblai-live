@@ -65,7 +65,7 @@ async function handleCheckout(req: NextRequest) {
       }
     }
 
-    const origin = req.headers.get("origin") || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const origin = req.headers.get("origin") || process.env.APP_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const success_url = `${origin}${body.successPath || "/thanks"}?session_id={CHECKOUT_SESSION_ID}`;
     const cancel_url  = `${origin}${body.cancelPath  || "/pricing"}`;
 

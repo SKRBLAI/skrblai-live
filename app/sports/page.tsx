@@ -9,6 +9,7 @@ import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
 import UnifiedSportsHero from '../../components/sports/UnifiedSportsHero';
 import PricingGrid from '../../components/pricing/PricingGrid';
+import SportsPricingGrid from '../../components/pricing/SportsPricingGrid';
 import MetricsStrip from '../../components/sports/MetricsStrip';
 // Removed separate IntakeSheet in favor of unified form inside SkillSmithPromptBar
 import EncouragementFooter from '../../components/sports/EncouragementFooter';
@@ -244,7 +245,7 @@ export default function SportsPage(): JSX.Element {
 
           {/* Unified intake is now part of the plan builder inside the hero prompt bar */}
 
-          {/* Add-Ons Section - Only for standalone users */}
+          {/* Sports Pricing Section - Only for standalone users */}
           {(userType === 'guest' || userType === 'auth') && (
             <motion.section
               initial={{ opacity: 0, y: 30 }}
@@ -253,38 +254,7 @@ export default function SportsPage(): JSX.Element {
               transition={{ duration: 0.8 }}
               className="relative mb-24"
             >
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <PricingGrid
-                  items={addOns}
-                  title="Add-Ons (Optional)"
-                  subtitle="These are optional upgrades you can add anytime. Perfect for kids to adults! Get AI analysis, Mastery of Emotion (MOE), nutrition guidance, and foundational training."
-                  onPurchase={handlePricingPurchase}
-                  columns={4}
-                  promoLabel="14-Day Special $9.99"
-                  displayPrice={19.99}
-                />
-              </div>
-            </motion.section>
-          )}
-
-          {/* Subscriptions Section - Only for standalone users */}
-          {(userType === 'guest' || userType === 'auth') && (
-            <motion.section
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative mb-24"
-            >
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <PricingGrid
-                  items={subscriptions}
-                  title="Training Plans"
-                  subtitle="Monthly and annual subscriptions designed for athletes at every level - cancel anytime."
-                  onPurchase={handlePricingPurchase}
-                  columns={4}
-                />
-              </div>
+              <SportsPricingGrid />
             </motion.section>
           )}
 

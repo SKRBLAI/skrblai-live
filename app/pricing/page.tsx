@@ -30,6 +30,7 @@ import AskPercy from '../../components/common/AskPercy';
 
 import { liveMetrics, URGENCY_TIMER_INITIAL } from '../../lib/config/pricing';
 import PercyInlineChat from '../../components/percy/PercyInlineChat';
+import BusinessPricingGrid from '../../components/pricing/BusinessPricingGrid';
 
 // Pricing page now uses centralized config
 // Types and data imported from lib/config/pricing.ts
@@ -364,12 +365,22 @@ const socialProofMetrics = [
             />
           </div>
 
-          {/* Pricing Section with Integrated Toggle */}
+          {/* Alternative Unified Pricing Grid */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="max-w-7xl mx-auto mb-16"
+          >
+            <BusinessPricingGrid />
+          </motion.div>
+
+          {/* Original Pricing Section with Integrated Toggle */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="max-w-7xl mx-auto mb-16 hidden"
           >
             {/* Billing Toggle - Now Part of Pricing Section */}
             <div className="text-center mb-8">
