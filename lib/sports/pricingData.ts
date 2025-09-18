@@ -1,6 +1,30 @@
 // Unified pricing data for sports page
 // Supports both add-ons (one-time) and subscriptions (recurring)
 
+export interface Plan {
+  label: string;
+  priceText?: string;         // fallback display
+  displayPrice?: string;      // e.g. "$19.99"
+  originalPriceText?: string; // e.g. "$39.00"
+  promoLabel?: string;        // "Beta Special"
+  sku?: string;               // Stripe Price ID (if missing => disabled CTA)
+  isSubscription: boolean;
+  includedVideoCount?: number; // scans per month included (AI Performance Analysis)
+  quickWins?: number;
+  perks: string[];
+  ctaKind?: "contact" | "buy"; // Custom = contact
+}
+
+export interface AddOn {
+  label: string;
+  priceText: string;
+  originalPriceText?: string;
+  sku?: string;               // Stripe Price ID
+  isSubscription: boolean;    // false (one-time)
+  description?: string;
+}
+
+// Legacy interface for backward compatibility
 export interface PricingItem {
   id: string;
   type: 'addon' | 'subscription';
@@ -17,100 +41,108 @@ export interface PricingItem {
   category: string;
 }
 
-// Add-On Products (One-time purchases)
+export const SPORTS_PLANS: Plan[] = [
+  {
+    label: "Starter",
+    priceText: "$9.99/mo",
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE,
+    isSubscription: true,
+    includedVideoCount: 3,     // scans per month (AI Analysis)
+    quickWins: 5,
+    perks: [
+      "Includes SkillSmith AI Performance Analysis",
+      "5 Quick Wins",
+      "Free eBook: Emotional Mastery in Athletics",
+    ],
+  },
+  {
+    label: "Pro",
+    displayPrice: "$19.99",
+    originalPriceText: "$39.00",
+    promoLabel: "Beta Special",
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO,
+    isSubscription: true,
+    includedVideoCount: 10,
+    quickWins: 10,
+    perks: [
+      "Includes SkillSmith AI Performance Analysis",
+      "Customized 4-week training plan (PDF)",
+      "10 SkillSmith Personalized Quick Wins",
+    ],
+  },
+  {
+    label: "Elite",
+    displayPrice: "$59.99",
+    originalPriceText: "$79.00",
+    promoLabel: "Beta Special",
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR,
+    isSubscription: true,
+    includedVideoCount: 30,
+    quickWins: 15,
+    perks: [
+      "Includes SkillSmith AI Performance Analysis",
+      "Unlimited SkillSmith chat access",
+      "4-week Nutrition Plan",
+      "4-week Training Program",
+    ],
+  },
+  {
+    label: "Custom",
+    ctaKind: "contact",
+    isSubscription: true,
+    perks: [
+      "UNLIMITED scans",
+      "VIP access (Business + Sports)",
+      "White-glove onboarding & support",
+    ],
+  },
+];
+
+export const SPORTS_ADDONS: AddOn[] = [
+  {
+    label: "Flat 10 Scans",
+    priceText: "$9.99",
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10,
+    isSubscription: false,
+    description: "Basic analysis + 3 Quick Wins",
+  },
+];
+
+// Legacy data for backward compatibility
 export const addOns: PricingItem[] = [
   {
-    id: 'video-analysis',
+    id: 'scans10',
     type: 'addon',
-    title: 'AI Video Analysis',
-    price: 29,
-    originalPrice: 49,
+    title: 'Flat 10 Scans',
+    price: 9.99,
     period: 'one-time',
-    sku: 'SPORTS_VIDEO_ANALYSIS',
-    badge: 'popular',
-    features: [
-      'Upload unlimited videos',
-      'AI technique analysis',
-      'Improvement recommendations',
-      'Performance metrics tracking'
-    ],
-    description: 'Get instant AI-powered analysis of your game footage',
-    icon: '📹',
-    category: 'Analysis'
-  },
-  {
-    id: 'mental-coaching',
-    type: 'addon',
-    title: 'Mastery of Emotion (MOE)',
-    price: 39,
-    period: 'one-time',
-    sku: 'SPORTS_MOE',
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10 || 'ADDON_SCANS10',
     badge: null,
     features: [
-      'Mental toughness training',
-      'Confidence building exercises',
-      'Pre-game preparation',
-      'Pressure management techniques'
+      'Basic analysis included',
+      '3 Quick Wins',
+      'Instant access'
     ],
-    description: 'Master your mental game with proven psychological techniques',
-    icon: '🧠',
-    category: 'Mental'
-  },
-  {
-    id: 'nutrition-guide',
-    type: 'addon',
-    title: 'Sports Nutrition Guide',
-    price: 19,
-    period: 'one-time',
-    sku: 'SPORTS_NUTRITION',
-    badge: null,
-    features: [
-      'Personalized meal plans',
-      'Pre/post workout nutrition',
-      'Hydration strategies',
-      'Supplement recommendations'
-    ],
-    description: 'Fuel your performance with expert nutrition guidance',
-    icon: '🥗',
-    category: 'Nutrition'
-  },
-  {
-    id: 'foundation-training',
-    type: 'addon',
-    title: 'Foundation Training Pack',
-    price: 49,
-    originalPrice: 79,
-    period: 'one-time',
-    sku: 'SPORTS_FOUNDATION',
-    badge: 'best-value',
-    features: [
-      'Fundamental skills training',
-      'Progressive workout plans',
-      'Injury prevention protocols',
-      'Equipment recommendations'
-    ],
-    description: 'Build a solid athletic foundation across all sports',
-    icon: '🏗️',
-    category: 'Training'
+    description: 'Basic analysis + 3 Quick Wins',
+    icon: '⚡',
+    category: 'Add-On'
   }
 ];
 
-// Subscription Plans
 export const subscriptions: PricingItem[] = [
   {
-    id: 'rookie',
+    id: 'starter',
     type: 'subscription',
-    title: 'Rookie',
+    title: 'Starter',
     subtitle: 'Perfect for beginners',
-    price: 19,
+    price: 9.99,
     period: 'monthly',
-    sku: 'SPORTS_STARTER',
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE || 'SPORTS_STARTER',
     badge: null,
     features: [
-      '5 AI video analyses/month',
-      'Basic training plans',
-      'Performance tracking',
-      'Email support'
+      '3 scans/month (AI Performance Analysis included)',
+      '5 Quick Wins',
+      'Free eBook: Emotional Mastery in Athletics'
     ],
     description: 'Start your athletic journey with AI-powered coaching',
     icon: '🌟',
@@ -120,17 +152,16 @@ export const subscriptions: PricingItem[] = [
     id: 'pro',
     type: 'subscription',
     title: 'Pro',
-    subtitle: 'Most popular choice',
-    price: 39,
+    subtitle: 'Beta Special',
+    price: 19.99,
+    originalPrice: 39.00,
     period: 'monthly',
-    sku: 'SPORTS_PRO',
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || 'SPORTS_PRO',
     badge: 'popular',
     features: [
-      'Unlimited AI video analyses',
-      'Advanced training plans',
-      'Mental coaching modules',
-      'Priority support',
-      'Nutrition guidance'
+      '10 scans/month (AI Performance Analysis included)',
+      'Customized 4-week training plan (one-time PDF)',
+      '10 SkillSmith Personalized Quick Wins'
     ],
     description: 'Comprehensive coaching for serious athletes',
     icon: '🏆',
@@ -140,42 +171,20 @@ export const subscriptions: PricingItem[] = [
     id: 'elite',
     type: 'subscription',
     title: 'Elite',
-    subtitle: 'Maximum performance',
-    price: 79,
+    subtitle: 'Beta Special',
+    price: 59.99,
+    originalPrice: 79.00,
     period: 'monthly',
-    sku: 'SPORTS_ELITE',
+    sku: process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR || 'SPORTS_ELITE',
     badge: 'best-value',
     features: [
-      'Everything in Pro',
-      '1-on-1 coaching calls',
-      'Custom training programs',
-      'Competition preparation',
-      'Recovery optimization',
-      'Team collaboration tools'
+      '30 scans/month (AI Performance Analysis included)',
+      'Unlimited SkillSmith chat access',
+      '4-week Nutrition Plan + 4-week Training Program',
+      '15 Quick Wins'
     ],
     description: 'Elite-level coaching for competitive athletes',
     icon: '👑',
-    category: 'Subscription'
-  },
-  {
-    id: 'annual-pro',
-    type: 'subscription',
-    title: 'Pro Annual',
-    subtitle: 'Save 40% with annual billing',
-    price: 279, // $23.25/month when billed annually
-    originalPrice: 468, // $39 * 12
-    period: 'annual',
-    sku: 'SPORTS_PRO_ANNUAL',
-    badge: 'best-value',
-    features: [
-      'All Pro features',
-      'Annual billing discount',
-      'Priority feature access',
-      'Exclusive training content',
-      'Performance analytics'
-    ],
-    description: 'Best value for committed athletes',
-    icon: '💎',
     category: 'Subscription'
   }
 ];
