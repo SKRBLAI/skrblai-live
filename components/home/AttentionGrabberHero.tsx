@@ -28,73 +28,128 @@ export default function AttentionGrabberHero({ onScanComplete }: AttentionGrabbe
     setSelectedPlatform(platformId);
     const platform = platforms.find(p => p.id === platformId);
     
-    // Determine mode based on platform
-    const mode = ['instagram', 'youtube', 'linkedin'].includes(platformId) ? 'social' : 'business';
-    
-    // Start scanning process
-    setScanningMode(mode);
+    // For platform-specific scans without URL, provide analysis based on platform
+    setScanningMode('business');
     setShowPlatformGrid(false);
     
-    // Simulate scanning process
+    // Generate platform-specific analysis
     setTimeout(() => {
+      const platformAnalysis = {
+        instagram: {
+          problems: ['Instagram engagement below industry average', 'Story highlights not optimized', 'Bio lacks clear CTA'],
+          opportunities: ['Reels optimization for 3x reach', 'Automated story sequences', 'Instagram Shopping integration']
+        },
+        youtube: {
+          problems: ['Video SEO optimization gaps', 'Thumbnail click-through rates low', 'End screen engagement poor'],
+          opportunities: ['YouTube Shorts strategy', 'Playlist optimization', 'Community tab automation']
+        },
+        linkedin: {
+          problems: ['Profile optimization incomplete', 'Content posting inconsistent', 'Network growth stagnant'],
+          opportunities: ['Thought leadership content', 'LinkedIn automation', 'Professional network expansion']
+        },
+        website: {
+          problems: ['SEO gaps detected', 'Conversion rate below potential', 'Mobile optimization needed'],
+          opportunities: ['Technical SEO improvements', 'Landing page optimization', 'User experience enhancement']
+        },
+        shopify: {
+          problems: ['Product page optimization gaps', 'Cart abandonment rate high', 'Email marketing underutilized'],
+          opportunities: ['E-commerce automation', 'Conversion rate optimization', 'Customer retention strategies']
+        },
+        general: {
+          problems: ['Digital presence fragmented', 'Brand consistency lacking', 'Growth strategy unclear'],
+          opportunities: ['Unified brand strategy', 'Multi-channel automation', 'Business process optimization']
+        }
+      };
+
+      const analysis = platformAnalysis[platformId as keyof typeof platformAnalysis] || platformAnalysis.general;
+      
       onScanComplete({
-        problems: [
-          `${platform?.name} optimization gaps detected`,
-          `${mode === 'business' ? 'Conversion' : 'Engagement'} rates below potential`,
-          `${mode === 'business' ? 'SEO' : 'Content'} strategy needs improvement`
-        ],
-        opportunities: [
-          `${mode === 'business' ? '340%' : '180%'} growth potential identified`,
-          `${platform?.name} automation solutions available`,
-          `Competitive advantage opportunities found`
-        ],
-        mode,
-        platform: platform?.name
+        type: 'business',
+        problems: analysis.problems,
+        opportunities: analysis.opportunities,
+        platform: platform?.name,
+        agentRecommendations: [
+          {
+            agentId: 'percy',
+            superheroName: 'Percy the Cosmic Concierge',
+            reason: 'Perfect starting point to coordinate your strategy',
+            confidence: 95
+          }
+        ]
       });
       setScanningMode(null);
-    }, 3000);
+    }, 2500);
   };
 
-  const handleQuickScan = (data: any) => {
-    // If they have a specific URL/input, show platform selection
-    if (data.prompt || data.files?.length > 0) {
+  const handleQuickScan = async (data: any) => {
+    const input = data.prompt?.trim();
+    
+    if (!input) {
       setShowPlatformGrid(true);
       return;
     }
 
-    // Auto-detect what they uploaded/pasted
-    const input = data.prompt?.toLowerCase() || '';
-    let detectedType = 'business';
-    
-    if (input.includes('instagram') || input.includes('tiktok') || input.includes('twitter') || input.includes('facebook')) {
-      detectedType = 'social';
+    // Auto-detect scan type from URL
+    let scanType = 'website';
+    if (input.includes('linkedin.com')) {
+      scanType = 'linkedin';
+    } else if (input.includes('youtube.com') || input.includes('youtu.be')) {
+      scanType = 'youtube';
     }
     
-    setScanningMode(detectedType as 'business' | 'social');
+    setScanningMode('business');
     
-    // Simulate quick scan results
-    setTimeout(() => {
-      const mockResults = {
-        type: detectedType,
-        gaps: detectedType === 'social' ? [
-          "Your posting frequency is 67% below optimal",
-          "Missing video content strategy",
-          "Engagement rate 45% lower than competitors"
-        ] : [
-          "SEO score: 34/100 - Major optimization gaps",
-          "No automated lead capture system",
-          "Content strategy missing 8 key revenue drivers"
-        ],
-        opportunities: [
-          "Percy can automate this in 24 hours",
-          "3x revenue potential identified",
-          "Zero manual work required"
-        ]
-      };
+    try {
+      // Call real Percy scan API
+      const response = await fetch('/api/percy/scan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: scanType,
+          url: input,
+          sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        }),
+      });
+
+      const result = await response.json();
       
-      onScanComplete({ ...data, ...mockResults });
+      if (result.success) {
+        // Transform API response to match expected format
+        const transformedResults = {
+          type: 'business',
+          problems: result.analysis.challenges || ['Analysis completed'],
+          opportunities: result.analysis.opportunities || ['Growth opportunities identified'],
+          agentRecommendations: result.agentRecommendations,
+          scanId: result.scanId,
+          analysis: result.analysis
+        };
+        
+        onScanComplete({ ...data, ...transformedResults });
+      } else {
+        // Handle API errors gracefully
+        onScanComplete({
+          ...data,
+          type: 'business',
+          problems: ['Unable to complete full analysis'],
+          opportunities: ['Percy can still help optimize your business'],
+          error: result.error
+        });
+      }
+    } catch (error) {
+      console.error('Scan failed:', error);
+      // Fallback to basic analysis
+      onScanComplete({
+        ...data,
+        type: 'business',
+        problems: ['Connection issue prevented full scan'],
+        opportunities: ['Percy can analyze your business once connected'],
+        error: 'Network error'
+      });
+    } finally {
       setScanningMode(null);
-    }, 3000);
+    }
   };
 
   return (
