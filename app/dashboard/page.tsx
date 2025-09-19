@@ -79,24 +79,45 @@ const QUICK_ACTIONS = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading, isEmailVerified } = useAuth();
+  const { user, isLoading, isEmailVerified, accessLevel, vipStatus } = useAuth();
   const [quickWins, setQuickWins] = useState<string[]>([]);
 
-  // Enhanced auth gating with proper Supabase integration
+  // Enhanced auth gating with role-based redirects
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
         // No user - redirect to sign-in with return path
         router.push('/sign-in?from=dashboard');
-      } else if (!isEmailVerified) {
-        // User exists but email not verified - show verification message
-        console.log('User email not verified, but allowing dashboard access');
-        // Note: We're allowing access but could redirect to verification if needed
-        // router.push('/auth/verify-email?from=dashboard');
+        return;
       }
-      // If user exists (regardless of email verification), allow access to dashboard
+      
+      // Role-based dashboard redirects
+      if (user && accessLevel) {
+        // Check for founder/admin role first
+        if (user.email?.includes('@skrbl.ai') || vipStatus?.vipLevel === 'founder') {
+          router.push('/dashboard/founder');
+          return;
+        }
+        
+        // Check for VIP access
+        if (accessLevel === 'vip' || vipStatus?.isVIP) {
+          router.push('/dashboard/vip');
+          return;
+        }
+        
+        // Regular users go to user dashboard
+        if (accessLevel === 'promo' || accessLevel === 'free') {
+          router.push('/dashboard/user');
+          return;
+        }
+      }
+      
+      // Email verification check (but don't block access)
+      if (!isEmailVerified) {
+        console.log('User email not verified, but allowing dashboard access');
+      }
     }
-  }, [user, isLoading, isEmailVerified, router]);
+  }, [user, isLoading, isEmailVerified, accessLevel, vipStatus, router]);
 
   // Load quick wins from localStorage if present
   useEffect(() => {
