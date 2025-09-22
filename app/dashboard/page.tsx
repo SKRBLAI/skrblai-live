@@ -81,6 +81,46 @@ export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoading, isEmailVerified } = useAuth();
   const [quickWins, setQuickWins] = useState<string[]>([]);
+  const [founderInfo, setFounderInfo] = useState<any>(null);
+
+  // Check for founder access and route accordingly
+  useEffect(() => {
+    if (!isLoading && user) {
+      // Check session storage for founder info (set during onboarding)
+      const founderRole = sessionStorage.getItem('founder_role');
+      const founderAccess = sessionStorage.getItem('founder_access');
+      
+      if (founderAccess === 'true' && founderRole) {
+        // Route to appropriate founder dashboard
+        if (founderRole === 'creator' || founderRole === 'founder') {
+          router.push('/dashboard/founder');
+          return;
+        } else if (founderRole === 'heir') {
+          router.push('/dashboard/heir');
+          return;
+        }
+      }
+      
+      // Also check via API for persistent founder status
+      fetch('/api/founders/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.founderAccess) {
+            setFounderInfo(data);
+            // Route based on highest role
+            if (data.isCreator || data.isFounder) {
+              router.push('/dashboard/founder');
+            } else if (data.isHeir) {
+              router.push('/dashboard/heir');
+            }
+          }
+        })
+        .catch(err => {
+          console.warn('Could not check founder status:', err);
+          // Continue with regular dashboard
+        });
+    }
+  }, [user, isLoading, router]);
 
   // Enhanced auth gating with proper Supabase integration
   useEffect(() => {

@@ -1,0 +1,33 @@
+[
+  {
+    "label": "BrandAlexander",
+    "role": "founder",
+    "agent_likeness": "BrandAlexander",
+    "code": "diggin_420"
+  },
+  {
+    "label": "SocialNino",
+    "role": "founder", 
+    "agent_likeness": "SocialNino",
+    "code": "bmore_finest_365"
+  },
+  {
+    "label": "ContentCarltig",
+    "role": "founder",
+    "agent_likeness": "ContentCarltig", 
+    "code": "gold_glove_92"
+  },
+  {
+    "label": "Jaelin",
+    "role": "heir",
+    "agent_likeness": "Percy",
+    "code": "mstr_jay_12"
+  },
+  {
+    "label": "Creator",
+    "role": "creator",
+    "agent_likeness": "Percy",
+    "code": "mstr_skrbl_3",
+    "max_redemptions": 3
+  }
+]

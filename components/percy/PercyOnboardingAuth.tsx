@@ -53,8 +53,44 @@ export default function PercyOnboardingAuth({ onAuthenticated }: PercyOnboarding
     setCodeStatus('none');
     setCodeMessage('');
     setLoading(true);
+    
     try {
       const code = vipCode || promoCode;
+      
+      // First, try founder code redemption if it looks like a founder code
+      const looksLikeFounderCode = /^(diggin_\d+|bmore_finest_\d+|gold_glove_\d+|mstr_jay_\d+|mstr_skrbl_\d+)$/i.test(code);
+      
+      if (looksLikeFounderCode) {
+        try {
+          const founderRes = await fetch('/api/founders/redeem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+          });
+          
+          const founderData = await founderRes.json();
+          
+          if (founderData.ok) {
+            // Founder code success!
+            setCodeStatus('vip'); // Use VIP styling for founder success
+            setCodeMessage('Founder access unlocked — welcome!');
+            setIsVIP(true);
+            
+            // Store founder info for routing
+            sessionStorage.setItem('founder_role', founderData.role);
+            sessionStorage.setItem('founder_access', 'true');
+            
+            setTimeout(() => setStep('done'), 1200);
+            return;
+          }
+          // If founder code fails, fall through to regular VIP/promo flow
+        } catch (founderErr) {
+          console.warn('Founder code attempt failed, trying VIP/promo:', founderErr);
+          // Fall through to regular flow
+        }
+      }
+      
+      // Fallback to existing VIP/promo code system
       const res = await fetch('/api/auth/dashboard-signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,6 +102,7 @@ export default function PercyOnboardingAuth({ onAuthenticated }: PercyOnboarding
           vipCode: vipCode || undefined
         })
       });
+      
       const data = await res.json();
       if (data.success) {
         if (data.vipMode) {
