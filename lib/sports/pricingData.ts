@@ -345,3 +345,37 @@ export function getSportsPlansLegacy(): LegacyPlan[] {
     };
   });
 }
+
+/**
+ * Legacy compatibility exports
+ */
+export const getAddOns = () => getSportsAddons().map(addon => ({
+  id: addon.sku,
+  type: 'addon' as const,
+  title: getSportsAddonLabel(addon.sku),
+  price: getCurrentPrice(addon),
+  originalPrice: addon.originalPrice,
+  period: 'one-time' as const,
+  sku: addon.envPriceVar ? process.env[addon.envPriceVar] || addon.sku : addon.sku,
+  badge: addon.isPromoActive ? 'new' as const : null,
+  features: addon.includes,
+  description: addon.description,
+  icon: '⚡',
+  category: 'Add-On'
+}));
+
+export const getSubscriptions = () => getSportsPlansLegacy().map(plan => ({
+  id: plan.label.toLowerCase(),
+  type: 'subscription' as const,
+  title: plan.label,
+  subtitle: plan.promoLabel,
+  price: parseFloat(plan.displayPrice?.replace('$', '') || '0'),
+  originalPrice: plan.originalPriceText ? parseFloat(plan.originalPriceText.replace('$', '')) : undefined,
+  period: 'monthly' as const,
+  sku: plan.sku || plan.label.toUpperCase(),
+  badge: plan.label === 'Pro' ? 'popular' as const : plan.label === 'Elite' ? 'best-value' as const : null,
+  features: plan.perks,
+  description: `${plan.label} plan for athletic performance`,
+  icon: plan.label === 'Starter' ? '🌟' : plan.label === 'Pro' ? '🏆' : '👑',
+  category: 'Subscription'
+}));

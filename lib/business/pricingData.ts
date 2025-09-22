@@ -321,3 +321,37 @@ export function getBusinessPlansLegacy(): LegacyPlan[] {
     };
   });
 }
+
+/**
+ * Get plan badge text for display (legacy compatibility)
+ */
+export function getPlanBadge(plan: LegacyPlan): string | undefined {
+  switch (plan.label) {
+    case "Starter":
+      return "Most Popular";
+    case "Pro": 
+      return "Best Value";
+    case "Elite":
+      return "Enterprise";
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Get plan icon for display (legacy compatibility)
+ */
+export function getPlanIcon(plan: LegacyPlan): string {
+  switch (plan.label) {
+    case "Curiosity":
+      return "🎯";
+    case "Starter":
+      return "⚡";
+    case "Pro":
+      return "🔥"; 
+    case "Elite":
+      return "👑";
+    default:
+      return "📊";
+  }
+}
