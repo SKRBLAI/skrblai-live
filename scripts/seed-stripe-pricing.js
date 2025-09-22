@@ -1,16 +1,13 @@
 /**
- * Stripe Pricing Seeder
+ * SKRBL AI Stripe Pricing Seeder
  * 
- * Run with: node scripts/seed-stripe-pricing.js
- * 
- * This script creates/updates Stripe products and prices using lookup_key
- * for the new Sports pricing structure. It outputs environment variables
- * that can be pasted into Railway Variables and .env.local files.
+ * Creates/updates Stripe products and prices using canonical SKU/ENV naming conventions.
+ * Supports both Business and Sports verticals with promotional pricing.
  * 
  * Usage:
  * - Set STRIPE_SECRET_KEY environment variable (test or live key)
  * - Run: node scripts/seed-stripe-pricing.js
- * - Copy the output to Railway Variables (and .env.local for dev)
+ * - Copy the output ENV vars to Railway Variables and .env.local
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -26,161 +23,442 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const isLiveKey = process.env.STRIPE_SECRET_KEY.startsWith('sk_live_');
 console.log(`🔑 Using ${isLiveKey ? 'LIVE' : 'TEST'} Stripe key`);
 
-// Sports pricing structure as specified
-const SPORTS_PRODUCTS = [
+/**
+ * Canonical product definitions following the SKRBL AI naming convention
+ */
+const PRODUCTS_CONFIG = [
+  // BUSINESS PLANS
   {
-    name: 'Sports Starter Plan',
-    description: '3 scans/month with AI Performance Analysis, 5 Quick Wins, Free eBook: Emotional Mastery in Athletics',
-    lookup_key: 'plan.sports.starter.monthly.9_99',
-    unit_amount: 999, // $9.99
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    metadata: {
-      plan_type: 'sports_starter',
-      scans_per_month: '3',
-      quick_wins: '5',
-      includes_analysis: 'true'
-    }
+    name: 'SKRBL Business — Curiosity (Free)',
+    sku: 'biz_plan_curiosity',
+    vertical: 'business',
+    type: 'plan',
+    tier: 'curiosity',
+    prices: [] // Free tier has no prices
   },
   {
-    name: 'Sports Pro Plan (Beta Special)',
-    description: '10 scans/month with AI Performance Analysis, Customized 4-week training plan (PDF), 10 SkillSmith Personalized Quick Wins',
-    lookup_key: 'plan.sports.pro.monthly.beta_19_99',
-    unit_amount: 1999, // $19.99 (Beta Special, originally $39)
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    metadata: {
-      plan_type: 'sports_pro',
-      scans_per_month: '10',
-      quick_wins: '10',
-      includes_analysis: 'true',
-      beta_special: 'true',
-      original_price: '3900'
-    }
+    name: 'SKRBL Business — Starter',
+    sku: 'biz_plan_starter_m',
+    vertical: 'business',
+    type: 'plan',
+    tier: 'starter',
+    prices: [{
+      amount: 1999, // $19.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M'
+    }]
   },
   {
-    name: 'Sports Elite Plan (Beta Special)',
-    description: '30 scans/month with AI Performance Analysis, Unlimited SkillSmith chat access, 4-week Nutrition Plan + 4-week Training Program, 15 Quick Wins',
-    lookup_key: 'plan.sports.elite.monthly.beta_59_99',
-    unit_amount: 5999, // $59.99 (Beta Special, originally $79)
-    currency: 'usd',
-    recurring: { interval: 'month' },
-    metadata: {
-      plan_type: 'sports_elite',
-      scans_per_month: '30',
-      quick_wins: '15',
-      includes_analysis: 'true',
-      unlimited_chat: 'true',
-      beta_special: 'true',
-      original_price: '7900'
-    }
+    name: 'SKRBL Business — Pro',
+    sku: 'biz_plan_pro_m',
+    vertical: 'business',
+    type: 'plan',
+    tier: 'pro',
+    prices: [{
+      amount: 3999, // $39.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M'
+    }]
   },
   {
-    name: 'Sports Add-On: Flat 10 Scans',
-    description: 'One-time purchase: 10 additional scans with basic analysis + 3 Quick Wins',
-    lookup_key: 'addon.sports.scans10.onetime.9_99',
-    unit_amount: 999, // $9.99
-    currency: 'usd',
-    recurring: null, // One-time payment
-    metadata: {
-      addon_type: 'sports_scans',
-      scan_count: '10',
-      quick_wins: '3',
-      one_time: 'true'
-    }
+    name: 'SKRBL Business — Elite',
+    sku: 'biz_plan_elite_m',
+    vertical: 'business',
+    type: 'plan',
+    tier: 'elite',
+    prices: [{
+      amount: 5999, // $59.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'
+    }]
+  },
+  
+  // SPORTS PLANS
+  {
+    name: 'SKRBL Sports — Curiosity (Free)',
+    sku: 'sports_plan_curiosity',
+    vertical: 'sports',
+    type: 'plan',
+    tier: 'curiosity',
+    prices: [] // Free tier has no prices
+  },
+  {
+    name: 'SKRBL Sports — Starter',
+    sku: 'sports_plan_starter_m',
+    vertical: 'sports',
+    type: 'plan',
+    tier: 'starter',
+    prices: [{
+      amount: 1999, // $19.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M'
+    }]
+  },
+  {
+    name: 'SKRBL Sports — Pro',
+    sku: 'sports_plan_pro_m',
+    vertical: 'sports',
+    type: 'plan',
+    tier: 'pro',
+    prices: [{
+      amount: 3999, // $39.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M'
+    }]
+  },
+  {
+    name: 'SKRBL Sports — Elite',
+    sku: 'sports_plan_elite_m',
+    vertical: 'sports',
+    type: 'plan',
+    tier: 'elite',
+    prices: [{
+      amount: 5999, // $59.99
+      currency: 'usd',
+      interval: 'month',
+      env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
+    }]
+  },
+
+  // BUSINESS ADD-ONS
+  {
+    name: 'SKRBL Business — Advanced Analytics (Add-On)',
+    sku: 'biz_addon_adv_analytics',
+    vertical: 'business',
+    type: 'addon',
+    prices: [
+      {
+        amount: 2900, // $29 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS'
+      },
+      {
+        amount: 1200, // $12 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+  {
+    name: 'SKRBL Business — Automation Workflows (Add-On)',
+    sku: 'biz_addon_automation',
+    vertical: 'business',
+    type: 'addon',
+    prices: [
+      {
+        amount: 4900, // $49 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION'
+      },
+      {
+        amount: 2000, // $20 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+  {
+    name: 'SKRBL Business — Additional Team Seat (Add-On)',
+    sku: 'biz_addon_team_seat',
+    vertical: 'business',
+    type: 'addon',
+    prices: [
+      {
+        amount: 3900, // $39 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT'
+      },
+      {
+        amount: 1600, // $16 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+
+  // SPORTS ADD-ONS
+  {
+    name: 'SKRBL Sports — AI Video Analysis (Add-On)',
+    sku: 'sports_addon_video',
+    vertical: 'sports',
+    type: 'addon',
+    prices: [
+      {
+        amount: 2900, // $29 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_VIDEO'
+      },
+      {
+        amount: 1200, // $12 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_VIDEO_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+  {
+    name: 'SKRBL Sports — Mastery of Emotion (Add-On)',
+    sku: 'sports_addon_emotion',
+    vertical: 'sports',
+    type: 'addon',
+    prices: [
+      {
+        amount: 3900, // $39 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_EMOTION'
+      },
+      {
+        amount: 1600, // $16 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_EMOTION_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+  {
+    name: 'SKRBL Sports — Nutrition Guide (Add-On)',
+    sku: 'sports_addon_nutrition',
+    vertical: 'sports',
+    type: 'addon',
+    prices: [
+      {
+        amount: 1900, // $19 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_NUTRITION'
+      },
+      {
+        amount: 800, // $8 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_NUTRITION_PROMO',
+        promo: '60d'
+      }
+    ]
+  },
+  {
+    name: 'SKRBL Sports — Foundation Training Pack (Add-On)',
+    sku: 'sports_addon_foundation',
+    vertical: 'sports',
+    type: 'addon',
+    prices: [
+      {
+        amount: 4900, // $49 standard
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_FOUNDATION'
+      },
+      {
+        amount: 2000, // $20 promo
+        currency: 'usd',
+        env_var: 'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_FOUNDATION_PROMO',
+        promo: '60d'
+      }
+    ]
   }
 ];
 
-async function upsertProduct(productData) {
+/**
+ * Create or update a Stripe product with prices
+ */
+async function upsertProduct(config) {
   try {
-    // Try to find existing product by lookup_key
-    const prices = await stripe.prices.list({
-      lookup_keys: [productData.lookup_key],
-      limit: 1
+    console.log(`\n🔄 Processing: ${config.name}`);
+    
+    // Find existing product by name
+    const existingProducts = await stripe.products.list({
+      limit: 100
     });
-
-    let product;
-    let price;
-
-    if (prices.data.length > 0) {
-      // Product exists, get it
-      price = prices.data[0];
-      product = await stripe.products.retrieve(price.product);
-      console.log(`✅ Found existing product: ${product.name}`);
+    
+    let product = existingProducts.data.find(p => p.name === config.name);
+    
+    if (product) {
+      console.log(`✅ Found existing product: ${product.id}`);
+      
+      // Update metadata if needed
+      await stripe.products.update(product.id, {
+        metadata: {
+          sku: config.sku,
+          vertical: config.vertical,
+          type: config.type,
+          tier: config.tier || ''
+        }
+      });
     } else {
       // Create new product
       product = await stripe.products.create({
-        name: productData.name,
-        description: productData.description,
-        metadata: productData.metadata
+        name: config.name,
+        metadata: {
+          sku: config.sku,
+          vertical: config.vertical,
+          type: config.type,
+          tier: config.tier || ''
+        }
       });
-      console.log(`🆕 Created new product: ${product.name}`);
+      console.log(`🆕 Created new product: ${product.id}`);
     }
 
-    // Create or update price
-    if (!price || price.unit_amount !== productData.unit_amount) {
+    const results = {};
+    
+    // Create prices for this product
+    for (const priceConfig of config.prices) {
+      console.log(`💰 Creating price: $${priceConfig.amount / 100} ${priceConfig.currency.toUpperCase()}${priceConfig.promo ? ' (PROMO)' : ''}`);
+      
       const priceData = {
         product: product.id,
-        unit_amount: productData.unit_amount,
-        currency: productData.currency,
-        lookup_key: productData.lookup_key,
-        metadata: productData.metadata
+        unit_amount: priceConfig.amount,
+        currency: priceConfig.currency,
+        metadata: {
+          sku: config.sku,
+          env_var: priceConfig.env_var
+        }
       };
 
-      if (productData.recurring) {
-        priceData.recurring = productData.recurring;
+      // Add recurring interval for subscriptions
+      if (priceConfig.interval) {
+        priceData.recurring = { interval: priceConfig.interval };
       }
 
-      price = await stripe.prices.create(priceData);
-      console.log(`💰 Created new price: ${price.id} (${productData.unit_amount / 100} ${productData.currency.toUpperCase()})`);
-    } else {
-      console.log(`✅ Price up to date: ${price.id}`);
+      // Add promo metadata
+      if (priceConfig.promo) {
+        priceData.metadata.promo = priceConfig.promo;
+      }
+
+      const price = await stripe.prices.create(priceData);
+      results[priceConfig.env_var] = price.id;
+      
+      console.log(`   ✅ Price created: ${price.id}`);
     }
 
-    return {
-      product,
-      price,
-      lookup_key: productData.lookup_key
-    };
+    return results;
   } catch (error) {
-    console.error(`❌ Error with product ${productData.name}:`, error.message);
+    console.error(`❌ Error processing ${config.name}:`, error.message);
     throw error;
   }
 }
 
+/**
+ * Main seeding function
+ */
 async function main() {
-  console.log('\n🚀 Starting Stripe pricing seed...\n');
+  console.log('\n🚀 Starting SKRBL AI Stripe pricing seed...\n');
+  console.log('📋 Creating products and prices with canonical naming...\n');
 
-  const results = {};
+  const allResults = {};
 
-  for (const productData of SPORTS_PRODUCTS) {
-    console.log(`Processing: ${productData.name}...`);
-    const result = await upsertProduct(productData);
-    results[productData.lookup_key] = result.price.id;
-    console.log('');
+  for (const config of PRODUCTS_CONFIG) {
+    try {
+      const results = await upsertProduct(config);
+      Object.assign(allResults, results);
+      
+      // Small delay to avoid rate limits
+      await new Promise(resolve => setTimeout(resolve, 200));
+    } catch (error) {
+      console.error(`Failed to process ${config.name}:`, error);
+      // Continue with other products
+    }
   }
 
-  console.log('🎉 All products and prices created/updated successfully!\n');
+  console.log('\n🎉 All products and prices created/updated successfully!\n');
   console.log('=' .repeat(80));
-  console.log('📋 ENVIRONMENT VARIABLES');
+  console.log('📋 ENVIRONMENT VARIABLES FOR COPY-PASTE');
   console.log('Copy and paste this into Railway Variables and .env.local:');
   console.log('=' .repeat(80));
   console.log('');
 
-  // Generate environment variables
-  console.log('# Sports Pricing - Stripe Price IDs');
-  console.log(`NEXT_PUBLIC_STRIPE_PRICE_ROOKIE=${results['plan.sports.starter.monthly.9_99']}`);
-  console.log(`NEXT_PUBLIC_STRIPE_PRICE_PRO=${results['plan.sports.pro.monthly.beta_19_99']}`);
-  console.log(`NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR=${results['plan.sports.elite.monthly.beta_59_99']}`);
-  console.log('# Optional if code still references:');
-  console.log('# NEXT_PUBLIC_STRIPE_PRICE_YEARLY=unset');
+  // Generate environment variables in organized sections
+  console.log('# =============================================================================');
+  console.log('# SKRBL AI PRICING - STRIPE PRICE IDS');
+  console.log('# Generated by: scripts/seed-stripe-pricing.js');
+  console.log('# =============================================================================');
   console.log('');
-  console.log('# Sports Add-Ons');
-  console.log(`NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10=${results['addon.sports.scans10.onetime.9_99']}`);
-  console.log('');
-  console.log('# Required Stripe Configuration');
-  console.log(`APP_BASE_URL=https://skrblai.io`);
   
+  console.log('# BUSINESS PLANS (Monthly)');
+  const bizPlanVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M',
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M', 
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'
+  ];
+  bizPlanVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# SPORTS PLANS (Monthly)');
+  const sportsPlanVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
+  ];
+  sportsPlanVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# BUSINESS ADD-ONS (One-time)');
+  const bizAddonVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS',
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT'
+  ];
+  bizAddonVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# BUSINESS ADD-ONS (Promo Pricing - 60 days)');
+  const bizAddonPromoVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_PROMO',
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_PROMO',
+    'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_PROMO'
+  ];
+  bizAddonPromoVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# SPORTS ADD-ONS (One-time)');
+  const sportsAddonVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_VIDEO',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_EMOTION',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_NUTRITION',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_FOUNDATION'
+  ];
+  sportsAddonVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# SPORTS ADD-ONS (Promo Pricing - 60 days)');
+  const sportsAddonPromoVars = [
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_VIDEO_PROMO',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_EMOTION_PROMO',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_NUTRITION_PROMO',
+    'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_FOUNDATION_PROMO'
+  ];
+  sportsAddonPromoVars.forEach(varName => {
+    if (allResults[varName]) {
+      console.log(`${varName}=${allResults[varName]}`);
+    }
+  });
+  console.log('');
+
+  console.log('# STRIPE CONFIGURATION');
   if (isLiveKey) {
     console.log(`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_xxx`);
     console.log(`STRIPE_SECRET_KEY=${process.env.STRIPE_SECRET_KEY}`);
@@ -190,20 +468,30 @@ async function main() {
     console.log(`STRIPE_SECRET_KEY=${process.env.STRIPE_SECRET_KEY}`);
     console.log(`STRIPE_WEBHOOK_SECRET=whsec_xxx`);
   }
-  
-  console.log('NEXT_PUBLIC_HP_GUIDE_STAR=1');
+  console.log(`APP_BASE_URL=https://skrblai.io`);
   console.log('');
+
+  console.log('# PROMO CONFIGURATION');
+  console.log('PROMO_START=2025-01-01T00:00:00Z  # 60-day promo start date');
+  console.log('');
+
   console.log('=' .repeat(80));
   console.log('');
-  console.log('📌 Next Steps:');
+  console.log('📌 NEXT STEPS:');
   console.log('1. Copy the environment variables above');
   console.log('2. Paste into Railway → Variables (for production)');
   console.log('3. Paste into .env.local (for local development)');
   console.log('4. Update publishable key and webhook secret with your actual values');
   console.log('5. Save and redeploy in Railway');
-  console.log('6. Test the pricing pages: /sports and /pricing');
+  console.log('6. Test the pricing pages: /pricing (business) and /sports (sports)');
+  console.log('');
+  console.log('🎯 PROMO PRICING:');
+  console.log('- Standard prices are always available');
+  console.log('- Promo prices activate automatically based on PROMO_START + 60 days');
+  console.log('- Code will select appropriate price based on current date');
   console.log('');
   console.log(`✨ Seed completed with ${isLiveKey ? 'LIVE' : 'TEST'} Stripe data`);
+  console.log(`📊 Created ${Object.keys(allResults).length} price IDs across ${PRODUCTS_CONFIG.length} products`);
 }
 
 // Handle graceful shutdown
