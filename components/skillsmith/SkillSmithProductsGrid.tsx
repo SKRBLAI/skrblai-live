@@ -92,6 +92,11 @@ export default function SkillSmithProductsGrid({ className = '' }: SkillSmithPro
           buttonText="Analyze Now"
           theme="dark"
           className="w-full"
+          onPromptSubmit={(prompt) => {
+            // Route to SkillSmith agent chat with the prompt
+            const encodedPrompt = encodeURIComponent(prompt);
+            window.location.href = `/agents/skillsmith?tab=chat&prompt=${encodedPrompt}`;
+          }}
         />
       </div>
 

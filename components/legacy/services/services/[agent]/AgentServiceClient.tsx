@@ -31,18 +31,33 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [executionIdState, setExecutionIdState] = useState<string | null>(null);
   const [executionStatus, setExecutionStatus] = useState<'running' | 'success' | 'error' | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'backstory' | 'chat'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'backstory' | 'chat' | 'launch'>('overview');
   const [chatMessage, setChatMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<Array<{role: 'user' | 'agent', message: string, timestamp: Date}>>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   // Set initial tab based on URL parameter
   useEffect(() => {
-    const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | null;
-    if (tab && ['overview', 'backstory', 'chat'].includes(tab)) {
+    const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | 'launch' | null;
+    if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
       setActiveTab(tab);
     }
-  }, [searchParams]);
+    
+    // If there's a prompt parameter and we're on chat tab, set the initial message
+    const promptParam = searchParams.get('prompt');
+    if (promptParam && tab === 'chat' && agent) {
+      setChatMessage(decodeURIComponent(promptParam));
+      // Initialize chat with agent's greeting if empty
+      const agentBackstory = agentBackstories[agent.id];
+      if (chatHistory.length === 0 && agentBackstory?.catchphrase) {
+        setChatHistory([{
+          role: 'agent',
+          message: `${agentBackstory.catchphrase} I'm ${agentBackstory.superheroName || agent.name}, ready to help you dominate your ${agent.category}! What can I do for you today?`,
+          timestamp: new Date()
+        }]);
+      }
+    }
+  }, [searchParams, chatHistory.length, agent]);
 
   // Live metrics animation
   useEffect(() => {
@@ -594,6 +609,19 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                   Chat
                 </div>
               </button>
+              <button
+                onClick={() => setActiveTab('launch')}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                  activeTab === 'launch'
+                    ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  Launch
+                </div>
+              </button>
             </div>
           </div>
 
@@ -1001,6 +1029,71 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                       Send
                     </button>
                   </div>
+                </GlassmorphicCard>
+              </motion.div>
+            )}
+
+            {activeTab === 'launch' && (
+              <motion.div
+                key="launch"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Launch Interface */}
+                <GlassmorphicCard className="p-8 text-center">
+                  <div className="mb-8">
+                    <Image
+                      src={agentImagePath}
+                      alt={agent.name}
+                      width={120}
+                      height={120}
+                      className="mx-auto rounded-2xl border-4 border-cyan-400/30 mb-6"
+                    />
+                    <h3 className="text-3xl font-bold text-white mb-4">
+                      Ready to Launch {backstory?.superheroName || agent.name}?
+                    </h3>
+                    <p className="text-gray-300 text-lg mb-8">
+                      This agent will analyze your needs and execute the perfect workflow to achieve your goals.
+                    </p>
+                  </div>
+
+                  {/* Workflow Preview */}
+                  <div className="mb-8">
+                    <h4 className="text-xl font-semibold text-cyan-300 mb-4">What This Agent Will Do:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      {capabilities.slice(0, 4).map((capability, index) => (
+                        <div key={index} className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 rounded-lg border border-purple-500/30">
+                          <Star className="w-5 h-5 text-yellow-400" />
+                          <span className="text-white">{capability}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Launch Button */}
+                  <CosmicButton
+                    onClick={handleLaunchAgent}
+                    disabled={isLaunching}
+                    className="flex items-center justify-center gap-3 px-12 py-6 text-xl font-bold relative overflow-hidden group mx-auto"
+                  >
+                    {isLaunching ? (
+                      <>
+                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Launching Agent...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-6 h-6" />
+                        Launch {agent.name.replace('Agent', '').replace('-', ' ')} Now
+                      </>
+                    )}
+                  </CosmicButton>
+
+                  <p className="text-gray-400 text-sm mt-4">
+                    Your workflow will begin immediately and you'll be redirected to your dashboard to monitor progress.
+                  </p>
                 </GlassmorphicCard>
               </motion.div>
             )}
