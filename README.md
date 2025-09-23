@@ -157,6 +157,36 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 
 ## 🚀 GETTING STARTED
 
+### **Pricing Seeds**
+
+#### **Business Seeding**
+Create Business pricing plans and add-ons in Stripe:
+
+**PowerShell:**
+```powershell
+$env:STRIPE_SECRET_KEY="sk_test_XXX"
+node scripts/seed-stripe-business.js
+```
+
+**bash:**
+```bash
+STRIPE_SECRET_KEY=sk_test_XXX node scripts/seed-stripe-business.js
+```
+
+#### **Sports Seeding**
+Create Sports pricing plans and add-ons in Stripe:
+
+**PowerShell:**
+```powershell
+$env:STRIPE_SECRET_KEY="sk_test_XXX"
+node scripts/seed-stripe-pricing.js
+```
+
+**bash:**
+```bash
+STRIPE_SECRET_KEY=sk_test_XXX node scripts/seed-stripe-pricing.js
+```
+
 ### **Development Setup**
 
 1. **Clone and Install**
