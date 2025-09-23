@@ -141,7 +141,7 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
           page_path: pathname,
           metadata: {
             email,
-            error: error.message,
+            error: error instanceof Error ? error.message : String(error),
             source: 'exit_intent'
           },
           timestamp: new Date().toISOString()

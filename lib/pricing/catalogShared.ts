@@ -82,7 +82,9 @@ export function isPromoActive(promoConfig: PromoConfig = STANDARD_PROMO_CONFIG):
 /**
  * Get the appropriate price (promo or standard) based on current date
  */
-export function getCurrentPrice(item: PricingItem, promoConfig?: PromoConfig): number {
+export function getCurrentPrice(item: PricingItem, promoConfig?: PromoConfig): number;
+export function getCurrentPrice(item: AddOnItem, promoConfig?: PromoConfig): number;
+export function getCurrentPrice(item: PricingItem | AddOnItem, promoConfig?: PromoConfig): number {
   if (item.promoPrice && isPromoActive(promoConfig)) {
     return item.promoPrice;
   }

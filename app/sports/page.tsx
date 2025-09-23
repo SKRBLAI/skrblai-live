@@ -17,7 +17,8 @@ import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
 import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
-import { getAddOns, getSubscriptions, PricingItem } from '../../lib/sports/pricingData';
+import { getSportsAddons, getSportsPlans } from '../../lib/sports/pricingData';
+import { PricingItem } from '../../lib/pricing/catalogShared';
 import { X, Star } from 'lucide-react';
 import type { Product } from '../../lib/config/skillsmithProducts';
 
@@ -59,8 +60,8 @@ export default function SportsPage(): JSX.Element {
   const [intakeData, setIntakeData] = useState<any>(null);
 
   // Get pricing data
-  const addOns = getAddOns();
-  const subscriptions = getSubscriptions();
+  const addOns = getSportsAddons();
+  const subscriptions = getSportsPlans();
 
   // Check for successful purchase from URL params
   useEffect(() => {
@@ -180,7 +181,7 @@ export default function SportsPage(): JSX.Element {
     try {
       // Unified checkout API: one-time = 'payment', otherwise 'subscription'
       const mode =
-        item.type === "addon" || item.period === "one-time"
+        item.type === "addon" || item.billingInterval === "one_time"
           ? "payment"
           : "subscription";
 
@@ -193,7 +194,7 @@ export default function SportsPage(): JSX.Element {
           vertical: "sports",
           metadata: {
             source: "sports_page",
-            title: item.title,
+            sku: item.sku,
           },
           successPath: "/sports?success=true",
           cancelPath: "/sports",
@@ -397,13 +398,13 @@ export default function SportsPage(): JSX.Element {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {subscriptions.slice(0, 4).map((plan) => (
                   <button
-                    key={plan.id}
+                    key={plan.sku}
                     onClick={() => handlePricingPurchase(plan)}
                     className="bg-white/10 hover:bg-white/15 border border-cyan-400/30 rounded-xl p-4 text-left text-gray-200 transition-colors"
                   >
-                    <div className="font-bold text-white mb-1">{plan.title}</div>
-                    <div className="text-sm text-gray-300 mb-2">{plan.description}</div>
-                    <div className="text-lg font-bold text-cyan-400">${plan.price}/{plan.period === 'annual' ? 'year' : 'month'}</div>
+                    <div className="font-bold text-white mb-1">{plan.tier} Plan</div>
+                    <div className="text-sm text-gray-300 mb-2">{plan.includes.slice(0, 2).join(', ')}</div>
+                    <div className="text-lg font-bold text-cyan-400">${plan.priceUsd}/{plan.billingInterval === 'month' ? 'month' : 'one-time'}</div>
                   </button>
                 ))}
               </div>

@@ -347,6 +347,13 @@ export function getSportsPlansLegacy(): LegacyPlan[] {
 }
 
 /**
+ * Get a display label for a sports add-on SKU
+ */
+function getSportsAddonLabel(sku: string): string {
+  return sku.replace('sports_addon_', '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+/**
  * Legacy compatibility exports
  */
 export const getAddOns = () => getSportsAddons().map(addon => ({

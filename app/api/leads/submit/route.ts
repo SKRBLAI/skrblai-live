@@ -43,7 +43,7 @@ async function handleLeadSubmission(req: NextRequest) {
     // Check if lead already exists
     const { data: existingLead } = await supabase
       .from('leads')
-      .select('id, status, created_at')
+      .select('id, status, created_at, metadata')
       .eq('email', body.email)
       .eq('source', body.source)
       .single();

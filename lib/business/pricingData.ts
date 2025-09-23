@@ -323,9 +323,25 @@ export function getBusinessPlansLegacy(): LegacyPlan[] {
 }
 
 /**
+ * Get plan badge text for display (new PricingItem interface)
+ */
+export function getPlanBadge(plan: PricingItem): string | undefined {
+  switch (plan.tier) {
+    case "starter":
+      return "Most Popular";
+    case "pro": 
+      return "Best Value";
+    case "elite":
+      return "Enterprise";
+    default:
+      return undefined;
+  }
+}
+
+/**
  * Get plan badge text for display (legacy compatibility)
  */
-export function getPlanBadge(plan: LegacyPlan): string | undefined {
+export function getPlanBadgeLegacy(plan: LegacyPlan): string | undefined {
   switch (plan.label) {
     case "Starter":
       return "Most Popular";
@@ -339,9 +355,27 @@ export function getPlanBadge(plan: LegacyPlan): string | undefined {
 }
 
 /**
+ * Get plan icon for display (new PricingItem interface)
+ */
+export function getPlanIcon(plan: PricingItem): string {
+  switch (plan.tier) {
+    case "curiosity":
+      return "🎯";
+    case "starter":
+      return "⚡";
+    case "pro":
+      return "🔥"; 
+    case "elite":
+      return "👑";
+    default:
+      return "📊";
+  }
+}
+
+/**
  * Get plan icon for display (legacy compatibility)
  */
-export function getPlanIcon(plan: LegacyPlan): string {
+export function getPlanIconLegacy(plan: LegacyPlan): string {
   switch (plan.label) {
     case "Curiosity":
       return "🎯";

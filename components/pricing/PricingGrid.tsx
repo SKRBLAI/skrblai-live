@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PricingItem } from '../../lib/sports/pricingData';
+import { PricingItem } from '../../lib/pricing/catalogShared';
 import PricingCard from './PricingCard';
 import { cn } from '../../styles/ui';
 
@@ -29,7 +29,7 @@ export default function PricingGrid({
   promoLabel,
   displayPrice
 }: PricingGridProps) {
-  const byPriceAsc = <T extends { price:number }>(a:T,b:T)=>a.price-b.price;
+  const byPriceAsc = (a: PricingItem, b: PricingItem) => (a.priceUsd || 0) - (b.priceUsd || 0);
   const itemsSorted = [...items].sort(byPriceAsc);
   
   const getGridCols = () => {
@@ -101,18 +101,18 @@ export default function PricingGrid({
 
           return (
             <PricingCard
-              key={item.id}
-              title={item.title}
-              priceText={item.period ? `$${item.price}/${item.period === 'monthly' ? 'mo' : item.period === 'annual' ? 'yr' : 'one-time'}` : `$${item.price}`}
+              key={item.sku}
+              title={item.tier ? `${item.tier.charAt(0).toUpperCase() + item.tier.slice(1)} Plan` : 'Plan'}
+              priceText={item.priceUsd ? `$${item.priceUsd}/${item.billingInterval === 'month' ? 'mo' : 'one-time'}` : 'Contact for pricing'}
               displayPrice={
                 typeof displayPrice === "number"
                   ? `$${displayPrice.toFixed(2)}`
-                  : displayPrice || `$${item.price}`
+                  : displayPrice || (item.priceUsd ? `$${item.priceUsd}` : 'Contact')
               }
-              originalPriceText={item.originalPrice ? `$${item.originalPrice}` : undefined}
+              originalPriceText={item.promoPrice ? `$${item.promoPrice}` : undefined}
               promoLabel={promoLabel}
-              features={item.features}
-              badge={item.badge === 'popular' ? 'Most Popular' : item.badge === 'best-value' ? 'Best Value' : undefined}
+              features={item.includes}
+              badge={item.tier === 'starter' ? 'Most Popular' : item.tier === 'pro' ? 'Best Value' : undefined}
               cta={cta}
               animationDelay={index * 0.1}
             />

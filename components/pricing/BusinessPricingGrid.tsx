@@ -32,7 +32,7 @@ export default function BusinessPricingGrid() {
             const badge = getPlanBadge(plan);
             const icon = getPlanIcon(plan);
 
-            const cta = plan.ctaKind === 'contact' ? (
+            const cta = plan.tier === 'contact' ? (
               <Link 
                 href="/contact"
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center block"
@@ -42,7 +42,7 @@ export default function BusinessPricingGrid() {
             ) : (
               <BuyButton
                 sku={plan.sku}
-                isSubscription={plan.isSubscription}
+                isSubscription={plan.type === 'plan' && plan.billingInterval === 'month'}
                 vertical="business"
                 successPath="/pricing?success=1"
                 cancelPath="/pricing?canceled=1"
@@ -54,13 +54,13 @@ export default function BusinessPricingGrid() {
 
             return (
               <PricingCard
-                key={plan.label}
-                title={plan.label}
-                priceText={plan.priceText}
-                displayPrice={plan.displayPrice}
-                originalPriceText={plan.originalPriceText}
-                promoLabel={plan.promoLabel}
-                features={plan.perks}
+                key={plan.sku}
+                title={plan.tier ? `${plan.tier.charAt(0).toUpperCase() + plan.tier.slice(1)} Plan` : 'Plan'}
+                priceText={plan.priceUsd ? `$${plan.priceUsd}/month` : 'Contact for pricing'}
+                displayPrice={plan.priceUsd ? `$${plan.priceUsd}` : 'Contact'}
+                originalPriceText={plan.promoPrice ? `$${plan.promoPrice}` : undefined}
+                promoLabel={plan.isPromoActive ? 'Limited Time' : undefined}
+                features={plan.includes}
                 badge={badge}
                 cta={cta}
                 animationDelay={index * 0.1}
@@ -93,7 +93,7 @@ export default function BusinessPricingGrid() {
               const cta = (
                 <BuyButton
                   sku={addon.sku}
-                  isSubscription={addon.isSubscription}
+                  isSubscription={false}
                   vertical="business"
                   successPath="/pricing?success=1"
                   cancelPath="/pricing?canceled=1"
@@ -105,10 +105,10 @@ export default function BusinessPricingGrid() {
 
               return (
                 <PricingCard
-                  key={addon.label}
-                  title={addon.label}
-                  priceText={addon.priceText}
-                  originalPriceText={addon.originalPriceText}
+                  key={addon.sku}
+                  title={addon.sku.replace('biz_addon_', '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  priceText={addon.priceUsd ? `$${addon.priceUsd}` : 'Contact for pricing'}
+                  originalPriceText={addon.originalPrice ? `$${addon.originalPrice}` : undefined}
                   features={[addon.description || '']}
                   cta={cta}
                   animationDelay={index * 0.1}

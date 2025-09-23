@@ -30,11 +30,11 @@ export default function SportsPricingGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {SPORTS_PLANS.map((plan, index) => {
             const badge = 
-              plan.label === 'Pro' ? 'Most Popular' : 
-              plan.label === 'Elite' ? 'Best Value' : 
+              plan.tier === 'pro' ? 'Most Popular' : 
+              plan.tier === 'elite' ? 'Best Value' : 
               undefined;
 
-            const cta = plan.ctaKind === 'contact' ? (
+            const cta = plan.tier === 'contact' ? (
               <Link 
                 href="/contact"
                 className="w-full py-3 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center block"
@@ -44,7 +44,7 @@ export default function SportsPricingGrid() {
             ) : (
               <BuyButton
                 sku={plan.sku}
-                isSubscription={plan.isSubscription}
+                isSubscription={plan.type === 'plan' && plan.billingInterval === 'month'}
                 vertical="sports"
                 successPath="/sports?success=1"
                 cancelPath="/sports?canceled=1"
@@ -55,15 +55,15 @@ export default function SportsPricingGrid() {
 
             return (
               <PricingCard
-                key={plan.label}
-                title={plan.label}
-                priceText={plan.priceText}
-                displayPrice={plan.displayPrice}
-                originalPriceText={plan.originalPriceText}
-                promoLabel={plan.promoLabel}
-                features={plan.perks}
+                key={plan.sku}
+                title={plan.tier ? `${plan.tier.charAt(0).toUpperCase() + plan.tier.slice(1)} Plan` : 'Plan'}
+                priceText={plan.priceUsd ? `$${plan.priceUsd}/month` : 'Contact for pricing'}
+                displayPrice={plan.priceUsd ? `$${plan.priceUsd}` : 'Contact'}
+                originalPriceText={plan.promoPrice ? `$${plan.promoPrice}` : undefined}
+                promoLabel={plan.isPromoActive ? 'Limited Time' : undefined}
+                features={plan.includes}
                 badge={badge}
-                includedVideoCount={plan.includedVideoCount}
+                includedVideoCount={plan.scansOrUploads}
                 cta={cta}
                 animationDelay={index * 0.1}
               />
@@ -95,7 +95,7 @@ export default function SportsPricingGrid() {
               const cta = (
                 <BuyButton
                   sku={addon.sku}
-                  isSubscription={addon.isSubscription}
+                  isSubscription={false}
                   vertical="sports"
                   successPath="/sports?success=1"
                   cancelPath="/sports?canceled=1"
@@ -106,10 +106,10 @@ export default function SportsPricingGrid() {
 
               return (
                 <PricingCard
-                  key={addon.label}
-                  title={addon.label}
-                  priceText={addon.priceText}
-                  originalPriceText={addon.originalPriceText}
+                  key={addon.sku}
+                  title={addon.sku.replace('sports_addon_', '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  priceText={addon.priceUsd ? `$${addon.priceUsd}` : 'Contact for pricing'}
+                  originalPriceText={addon.originalPrice ? `$${addon.originalPrice}` : undefined}
                   features={[addon.description || '']}
                   cta={cta}
                   animationDelay={index * 0.1}
