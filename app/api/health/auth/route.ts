@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateSupabaseEnvSafe, redact } from '@/lib/env';
+import { validateEnvSafe } from '@/lib/env';
 
 interface HealthResponse {
   ok: boolean;
@@ -21,49 +21,39 @@ interface HealthResponse {
   };
 }
 
-async function testSupabaseConnectivity(url: string, anonKey: string): Promise<{ authReachable: boolean; status?: number }> {
-  try {
-    const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': anonKey,
-      },
-      body: JSON.stringify({ email: 'test@example.com', password: 'invalid' }),
-    });
+type Net = { authReachable: boolean; status?: number };
 
-    const status = response.status;
-    
-    // We expect 400 or 422 for invalid credentials (good: reached Auth)
-    if (status === 400 || status === 422) {
-      return { authReachable: true, status };
-    } else {
-      return { authReachable: false, status };
-    }
-  } catch (error) {
+async function testSupabaseConnectivity(url: string, anonKey: string): Promise<Net> {
+  try {
+    const res = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: anonKey, "content-type": "application/json" },
+      body: JSON.stringify({ email: "x@y.z", password: "x" }),
+      cache: "no-store",
+    });
+    return { authReachable: true, status: res.status };
+  } catch {
     return { authReachable: false };
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    // Validate environment
-    const validation = validateSupabaseEnvSafe();
+    // Validate environment using new validateEnvSafe()
+    const validation = validateEnvSafe();
     
-    const envChecks = {
-      urlOk: validation.isValid && !!validation.env.NEXT_PUBLIC_SUPABASE_URL,
-      anonPrefixOk: validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.startsWith('sbp_') || false,
-      serviceRolePrefixOk: validation.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith('sbs_') || false,
-    };
+    // Build envChecks from validation.checks
+    const envChecks = validation.checks;
     
-    // Test network connectivity if we have the required vars
-    let networkCheck = { authReachable: false, status: undefined as number | undefined };
-    if (validation.env.NEXT_PUBLIC_SUPABASE_URL && validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      const net = await testSupabaseConnectivity(
-        validation.env.NEXT_PUBLIC_SUPABASE_URL,
-        validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    // Initialize networkCheck
+    let networkCheck: Net = { authReachable: false };
+    
+    // Only call testSupabaseConnectivity if urlOk && anonPrefixOk
+    if (validation.checks.urlOk && validation.checks.anonPrefixOk) {
+      networkCheck = await testSupabaseConnectivity(
+        validation.env.NEXT_PUBLIC_SUPABASE_URL!,
+        validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
-      networkCheck = { authReachable: net.authReachable, status: net.status };
     }
     
     // Determine overall health
@@ -76,12 +66,12 @@ export async function GET(request: NextRequest) {
       ok: overallOk,
       checks: {
         env: envChecks,
-        network: networkCheck,
+        network: { authReachable: networkCheck.authReachable, status: networkCheck.status },
       },
       meta: {
         url: validation.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        anonKeyRedacted: redact(validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''),
-        serviceKeyRedacted: redact(validation.env.SUPABASE_SERVICE_ROLE_KEY || ''),
+        anonKeyRedacted: validation.redact(validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        serviceKeyRedacted: validation.redact(validation.env.SUPABASE_SERVICE_ROLE_KEY),
       },
     };
     

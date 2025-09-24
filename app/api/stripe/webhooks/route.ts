@@ -1,3 +1,4 @@
+// app/api/stripe/webhooks/route.ts
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -8,11 +9,12 @@ import { logger } from '@/lib/observability/logger';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
 export const POST = withSafeJson(async (req: Request) => {
   const body = await req.text();
   const signature = req.headers.get('stripe-signature')!;
-
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
   if (!webhookSecret) {
     return NextResponse.json({ error: 'Stripe webhook not configured' }, { status: 503 });
   }
@@ -26,10 +28,10 @@ export const POST = withSafeJson(async (req: Request) => {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
-  logger.info('Stripe webhook received', {
+  logger?.info?.('Stripe webhook received', {
     eventType: event.type,
     eventId: event.id,
-    livemode: event.livemode
+    livemode: event.livemode,
   });
 
   const supabase = getOptionalServerSupabase();
@@ -56,6 +58,9 @@ export const POST = withSafeJson(async (req: Request) => {
     case 'invoice.payment_failed':
       await handleInvoicePaymentFailed((event as any).data.object);
       break;
+    case 'payment_intent.succeeded':
+      await handlePaymentIntentSucceeded(supabase, (event as any).data.object);
+      break;
     default:
       console.log(`Unhandled webhook event type: ${event.type}`);
   }
@@ -67,23 +72,23 @@ async function handleCheckoutCompleted(supabase: SupabaseClient, session: any) {
   const userId = session.client_reference_id;
   const customerId = session.customer;
   const subscriptionId = session.subscription;
-  
+
   console.log('Processing checkout completion:', {
     sessionId: session.id,
-    category: session.metadata?.category,
+    category: session.metadata?.category, // 'sports' | 'business'
     source: session.metadata?.source,
-    amount: session.amount_total
+    sku: session.metadata?.sku,
+    amount: session.amount_total,
   });
 
   try {
-    // Handle SkillSmith sports purchases
+    // Sports one-time or plan purchases recorded as orders
     if (session.metadata?.category === 'sports') {
       await handleSkillSmithPurchase(supabase, session);
     }
 
-    // Handle regular subscription logic
+    // For subscriptions (business or sports monthly tiers)
     if (subscriptionId && userId) {
-      // Update user's profile with Stripe customer ID
       await supabase
         .from('profiles')
         .update({
@@ -93,7 +98,6 @@ async function handleCheckoutCompleted(supabase: SupabaseClient, session: any) {
         })
         .eq('id', userId);
 
-      // Create subscription record
       await supabase.from('subscriptions').insert({
         user_id: userId,
         stripe_customer_id: customerId,
@@ -106,24 +110,23 @@ async function handleCheckoutCompleted(supabase: SupabaseClient, session: any) {
         updated_at: new Date().toISOString(),
       });
     }
-
-    console.log(`Checkout completed successfully for session: ${session.id}`);
   } catch (error) {
     console.error('Error handling checkout completion:', error);
   }
 }
 
 async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) {
-  const { productSku, source, category } = session.metadata || {};
-  
+  const { sku, productSku, source, category } = session.metadata || {};
+  const resolvedSku = sku || productSku;
+
   try {
-    // Insert into skillsmith_orders
     const { data: orderData, error: orderError } = await supabase
       .from('skillsmith_orders')
       .insert({
         stripe_session_id: session.id,
-        product_sku: productSku,
+        product_sku: resolvedSku,
         amount: session.amount_total,
+        currency: session.currency,
         customer_email: session.customer_details?.email,
         customer_name: session.customer_details?.name,
         source,
@@ -132,11 +135,11 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
         metadata: {
           session_id: session.id,
           payment_intent: session.payment_intent,
-          mode: session.mode
+          mode: session.mode,
         },
         fulfilled_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -146,36 +149,24 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
       return;
     }
 
-    console.log('SkillSmith order created:', orderData.id);
-
-    // Forward to n8n if configured
+    // optional: forward to n8n
     if (process.env.N8N_STRIPE_WEBHOOK_URL) {
       try {
-        const n8nResponse = await fetch(process.env.N8N_STRIPE_WEBHOOK_URL, {
+        const r = await fetch(process.env.N8N_STRIPE_WEBHOOK_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             event: 'skillsmith_purchase',
             session,
             order: orderData,
-            timestamp: new Date().toISOString()
-          })
+            timestamp: new Date().toISOString(),
+          }),
         });
-
-        if (!n8nResponse.ok) {
-          console.warn('N8N webhook failed:', n8nResponse.status, n8nResponse.statusText);
-        } else {
-          console.log('Successfully forwarded SkillSmith purchase to n8n');
-        }
-      } catch (n8nError) {
-        console.warn('Error forwarding to n8n:', n8nError);
+        if (!r.ok) console.warn('N8N webhook failed:', r.status, r.statusText);
+      } catch (e) {
+        console.warn('Error forwarding to n8n:', e);
       }
-    } else {
-      console.log('N8N_STRIPE_WEBHOOK_URL not configured, skipping n8n forwarding');
     }
-
   } catch (error) {
     console.error('Error handling SkillSmith purchase:', error);
   }
@@ -183,7 +174,6 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
 
 async function handleSubscriptionCreated(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
-
   try {
     const { data: profile } = await supabase
       .from('profiles')
@@ -219,7 +209,6 @@ async function handleSubscriptionCreated(supabase: SupabaseClient, subscription:
 
 async function handleSubscriptionUpdated(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
-
   try {
     const { data: profile } = await supabase
       .from('profiles')
@@ -254,7 +243,6 @@ async function handleSubscriptionUpdated(supabase: SupabaseClient, subscription:
 
 async function handleSubscriptionDeleted(supabase: SupabaseClient, subscription: any) {
   const customerId = subscription.customer;
-
   try {
     const { data: profile } = await supabase
       .from('profiles')
@@ -288,7 +276,6 @@ async function handleSubscriptionDeleted(supabase: SupabaseClient, subscription:
 async function handleInvoicePaymentSucceeded(supabase: SupabaseClient, invoice: any) {
   const customerId = invoice.customer;
   const subscriptionId = invoice.subscription;
-
   try {
     const { data: profile } = await supabase
       .from('profiles')
@@ -315,5 +302,23 @@ async function handleInvoicePaymentSucceeded(supabase: SupabaseClient, invoice: 
 
 async function handleInvoicePaymentFailed(invoice: any) {
   console.log(`Invoice payment failed: ${invoice.id}`);
-  // Handle failed payment - could trigger retry logic, notifications, etc.
+}
+
+async function handlePaymentIntentSucceeded(supabase: SupabaseClient, pi: any) {
+  // Optional: record successful one-time add-ons that bypass Checkout Session
+  try {
+    await supabase.from('payment_events').insert({
+      user_id: null,
+      stripe_customer_id: pi.customer || null,
+      stripe_subscription_id: null,
+      event_type: 'payment_intent_succeeded',
+      amount: pi.amount_received,
+      currency: pi.currency,
+      status: 'succeeded',
+      created_at: new Date().toISOString(),
+      metadata: pi.metadata ?? {},
+    });
+  } catch (e) {
+    console.error('Error handling payment_intent.succeeded:', e);
+  }
 }

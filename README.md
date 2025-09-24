@@ -82,9 +82,13 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 ### **Supabase Diagnostics**
 - `npm run diag:supabase` - Local diagnostics script that validates:
   - Environment variables (URL, anon key, service role key)
-  - Key format validation (prefixes: `sbp_` for anon, `sbs_` for service)
+  - Key format validation (prefixes: `sbp_` or `sb_publishable_*` for anon, `sbs_` or `sb_secret_*` for service)
   - Network connectivity to Supabase Auth API
   - Returns PASS/FAIL with redacted configuration details
+
+### **Supabase Keys (New vs Legacy)**
+- **Public key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY` → accepts `sb_publishable_*` or `sbp_*`
+- **Server key** → `SUPABASE_SERVICE_ROLE_KEY` → accepts `sb_secret_*` or `sbs_*`
 
 ### **Skill Smith Sports AI**
 - `POST /api/skillsmith` - Sports coaching chat API

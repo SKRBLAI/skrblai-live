@@ -1,6 +1,8 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseEnvSafe } from '@/lib/env';
 
+// Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
+
 /**
  * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
  * This client bypasses RLS and should ONLY be used in server-side code.

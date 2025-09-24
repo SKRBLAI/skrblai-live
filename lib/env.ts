@@ -1,6 +1,7 @@
 /**
  * Environment validation and utilities for Supabase configuration
  * Validates required env vars and provides redaction helpers
+ * Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
  */
 
 export interface SupabaseEnv {
@@ -13,6 +14,39 @@ export interface ValidationResult {
   isValid: boolean;
   errors: string[];
   env: Partial<SupabaseEnv>;
+}
+
+/**
+ * New safe validation that accepts both legacy and new Supabase API key formats
+ * Returns validation checks and redaction helper
+ */
+export function redact(v?: string, keep = 4) {
+  if (!v) return "";
+  const head = v.slice(0, keep);
+  return head + "****";
+}
+
+export function validateEnvSafe() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  const urlOk =
+    typeof url === "string" &&
+    /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url);
+
+  const anonPrefixOk = !!anon && (/^sbp_/.test(anon) || /^sb_publishable_/i.test(anon));
+  const serviceRolePrefixOk = !!service && (/^sbs_/.test(service) || /^sb_secret_/i.test(service));
+
+  return {
+    env: {
+      NEXT_PUBLIC_SUPABASE_URL: url,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: anon,
+      SUPABASE_SERVICE_ROLE_KEY: service,
+    },
+    checks: { urlOk, anonPrefixOk, serviceRolePrefixOk },
+    redact,
+  };
 }
 
 /**
@@ -44,27 +78,27 @@ export function validateSupabaseEnv(): SupabaseEnv {
     }
   }
 
-  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY (supporting both legacy and new formats)
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!anonKey) {
     errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
   } else {
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY = anonKey;
     
-    if (!anonKey.startsWith('sbp_')) {
-      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY must start with "sbp_"');
+    if (!anonKey.startsWith('sbp_') && !anonKey.startsWith('sb_publishable_')) {
+      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY must start with "sbp_" or "sb_publishable_"');
     }
   }
 
-  // Check SUPABASE_SERVICE_ROLE_KEY
+  // Check SUPABASE_SERVICE_ROLE_KEY (supporting both legacy and new formats)
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
     errors.push('SUPABASE_SERVICE_ROLE_KEY is required');
   } else {
     env.SUPABASE_SERVICE_ROLE_KEY = serviceKey;
     
-    if (!serviceKey.startsWith('sbs_')) {
-      errors.push('SUPABASE_SERVICE_ROLE_KEY must start with "sbs_"');
+    if (!serviceKey.startsWith('sbs_') && !serviceKey.startsWith('sb_secret_')) {
+      errors.push('SUPABASE_SERVICE_ROLE_KEY must start with "sbs_" or "sb_secret_"');
     }
   }
 
@@ -94,22 +128,6 @@ export function validateSupabaseEnvSafe(): ValidationResult {
       }
     };
   }
-}
-
-/**
- * Redacts sensitive values for logging
- * Shows first and last N characters, replaces middle with asterisks
- */
-export function redact(value: string, keep: number = 4): string {
-  if (!value || value.length <= keep * 2) {
-    return '*'.repeat(Math.max(4, value?.length || 4));
-  }
-  
-  const start = value.substring(0, keep);
-  const end = value.substring(value.length - keep);
-  const middle = '*'.repeat(Math.max(4, value.length - (keep * 2)));
-  
-  return `${start}${middle}${end}`;
 }
 
 /**

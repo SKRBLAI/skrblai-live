@@ -5,7 +5,7 @@
  * Validates environment variables and tests network connectivity to Supabase Auth
  */
 
-import { validateSupabaseEnvSafe, redact } from '../../lib/env';
+import { validateEnvSafe } from '../../lib/env';
 
 interface DiagnosticResult {
   env: {
@@ -61,7 +61,7 @@ async function testSupabaseConnectivity(url: string, anonKey: string): Promise<{
   }
 }
 
-function printTable(result: DiagnosticResult, env: any) {
+function printTable(result: DiagnosticResult, env: any, validation: any) {
   console.log('\n📊 Supabase Diagnostics Report');
   console.log('═'.repeat(50));
   
@@ -90,10 +90,10 @@ function printTable(result: DiagnosticResult, env: any) {
     console.log(`URL:                ${env.NEXT_PUBLIC_SUPABASE_URL}`);
   }
   if (env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.log(`Anon Key:           ${redact(env.NEXT_PUBLIC_SUPABASE_ANON_KEY)}`);
+    console.log(`Anon Key:           ${validation.redact(env.NEXT_PUBLIC_SUPABASE_ANON_KEY)}`);
   }
   if (env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.log(`Service Key:        ${redact(env.SUPABASE_SERVICE_ROLE_KEY)}`);
+    console.log(`Service Key:        ${validation.redact(env.SUPABASE_SERVICE_ROLE_KEY)}`);
   }
   
   console.log('\n📋 Overall Status:');
@@ -107,10 +107,10 @@ function printTable(result: DiagnosticResult, env: any) {
       console.log('• Check NEXT_PUBLIC_SUPABASE_URL is set and valid');
     }
     if (!result.env.anonPresent || !result.env.anonPrefixValid) {
-      console.log('• Check NEXT_PUBLIC_SUPABASE_ANON_KEY is set and starts with "sbp_"');
+      console.log('• Check NEXT_PUBLIC_SUPABASE_ANON_KEY is set and starts with "sbp_" or "sb_publishable_"');
     }
     if (!result.env.serviceRolePresent || !result.env.serviceRolePrefixValid) {
-      console.log('• Check SUPABASE_SERVICE_ROLE_KEY is set and starts with "sbs_"');
+      console.log('• Check SUPABASE_SERVICE_ROLE_KEY is set and starts with "sbs_" or "sb_secret_"');
     }
     if (!result.network.reachable) {
       console.log('• Check network connectivity and Supabase project status');
@@ -123,28 +123,28 @@ function printTable(result: DiagnosticResult, env: any) {
 async function main() {
   console.log('🔍 Running Supabase Diagnostics...\n');
   
-  // Validate environment
-  const validation = validateSupabaseEnvSafe();
+  // Validate environment using new validateEnvSafe()
+  const validation = validateEnvSafe();
   
   const result: DiagnosticResult = {
     env: {
       urlPresent: !!validation.env.NEXT_PUBLIC_SUPABASE_URL,
-      urlValid: validation.isValid && !!validation.env.NEXT_PUBLIC_SUPABASE_URL,
+      urlValid: validation.checks.urlOk,
       anonPresent: !!validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      anonPrefixValid: validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.startsWith('sbp_') || false,
+      anonPrefixValid: validation.checks.anonPrefixOk,
       serviceRolePresent: !!validation.env.SUPABASE_SERVICE_ROLE_KEY,
-      serviceRolePrefixValid: validation.env.SUPABASE_SERVICE_ROLE_KEY?.startsWith('sbs_') || false,
+      serviceRolePrefixValid: validation.checks.serviceRolePrefixOk,
     },
     network: { reachable: false },
     overall: false,
   };
   
   // Test network connectivity if we have the required vars
-  if (validation.env.NEXT_PUBLIC_SUPABASE_URL && validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  if (validation.checks.urlOk && validation.checks.anonPrefixOk) {
     console.log('🌐 Testing network connectivity...');
     result.network = await testSupabaseConnectivity(
-      validation.env.NEXT_PUBLIC_SUPABASE_URL,
-      validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      validation.env.NEXT_PUBLIC_SUPABASE_URL!,
+      validation.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
   } else {
     result.network.error = 'Missing URL or anon key for network test';
@@ -157,7 +157,7 @@ async function main() {
                    result.network.reachable;
   
   // Print results
-  printTable(result, validation.env);
+  printTable(result, validation.env, validation);
   
   // Exit with appropriate code
   process.exit(result.overall ? 0 : 1);

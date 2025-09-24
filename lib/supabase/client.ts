@@ -2,6 +2,8 @@
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+// Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
+
 let supabase: SupabaseClient | null = null;
 
 /** Returns a real Supabase client when public envs are present, otherwise null (no-op mode). */
