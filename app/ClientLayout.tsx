@@ -6,6 +6,7 @@ import { BannerProvider } from '../components/context/BannerContext';
 import { AuthProvider } from '../components/context/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import GlobalModalProvider from '../components/providers/GlobalModalProvider';
 import type { ReactNode } from "react";
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -26,29 +27,31 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
       <PercyProvider>
         <BannerProvider>
           <OnboardingProvider>
-            {/* Global Navigation */}
-            <Navbar />
+            <GlobalModalProvider>
+              {/* Global Navigation */}
+              <Navbar />
 
-            {/* Main Content */}
-            <main id="main-content" className="min-h-screen overflow-x-hidden">
-              <div className="pt-safe pb-safe">
-                <div className="relative z-10">
-                  <PageTransition>
-                    {mounted ? children : (
-                      <div className="min-h-screen flex items-center justify-center">
-                        <div className="text-center">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                          <p className="text-gray-300">Loading...</p>
+              {/* Main Content */}
+              <main id="main-content" className="min-h-screen overflow-x-hidden">
+                <div className="pt-safe pb-safe">
+                  <div className="relative z-10">
+                    <PageTransition>
+                      {mounted ? children : (
+                        <div className="min-h-screen flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                            <p className="text-gray-300">Loading...</p>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </PageTransition>
+                      )}
+                    </PageTransition>
+                  </div>
                 </div>
-              </div>
-            </main>
+              </main>
 
-            {/* Site Footer */}
-            <Footer />
+              {/* Site Footer */}
+              <Footer />
+            </GlobalModalProvider>
           </OnboardingProvider>
         </BannerProvider>
       </PercyProvider>

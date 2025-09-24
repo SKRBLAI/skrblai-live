@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import HomePage from '../../app/page';
 
 // Mock next/navigation
+const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
-  useRouter: () => ({ push: jest.fn() }),
+  useRouter: () => ({ push: mockPush }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -13,29 +14,64 @@ jest.mock('../../components/context/AuthContext', () => ({
   useAuth: () => ({ user: null, session: null, isLoading: false, isEmailVerified: false }),
 }));
 
-describe('HomePage (feature flag off)', () => {
-  beforeAll(() => {
-    process.env.NEXT_PUBLIC_REFAC_HOMEPAGE = 'false';
+// Mock OnboardingContext
+const mockSetAnalysisIntent = jest.fn();
+jest.mock('../../contexts/OnboardingContext', () => ({
+  useOnboarding: () => ({
+    setAnalysisIntent: mockSetAnalysisIntent,
+    analysisIntent: null,
+  }),
+}));
+
+// Mock the dynamic imports to avoid issues with Percy component
+jest.mock('../../components/legacy/home/PercyOnboardingRevolution', () => {
+  return function MockPercyOnboardingRevolution() {
+    return <div data-testid="percy-onboarding">Percy Onboarding UI</div>;
+  };
+});
+
+describe('HomePage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('renders Task-Focused Agents grid and navigates on button click', () => {
-    const { useRouter } = require('next/navigation');
-    const router = useRouter();
+  it('renders home hero scan first component', () => {
+    render(<HomePage />);
+    
+    // Should render the main hero section
+    expect(screen.getByText(/Start with a Free AI Scan/i)).toBeInTheDocument();
+  });
+
+  it('detects scan parameter and sets analysis intent', () => {
+    // Mock URLSearchParams to return scan parameter
+    const mockSearchParams = new URLSearchParams('?scan=skillsmith');
+    jest.mocked(require('next/navigation').useSearchParams).mockReturnValue(mockSearchParams);
 
     render(<HomePage />);
 
-    // Percy and SkillSmith buttons should be in document
-    const percyBtn = screen.getByText('Launch Agent', { selector: 'button' });
-    expect(screen.getByText('Percy')).toBeInTheDocument();
-    expect(screen.getByText('SkillSmith')).toBeInTheDocument();
+    expect(mockSetAnalysisIntent).toHaveBeenCalledWith('skillsmith');
+  });
 
-    // Click Percy button: first occurrence is Percy
-    fireEvent.click(percyBtn);
-    expect(router.push).toHaveBeenCalledWith('/agents/percy?track=business');
+  it('shows Percy onboarding when analysis intent is set', () => {
+    // Mock the onboarding context to return an analysis intent
+    jest.mocked(require('../../contexts/OnboardingContext').useOnboarding).mockReturnValue({
+      setAnalysisIntent: mockSetAnalysisIntent,
+      analysisIntent: 'skillsmith',
+    });
 
-    // SkillSmith button
-    const skillBtn = screen.getAllByText('Launch Agent', { selector: 'button' })[1];
-    fireEvent.click(skillBtn);
-    expect(router.push).toHaveBeenCalledWith('/agents/skillsmith?track=sports');
+    render(<HomePage />);
+
+    expect(screen.getByTestId('percy-onboarding')).toBeInTheDocument();
+  });
+
+  it('renders normal homepage when no scan parameter', () => {
+    // Mock empty search params
+    const mockSearchParams = new URLSearchParams('');
+    jest.mocked(require('next/navigation').useSearchParams).mockReturnValue(mockSearchParams);
+
+    render(<HomePage />);
+
+    // Should render normal homepage components
+    expect(screen.getByText(/Start with a Free AI Scan/i)).toBeInTheDocument();
   });
 });

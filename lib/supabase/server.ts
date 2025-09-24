@@ -61,3 +61,15 @@ export function requireServerSupabase(): SupabaseClient {
   if (!c) throw new Error('Supabase not configured on server (missing URL/KEY envs).');
   return c;
 }
+
+/**
+ * Create a server-side Supabase client (alias for getServerSupabaseAdmin)
+ * Used by API routes that need service role access
+ */
+export function createServerSupabaseClient(): SupabaseClient {
+  const client = getServerSupabaseAdmin();
+  if (!client) {
+    throw new Error('Failed to create server Supabase client - check environment variables');
+  }
+  return client;
+}

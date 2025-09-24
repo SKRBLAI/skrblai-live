@@ -234,7 +234,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
                     <Image
-                      src={`/images/agents/${agent.imageSlug || agent.id}.png`}
+                      src={getAgentImagePath(agent, "nobg")}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
                       sizes="112px"
@@ -306,8 +306,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   if (onChat) {
                     onChat(agent);
                   } else {
-                    // Free Scan Flow - route to Percy onboarding with scan intent
-                    router.push(`/?scan=${agent.id}`);
+                    // Route to agent chat tab
+                    router.push(`/agents/${agent.id}?tab=chat`);
                   }
                 }}
                 className="agent-league-chat-button"
@@ -325,7 +325,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    router.push(routeForAgent(agent.id));
+                    // Route to agent backstory tab
+                    router.push(`/agents/${agent.id}?tab=backstory`);
                   }
                 }}
                 className="agent-league-info-button"
@@ -344,8 +345,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Launch Agent - route to agent backstory page
-                  router.push(`/agents/${agent.id}`);
+                  // Launch Agent - route to agent launch tab
+                  router.push(`/agents/${agent.id}?tab=launch`);
                 }
               }}
               className="agent-league-launch-button"

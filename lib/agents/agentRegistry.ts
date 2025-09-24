@@ -17,6 +17,7 @@ import publishingAgent from '../../ai-agents/publishingAgent';
 import sitegenAgent from '../../ai-agents/sitegenAgent';
 import socialBotAgent from '../../ai-agents/socialBotAgent';
 import videoContentAgent from '../../ai-agents/videoContentAgent';
+import skillSmithAgent from '../../ai-agents/skillSmithAgent';
 
 // Debug log on import (this executes during module initialization)
 console.log('AgentRegistry module initializing...');
@@ -39,6 +40,7 @@ const allAgents: Agent[] = [
   proposalGeneratorAgent,
   publishingAgent,
   sitegenAgent,
+  skillSmithAgent,
   socialBotAgent,
   videoContentAgent
 ].map((agent, idx) => {
@@ -121,6 +123,11 @@ const allAgents: Agent[] = [
       primaryCapability: 'Video Content Creation',
       primaryOutput: 'Video content and multimedia assets',
       n8nWorkflowId: 'video-content-workflow'
+    },
+    'skillsmith': {
+      primaryCapability: 'Skill Development & Training',
+      primaryOutput: 'Personalized training plans and skill analysis',
+      n8nWorkflowId: 'skillsmith-workflow'
     }
   };
   

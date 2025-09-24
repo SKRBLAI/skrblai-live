@@ -77,36 +77,81 @@ export default function ExitIntentModal({ isOpen, onClose, onCapture }: ExitInte
     setIsSubmitting(true);
     
     try {
-      // Track exit intent capture
-      await fetch('/api/analytics/events', {
+      // Determine vertical and offer type
+      const vertical = pathname?.includes('/sports') ? 'sports' : 'business';
+      const offerType = pathname?.includes('/pricing') ? 'launch40' : 'exit_capture';
+      
+      // Submit to leads API (which handles both Supabase and analytics)
+      const response = await fetch('/api/leads/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          event_type: 'exit_intent_capture',
+          email,
+          source: 'exit_intent',
           page_path: pathname,
-          email: email,
-          offer_type: offer.headline,
-          timestamp: new Date().toISOString()
+          vertical,
+          offer_type: offerType,
+          metadata: {
+            trigger: 'exit_intent_modal',
+            offer_headline: offer.headline,
+            user_agent: navigator.userAgent,
+            referrer: document.referrer
+          }
         })
       });
 
-      onCapture(email);
-      
-      // Redirect to appropriate page with the offer
-      if (pathname?.includes('/pricing')) {
-        window.location.href = `/?offer=launch40&email=${encodeURIComponent(email)}`;
+      if (response.ok) {
+        onCapture(email);
+        
+        // Track successful capture
+        await fetch('/api/analytics/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event_type: 'lead.captured',
+            page_path: pathname,
+            vertical,
+            metadata: {
+              email,
+              source: 'exit_intent',
+              offer_type: offerType
+            },
+            timestamp: new Date().toISOString()
+          })
+        }).catch(console.warn);
+        
+        // Redirect to appropriate page with the offer
+        if (pathname?.includes('/pricing')) {
+          window.location.href = `/?offer=launch40&email=${encodeURIComponent(email)}`;
+        } else {
+          window.location.href = `/?offer=exit_capture&email=${encodeURIComponent(email)}`;
+        }
       } else {
-        window.location.href = `/?offer=exit_capture&email=${encodeURIComponent(email)}`;
+        throw new Error('Lead submission failed');
       }
       
     } catch (error) {
       console.error('Exit intent capture error:', error);
-      // Still redirect on error
-      if (email) {
-        window.location.href = `/?email=${encodeURIComponent(email)}`;
-      } else {
-        window.location.href = `/?email=${encodeURIComponent(email)}`;
-      }
+      // Still redirect on error but track the failure
+      await fetch('/api/analytics/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_type: 'lead.capture.failed',
+          page_path: pathname,
+          metadata: {
+            email,
+            error: error instanceof Error ? error.message : String(error),
+            source: 'exit_intent'
+          },
+          timestamp: new Date().toISOString()
+        })
+      }).catch(console.warn);
+      
+      // Still redirect to provide good UX
+      window.location.href = `/?email=${encodeURIComponent(email)}`;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

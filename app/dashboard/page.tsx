@@ -79,24 +79,85 @@ const QUICK_ACTIONS = [
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isLoading, isEmailVerified } = useAuth();
+  const { user, isLoading, isEmailVerified, accessLevel, vipStatus } = useAuth();
   const [quickWins, setQuickWins] = useState<string[]>([]);
+  const [founderInfo, setFounderInfo] = useState<any>(null);
 
-  // Enhanced auth gating with proper Supabase integration
+  // Check for founder access and route accordingly
+  useEffect(() => {
+    if (!isLoading && user) {
+      // Check session storage for founder info (set during onboarding)
+      const founderRole = sessionStorage.getItem('founder_role');
+      const founderAccess = sessionStorage.getItem('founder_access');
+      
+      if (founderAccess === 'true' && founderRole) {
+        // Route to appropriate founder dashboard
+        if (founderRole === 'creator' || founderRole === 'founder') {
+          router.push('/dashboard/founder');
+          return;
+        } else if (founderRole === 'heir') {
+          router.push('/dashboard/heir');
+          return;
+        }
+      }
+      
+      // Also check via API for persistent founder status
+      fetch('/api/founders/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.founderAccess) {
+            setFounderInfo(data);
+            // Route based on highest role
+            if (data.isCreator || data.isFounder) {
+              router.push('/dashboard/founder');
+            } else if (data.isHeir) {
+              router.push('/dashboard/heir');
+            }
+          }
+        })
+        .catch(err => {
+          console.warn('Could not check founder status:', err);
+          // Continue with regular dashboard
+        });
+    }
+  }, [user, isLoading, router]);
+
+  // Enhanced auth gating with role-based redirects
   useEffect(() => {
     if (!isLoading) {
       if (!user) {
         // No user - redirect to sign-in with return path
         router.push('/sign-in?from=dashboard');
-      } else if (!isEmailVerified) {
-        // User exists but email not verified - show verification message
-        console.log('User email not verified, but allowing dashboard access');
-        // Note: We're allowing access but could redirect to verification if needed
-        // router.push('/auth/verify-email?from=dashboard');
+        return;
       }
-      // If user exists (regardless of email verification), allow access to dashboard
+      
+      // Role-based dashboard redirects
+      if (user && accessLevel) {
+        // Check for founder/admin role first
+        if (user.email?.includes('@skrbl.ai') || vipStatus?.vipLevel === 'founder') {
+          router.push('/dashboard/founder');
+          return;
+        }
+        
+        // Check for VIP access
+        if (accessLevel === 'vip' || vipStatus?.isVIP) {
+          router.push('/dashboard/vip');
+          return;
+        }
+        
+        // Regular users go to user dashboard
+        if (accessLevel === 'promo' || accessLevel === 'free') {
+          router.push('/dashboard/user');
+          return;
+        }
+      }
+      
+      // Email verification check (but don't block access)
+      if (!isEmailVerified) {
+        console.log('User email not verified, but allowing dashboard access');
+      }
     }
-  }, [user, isLoading, isEmailVerified, router]);
+  }, [user, isLoading, isEmailVerified, accessLevel, vipStatus, router]);
 
   // Load quick wins from localStorage if present
   useEffect(() => {
