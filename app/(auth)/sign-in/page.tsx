@@ -26,11 +26,15 @@ export default function SignInPage() {
     // Initialize Supabase client only on client after mount
     try {
       const client = getBrowserSupabase();
-      setSupabase(client);
-      setReady(true);
+      if (client) {
+        setSupabase(client);
+        setReady(true);
+      } else {
+        throw new Error('Failed to initialize authentication service');
+      }
     } catch (error) {
       console.error('Failed to initialize Supabase:', error);
-      setError('Authentication service is not available. Please try again later.');
+      setError('Authentication service is not available. Please check your internet connection and try again.');
       setReady(true);
     }
   }, []);
@@ -41,8 +45,8 @@ export default function SignInPage() {
     setError('');
 
     try {
-      if (!supabase || typeof supabase.auth?.signInWithPassword !== 'function') {
-        setError('Authentication service is not available. Please try again later.');
+      if (!supabase) {
+        setError('Authentication service is not available. Please check your internet connection and try again.');
         return;
       }
 

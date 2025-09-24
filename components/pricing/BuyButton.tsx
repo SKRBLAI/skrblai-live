@@ -8,13 +8,13 @@ const SKU_TO_ENV: Record<string, string> = {
   sports_plan_starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE!,
   sports_plan_pro:     process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO!,
   sports_plan_elite:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR!,
-  // Sports add-ons
+  // Sports add-ons (using legacy variable names to match your .env.local)
   sports_addon_scans10: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10!,
   sports_addon_video:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO ?? "",
   sports_addon_emotion: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION ?? "",
   sports_addon_nutrition: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION ?? "",
   sports_addon_foundation: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION ?? "",
-  // Business plans (if not already added)
+  // Business plans
   biz_plan_starter_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M ?? "",
   biz_plan_pro_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M ?? "",
   biz_plan_elite_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M ?? "",

@@ -6,24 +6,32 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let supabase: SupabaseClient | null = null;
 
-/** Returns a real Supabase client when public envs are present, otherwise null (no-op mode). */
-export function getBrowserSupabase(): SupabaseClient | null {
+/** Returns a real Supabase client when public envs are present, otherwise throws error for better debugging. */
+export function getBrowserSupabase(): SupabaseClient {
   if (supabase) return supabase;
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anon) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(
-        "[supabase] Missing NEXT_PUBLIC_SUPABASE_URL/ANON_KEY; browser auth disabled."
-      );
-    }
-    return null;
+    const error = `Supabase configuration missing: ${!url ? 'NEXT_PUBLIC_SUPABASE_URL' : ''} ${!anon ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : ''}`.trim();
+    console.error("[supabase]", error);
+    throw new Error(`Authentication service unavailable: ${error}`);
   }
 
-  supabase = createClient(url, anon);
-  return supabase;
+  try {
+    supabase = createClient(url, anon, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+    return supabase;
+  } catch (error) {
+    console.error("[supabase] Failed to create client:", error);
+    throw new Error("Authentication service initialization failed");
+  }
 }
 
 // Legacy function for backward compatibility - now creates client safely
