@@ -74,7 +74,7 @@ async function handleCheckout(req: NextRequest) {
     const body = (await req.json().catch(() => ({}))) as {
       sku?: string;
       priceId?: string;
-      mode?: "subscription" | "payment";
+      mode?: "subscription" | "payment" | "trial" | "contact";
       vertical?: "business" | "sports";
       customerEmail?: string;
       metadata?: Record<string, string>;
@@ -85,6 +85,25 @@ async function handleCheckout(req: NextRequest) {
     };
 
     console.log('[checkout] Request body:', JSON.stringify(body, null, 2));
+
+    // Handle special modes first
+    if (body.mode === "trial" && body.sku === "sports_trial_curiosity") {
+      console.log('[checkout] Trial mode - redirecting to Percy onboarding');
+      return NextResponse.json({ 
+        ok: true, 
+        url: "/#percy",
+        mode: "trial"
+      });
+    }
+
+    if (body.mode === "contact") {
+      console.log('[checkout] Contact mode - redirecting to contact page');
+      return NextResponse.json({ 
+        ok: true, 
+        url: "/contact",
+        mode: "contact"
+      });
+    }
 
     // Validate required fields
     if (!body.sku && !body.priceId) {
@@ -104,11 +123,14 @@ async function handleCheckout(req: NextRequest) {
     
     if (body.priceId && body.priceId.startsWith("price_")) {
       mainPriceId = body.priceId;
+      console.log(`[checkout] Using provided price ID: ${mainPriceId}`);
     } else if (body.sku) {
       mainPriceId = resolvePriceId(body.sku, body.vertical);
+      console.log(`[checkout] Resolved SKU "${body.sku}" to price ID: ${mainPriceId || 'NULL'}`);
     }
 
     if (!mainPriceId) {
+      console.error(`[checkout] Failed to resolve price ID for SKU: ${body.sku}, vertical: ${body.vertical}`);
       return bad("Could not resolve price ID. Check that the SKU exists and ENV variables are configured.", 422);
     }
 
@@ -135,15 +157,17 @@ async function handleCheckout(req: NextRequest) {
     }
 
     // Determine mode based on SKU if not provided
-    let mode = body.mode;
-    if (!mode) {
+    let stripeMode: "subscription" | "payment" = body.mode === "payment" ? "payment" : "subscription";
+    if (!body.mode) {
       if (body.sku) {
         // Plans are subscriptions, add-ons are one-time payments
-        mode = body.sku.includes('_plan_') ? 'subscription' : 'payment';
+        stripeMode = body.sku.includes('_plan_') ? 'subscription' : 'payment';
       } else {
-        mode = 'subscription'; // Default fallback
+        stripeMode = 'subscription'; // Default fallback
       }
     }
+    
+    console.log(`[checkout] Final Stripe mode: ${stripeMode} (original: ${body.mode})`);
 
     const origin = req.headers.get("origin") || 
                    process.env.APP_BASE_URL || 
@@ -159,14 +183,16 @@ async function handleCheckout(req: NextRequest) {
       plan: body.sku || body.priceId || "unknown",
       addons: body.addons ? body.addons.join(',') : '',
       timestamp: new Date().toISOString(),
+      originalMode: body.mode || 'auto',
       ...(body.metadata || {}),
     };
 
     console.log(`[checkout] Creating Stripe session with ${lineItems.length} items`);
-    console.log(`[checkout] Mode: ${mode}, Success: ${success_url}, Cancel: ${cancel_url}`);
+    console.log(`[checkout] Mode: ${stripeMode}, Success: ${success_url}, Cancel: ${cancel_url}`);
+    console.log(`[checkout] Metadata:`, JSON.stringify(metadata, null, 2));
 
     const session = await stripe.checkout.sessions.create({
-      mode,
+      mode: stripeMode,
       line_items: lineItems,
       success_url,
       cancel_url,

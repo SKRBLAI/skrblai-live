@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SPORTS_PLANS, SPORTS_ADDONS } from '../../lib/sports/pricingData';
+import { SPORTS_PLANS, SPORTS_ADDONS, getSportsDisplayConfig } from '../../lib/sports/pricingData';
 import PricingCard from './PricingCard';
 import { BuyButton } from './BuyButton';
 import Link from 'next/link';
@@ -41,6 +41,13 @@ export default function SportsPricingGrid() {
               >
                 Contact Us
               </Link>
+            ) : plan.tier === 'curiosity' ? (
+              <Link 
+                href="/#percy"
+                className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center block"
+              >
+                Start Free
+              </Link>
             ) : (
               <BuyButton
                 sku={plan.sku}
@@ -53,10 +60,12 @@ export default function SportsPricingGrid() {
               </BuyButton>
             );
 
+            const displayConfig = getSportsDisplayConfig(plan.tier || '');
+            
             return (
               <PricingCard
                 key={plan.sku}
-                title={plan.tier ? `${plan.tier.charAt(0).toUpperCase() + plan.tier.slice(1)} Plan` : 'Plan'}
+                title={displayConfig?.label || (plan.tier ? `${plan.tier.charAt(0).toUpperCase() + plan.tier.slice(1)} Plan` : 'Plan')}
                 priceText={plan.priceUsd ? `$${plan.priceUsd}/month` : 'Contact for pricing'}
                 displayPrice={plan.priceUsd ? `$${plan.priceUsd}` : 'Contact'}
                 originalPriceText={plan.promoPrice ? `$${plan.promoPrice}` : undefined}
@@ -107,10 +116,10 @@ export default function SportsPricingGrid() {
               return (
                 <PricingCard
                   key={addon.sku}
-                  title={addon.sku.replace('sports_addon_', '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  title={addon.description || addon.sku.replace('sports_addon_', '').replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   priceText={addon.priceUsd ? `$${addon.priceUsd}` : 'Contact for pricing'}
                   originalPriceText={addon.originalPrice ? `$${addon.originalPrice}` : undefined}
-                  features={[addon.description || '']}
+                  features={addon.includes}
                   cta={cta}
                   animationDelay={index * 0.1}
                 />
