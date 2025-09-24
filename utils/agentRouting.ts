@@ -8,26 +8,41 @@
 import type { Agent } from '@/types/agent';
 
 /**
- * Generate canonical agent path from agent ID or route
+ * Generate canonical agent path from agent ID or route with optional view
  */
-export function agentPath(agentIdOrRoute: string): string {
+export function agentPath(agentIdOrRoute: string, view?: 'home' | 'backstory' | 'chat'): string {
   if (!agentIdOrRoute) {
     console.warn('[agentPath] Empty agent ID provided, falling back to /agents');
     return '/agents';
   }
 
-  // If already a full path, return as-is
-  if (agentIdOrRoute.startsWith('/agents/')) {
+  // If already a full path, return as-is (unless view is specified)
+  if (agentIdOrRoute.startsWith('/agents/') && !view) {
     return agentIdOrRoute;
   }
 
   // If it's just an agent ID, construct the path
-  const cleanId = agentIdOrRoute
-    .toLowerCase()
-    .replace(/-agent$/, '')  // Remove -agent suffix
-    .replace(/agent$/, '');  // Remove Agent suffix
+  const cleanId = agentIdOrRoute.startsWith('/agents/') 
+    ? agentIdOrRoute.replace('/agents/', '').split('?')[0].split('#')[0]
+    : agentIdOrRoute
+        .toLowerCase()
+        .replace(/-agent$/, '')  // Remove -agent suffix
+        .replace(/agent$/, '');  // Remove Agent suffix
 
-  return `/agents/${cleanId}`;
+  const basePath = `/agents/${cleanId}`;
+
+  // Handle different views
+  switch (view) {
+    case 'backstory':
+      return `${basePath}/backstory`;
+    case 'chat':
+      return `${basePath}?view=chat`;
+    case 'home':
+      return basePath;
+    default:
+      // Default to backstory for League context when no view specified
+      return basePath;
+  }
 }
 
 /**
@@ -47,28 +62,28 @@ export function safeAgentPath(agentIdOrRoute?: string | null): string {
 }
 
 /**
- * Generate agent path from Agent object
+ * Generate agent path from Agent object with optional view
  */
-export function agentPathFromObject(agent: Agent): string {
-  // Prefer explicit route if available
-  if (agent.route && agent.route.startsWith('/')) {
+export function agentPathFromObject(agent: Agent, view?: 'home' | 'backstory' | 'chat'): string {
+  // Prefer explicit route if available and no view specified
+  if (agent.route && agent.route.startsWith('/') && !view) {
     return agent.route;
   }
   
-  // Use agent ID as fallback
-  return agentPath(agent.id);
+  // Use agent ID with view
+  return agentPath(agent.id, view);
 }
 
 /**
- * Safe version for Agent objects
+ * Safe version for Agent objects with optional view
  */
-export function safeAgentPathFromObject(agent?: Agent | null): string {
+export function safeAgentPathFromObject(agent?: Agent | null, view?: 'home' | 'backstory' | 'chat'): string {
   if (!agent) {
     return '/agents';
   }
   
   try {
-    return agentPathFromObject(agent);
+    return agentPathFromObject(agent, view);
   } catch (error) {
     console.warn('[safeAgentPathFromObject] Error generating agent path:', error);
     return '/agents';

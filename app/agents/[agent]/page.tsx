@@ -15,14 +15,17 @@ export const dynamic = 'force-dynamic';
 
 type PageProps = {
   params: Promise<{ agent: string }>;
-  searchParams?: { track?: 'business' | 'sports' };
+  searchParams?: { 
+    track?: 'business' | 'sports';
+    view?: 'backstory' | 'chat';
+  };
 };
 
-export default async function AgentPage({ params }: PageProps) {
+export default async function AgentPage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
   const { agent: agentId } = resolvedParams;
   const agent = agentRegistry.find(a => a.id === agentId && a.visible);
-  return <AgentServiceClient agent={agent} params={resolvedParams} />;
+  return <AgentServiceClient agent={agent} params={resolvedParams} searchParams={searchParams} />;
 }
 
 

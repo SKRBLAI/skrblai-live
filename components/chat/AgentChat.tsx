@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 
-// Agent-specific configurations
+// Agent-specific configurations with defaults
 const AGENT_CONFIGS = {
   ira: {
     name: "IRA",
@@ -23,12 +23,20 @@ const AGENT_CONFIGS = {
   }
 };
 
+// Default configuration for agents not specifically configured
+const getDefaultConfig = (agentId: string) => ({
+  name: agentId.charAt(0).toUpperCase() + agentId.slice(1),
+  description: `Chat with ${agentId} about their specialized capabilities…`,
+  placeholder: `Ask ${agentId} about their expertise…`,
+  errorMessage: `Sorry—${agentId} encountered a technical issue.`
+});
+
 export default function AgentChat({ agentId = "ira" }: { agentId?: string }) {
   const [items, setItems] = useState<{ role: "user"|"assistant"; content: string }[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const config = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS] || AGENT_CONFIGS.ira;
+  const config = AGENT_CONFIGS[agentId as keyof typeof AGENT_CONFIGS] || getDefaultConfig(agentId);
 
   async function send() {
     const text = input.trim();

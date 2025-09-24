@@ -1,24 +1,59 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import ExitIntentModal from '../shared/ExitIntentModal';
+import AgentBackstoryModal from '../agents/AgentBackstoryModal';
 import { exitIntent } from '@/lib/analytics/track';
+import type { SafeAgent } from '@/types/agent';
 
 interface GlobalModalProviderProps {
   children: React.ReactNode;
 }
 
+interface AgentModalContextType {
+  openAgentBackstory: (agent: SafeAgent) => void;
+  closeAgentBackstory: () => void;
+  isAgentBackstoryOpen: boolean;
+  currentAgent: SafeAgent | null;
+}
+
+const AgentModalContext = createContext<AgentModalContextType | undefined>(undefined);
+
+export const useAgentModal = () => {
+  const context = useContext(AgentModalContext);
+  if (!context) {
+    throw new Error('useAgentModal must be used within a GlobalModalProvider');
+  }
+  return context;
+};
+
 export default function GlobalModalProvider({ children }: GlobalModalProviderProps) {
   const [isExitIntentOpen, setIsExitIntentOpen] = useState(false);
   const [hasTriggered, setHasTriggered] = useState(false);
+  const [isAgentBackstoryOpen, setIsAgentBackstoryOpen] = useState(false);
+  const [currentAgent, setCurrentAgent] = useState<SafeAgent | null>(null);
   const pathname = usePathname();
 
   // Reset trigger state on route change
   useEffect(() => {
     setHasTriggered(false);
     setIsExitIntentOpen(false);
+    // Also close agent backstory modal on route change
+    setIsAgentBackstoryOpen(false);
+    setCurrentAgent(null);
   }, [pathname]);
+
+  // Agent modal handlers
+  const openAgentBackstory = useCallback((agent: SafeAgent) => {
+    setCurrentAgent(agent);
+    setIsAgentBackstoryOpen(true);
+  }, []);
+
+  const closeAgentBackstory = useCallback(() => {
+    setIsAgentBackstoryOpen(false);
+    setCurrentAgent(null);
+  }, []);
 
   // Exit intent detection
   useEffect(() => {
@@ -119,8 +154,15 @@ export default function GlobalModalProvider({ children }: GlobalModalProviderPro
     console.log('Lead captured via exit intent:', email);
   }, [pathname]);
 
+  const agentModalValue = {
+    openAgentBackstory,
+    closeAgentBackstory,
+    isAgentBackstoryOpen,
+    currentAgent
+  };
+
   return (
-    <>
+    <AgentModalContext.Provider value={agentModalValue}>
       {children}
       
       {/* Global Exit Intent Modal */}
@@ -129,6 +171,13 @@ export default function GlobalModalProvider({ children }: GlobalModalProviderPro
         onClose={handleCloseExitIntent}
         onCapture={handleLeadCapture}
       />
-    </>
+      
+      {/* Global Agent Backstory Modal */}
+      <AgentBackstoryModal
+        agent={currentAgent}
+        open={isAgentBackstoryOpen}
+        onClose={closeAgentBackstory}
+      />
+    </AgentModalContext.Provider>
   );
 }
