@@ -1,7 +1,10 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { getSupabaseEnvSafe } from '@/lib/env';
 
 // Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
+
+// Cached clients to avoid recreation
+let adminClient: SupabaseClient | null = null;
+let anonClient: SupabaseClient | null = null;
 
 /**
  * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
@@ -9,22 +12,33 @@ import { getSupabaseEnvSafe } from '@/lib/env';
  * NEVER expose this client to the browser.
  */
 export function getServerSupabaseAdmin(): SupabaseClient | null {
-  const env = getSupabaseEnvSafe();
+  if (adminClient) return adminClient;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
-  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('Server Supabase client: Missing URL or service role key');
+  if (!url || !serviceKey) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Server Supabase admin: Missing URL or service role key');
+    }
     return null;
   }
 
-  return createClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.SUPABASE_SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-    global: { 
-      headers: { 
-        'X-Client-Source': 'server-admin',
-        'Authorization': `Bearer ${env.env.SUPABASE_SERVICE_ROLE_KEY}`
-      } 
-    },
-  });
+  try {
+    adminClient = createClient(url, serviceKey, {
+      auth: { persistSession: false },
+      global: { 
+        headers: { 
+          'X-Client-Source': 'server-admin',
+          'Authorization': `Bearer ${serviceKey}`
+        } 
+      },
+    });
+    return adminClient;
+  } catch (error) {
+    console.error('Failed to create server admin client:', error);
+    return null;
+  }
 }
 
 /**
@@ -32,21 +46,32 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
  * This client respects RLS and is safer for general server-side operations.
  */
 export function getServerSupabaseAnon(): SupabaseClient | null {
-  const env = getSupabaseEnvSafe();
+  if (anonClient) return anonClient;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
-  if (!env.isValid || !env.env.NEXT_PUBLIC_SUPABASE_URL || !env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    console.warn('Server Supabase client: Missing URL or anon key');
+  if (!url || !anonKey) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Server Supabase anon: Missing URL or anon key');
+    }
     return null;
   }
 
-  return createClient(env.env.NEXT_PUBLIC_SUPABASE_URL, env.env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
-    auth: { persistSession: false },
-    global: { 
-      headers: { 
-        'X-Client-Source': 'server-anon'
-      } 
-    },
-  });
+  try {
+    anonClient = createClient(url, anonKey, {
+      auth: { persistSession: false },
+      global: { 
+        headers: { 
+          'X-Client-Source': 'server-anon'
+        } 
+      },
+    });
+    return anonClient;
+  } catch (error) {
+    console.error('Failed to create server anon client:', error);
+    return null;
+  }
 }
 
 /**
@@ -67,6 +92,7 @@ export function requireServerSupabase(): SupabaseClient {
 /**
  * Create a server-side Supabase client (alias for getServerSupabaseAdmin)
  * Used by API routes that need service role access
+ * @deprecated Use getServerSupabaseAdmin() directly and handle null returns
  */
 export function createServerSupabaseClient(): SupabaseClient {
   const client = getServerSupabaseAdmin();

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getServerSupabaseAdmin } from "@/lib/supabase/server";
 import { withLogging } from "@/lib/observability/logger";
 
 export const runtime = "nodejs";
@@ -38,7 +38,14 @@ async function handleLeadSubmission(req: NextRequest) {
       );
     }
 
-    const supabase = createServerSupabaseClient();
+    const supabase = getServerSupabaseAdmin();
+    
+    if (!supabase) {
+      return NextResponse.json(
+        { ok: false, reason: "supabase_unavailable" },
+        { status: 503 }
+      );
+    }
     
     // Check if lead already exists
     const { data: existingLead } = await supabase
