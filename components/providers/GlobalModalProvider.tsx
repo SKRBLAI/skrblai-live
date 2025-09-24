@@ -32,8 +32,8 @@ export default function GlobalModalProvider({ children }: GlobalModalProviderPro
     const skipPages = ['/dashboard', '/agents/', '/auth/', '/api/', '/admin'];
     if (skipPages.some(page => pathname.includes(page))) return;
 
-    let exitIntentTimer: NodeJS.Timeout;
-    let mouseLeaveTimer: NodeJS.Timeout;
+    let exitIntentTimer: ReturnType<typeof setTimeout>;
+    let mouseLeaveTimer: ReturnType<typeof setTimeout>;
 
     const handleMouseLeave = (e: MouseEvent) => {
       // Only trigger if mouse is leaving from the top of the viewport

@@ -2,6 +2,28 @@
 
 import React, { useState } from 'react';
 
+// SKU to Environment Price ID resolver
+const SKU_TO_ENV: Record<string, string> = {
+  // Sports plans
+  sports_plan_starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE!,
+  sports_plan_pro:     process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO!,
+  sports_plan_elite:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR!,
+  // Sports add-ons
+  sports_addon_scans10: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10!,
+  sports_addon_video:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO ?? "",
+  sports_addon_emotion: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION ?? "",
+  sports_addon_nutrition: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION ?? "",
+  sports_addon_foundation: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION ?? "",
+  // Business plans (if not already added)
+  biz_plan_starter_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M ?? "",
+  biz_plan_pro_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M ?? "",
+  biz_plan_elite_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M ?? "",
+  // Business add-ons
+  biz_addon_adv_analytics: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS ?? "",
+  biz_addon_automation: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION ?? "",
+  biz_addon_team_seat: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT ?? "",
+};
+
 export function BuyButton({
   sku,
   isSubscription,
@@ -23,7 +45,11 @@ export function BuyButton({
 }) {
   const [loading, setLoading] = useState(false);
 
-  if (!sku) {
+  // Check if SKU resolves to a valid price ID
+  const resolvedPriceId = sku ? SKU_TO_ENV[sku] : undefined;
+  const isDisabled = !sku || !resolvedPriceId;
+
+  if (isDisabled) {
     return (
       <button 
         className={`w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed font-medium ${className}`}
@@ -40,15 +66,25 @@ export function BuyButton({
     try {
       setLoading(true);
       
+      // Determine mode based on SKU and isSubscription flag
+      let mode: "subscription" | "payment" | "trial" | "contact";
+      if (sku === "sports_trial_curiosity") {
+        mode = "trial";
+      } else if (sku?.includes("_plan_contact")) {
+        mode = "contact";
+      } else {
+        mode = isSubscription ? "subscription" : "payment";
+      }
+      
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           sku,
-          mode: isSubscription ? "subscription" : "payment",
+          mode,
           vertical,
-          successPath,
-          cancelPath,
+          successPath: vertical === "sports" ? "/sports?status=success" : successPath,
+          cancelPath: vertical === "sports" ? "/sports?status=cancel" : cancelPath,
         }),
       });
 

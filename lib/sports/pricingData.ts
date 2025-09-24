@@ -23,7 +23,7 @@ import {
  */
 export const SPORTS_PLANS: PricingItem[] = [
   {
-    sku: "sports_plan_curiosity",
+    sku: "sports_trial_curiosity",
     vertical: "sports",
     type: "plan",
     tier: "curiosity",
@@ -32,16 +32,14 @@ export const SPORTS_PLANS: PricingItem[] = [
     quickWinsIncluded: 3,
     scansOrUploads: 3, // "uploads" for sports
     includes: [
-      "3 Video Uploads per month",
-      "3 Quick Wins (Athletic Performance)",
-      "Basic SkillSmith AI Analysis",
-      "Community Support",
-      "Free eBook: Athletic Mindset Fundamentals"
+      "3 Uploads",
+      "3 Quick Wins",
+      "SkillSmith sample analysis"
     ],
     envPriceVar: undefined // Free tier has no Stripe price
   },
   {
-    sku: "sports_plan_starter_m",
+    sku: "sports_plan_starter",
     vertical: "sports",
     type: "plan", 
     tier: "starter",
@@ -50,7 +48,7 @@ export const SPORTS_PLANS: PricingItem[] = [
     quickWinsIncluded: 10,
     scansOrUploads: 10,
     includes: [
-      ...getTierIncludes("starter"),
+      "Everything in Curiosity +",
       "10 Video Uploads per month",
       "10 Quick Wins (Performance Optimization)",
       "SkillSmith AI Analysis (Standard)",
@@ -58,10 +56,10 @@ export const SPORTS_PLANS: PricingItem[] = [
       "Priority Email Support",
       "Nutrition Basics Guide"
     ],
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M"
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ROOKIE"
   },
   {
-    sku: "sports_plan_pro_m",
+    sku: "sports_plan_pro",
     vertical: "sports",
     type: "plan",
     tier: "pro", 
@@ -70,7 +68,7 @@ export const SPORTS_PLANS: PricingItem[] = [
     quickWinsIncluded: 25,
     scansOrUploads: 25,
     includes: [
-      ...getTierIncludes("pro"),
+      "Everything in Starter +",
       "25 Video Uploads per month",
       "25 Quick Wins (Advanced Performance)",
       "SkillSmith AI Analysis (Pro)",
@@ -80,10 +78,10 @@ export const SPORTS_PLANS: PricingItem[] = [
       "Injury Prevention Protocols",
       "Priority Chat Support"
     ],
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M"
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_PRO"
   },
   {
-    sku: "sports_plan_elite_m",
+    sku: "sports_plan_elite",
     vertical: "sports", 
     type: "plan",
     tier: "elite",
@@ -92,7 +90,7 @@ export const SPORTS_PLANS: PricingItem[] = [
     quickWinsIncluded: 50,
     scansOrUploads: 50,
     includes: [
-      ...getTierIncludes("elite"),
+      "Everything in Pro +",
       "50 Video Uploads per month",
       "50 Quick Wins (Elite Performance)",
       "SkillSmith AI Analysis (Elite)",
@@ -103,7 +101,7 @@ export const SPORTS_PLANS: PricingItem[] = [
       "Competition Preparation Plans",
       "Dedicated Success Manager"
     ],
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M"
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR"
   },
   {
     sku: "sports_plan_contact",
@@ -147,8 +145,8 @@ export const SPORTS_ADDONS: AddOnItem[] = [
       "Comparison with pro athletes",
       "Detailed improvement recommendations"
     ],
-    description: "AI-powered video analysis for technical skill improvement",
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_VIDEO",
+    description: "AI Video Analysis ($29)",
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO",
     originalPrice: 29
   },
   {
@@ -165,8 +163,8 @@ export const SPORTS_ADDONS: AddOnItem[] = [
       "Confidence building exercises",
       "Competition mindset development"
     ],
-    description: "Master your mental game with advanced emotional intelligence training",
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_EMOTION",
+    description: "Mastery of Emotion ($39)",
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION",
     originalPrice: 39
   },
   {
@@ -183,8 +181,8 @@ export const SPORTS_ADDONS: AddOnItem[] = [
       "Supplement recommendations",
       "Performance fuel timing"
     ],
-    description: "Optimize your nutrition for peak athletic performance",
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_NUTRITION",
+    description: "Sports Nutrition Guide ($19)",
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION",
     originalPrice: 19
   },
   {
@@ -201,8 +199,8 @@ export const SPORTS_ADDONS: AddOnItem[] = [
       "Injury prevention exercises",
       "Athletic movement patterns"
     ],
-    description: "Build unshakeable athletic foundations with comprehensive training protocols",
-    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ADDON_FOUNDATION",
+    description: "Foundation Training Pack ($49)",
+    envPriceVar: "NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION",
     originalPrice: 49
   }
 ];
@@ -212,7 +210,7 @@ export const SPORTS_ADDONS: AddOnItem[] = [
  */
 export const SPORTS_PLAN_DISPLAY: Record<string, PlanDisplayConfig> = {
   curiosity: {
-    label: "Curiosity",
+    label: "Curiosity (Free Trial)",
     icon: "🎯",
     ctaText: "Start Free",
     gradient: "from-gray-500 to-slate-600"
@@ -241,7 +239,7 @@ export const SPORTS_PLAN_DISPLAY: Record<string, PlanDisplayConfig> = {
   contact: {
     label: "Contact Us",
     icon: "🤝",
-    ctaText: "Contact Sales",
+    ctaText: "Contact Us",
     ctaKind: "contact",
     gradient: "from-green-500 to-emerald-500"
   }

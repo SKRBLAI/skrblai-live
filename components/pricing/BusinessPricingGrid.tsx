@@ -39,6 +39,13 @@ export default function BusinessPricingGrid() {
               >
                 Contact Sales {icon}
               </Link>
+            ) : plan.tier === 'curiosity' ? (
+              <Link 
+                href="/#percy"
+                className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center block"
+              >
+                Start Free {icon}
+              </Link>
             ) : (
               <BuyButton
                 sku={plan.sku}
@@ -99,7 +106,7 @@ export default function BusinessPricingGrid() {
                   cancelPath="/pricing?canceled=1"
                   disabledText="Stripe Not Enabled"
                 >
-                  Add to Plan
+                  Buy Now
                 </BuyButton>
               );
 
