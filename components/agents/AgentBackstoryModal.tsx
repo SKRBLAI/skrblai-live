@@ -2,18 +2,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { SafeAgent } from '../../types/agent';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 import { getAgent, getAgentConversationCapabilities } from '../../lib/agents/agentLeague';
+import { agentPath } from '../../utils/agentRouting';
+import { agentSupportsChat } from '../../lib/agents/guards';
 
 interface AgentBackstoryModalProps {
   agent: SafeAgent | null;
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
 }
 
-export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBackstoryModalProps) {
+export default function AgentBackstoryModal({ agent, open, onClose }: AgentBackstoryModalProps) {
+  const router = useRouter();
+  
   // --- Cosmic Toast State ---
   const [showToast, setShowToast] = useState(false);
   const toastTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,7 +116,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
+      if (!open) return;
 
       if (e.key === 'Escape') {
         onClose();
@@ -125,7 +130,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, chatMode, chatMessage, onClose, handleSendMessage]);
+  }, [open, chatMode, chatMessage, onClose, handleSendMessage]);
 
   const handleStartChat = () => {
     setChatMode(true);
@@ -140,7 +145,7 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {open && (
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -408,42 +413,38 @@ export default function AgentBackstoryModal({ agent, isOpen, onClose }: AgentBac
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3 sm:gap-4 justify-center items-center">
-              {/* Chat Button - Show for all agents but gray out non-conversational */}
-              {!chatMode && (
-                <motion.button
-                  onClick={conversationCapabilities?.canConverse ? handleStartChat : undefined}
-                  disabled={!conversationCapabilities?.canConverse}
-                  className={`px-4 sm:px-6 py-3 font-bold rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 text-sm sm:text-base ${
-                    conversationCapabilities?.canConverse
-                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 focus:ring-green-400/40'
-                      : 'bg-gray-600/50 text-gray-300 cursor-not-allowed opacity-50'
-                  }`}
-                  aria-label={
-                    conversationCapabilities?.canConverse 
-                      ? `Start chatting with ${enrichedAgent.superheroName}` 
-                      : `${enrichedAgent.superheroName} doesn't support chat - use workflow instead`
-                  }
-                  title={
-                    conversationCapabilities?.canConverse 
-                      ? `Chat with ${enrichedAgent.superheroName}` 
-                      : 'This agent doesn\'t support conversations. Try the workflow instead!'
-                  }
-                  whileHover={conversationCapabilities?.canConverse ? { scale: 1.05 } : { scale: 1 }}
-                  whileTap={conversationCapabilities?.canConverse ? { scale: 0.95 } : { scale: 1 }}
-                >
-                  💬 Chat with {enrichedAgent.superheroName}
-                </motion.button>
-              )}
-              
+              {/* Meet this Agent Button */}
               <motion.button
-                onClick={handleLaunchWorkflow}
-                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-xl hover:from-red-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-red-400/40 text-sm sm:text-base"
-                aria-label={`Deploy ${enrichedAgent.name} to destroy competition`}
+                onClick={() => {
+                  router.push(agentPath(agent.id, 'home'));
+                  onClose();
+                }}
+                className="px-4 sm:px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-400/40 text-sm sm:text-base"
+                aria-label={`Meet ${enrichedAgent.superheroName || enrichedAgent.name}`}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                🔥 Deploy Against Competition
+                👤 Meet this Agent
               </motion.button>
+              
+              {/* Chat Button - Show if agent supports chat */}
+              {agentSupportsChat(agent.id) && !chatMode && (
+                <motion.button
+                  onClick={() => {
+                    // Option 1: Open chat in modal
+                    handleStartChat();
+                    // Option 2: Navigate to chat page (uncomment to use)
+                    // router.push(agentPath(agent.id, 'chat'));
+                    // onClose();
+                  }}
+                  className="px-4 sm:px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-bold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-green-400/40 text-sm sm:text-base"
+                  aria-label={`Chat with ${enrichedAgent.superheroName || enrichedAgent.name}`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  💬 Chat with {enrichedAgent.superheroName || enrichedAgent.name}
+                </motion.button>
+              )}
             </div>
 
             {/* --- Cosmic Toast for Workflow Launch --- */}

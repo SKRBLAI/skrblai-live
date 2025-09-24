@@ -148,6 +148,7 @@ export interface Agent {
   
   // NEW: Enhanced Interactivity & Personality Metadata
   canConverse: boolean;
+  chatEnabled?: boolean; // Whether this agent supports chat functionality
   recommendedHelpers: string[]; // Array of agent IDs that work well with this agent
   handoffTriggers: string[]; // Keywords/phrases that indicate this agent should hand off
   conversationCapabilities?: {

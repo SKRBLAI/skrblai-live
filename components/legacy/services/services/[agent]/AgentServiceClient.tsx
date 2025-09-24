@@ -13,15 +13,21 @@ import GlassmorphicCard from '../../../../shared/GlassmorphicCard';
 import CosmicButton from '../../../../shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useAgentModal } from '../../../../providers/GlobalModalProvider';
 
 interface AgentServiceClientProps {
   agent: SafeAgent | undefined;
   params: { agent: string };
+  searchParams?: { 
+    track?: 'business' | 'sports';
+    view?: 'backstory' | 'chat';
+  };
 }
 
-export default function AgentServiceClient({ agent, params }: AgentServiceClientProps) {
+export default function AgentServiceClient({ agent, params, searchParams: propSearchParams }: AgentServiceClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { openAgentBackstory } = useAgentModal();
   const [showBackstory, setShowBackstory] = useState(false);
   const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
   const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
@@ -39,13 +45,20 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   // Set initial tab based on URL parameter
   useEffect(() => {
     const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | 'launch' | null;
-    if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
+    const view = searchParams.get('view') as 'backstory' | 'chat' | null;
+    
+    // Handle view parameter - open modal or set tab
+    if (view === 'backstory' && agent) {
+      openAgentBackstory(agent);
+    } else if (view === 'chat') {
+      setActiveTab('chat');
+    } else if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
       setActiveTab(tab);
     }
     
     // If there's a prompt parameter and we're on chat tab, set the initial message
     const promptParam = searchParams.get('prompt');
-    if (promptParam && tab === 'chat' && agent) {
+    if (promptParam && (tab === 'chat' || view === 'chat') && agent) {
       setChatMessage(decodeURIComponent(promptParam));
       // Initialize chat with agent's greeting if empty
       const agentBackstory = agentBackstories[agent.id];
@@ -57,7 +70,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
         }]);
       }
     }
-  }, [searchParams, chatHistory.length, agent]);
+  }, [searchParams, chatHistory.length, agent, openAgentBackstory]);
 
   // Live metrics animation
   useEffect(() => {
