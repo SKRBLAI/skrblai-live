@@ -12,7 +12,9 @@ import type { Agent } from '@/types/agent';
  */
 export function agentPath(agentIdOrRoute: string, view?: 'home' | 'backstory' | 'chat'): string {
   if (!agentIdOrRoute) {
-    console.warn('[agentPath] Empty agent ID provided, falling back to /agents');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[agentPath] Empty agent ID provided, falling back to /agents');
+    }
     return '/agents';
   }
 
@@ -56,7 +58,9 @@ export function safeAgentPath(agentIdOrRoute?: string | null): string {
   try {
     return agentPath(agentIdOrRoute);
   } catch (error) {
-    console.warn('[safeAgentPath] Error generating agent path:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[safeAgentPath] Error generating agent path:', error);
+    }
     return '/agents';
   }
 }
@@ -85,7 +89,9 @@ export function safeAgentPathFromObject(agent?: Agent | null, view?: 'home' | 'b
   try {
     return agentPathFromObject(agent, view);
   } catch (error) {
-    console.warn('[safeAgentPathFromObject] Error generating agent path:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[safeAgentPathFromObject] Error generating agent path:', error);
+    }
     return '/agents';
   }
 }

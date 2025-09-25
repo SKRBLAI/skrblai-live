@@ -215,7 +215,9 @@ export function getAgentImagePath(
   const rawId = typeof agent === 'string' ? agent : agent?.imageSlug || agent?.id || '';
 
   if (!rawId) {
-    console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[getAgentImagePath] Missing agent id/slug – using default image.');
+    }
     return type === "legacy"
       ? '/images/Agents-Default-Buttons.png'
       : '/images/agents/default.png';

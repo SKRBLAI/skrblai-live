@@ -23,6 +23,7 @@ import Image from 'next/image';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
+import AgentErrorBoundary from './AgentErrorBoundary';
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -146,6 +147,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
 
   if (!agent || !agent.name || !agentConfig) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[AgentLeagueCard] Missing agent data:', { 
+        hasAgent: !!agent, 
+        hasName: !!agent?.name, 
+        hasConfig: !!agentConfig,
+        agentId: agent?.id 
+      });
+    }
     return (
       <div className="h-80 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
         <div className="text-white/60">Agent data unavailable</div>
@@ -154,30 +163,31 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   }
 
   return (
-    <motion.div
-        className={`relative min-h-80 h-80 ${className}`}
-        initial={{ 
-          opacity: 0, 
-          y: 30,
-          scale: 0.95
-        }}
-        animate={{ 
-          opacity: 1, 
-          y: 0,
-          scale: 1
-        }}
-        transition={{
-          duration: 0.5,
-          delay: index * 0.1
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+    <AgentErrorBoundary agentId={agent.id}>
+      <motion.div
+          className={`relative min-h-80 h-80 ${className}`}
+          initial={{ 
+            opacity: 0, 
+            y: 30,
+            scale: 0.95
+          }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            scale: 1
+          }}
+          transition={{
+            duration: 0.5,
+            delay: index * 0.1
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
         {/* Power Rangers Cosmic Glass Card */}
         <CardBase 
           className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full" 
           ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
-          onClick={() => openAgentBackstory(agent)}
+          onClick={() => router.push(agentPath(agent.id, 'backstory'))}
         >
           <motion.div 
             className="agent-league-card-container agent-card-glow float-slow"
@@ -343,8 +353,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Open backstory modal
-                    openAgentBackstory(agent);
+                    // Route to agent backstory page using canonical routing
+                    router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}
                 className="agent-league-info-button"
@@ -395,7 +405,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           />
         </motion.div>
       </CardBase>
-    </motion.div>
+      </motion.div>
+    </AgentErrorBoundary>
   );
 };
 
