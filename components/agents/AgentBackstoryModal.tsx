@@ -141,7 +141,15 @@ export default function AgentBackstoryModal({ agent, open, onClose }: AgentBacks
     }]);
   };
 
-  if (!agent || !enrichedAgent) return null;
+  if (!agent || !enrichedAgent) {
+    if (process.env.NODE_ENV === 'development' && agent && !enrichedAgent) {
+      console.warn('[AgentBackstoryModal] Agent data incomplete:', { 
+        agentId: agent.id, 
+        hasEnrichedData: !!enrichedAgent 
+      });
+    }
+    return null;
+  }
 
   return (
     <AnimatePresence>
