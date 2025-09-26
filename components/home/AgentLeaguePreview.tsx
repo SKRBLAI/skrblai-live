@@ -47,7 +47,7 @@ const BASE_CORE_AGENTS = [
   {
     id: 'brand-alexander',
     name: 'BrandAlexander',
-    image: '/images/agents/brand-alexander.png',
+    image: '/images/agents/brand-alexander.webp',
     imageSlug: 'brand-alexander',
     role: 'Brand Identity Architect', 
     value: 'Complete professional brand systems in 60 seconds',
@@ -63,7 +63,7 @@ const BASE_CORE_AGENTS = [
   {
     id: 'social-nino', 
     name: 'Social Nino',
-    image: '/images/agents/social-nino.png',
+    image: '/images/agents/social-nino.webp',
     imageSlug: 'social-nino',
     role: 'Social Media Growth Expert',
     value: 'Automated posting, analytics, and engagement optimization',
@@ -79,7 +79,7 @@ const BASE_CORE_AGENTS = [
   {
     id: 'percy',
     name: 'Percy', 
-    image: '/images/agents/percy.png',
+    image: '/images/agents/percy.webp',
     imageSlug: 'percy',
     role: 'Business Automation Concierge',
     value: 'Coordinates your entire business automation ecosystem',
@@ -95,7 +95,7 @@ const BASE_CORE_AGENTS = [
   {
     id: 'skillsmith',
     name: 'SkillSmith',
-    image: '/images/agents/skillsmith.png',
+    image: '/images/agents/skillsmith.webp',
     imageSlug: 'skillsmith', 
     role: 'Elite Sports Performance Coach',
     value: 'AI-powered technique analysis and performance optimization',
@@ -111,7 +111,7 @@ const BASE_CORE_AGENTS = [
   {
     id: 'content-carltig',
     name: 'Content Carltig', 
-    image: '/images/agents/content-carltig.png',
+    image: '/images/agents/content-carltig.webp',
     imageSlug: 'content-carltig',
     role: 'Content Creation Machine',
     value: 'SEO-optimized articles, blogs, and content calendars',
@@ -228,11 +228,11 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           {[...BASE_CORE_AGENTS, ...(allowedIRA ? [{
   id: 'ira',
   name: 'IRA',
-  image: '/images/agents/ira.png',
+  image: '/images/agents/ira.webp',
   imageSlug: 'ira',
   role: 'Trading Mentor',
   value: 'AOIs, volume profile, options flow, earnings catalysts',
-  description: 'Inner Rod’s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
+  description: 'Inner Rod\'s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
   freeTip: 'Always wait for confirmation at AOIs before entering a trade.',
   action: 'Chat with IRA',
   mode: 'business' as const,
@@ -297,17 +297,19 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12">
                     <div className="relative w-full h-full">
                       <Image 
-                        src={`/images/agents/${agent.imageSlug ?? agent.id}.png`}
+                        src={`/images/agents/${agent.imageSlug ?? agent.id}.webp`}
                         alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
                         onError={(e) => { 
-                          (e.currentTarget as HTMLImageElement).style.display = "none";
-                          const fallback = e.currentTarget.parentElement?.querySelector('.agent-fallback') as HTMLElement;
-                          if (fallback) {
-                            fallback.style.display = "flex";
-                          }
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = `/images/agents/${agent.imageSlug ?? agent.id}-nobg.png`;
+                          target.onerror = () => {
+                            target.style.display = "none";
+                            const fallback = target.parentElement?.querySelector('.agent-fallback') as HTMLElement;
+                            if (fallback) fallback.style.display = "flex";
+                          };
                         }}
                       />
                       {/* Fallback avatar (shown if image hides) */}

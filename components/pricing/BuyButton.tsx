@@ -44,10 +44,11 @@ export function BuyButton({
   className?: string;
 }) {
   const [loading, setLoading] = useState(false);
+  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '').toString() === '1';
 
   // Check if SKU resolves to a valid price ID
   const resolvedPriceId = sku ? SKU_TO_ENV[sku] : undefined;
-  const isDisabled = !sku || !resolvedPriceId;
+  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId;
 
   if (isDisabled) {
     return (
@@ -55,7 +56,7 @@ export function BuyButton({
         className={`w-full py-3 px-4 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed font-medium ${className}`}
         disabled
       >
-        {disabledText}
+        {stripeEnabled ? disabledText : 'Stripe Disabled'}
       </button>
     );
   }

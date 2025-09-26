@@ -241,6 +241,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       className="object-contain p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
+                        // First try -nobg.png of same slug
+                        const slug = agent?.imageSlug || agent?.id;
+                        if (slug && !target.dataset.fallbackTried) {
+                          target.dataset.fallbackTried = '1';
+                          target.src = `/images/agents/${slug}-nobg.png`;
+                          return;
+                        }
+                        // Otherwise hide and show emoji fallback
                         target.style.display = 'none';
                         const fallback = target.nextElementSibling as HTMLDivElement;
                         if (fallback) fallback.style.display = 'flex';

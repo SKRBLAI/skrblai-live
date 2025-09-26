@@ -21,7 +21,7 @@ jest.mock('framer-motion', () => ({
 
 // Mock agent utils
 jest.mock('../../utils/agentUtils', () => ({
-  getAgentImagePath: (agent: any) => `/images/agents/${agent.id}.png`,
+  getAgentImagePath: (agent: any) => `/images/agents/${agent.id}.webp`,
   getAgentEmoji: (id: string) => '🤖',
 }));
 
@@ -157,6 +157,6 @@ describe('AgentLeagueCard', () => {
     render(<AgentLeagueCard agent={mockAgent} />);
 
     const image = screen.getByAltText('testAgent Hero Avatar');
-    expect(image).toHaveAttribute('src', expect.stringContaining('/images/agents/testAgent.png'));
+    expect(image).toHaveAttribute('src', expect.stringContaining('/images/agents/testAgent.webp'));
   });
 });
