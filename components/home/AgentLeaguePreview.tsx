@@ -199,7 +199,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   imageSlug: 'ira',
   role: 'Trading Mentor',
   value: 'AOIs, volume profile, options flow, earnings catalysts',
-  description: 'Inner Rod's Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
+  description: 'Inner Rod\'s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
   freeTip: 'Always wait for confirmation at AOIs before entering a trade.',
   action: 'Chat with IRA',
   mode: 'business' as const,

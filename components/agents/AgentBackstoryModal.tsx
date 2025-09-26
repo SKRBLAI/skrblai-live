@@ -113,7 +113,7 @@ export default function AgentBackstoryModal({ agent, open, onClose }: AgentBacks
     }
   }, [chatMessage, chatLoading, agent?.id, chatHistory]);
 
-  // Handle keyboard shortcuts
+  // Handle keyboard shortcuts and focus trap
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!open) return;
@@ -125,6 +125,30 @@ export default function AgentBackstoryModal({ agent, open, onClose }: AgentBacks
       // Chat shortcuts
       if (chatMode && e.key === 'Enter' && e.ctrlKey && chatMessage.trim()) {
         handleSendMessage();
+      }
+
+      // Focus trap
+      if (e.key === 'Tab') {
+        const modal = document.querySelector('[role="dialog"]');
+        if (modal) {
+          const focusableElements = modal.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          const firstElement = focusableElements[0] as HTMLElement;
+          const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement) {
+              lastElement?.focus();
+              e.preventDefault();
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              firstElement?.focus();
+              e.preventDefault();
+            }
+          }
+        }
       }
     };
 
@@ -142,11 +166,15 @@ export default function AgentBackstoryModal({ agent, open, onClose }: AgentBacks
   };
 
   if (!agent || !enrichedAgent) {
-    if (process.env.NODE_ENV === 'development' && agent && !enrichedAgent) {
-      console.warn('[AgentBackstoryModal] Agent data incomplete:', { 
-        agentId: agent.id, 
-        hasEnrichedData: !!enrichedAgent 
-      });
+    if (process.env.NODE_ENV === 'development') {
+      if (!agent) {
+        console.warn('[AgentBackstoryModal] No agent provided');
+      } else if (!enrichedAgent) {
+        console.warn('[AgentBackstoryModal] Agent data incomplete:', { 
+          agentId: agent.id, 
+          hasEnrichedData: !!enrichedAgent 
+        });
+      }
     }
     return null;
   }
