@@ -296,10 +296,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       if (!usedFallback) {
-                        setImgSrc(`/images/agents/${id || gender}.png`);
+                        // First fallback: -nobg.png for the same slug/id
+                        setImgSrc(`/images/agents/${imageSlug || id || gender}-nobg.png`);
                         setUsedFallback(true);
                       } else {
-                        e.currentTarget.src = `/images/agents/neutral.png`;
+                        // Final fallback: default.webp
+                        (e.currentTarget as HTMLImageElement).src = `/images/agents/default.webp`;
                       }
                     }}
                   />

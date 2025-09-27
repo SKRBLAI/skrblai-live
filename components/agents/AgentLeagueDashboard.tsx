@@ -145,9 +145,9 @@ export default function AgentLeagueDashboard() {
     }
   }
 
-  // Navigation to unified agent service page (backstory modal)
+  // Navigation to dedicated agent backstory page
   function handleAgentInfo(agent: SafeAgent) {
-    router.push(`${agentPath(agent.id)}?tab=backstory`);
+    router.push(agentPath(agent.id, 'backstory'));
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] View backstory for:', agent.name);
     }
@@ -200,7 +200,7 @@ export default function AgentLeagueDashboard() {
               <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
                 <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
                   <Image
-                    src="/images/agents/percy.png"
+                    src="/images/agents/percy.webp"
                     alt="Percy - Cosmic Concierge"
                     width={88}
                     height={88}
@@ -209,9 +209,12 @@ export default function AgentLeagueDashboard() {
                     priority
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.parentElement?.parentElement?.querySelector('.percy-fallback') as HTMLElement;
-                      if (fallback) fallback.style.display = 'flex';
+                      target.src = '/images/agents/percy-nobg.png';
+                      target.onerror = () => {
+                        target.style.display = 'none';
+                        const fallback = target.parentElement?.parentElement?.querySelector('.percy-fallback') as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      };
                     }}
                   />
                   <div className="percy-fallback absolute inset-0 hidden items-center justify-center text-cyan-400 text-2xl font-bold">

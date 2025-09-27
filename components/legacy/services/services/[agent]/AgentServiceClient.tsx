@@ -9,6 +9,7 @@ import type { SafeAgent } from '@/types/agent';
 import { agentBackstories } from '../../../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../../../utils/agentUtils';
 import { routeForAgent } from '../../../../../lib/agents/routes';
+import { agentPath } from '../../../../../utils/agentRouting';
 import GlassmorphicCard from '../../../../shared/GlassmorphicCard';
 import CosmicButton from '../../../../shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
@@ -47,9 +48,11 @@ export default function AgentServiceClient({ agent, params, searchParams: propSe
     const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | 'launch' | null;
     const view = searchParams.get('view') as 'backstory' | 'chat' | null;
     
-    // Handle view parameter - open modal or set tab
+    // Handle view parameter - redirect to dedicated page or set tab
     if (view === 'backstory' && agent) {
-      openAgentBackstory(agent);
+      // Redirect to dedicated backstory page
+      router.replace(agentPath(agent.id, 'backstory'));
+      return;
     } else if (view === 'chat') {
       setActiveTab('chat');
     } else if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
@@ -521,7 +524,7 @@ export default function AgentServiceClient({ agent, params, searchParams: propSe
                       : 'Chat'}
                   </button>
                   <button
-                    onClick={() => setActiveTab('backstory')}
+                    onClick={() => router.push(agentPath(agent.id, 'backstory'))}
                     className="flex items-center gap-2 px-6 py-4 bg-cyan-600/20 text-cyan-300 rounded-xl border border-cyan-500/30 hover:bg-cyan-600/30 transition-all duration-200 font-semibold"
                   >
                     <Info className="w-5 h-5" />

@@ -17,6 +17,14 @@ export default function CheckoutButton(
   }
 ){
   const [loading,setLoading]=useState(false);
+  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '').toString() === '1';
+  if (!stripeEnabled) {
+    return (
+      <button type="button" disabled className={"btn-solid-grad h-11 w-full rounded-xl opacity-50 cursor-not-allowed"}>
+        Stripe Disabled
+      </button>
+    );
+  }
   async function start(){
     try{
       setLoading(true);

@@ -371,7 +371,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Route to agent backstory using canonical routing
+
                     router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}
