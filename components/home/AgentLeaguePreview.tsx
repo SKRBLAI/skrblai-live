@@ -9,6 +9,8 @@ import CardShell from '../ui/CardShell';
 import { TrendingUp, Users, Zap, Target, Eye } from 'lucide-react';
 import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+import { getAgentImagePaths } from '@/lib/agents/assets';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -118,7 +120,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   }, []);
 
   const router = useRouter();
-  const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);
@@ -264,22 +266,26 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12">
                     <div className="relative w-full h-full">
                       <Image 
-                        src={agent.image}
+                        src={getAgentImagePaths((agent.id || 'default') as any).webp}
                         alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
                         onError={(e) => { 
                           const target = e.currentTarget as HTMLImageElement;
-                          console.warn(`[AgentLeaguePreview] Failed to load image for ${agent.name}: ${agent.image}`);
+                          const paths = getAgentImagePaths((agent.id || 'default') as any);
+                          console.warn(`[AgentLeaguePreview] Failed to load WebP for ${agent.name}: ${target.src}`);
+                          if (!target.src.endsWith(paths.fallback)) {
+                            target.src = paths.fallback;
+                            return;
+                          }
+                          console.warn(`[AgentLeaguePreview] Fallback also failed for ${agent.name}, using default placeholder.`);
                           if (!target.src.includes('default.png')) {
                             target.src = '/images/agents/default.png';
                           } else {
                             target.style.display = "none";
                             const fallback = target.parentElement?.querySelector('.agent-fallback') as HTMLElement;
-                            if (fallback) {
-                              fallback.style.display = "flex";
-                            }
+                            if (fallback) fallback.style.display = "flex";
                           }
                         }}
                       />

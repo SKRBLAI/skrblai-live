@@ -1,3 +1,4 @@
+// @deprecated (2025-09-26): Use components/ui/PercyAvatar.tsx instead
 'use client';
 
 import React from 'react';
