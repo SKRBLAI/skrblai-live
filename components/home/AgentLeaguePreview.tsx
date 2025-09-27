@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { routeForAgent } from '../../lib/agents/routes';
+import { agentPath } from '../../utils/agentRouting';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import CardShell from '../ui/CardShell';
 import { TrendingUp, Users, Zap, Target, Eye } from 'lucide-react';
+import agentRegistry from '../../lib/agents/agentRegistry';
+import { getAgentImagePath } from '../../utils/agentUtils';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -43,95 +45,57 @@ const generateLiveActivity = () => ({
 });
 
 
-const BASE_CORE_AGENTS = [
-  {
-    id: 'brand-alexander',
-    name: 'BrandAlexander',
-    image: '/images/agents/brand-alexander.webp',
-    imageSlug: 'brand-alexander',
-    role: 'Brand Identity Architect', 
-    value: 'Complete professional brand systems in 60 seconds',
-    description: 'Creates comprehensive brand kits: logos, style guides, color palettes, and brand strategy.',
-    freeTip: 'Your current logo lacks contrast - try a darker background to make it pop on social media.',
-    action: 'Build My Brand',
-    mode: 'business' as const,
-    intent: 'branding_package',
-    activityKey: 'branding',
-    dominanceMetric: 'Brand Identity Domination',
-    superheroName: 'The Brand Transformer'
-  },
-  {
-    id: 'social-nino', 
-    name: 'Social Nino',
-    image: '/images/agents/social-nino.webp',
-    imageSlug: 'social-nino',
-    role: 'Social Media Growth Expert',
-    value: 'Automated posting, analytics, and engagement optimization',
-    description: 'Schedules content, tracks analytics, and optimizes engagement across all platforms.',
-    freeTip: 'Posting at 8pm can double your Instagram engagement based on your audience patterns.',
-    action: 'Plan Posts',
-    mode: 'business' as const,
-    intent: 'social_media_planning',
-    activityKey: 'social',
-    dominanceMetric: 'Social Media Conquest',
-    superheroName: 'The Engagement Amplifier'
-  },
-  {
-    id: 'percy',
-    name: 'Percy', 
-    image: '/images/agents/percy.webp',
-    imageSlug: 'percy',
-    role: 'Business Automation Concierge',
-    value: 'Coordinates your entire business automation ecosystem',
-    description: 'The master orchestrator who connects all your business systems and automates growth workflows.',
-    freeTip: 'Your biggest revenue leak is probably manual lead follow-up - let me show you how to automate it.',
-    action: 'Chat with Percy',
-    mode: 'business' as const,
-    intent: 'general_consultation',
-    activityKey: 'percy',
-    dominanceMetric: 'Business Automation Mastery',
-    superheroName: 'The Growth Orchestrator'
-  },
-  {
-    id: 'skillsmith',
-    name: 'SkillSmith',
-    image: '/images/agents/skillsmith.webp',
-    imageSlug: 'skillsmith', 
-    role: 'Elite Sports Performance Coach',
-    value: 'AI-powered technique analysis and performance optimization',
-    description: 'Advanced video analysis and personalized training programs for athletic excellence.',
-    freeTip: 'Your form breakdown shows 3 efficiency gaps - upload a video and I\'ll show you exactly what to fix.',
-    action: 'Upload Video',
-    mode: 'sports' as const,
-    intent: 'video_analysis',
-    activityKey: 'skillsmith',
-    dominanceMetric: 'Athletic Performance Optimization',
-    superheroName: 'The Performance Enhancer'
-  },
-  {
-    id: 'content-carltig',
-    name: 'Content Carltig', 
-    image: '/images/agents/content-carltig.webp',
-    imageSlug: 'content-carltig',
-    role: 'Content Creation Machine',
-    value: 'SEO-optimized articles, blogs, and content calendars',
-    description: 'Generates high-converting content, SEO strategies, and comprehensive content calendars.',
-    freeTip: 'Try this headline: "How [Industry] Experts Achieve [Result] Without [Common Method]" - it converts 340% better.',
-    action: 'Generate Ideas',
-    mode: 'business' as const,
-    intent: 'content_generation',
-    activityKey: 'content',
-    dominanceMetric: 'Content Creation Supremacy',
-    superheroName: 'The Content Multiplier'
-  }
-];
+// Get core agents from the canonical registry
+const getCoreAgents = () => {
+  const coreAgentIds = ['branding', 'social', 'percy', 'skillsmith', 'contentcreation'];
+  
+  return coreAgentIds.map(id => {
+    const registryAgent = agentRegistry.find(agent => agent.id === id);
+    if (!registryAgent) {
+      console.warn(`[AgentLeaguePreview] Agent ${id} not found in registry`);
+      return null;
+    }
+    
+    // Convert registry agent to preview format with fallback handling
+    return {
+      id: registryAgent.id,
+      name: registryAgent.superheroName || registryAgent.name,
+      image: getAgentImagePath(registryAgent, "nobg"),
+      imageSlug: registryAgent.imageSlug || registryAgent.id,
+      role: registryAgent.primaryCapability || 'AI Specialist',
+      value: registryAgent.description,
+      description: registryAgent.description,
+      freeTip: `${registryAgent.catchphrase || 'Ready to help you succeed!'}`,
+      action: 'Chat Now',
+      mode: registryAgent.id === 'skillsmith' ? 'sports' as const : 'business' as const,
+      intent: 'consultation',
+      activityKey: getActivityKey(registryAgent.id),
+      dominanceMetric: `${registryAgent.name} Excellence`,
+      superheroName: registryAgent.superheroName || registryAgent.name
+    };
+  }).filter(Boolean);
+};
+
+// Map agent IDs to activity keys for backwards compatibility
+const getActivityKey = (agentId: string): string => {
+  const mapping: Record<string, string> = {
+    'branding': 'branding',
+    'social': 'social',
+    'percy': 'percy',
+    'skillsmith': 'skillsmith',
+    'contentcreation': 'content'
+  };
+  return mapping[agentId] || 'percy';
+};
 
 interface AgentLeaguePreviewProps {
-  onAgentClick: (agent: typeof BASE_CORE_AGENTS[0]) => void;
+  onAgentClick?: (agent: any) => void;
 }
 
 export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewProps) {
   const [allowedIRA, setAllowedIRA] = useState(false);
+  const [coreAgents, setCoreAgents] = useState<any[]>([]);
+  
   useEffect(() => {
     const checkIRAAccess = async () => {
       try {
@@ -148,6 +112,9 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
       }
     };
     checkIRAAccess();
+    
+    // Load core agents from registry
+    setCoreAgents(getCoreAgents());
   }, []);
 
   const router = useRouter();
@@ -166,7 +133,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   
   if (!isGuideStarEnabled) return null;
 
-  const handleAgentInteraction = (agent: typeof BASE_CORE_AGENTS[0], action: 'learn' | 'chat' | 'demo') => {
+  const handleAgentInteraction = (agent: any, action: 'learn' | 'chat' | 'demo') => {
     // Analytics
     if (typeof window !== 'undefined') {
       (window as any).gtag?.('event', 'agent_interaction', { 
@@ -181,12 +148,12 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         setShowFreeTip(showFreeTip === agent.id ? null : agent.id);
         break;
       case 'chat':
-        // Route to agent backstory page
-        router.push(routeForAgent(agent.id));
+        // Route to agent backstory page using canonical routing
+        router.push(agentPath(agent.id, 'backstory'));
         break;
       case 'demo':
-        // Route to agent backstory page
-        router.push(routeForAgent(agent.id));
+        // Route to agent backstory page using canonical routing
+        router.push(agentPath(agent.id, 'backstory'));
         break;
     }
   };
@@ -225,10 +192,10 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-          {[...BASE_CORE_AGENTS, ...(allowedIRA ? [{
+          {[...coreAgents, ...(allowedIRA ? [{
   id: 'ira',
   name: 'IRA',
-  image: '/images/agents/ira.webp',
+  image: getAgentImagePath('ira', "nobg"),
   imageSlug: 'ira',
   role: 'Trading Mentor',
   value: 'AOIs, volume profile, options flow, earnings catalysts',
@@ -297,19 +264,23 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12">
                     <div className="relative w-full h-full">
                       <Image 
-                        src={`/images/agents/${agent.imageSlug ?? agent.id}.webp`}
+                        src={agent.image}
                         alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
                         onError={(e) => { 
                           const target = e.currentTarget as HTMLImageElement;
-                          target.src = `/images/agents/${agent.imageSlug ?? agent.id}-nobg.png`;
-                          target.onerror = () => {
+                          console.warn(`[AgentLeaguePreview] Failed to load image for ${agent.name}: ${agent.image}`);
+                          if (!target.src.includes('default.png')) {
+                            target.src = '/images/agents/default.png';
+                          } else {
                             target.style.display = "none";
                             const fallback = target.parentElement?.querySelector('.agent-fallback') as HTMLElement;
-                            if (fallback) fallback.style.display = "flex";
-                          };
+                            if (fallback) {
+                              fallback.style.display = "flex";
+                            }
+                          }
                         }}
                       />
                       {/* Fallback avatar (shown if image hides) */}

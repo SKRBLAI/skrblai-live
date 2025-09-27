@@ -216,7 +216,7 @@ export default function AgentModal({ agent, open, onClose, onTry }: AgentModalPr
             </motion.div>
           )}
 
-          <AgentBackstoryModal agent={agent} isOpen={showBackstory} onClose={() => setShowBackstory(false)} />
+          <AgentBackstoryModal agent={agent} open={showBackstory} onClose={() => setShowBackstory(false)} />
         </motion.div>
       </motion.div>
     </AnimatePresence>

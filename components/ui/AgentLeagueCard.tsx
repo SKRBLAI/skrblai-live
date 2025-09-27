@@ -20,6 +20,10 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
+import { useAgentModal } from '../providers/GlobalModalProvider';
+import { agentPath } from '../../utils/agentRouting';
+import { agentSupportsChat } from '../../lib/agents/guards';
+import AgentErrorBoundary from './AgentErrorBoundary';
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -112,10 +116,19 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const [agentIntelligence, setAgentIntelligence] = useState<AgentIntelligence | null>(null);
   const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
+  const { openAgentBackstory } = useAgentModal();
 
   // Get full agent configuration from Agent League (data-driven approach)
   const agentConfig = agentLeague.getAgent(agent.id);
   const backstory = agentBackstories[agent.id];
+  
+  // Null guard for agent lookup
+  if (!agent || !agent.id) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[AgentLeagueCard] Invalid agent provided:', agent);
+    }
+    return null;
+  }
   
   // Auto-detect badge type from agent configuration
   const detectedBadgeType = agentConfig ? getBadgeType(agentConfig) : null;
@@ -142,6 +155,14 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
 
   if (!agent || !agent.name || !agentConfig) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[AgentLeagueCard] Missing agent data:', { 
+        hasAgent: !!agent, 
+        hasName: !!agent?.name, 
+        hasConfig: !!agentConfig,
+        agentId: agent?.id 
+      });
+    }
     return (
       <div className="h-80 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
         <div className="text-white/60">Agent data unavailable</div>
@@ -150,27 +171,32 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   }
 
   return (
-    <motion.div
-        className={`relative min-h-80 h-auto ${className}`}
-        initial={{ 
-          opacity: 0, 
-          y: 30,
-          scale: 0.95
-        }}
-        animate={{ 
-          opacity: 1, 
-          y: 0,
-          scale: 1
-        }}
-        transition={{
-          duration: 0.5,
-          delay: index * 0.1
-        }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
+    <AgentErrorBoundary agentId={agent.id}>
+      <motion.div
+          className={`relative min-h-80 h-80 ${className}`}
+          initial={{ 
+            opacity: 0, 
+            y: 30,
+            scale: 0.95
+          }}
+          animate={{ 
+            opacity: 1, 
+            y: 0,
+            scale: 1
+          }}
+          transition={{
+            duration: 0.5,
+            delay: index * 0.1
+          }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
         {/* Power Rangers Cosmic Glass Card */}
-        <CardBase className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20" ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}>
+        <CardBase 
+          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full" 
+          ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
+          onClick={() => router.push(`${agentPath(agent.id)}?tab=backstory`)}
+        >
           <motion.div 
             className="agent-league-card-container agent-card-glow float-slow"
           >
@@ -241,17 +267,18 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                       className="object-contain p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        // First try -nobg.png of same slug
-                        const slug = agent?.imageSlug || agent?.id;
-                        if (slug && !target.dataset.fallbackTried) {
-                          target.dataset.fallbackTried = '1';
-                          target.src = `/images/agents/${slug}-nobg.png`;
-                          return;
+                        if (process.env.NODE_ENV === 'development') {
+                          console.warn(`[AgentLeagueCard] Image failed to load for agent ${agent.id}: ${target.src}`);
                         }
-                        // Otherwise hide and show emoji fallback
-                        target.style.display = 'none';
-                        const fallback = target.nextElementSibling as HTMLDivElement;
-                        if (fallback) fallback.style.display = 'flex';
+                        // Try placeholder image first
+                        if (!target.src.includes('placeholder.png')) {
+                          target.src = '/agents/placeholder.png';
+                        } else {
+                          // If placeholder also fails, hide image and show emoji
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLDivElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }
                       }}
                     />
                     <div 
@@ -309,32 +336,36 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ delay: 0.6 }}
                   >
                     <div className="agent-league-button-grid">
-              <motion.button
-                onClick={() => {
-                  if (onChat) {
-                    onChat(agent);
-                  } else {
-                    // Route to agent chat tab
-                    router.push(`/agents/${agent.id}?tab=chat`);
-                  }
-                }}
-                className="agent-league-chat-button"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <MessageCircle className="w-4 h-4" />
-                Chat
-              </motion.button>
+              {agentSupportsChat(agent.id) && (
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent card click
+                    if (onChat) {
+                      onChat(agent);
+                    } else {
+                      // Route to agent chat view
+                      router.push(agentPath(agent.id, 'chat'));
+                    }
+                  }}
+                  className="agent-league-chat-button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Chat
+                </motion.button>
+              )}
               
               <motion.button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
                   if (onInfoClick) {
                     onInfoClick(agent);
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Route to agent backstory tab
-                    router.push(`/agents/${agent.id}?tab=backstory`);
+                    // Route to dedicated agent backstory page
+                    router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}
                 className="agent-league-info-button"
@@ -347,14 +378,15 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
             </div>
             
             <motion.button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
                 if (onClick) {
                   onClick(agent);
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Launch Agent - route to agent launch tab
-                  router.push(`/agents/${agent.id}?tab=launch`);
+                  // Navigate to agent home page
+                  router.push(agentPath(agent.id, 'home'));
                 }
               }}
               className="agent-league-launch-button"
@@ -384,7 +416,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
           />
         </motion.div>
       </CardBase>
-    </motion.div>
+      </motion.div>
+    </AgentErrorBoundary>
   );
 };
 

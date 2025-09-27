@@ -188,7 +188,9 @@ const allAgents: Agent[] = [
     displayInOrbit: typeof agent.displayInOrbit === 'boolean' ? agent.displayInOrbit : (agent.visible !== false),
     premiumFeature: agent.roleRequired === 'pro' ? 'premium-agents' : undefined,
     upgradeRequired: agent.roleRequired === 'pro' ? 'pro' : 
-                    agent.roleRequired === 'enterprise' ? 'enterprise' : null
+                    agent.roleRequired === 'enterprise' ? 'enterprise' : null,
+    // Enable chat for all agents by default unless explicitly disabled
+    chatEnabled: typeof agent.chatEnabled === 'boolean' ? agent.chatEnabled : true
   };
 });
 

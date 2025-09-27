@@ -10,6 +10,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { Agent } from '@/types/agent';
 import { toSafeAgent, type SafeAgent } from '@/utils/safeAgent';
+import { agentPath } from '@/utils/agentRouting';
 import { Toaster } from 'react-hot-toast';
 // import { useMediaQuery } from 'react-responsive'; // Commented out - using window.innerWidth instead
 import '../../styles/components/agent-card.css';
@@ -144,17 +145,17 @@ export default function AgentLeagueDashboard() {
     }
   }
 
-  // Navigation to unified agent service page
+  // Navigation to dedicated agent backstory page
   function handleAgentInfo(agent: SafeAgent) {
-    router.push(`/agents/${agent.id}`);
+    router.push(agentPath(agent.id, 'backstory'));
     if (process.env.NODE_ENV === 'development') {
-      console.log('[AgentLeagueDashboard] View info for:', agent.name);
+      console.log('[AgentLeagueDashboard] View backstory for:', agent.name);
     }
   }
 
   // Chat with agent - route to unified page with chat tab
   function handleAgentChat(agent: SafeAgent) {
-    router.push(`/agents/${agent.id}?tab=chat`);
+    router.push(`${agentPath(agent.id)}?tab=chat`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Chat with:', agent.name);
     }
@@ -173,7 +174,7 @@ export default function AgentLeagueDashboard() {
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error || 'Workflow trigger failed');
-      router.push(`/agents/${agent.id}`);
+      router.push(agentPath(agent.id));
     } catch (err: any) {
       console.error('[AgentLeagueDashboard] Launch error:', err);
       toast.error(err.message || 'Failed to launch agent. Please try again.');

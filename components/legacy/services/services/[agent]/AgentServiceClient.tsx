@@ -9,19 +9,26 @@ import type { SafeAgent } from '@/types/agent';
 import { agentBackstories } from '../../../../../lib/agents/agentBackstories';
 import { getAgentImagePath } from '../../../../../utils/agentUtils';
 import { routeForAgent } from '../../../../../lib/agents/routes';
+import { agentPath } from '../../../../../utils/agentRouting';
 import GlassmorphicCard from '../../../../shared/GlassmorphicCard';
 import CosmicButton from '../../../../shared/CosmicButton';
 import { Play, Info, MessageCircle, Zap, TrendingUp, Users, Clock, Target, Star, Send, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useAgentModal } from '../../../../providers/GlobalModalProvider';
 
 interface AgentServiceClientProps {
   agent: SafeAgent | undefined;
   params: { agent: string };
+  searchParams?: { 
+    track?: 'business' | 'sports';
+    view?: 'backstory' | 'chat';
+  };
 }
 
-export default function AgentServiceClient({ agent, params }: AgentServiceClientProps) {
+export default function AgentServiceClient({ agent, params, searchParams: propSearchParams }: AgentServiceClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { openAgentBackstory } = useAgentModal();
   const [showBackstory, setShowBackstory] = useState(false);
   const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
   const [successRate, setSuccessRate] = useState(Math.floor(Math.random() * 15) + 85);
@@ -39,13 +46,22 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
   // Set initial tab based on URL parameter
   useEffect(() => {
     const tab = searchParams.get('tab') as 'overview' | 'backstory' | 'chat' | 'launch' | null;
-    if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
+    const view = searchParams.get('view') as 'backstory' | 'chat' | null;
+    
+    // Handle view parameter - redirect to dedicated page or set tab
+    if (view === 'backstory' && agent) {
+      // Redirect to dedicated backstory page
+      router.replace(agentPath(agent.id, 'backstory'));
+      return;
+    } else if (view === 'chat') {
+      setActiveTab('chat');
+    } else if (tab && ['overview', 'backstory', 'chat', 'launch'].includes(tab)) {
       setActiveTab(tab);
     }
     
     // If there's a prompt parameter and we're on chat tab, set the initial message
     const promptParam = searchParams.get('prompt');
-    if (promptParam && tab === 'chat' && agent) {
+    if (promptParam && (tab === 'chat' || view === 'chat') && agent) {
       setChatMessage(decodeURIComponent(promptParam));
       // Initialize chat with agent's greeting if empty
       const agentBackstory = agentBackstories[agent.id];
@@ -57,7 +73,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
         }]);
       }
     }
-  }, [searchParams, chatHistory.length, agent]);
+  }, [searchParams, chatHistory.length, agent, openAgentBackstory]);
 
   // Live metrics animation
   useEffect(() => {
@@ -508,7 +524,7 @@ export default function AgentServiceClient({ agent, params }: AgentServiceClient
                       : 'Chat'}
                   </button>
                   <button
-                    onClick={() => setActiveTab('backstory')}
+                    onClick={() => router.push(agentPath(agent.id, 'backstory'))}
                     className="flex items-center gap-2 px-6 py-4 bg-cyan-600/20 text-cyan-300 rounded-xl border border-cyan-500/30 hover:bg-cyan-600/30 transition-all duration-200 font-semibold"
                   >
                     <Info className="w-5 h-5" />

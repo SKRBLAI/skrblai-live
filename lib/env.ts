@@ -50,10 +50,11 @@ export function validateEnvSafe() {
 }
 
 /**
- * Validates Supabase environment variables
- * Throws on missing vars or invalid formats
+ * Validates Supabase environment variables at runtime
+ * Throws on missing vars or invalid formats - only call this inside handlers
+ * @throws {Error} When environment validation fails
  */
-export function validateSupabaseEnv(): SupabaseEnv {
+export function assertEnvAtRuntime(): SupabaseEnv {
   const errors: string[] = [];
   const env: Partial<SupabaseEnv> = {};
 
@@ -110,12 +111,19 @@ export function validateSupabaseEnv(): SupabaseEnv {
 }
 
 /**
+ * @deprecated Use assertEnvAtRuntime() instead - only call inside handlers/components, not at import time
+ */
+export function validateSupabaseEnv(): SupabaseEnv {
+  return assertEnvAtRuntime();
+}
+
+/**
  * Safely validates environment without throwing
  * Returns validation result with errors array
  */
 export function validateSupabaseEnvSafe(): ValidationResult {
   try {
-    const env = validateSupabaseEnv();
+    const env = assertEnvAtRuntime();
     return { isValid: true, errors: [], env };
   } catch (error) {
     return {
@@ -131,11 +139,12 @@ export function validateSupabaseEnvSafe(): ValidationResult {
 }
 
 /**
- * Gets validated environment variables
- * Throws if validation fails
+ * Gets validated environment variables at runtime
+ * Throws if validation fails - only call inside handlers/components
+ * @deprecated Use assertEnvAtRuntime() directly
  */
 export function getSupabaseEnv(): SupabaseEnv {
-  return validateSupabaseEnv();
+  return assertEnvAtRuntime();
 }
 
 /**

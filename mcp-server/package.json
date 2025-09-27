@@ -23,7 +23,7 @@
   "author": "SKRBL AI Team",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.0",
+    "axios": "^1.12.0",
     "bullmq": "^4.15.0",
     "compression": "^1.8.1",
     "cors": "^2.8.5",
