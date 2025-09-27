@@ -267,11 +267,13 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12 flex-1">
                     <div className="relative w-full h-full">
                       <AgentImage
+
                         slug={agent.imageSlug || agent.id}
                         alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
+
                       />
                     </div>
                     

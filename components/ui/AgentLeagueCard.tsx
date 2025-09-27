@@ -21,6 +21,7 @@ import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
 import { getAgentImagePaths } from '../../lib/agents/assets';
+import AgentImage from '../shared/AgentImage';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
@@ -252,11 +253,13 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
                     <AgentImage
+
                       slug={agent.id}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
                       className="object-contain p-2"
-                      priority
+
+
                     />
                   </motion.div>
 
