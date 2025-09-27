@@ -79,6 +79,78 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 - `GET /api/health` - System health and uptime status
 - `GET /api/health/auth` - Supabase authentication health check with network connectivity test
 
+### **Diagnostics**
+The `/api/env-check` endpoint provides comprehensive environment variable validation for all critical services:
+
+- **Stripe Configuration**: Core keys and all price IDs with fallback variants
+- **Supabase Setup**: Database connection and authentication keys
+- **General Config**: Base URLs and deployment settings
+- **Price ID Resolution**: Sports plans, business plans, and add-ons with both canonical and `_M` variants
+
+**Response Format:**
+```json
+{
+  "ok": true,
+  "stripe": { "NEXT_PUBLIC_ENABLE_STRIPE": "PRESENT", ... },
+  "supabase": { "NEXT_PUBLIC_SUPABASE_URL": "PRESENT", ... },
+  "priceIds": {
+    "sports": { "ROOKIE": "PRESENT", "PRO": "PRESENT", ... },
+    "business": { "BIZ_STARTER": "PRESENT", ... },
+    "addons": { "ADDON_VIDEO": "PRESENT", ... }
+  },
+  "notes": ["Missing price IDs will disable related buttons", ...]
+}
+```
+
+## 💳 STRIPE ENV CHEAT SHEET
+
+### **Environment Variable Structure**
+SKRBL AI uses a resilient environment variable system that checks both canonical names and `_M` variants for maximum deployment flexibility.
+
+### **Sports Plans**
+```bash
+# Canonical → Fallback variants
+NEXT_PUBLIC_STRIPE_PRICE_ROOKIE → NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M
+NEXT_PUBLIC_STRIPE_PRICE_PRO → NEXT_PUBLIC_STRIPE_PRICE_PRO_M  
+NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR → NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M
+```
+
+### **Sports Add-ons**
+```bash
+# Sports add-ons with _M fallbacks
+NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO → NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M
+NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION → NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M
+NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION → NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M
+NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION → NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M
+NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10 → NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M
+```
+
+### **Business Plans**
+```bash
+# Business plans with _M fallbacks
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER → NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO → NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE → NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M
+```
+
+### **Business Add-ons**
+```bash
+# Business add-ons with _M fallbacks
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS → NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION → NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M
+NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT → NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M
+```
+
+### **Core Stripe Configuration**
+```bash
+# Required for payment processing
+NEXT_PUBLIC_ENABLE_STRIPE=1
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
+STRIPE_SECRET_KEY=sk_...
+```
+
+**Note**: The system checks canonical names first, then `_M` variants. This ensures backward compatibility with existing deployments while supporting cleaner canonical naming.
+
 ### **Supabase Diagnostics**
 - `npm run diag:supabase` - Local diagnostics script that validates:
   - Environment variables (URL, anon key, service role key)

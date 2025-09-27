@@ -25,6 +25,7 @@ import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
 import AgentErrorBoundary from './AgentErrorBoundary';
+import AgentImage from './AgentImage';
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -174,7 +175,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   return (
     <AgentErrorBoundary agentId={agent.id}>
       <motion.div
-          className={`relative min-h-80 h-80 ${className}`}
+          className={`relative rounded-2xl overflow-hidden aspect-[4/5] md:aspect-[5/6] bg-gradient-to-b from-white/5 to-white/0 h-full ${className}`}
           initial={{ 
             opacity: 0, 
             y: 30,
@@ -194,12 +195,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         >
         {/* Power Rangers Cosmic Glass Card */}
         <CardBase 
-          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full" 
+          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full flex flex-col md:min-h-[340px]" 
           ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
           onClick={() => router.push(agentPath(agent.id, 'backstory'))}
         >
           <motion.div 
-            className="agent-league-card-container agent-card-glow float-slow"
+            className="agent-league-card-container agent-card-glow float-slow flex-1 flex flex-col"
           >
                 {/* Pulsing Border Animation */}
                 <motion.div 
@@ -260,39 +261,13 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     }}
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
-                    <Image
-                      src={getAgentImagePaths((agent.id || 'default') as any).webp}
+                    <AgentImage
+                      slug={agent.id}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
-                      sizes="112px"
                       className="object-contain p-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        const paths = getAgentImagePaths((agent.id || 'default') as any);
-                        if (process.env.NODE_ENV === 'development') {
-                          console.warn(`[AgentLeagueCard] Image failed to load for agent ${agent.id}: ${target.src}`);
-                        }
-                        // Try WebP→PNG fallback
-                        if (!target.src.endsWith(paths.fallback)) {
-                          target.src = paths.fallback;
-                          return;
-                        }
-                        // Try placeholder image next
-                        if (!target.src.includes('placeholder.png')) {
-                          target.src = '/agents/placeholder.png';
-                        } else {
-                          // If placeholder also fails, hide image and show emoji
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLDivElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
+                      priority
                     />
-                    <div 
-                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300"
-                    >
-                      <span className="text-2xl font-bold">{agentConfig.emoji || getAgentEmoji(agent.id)}</span>
-                    </div>
                   </motion.div>
 
                   {/* Agent Name & Superhero Title */}
@@ -337,7 +312,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                 {/* Action Buttons */}
                 <motion.div 
-                    className="mt-4"
+                    className="mt-auto"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
