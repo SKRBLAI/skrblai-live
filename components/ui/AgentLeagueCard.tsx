@@ -120,20 +120,28 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const router = useRouter();
   const { openAgentBackstory } = useAgentModal();
 
-  // Get full agent configuration from Agent League (data-driven approach)
-  const agentConfig = agentLeague.getAgent(agent.id);
-  const backstory = agentBackstories[agent.id];
-  
-  // Null guard for agent lookup
-  if (!agent || !agent.id) {
+  // Early validation - must be first to avoid hook violations
+  if (!agent || !agent.id || !agent.name) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('[AgentLeagueCard] Invalid agent provided:', agent);
     }
     return null;
   }
+
+  // Get full agent configuration from Agent League (data-driven approach)
+  const agentConfig = agentLeague.getAgent(agent.id);
+  const backstory = agentBackstories[agent.id];
+  
+  // Second validation after config lookup
+  if (!agentConfig) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[AgentLeagueCard] Agent config not found for:', agent.id);
+    }
+    return null;
+  }
   
   // Auto-detect badge type from agent configuration
-  const detectedBadgeType = agentConfig ? getBadgeType(agentConfig) : null;
+  const detectedBadgeType = getBadgeType(agentConfig);
   const badgeType = detectedBadgeType || (isRecommended ? 'recommended' : null);
 
   useEffect(() => {
@@ -152,25 +160,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     }
   }, [agent?.id, showIntelligence]);
 
-
-
-
-
-  if (!agent || !agent.name || !agentConfig) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[AgentLeagueCard] Missing agent data:', { 
-        hasAgent: !!agent, 
-        hasName: !!agent?.name, 
-        hasConfig: !!agentConfig,
-        agentId: agent?.id 
-      });
-    }
-    return (
-      <div className="h-80 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
-        <div className="text-white/60">Agent data unavailable</div>
-      </div>
-    );
-  }
+  // All validation is complete, proceed with render
 
   return (
     <AgentErrorBoundary agentId={agent.id}>
