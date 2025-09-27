@@ -44,11 +44,11 @@ export function BuyButton({
   className?: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '').toString() === '1';
+  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '1').toString() === '1';
 
   // Check if SKU resolves to a valid price ID
   const resolvedPriceId = sku ? SKU_TO_ENV[sku] : undefined;
-  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId;
+  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId || resolvedPriceId.trim().length === 0;
 
   if (isDisabled) {
     return (

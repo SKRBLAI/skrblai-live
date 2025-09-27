@@ -196,7 +196,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         <CardBase 
           className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full" 
           ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
-          onClick={() => router.push(`${agentPath(agent.id)}?tab=backstory`)}
+          onClick={() => router.push(agentPath(agent.id, 'backstory'))}
         >
           <motion.div 
             className="agent-league-card-container agent-card-glow float-slow"
@@ -392,8 +392,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Navigate to agent home page
-                  router.push(agentPath(agent.id, 'home'));
+                  // Navigate to agent backstory per canonical spec
+                  router.push(agentPath(agent.id, 'backstory'));
                 }
               }}
               className="agent-league-launch-button"

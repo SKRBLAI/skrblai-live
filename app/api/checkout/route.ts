@@ -88,12 +88,10 @@ async function handleCheckout(req: NextRequest) {
 
     // Handle special modes first
     if (body.mode === "trial" && body.sku === "sports_trial_curiosity") {
-      console.log('[checkout] Trial mode - redirecting to Percy onboarding');
-      return NextResponse.json({ 
-        ok: true, 
-        url: "/#percy",
-        mode: "trial"
-      });
+      console.log('[checkout] Trial mode - redirecting to onboarding wizard');
+      const preferred = "/onboarding?mode=sports&trial=1";
+      const fallback = "/#percy?trial=1&mode=sports";
+      return NextResponse.json({ ok: true, url: preferred, mode: "trial", fallback });
     }
 
     if (body.mode === "contact") {

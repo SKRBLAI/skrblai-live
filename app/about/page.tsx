@@ -96,8 +96,7 @@ const achievements = [
 
 export default function AboutPage(): JSX.Element {
   const metrics = useLiveMetrics();
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  // Removed parallax transform that could cause scroll/jump issues
 
   // Suggestion Modal State and Engagement Handler
   const [percySuggestionOpen, setPercySuggestionOpen] = useState(false);
@@ -110,8 +109,8 @@ export default function AboutPage(): JSX.Element {
 
   return (
     <ClientPageLayout>
-          <div className="absolute inset-0 bg-gradient-radial from-[#0f0f2b] to-[#06061a] opacity-80 bg-fixed -z-10" />
-      <motion.div className="space-y-16" style={{ y }}>
+          <div className="absolute inset-0 bg-gradient-radial from-[#0f0f2b] to-[#06061a] opacity-80 -z-10" />
+      <motion.div className="space-y-16">
         {/* Hero Section */}
         <section className="relative z-10 pt-24 pb-16">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
