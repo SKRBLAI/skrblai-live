@@ -21,6 +21,7 @@ import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
 import { getAgentImagePaths } from '../../lib/agents/assets';
+import AgentImage from '../shared/AgentImage';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
@@ -260,39 +261,16 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     }}
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
-                    <Image
-                      src={getAgentImagePaths((agent.id || 'default') as any).webp}
-                      alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
+                    <AgentImage
+                      agentId={agent.id}
+                      agentName={agentConfig.personality.superheroName || agent.name}
                       fill
                       sizes="112px"
                       className="object-contain p-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        const paths = getAgentImagePaths((agent.id || 'default') as any);
-                        if (process.env.NODE_ENV === 'development') {
-                          console.warn(`[AgentLeagueCard] Image failed to load for agent ${agent.id}: ${target.src}`);
-                        }
-                        // Try WebP→PNG fallback
-                        if (!target.src.endsWith(paths.fallback)) {
-                          target.src = paths.fallback;
-                          return;
-                        }
-                        // Try placeholder image next
-                        if (!target.src.includes('placeholder.png')) {
-                          target.src = '/agents/placeholder.png';
-                        } else {
-                          // If placeholder also fails, hide image and show emoji
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLDivElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
+                      fallbackContent={
+                        <span className="text-2xl font-bold">{agentConfig.emoji || (agent.name?.[0] ?? "A")}</span>
+                      }
                     />
-                    <div 
-                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300"
-                    >
-                      <span className="text-2xl font-bold">{agentConfig.emoji || getAgentEmoji(agent.id)}</span>
-                    </div>
                   </motion.div>
 
                   {/* Agent Name & Superhero Title */}
