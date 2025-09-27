@@ -9,6 +9,9 @@ import CardShell from '../ui/CardShell';
 import { TrendingUp, Users, Zap, Target, Eye } from 'lucide-react';
 import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+import { getAgentImagePaths } from '@/lib/agents/assets';
+import AgentImage from '../shared/AgentImage';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -118,7 +121,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   }, []);
 
   const router = useRouter();
-  const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);
@@ -191,7 +194,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[1fr]">
           {[...coreAgents, ...(allowedIRA ? [{
   id: 'ira',
   name: 'IRA',
@@ -222,7 +225,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                 onMouseLeave={() => setHoveredAgent(null)}
                 className="relative"
               >
-                <CardShell className="relative overflow-hidden group h-full">
+                <CardShell className="relative overflow-hidden group h-full flex flex-col">
                   {/* Live Activity Indicator */}
                   <div className="absolute top-2 left-2 right-2 z-10">
                     <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-green-500/30">
@@ -261,32 +264,18 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   )}
 
                   {/* Agent Image */}
-                  <div className="aspect-[3/4] relative w-full mt-12">
+                  <div className="aspect-[3/4] relative w-full mt-12 flex-1">
                     <div className="relative w-full h-full">
-                      <Image 
-                        src={agent.image}
-                        alt={agent.name}
+                      <AgentImage
+                        agentId={agent.id}
+                        agentName={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
-                        onError={(e) => { 
-                          const target = e.currentTarget as HTMLImageElement;
-                          console.warn(`[AgentLeaguePreview] Failed to load image for ${agent.name}: ${agent.image}`);
-                          if (!target.src.includes('default.png')) {
-                            target.src = '/images/agents/default.png';
-                          } else {
-                            target.style.display = "none";
-                            const fallback = target.parentElement?.querySelector('.agent-fallback') as HTMLElement;
-                            if (fallback) {
-                              fallback.style.display = "flex";
-                            }
-                          }
-                        }}
+                        fallbackContent={
+                          <span className="text-3xl font-bold">{agent.name?.[0] ?? "A"}</span>
+                        }
                       />
-                      {/* Fallback avatar (shown if image hides) */}
-                      <div className="absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300 agent-fallback">
-                        <span className="text-3xl font-bold">{agent.name?.[0] ?? "A"}</span>
-                      </div>
                     </div>
                     
                     {/* Agent Name */}
@@ -300,7 +289,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                     </motion.h3>
                     
                     {/* Action Buttons */}
-                    <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end p-4 gap-1">
+                    <div className="absolute bottom-0 left-0 right-0 flex justify-center items-end p-4 gap-1 mt-auto">
                       {/* LEARN Button */}
                       <motion.button
                         className="flex-1 h-8 bg-transparent border border-cyan-400/50 rounded-lg text-xs text-cyan-400 font-bold hover:bg-cyan-400/20 transition-all"

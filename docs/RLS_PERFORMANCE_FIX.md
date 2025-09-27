@@ -167,3 +167,4 @@ If you encounter issues with this migration:
 2. Review Supabase logs for policy errors
 3. Test with a small dataset first
 4. Contact your database administrator if needed
+

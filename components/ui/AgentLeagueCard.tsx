@@ -20,6 +20,8 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
+import { getAgentImagePaths } from '../../lib/agents/assets';
+import AgentImage from '../shared/AgentImage';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
@@ -118,20 +120,28 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const router = useRouter();
   const { openAgentBackstory } = useAgentModal();
 
-  // Get full agent configuration from Agent League (data-driven approach)
-  const agentConfig = agentLeague.getAgent(agent.id);
-  const backstory = agentBackstories[agent.id];
-  
-  // Null guard for agent lookup
-  if (!agent || !agent.id) {
+  // Early validation - must be first to avoid hook violations
+  if (!agent || !agent.id || !agent.name) {
     if (process.env.NODE_ENV === 'development') {
       console.warn('[AgentLeagueCard] Invalid agent provided:', agent);
     }
     return null;
   }
+
+  // Get full agent configuration from Agent League (data-driven approach)
+  const agentConfig = agentLeague.getAgent(agent.id);
+  const backstory = agentBackstories[agent.id];
+  
+  // Second validation after config lookup
+  if (!agentConfig) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[AgentLeagueCard] Agent config not found for:', agent.id);
+    }
+    return null;
+  }
   
   // Auto-detect badge type from agent configuration
-  const detectedBadgeType = agentConfig ? getBadgeType(agentConfig) : null;
+  const detectedBadgeType = getBadgeType(agentConfig);
   const badgeType = detectedBadgeType || (isRecommended ? 'recommended' : null);
 
   useEffect(() => {
@@ -150,30 +160,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
     }
   }, [agent?.id, showIntelligence]);
 
-
-
-
-
-  if (!agent || !agent.name || !agentConfig) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('[AgentLeagueCard] Missing agent data:', { 
-        hasAgent: !!agent, 
-        hasName: !!agent?.name, 
-        hasConfig: !!agentConfig,
-        agentId: agent?.id 
-      });
-    }
-    return (
-      <div className="h-80 flex items-center justify-center bg-gradient-to-br from-violet-800 via-purple-900 to-indigo-900/80 backdrop-blur-xl bg-opacity-80 border-2 border-teal-400/80 shadow-[0_0_24px_#30D5C8AA] rounded-2xl">
-        <div className="text-white/60">Agent data unavailable</div>
-      </div>
-    );
-  }
+  // All validation is complete, proceed with render
 
   return (
     <AgentErrorBoundary agentId={agent.id}>
       <motion.div
-          className={`relative min-h-80 h-80 ${className}`}
+          className={`relative rounded-2xl overflow-hidden aspect-[4/5] md:aspect-[5/6] bg-gradient-to-b from-white/5 to-white/0 h-full ${className}`}
           initial={{ 
             opacity: 0, 
             y: 30,
@@ -193,12 +185,12 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         >
         {/* Power Rangers Cosmic Glass Card */}
         <CardBase 
-          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full" 
+          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full flex flex-col md:min-h-[340px]" 
           ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
-          onClick={() => router.push(`${agentPath(agent.id)}?tab=backstory`)}
+          onClick={() => router.push(agentPath(agent.id, 'backstory'))}
         >
           <motion.div 
-            className="agent-league-card-container agent-card-glow float-slow"
+            className="agent-league-card-container agent-card-glow float-slow flex-1 flex flex-col"
           >
                 {/* Pulsing Border Animation */}
                 <motion.div 
@@ -259,33 +251,15 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     }}
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
-                    <Image
-                      src={getAgentImagePath(agent, "nobg")}
-                      alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
+                    <AgentImage
+                      agentId={agent.id}
+                      agentName={agentConfig.personality.superheroName || agent.name}
                       fill
-                      sizes="112px"
                       className="object-contain p-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        if (process.env.NODE_ENV === 'development') {
-                          console.warn(`[AgentLeagueCard] Image failed to load for agent ${agent.id}: ${target.src}`);
-                        }
-                        // Try placeholder image first
-                        if (!target.src.includes('placeholder.png')) {
-                          target.src = '/agents/placeholder.png';
-                        } else {
-                          // If placeholder also fails, hide image and show emoji
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLDivElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }
-                      }}
+                      fallbackContent={
+                        <span className="text-2xl font-bold">{agentConfig.emoji || (agent.name?.[0] ?? "A")}</span>
+                      }
                     />
-                    <div 
-                      className="agent-league-fallback-avatar absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300"
-                    >
-                      <span className="text-2xl font-bold">{agentConfig.emoji || getAgentEmoji(agent.id)}</span>
-                    </div>
                   </motion.div>
 
                   {/* Agent Name & Superhero Title */}
@@ -330,7 +304,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                 {/* Action Buttons */}
                 <motion.div 
-                    className="mt-4"
+                    className="mt-auto"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
@@ -343,8 +317,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     if (onChat) {
                       onChat(agent);
                     } else {
-                      // Route to agent chat view
-                      router.push(agentPath(agent.id, 'chat'));
+                      // Route to canonical backstory per homepage spec
+                      router.push(agentPath(agent.id, 'backstory'));
                     }
                   }}
                   className="agent-league-chat-button"
@@ -364,7 +338,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Route to dedicated agent backstory page
+
                     router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}
@@ -385,8 +359,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                 } else if (onLaunch) {
                   onLaunch(agent);
                 } else {
-                  // Navigate to agent home page
-                  router.push(agentPath(agent.id, 'home'));
+                  // Navigate to agent backstory per canonical spec
+                  router.push(agentPath(agent.id, 'backstory'));
                 }
               }}
               className="agent-league-launch-button"
