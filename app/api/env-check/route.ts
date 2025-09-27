@@ -1,96 +1,148 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { readEnvAny } from "@/lib/env/readEnvAny";
 
-/**
- * Environment Check API - Returns redacted environment variable status
- * Used for sanity-checking configuration in development and production
- */
-export async function GET(request: NextRequest) {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+interface EnvStatus {
+  [key: string]: 'PRESENT' | 'MISSING';
+}
+
+interface EnvCheckResponse {
+  ok: boolean;
+  stripe: EnvStatus;
+  supabase: EnvStatus;
+  general: EnvStatus;
+  priceIds: {
+    sports: EnvStatus;
+    business: EnvStatus;
+    addons: EnvStatus;
+  };
+  notes: string[];
+}
+
+function checkEnvVar(key: string): 'PRESENT' | 'MISSING' {
+  const value = process.env[key];
+  return (value && value.trim().length > 0) ? 'PRESENT' : 'MISSING';
+}
+
+function checkEnvAny(...keys: string[]): 'PRESENT' | 'MISSING' {
+  const value = readEnvAny(...keys);
+  return value ? 'PRESENT' : 'MISSING';
+}
+
+export async function GET() {
   try {
-    const envCheck = {
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'unknown',
-      checks: {
-        // Supabase Configuration
-        supabase: {
-          url: process.env.NEXT_PUBLIC_SUPABASE_URL 
-            ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.substring(0, 20)}...` 
-            : 'MISSING',
-          anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-            ? `${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 10)}...` 
-            : 'MISSING',
-          serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY 
-            ? `${process.env.SUPABASE_SERVICE_ROLE_KEY.substring(0, 10)}...` 
-            : 'MISSING'
-        },
-        
-        // OpenAI Configuration
-        openai: {
-          apiKey: process.env.OPENAI_API_KEY 
-            ? `${process.env.OPENAI_API_KEY.substring(0, 7)}...` 
-            : 'MISSING',
-          model: process.env.OPENAI_MODEL || 'gpt-4o-mini (default)'
-        },
-        
-        // Optional Services
-        optional: {
-          n8nWebhook: process.env.N8N_WEBHOOK_URL 
-            ? `${process.env.N8N_WEBHOOK_URL.substring(0, 20)}...` 
-            : 'NOT_SET',
-          encryptionSecret: process.env.ENCRYPTION_SECRET 
-            ? `${process.env.ENCRYPTION_SECRET.length} chars` 
-            : 'MISSING'
-        },
-        
-        // Stripe Configuration
-        stripe: {
-          priceRookie: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE || 'NOT_SET',
-          pricePro: process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || 'NOT_SET',
-          priceAllstar: process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR || 'NOT_SET',
-          priceYearly: process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY || 'NOT_SET'
-        }
-      }
+    // Core Stripe configuration
+    const stripe: EnvStatus = {
+      NEXT_PUBLIC_ENABLE_STRIPE: checkEnvVar('NEXT_PUBLIC_ENABLE_STRIPE'),
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: checkEnvVar('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'),
+      STRIPE_SECRET_KEY: checkEnvVar('STRIPE_SECRET_KEY'),
     };
 
-    // Calculate health score
-    const criticalVars = [
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
-      process.env.OPENAI_API_KEY,
-      process.env.ENCRYPTION_SECRET
+    // Supabase configuration
+    const supabase: EnvStatus = {
+      NEXT_PUBLIC_SUPABASE_URL: checkEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: checkEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+      SUPABASE_SERVICE_ROLE_KEY: checkEnvVar('SUPABASE_SERVICE_ROLE_KEY'),
+    };
+
+    // General configuration
+    const general: EnvStatus = {
+      APP_BASE_URL: checkEnvVar('APP_BASE_URL'),
+      NEXT_PUBLIC_BASE_URL: checkEnvVar('NEXT_PUBLIC_BASE_URL'),
+    };
+
+    // Sports plan price IDs (canonical and _M variants)
+    const sportsPlans: EnvStatus = {
+      ROOKIE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
+      PRO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
+      ALLSTAR: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
+    };
+
+    // Business plan price IDs (canonical and _M variants)
+    const businessPlans: EnvStatus = {
+      BIZ_STARTER: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M'),
+      BIZ_PRO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M'),
+      BIZ_ELITE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'),
+    };
+
+    // Add-on price IDs (both sports and business)
+    const addons: EnvStatus = {
+      // Sports add-ons
+      ADDON_SCANS10: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
+      ADDON_VIDEO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'),
+      ADDON_EMOTION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'),
+      ADDON_NUTRITION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'),
+      ADDON_FOUNDATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'),
+      // Business add-ons
+      BIZ_ADDON_ADV_ANALYTICS: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
+      BIZ_ADDON_AUTOMATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
+      BIZ_ADDON_TEAM_SEAT: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
+    };
+
+    // Generate diagnostic notes
+    const notes: string[] = [];
+    
+    if (stripe.NEXT_PUBLIC_ENABLE_STRIPE === 'MISSING') {
+      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is missing - Stripe functionality will be disabled");
+    } else if (process.env.NEXT_PUBLIC_ENABLE_STRIPE !== '1') {
+      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is not set to '1' - Stripe functionality may be disabled");
+    }
+
+    if (stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY === 'MISSING' || stripe.STRIPE_SECRET_KEY === 'MISSING') {
+      notes.push("Missing core Stripe keys - payment processing will fail");
+    }
+
+    const missingPriceIds = [
+      ...Object.entries(sportsPlans).filter(([, status]) => status === 'MISSING').map(([key]) => `Sports ${key}`),
+      ...Object.entries(businessPlans).filter(([, status]) => status === 'MISSING').map(([key]) => `Business ${key}`),
+      ...Object.entries(addons).filter(([, status]) => status === 'MISSING').map(([key]) => `Addon ${key}`),
     ];
 
-    const criticalCount = criticalVars.filter(v => v && v.length > 0).length;
-    const healthScore = Math.round((criticalCount / criticalVars.length) * 100);
+    if (missingPriceIds.length > 0) {
+      notes.push(`Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
+    }
 
-    const response = {
-      ...envCheck,
-      health: {
-        score: healthScore,
-        status: healthScore >= 100 ? 'HEALTHY' : healthScore >= 80 ? 'WARNING' : 'CRITICAL',
-        criticalVarsConfigured: `${criticalCount}/${criticalVars.length}`
-      }
+    if (supabase.NEXT_PUBLIC_SUPABASE_URL === 'MISSING' || supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'MISSING') {
+      notes.push("Missing Supabase configuration - database operations may fail");
+    }
+
+    if (general.APP_BASE_URL === 'MISSING' && general.NEXT_PUBLIC_BASE_URL === 'MISSING') {
+      notes.push("Missing base URL configuration - redirects may not work properly");
+    }
+
+    // Determine overall status
+    const criticalMissing = [
+      stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      stripe.STRIPE_SECRET_KEY,
+      supabase.NEXT_PUBLIC_SUPABASE_URL,
+      supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ].some(status => status === 'MISSING');
+
+    const ok = !criticalMissing;
+
+    const response: EnvCheckResponse = {
+      ok,
+      stripe,
+      supabase,
+      general,
+      priceIds: {
+        sports: sportsPlans,
+        business: businessPlans,
+        addons,
+      },
+      notes,
     };
 
-    return NextResponse.json(response, { 
-      status: 200,
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
+    return NextResponse.json(response, { status: 200 });
 
   } catch (error) {
-    console.error('Environment check failed:', error);
-    
+    console.error("[/api/env-check] Error:", error);
     return NextResponse.json({
-      error: 'Environment check failed',
-      timestamp: new Date().toISOString(),
-      health: {
-        score: 0,
-        status: 'ERROR'
-      }
+      ok: false,
+      error: "Failed to check environment variables",
+      notes: ["Internal error occurred during environment check"]
     }, { status: 500 });
   }
 }

@@ -1,28 +1,52 @@
 'use client';
 
 import React, { useState } from 'react';
+import { readEnvAny } from '@/lib/env/readEnvAny';
 
-// SKU to Environment Price ID resolver
-const SKU_TO_ENV: Record<string, string> = {
-  // Sports plans
-  sports_plan_starter: process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE!,
-  sports_plan_pro:     process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO!,
-  sports_plan_elite:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR!,
-  // Sports add-ons (using legacy variable names to match your .env.local)
-  sports_addon_scans10: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10!,
-  sports_addon_video:   process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO ?? "",
-  sports_addon_emotion: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION ?? "",
-  sports_addon_nutrition: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION ?? "",
-  sports_addon_foundation: process.env.NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION ?? "",
-  // Business plans
-  biz_plan_starter_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M ?? "",
-  biz_plan_pro_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M ?? "",
-  biz_plan_elite_m: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M ?? "",
-  // Business add-ons
-  biz_addon_adv_analytics: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS ?? "",
-  biz_addon_automation: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION ?? "",
-  biz_addon_team_seat: process.env.NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT ?? "",
-};
+// SKU to Environment Price ID resolver with resilient fallbacks
+function resolvePriceIdFromSku(sku: string): string | undefined {
+  const resolvers: Record<string, () => string | undefined> = {
+    // Sports plans - canonical and _M variants
+    sports_plan_starter: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
+    sports_plan_pro: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
+    sports_plan_elite: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
+    
+    // Sports add-ons with _M fallbacks
+    sports_addon_scans10: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
+    sports_addon_video: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'),
+    sports_addon_emotion: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'),
+    sports_addon_nutrition: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'),
+    sports_addon_foundation: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'),
+    
+    // Business plans - canonical and _M variants
+    biz_plan_starter: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M'),
+    biz_plan_pro: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M'),
+    biz_plan_elite: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'),
+    // Legacy _M only variants for backward compatibility
+    biz_plan_starter_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER'),
+    biz_plan_pro_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO'),
+    biz_plan_elite_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE'),
+    
+    // Business add-ons with _M fallbacks
+    biz_addon_adv_analytics: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
+    biz_addon_automation: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
+    biz_addon_team_seat: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
+  };
+
+  const resolver = resolvers[sku];
+  if (!resolver) {
+    return undefined;
+  }
+
+  const resolvedPriceId = resolver();
+  
+  // Development-safe logging
+  if (process.env.NODE_ENV === 'development') {
+    console.info(`[resolver] sku=${sku}, resolvedPriceId=${resolvedPriceId || 'NULL'}`);
+  }
+  
+  return resolvedPriceId;
+}
 
 export function BuyButton({
   sku,
@@ -46,9 +70,9 @@ export function BuyButton({
   const [loading, setLoading] = useState(false);
   const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '1').toString() === '1';
 
-  // Check if SKU resolves to a valid price ID
-  const resolvedPriceId = sku ? SKU_TO_ENV[sku] : undefined;
-  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId || resolvedPriceId.trim().length === 0;
+  // Check if SKU resolves to a valid price ID using resilient resolver
+  const resolvedPriceId = sku ? resolvePriceIdFromSku(sku) : undefined;
+  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId;
 
   if (isDisabled) {
     return (
