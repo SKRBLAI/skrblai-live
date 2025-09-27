@@ -98,7 +98,8 @@ const nextConfig = {
       // Canonical agent backstory routing - 308 redirects
       { source: '/agentbackstory/:slug*', destination: '/agents/:slug*', permanent: true },
       { source: '/services/:slug*', destination: '/agents/:slug*', permanent: true },
-      { source: '/agents/:slug/backstory', destination: '/agents/:slug', permanent: true },
+      // NOTE: Allow dedicated backstory page to render; do not redirect
+      // { source: '/agents/:slug/backstory', destination: '/agents/:slug', permanent: true },
 
       // Services → Agents migration - ACTIVE (keeping existing for compatibility)
       { source: '/services', destination: '/agents', permanent: true },
