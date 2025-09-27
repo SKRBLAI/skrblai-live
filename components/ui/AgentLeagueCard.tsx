@@ -20,6 +20,7 @@ import CosmicButton from '../shared/CosmicButton';
 import GlassmorphicCard from '../shared/GlassmorphicCard';
 import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
 import Image from 'next/image';
+import { getAgentImagePaths } from '../../lib/agents/assets';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
@@ -260,17 +261,23 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
                     <Image
-                      src={getAgentImagePath(agent, "nobg")}
+                      src={getAgentImagePaths((agent.id || 'default') as any).webp}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
                       sizes="112px"
                       className="object-contain p-2"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
+                        const paths = getAgentImagePaths((agent.id || 'default') as any);
                         if (process.env.NODE_ENV === 'development') {
                           console.warn(`[AgentLeagueCard] Image failed to load for agent ${agent.id}: ${target.src}`);
                         }
-                        // Try placeholder image first
+                        // Try WebP→PNG fallback
+                        if (!target.src.endsWith(paths.fallback)) {
+                          target.src = paths.fallback;
+                          return;
+                        }
+                        // Try placeholder image next
                         if (!target.src.includes('placeholder.png')) {
                           target.src = '/agents/placeholder.png';
                         } else {
@@ -343,8 +350,8 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     if (onChat) {
                       onChat(agent);
                     } else {
-                      // Route to agent chat view
-                      router.push(agentPath(agent.id, 'chat'));
+                      // Route to canonical backstory per homepage spec
+                      router.push(agentPath(agent.id, 'backstory'));
                     }
                   }}
                   className="agent-league-chat-button"
@@ -364,7 +371,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-                    // Route to dedicated agent backstory page
+
                     router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}

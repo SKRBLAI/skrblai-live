@@ -1,7 +1,7 @@
 // Unified Percy glassmorphic Sign In / Sign Up + Promo/VIP code portal
 'use client';
 import React, { useState } from 'react';
-import PercyAvatar from '../home/PercyAvatar';
+import PercyAvatar from '../ui/PercyAvatar';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';

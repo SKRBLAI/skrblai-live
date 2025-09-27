@@ -2,19 +2,26 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import HomeHeroScanFirst from "@/components/home/HomeHeroScanFirst";
-import HomeHeroSplit from "@/components/home/HomeHeroSplit";
 import MetricsStrip from "@/components/home/MetricsStrip";
 import FooterCTAs from "@/components/home/FooterCTAs";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import dynamic from "next/dynamic";
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 const AgentLeaguePreview = dynamic(() => import("@/components/home/AgentLeaguePreview"), { ssr: false });
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
 const PercyOnboardingRevolution = dynamic(() => import("@/components/legacy/home/PercyOnboardingRevolution"), { ssr: false });
 
+// Hero variant selector (env-driven)
+const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;
+const Hero = variant === 'split'
+  ? require('@/components/home/HomeHeroSplit').default
+  : variant === 'legacy'
+    ? require('@/components/home/Hero').default
+    : require('@/components/home/HomeHeroScanFirst').default;
+
 export default function Page() {
-  const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const searchParams = useSearchParams();
   const { setAnalysisIntent, analysisIntent } = useOnboarding();
 
@@ -45,12 +52,8 @@ export default function Page() {
 
   return (
     <>
-      <HomeHeroScanFirst />
-      {isGuideStarEnabled ? (
-        <AgentLeaguePreview onAgentClick={handleAgentClick} />
-      ) : (
-        <HomeHeroSplit />
-      )}
+      <Hero />
+      <AgentLeaguePreview onAgentClick={handleAgentClick} />
       <MetricsStrip />
       <FooterCTAs />
     </>

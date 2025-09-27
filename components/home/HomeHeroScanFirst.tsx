@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import UniversalPromptBar from "../ui/UniversalPromptBar";
 import AttentionGrabberHero from "./AttentionGrabberHero";
 import ScanResultsBridge from "./ScanResultsBridge";
+import { useEffect } from "react";
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
 
@@ -20,12 +22,20 @@ export default function HomeHeroScanFirst() {
   const [scanResults, setScanResults] = useState<any>(null);
   const [showGuideStarHero, setShowGuideStarHero] = useState(false);
   
-  // Temporarily force the flag to true to test
-  const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   
   // Debug logging
   console.log('NEXT_PUBLIC_HP_GUIDE_STAR:', process.env.NEXT_PUBLIC_HP_GUIDE_STAR);
-  console.log('isGuideStarEnabled (forced):', isGuideStarEnabled);
+  console.log('isGuideStarEnabled:', isGuideStarEnabled);
+
+  // Mode deep-linking support (?mode=sports|business)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const modeParam = new URLSearchParams(window.location.search).get('mode');
+    if (modeParam === 'sports' || modeParam === 'business') {
+      setMode(modeParam as Mode);
+    }
+  }, []);
 
   const handleSmartStart = (data: any) => {
     // Auto-detect mode from input

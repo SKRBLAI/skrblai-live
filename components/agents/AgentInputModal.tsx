@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SafeAgent } from '@/types/agent';
-import PercyAvatar from '../home/PercyAvatar';
+import PercyAvatar from '../ui/PercyAvatar';
 
 interface AgentInputModalProps {
   agent: SafeAgent | null;
