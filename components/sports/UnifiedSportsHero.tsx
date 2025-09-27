@@ -181,8 +181,8 @@ export default function UnifiedSportsHero({
             >
               <GlowCarousel 
                 images={images && images.length ? images : [
-                  { src: '/images/SkillSmith-Soccer-nobg-skrblai.png', alt: 'SkillSmith Soccer' },
-                  { src: '/images/SkillSmith-Hoops-nobg-skrblai.png', alt: 'SkillSmith Hoops' },
+                  { src: '/images/skillsmith-soccer-nobg-skrblai.png', alt: 'SkillSmith Soccer' },
+                  { src: '/images/skillsmith-hoops-nobg-skrblai.png', alt: 'SkillSmith Hoops' },
                   { src: '/images/agents-skillsmith-nobg-skrblai.webp', alt: 'SkillSmith Coach' },
                 ]}
                 className="h-full min-h-[300px] md:min-h-[400px]"
