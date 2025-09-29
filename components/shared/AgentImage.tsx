@@ -1,71 +1,42 @@
 'use client';
-
-import React, { useState } from 'react';
+import * as React from 'react';
 import Image from 'next/image';
-import { getAgentImageCandidates } from '../../utils/agentImages';
+import { getAgentImagePaths, nextFallback } from '@/utils/agentImages';
 
-interface AgentImageProps {
-  agentId: string;
-  agentName: string;
-  fill?: boolean;
-  width?: number;
-  height?: number;
+type Props = {
+  agentId: string;              // slug/id (case-insensitive)
+  alt: string;
   className?: string;
   sizes?: string;
   priority?: boolean;
-  style?: React.CSSProperties;
-  fallbackContent?: React.ReactNode;
-}
+  fill?: boolean;
+  width?: number;
+  height?: number;
+};
 
 export default function AgentImage({
   agentId,
-  agentName,
+  alt,
+  className,
+  sizes,
+  priority,
   fill,
   width,
   height,
-  className = '',
-  sizes,
-  priority,
-  style,
-  fallbackContent
-}: AgentImageProps) {
-  const [imageIndex, setImageIndex] = useState(0);
-  const candidates = getAgentImageCandidates(agentId);
-  
-  const handleImageError = () => {
-    if (imageIndex < candidates.length - 1) {
-      setImageIndex(prev => prev + 1);
-    } else {
-      // Last fallback failed, show fallback content
-      const target = document.querySelector(`[data-agent-image="${agentId}"]`) as HTMLImageElement;
-      if (target) {
-        target.style.display = 'none';
-        const fallback = target.parentElement?.querySelector('.agent-fallback') as HTMLElement;
-        if (fallback) fallback.style.display = 'flex';
-      }
-    }
+}: Props) {
+  const imgSet = React.useMemo(() => getAgentImagePaths(agentId), [agentId]);
+  const [src, setSrc] = React.useState(imgSet.primary);
+  React.useEffect(() => setSrc(imgSet.primary), [imgSet.primary]);
+
+  const handleError = () => {
+    const next = nextFallback(src, imgSet);
+    if (next) setSrc(next);
   };
 
-  return (
-    <>
-      <Image
-        data-agent-image={agentId}
-        src={candidates[imageIndex]}
-        alt={`${agentName} Avatar`}
-        fill={fill}
-        width={width}
-        height={height}
-        sizes={sizes}
-        className={className}
-        priority={priority}
-        style={style}
-        onError={handleImageError}
-      />
-      {fallbackContent && (
-        <div className="agent-fallback absolute inset-0 hidden items-center justify-center rounded-xl bg-zinc-900/60 text-zinc-300">
-          {fallbackContent}
-        </div>
-      )}
-    </>
-  );
+  // Use Next/Image but allow unoptimized in prod if needed via env
+  const common = { alt, className, onError: handleError, sizes, priority } as const;
+  if (fill) {
+    return <Image src={src} fill {...common} />;
+  }
+  return <Image src={src} width={width ?? 512} height={height ?? 512} {...common} />;
 }
