@@ -1,0 +1,194 @@
+[
+  {
+    "id": "adCreativeAgent",
+    "displayName": "Ad Creative Agent",
+    "routes": ["/agents/adCreativeAgent", "/agents/adCreativeAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "analyticsAgent",
+    "displayName": "Analytics Agent",
+    "routes": ["/agents/analyticsAgent", "/agents/analyticsAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "bizAgent",
+    "displayName": "Business Agent",
+    "routes": ["/agents/bizAgent", "/agents/bizAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "brandingAgent",
+    "displayName": "Branding Agent",
+    "routes": ["/agents/brandingAgent", "/agents/brandingAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "clientSuccessAgent",
+    "displayName": "Client Success Agent",
+    "routes": ["/agents/clientSuccessAgent", "/agents/clientSuccessAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "contentCreatorAgent",
+    "displayName": "Content Creator Agent",
+    "routes": ["/agents/contentCreatorAgent", "/agents/contentCreatorAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "paymentManagerAgent",
+    "displayName": "Payment Manager Agent",
+    "routes": ["/agents/paymentManagerAgent", "/agents/paymentManagerAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "percyAgent",
+    "displayName": "Percy Agent",
+    "routes": ["/agents/percyAgent", "/agents/percyAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "percySyncAgent",
+    "displayName": "Percy Sync Agent",
+    "routes": ["/agents/percySyncAgent", "/agents/percySyncAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "proposalGeneratorAgent",
+    "displayName": "Proposal Generator Agent",
+    "routes": ["/agents/proposalGeneratorAgent", "/agents/proposalGeneratorAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "publishingAgent",
+    "displayName": "Publishing Agent",
+    "routes": ["/agents/publishingAgent", "/agents/publishingAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "sitegenAgent",
+    "displayName": "Site Generator Agent",
+    "routes": ["/agents/sitegenAgent", "/agents/sitegenAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "skillSmithAgent",
+    "displayName": "SkillSmith Agent",
+    "routes": ["/agents/skillSmithAgent", "/agents/skillSmithAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "socialBotAgent",
+    "displayName": "Social Bot Agent",
+    "routes": ["/agents/socialBotAgent", "/agents/socialBotAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "videoContentAgent",
+    "displayName": "Video Content Agent",
+    "routes": ["/agents/videoContentAgent", "/agents/videoContentAgent/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  },
+  {
+    "id": "ira",
+    "displayName": "IRA Agent",
+    "routes": ["/agents/ira", "/agents/ira/backstory"],
+    "usedBy": ["components/agents/AgentCard.tsx", "app/agents/[agent]/page.tsx"],
+    "assets": {
+      "png": true,
+      "nobgPng": true,
+      "webp": false,
+      "default": false
+    }
+  }
+]
