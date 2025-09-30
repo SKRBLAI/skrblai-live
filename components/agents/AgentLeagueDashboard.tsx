@@ -202,15 +202,11 @@ export default function AgentLeagueDashboard() {
                 <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
                   <AgentImage
                     agentId="percy"
-                    agentName="Percy - Cosmic Concierge"
+                    alt="Percy - Cosmic Concierge"
                     width={88}
                     height={88}
                     className="agent-image object-contain w-full h-full"
-                    style={{ transform: 'scale(0.85)' }}
                     priority
-                    fallbackContent={
-                      <span className="text-cyan-400 text-2xl font-bold">🎭</span>
-                    }
                   />
                 </div>
               </div>

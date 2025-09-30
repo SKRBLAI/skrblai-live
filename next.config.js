@@ -5,12 +5,13 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Exclude archived-app pages
   images: {
-    domains: [
-      'lh3.googleusercontent.com',
-      'railway.app',
-      'zpqavydsinrtaxhowmnb.supabase.co'
+    // If cache is not writable in the container, disable optimization via env.
+    unoptimized: process.env.NEXT_DISABLE_IMAGE_OPTIMIZATION === '1',
+    remotePatterns: [
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'railway.app' },
+      { protocol: 'https', hostname: 'zpqavydsinrtaxhowmnb.supabase.co' },
     ],
-    unoptimized: false,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
