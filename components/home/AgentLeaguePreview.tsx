@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { agentPath } from '../../utils/agentRouting';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import CardShell from '../ui/CardShell';
@@ -10,8 +9,7 @@ import { TrendingUp, Users, Zap, Target, Eye } from 'lucide-react';
 import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
-import { getAgentImagePaths } from '@/lib/agents/assets';
-import AgentImage from '../ui/AgentImage';
+import AgentImage from '../shared/AgentImage';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -267,13 +265,11 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12 flex-1">
                     <div className="relative w-full h-full">
                       <AgentImage
-
-                        slug={agent.imageSlug || agent.id}
+                        agentId={agent.imageSlug || agent.id}
                         alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
-
                       />
                     </div>
                     
