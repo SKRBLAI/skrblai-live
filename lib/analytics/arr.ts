@@ -46,7 +46,7 @@ export async function calculateARR(): Promise<ArrResult> {
   // Fetch active subs (paginate defensively)
   let startingAfter: string | undefined = undefined;
   do {
-    const page = await stripe.subscriptions.list({
+    const page: Stripe.ApiList<Stripe.Subscription> = await stripe.subscriptions.list({
       status: "active",
       limit: 100,
       starting_after: startingAfter,

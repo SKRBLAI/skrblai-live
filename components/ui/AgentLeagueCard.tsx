@@ -3,25 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import CardBase from './CardBase';
-
-import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap, Sparkles, Crown, Award, Brain, Target, Palette, BarChart3, BookOpen, Globe, Smartphone, Video, DollarSign, Shield } from 'lucide-react';
+import { MessageCircle, Info, Rocket, Star, TrendingUp, Users, Zap, Sparkles, Crown, Palette, BarChart3, BookOpen, Globe, Smartphone, Video, DollarSign, Shield, Target, Brain } from 'lucide-react';
 import '../../styles/components/agent-card.css';
 import '../../styles/components/AgentLeagueCard.css';
-import { getAgentImagePath, getAgentEmoji } from '../../utils/agentUtils';
 import { SafeAgent } from '../../types/agent';
 import { agentBackstories } from '../../lib/agents/agentBackstories';
 import { agentLeague, type AgentConfiguration } from '../../lib/agents/agentLeague';
-import { routeForAgent } from '../../lib/agents/routes';
-import AgentLaunchButton from '../agents/AgentLaunchButton';
 import { agentIntelligenceEngine, type AgentIntelligence } from '../../lib/agents/agentIntelligence';
-import CosmicButton from '../shared/CosmicButton';
-import GlassmorphicCard from '../shared/GlassmorphicCard';
-import Pseudo3DCard, { Pseudo3DFeature, Pseudo3DStats } from '../shared/Pseudo3DCard';
-import Image from 'next/image';
-import { getAgentImagePaths } from '../../lib/agents/assets';
-import AgentImage from '../shared/AgentImage';
 import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
@@ -253,13 +243,10 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
                     <AgentImage
-
                       slug={agent.id}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
                       className="object-contain p-2"
-
-
                     />
                   </motion.div>
 
