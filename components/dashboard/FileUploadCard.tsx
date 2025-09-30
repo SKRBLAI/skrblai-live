@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import PercyAvatar from '../home/PercyAvatar';
+import PercyAvatar from '../ui/PercyAvatar';
 import { motion } from 'framer-motion';
 import { uploadFileToStorage } from '../../utils/supabase-helpers';
 import { supabase } from '../../utils/supabase';

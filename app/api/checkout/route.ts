@@ -13,6 +13,7 @@ import {
   isPromoActive, 
   STANDARD_PROMO_CONFIG 
 } from "@/lib/pricing/catalogShared";
+import { readEnvAny } from "@/lib/env/readEnvAny";
 import crypto from 'crypto';
 
 export const runtime = "nodejs";
@@ -29,10 +30,60 @@ function generateIdempotencyKey(userId: string, plan: string, timestamp: string)
 }
 
 /**
- * Resolve SKU to Stripe Price ID using ENV variables
+ * Resilient SKU to Stripe Price ID resolver with canonical and _M fallback variants
+ */
+function resolvePriceIdFromSku(sku: string): string | null {
+  const resolvers: Record<string, () => string | undefined> = {
+    // Sports plans - canonical and _M variants
+    sports_plan_starter: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
+    sports_plan_pro: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
+    sports_plan_elite: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
+    
+    // Sports add-ons with _M fallbacks
+    sports_addon_scans10: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
+    sports_addon_video: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'),
+    sports_addon_emotion: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'),
+    sports_addon_nutrition: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'),
+    sports_addon_foundation: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'),
+    
+    // Business plans - canonical and _M variants
+    biz_plan_starter: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M'),
+    biz_plan_pro: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M'),
+    biz_plan_elite: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'),
+    // Legacy _M only variants for backward compatibility
+    biz_plan_starter_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER'),
+    biz_plan_pro_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO'),
+    biz_plan_elite_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE'),
+    
+    // Business add-ons with _M fallbacks  
+    biz_addon_adv_analytics: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
+    biz_addon_automation: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
+    biz_addon_team_seat: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
+  };
+
+  const resolver = resolvers[sku];
+  if (!resolver) {
+    console.info(`[checkout] sku=${sku}, priceId=NULL (no resolver)`);
+    return null;
+  }
+
+  const resolvedPriceId = resolver();
+  console.info(`[checkout] sku=${sku}, priceId=${resolvedPriceId || 'NULL'}`);
+  
+  return resolvedPriceId || null;
+}
+
+/**
+ * Legacy resolver for backward compatibility with existing pricing data system
  */
 function resolvePriceId(sku: string, vertical?: string): string | null {
-  // Try to find the item in our pricing data
+  // First try the new resilient resolver
+  const directResolution = resolvePriceIdFromSku(sku);
+  if (directResolution) {
+    return directResolution;
+  }
+
+  // Fallback to legacy system for complex pricing logic (promos, etc.)
   const businessPlan = getBusinessPlanBySku(sku);
   const businessAddon = getBusinessAddonBySku(sku);
   const sportsPlan = getSportsPlanBySku(sku);
@@ -59,8 +110,8 @@ function resolvePriceId(sku: string, vertical?: string): string | null {
     }
   }
   
-  // Use standard price
-  const standardPriceId = process.env[item.envPriceVar];
+  // Use standard price with resilient fallback
+  const standardPriceId = readEnvAny(item.envPriceVar, `${item.envPriceVar}_M`);
   if (!standardPriceId) {
     console.warn(`[checkout] ENV variable ${item.envPriceVar} not set for SKU: ${sku}`);
     return null;
@@ -88,12 +139,10 @@ async function handleCheckout(req: NextRequest) {
 
     // Handle special modes first
     if (body.mode === "trial" && body.sku === "sports_trial_curiosity") {
-      console.log('[checkout] Trial mode - redirecting to Percy onboarding');
-      return NextResponse.json({ 
-        ok: true, 
-        url: "/#percy",
-        mode: "trial"
-      });
+      console.log('[checkout] Trial mode - redirecting to onboarding wizard');
+      const preferred = "/onboarding?mode=sports&trial=1";
+      const fallback = "/#percy?trial=1&mode=sports";
+      return NextResponse.json({ ok: true, url: preferred, mode: "trial", fallback });
     }
 
     if (body.mode === "contact") {
@@ -125,7 +174,11 @@ async function handleCheckout(req: NextRequest) {
       mainPriceId = body.priceId;
       console.log(`[checkout] Using provided price ID: ${mainPriceId}`);
     } else if (body.sku) {
-      mainPriceId = resolvePriceId(body.sku, body.vertical);
+      mainPriceId = resolvePriceIdFromSku(body.sku);
+      if (!mainPriceId) {
+        // Fallback to legacy resolver for complex pricing logic
+        mainPriceId = resolvePriceId(body.sku, body.vertical);
+      }
       console.log(`[checkout] Resolved SKU "${body.sku}" to price ID: ${mainPriceId || 'NULL'}`);
     }
 
@@ -143,7 +196,11 @@ async function handleCheckout(req: NextRequest) {
       
       for (const addonSku of body.addons) {
         try {
-          const addonPriceId = resolvePriceId(addonSku, body.vertical);
+          let addonPriceId = resolvePriceIdFromSku(addonSku);
+          if (!addonPriceId) {
+            // Fallback to legacy resolver for complex pricing logic
+            addonPriceId = resolvePriceId(addonSku, body.vertical);
+          }
           if (addonPriceId) {
             lineItems.push({ price: addonPriceId, quantity: 1 });
             console.log(`[checkout] Added add-on: ${addonSku} -> ${addonPriceId}`);

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
+// @deprecated (2025-09-26): superseded by HomeHeroScanFirst. Kept for reference.
 import { motion, AnimatePresence } from "framer-motion";
 import PercyAvatar from "./PercyAvatar";
 import PercyFigure from "./PercyFigure";

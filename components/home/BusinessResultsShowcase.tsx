@@ -1,3 +1,4 @@
+// @deprecated (2025-09-26): superseded by HomeHeroScanFirst. Kept for reference.
 'use client';
 
 import React, { useState, useEffect } from 'react';

@@ -11,7 +11,7 @@ import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { getAgentImagePaths } from '@/lib/agents/assets';
-import AgentImage from '../shared/AgentImage';
+import AgentImage from '../ui/AgentImage';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -267,14 +267,13 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                   <div className="aspect-[3/4] relative w-full mt-12 flex-1">
                     <div className="relative w-full h-full">
                       <AgentImage
-                        agentId={agent.id}
-                        agentName={agent.name}
+
+                        slug={agent.imageSlug || agent.id}
+                        alt={agent.name}
                         fill
                         className="object-cover rounded-lg"
                         priority
-                        fallbackContent={
-                          <span className="text-3xl font-bold">{agent.name?.[0] ?? "A"}</span>
-                        }
+
                       />
                     </div>
                     

@@ -25,7 +25,8 @@ import {
   MousePointer,
   ShoppingCart,
   Mail,
-  Activity
+  Activity,
+  DollarSign
 } from 'lucide-react';
 
 interface AnalyticsData {
@@ -61,13 +62,30 @@ interface AddOnMetrics {
   promo_usage: number;
 }
 
+interface ArrData {
+  ok: boolean;
+  sportsARR?: number;
+  businessARR?: number;
+  totalARR?: number;
+  counts?: {
+    sportsSubs: number;
+    businessSubs: number;
+    unknownSubs: number;
+  };
+  reason?: string;
+}
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+// Check if ARR dashboard feature is enabled
+const ARR_DASH_ENABLED = process.env.NEXT_PUBLIC_ENABLE_ARR_DASH === "1";
 
 export default function InternalAnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [quickWinsFunnel, setQuickWinsFunnel] = useState<QuickWinsFunnel | null>(null);
   const [popupMetrics, setPopupMetrics] = useState<PopupMetrics | null>(null);
   const [addOnMetrics, setAddOnMetrics] = useState<AddOnMetrics | null>(null);
+  const [arrData, setArrData] = useState<ArrData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [timeRange, setTimeRange] = useState('7d');
@@ -111,6 +129,15 @@ export default function InternalAnalyticsPage() {
       if (addOnResponse.ok) {
         const addOnData = await addOnResponse.json();
         setAddOnMetrics(addOnData);
+      }
+
+      // Load ARR data (flag-gated)
+      if (ARR_DASH_ENABLED) {
+        const arrResponse = await fetch('/api/analytics/arr');
+        if (arrResponse.ok) {
+          const arrData = await arrResponse.json();
+          setArrData(arrData);
+        }
       }
 
     } catch (err: any) {
@@ -227,6 +254,60 @@ export default function InternalAnalyticsPage() {
             </div>
           </div>
         </div>
+
+        {/* ARR Cards (flag-gated) */}
+        {ARR_DASH_ENABLED && arrData && (
+          <div className="mb-8">
+            {arrData.ok ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <div className="flex items-center gap-3 mb-2">
+                    <DollarSign className="w-6 h-6 text-blue-400" />
+                    <span className="text-gray-300 font-medium">Sports ARR</span>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    ${arrData.sportsARR?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    {arrData.counts?.sportsSubs || 0} active subscriptions
+                  </div>
+                </div>
+
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <div className="flex items-center gap-3 mb-2">
+                    <DollarSign className="w-6 h-6 text-green-400" />
+                    <span className="text-gray-300 font-medium">Business ARR</span>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    ${arrData.businessARR?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    {arrData.counts?.businessSubs || 0} active subscriptions
+                  </div>
+                </div>
+
+                <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                  <div className="flex items-center gap-3 mb-2">
+                    <DollarSign className="w-6 h-6 text-purple-400" />
+                    <span className="text-gray-300 font-medium">Total ARR</span>
+                  </div>
+                  <div className="text-3xl font-bold text-white">
+                    ${arrData.totalARR?.toLocaleString() || '0'}
+                  </div>
+                  <div className="text-sm text-gray-400 mt-1">
+                    {(arrData.counts?.sportsSubs || 0) + (arrData.counts?.businessSubs || 0)} total active
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <p className="text-gray-400 text-sm text-center">
+                  ARR unavailable ({arrData.reason || 'configure Stripe'})
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Quick Wins Funnel */}
         {quickWinsFunnel && (

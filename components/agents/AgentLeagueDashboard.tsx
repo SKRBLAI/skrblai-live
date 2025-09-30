@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import Image from 'next/image';
+import AgentImage from '../shared/AgentImage';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import type { Agent } from '@/types/agent';
@@ -199,27 +200,18 @@ export default function AgentLeagueDashboard() {
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400/30 to-blue-600/30 blur-xl animate-pulse"></div>
               <div className="absolute inset-[2px] rounded-full bg-gradient-to-br from-cyan-400 to-blue-600 p-1">
                 <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center overflow-hidden">
-                  <Image
-                    src="/images/agents/percy.webp"
-                    alt="Percy - Cosmic Concierge"
+                  <AgentImage
+                    agentId="percy"
+                    agentName="Percy - Cosmic Concierge"
                     width={88}
                     height={88}
                     className="agent-image object-contain w-full h-full"
                     style={{ transform: 'scale(0.85)' }}
                     priority
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/images/agents/percy-nobg.png';
-                      target.onerror = () => {
-                        target.style.display = 'none';
-                        const fallback = target.parentElement?.parentElement?.querySelector('.percy-fallback') as HTMLElement;
-                        if (fallback) fallback.style.display = 'flex';
-                      };
-                    }}
+                    fallbackContent={
+                      <span className="text-cyan-400 text-2xl font-bold">🎭</span>
+                    }
                   />
-                  <div className="percy-fallback absolute inset-0 hidden items-center justify-center text-cyan-400 text-2xl font-bold">
-                    🎭
-                  </div>
                 </div>
               </div>
               <div className="absolute inset-0 rounded-full border-2 border-cyan-400/20 animate-pulse"></div>

@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import UniversalPromptBar from "../ui/UniversalPromptBar";
 import AttentionGrabberHero from "./AttentionGrabberHero";
 import ScanResultsBridge from "./ScanResultsBridge";
+import { useEffect } from "react";
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+import UnifiedCodeModal from '@/components/codes/UnifiedCodeModal';
 
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
 
@@ -19,13 +22,22 @@ export default function HomeHeroScanFirst() {
   const [prefill, setPrefill] = useState<any>(null);
   const [scanResults, setScanResults] = useState<any>(null);
   const [showGuideStarHero, setShowGuideStarHero] = useState(false);
+  const [showCodeModal, setShowCodeModal] = useState(false);
   
-  // Temporarily force the flag to true to test
-  const isGuideStarEnabled = true; // process.env.NEXT_PUBLIC_HP_GUIDE_STAR === '1';
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   
   // Debug logging
   console.log('NEXT_PUBLIC_HP_GUIDE_STAR:', process.env.NEXT_PUBLIC_HP_GUIDE_STAR);
-  console.log('isGuideStarEnabled (forced):', isGuideStarEnabled);
+  console.log('isGuideStarEnabled:', isGuideStarEnabled);
+
+  // Mode deep-linking support (?mode=sports|business)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const modeParam = new URLSearchParams(window.location.search).get('mode');
+    if (modeParam === 'sports' || modeParam === 'business') {
+      setMode(modeParam as Mode);
+    }
+  }, []);
 
   const handleSmartStart = (data: any) => {
     // Auto-detect mode from input
@@ -182,6 +194,12 @@ export default function HomeHeroScanFirst() {
                   className="max-w-2xl mx-auto"
                 />
               </div>
+              {/* Have a code? CTA */}
+              <div className="mt-3 text-sm text-gray-300">
+                <button onClick={() => setShowCodeModal(true)} className="text-cyan-400 hover:text-cyan-300">
+                  Have a code?
+                </button>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -195,6 +213,9 @@ export default function HomeHeroScanFirst() {
           onClose={() => setWizardOpen(false)}
         />
       )}
+
+      {/* Unified Code Modal */}
+      <UnifiedCodeModal isOpen={showCodeModal} onClose={() => setShowCodeModal(false)} source="hero" />
     </>
   );
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
-import PercyAvatar from '../home/PercyAvatar';
+import PercyAvatar from '../ui/PercyAvatar';
 import { usePercyContext } from './PercyProvider';
 import { useAuth } from '../context/AuthContext';
 import { getCurrentUser } from '../../utils/supabase-helpers';

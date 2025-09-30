@@ -14,6 +14,7 @@
     "optimize-images": "node scripts/convert-images-webp.js",
     "image-audit": "node -e \"const fs=require('fs'),path=require('path'); fs.readdirSync('public/images').filter(f=>f.includes('agents-')).forEach(f=>{const stat=fs.statSync(path.join('public/images',f)); console.log(`${f}: ${(stat.size/1024/1024).toFixed(1)}MB`)})\"",
     "image-performance": "node scripts/image-performance-monitor.js",
+    "normalize:agents": "tsx scripts/normalize-agent-images.ts",
     "validate:agents": "ts-node scripts/validateAgents.ts",
     "snap:mobile": "tsx scripts/snap-mobile.ts",
     "seed:founders": "tsx scripts/seed-founders.ts",
@@ -21,7 +22,8 @@
     "test:smoke": "playwright test tests/smoke.spec.ts --reporter=line",
     "test:smoke:ui": "playwright test tests/smoke.spec.ts --ui",
     "type-check": "tsc --noEmit",
-    "diag:supabase": "npx tsx scripts/diagnostics/check-supabase.ts"
+    "diag:supabase": "npx tsx scripts/diagnostics/check-supabase.ts",
+    "smoke:arr": "tsx scripts/smoke-arr.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",
@@ -91,6 +93,7 @@
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "typescript": "5.9.2"
   }
 }
