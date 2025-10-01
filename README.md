@@ -109,10 +109,10 @@ SKRBL AI uses a resilient environment variable system that checks both canonical
 
 ### **Sports Plans**
 ```bash
-# Canonical → Fallback variants
-NEXT_PUBLIC_STRIPE_PRICE_ROOKIE → NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M
-NEXT_PUBLIC_STRIPE_PRICE_PRO → NEXT_PUBLIC_STRIPE_PRICE_PRO_M  
-NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR → NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M
+# New canonical names → Fallback variants (multi-key fallback order)
+NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER → SPORTS_STARTER_M → ROOKIE → ROOKIE_M
+NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO → SPORTS_PRO_M → PRO → PRO_M
+NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE → SPORTS_ELITE_M → ALLSTAR → ALLSTAR_M
 ```
 
 ### **Sports Add-ons**
@@ -147,7 +147,10 @@ NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT → NEXT_PUBLIC_STRIPE_PRICE_BIZ_AD
 NEXT_PUBLIC_ENABLE_STRIPE=1
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_...
 STRIPE_SECRET_KEY=sk_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 ```
+
+**Stripe Webhook Endpoint**: The canonical endpoint for Stripe webhooks is `/api/stripe/webhook` (singular). Configure this URL in your Stripe dashboard.
 
 **Note**: The system checks canonical names first, then `_M` variants. This ensures backward compatibility with existing deployments while supporting cleaner canonical naming.
 

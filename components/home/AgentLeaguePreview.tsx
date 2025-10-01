@@ -119,7 +119,9 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   }, []);
 
   const router = useRouter();
-  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
+  // Always render the Agent League/Orbit component (HP_GUIDE_STAR flag is still read but ignored)
+  // This maintains backward compatibility while ensuring the component is always visible
+  const isGuideStarEnabled = true; // FEATURE_FLAGS.HP_GUIDE_STAR - removed gate to always show
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);
@@ -131,8 +133,6 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
     }, 30000);
     return () => clearInterval(interval);
   }, []);
-  
-  if (!isGuideStarEnabled) return null;
 
   const handleAgentInteraction = (agent: any, action: 'learn' | 'chat' | 'demo') => {
     // Analytics
