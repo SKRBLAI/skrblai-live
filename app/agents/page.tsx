@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import ErrorBoundary from '../../components/layout/ErrorBoundary';
 import { routeForAgent } from '../../lib/agents/routes';
+import AgentLeagueOrbit from '../../components/agents/AgentLeagueOrbit';
 
 // Enhanced Agent type with access control
 interface EnhancedAgent extends SafeAgent {

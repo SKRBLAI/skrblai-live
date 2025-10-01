@@ -10,7 +10,6 @@ import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import AgentImage from '../shared/AgentImage';
-import AgentLeagueOrbit from '../agents/AgentLeagueOrbit';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -121,7 +120,6 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
 
   const router = useRouter();
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
-  const isOrbitEnabled = process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1';
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);
@@ -200,24 +198,6 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           )}
         </motion.div>
 
-        {/* Orbit League (flag-gated and requires advanced features) */}
-        {isOrbitEnabled && showAdvancedFeatures && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mb-12"
-          >
-            <AgentLeagueOrbit 
-              agents={[...coreAgents, ...(allowedIRA ? [{
-                id: 'ira',
-                name: 'IRA',
-                superheroName: 'The Risk-First Strategist',
-                catchphrase: 'Always wait for confirmation at AOIs before entering a trade.'
-              }] : [])]}
-            />
-          </motion.div>
-        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[1fr]">
           {[...coreAgents, ...(allowedIRA ? [{
