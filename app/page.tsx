@@ -21,7 +21,8 @@ const Hero = variant === 'split'
     : require('@/components/home/HomeHeroScanFirst').default;
 
 export default function Page() {
-  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
+  // Always enable guide star regardless of env flag
+  const isGuideStarEnabled = true; // FEATURE_FLAGS.HP_GUIDE_STAR - removed gate to always show
   const searchParams = useSearchParams();
   const { setAnalysisIntent, analysisIntent } = useOnboarding();
 

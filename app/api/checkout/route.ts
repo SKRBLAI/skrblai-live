@@ -34,10 +34,28 @@ function generateIdempotencyKey(userId: string, plan: string, timestamp: string)
  */
 function resolvePriceIdFromSku(sku: string): string | null {
   const resolvers: Record<string, () => string | undefined> = {
-    // Sports plans - canonical and _M variants
-    sports_plan_starter: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
-    sports_plan_pro: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
-    sports_plan_elite: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
+    // Sports plans with multi-key fallback order:
+    // SPORTS_STARTER: NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER, _M, ROOKIE, ROOKIE_M
+    // SPORTS_PRO: NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO, _M, PRO, PRO_M
+    // SPORTS_ELITE: NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE, _M, ALLSTAR, ALLSTAR_M
+    sports_plan_starter: () => readEnvAny(
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', 
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M', 
+      'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 
+      'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'
+    ),
+    sports_plan_pro: () => readEnvAny(
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO', 
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M', 
+      'NEXT_PUBLIC_STRIPE_PRICE_PRO', 
+      'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'
+    ),
+    sports_plan_elite: () => readEnvAny(
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', 
+      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M', 
+      'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 
+      'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'
+    ),
     
     // Sports add-ons with _M fallbacks
     sports_addon_scans10: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
