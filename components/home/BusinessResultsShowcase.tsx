@@ -120,9 +120,8 @@ export default function BusinessResultsShowcase({ useAiAutomationHomepage = true
     }
   };
 
-  if (!useAiAutomationHomepage) {
-    return null; // Hide when using old homepage
-  }
+  // Progressive enhancement: show basic results, enhance for new homepage
+  const showEnhancedResults = useAiAutomationHomepage;
 
   const currentStory = SUCCESS_STORIES[currentStoryIndex];
 

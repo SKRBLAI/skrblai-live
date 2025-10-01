@@ -13,6 +13,7 @@ interface EnvCheckResponse {
   stripe: EnvStatus;
   supabase: EnvStatus;
   general: EnvStatus;
+  captcha: EnvStatus;
   priceIds: {
     sports: EnvStatus;
     business: EnvStatus;
@@ -53,6 +54,14 @@ export async function GET() {
       APP_BASE_URL: checkEnvVar('APP_BASE_URL'),
       NEXT_PUBLIC_BASE_URL: checkEnvVar('NEXT_PUBLIC_BASE_URL'),
       NEXT_PUBLIC_SITE_URL: checkEnvVar('NEXT_PUBLIC_SITE_URL'),
+      NEXT_DISABLE_IMAGE_OPTIMIZATION: checkEnvVar('NEXT_DISABLE_IMAGE_OPTIMIZATION'),
+      NEXT_PUBLIC_ENABLE_ORBIT: checkEnvVar('NEXT_PUBLIC_ENABLE_ORBIT'),
+    };
+
+    // hCaptcha configuration (optional)
+    const captcha: EnvStatus = {
+      NEXT_PUBLIC_HCAPTCHA_SITEKEY: checkEnvVar('NEXT_PUBLIC_HCAPTCHA_SITEKEY'),
+      HCAPTCHA_SECRET: checkEnvVar('HCAPTCHA_SECRET'),
     };
 
     // Sports plan price IDs (canonical and _M variants)
@@ -114,12 +123,29 @@ export async function GET() {
       notes.push("Missing base URL configuration - redirects may not work properly");
     }
 
+    if (general.NEXT_PUBLIC_SITE_URL === 'MISSING') {
+      notes.push("NEXT_PUBLIC_SITE_URL is missing - required for auth callbacks and webhooks");
+    }
+
+    if (general.NEXT_DISABLE_IMAGE_OPTIMIZATION === 'PRESENT') {
+      notes.push("Image optimization is disabled - this is optional for environments with cache permission issues");
+    }
+
+    if (general.NEXT_PUBLIC_ENABLE_ORBIT === 'PRESENT' && process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1') {
+      notes.push("Orbit League is enabled - agents will display in orbit view");
+    }
+
+    if (captcha.NEXT_PUBLIC_HCAPTCHA_SITEKEY === 'MISSING' || captcha.HCAPTCHA_SECRET === 'MISSING') {
+      notes.push("hCaptcha not configured - /api/recaptcha/verify will bypass verification");
+    }
+
     // Determine overall status
     const criticalMissing = [
       stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       stripe.STRIPE_SECRET_KEY,
       supabase.NEXT_PUBLIC_SUPABASE_URL,
-      supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      general.NEXT_PUBLIC_SITE_URL
     ].some(status => status === 'MISSING');
 
     const ok = !criticalMissing;
@@ -129,6 +155,7 @@ export async function GET() {
       stripe,
       supabase,
       general,
+      captcha,
       priceIds: {
         sports: sportsPlans,
         business: businessPlans,

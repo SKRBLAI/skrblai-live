@@ -10,6 +10,7 @@ import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import AgentImage from '../shared/AgentImage';
+import AgentLeagueOrbit from '../agents/AgentLeagueOrbit';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -120,6 +121,7 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
 
   const router = useRouter();
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
+  const isOrbitEnabled = process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1';
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);
@@ -132,7 +134,8 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
     return () => clearInterval(interval);
   }, []);
   
-  if (!isGuideStarEnabled) return null;
+  // Progressive enhancement: show basic league, hide advanced features when flag is off
+  const showAdvancedFeatures = isGuideStarEnabled;
 
   const handleAgentInteraction = (agent: any, action: 'learn' | 'chat' | 'demo') => {
     // Analytics
@@ -172,25 +175,49 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
             Your <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">Elite AI Team</span>
           </h2>
           <p className="text-lg text-gray-300 mb-6 max-w-3xl mx-auto">
-            Each agent specializes in specific domains to maximize your results. Click to see live performance data.
+            {showAdvancedFeatures 
+              ? "Each agent specializes in specific domains to maximize your results. Click to see live performance data."
+              : "Meet your specialized AI agents. Click to learn more about each one."
+            }
           </p>
           
-          {/* Live Activity Summary */}
-          <div className="flex flex-wrap justify-center gap-6 text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-green-400 font-semibold">
-                {Object.values(liveActivity).reduce((sum, agent) => sum + agent.liveUsers, 0)} Live Users
-              </span>
+          {/* Live Activity Summary - only show when advanced features enabled */}
+          {showAdvancedFeatures && (
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 font-semibold">
+                  {Object.values(liveActivity).reduce((sum, agent) => sum + agent.liveUsers, 0)} Live Users
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-cyan-400" />
+                <span className="text-cyan-400 font-semibold">
+                  {Object.values(liveActivity).reduce((sum, agent) => sum + agent.todayCreated, 0).toLocaleString()} Created Today
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-              <span className="text-cyan-400 font-semibold">
-                {Object.values(liveActivity).reduce((sum, agent) => sum + agent.todayCreated, 0).toLocaleString()} Created Today
-              </span>
-            </div>
-          </div>
+          )}
         </motion.div>
+
+        {/* Orbit League (flag-gated and requires advanced features) */}
+        {isOrbitEnabled && showAdvancedFeatures && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mb-12"
+          >
+            <AgentLeagueOrbit 
+              agents={[...coreAgents, ...(allowedIRA ? [{
+                id: 'ira',
+                name: 'IRA',
+                superheroName: 'The Risk-First Strategist',
+                catchphrase: 'Always wait for confirmation at AOIs before entering a trade.'
+              }] : [])]}
+            />
+          </motion.div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[1fr]">
           {[...coreAgents, ...(allowedIRA ? [{
@@ -224,23 +251,25 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                 className="relative"
               >
                 <CardShell className="relative overflow-hidden group h-full flex flex-col">
-                  {/* Live Activity Indicator */}
-                  <div className="absolute top-2 left-2 right-2 z-10">
-                    <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-green-500/30">
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="text-green-400 font-semibold flex items-center gap-1">
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                          {activity.liveUsers} live
+                  {/* Live Activity Indicator - only show when advanced features enabled */}
+                  {showAdvancedFeatures && (
+                    <div className="absolute top-2 left-2 right-2 z-10">
+                      <div className="bg-black/80 backdrop-blur-sm rounded-lg p-2 border border-green-500/30">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="text-green-400 font-semibold flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                            {activity.liveUsers} live
+                          </div>
+                          <div className="text-white font-medium">
+                            {activity.todayCreated.toLocaleString()} today
+                          </div>
                         </div>
-                        <div className="text-white font-medium">
-                          {activity.todayCreated.toLocaleString()} today
+                        <div className="text-xs text-yellow-400 font-semibold mt-1">
+                          {agent.dominanceMetric} • {activity.marketShare}% market control
                         </div>
-                      </div>
-                      <div className="text-xs text-yellow-400 font-semibold mt-1">
-                        {agent.dominanceMetric} • {activity.marketShare}% market control
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Free Tip Overlay */}
                   {showTip && (

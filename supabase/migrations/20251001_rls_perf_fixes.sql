@@ -3,6 +3,10 @@
 -- Purpose: Supplementary RLS optimization to ensure all policies use subselect patterns
 --          and consolidate any remaining duplicate permissive policies
 -- 
+-- ⚠️  IMPORTANT: Run manually in Supabase SQL editor after backup
+-- ⚠️  This migration should NOT be auto-run by deployment scripts
+-- ⚠️  Test in staging environment first
+-- 
 -- This migration complements the 20250927 migration with additional safety checks
 -- and ensures complete coverage of all RLS performance optimizations.
 
