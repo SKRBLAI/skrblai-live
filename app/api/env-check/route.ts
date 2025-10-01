@@ -64,8 +64,22 @@ export async function GET() {
       HCAPTCHA_SECRET: checkEnvVar('HCAPTCHA_SECRET'),
     };
 
-    // Sports plan price IDs (canonical and _M variants)
+    // Sports plan price IDs with new naming + legacy fallbacks
     const sportsPlans: EnvStatus = {
+      // New canonical names
+      SPORTS_STARTER: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', 
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M'
+      ),
+      SPORTS_PRO: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO', 
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M'
+      ),
+      SPORTS_ELITE: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', 
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
+      ),
+      // Legacy names (kept for backward compatibility)
       ROOKIE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
       PRO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
       ALLSTAR: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),

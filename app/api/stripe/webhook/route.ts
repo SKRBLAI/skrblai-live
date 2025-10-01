@@ -1,4 +1,4 @@
-// app/api/stripe/webhooks/route.ts
+// app/api/stripe/webhook/route.ts (canonical endpoint: singular)
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
