@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import ErrorBoundary from '../../components/layout/ErrorBoundary';
 import { routeForAgent } from '../../lib/agents/routes';
+import AgentLeagueOrbit from '../../components/agents/AgentLeagueOrbit';
 
 // Enhanced Agent type with access control
 interface EnhancedAgent extends SafeAgent {
@@ -35,6 +36,7 @@ export default function AgentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [liveMetrics, setLiveMetrics] = useState({ totalAgents: 247, liveUsers: 89 });
+  const isOrbitEnabled = process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1';
 
   // Load agents from Agent League
   useEffect(() => {
@@ -283,6 +285,25 @@ export default function AgentsPage() {
               </div>
               </motion.div>
             </CosmicCardGlow>
+
+            {/* Orbit League (flag-gated) */}
+            {isOrbitEnabled && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+                className="mb-16"
+              >
+                <AgentLeagueOrbit 
+                  agents={agents.map(agent => ({
+                    id: agent.id,
+                    name: agent.name,
+                    superheroName: agent.superheroName,
+                    catchphrase: agent.catchphrase
+                  }))}
+                />
+              </motion.div>
+            )}
 
             {/* Agent League Grid */}
             <motion.div

@@ -65,9 +65,8 @@ export default function SuperAgentPowers({ useAiAutomationHomepage = true }: Sup
     // Could also route to specific scan: router.push(power.route);
   };
 
-  if (!useAiAutomationHomepage) {
-    return null; // Hide this section when using old homepage
-  }
+  // Progressive enhancement: show basic version for all variants, enhance for new ones
+  const showEnhancedPowers = useAiAutomationHomepage;
 
   return (
     <section className="w-full relative py-16">

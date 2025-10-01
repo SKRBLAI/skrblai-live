@@ -16,7 +16,7 @@ import { useAgentModal } from '../providers/GlobalModalProvider';
 import { agentPath } from '../../utils/agentRouting';
 import { agentSupportsChat } from '../../lib/agents/guards';
 import AgentErrorBoundary from './AgentErrorBoundary';
-import AgentImage from './AgentImage';
+import AgentImage from '../shared/AgentImage';
 
 // Capability icon mapping for visual representation
 const getCapabilityIcon = (category: string) => {
@@ -243,7 +243,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                     transition={{ duration: 0.25, type: "spring", stiffness: 220 }}
                   >
                     <AgentImage
-                      slug={agent.id}
+                      agentId={agent.id}
                       alt={`${agentConfig.personality.superheroName || agent.name} Avatar`}
                       fill
                       className="object-contain p-2"

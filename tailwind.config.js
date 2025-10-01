@@ -28,6 +28,7 @@ module.exports = {
         'gradient-y': 'gradient-y 15s ease infinite',
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'slide-up': 'slideUp 0.5s ease-out forwards',
+        'spin-slow': 'spin 20s linear infinite',
       },
       boxShadow: {
         'glow': '0 0 10px rgba(45, 212, 191, 0.5), 0 0 20px rgba(45, 212, 191, 0.3), 0 0 30px rgba(45, 212, 191, 0.1)',
