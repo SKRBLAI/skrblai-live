@@ -38,6 +38,7 @@ export async function GET() {
       NEXT_PUBLIC_ENABLE_STRIPE: checkEnvVar('NEXT_PUBLIC_ENABLE_STRIPE'),
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: checkEnvVar('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY'),
       STRIPE_SECRET_KEY: checkEnvVar('STRIPE_SECRET_KEY'),
+      STRIPE_WEBHOOK_SECRET: checkEnvVar('STRIPE_WEBHOOK_SECRET'),
     };
 
     // Supabase configuration
@@ -51,6 +52,7 @@ export async function GET() {
     const general: EnvStatus = {
       APP_BASE_URL: checkEnvVar('APP_BASE_URL'),
       NEXT_PUBLIC_BASE_URL: checkEnvVar('NEXT_PUBLIC_BASE_URL'),
+      NEXT_PUBLIC_SITE_URL: checkEnvVar('NEXT_PUBLIC_SITE_URL'),
     };
 
     // Sports plan price IDs (canonical and _M variants)
