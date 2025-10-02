@@ -45,11 +45,15 @@ export default function SignUpPage() {
     }
 
     try {
+      // Use NEXT_PUBLIC_SITE_URL if available, otherwise window.location.origin
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      const redirectTo = `${siteUrl}/auth/callback${from ? `?from=${encodeURIComponent(from)}` : ''}`;
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback${from ? `?from=${encodeURIComponent(from)}` : ''}`,
+          emailRedirectTo: redirectTo,
         },
       });
 

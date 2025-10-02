@@ -1,8 +1,13 @@
-export type AppRole = 'founder' | 'vip' | 'parent' | 'user';
+// Lightweight role system for basic RBAC routing after auth callback.
+// Note: lib/founders/roles.ts provides comprehensive founder role checks (creator/heir/founder + VIP).
+// This file is kept simple for auth flow routing; complex role logic should use lib/founders/roles.ts.
+
+export type AppRole = 'founder' | 'heir' | 'vip' | 'parent' | 'user';
 
 export function routeForRole(role: AppRole): string {
   switch (role) {
-    case 'founder': return '/dashboard/founders';
+    case 'founder': return '/dashboard/founder';
+    case 'heir':    return '/dashboard/heir';
     case 'vip':     return '/dashboard/vip';
     case 'parent':  return '/dashboard/parent';
     default:        return '/dashboard';
@@ -22,7 +27,8 @@ export async function getUserAndRole(supabase: any): Promise<{ user?: any | null
       .eq('userId', user.id);
 
     const roles: string[] = (roleRows || []).map((r: any) => r.role?.toLowerCase?.() || '');
-    const priority: AppRole[] = ['founder', 'vip', 'parent', 'user'];
+    // Priority order: founder > heir > vip > parent > user
+    const priority: AppRole[] = ['founder', 'heir', 'vip', 'parent', 'user'];
     const found = priority.find(r => roles.includes(r)) || 'user';
     
     return { user, role: found };

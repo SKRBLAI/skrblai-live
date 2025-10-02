@@ -42,10 +42,10 @@ export async function GET() {
       STRIPE_WEBHOOK_SECRET: checkEnvVar('STRIPE_WEBHOOK_SECRET'),
     };
 
-    // Supabase configuration
+    // Supabase configuration (with dual-key support)
     const supabase: EnvStatus = {
       NEXT_PUBLIC_SUPABASE_URL: checkEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: checkEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+      SUPABASE_ANON_OR_PUBLISHABLE: checkEnvAny('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'),
       SUPABASE_SERVICE_ROLE_KEY: checkEnvVar('SUPABASE_SERVICE_ROLE_KEY'),
     };
 
@@ -109,14 +109,53 @@ export async function GET() {
     // Generate diagnostic notes
     const notes: string[] = [];
     
+    // === SUPABASE AUTH DIAGNOSTICS ===
+    if (supabase.NEXT_PUBLIC_SUPABASE_URL === 'MISSING') {
+      notes.push("❌ NEXT_PUBLIC_SUPABASE_URL is MISSING - auth will fail entirely");
+    } else {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+      if (!supabaseUrl.includes('.supabase.co')) {
+        notes.push(`⚠️ NEXT_PUBLIC_SUPABASE_URL does not appear to be a valid Supabase project URL (should end with .supabase.co). Current: ${supabaseUrl.substring(0, 30)}...`);
+        if (supabaseUrl.includes('auth.')) {
+          notes.push("💡 If you have a custom auth domain (e.g., auth.skrblai.io), the browser SDK still requires the Supabase project URL (.supabase.co)");
+        }
+      } else {
+        notes.push("✅ NEXT_PUBLIC_SUPABASE_URL appears valid (.supabase.co)");
+      }
+    }
+
+    if (supabase.SUPABASE_ANON_OR_PUBLISHABLE === 'MISSING') {
+      notes.push("❌ Neither NEXT_PUBLIC_SUPABASE_ANON_KEY nor NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY found - auth will fail");
+    } else {
+      notes.push("✅ Supabase anon/publishable key is present (dual-key support active)");
+    }
+
+    if (supabase.SUPABASE_SERVICE_ROLE_KEY === 'MISSING') {
+      notes.push("⚠️ SUPABASE_SERVICE_ROLE_KEY is missing - server-side admin operations will fail");
+    } else {
+      notes.push("✅ SUPABASE_SERVICE_ROLE_KEY is present for server operations");
+    }
+
+    // Check for Google OAuth config
+    const hasGoogleClient = checkEnvVar('NEXT_PUBLIC_GOOGLE_CLIENT_ID') === 'PRESENT';
+    const hasGoogleSecret = checkEnvVar('GOOGLE_CLIENT_SECRET') === 'PRESENT';
+    if (hasGoogleClient && hasGoogleSecret) {
+      notes.push("✅ Google OAuth credentials detected - Google sign-in button will appear");
+    } else if (hasGoogleClient || hasGoogleSecret) {
+      notes.push("⚠️ Partial Google OAuth config - both NEXT_PUBLIC_GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET required");
+    } else {
+      notes.push("ℹ️ Google OAuth not configured (optional) - sign-in will use email/password and magic links only");
+    }
+
+    // === STRIPE DIAGNOSTICS ===
     if (stripe.NEXT_PUBLIC_ENABLE_STRIPE === 'MISSING') {
-      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is missing - Stripe functionality will be disabled");
+      notes.push("⚠️ NEXT_PUBLIC_ENABLE_STRIPE is missing - Stripe functionality will be disabled");
     } else if (process.env.NEXT_PUBLIC_ENABLE_STRIPE !== '1') {
-      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is not set to '1' - Stripe functionality may be disabled");
+      notes.push("ℹ️ NEXT_PUBLIC_ENABLE_STRIPE is not set to '1' - Stripe functionality may be disabled");
     }
 
     if (stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY === 'MISSING' || stripe.STRIPE_SECRET_KEY === 'MISSING') {
-      notes.push("Missing core Stripe keys - payment processing will fail");
+      notes.push("❌ Missing core Stripe keys - payment processing will fail");
     }
 
     const missingPriceIds = [
@@ -126,31 +165,34 @@ export async function GET() {
     ];
 
     if (missingPriceIds.length > 0) {
-      notes.push(`Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
+      notes.push(`⚠️ Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
     }
 
-    if (supabase.NEXT_PUBLIC_SUPABASE_URL === 'MISSING' || supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'MISSING') {
-      notes.push("Missing Supabase configuration - database operations may fail");
+    // === GENERAL DIAGNOSTICS ===
+    if (general.NEXT_PUBLIC_SITE_URL === 'MISSING') {
+      notes.push("❌ NEXT_PUBLIC_SITE_URL is missing - REQUIRED for auth callbacks, webhooks, and magic links");
+    } else {
+      notes.push(`✅ NEXT_PUBLIC_SITE_URL is present: ${process.env.NEXT_PUBLIC_SITE_URL}`);
     }
 
     if (general.APP_BASE_URL === 'MISSING' && general.NEXT_PUBLIC_BASE_URL === 'MISSING') {
-      notes.push("Missing base URL configuration - redirects may not work properly");
-    }
-
-    if (general.NEXT_PUBLIC_SITE_URL === 'MISSING') {
-      notes.push("NEXT_PUBLIC_SITE_URL is missing - required for auth callbacks and webhooks");
+      notes.push("⚠️ Missing base URL configuration - redirects may not work properly");
     }
 
     if (general.NEXT_DISABLE_IMAGE_OPTIMIZATION === 'PRESENT') {
-      notes.push("Image optimization is disabled - this is optional for environments with cache permission issues");
+      notes.push("ℹ️ Image optimization is disabled - optional for environments with cache permission issues");
     }
 
+    // === FEATURE FLAGS ===
     if (general.NEXT_PUBLIC_ENABLE_ORBIT === 'PRESENT' && process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1') {
-      notes.push("Orbit League is enabled - agents will display in orbit view");
+      notes.push("✅ Orbit League is enabled - /agents will display orbit view above grid");
+    } else {
+      notes.push("ℹ️ Orbit League is disabled - /agents shows grid only (set NEXT_PUBLIC_ENABLE_ORBIT=1 to enable)");
     }
 
+    // === CAPTCHA ===
     if (captcha.NEXT_PUBLIC_HCAPTCHA_SITEKEY === 'MISSING' || captcha.HCAPTCHA_SECRET === 'MISSING') {
-      notes.push("hCaptcha not configured - /api/recaptcha/verify will bypass verification");
+      notes.push("ℹ️ hCaptcha not configured (optional) - /api/recaptcha/verify will bypass verification");
     }
 
     // Determine overall status
@@ -158,7 +200,7 @@ export async function GET() {
       stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       stripe.STRIPE_SECRET_KEY,
       supabase.NEXT_PUBLIC_SUPABASE_URL,
-      supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      supabase.SUPABASE_ANON_OR_PUBLISHABLE,
       general.NEXT_PUBLIC_SITE_URL
     ].some(status => status === 'MISSING');
 

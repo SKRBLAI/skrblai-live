@@ -1,4 +1,8 @@
 // middleware.ts
+// Note: General auth protection (user logged in) is handled at page/layout level via server components.
+// This middleware focuses on: 1) host canonicalization, 2) legacy redirects, 3) founder-role gates.
+// See app/dashboard/*/page.tsx and lib/auth/roles.ts for user authentication + RBAC.
+
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 const APEX = "skrblai.io";
