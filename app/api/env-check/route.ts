@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { readEnvAny } from "@/lib/env/readEnvAny";
+import { 
+  resolvePriceIdFromSku, 
+  getSupportedSkus, 
+  generateResolverParityReport 
+} from "@/lib/stripe/priceResolver";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +24,11 @@ interface EnvCheckResponse {
     business: EnvStatus;
     addons: EnvStatus;
   };
+  resolverParity: Record<string, {
+    priceId: string | null;
+    matchedEnvName: string | null;
+    status: 'PRESENT' | 'MISSING';
+  }>;
   notes: string[];
 }
 
@@ -64,25 +74,18 @@ export async function GET() {
       HCAPTCHA_SECRET: checkEnvVar('HCAPTCHA_SECRET'),
     };
 
-    // Sports plan price IDs with new naming + legacy fallbacks
+    // Sports plan price IDs - check for source of truth env vars
     const sportsPlans: EnvStatus = {
-      // New canonical names
-      SPORTS_STARTER: checkEnvAny(
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M'
-      ),
-      SPORTS_PRO: checkEnvAny(
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M'
-      ),
-      SPORTS_ELITE: checkEnvAny(
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
-      ),
-      // Legacy names (kept for backward compatibility)
-      ROOKIE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
-      PRO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
-      ALLSTAR: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
+      // Source of truth: STARTER, PRO, ELITE (no SPORTS_ prefix)
+      STARTER: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_STARTER'),
+      PRO: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_PRO'),
+      ELITE: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ELITE'),
+      // Legacy fallbacks (for reference)
+      SPORTS_STARTER: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER'),
+      SPORTS_PRO: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO'),
+      SPORTS_ELITE: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE'),
+      ROOKIE: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE'),
+      ALLSTAR: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR'),
     };
 
     // Business plan price IDs (canonical and _M variants)
@@ -92,19 +95,35 @@ export async function GET() {
       BIZ_ELITE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'),
     };
 
-    // Add-on price IDs (both sports and business)
+    // Add-on price IDs - source of truth: ADDON_* (no _M required)
     const addons: EnvStatus = {
       // Sports add-ons
-      ADDON_SCANS10: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
-      ADDON_VIDEO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'),
-      ADDON_EMOTION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'),
-      ADDON_NUTRITION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'),
-      ADDON_FOUNDATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'),
+      ADDON_SCANS10: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10'),
+      ADDON_VIDEO: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO'),
+      ADDON_EMOTION: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION'),
+      ADDON_NUTRITION: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION'),
+      ADDON_FOUNDATION: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION'),
       // Business add-ons
-      BIZ_ADDON_ADV_ANALYTICS: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
-      BIZ_ADDON_AUTOMATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
-      BIZ_ADDON_TEAM_SEAT: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
+      BIZ_ADDON_ADV_ANALYTICS: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS'),
+      BIZ_ADDON_AUTOMATION: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION'),
+      BIZ_ADDON_TEAM_SEAT: checkEnvVar('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT'),
     };
+
+    // Generate resolver parity report
+    const resolverReport = generateResolverParityReport();
+    const resolverParity: Record<string, {
+      priceId: string | null;
+      matchedEnvName: string | null;
+      status: 'PRESENT' | 'MISSING';
+    }> = {};
+    
+    for (const [sku, result] of Object.entries(resolverReport)) {
+      resolverParity[sku] = {
+        priceId: result.priceId,
+        matchedEnvName: result.matchedEnvName,
+        status: result.priceId ? 'PRESENT' : 'MISSING'
+      };
+    }
 
     // Generate diagnostic notes
     const notes: string[] = [];
@@ -175,6 +194,7 @@ export async function GET() {
         business: businessPlans,
         addons,
       },
+      resolverParity,
       notes,
     };
 

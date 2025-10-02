@@ -58,12 +58,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(currentUrl, 308);
   }
 
-  // 2) Bundle routes → /sports#plans
-  if (
+  // 2) Bundle routes → /sports#plans (legacy bundles gated off)
+  if (process.env.NEXT_PUBLIC_ENABLE_BUNDLES !== '1' && (
     path.startsWith("/bundle") ||
     path.startsWith("/bundles") ||
     path.includes("/bundle")
-  ) {
+  )) {
     const currentUrl = request.nextUrl.clone();
     currentUrl.pathname = "/sports";
     currentUrl.hash = "#plans";

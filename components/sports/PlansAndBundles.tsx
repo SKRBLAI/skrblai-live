@@ -43,7 +43,8 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
     }
   ];
 
-  const bundles = [
+  // legacy bundles gated off
+  const bundles = process.env.NEXT_PUBLIC_ENABLE_BUNDLES === '1' ? [
     {
       key: 'BUNDLE_ALL_ACCESS',
       title: 'All-Access Bundle',
@@ -68,7 +69,7 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
       period: 'annual',
       bullets: ['Premium Access', 'Annual Billing', 'Maximum Savings']
     }
-  ];
+  ] : [];
 
   return (
     <motion.section
