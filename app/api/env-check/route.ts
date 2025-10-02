@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface EnvStatus {
-  [key: string]: 'PRESENT' | 'MISSING';
+  [key: string]: string; // Now supports "PRESENT via KEY_NAME" or "MISSING"
 }
 
 interface EnvCheckResponse {
@@ -27,9 +27,14 @@ function checkEnvVar(key: string): 'PRESENT' | 'MISSING' {
   return (value && value.trim().length > 0) ? 'PRESENT' : 'MISSING';
 }
 
-function checkEnvAny(...keys: string[]): 'PRESENT' | 'MISSING' {
-  const value = readEnvAny(...keys);
-  return value ? 'PRESENT' : 'MISSING';
+function checkEnvAny(...keys: string[]): string {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value && value.trim().length > 0) {
+      return `PRESENT via ${key}`;
+    }
+  }
+  return 'MISSING';
 }
 
 export async function GET() {
@@ -42,20 +47,22 @@ export async function GET() {
       STRIPE_WEBHOOK_SECRET: checkEnvVar('STRIPE_WEBHOOK_SECRET'),
     };
 
-    // Supabase configuration
+    // Supabase configuration with dual key lookup
     const supabase: EnvStatus = {
-      NEXT_PUBLIC_SUPABASE_URL: checkEnvVar('NEXT_PUBLIC_SUPABASE_URL'),
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: checkEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+      SUPABASE_URL: checkEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL'),
+      SUPABASE_ANON_KEY: checkEnvAny('NEXT_PUBLIC_SUPABASE_ANON_KEY', 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'SUPABASE_ANON_KEY'),
       SUPABASE_SERVICE_ROLE_KEY: checkEnvVar('SUPABASE_SERVICE_ROLE_KEY'),
     };
 
-    // General configuration
+    // General configuration with site URL fallbacks
     const general: EnvStatus = {
+      SITE_URL: checkEnvAny('NEXT_PUBLIC_SITE_URL', 'NEXT_PUBLIC_BASE_URL', 'APP_BASE_URL'),
       APP_BASE_URL: checkEnvVar('APP_BASE_URL'),
       NEXT_PUBLIC_BASE_URL: checkEnvVar('NEXT_PUBLIC_BASE_URL'),
-      NEXT_PUBLIC_SITE_URL: checkEnvVar('NEXT_PUBLIC_SITE_URL'),
       NEXT_DISABLE_IMAGE_OPTIMIZATION: checkEnvVar('NEXT_DISABLE_IMAGE_OPTIMIZATION'),
       NEXT_PUBLIC_ENABLE_ORBIT: checkEnvVar('NEXT_PUBLIC_ENABLE_ORBIT'),
+      NEXT_PUBLIC_ENABLE_LEGACY: checkEnvVar('NEXT_PUBLIC_ENABLE_LEGACY'),
+      NEXT_PUBLIC_ENABLE_BUNDLES: checkEnvVar('NEXT_PUBLIC_ENABLE_BUNDLES'),
     };
 
     // hCaptcha configuration (optional)
@@ -64,24 +71,26 @@ export async function GET() {
       HCAPTCHA_SECRET: checkEnvVar('HCAPTCHA_SECRET'),
     };
 
-    // Sports plan price IDs with new naming + legacy fallbacks
+    // Sports plan price IDs with current preferred names + legacy fallbacks
     const sportsPlans: EnvStatus = {
-      // New canonical names
-      SPORTS_STARTER: checkEnvAny(
+      // Current preferred names (STARTER/PRO/ELITE)
+      STARTER: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_STARTER',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', 
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M'
       ),
-      SPORTS_PRO: checkEnvAny(
+      PRO: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_PRO',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO', 
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M'
       ),
-      SPORTS_ELITE: checkEnvAny(
+      ELITE: checkEnvAny(
+        'NEXT_PUBLIC_STRIPE_PRICE_ELITE',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', 
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
       ),
       // Legacy names (kept for backward compatibility)
       ROOKIE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
-      PRO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_PRO', 'NEXT_PUBLIC_STRIPE_PRICE_PRO_M'),
       ALLSTAR: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
     };
 
@@ -92,18 +101,17 @@ export async function GET() {
       BIZ_ELITE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'),
     };
 
-    // Add-on price IDs (both sports and business)
+    // Add-on price IDs with current preferred names
     const addons: EnvStatus = {
-      // Sports add-ons
+      // Current preferred add-on names (ADDON_*)
       ADDON_SCANS10: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'),
       ADDON_VIDEO: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'),
       ADDON_EMOTION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'),
       ADDON_NUTRITION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'),
       ADDON_FOUNDATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION', 'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'),
-      // Business add-ons
-      BIZ_ADDON_ADV_ANALYTICS: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
-      BIZ_ADDON_AUTOMATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
-      BIZ_ADDON_TEAM_SEAT: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
+      ADDON_ADV_ANALYTICS: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'),
+      ADDON_AUTOMATION: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'),
+      ADDON_SEAT: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
     };
 
     // Generate diagnostic notes
@@ -129,16 +137,12 @@ export async function GET() {
       notes.push(`Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
     }
 
-    if (supabase.NEXT_PUBLIC_SUPABASE_URL === 'MISSING' || supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY === 'MISSING') {
+    if (supabase.SUPABASE_URL === 'MISSING' || supabase.SUPABASE_ANON_KEY === 'MISSING') {
       notes.push("Missing Supabase configuration - database operations may fail");
     }
 
-    if (general.APP_BASE_URL === 'MISSING' && general.NEXT_PUBLIC_BASE_URL === 'MISSING') {
-      notes.push("Missing base URL configuration - redirects may not work properly");
-    }
-
-    if (general.NEXT_PUBLIC_SITE_URL === 'MISSING') {
-      notes.push("NEXT_PUBLIC_SITE_URL is missing - required for auth callbacks and webhooks");
+    if (general.SITE_URL === 'MISSING') {
+      notes.push("Site URL is missing - required for auth callbacks and webhooks");
     }
 
     if (general.NEXT_DISABLE_IMAGE_OPTIMIZATION === 'PRESENT') {
@@ -157,9 +161,9 @@ export async function GET() {
     const criticalMissing = [
       stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       stripe.STRIPE_SECRET_KEY,
-      supabase.NEXT_PUBLIC_SUPABASE_URL,
-      supabase.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      general.NEXT_PUBLIC_SITE_URL
+      supabase.SUPABASE_URL,
+      supabase.SUPABASE_ANON_KEY,
+      general.SITE_URL
     ].some(status => status === 'MISSING');
 
     const ok = !criticalMissing;
