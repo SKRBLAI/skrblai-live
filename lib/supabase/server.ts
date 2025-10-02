@@ -1,6 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { readEnvAny } from '@/lib/env/readEnvAny';
 
-// Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
+// Supports dual key lookup for Supabase configuration
 
 // Cached clients to avoid recreation
 let adminClient: SupabaseClient | null = null;
@@ -14,7 +15,8 @@ let anonClient: SupabaseClient | null = null;
 export function getServerSupabaseAdmin(): SupabaseClient | null {
   if (adminClient) return adminClient;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Dual key lookup for URL
+  const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!url || !serviceKey) {
@@ -52,8 +54,13 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
 export function getServerSupabaseAnon(): SupabaseClient | null {
   if (anonClient) return anonClient;
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Dual key lookup for URL and anon key
+  const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
+  const anonKey = readEnvAny(
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 
+    'SUPABASE_ANON_KEY'
+  );
   
   if (!url || !anonKey) {
     // Only warn in development to avoid log spam in production builds
