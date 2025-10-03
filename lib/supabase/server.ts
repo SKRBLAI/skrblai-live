@@ -2,6 +2,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { readEnvAny } from '@/lib/env/readEnvAny';
 
 // Supports dual key lookup for Supabase configuration
+// Accepts NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (dual-key support)
 
 // Cached clients to avoid recreation
 let adminClient: SupabaseClient | null = null;
@@ -66,8 +67,8 @@ export function getServerSupabaseAnon(): SupabaseClient | null {
     // Only warn in development to avoid log spam in production builds
     if (process.env.NODE_ENV === 'development') {
       const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL');
+      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
       console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
     }
     return null;

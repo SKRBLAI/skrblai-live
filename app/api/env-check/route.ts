@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import { readEnvAny } from "@/lib/env/readEnvAny";
+import { 
+  resolvePriceIdFromSku, 
+  getSupportedSkus, 
+  generateResolverParityReport 
+} from "@/lib/stripe/priceResolver";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +24,11 @@ interface EnvCheckResponse {
     business: EnvStatus;
     addons: EnvStatus;
   };
+  resolverParity: Record<string, {
+    priceId: string | null;
+    matchedEnvName: string | null;
+    status: 'PRESENT' | 'MISSING';
+  }>;
   notes: string[];
 }
 
@@ -77,21 +87,24 @@ export async function GET() {
       STARTER: checkEnvAny(
         'NEXT_PUBLIC_STRIPE_PRICE_STARTER',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M'
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M',
+        'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE',
+        'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'
       ),
       PRO: checkEnvAny(
         'NEXT_PUBLIC_STRIPE_PRICE_PRO',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M'
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M',
+        'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR',
+        'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'
       ),
       ELITE: checkEnvAny(
         'NEXT_PUBLIC_STRIPE_PRICE_ELITE',
         'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', 
-        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
+        'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M',
+        'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR',
+        'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'
       ),
-      // Legacy names (kept for backward compatibility)
-      ROOKIE: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ROOKIE', 'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'),
-      ALLSTAR: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR', 'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'),
     };
 
     // Business plan price IDs (canonical and _M variants)
@@ -114,17 +127,34 @@ export async function GET() {
       ADDON_SEAT: checkEnvAny('NEXT_PUBLIC_STRIPE_PRICE_ADDON_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'),
     };
 
+    // Generate resolver parity report
+    const resolverReport = generateResolverParityReport();
+    const resolverParity: Record<string, {
+      priceId: string | null;
+      matchedEnvName: string | null;
+      status: 'PRESENT' | 'MISSING';
+    }> = {};
+    
+    for (const [sku, result] of Object.entries(resolverReport)) {
+      resolverParity[sku] = {
+        priceId: result.priceId,
+        matchedEnvName: result.matchedEnvName,
+        status: result.priceId ? 'PRESENT' : 'MISSING'
+      };
+    }
+
     // Generate diagnostic notes
     const notes: string[] = [];
-    
+
+    // === STRIPE DIAGNOSTICS ===
     if (stripe.NEXT_PUBLIC_ENABLE_STRIPE === 'MISSING') {
-      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is missing - Stripe functionality will be disabled");
+      notes.push("⚠️ NEXT_PUBLIC_ENABLE_STRIPE is missing - Stripe functionality will be disabled");
     } else if (process.env.NEXT_PUBLIC_ENABLE_STRIPE !== '1') {
-      notes.push("NEXT_PUBLIC_ENABLE_STRIPE is not set to '1' - Stripe functionality may be disabled");
+      notes.push("ℹ️ NEXT_PUBLIC_ENABLE_STRIPE is not set to '1' - Stripe functionality may be disabled");
     }
 
     if (stripe.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY === 'MISSING' || stripe.STRIPE_SECRET_KEY === 'MISSING') {
-      notes.push("Missing core Stripe keys - payment processing will fail");
+      notes.push("❌ Missing core Stripe keys - payment processing will fail");
     }
 
     const missingPriceIds = [
@@ -134,7 +164,7 @@ export async function GET() {
     ];
 
     if (missingPriceIds.length > 0) {
-      notes.push(`Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
+      notes.push(`⚠️ Missing price IDs: ${missingPriceIds.join(', ')} - related buttons will be disabled`);
     }
 
     if (supabase.SUPABASE_URL === 'MISSING' || supabase.SUPABASE_ANON_KEY === 'MISSING') {
@@ -146,15 +176,19 @@ export async function GET() {
     }
 
     if (general.NEXT_DISABLE_IMAGE_OPTIMIZATION === 'PRESENT') {
-      notes.push("Image optimization is disabled - this is optional for environments with cache permission issues");
+      notes.push("ℹ️ Image optimization is disabled - optional for environments with cache permission issues");
     }
 
+    // === FEATURE FLAGS ===
     if (general.NEXT_PUBLIC_ENABLE_ORBIT === 'PRESENT' && process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1') {
-      notes.push("Orbit League is enabled - agents will display in orbit view");
+      notes.push("✅ Orbit League is enabled - /agents will display orbit view above grid");
+    } else {
+      notes.push("ℹ️ Orbit League is disabled - /agents shows grid only (set NEXT_PUBLIC_ENABLE_ORBIT=1 to enable)");
     }
 
+    // === CAPTCHA ===
     if (captcha.NEXT_PUBLIC_HCAPTCHA_SITEKEY === 'MISSING' || captcha.HCAPTCHA_SECRET === 'MISSING') {
-      notes.push("hCaptcha not configured - /api/recaptcha/verify will bypass verification");
+      notes.push("ℹ️ hCaptcha not configured (optional) - /api/recaptcha/verify will bypass verification");
     }
 
     // Determine overall status
@@ -179,6 +213,7 @@ export async function GET() {
         business: businessPlans,
         addons,
       },
+      resolverParity,
       notes,
     };
 

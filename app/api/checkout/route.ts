@@ -13,6 +13,7 @@ import {
   isPromoActive, 
   STANDARD_PROMO_CONFIG 
 } from "@/lib/pricing/catalogShared";
+import { resolvePriceIdFromSku } from "@/lib/stripe/priceResolver";
 import { readEnvAny } from "@/lib/env/readEnvAny";
 import crypto from 'crypto';
 
@@ -29,112 +30,7 @@ function generateIdempotencyKey(userId: string, plan: string, timestamp: string)
   return crypto.createHash('sha256').update(data).digest('hex').substring(0, 32);
 }
 
-/**
- * Resilient SKU to Stripe Price ID resolver with current env names preferred
- * Removes bundle/package logic and prefers canonical naming
- */
-function resolvePriceIdFromSku(sku: string): string | null {
-  // Hard-disable bundle/package logic unless explicitly enabled
-  if ((sku.includes('bundle') || sku.includes('package')) && !process.env.NEXT_PUBLIC_ENABLE_BUNDLES) {
-    console.warn(`[checkout] Bundle SKU ${sku} disabled (NEXT_PUBLIC_ENABLE_BUNDLES not set)`);
-    return null;
-  }
-
-  const resolvers: Record<string, () => string | undefined> = {
-    // === CURRENT ENV NAMES (PREFERRED) ===
-    
-    // Sports plans - prefer STARTER/PRO/ELITE naming
-    sports_plan_starter: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_STARTER',      // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER', // Legacy fallback
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M',
-      'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE',
-      'NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M'
-    ),
-    sports_plan_pro: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_PRO',          // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO',   // Legacy fallback
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M',
-      'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR',
-      'NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M'
-    ),
-    sports_plan_elite: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ELITE',        // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE', // Legacy fallback
-      'NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M'
-    ),
-    
-    // Business plans - prefer BIZ_STARTER/PRO/ELITE naming
-    biz_plan_starter: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER',   // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M'  // Legacy _M fallback
-    ),
-    biz_plan_pro: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO',       // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M'      // Legacy _M fallback
-    ),
-    biz_plan_elite: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE',     // Current preferred
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M'    // Legacy _M fallback
-    ),
-    
-    // Add-ons - prefer ADDON_* naming (no _M required)
-    sports_addon_scans10: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10',
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SCANS10_M'
-    ),
-    sports_addon_video: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO',
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_M'
-    ),
-    sports_addon_emotion: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION',
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_M'
-    ),
-    sports_addon_nutrition: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION',
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION_M'
-    ),
-    sports_addon_foundation: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION',
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION_M'
-    ),
-    
-    // Business add-ons
-    biz_addon_adv_analytics: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_ADV_ANALYTICS',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_M'
-    ),
-    biz_addon_automation: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_AUTOMATION',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_M'
-    ),
-    biz_addon_team_seat: () => readEnvAny(
-      'NEXT_PUBLIC_STRIPE_PRICE_ADDON_SEAT',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT',
-      'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_M'
-    ),
-    
-    // === LEGACY COMPATIBILITY ===
-    // Keep for backward compatibility but prefer current names above
-    biz_plan_starter_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER'),
-    biz_plan_pro_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO'),
-    biz_plan_elite_m: () => readEnvAny('NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M', 'NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE'),
-  };
-
-  const resolver = resolvers[sku];
-  if (!resolver) {
-    console.info(`[checkout] sku=${sku}, priceId=NULL (no resolver)`);
-    return null;
-  }
-
-  const resolvedPriceId = resolver();
-  console.info(`[checkout] sku=${sku}, priceId=${resolvedPriceId || 'NULL'}`);
-  
-  return resolvedPriceId || null;
-}
+// Removed: Local resolver function replaced with unified resolver from @/lib/stripe/priceResolver
 
 /**
  * Legacy resolver for backward compatibility with existing pricing data system
@@ -142,8 +38,8 @@ function resolvePriceIdFromSku(sku: string): string | null {
 function resolvePriceId(sku: string, vertical?: string): string | null {
   // First try the new resilient resolver
   const directResolution = resolvePriceIdFromSku(sku);
-  if (directResolution) {
-    return directResolution;
+  if (directResolution.priceId) {
+    return directResolution.priceId;
   }
 
   // Fallback to legacy system for complex pricing logic (promos, etc.)
@@ -237,12 +133,13 @@ async function handleCheckout(req: NextRequest) {
       mainPriceId = body.priceId;
       console.log(`[checkout] Using provided price ID: ${mainPriceId}`);
     } else if (body.sku) {
-      mainPriceId = resolvePriceIdFromSku(body.sku);
+      const result = resolvePriceIdFromSku(body.sku);
+      mainPriceId = result.priceId;
       if (!mainPriceId) {
         // Fallback to legacy resolver for complex pricing logic
         mainPriceId = resolvePriceId(body.sku, body.vertical);
       }
-      console.log(`[checkout] Resolved SKU "${body.sku}" to price ID: ${mainPriceId || 'NULL'}`);
+      console.log(`[checkout] Resolved SKU "${body.sku}" to price ID: ${mainPriceId || 'NULL'} via ${result.matchedEnvName || 'legacy'}`);
     }
 
     if (!mainPriceId) {
@@ -259,14 +156,15 @@ async function handleCheckout(req: NextRequest) {
       
       for (const addonSku of body.addons) {
         try {
-          let addonPriceId = resolvePriceIdFromSku(addonSku);
+          const result = resolvePriceIdFromSku(addonSku);
+          let addonPriceId = result.priceId;
           if (!addonPriceId) {
             // Fallback to legacy resolver for complex pricing logic
             addonPriceId = resolvePriceId(addonSku, body.vertical);
           }
           if (addonPriceId) {
             lineItems.push({ price: addonPriceId, quantity: 1 });
-            console.log(`[checkout] Added add-on: ${addonSku} -> ${addonPriceId}`);
+            console.log(`[checkout] Added add-on: ${addonSku} -> ${addonPriceId} via ${result.matchedEnvName || 'legacy'}`);
           } else {
             console.warn(`[checkout] Could not resolve add-on price for: ${addonSku}`);
           }
@@ -290,8 +188,7 @@ async function handleCheckout(req: NextRequest) {
     console.log(`[checkout] Final Stripe mode: ${stripeMode} (original: ${body.mode})`);
 
     const origin = req.headers.get("origin") || 
-                   process.env.APP_BASE_URL || 
-                   process.env.NEXT_PUBLIC_BASE_URL || 
+                   readEnvAny('APP_BASE_URL', 'NEXT_PUBLIC_BASE_URL', 'NEXT_PUBLIC_SITE_URL') || 
                    "http://localhost:3000";
     
     const success_url = `${origin}${body.successPath || "/thanks"}?session_id={CHECKOUT_SESSION_ID}`;

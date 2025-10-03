@@ -1,4 +1,8 @@
 // middleware.ts
+// Note: General auth protection (user logged in) is handled at page/layout level via server components.
+// This middleware focuses on: 1) host canonicalization, 2) legacy redirects, 3) founder-role gates.
+// See app/dashboard/*/page.tsx and lib/auth/roles.ts for user authentication + RBAC.
+
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 const APEX = "skrblai.io";
@@ -58,12 +62,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(currentUrl, 308);
   }
 
-  // 2) Bundle routes → /sports#plans
-  if (
+  // 2) Bundle routes → /sports#plans (legacy bundles gated off)
+  if (process.env.NEXT_PUBLIC_ENABLE_BUNDLES !== '1' && (
     path.startsWith("/bundle") ||
     path.startsWith("/bundles") ||
     path.includes("/bundle")
-  ) {
+  )) {
     const currentUrl = request.nextUrl.clone();
     currentUrl.pathname = "/sports";
     currentUrl.hash = "#plans";
