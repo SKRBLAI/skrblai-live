@@ -119,9 +119,8 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   }, []);
 
   const router = useRouter();
-  // Always render the Agent League/Orbit component (HP_GUIDE_STAR flag is still read but ignored)
-  // This maintains backward compatibility while ensuring the component is always visible
-  const isGuideStarEnabled = true; // FEATURE_FLAGS.HP_GUIDE_STAR - removed gate to always show
+  // Use unified feature flags for guide star
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const [liveActivity, setLiveActivity] = useState(generateLiveActivity());
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const [showFreeTip, setShowFreeTip] = useState<string | null>(null);

@@ -25,6 +25,7 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { showPerformanceWarning } from '../../../lib/config/percyFeatureFlags';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 // Import only the Lucide icons actively used in the UI
@@ -104,6 +105,26 @@ interface AnalysisResults {
 }
 
 export default function PercyOnboardingRevolution() {
+  // 🚨 LEGACY GATE: Only render if legacy components are enabled
+  if (!FEATURE_FLAGS.ENABLE_LEGACY) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center p-6">
+        <div className="max-w-md text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Legacy Component Disabled</h2>
+          <p className="text-gray-400 mb-6">
+            This legacy Percy component has been disabled. Please use the modern onboarding flow instead.
+          </p>
+          <button 
+            onClick={() => window.location.href = '/'}
+            className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-lg transition-colors"
+          >
+            Return to Homepage
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // 🚨 DEPRECATED: Show performance warning for legacy component
   useEffect(() => {
     showPerformanceWarning();
