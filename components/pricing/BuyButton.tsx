@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { resolvePriceId } from '@/lib/stripe/priceResolver';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export function BuyButton({
   sku,
@@ -23,7 +24,7 @@ export function BuyButton({
   className?: string;
 }) {
   const [loading, setLoading] = useState(false);
-  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '1').toString() === '1';
+  const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;
 
   // Check if SKU resolves to a valid price ID using unified resolver
   const resolvedPriceId = sku ? resolvePriceId(sku) : null;

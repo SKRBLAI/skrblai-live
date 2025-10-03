@@ -24,8 +24,8 @@ export default function HomeHeroScanFirst() {
   const [showGuideStarHero, setShowGuideStarHero] = useState(false);
   const [showCodeModal, setShowCodeModal] = useState(false);
   
-  // Always enable the guide star feature regardless of env flag
-  const isGuideStarEnabled = true; // FEATURE_FLAGS.HP_GUIDE_STAR - removed gate to always show
+  // Use unified feature flags for guide star
+  const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   
   // Debug logging - kept for transparency but flag is ignored
   console.log('NEXT_PUBLIC_HP_GUIDE_STAR:', process.env.NEXT_PUBLIC_HP_GUIDE_STAR);

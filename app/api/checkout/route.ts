@@ -38,8 +38,8 @@ function generateIdempotencyKey(userId: string, plan: string, timestamp: string)
 function resolvePriceId(sku: string, vertical?: string): string | null {
   // First try the new resilient resolver
   const directResolution = resolvePriceIdFromSku(sku);
-  if (directResolution) {
-    return directResolution;
+  if (directResolution.priceId) {
+    return directResolution.priceId;
   }
 
   // Fallback to legacy system for complex pricing logic (promos, etc.)
@@ -188,8 +188,7 @@ async function handleCheckout(req: NextRequest) {
     console.log(`[checkout] Final Stripe mode: ${stripeMode} (original: ${body.mode})`);
 
     const origin = req.headers.get("origin") || 
-                   process.env.APP_BASE_URL || 
-                   process.env.NEXT_PUBLIC_BASE_URL || 
+                   readEnvAny('APP_BASE_URL', 'NEXT_PUBLIC_BASE_URL', 'NEXT_PUBLIC_SITE_URL') || 
                    "http://localhost:3000";
     
     const success_url = `${origin}${body.successPath || "/thanks"}?session_id={CHECKOUT_SESSION_ID}`;
