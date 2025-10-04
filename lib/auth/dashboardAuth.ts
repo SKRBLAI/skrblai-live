@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { 
   logSignInAttempt, 
   logSignInSuccess, 
@@ -47,7 +47,7 @@ export async function authenticateForDashboard(
     console.log('[DashboardAuth] Authenticating user:', request.email);
     
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return {
@@ -250,7 +250,7 @@ export async function validateAndRedeemCode(
 }> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return {
@@ -302,7 +302,7 @@ export async function validateAndRedeemCode(
 export async function checkVIPStatus(email: string): Promise<any> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return null;
@@ -343,7 +343,7 @@ export async function checkVIPStatus(email: string): Promise<any> {
 export async function getUserDashboardAccess(userId: string): Promise<any> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return null;
@@ -374,7 +374,7 @@ export async function getUserDashboardAccess(userId: string): Promise<any> {
 export async function validatePromoCode(code: string): Promise<PromoCodeValidation> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return {
@@ -460,7 +460,7 @@ export async function updateUserDashboardAccess(
 ): Promise<boolean> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return false;
@@ -502,7 +502,7 @@ export async function logAuthEvent(
 ): Promise<void> {
   try {
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return;
@@ -542,7 +542,7 @@ export async function registerUserForDashboard(
     console.log('[DashboardAuth] Registering new user:', request.email);
     
     // Get Supabase client (lazy initialization)
-    const supabase = getOptionalServerSupabase();
+    const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.error('[DashboardAuth] Failed to initialize Supabase client');
       return {

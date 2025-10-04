@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { requireStripe } from '@/lib/stripe/stripe';
 import { withSafeJson } from '@/lib/api/safe';
 import { logger } from '@/lib/observability/logger';
@@ -34,7 +34,7 @@ export const POST = withSafeJson(async (req: Request) => {
     livemode: event.livemode,
   });
 
-  const supabase = getOptionalServerSupabase();
+  const supabase = getServerSupabaseAdmin();
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 503 });
   }

@@ -1,3 +1,5 @@
+/** MMM: Canonical source for agent registry. Do not duplicate. */
+
 /**
  * SKRBL AI Agent League - Centralized Agent Configuration System
  * 
