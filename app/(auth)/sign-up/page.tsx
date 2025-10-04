@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { createSafeSupabaseClient } from '../../../lib/supabase/client';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 export default function SignUpPage() {

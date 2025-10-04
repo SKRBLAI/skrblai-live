@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateEnvSafe } from '@/lib/env';
+import { getServerSupabaseAnon } from '@/lib/supabase';
 
 interface HealthResponse {
   ok: boolean;
@@ -12,6 +13,9 @@ interface HealthResponse {
     network: {
       authReachable: boolean;
       status?: number;
+    };
+    supabase: {
+      connected: boolean;
     };
   };
   meta: {
@@ -42,6 +46,20 @@ export async function GET(request: NextRequest) {
     // Validate environment using new validateEnvSafe()
     const validation = validateEnvSafe();
     
+    // Test Supabase connectivity
+    const supabase = getServerSupabaseAnon();
+    let supabaseOk = false;
+    if (supabase) {
+      try {
+        // Simple connectivity test - select now() via RPC
+        const { error } = await supabase.rpc('now');
+        supabaseOk = !error;
+      } catch (error) {
+        console.error('Supabase connectivity test failed:', error);
+        supabaseOk = false;
+      }
+    }
+    
     // Build envChecks from validation.checks
     const envChecks = validation.checks;
     
@@ -60,13 +78,15 @@ export async function GET(request: NextRequest) {
     const overallOk = envChecks.urlOk && 
                      envChecks.anonPrefixOk && 
                      envChecks.serviceRolePrefixOk && 
-                     networkCheck.authReachable;
+                     networkCheck.authReachable &&
+                     supabaseOk;
     
     const response: HealthResponse = {
       ok: overallOk,
       checks: {
         env: envChecks,
         network: { authReachable: networkCheck.authReachable, status: networkCheck.status },
+        supabase: { connected: supabaseOk },
       },
       meta: {
         url: validation.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -97,6 +117,9 @@ export async function GET(request: NextRequest) {
         },
         network: {
           authReachable: false,
+        },
+        supabase: {
+          connected: false,
         },
       },
       meta: {

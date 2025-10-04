@@ -1,3 +1,8 @@
+/**
+ * @deprecated This file is superseded by lib/pricing/catalog.ts
+ * Use the unified pricing catalog instead of this legacy config
+ */
+
 import React from 'react';
 
 export interface PricingFeature {

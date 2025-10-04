@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Star, Crown, Zap, Trophy } from 'lucide-react';
 import { getDisplayPlanOrNull, formatMoney } from '../../lib/pricing/catalog';
 import CheckoutButton from '../payments/CheckoutButton';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import CosmicTile from '../ui/CosmicTile';
 
 interface PlansAndBundlesProps {
@@ -44,7 +45,7 @@ export default function PlansAndBundles({ showLimitedOffer = false }: PlansAndBu
   ];
 
   // legacy bundles gated off
-  const bundles = process.env.NEXT_PUBLIC_ENABLE_BUNDLES === '1' ? [
+  const bundles = FEATURE_FLAGS.ENABLE_BUNDLES ? [
     {
       key: 'BUNDLE_ALL_ACCESS',
       title: 'All-Access Bundle',

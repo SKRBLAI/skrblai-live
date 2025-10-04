@@ -1,5 +1,7 @@
 'use client';
 
+/** MMM: Canonical Percy onboarding component. Not legacy. */
+
 /**
  * 🚨 DEPRECATED COMPONENT - LEGACY PERCY v1
  * 
@@ -24,7 +26,7 @@
  */
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { showPerformanceWarning } from '../../../lib/config/percyFeatureFlags';
+import { showPerformanceWarning } from '@/lib/config/featureFlags';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';

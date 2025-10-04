@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { 
   BarChart, 
   Bar, 
@@ -78,7 +79,7 @@ interface ArrData {
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
 // Check if ARR dashboard feature is enabled
-const ARR_DASH_ENABLED = process.env.NEXT_PUBLIC_ENABLE_ARR_DASH === "1";
+const ARR_DASH_ENABLED = FEATURE_FLAGS.ENABLE_ARR_DASH;
 
 export default function InternalAnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);

@@ -2,6 +2,7 @@
 import { useState } from "react";
 
 import { ProductKey } from '@/lib/pricing/types';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export default function CheckoutButton(
   { label, sku, priceId, mode="subscription", className, metadata, vertical, addons }:
@@ -17,7 +18,7 @@ export default function CheckoutButton(
   }
 ){
   const [loading,setLoading]=useState(false);
-  const stripeEnabled = (process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '').toString() === '1';
+  const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;
   if (!stripeEnabled) {
     return (
       <button type="button" disabled className={"btn-solid-grad h-11 w-full rounded-xl opacity-50 cursor-not-allowed"}>

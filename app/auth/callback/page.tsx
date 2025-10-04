@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { getUserAndRole, routeForRole } from '@/lib/auth/roles';
 
 interface SearchParams {
@@ -13,7 +13,7 @@ interface AuthCallbackPageProps {
 }
 
 export default async function AuthCallbackPage({ searchParams }: AuthCallbackPageProps) {
-  const supabase = getOptionalServerSupabase();
+  const supabase = getServerSupabaseAdmin();
   
   // If Supabase is not configured, redirect to sign-in
   if (!supabase) {

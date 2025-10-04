@@ -1,3 +1,5 @@
+/** MMM: Canonical source for Stripe price resolution. Do not duplicate. */
+
 /**
  * Unified Stripe Price ID Resolver
  * 

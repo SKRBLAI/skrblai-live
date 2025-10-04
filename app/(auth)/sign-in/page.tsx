@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getBrowserSupabase } from '../../../lib/supabase/client';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
 
 type AuthMode = 'password' | 'magic-link';

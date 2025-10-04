@@ -1,4 +1,6 @@
 /**
+ * @deprecated This file has been consolidated into lib/config/featureFlags.ts
+ * 
  * Percy Component Feature Flags
  * 
  * Controls migration between Legacy Percy (2,827 lines) and Optimized Percy (modular)

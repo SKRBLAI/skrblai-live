@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getPercyConfig, logPercySwitch } from '../../lib/config/percyFeatureFlags';
+import { getPercyConfig, logPercySwitch } from '@/lib/config/featureFlags';
 
 // Import both versions
 import PercyOnboardingRevolutionOptimized from './PercyOnboardingRevolutionOptimized';

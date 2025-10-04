@@ -1,3 +1,5 @@
+/** MMM: Canonical source for feature flags. Do not duplicate. */
+
 /**
  * Unified Feature Flag Configuration
  * Single source of truth for all feature flags with progressive enhancement approach
@@ -39,9 +41,15 @@ export const FEATURE_FLAGS = {
   URGENCY_BANNERS: readBooleanFlag('NEXT_PUBLIC_URGENCY_BANNERS', true),
   LIVE_METRICS: readBooleanFlag('NEXT_PUBLIC_LIVE_METRICS', true),
   
-  // Percy Component Flags (from percyFeatureFlags.ts)
+  // Percy Component Flags (consolidated from percyFeatureFlags.ts)
   USE_OPTIMIZED_PERCY: readBooleanFlag('NEXT_PUBLIC_USE_OPTIMIZED_PERCY', false),
   ENABLE_PERCY_ANIMATIONS: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS', true),
+  ENABLE_PERCY_AVATAR: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_AVATAR', true),
+  ENABLE_PERCY_CHAT: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_CHAT', true),
+  ENABLE_PERCY_SOCIAL_PROOF: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF', true),
+  PERCY_PERFORMANCE_MONITORING: readBooleanFlag('NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING', true),
+  PERCY_AUTO_FALLBACK: readBooleanFlag('NEXT_PUBLIC_PERCY_AUTO_FALLBACK', true),
+  PERCY_LOG_SWITCHES: readBooleanFlag('NEXT_PUBLIC_PERCY_LOG_SWITCHES', true),
   
 } as const;
 
@@ -60,6 +68,40 @@ export const getFeatureFlag = <K extends keyof FeatureFlags>(flag: K, fallback?:
   return (value ?? fallback) as FeatureFlags[K];
 };
 
+// Percy-specific helper functions (consolidated from percyFeatureFlags.ts)
+export const getPercyConfig = () => {
+  return {
+    USE_OPTIMIZED_PERCY: FEATURE_FLAGS.USE_OPTIMIZED_PERCY,
+    ENABLE_PERCY_AVATAR: FEATURE_FLAGS.ENABLE_PERCY_AVATAR,
+    ENABLE_PERCY_CHAT: FEATURE_FLAGS.ENABLE_PERCY_CHAT,
+    ENABLE_PERCY_SOCIAL_PROOF: FEATURE_FLAGS.ENABLE_PERCY_SOCIAL_PROOF,
+    ENABLE_PERCY_ANIMATIONS: FEATURE_FLAGS.ENABLE_PERCY_ANIMATIONS,
+    PERCY_PERFORMANCE_MONITORING: FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING,
+    PERCY_AUTO_FALLBACK: FEATURE_FLAGS.PERCY_AUTO_FALLBACK,
+    PERCY_LOG_SWITCHES: FEATURE_FLAGS.PERCY_LOG_SWITCHES,
+  };
+};
+
+export const logPercySwitch = (component: string, version: 'legacy' | 'optimized') => {
+  if (FEATURE_FLAGS.PERCY_LOG_SWITCHES) {
+    console.log(`🔄 Percy ${component}: Using ${version} version`);
+  }
+};
+
+export const showPerformanceWarning = () => {
+  if (FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING) {
+    console.warn(`
+🔥 PERFORMANCE WARNING: Using Legacy Percy Component
+   - 2,827 lines of code with 25+ useState hooks
+   - Multiple intervals causing potential CPU overheating
+   - Consider enabling optimized version: FEATURE_FLAGS.USE_OPTIMIZED_PERCY = true
+   
+📍 Configuration: lib/config/featureFlags.ts
+    `);
+  }
+};
+
 // Usage examples:
 // const showNewHomepage = isFeatureEnabled('AI_AUTOMATION_HOMEPAGE');
 // const useUrgencyBanners = getFeatureFlag('URGENCY_BANNERS', false);
+// const percyConfig = getPercyConfig();
