@@ -72,32 +72,84 @@ Our revolutionary onboarding system captures 100% of users through intelligent r
 - **Competitive Analysis Engine** - Market intelligence
 - **Predictive Analytics** - Business forecasting
 
+## 🚑 60-SECOND PROD HEALTH CHECKLIST
+
+**Quick validation for production deployments:**
+
+1. **Environment Check** (15 sec)
+   ```bash
+   curl https://your-domain.com/api/env-check
+   ```
+   - ✅ Look for `"ok": true`
+   - ✅ Check `notes` array for green checkmarks (✅)
+   - ❌ Red X (❌) means critical config missing
+
+2. **Auth Flow** (20 sec)
+   - Visit `/sign-in`
+   - ✅ Form renders (no blank screen)
+   - ✅ See "Password" and "Magic Link" tabs
+   - ✅ Google button appears (if configured)
+   - ✅ No yellow "⚠️ Auth service unavailable" warning
+
+3. **Agent Orbit** (10 sec)
+   - Visit `/agents`
+   - ✅ If `NEXT_PUBLIC_ENABLE_ORBIT=1`: Orbit displays above grid
+   - ✅ If flag not set: Grid renders normally
+   - ✅ Never blank screen
+
+4. **Dashboard Routing** (15 sec)
+   - Sign in with test account
+   - ✅ Redirects to correct dashboard by role:
+     - Founder → `/dashboard/founder`
+     - Heir → `/dashboard/heir`
+     - VIP → `/dashboard/vip`
+     - Parent → `/dashboard/parent`
+     - User → `/dashboard`
+
+**Common Issues:**
+- 🔴 **"Auth service unavailable"**: Check `NEXT_PUBLIC_SUPABASE_URL` ends with `.supabase.co`
+- 🔴 **Blank screens**: Missing `NEXT_PUBLIC_SITE_URL` or anon/publishable key
+- 🔴 **Magic links fail**: `NEXT_PUBLIC_SITE_URL` must match production domain
+- 🔴 **Google OAuth missing**: Need both `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+
+---
+
 ## 🔧 API ENDPOINTS
 
 ### **Environment & Health**
-- `GET /api/env-check` - Environment variable status and health check
+- `GET /api/env-check` - **Enhanced** environment variable status with auth diagnostics
 - `GET /api/health` - System health and uptime status
 - `GET /api/health/auth` - Supabase authentication health check with network connectivity test
 
 ### **Diagnostics**
-The `/api/env-check` endpoint provides comprehensive environment variable validation for all critical services:
+The `/api/env-check` endpoint provides comprehensive environment variable validation with actionable notes:
 
+- **Supabase Auth**: URL validation (.supabase.co check), dual-key support (anon/publishable), Google OAuth detection
 - **Stripe Configuration**: Core keys and all price IDs with fallback variants
-- **Supabase Setup**: Database connection and authentication keys
-- **General Config**: Base URLs and deployment settings
+- **General Config**: Base URLs, SITE_URL validation, feature flags (Orbit)
 - **Price ID Resolution**: Sports plans, business plans, and add-ons with both canonical and `_M` variants
 
-**Response Format:**
+**Enhanced Response Format:**
 ```json
 {
   "ok": true,
-  "stripe": { "NEXT_PUBLIC_ENABLE_STRIPE": "PRESENT", ... },
-  "supabase": { "NEXT_PUBLIC_SUPABASE_URL": "PRESENT", ... },
+  "stripe": { "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "PRESENT", ... },
+  "supabase": { 
+    "NEXT_PUBLIC_SUPABASE_URL": "PRESENT",
+    "SUPABASE_ANON_OR_PUBLISHABLE": "PRESENT",
+    "SUPABASE_SERVICE_ROLE_KEY": "PRESENT"
+  },
   "priceIds": {
     "sports": { "ROOKIE": "PRESENT", "PRO": "PRESENT", ... },
     "business": { "BIZ_STARTER": "PRESENT", ... },
     "addons": { "ADDON_VIDEO": "PRESENT", ... }
   },
+  "notes": [
+    "✅ NEXT_PUBLIC_SUPABASE_URL appears valid (.supabase.co)",
+    "✅ Supabase anon/publishable key is present (dual-key support active)",
+    "✅ Google OAuth credentials detected - Google sign-in button will appear",
+    "✅ Orbit League is enabled - /agents will display orbit view above grid"
+  ],
   "notes": ["Missing price IDs will disable related buttons", ...]
 }
 ```

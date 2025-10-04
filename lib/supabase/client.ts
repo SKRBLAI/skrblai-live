@@ -1,9 +1,10 @@
 "use client";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { readEnvAny } from '@/lib/env/readEnvAny';
+import { readEnvAny } from "@/lib/env/readEnvAny";
 
 // Supports dual key lookup for Supabase configuration
+// Accepts NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (dual-key support)
 
 let supabase: SupabaseClient | null = null;
 
@@ -15,25 +16,25 @@ export function getBrowserSupabase(): SupabaseClient | null {
   const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
   
   // Dual key lookup for anon/publishable key
-  const anon = readEnvAny(
+  const anonKey = readEnvAny(
     'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
     'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 
     'SUPABASE_ANON_KEY'
   );
 
-  if (!url || !anon) {
+  if (!url || !anonKey) {
     // Only warn in development to avoid log spam in production builds
     if (process.env.NODE_ENV === 'development') {
       const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!anon) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL');
+      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
       console.warn("[supabase] Missing environment variables:", missing.join(', '));
     }
     return null;
   }
 
   try {
-    supabase = createClient(url, anon, {
+    supabase = createClient(url, anonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
