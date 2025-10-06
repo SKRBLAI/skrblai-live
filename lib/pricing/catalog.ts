@@ -1,3 +1,5 @@
+/** MMM: Canonical source for pricing catalog. Do not duplicate. */
+
 import { ProductKey, BillingPeriod } from './types';
 
 // === Legacy Key Aliases and Safe Accessors ===

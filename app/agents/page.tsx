@@ -10,6 +10,7 @@ import CosmicCard, { CosmicCardGlow, CosmicCardGlass } from '../../components/sh
 import CosmicHeading from '../../components/shared/CosmicHeading';
 import { agentLeague } from '../../lib/agents/agentLeague';
 import { useAuth } from '../../components/context/AuthContext';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import ErrorBoundary from '../../components/layout/ErrorBoundary';
@@ -36,7 +37,7 @@ export default function AgentsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [liveMetrics, setLiveMetrics] = useState({ totalAgents: 247, liveUsers: 89 });
-  const isOrbitEnabled = process.env.NEXT_PUBLIC_ENABLE_ORBIT === '1';
+  const isOrbitEnabled = FEATURE_FLAGS.ENABLE_ORBIT;
 
   // Load agents from Agent League
   useEffect(() => {

@@ -10,7 +10,7 @@ import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 const AgentLeaguePreview = dynamic(() => import("@/components/home/AgentLeaguePreview"), { ssr: false });
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
-const PercyOnboardingRevolution = dynamic(() => import("@/components/legacy/home/PercyOnboardingRevolution"), { ssr: false });
+const PercyOnboardingRevolution = dynamic(() => import("@/components/home/PercyOnboardingRevolution"), { ssr: false });
 
 // Hero variant selector (env-driven)
 const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;
