@@ -37,15 +37,15 @@ import {
   Globe, Users, DollarSign, Settings, MessageCircle, LayoutDashboard,
   CornerUpLeft, Eye, Star, Calendar
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { usePercyContext } from '../../assistant/PercyProvider';
+import { useAuth } from '../../../components/context/AuthContext';
+import { usePercyContext } from '../../../components/assistant/PercyProvider';
 import { useOnboarding } from '../../../contexts/OnboardingContext';
 import toast from 'react-hot-toast';
 import SkrblAiText from '../../ui/SkrblAiText';
 import UniversalPromptBar from '../../ui/UniversalPromptBar';
-import PercyAvatar from '../../home/PercyAvatar';
+import PercyAvatar from '../../../components/home/PercyAvatar';
 import StatCounter from '../../features/StatCounter';
-import FounderDashboardOverlay from '../../admin/FounderDashboardOverlay';
+import FounderDashboardOverlay from '../../../components/admin/FounderDashboardOverlay';
 import ChoiceCard from '../../ui/ChoiceCard';
 
 interface OnboardingStep {
