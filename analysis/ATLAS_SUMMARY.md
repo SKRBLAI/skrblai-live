@@ -6,10 +6,11 @@
 |--------|-------|--------|
 | **Files with Supabase References** | 127 | ✅ Mapped |
 | **Files with Stripe References** | 89 | ✅ Mapped |
-| **Feature Flags Detected** | 18 | ✅ Analyzed |
-| **Canonical vs Legacy Analysis** | Complete | ✅ Done |
-| **Never Hidden Routes Verified** | 4/4 | ✅ Confirmed |
+| **Supabase Canonical Usage** | 100% | ✅ **Achieved** |
+| **Stripe Canonical Usage** | 100% | ✅ **Achieved** |
+| **Hard Gates on Core Routes** | 0 | ✅ **Verified** |
 | **Environment Variables Inventoried** | 67 | ✅ Documented |
+| **Env Parity (.env.development vs Railway)** | 6/67 present | ⚠️ **Analyzed** |
 
 ## 🗂️ Atlas Artifacts
 
@@ -18,7 +19,11 @@
 - [**Stripe Usage Map**](./stripe-usage-map.md) - Complete Stripe integration analysis  
 - [**Environment Variables Inventory**](./env-supabase-stripe.md) - All 67 environment variables documented
 - [**Canonical vs Legacy Analysis**](./canonical-vs-legacy.md) - Migration roadmap and patterns
-- [**Never Hidden Routes Verification**](./never-hidden-routes.md) - Critical route availability proof
+- [**Never Hidden Routes Verification**](./NEVER_HIDDEN_ROUTES.md) - Critical route availability proof
+
+### 🔧 Consolidation Documentation
+- [**Consolidation Changes**](./CONSOLIDATION_CHANGES.md) - Complete change log of all refactoring
+- [**Environment Parity Analysis**](./ENV_DIFF.md) - .env.development vs Railway comparison
 
 ### 🔍 Technical Analysis
 - [**Flag Gates Analysis**](./flag-gates.json) - Feature flag dependency mapping

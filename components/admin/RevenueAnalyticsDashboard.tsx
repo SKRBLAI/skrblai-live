@@ -17,12 +17,8 @@ import {
   BarChart3,
   PieChart
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getBrowserSupabase } from '@/lib/supabase';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 interface RevenueMetrics {
   totalRevenue: number;
@@ -93,6 +89,20 @@ export default function RevenueAnalyticsDashboard() {
 
   // Fetch analytics data
   const fetchAnalytics = useCallback(async () => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.warn('Supabase not configured, skipping analytics fetch');
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if ARR dashboard is enabled
+    if (!FEATURE_FLAGS.ENABLE_ARR_DASH) {
+      console.warn('ARR Dashboard disabled by feature flag');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       
