@@ -3,12 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../components/context/AuthContext';
 import { trackFunnelEvent } from '../lib/analytics/userFunnelTracking';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface UsageMetrics {
   agentsUsedToday: number;
@@ -278,6 +273,13 @@ export default function useUsageBasedPricing(): UsageBasedPricingReturn {
   // Fetch usage data from backend
   const fetchUsageData = useCallback(async () => {
     if (!user?.id) return;
+
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.warn('Supabase not configured, skipping usage data fetch');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       setIsLoading(true);

@@ -1,4 +1,4 @@
-/** MMM: Canonical Supabase client exports. Single source of truth for all Supabase client access. */
+/** MMM: Canonical Supabase helpers */
 
 // Browser client (for client-side components)
 export { getBrowserSupabase } from './client';
@@ -6,13 +6,6 @@ export { getBrowserSupabase } from './client';
 // Server clients (for API routes and server-side code)
 export { getServerSupabaseAnon } from './server';
 export { getServerSupabaseAdmin } from './server';
-
-// Legacy exports for backward compatibility (deprecated)
-export { 
-  createSafeSupabaseClient,
-  getOptionalServerSupabase,
-  createServerSupabaseClient 
-} from './server';
 
 /**
  * Usage Guide:

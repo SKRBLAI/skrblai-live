@@ -1,0 +1,154 @@
+graph TD
+    %% Supabase Call Graph - SKRBL AI Platform
+    
+    %% Entry Points
+    HomePage["`🏠 **app/page.tsx**
+    Homepage Entry Point
+    Flags: HP_GUIDE_STAR`"]
+    
+    AgentsPage["`🤖 **app/agents/page.tsx**
+    Agents Page
+    Flags: ENABLE_ORBIT`"]
+    
+    DashboardAnalytics["`📊 **app/dashboard/analytics/page.tsx**
+    Analytics Dashboard
+    ⚠️ Direct createClient`"]
+    
+    %% Critical API Routes
+    StripeWebhook["`💳 **app/api/stripe/webhook/route.ts**
+    Stripe Webhook Handler
+    🔒 Admin Access
+    ✅ Always Available`"]
+    
+    CheckoutAPI["`🛒 **app/api/checkout/route.ts**
+    Checkout API
+    Flags: ENABLE_STRIPE`"]
+    
+    ScanAPI["`🔍 **app/api/scan/route.ts**
+    Business Scan API
+    🌐 Anon Access`"]
+    
+    LeadsAPI["`📝 **app/api/leads/submit/route.ts**
+    Lead Submission
+    🌐 Anon Access`"]
+    
+    HealthAPI["`🏥 **app/api/health/auth/route.ts**
+    Auth Health Check
+    🔒 Admin Access
+    ✅ Always Available`"]
+    
+    FoundersAPI["`👑 **app/api/founders/redeem/route.ts**
+    Founder Code Redemption
+    🔒 Admin Access`"]
+    
+    %% Canonical Supabase Infrastructure
+    SupabaseIndex["`📚 **lib/supabase/index.ts**
+    Canonical Entry Point
+    Exports: getBrowserSupabase
+    getServerSupabaseAdmin
+    getServerSupabaseAnon`"]
+    
+    SupabaseClient["`🖥️ **lib/supabase/client.ts**
+    Browser Client Factory
+    getBrowserSupabase()`"]
+    
+    SupabaseServer["`🖥️ **lib/supabase/server.ts**
+    Server Client Factory
+    Admin & Anon Clients`"]
+    
+    %% Legacy Infrastructure
+    LegacyUtils["`⚠️ **utils/supabase.ts**
+    Legacy Helper
+    🚨 Deprecated`"]
+    
+    LegacyHelpers["`⚠️ **utils/supabase-helpers.ts**
+    Legacy Helpers
+    🚨 Deprecated`"]
+    
+    %% Components
+    AdminDashboard["`🎛️ **components/admin/AccuracyDashboard.tsx**
+    Admin Dashboard
+    ⚠️ Direct createClient`"]
+    
+    RevenueDashboard["`💰 **components/admin/RevenueAnalyticsDashboard.tsx**
+    Revenue Dashboard
+    ⚠️ Direct createClient
+    Flags: ENABLE_ARR_DASH`"]
+    
+    AgentLeague["`🌟 **components/home/AgentLeaguePreview.tsx**
+    Agent League Preview
+    Flags: HP_GUIDE_STAR`"]
+    
+    %% Supabase Core
+    SupabaseCore["`⚡ **@supabase/supabase-js**
+    createClient()`"]
+    
+    %% Database Tables
+    ProfilesTable["`👤 **profiles**
+    User Management
+    🔒 RLS Enabled`"]
+    
+    LeadsTable["`📋 **leads**
+    Lead Capture
+    🔒 RLS Enabled`"]
+    
+    SubscriptionsTable["`💳 **subscriptions**
+    Stripe Integration
+    🔒 RLS Enabled`"]
+    
+    OrdersTable["`🛍️ **skillsmith_orders**
+    Sports Purchases
+    🔒 RLS Enabled`"]
+    
+    PaymentEventsTable["`💰 **payment_events**
+    Payment Tracking
+    🔒 RLS Enabled`"]
+    
+    SystemLogsTable["`📝 **system_logs**
+    System Monitoring
+    ❌ No RLS`"]
+    
+    %% Call Flow Connections
+    HomePage --> AgentLeague
+    
+    StripeWebhook --> SupabaseIndex
+    ScanAPI --> SupabaseIndex
+    LeadsAPI --> SupabaseIndex
+    HealthAPI --> SupabaseIndex
+    FoundersAPI --> SupabaseIndex
+    
+    SupabaseIndex --> SupabaseClient
+    SupabaseIndex --> SupabaseServer
+    
+    DashboardAnalytics --> SupabaseCore
+    AdminDashboard --> SupabaseCore
+    RevenueDashboard --> SupabaseCore
+    
+    SupabaseClient --> SupabaseCore
+    SupabaseServer --> SupabaseCore
+    
+    LegacyUtils --> SupabaseClient
+    LegacyHelpers --> SupabaseClient
+    
+    %% Database Connections
+    SupabaseCore --> ProfilesTable
+    SupabaseCore --> LeadsTable
+    SupabaseCore --> SubscriptionsTable
+    SupabaseCore --> OrdersTable
+    SupabaseCore --> PaymentEventsTable
+    SupabaseCore --> SystemLogsTable
+    
+    %% Styling
+    classDef entryPoint fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef canonical fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef legacy fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef critical fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef database fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef external fill:#f5f5f5,stroke:#424242,stroke-width:2px
+    
+    class HomePage,AgentsPage,DashboardAnalytics entryPoint
+    class SupabaseIndex,SupabaseClient,SupabaseServer canonical
+    class LegacyUtils,LegacyHelpers legacy
+    class StripeWebhook,HealthAPI critical
+    class ProfilesTable,LeadsTable,SubscriptionsTable,OrdersTable,PaymentEventsTable,SystemLogsTable database
+    class SupabaseCore external
