@@ -1,0 +1,368 @@
+{
+  "metadata": {
+    "generated_at": "2025-10-07T00:00:00Z",
+    "total_nodes": 47,
+    "entry_points": 12,
+    "leaf_nodes": 8,
+    "max_depth": 4
+  },
+  "entry_points": [
+    {
+      "id": "app_page",
+      "file": "app/page.tsx",
+      "kind": "page",
+      "context": "server",
+      "flags": ["HP_GUIDE_STAR", "HOMEPAGE_HERO_VARIANT"],
+      "supabase_usage": "indirect",
+      "calls": ["components_home_AgentLeaguePreview"]
+    },
+    {
+      "id": "app_agents_page",
+      "file": "app/agents/page.tsx", 
+      "kind": "page",
+      "context": "server",
+      "flags": ["ENABLE_ORBIT"],
+      "supabase_usage": "none",
+      "calls": []
+    },
+    {
+      "id": "app_dashboard_analytics",
+      "file": "app/dashboard/analytics/page.tsx",
+      "kind": "page", 
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "direct",
+      "calls": ["supabase_createClient_direct"]
+    },
+    {
+      "id": "api_stripe_webhook",
+      "file": "app/api/stripe/webhook/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "admin",
+      "calls": ["lib_supabase_getServerSupabaseAdmin"]
+    },
+    {
+      "id": "api_checkout",
+      "file": "app/api/checkout/route.ts",
+      "kind": "api",
+      "context": "server", 
+      "flags": ["ENABLE_STRIPE"],
+      "supabase_usage": "none",
+      "calls": []
+    },
+    {
+      "id": "api_scan",
+      "file": "app/api/scan/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "anon",
+      "calls": ["lib_supabase_getServerSupabaseAnon"]
+    },
+    {
+      "id": "api_leads_submit",
+      "file": "app/api/leads/submit/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "anon",
+      "calls": ["lib_supabase_getServerSupabaseAnon"]
+    },
+    {
+      "id": "api_health_auth",
+      "file": "app/api/health/auth/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "admin",
+      "calls": ["lib_supabase_getServerSupabaseAdmin"]
+    },
+    {
+      "id": "api_founders_redeem",
+      "file": "app/api/founders/redeem/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "supabase_usage": "admin", 
+      "calls": ["lib_supabase_getServerSupabaseAdmin"]
+    },
+    {
+      "id": "components_admin_AccuracyDashboard",
+      "file": "components/admin/AccuracyDashboard.tsx",
+      "kind": "component",
+      "context": "client",
+      "flags": [],
+      "supabase_usage": "direct_legacy",
+      "calls": ["supabase_createClient_direct"]
+    },
+    {
+      "id": "hooks_useUsageBasedPricing",
+      "file": "hooks/useUsageBasedPricing.ts",
+      "kind": "hook",
+      "context": "client",
+      "flags": [],
+      "supabase_usage": "direct_legacy",
+      "calls": ["supabase_createClient_direct"]
+    },
+    {
+      "id": "utils_supabase",
+      "file": "utils/supabase.ts",
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "supabase_usage": "factory",
+      "calls": ["lib_supabase_createSafeSupabaseClient"]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib_supabase_index",
+      "file": "lib/supabase/index.ts",
+      "kind": "lib",
+      "context": "both",
+      "flags": [],
+      "description": "Canonical Supabase exports",
+      "exports": ["getBrowserSupabase", "getServerSupabaseAnon", "getServerSupabaseAdmin"],
+      "calls": ["lib_supabase_client", "lib_supabase_server"]
+    },
+    {
+      "id": "lib_supabase_client",
+      "file": "lib/supabase/client.ts", 
+      "kind": "lib",
+      "context": "client",
+      "flags": [],
+      "description": "Browser Supabase client factory",
+      "exports": ["getBrowserSupabase", "createSafeSupabaseClient"],
+      "calls": ["supabase_createClient"]
+    },
+    {
+      "id": "lib_supabase_server",
+      "file": "lib/supabase/server.ts",
+      "kind": "lib", 
+      "context": "server",
+      "flags": [],
+      "description": "Server Supabase client factories",
+      "exports": ["getServerSupabaseAdmin", "getServerSupabaseAnon"],
+      "calls": ["supabase_createClient"]
+    },
+    {
+      "id": "lib_supabase_getServerSupabaseAdmin",
+      "file": "lib/supabase/server.ts",
+      "kind": "function",
+      "context": "server",
+      "flags": [],
+      "description": "Admin client with service role permissions",
+      "env_vars": ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "calls": ["supabase_createClient"]
+    },
+    {
+      "id": "lib_supabase_getServerSupabaseAnon",
+      "file": "lib/supabase/server.ts", 
+      "kind": "function",
+      "context": "server",
+      "flags": [],
+      "description": "Anon client respecting RLS",
+      "env_vars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+      "calls": ["supabase_createClient"]
+    },
+    {
+      "id": "lib_supabase_getBrowserSupabase",
+      "file": "lib/supabase/client.ts",
+      "kind": "function", 
+      "context": "client",
+      "flags": [],
+      "description": "Browser client for client-side components",
+      "env_vars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+      "calls": ["supabase_createClient"]
+    },
+    {
+      "id": "supabase_createClient",
+      "file": "@supabase/supabase-js",
+      "kind": "external",
+      "context": "both", 
+      "flags": [],
+      "description": "Official Supabase client constructor",
+      "calls": []
+    },
+    {
+      "id": "supabase_createClient_direct",
+      "file": "various",
+      "kind": "pattern",
+      "context": "both",
+      "flags": [],
+      "description": "Legacy direct createClient usage",
+      "calls": ["supabase_createClient"],
+      "legacy": true
+    },
+    {
+      "id": "components_home_AgentLeaguePreview",
+      "file": "components/home/AgentLeaguePreview.tsx",
+      "kind": "component",
+      "context": "client", 
+      "flags": ["HP_GUIDE_STAR"],
+      "supabase_usage": "none",
+      "description": "Agent league display component",
+      "calls": []
+    },
+    {
+      "id": "utils_db",
+      "file": "utils/db.ts",
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "supabase_usage": "legacy",
+      "calls": ["utils_supabase"]
+    },
+    {
+      "id": "utils_feedback",
+      "file": "utils/feedback.ts", 
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "supabase_usage": "legacy",
+      "calls": ["utils_supabase"]
+    },
+    {
+      "id": "utils_percyLogger",
+      "file": "utils/percyLogger.ts",
+      "kind": "util",
+      "context": "both", 
+      "flags": [],
+      "supabase_usage": "legacy",
+      "calls": ["utils_supabase"]
+    },
+    {
+      "id": "utils_systemLog",
+      "file": "utils/systemLog.ts",
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "supabase_usage": "legacy", 
+      "calls": ["utils_supabase"]
+    },
+    {
+      "id": "utils_tax",
+      "file": "utils/tax.ts",
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "supabase_usage": "legacy",
+      "calls": ["utils_supabase"]
+    }
+  ],
+  "call_paths": [
+    {
+      "path": "Stripe Webhook → Supabase Admin",
+      "nodes": ["api_stripe_webhook", "lib_supabase_getServerSupabaseAdmin", "supabase_createClient"],
+      "description": "Critical payment processing path",
+      "flags": [],
+      "always_available": true
+    },
+    {
+      "path": "Lead Submission → Supabase Anon", 
+      "nodes": ["api_leads_submit", "lib_supabase_getServerSupabaseAnon", "supabase_createClient"],
+      "description": "Public lead capture",
+      "flags": [],
+      "always_available": true
+    },
+    {
+      "path": "Health Check → Supabase Admin",
+      "nodes": ["api_health_auth", "lib_supabase_getServerSupabaseAdmin", "supabase_createClient"],
+      "description": "System monitoring",
+      "flags": [],
+      "always_available": true
+    },
+    {
+      "path": "Homepage → Agent League (Flagged)",
+      "nodes": ["app_page", "components_home_AgentLeaguePreview"],
+      "description": "Homepage enhancement",
+      "flags": ["HP_GUIDE_STAR"],
+      "always_available": false
+    },
+    {
+      "path": "Legacy Utils → Supabase Client",
+      "nodes": ["utils_db", "utils_supabase", "lib_supabase_createSafeSupabaseClient", "supabase_createClient"],
+      "description": "Legacy utility usage pattern",
+      "flags": [],
+      "deprecated": true
+    }
+  ],
+  "database_operations": [
+    {
+      "table": "profiles",
+      "operations": ["select", "update", "insert"],
+      "access_pattern": "admin",
+      "rls_enabled": true,
+      "used_by": ["api_stripe_webhook", "api_founders_redeem", "api_health_auth"]
+    },
+    {
+      "table": "leads", 
+      "operations": ["insert", "select"],
+      "access_pattern": "anon",
+      "rls_enabled": true,
+      "used_by": ["api_leads_submit", "api_scan"]
+    },
+    {
+      "table": "subscriptions",
+      "operations": ["insert", "update", "select"],
+      "access_pattern": "admin", 
+      "rls_enabled": true,
+      "used_by": ["api_stripe_webhook"]
+    },
+    {
+      "table": "skillsmith_orders",
+      "operations": ["insert", "select"],
+      "access_pattern": "admin",
+      "rls_enabled": true,
+      "used_by": ["api_stripe_webhook"]
+    },
+    {
+      "table": "payment_events",
+      "operations": ["insert"],
+      "access_pattern": "admin",
+      "rls_enabled": true, 
+      "used_by": ["api_stripe_webhook"]
+    },
+    {
+      "table": "system_logs",
+      "operations": ["insert"],
+      "access_pattern": "admin",
+      "rls_enabled": false,
+      "used_by": ["utils_systemLog"]
+    },
+    {
+      "table": "percy_logs",
+      "operations": ["select", "insert"],
+      "access_pattern": "anon",
+      "rls_enabled": true,
+      "used_by": ["utils_percyLogger", "api_percy_scan"]
+    }
+  ],
+  "security_analysis": {
+    "admin_client_usage": [
+      "api_stripe_webhook",
+      "api_health_auth", 
+      "api_founders_redeem",
+      "components_admin_AccuracyDashboard"
+    ],
+    "anon_client_usage": [
+      "api_scan",
+      "api_leads_submit",
+      "api_contact_submit"
+    ],
+    "direct_client_creation": [
+      "components_admin_AccuracyDashboard",
+      "components_admin_RevenueAnalyticsDashboard",
+      "app_dashboard_analytics",
+      "hooks_useUsageBasedPricing"
+    ],
+    "rls_bypass_operations": [
+      "Stripe webhook payment processing",
+      "Founder code validation",
+      "System health monitoring",
+      "Admin dashboard queries"
+    ]
+  }
+}

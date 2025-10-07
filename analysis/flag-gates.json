@@ -1,0 +1,297 @@
+{
+  "summary": {
+    "total_files_scanned": 127,
+    "files_with_flags": 43,
+    "unique_flags_found": 18,
+    "gated_features": 28,
+    "unguarded_features": 15,
+    "indirectly_gated": 8
+  },
+  "flags": [
+    {
+      "flag": "ENABLE_STRIPE",
+      "env_var": "NEXT_PUBLIC_ENABLE_STRIPE",
+      "default_value": true,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 30,
+          "pattern": "readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', true)",
+          "severity": "critical",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "components/pricing/BuyButton.tsx",
+          "line": 27,
+          "pattern": "const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;",
+          "severity": "high",
+          "classification": "gated_by_flag"
+        },
+        {
+          "file": "components/payments/CheckoutButton.tsx",
+          "line": 21,
+          "pattern": "const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;",
+          "severity": "high",
+          "classification": "gated_by_flag"
+        },
+        {
+          "file": "app/api/env-check/route.ts",
+          "line": 54,
+          "pattern": "NEXT_PUBLIC_ENABLE_STRIPE: checkEnvVar('NEXT_PUBLIC_ENABLE_STRIPE')",
+          "severity": "medium",
+          "classification": "diagnostic"
+        }
+      ]
+    },
+    {
+      "flag": "HP_GUIDE_STAR",
+      "env_var": "NEXT_PUBLIC_HP_GUIDE_STAR",
+      "default_value": true,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 22,
+          "pattern": "HP_GUIDE_STAR: readBooleanFlag('NEXT_PUBLIC_HP_GUIDE_STAR', true)",
+          "severity": "medium",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "components/home/HomeHeroScanFirst.tsx",
+          "line": 28,
+          "pattern": "const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        },
+        {
+          "file": "components/home/AgentLeaguePreview.tsx",
+          "line": 123,
+          "pattern": "const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        },
+        {
+          "file": "app/page.tsx",
+          "line": 25,
+          "pattern": "const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        }
+      ]
+    },
+    {
+      "flag": "ENABLE_ORBIT",
+      "env_var": "NEXT_PUBLIC_ENABLE_ORBIT",
+      "default_value": false,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 26,
+          "pattern": "ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false)",
+          "severity": "low",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "app/agents/page.tsx",
+          "line": 40,
+          "pattern": "const isOrbitEnabled = FEATURE_FLAGS.ENABLE_ORBIT;",
+          "severity": "low",
+          "classification": "gated_by_flag"
+        }
+      ]
+    },
+    {
+      "flag": "ENABLE_LEGACY",
+      "env_var": "NEXT_PUBLIC_ENABLE_LEGACY",
+      "default_value": false,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 33,
+          "pattern": "ENABLE_LEGACY: readBooleanFlag('NEXT_PUBLIC_ENABLE_LEGACY', false)",
+          "severity": "low",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "components/home/PercyOnboardingRevolution.tsx",
+          "line": 111,
+          "pattern": "if (!FEATURE_FLAGS.ENABLE_LEGACY) {",
+          "severity": "low",
+          "classification": "gated_by_flag"
+        }
+      ]
+    },
+    {
+      "flag": "ENABLE_BUNDLES",
+      "env_var": "NEXT_PUBLIC_ENABLE_BUNDLES",
+      "default_value": false,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 34,
+          "pattern": "ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false)",
+          "severity": "medium",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "components/sports/PlansAndBundles.tsx",
+          "line": 48,
+          "pattern": "const bundles = FEATURE_FLAGS.ENABLE_BUNDLES ? [",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        },
+        {
+          "file": "middleware.ts",
+          "line": 66,
+          "pattern": "if (process.env.NEXT_PUBLIC_ENABLE_BUNDLES !== '1' && (",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        }
+      ]
+    },
+    {
+      "flag": "ENABLE_ARR_DASH",
+      "env_var": "NEXT_PUBLIC_ENABLE_ARR_DASH",
+      "default_value": false,
+      "type": "boolean",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 27,
+          "pattern": "ENABLE_ARR_DASH: readBooleanFlag('NEXT_PUBLIC_ENABLE_ARR_DASH', false)",
+          "severity": "medium",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "app/dashboard/analytics/internal/page.tsx",
+          "line": 82,
+          "pattern": "const ARR_DASH_ENABLED = FEATURE_FLAGS.ENABLE_ARR_DASH;",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        }
+      ]
+    },
+    {
+      "flag": "HOMEPAGE_HERO_VARIANT",
+      "env_var": "NEXT_PUBLIC_HOMEPAGE_HERO_VARIANT",
+      "default_value": "scan-first",
+      "type": "string",
+      "files": [
+        {
+          "file": "lib/config/featureFlags.ts",
+          "line": 23,
+          "pattern": "HOMEPAGE_HERO_VARIANT: (process.env.NEXT_PUBLIC_HOMEPAGE_HERO_VARIANT ?? 'scan-first')",
+          "severity": "medium",
+          "classification": "flag_definition"
+        },
+        {
+          "file": "app/page.tsx",
+          "line": 16,
+          "pattern": "const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;",
+          "severity": "medium",
+          "classification": "gated_by_flag"
+        }
+      ]
+    }
+  ],
+  "unguarded_features": [
+    {
+      "file": "app/api/stripe/webhook/route.ts",
+      "feature": "Stripe webhook processing",
+      "classification": "unguarded",
+      "reason": "Critical for existing subscriptions - must always work",
+      "severity": "intentional"
+    },
+    {
+      "file": "app/api/health/auth/route.ts",
+      "feature": "Authentication health check",
+      "classification": "unguarded",
+      "reason": "System monitoring - always available",
+      "severity": "intentional"
+    },
+    {
+      "file": "app/api/health/route.ts",
+      "feature": "General health check",
+      "classification": "unguarded",
+      "reason": "System monitoring - always available",
+      "severity": "intentional"
+    },
+    {
+      "file": "lib/supabase/index.ts",
+      "feature": "Supabase client creation",
+      "classification": "unguarded",
+      "reason": "Core infrastructure - handles missing env gracefully",
+      "severity": "intentional"
+    },
+    {
+      "file": "lib/stripe/priceResolver.ts",
+      "feature": "Price ID resolution",
+      "classification": "unguarded",
+      "reason": "Used for display purposes even when Stripe disabled",
+      "severity": "intentional"
+    }
+  ],
+  "indirectly_gated": [
+    {
+      "file": "app/api/checkout/route.ts",
+      "feature": "Checkout session creation",
+      "classification": "indirectly_gated",
+      "gate_mechanism": "requireStripe() function checks ENABLE_STRIPE",
+      "severity": "medium"
+    },
+    {
+      "file": "utils/stripe.ts",
+      "feature": "Stripe client initialization",
+      "classification": "indirectly_gated",
+      "gate_mechanism": "Depends on environment variables being set",
+      "severity": "low"
+    }
+  ],
+  "critical_paths": [
+    {
+      "path": "Stripe Payment Flow",
+      "entry_points": ["components/pricing/BuyButton.tsx", "components/payments/CheckoutButton.tsx"],
+      "flag_dependencies": ["ENABLE_STRIPE"],
+      "fallback_behavior": "Shows 'Contact Sales' button",
+      "severity": "high"
+    },
+    {
+      "path": "Homepage Hero Display",
+      "entry_points": ["app/page.tsx"],
+      "flag_dependencies": ["HP_GUIDE_STAR", "HOMEPAGE_HERO_VARIANT"],
+      "fallback_behavior": "Shows basic hero without enhancements",
+      "severity": "medium"
+    },
+    {
+      "path": "Agent League Display",
+      "entry_points": ["app/agents/page.tsx"],
+      "flag_dependencies": ["ENABLE_ORBIT"],
+      "fallback_behavior": "Shows grid layout instead of orbit animation",
+      "severity": "low"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "high",
+      "action": "Audit all Stripe-related components for consistent ENABLE_STRIPE flag usage",
+      "files_affected": ["components/pricing/*", "components/payments/*"],
+      "impact": "Ensures consistent behavior when Stripe is disabled"
+    },
+    {
+      "priority": "medium",
+      "action": "Consider removing ENABLE_LEGACY flag if no legacy code paths remain",
+      "files_affected": ["components/home/PercyOnboardingRevolution.tsx"],
+      "impact": "Reduces complexity and maintenance burden"
+    },
+    {
+      "priority": "low",
+      "action": "Add runtime validation for flag consistency",
+      "files_affected": ["lib/config/featureFlags.ts"],
+      "impact": "Prevents configuration errors in production"
+    }
+  ]
+}

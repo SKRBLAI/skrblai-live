@@ -1,0 +1,211 @@
+graph TD
+    %% Stripe Call Graph - SKRBL AI Platform
+    
+    %% Entry Points - Components
+    BuyButton["`🛒 **components/pricing/BuyButton.tsx**
+    Buy Button Component
+    Flags: ENABLE_STRIPE`"]
+    
+    CheckoutButton["`💳 **components/payments/CheckoutButton.tsx**
+    Checkout Button Component
+    Flags: ENABLE_STRIPE`"]
+    
+    PlansAndBundles["`📦 **components/sports/PlansAndBundles.tsx**
+    Plans & Bundles Display
+    Flags: ENABLE_BUNDLES`"]
+    
+    SkillSmithGrid["`🎯 **components/skillsmith/SkillSmithProductsGrid.tsx**
+    Product Grid Display
+    💡 Display Only`"]
+    
+    %% Entry Points - Pages
+    CheckoutPage["`📄 **app/checkout/page.tsx**
+    Checkout Page
+    💡 Display Only`"]
+    
+    SportsPage["`⚽ **app/sports/page.tsx**
+    Sports Landing Page
+    💡 Display Only`"]
+    
+    %% API Routes
+    CheckoutAPI["`🛒 **app/api/checkout/route.ts**
+    Main Checkout Endpoint
+    Flags: ENABLE_STRIPE
+    ✅ Primary Route`"]
+    
+    StripeWebhook["`🔔 **app/api/stripe/webhook/route.ts**
+    Stripe Webhook Handler
+    ✅ Always Available
+    🔒 Critical`"]
+    
+    CreateCheckoutSession["`📝 **app/api/stripe/create-checkout-session/route.ts**
+    Legacy Checkout Session
+    ⚠️ Deprecated`"]
+    
+    CreateSession["`🆕 **app/api/stripe/create-session/route.ts**
+    Session Creation
+    ⚠️ Legacy`"]
+    
+    CalculateTax["`💰 **app/api/stripe/calculate-tax/route.ts**
+    Tax Calculation
+    🧮 Utility`"]
+    
+    %% Canonical Stripe Infrastructure
+    PriceResolver["`🎯 **lib/stripe/priceResolver.ts**
+    Canonical Price Resolution
+    resolvePriceIdFromSku()
+    getSupportedSkus()`"]
+    
+    StripeFactory["`🏭 **lib/stripe/stripe.ts**
+    Stripe Client Factory
+    requireStripe()
+    Flags: ENABLE_STRIPE`"]
+    
+    StripeUtils["`🔧 **utils/stripe.ts**
+    Stripe Utilities
+    getStripePromise()
+    createCheckoutSession()`"]
+    
+    %% Pricing Data Sources
+    BusinessPricing["`🏢 **lib/business/pricingData.ts**
+    Business Pricing Config
+    getBusinessPlanBySku()`"]
+    
+    SportsPricing["`⚽ **lib/sports/pricingData.ts**
+    Sports Pricing Config
+    getSportsPlanBySku()`"]
+    
+    CatalogShared["`📊 **lib/pricing/catalogShared.ts**
+    Shared Pricing Logic
+    isPromoActive()`"]
+    
+    %% External Stripe APIs
+    StripeJS["`🌐 **@stripe/stripe-js**
+    loadStripe()`"]
+    
+    StripeNode["`🖥️ **stripe (Node.js)**
+    Stripe Constructor
+    checkout.sessions.create()
+    webhooks.constructEvent()`"]
+    
+    %% Testing & Development
+    TestResolver["`🧪 **scripts/test-stripe-resolver.js**
+    Price Resolver Testing`"]
+    
+    SmokeTest["`🔥 **scripts/smoke-checkout.ts**
+    Checkout Endpoint Testing`"]
+    
+    SeedPricing["`🌱 **scripts/seed-stripe-pricing.js**
+    Stripe Product/Price Creation`"]
+    
+    SeedBusiness["`🏢 **scripts/seed-stripe-business.js**
+    Business Pricing Setup`"]
+    
+    SeedAddons["`🔌 **scripts/seed-stripe-addons.js**
+    Add-on Pricing Setup`"]
+    
+    %% Database Integration
+    SupabaseAdmin["`🔒 **getServerSupabaseAdmin()**
+    Supabase Admin Client`"]
+    
+    %% Component Flow
+    BuyButton --> CheckoutAPI
+    CheckoutButton --> CheckoutAPI
+    PlansAndBundles --> PriceResolver
+    
+    %% API Flow
+    CheckoutAPI --> PriceResolver
+    CheckoutAPI --> StripeFactory
+    CheckoutAPI --> BusinessPricing
+    CheckoutAPI --> SportsPricing
+    CheckoutAPI --> CatalogShared
+    
+    StripeWebhook --> StripeFactory
+    StripeWebhook --> SupabaseAdmin
+    
+    CreateCheckoutSession --> StripeUtils
+    CreateSession --> StripeUtils
+    CalculateTax --> StripeUtils
+    
+    %% Infrastructure Flow
+    StripeFactory --> StripeNode
+    StripeUtils --> StripeJS
+    StripeUtils --> StripeNode
+    
+    PriceResolver --> BusinessPricing
+    PriceResolver --> SportsPricing
+    
+    %% Testing Flow
+    TestResolver --> PriceResolver
+    SmokeTest --> CheckoutAPI
+    SeedPricing --> StripeNode
+    SeedBusiness --> StripeNode
+    SeedAddons --> StripeNode
+    
+    %% Price Resolution Flow
+    subgraph "Price Resolution System"
+        PriceResolver
+        BusinessPricing
+        SportsPricing
+        CatalogShared
+    end
+    
+    %% Environment Variables
+    subgraph "Environment Variables"
+        EnvPublishable["`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`"]
+        EnvSecret["`STRIPE_SECRET_KEY`"]
+        EnvWebhook["`STRIPE_WEBHOOK_SECRET`"]
+        EnvPrices["`47+ Price ID Variables
+        NEXT_PUBLIC_STRIPE_PRICE_*`"]
+    end
+    
+    %% SKU Patterns
+    subgraph "Supported SKUs"
+        SportsPlans["`Sports Plans:
+        sports_plan_starter
+        sports_plan_pro
+        sports_plan_elite`"]
+        
+        BusinessPlans["`Business Plans:
+        biz_plan_starter
+        biz_plan_pro
+        biz_plan_elite`"]
+        
+        Addons["`Add-ons:
+        sports_addon_*
+        biz_addon_*`"]
+    end
+    
+    %% Webhook Events
+    subgraph "Webhook Events"
+        CheckoutCompleted["`checkout.session.completed`"]
+        SubscriptionCreated["`customer.subscription.created`"]
+        SubscriptionUpdated["`customer.subscription.updated`"]
+        SubscriptionDeleted["`customer.subscription.deleted`"]
+        PaymentSucceeded["`invoice.payment_succeeded`"]
+        PaymentIntentSucceeded["`payment_intent.succeeded`"]
+    end
+    
+    StripeWebhook --> CheckoutCompleted
+    StripeWebhook --> SubscriptionCreated
+    StripeWebhook --> SubscriptionUpdated
+    StripeWebhook --> SubscriptionDeleted
+    StripeWebhook --> PaymentSucceeded
+    StripeWebhook --> PaymentIntentSucceeded
+    
+    %% Styling
+    classDef component fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef api fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef canonical fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+    classDef legacy fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef external fill:#f5f5f5,stroke:#424242,stroke-width:2px
+    classDef testing fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef critical fill:#ffcdd2,stroke:#d32f2f,stroke-width:3px
+    
+    class BuyButton,CheckoutButton,PlansAndBundles,SkillSmithGrid,CheckoutPage,SportsPage component
+    class CheckoutAPI,StripeWebhook,CreateCheckoutSession,CreateSession,CalculateTax api
+    class PriceResolver,StripeFactory,StripeUtils,BusinessPricing,SportsPricing,CatalogShared canonical
+    class CreateCheckoutSession,CreateSession legacy
+    class StripeJS,StripeNode external
+    class TestResolver,SmokeTest,SeedPricing,SeedBusiness,SeedAddons testing
+    class StripeWebhook critical

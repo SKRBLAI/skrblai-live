@@ -1,0 +1,451 @@
+{
+  "metadata": {
+    "generated_at": "2025-10-07T00:00:00Z",
+    "total_nodes": 38,
+    "entry_points": 15,
+    "leaf_nodes": 6,
+    "max_depth": 4
+  },
+  "entry_points": [
+    {
+      "id": "components_pricing_BuyButton",
+      "file": "components/pricing/BuyButton.tsx",
+      "kind": "component",
+      "context": "client",
+      "flags": ["ENABLE_STRIPE"],
+      "stripe_usage": "indirect",
+      "calls": ["api_checkout"]
+    },
+    {
+      "id": "components_payments_CheckoutButton",
+      "file": "components/payments/CheckoutButton.tsx", 
+      "kind": "component",
+      "context": "client",
+      "flags": ["ENABLE_STRIPE"],
+      "stripe_usage": "indirect",
+      "calls": ["api_checkout"]
+    },
+    {
+      "id": "components_sports_PlansAndBundles",
+      "file": "components/sports/PlansAndBundles.tsx",
+      "kind": "component",
+      "context": "client", 
+      "flags": ["ENABLE_BUNDLES"],
+      "stripe_usage": "display_only",
+      "calls": []
+    },
+    {
+      "id": "api_checkout",
+      "file": "app/api/checkout/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": ["ENABLE_STRIPE"],
+      "stripe_usage": "session_creation",
+      "calls": ["lib_stripe_priceResolver", "lib_stripe_requireStripe"]
+    },
+    {
+      "id": "api_stripe_webhook",
+      "file": "app/api/stripe/webhook/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "stripe_usage": "webhook_processing",
+      "calls": ["lib_stripe_requireStripe", "lib_supabase_getServerSupabaseAdmin"]
+    },
+    {
+      "id": "api_stripe_create_checkout_session",
+      "file": "app/api/stripe/create-checkout-session/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "stripe_usage": "legacy_session_creation",
+      "calls": ["utils_stripe"]
+    },
+    {
+      "id": "api_stripe_create_session",
+      "file": "app/api/stripe/create-session/route.ts",
+      "kind": "api",
+      "context": "server",
+      "flags": [],
+      "stripe_usage": "session_creation",
+      "calls": ["utils_stripe"]
+    },
+    {
+      "id": "api_stripe_calculate_tax",
+      "file": "app/api/stripe/calculate-tax/route.ts",
+      "kind": "api", 
+      "context": "server",
+      "flags": [],
+      "stripe_usage": "tax_calculation",
+      "calls": ["utils_stripe"]
+    },
+    {
+      "id": "scripts_seed_stripe_pricing",
+      "file": "scripts/seed-stripe-pricing.js",
+      "kind": "script",
+      "context": "node",
+      "flags": [],
+      "stripe_usage": "product_management",
+      "calls": ["stripe_direct"]
+    },
+    {
+      "id": "scripts_test_stripe_resolver",
+      "file": "scripts/test-stripe-resolver.js", 
+      "kind": "script",
+      "context": "node",
+      "flags": [],
+      "stripe_usage": "testing",
+      "calls": ["lib_stripe_priceResolver"]
+    },
+    {
+      "id": "scripts_smoke_checkout",
+      "file": "scripts/smoke-checkout.ts",
+      "kind": "script",
+      "context": "node",
+      "flags": [],
+      "stripe_usage": "testing",
+      "calls": ["api_checkout"]
+    },
+    {
+      "id": "app_checkout_page",
+      "file": "app/checkout/page.tsx",
+      "kind": "page",
+      "context": "client",
+      "flags": [],
+      "stripe_usage": "display_only",
+      "calls": []
+    },
+    {
+      "id": "app_sports_page",
+      "file": "app/sports/page.tsx",
+      "kind": "page",
+      "context": "client",
+      "flags": [],
+      "stripe_usage": "display_only", 
+      "calls": []
+    },
+    {
+      "id": "components_skillsmith_SkillSmithProductsGrid",
+      "file": "components/skillsmith/SkillSmithProductsGrid.tsx",
+      "kind": "component",
+      "context": "client",
+      "flags": [],
+      "stripe_usage": "display_only",
+      "calls": []
+    },
+    {
+      "id": "utils_stripe",
+      "file": "utils/stripe.ts",
+      "kind": "util",
+      "context": "both",
+      "flags": [],
+      "stripe_usage": "client_factory",
+      "calls": ["stripe_loadStripe", "stripe_constructor"]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib_stripe_priceResolver",
+      "file": "lib/stripe/priceResolver.ts",
+      "kind": "lib",
+      "context": "both",
+      "flags": [],
+      "description": "Canonical price ID resolution",
+      "exports": ["resolvePriceIdFromSku", "getSupportedSkus", "generateResolverParityReport"],
+      "calls": []
+    },
+    {
+      "id": "lib_stripe_requireStripe",
+      "file": "lib/stripe/stripe.ts",
+      "kind": "lib",
+      "context": "server",
+      "flags": ["ENABLE_STRIPE"],
+      "description": "Server Stripe client factory with flag checking",
+      "exports": ["requireStripe"],
+      "calls": ["stripe_constructor"]
+    },
+    {
+      "id": "utils_stripe_getStripePromise",
+      "file": "utils/stripe.ts",
+      "kind": "function",
+      "context": "client",
+      "flags": [],
+      "description": "Client-side Stripe promise factory",
+      "env_vars": ["NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"],
+      "calls": ["stripe_loadStripe"]
+    },
+    {
+      "id": "utils_stripe_createCheckoutSession",
+      "file": "utils/stripe.ts",
+      "kind": "function",
+      "context": "server",
+      "flags": [],
+      "description": "Legacy checkout session creation",
+      "calls": ["stripe_checkout_sessions_create"]
+    },
+    {
+      "id": "stripe_loadStripe",
+      "file": "@stripe/stripe-js",
+      "kind": "external",
+      "context": "client",
+      "flags": [],
+      "description": "Official Stripe.js loader",
+      "calls": []
+    },
+    {
+      "id": "stripe_constructor",
+      "file": "stripe",
+      "kind": "external", 
+      "context": "server",
+      "flags": [],
+      "description": "Server-side Stripe constructor",
+      "calls": []
+    },
+    {
+      "id": "stripe_checkout_sessions_create",
+      "file": "stripe",
+      "kind": "external_method",
+      "context": "server",
+      "flags": [],
+      "description": "Stripe checkout session creation",
+      "calls": []
+    },
+    {
+      "id": "stripe_webhooks_constructEvent",
+      "file": "stripe",
+      "kind": "external_method",
+      "context": "server",
+      "flags": [],
+      "description": "Stripe webhook event verification",
+      "calls": []
+    },
+    {
+      "id": "lib_business_pricingData",
+      "file": "lib/business/pricingData.ts",
+      "kind": "lib",
+      "context": "both",
+      "flags": [],
+      "description": "Business pricing configuration",
+      "exports": ["getBusinessPlanBySku", "getBusinessAddonBySku"],
+      "calls": []
+    },
+    {
+      "id": "lib_sports_pricingData", 
+      "file": "lib/sports/pricingData.ts",
+      "kind": "lib",
+      "context": "both",
+      "flags": [],
+      "description": "Sports pricing configuration",
+      "exports": ["getSportsPlanBySku", "getSportsAddonBySku"],
+      "calls": []
+    },
+    {
+      "id": "lib_pricing_catalogShared",
+      "file": "lib/pricing/catalogShared.ts",
+      "kind": "lib",
+      "context": "both",
+      "flags": [],
+      "description": "Shared pricing logic and promo handling",
+      "exports": ["isPromoActive", "STANDARD_PROMO_CONFIG"],
+      "calls": []
+    }
+  ],
+  "call_paths": [
+    {
+      "path": "Buy Button → Checkout → Stripe Session",
+      "nodes": ["components_pricing_BuyButton", "api_checkout", "lib_stripe_priceResolver", "lib_stripe_requireStripe", "stripe_checkout_sessions_create"],
+      "description": "Primary purchase flow",
+      "flags": ["ENABLE_STRIPE"],
+      "always_available": false
+    },
+    {
+      "path": "Stripe Webhook → Event Processing",
+      "nodes": ["api_stripe_webhook", "lib_stripe_requireStripe", "stripe_webhooks_constructEvent"],
+      "description": "Critical webhook processing",
+      "flags": [],
+      "always_available": true
+    },
+    {
+      "path": "Price Display → Resolver",
+      "nodes": ["components_sports_PlansAndBundles", "lib_stripe_priceResolver"],
+      "description": "Price information display",
+      "flags": [],
+      "always_available": true
+    },
+    {
+      "path": "Legacy Checkout → Utils Stripe",
+      "nodes": ["api_stripe_create_checkout_session", "utils_stripe", "stripe_constructor"],
+      "description": "Legacy checkout implementation", 
+      "flags": [],
+      "deprecated": true
+    },
+    {
+      "path": "SKU Testing → Price Resolution",
+      "nodes": ["scripts_test_stripe_resolver", "lib_stripe_priceResolver"],
+      "description": "Development testing flow",
+      "flags": [],
+      "testing_only": true
+    }
+  ],
+  "pricing_resolution": {
+    "supported_skus": [
+      "sports_plan_starter",
+      "sports_plan_pro", 
+      "sports_plan_elite",
+      "biz_plan_starter",
+      "biz_plan_pro",
+      "biz_plan_elite",
+      "biz_plan_starter_m",
+      "biz_plan_pro_m",
+      "biz_plan_elite_m",
+      "sports_addon_video",
+      "sports_addon_emotion",
+      "sports_addon_nutrition",
+      "sports_addon_foundation",
+      "biz_addon_adv_analytics",
+      "biz_addon_automation",
+      "biz_addon_team_seat"
+    ],
+    "resolution_patterns": {
+      "sports_plans": {
+        "starter": ["STRIPE_PRICE_STARTER", "STRIPE_PRICE_SPORTS_STARTER", "STRIPE_PRICE_ROOKIE", "*_M"],
+        "pro": ["STRIPE_PRICE_PRO", "STRIPE_PRICE_SPORTS_PRO", "*_M"],
+        "elite": ["STRIPE_PRICE_ELITE", "STRIPE_PRICE_SPORTS_ELITE", "STRIPE_PRICE_ALLSTAR", "*_M"]
+      },
+      "business_plans": {
+        "pattern": ["STRIPE_PRICE_BIZ_{TIER}", "STRIPE_PRICE_BIZ_{TIER}_M"]
+      },
+      "addons": {
+        "sports": ["STRIPE_PRICE_ADDON_{SLUG}", "STRIPE_PRICE_ADDON_{SLUG}_M"],
+        "business": ["STRIPE_PRICE_BIZ_ADDON_{SLUG}", "STRIPE_PRICE_BIZ_ADDON_{SLUG}_M"]
+      }
+    }
+  },
+  "environment_variables": {
+    "core_keys": [
+      "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "STRIPE_SECRET_KEY", 
+      "STRIPE_WEBHOOK_SECRET"
+    ],
+    "price_ids": {
+      "sports_plans": [
+        "NEXT_PUBLIC_STRIPE_PRICE_STARTER",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER",
+        "NEXT_PUBLIC_STRIPE_PRICE_ROOKIE",
+        "NEXT_PUBLIC_STRIPE_PRICE_PRO",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO", 
+        "NEXT_PUBLIC_STRIPE_PRICE_ELITE",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE",
+        "NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR"
+      ],
+      "business_plans": [
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE"
+      ],
+      "monthly_variants": [
+        "NEXT_PUBLIC_STRIPE_PRICE_STARTER_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_STARTER_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_ROOKIE_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_PRO_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_PRO_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_ELITE_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_SPORTS_ELITE_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_STARTER_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_PRO_M",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ELITE_M"
+      ],
+      "addons": [
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO",
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION",
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_NUTRITION", 
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_FOUNDATION",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT"
+      ],
+      "promo_variants": [
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_VIDEO_PROMO",
+        "NEXT_PUBLIC_STRIPE_PRICE_ADDON_EMOTION_PROMO",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_ADV_ANALYTICS_PROMO",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_AUTOMATION_PROMO",
+        "NEXT_PUBLIC_STRIPE_PRICE_BIZ_ADDON_TEAM_SEAT_PROMO"
+      ]
+    }
+  },
+  "webhook_events": [
+    {
+      "event": "checkout.session.completed",
+      "handler": "handleCheckoutCompleted",
+      "supabase_operations": ["subscriptions.insert", "profiles.update", "skillsmith_orders.insert"],
+      "always_processed": true
+    },
+    {
+      "event": "customer.subscription.created",
+      "handler": "handleSubscriptionCreated", 
+      "supabase_operations": ["profiles.update", "subscriptions.insert"],
+      "always_processed": true
+    },
+    {
+      "event": "customer.subscription.updated",
+      "handler": "handleSubscriptionUpdated",
+      "supabase_operations": ["profiles.update", "subscriptions.update"],
+      "always_processed": true
+    },
+    {
+      "event": "customer.subscription.deleted",
+      "handler": "handleSubscriptionDeleted",
+      "supabase_operations": ["profiles.update", "subscriptions.update"],
+      "always_processed": true
+    },
+    {
+      "event": "invoice.payment_succeeded",
+      "handler": "handleInvoicePaymentSucceeded",
+      "supabase_operations": ["payment_events.insert"],
+      "always_processed": true
+    },
+    {
+      "event": "payment_intent.succeeded", 
+      "handler": "handlePaymentIntentSucceeded",
+      "supabase_operations": ["payment_events.insert"],
+      "always_processed": true
+    }
+  ],
+  "flag_integration": {
+    "enable_stripe": {
+      "flag": "FEATURE_FLAGS.ENABLE_STRIPE",
+      "default": true,
+      "affects": [
+        "components_pricing_BuyButton",
+        "components_payments_CheckoutButton",
+        "api_checkout"
+      ],
+      "fallback_behavior": "Shows 'Contact Sales' button"
+    },
+    "enable_bundles": {
+      "flag": "FEATURE_FLAGS.ENABLE_BUNDLES", 
+      "default": false,
+      "affects": [
+        "components_sports_PlansAndBundles"
+      ],
+      "fallback_behavior": "Hides bundle pricing options"
+    }
+  },
+  "security_analysis": {
+    "webhook_security": {
+      "signature_verification": true,
+      "secret_required": "STRIPE_WEBHOOK_SECRET",
+      "always_available": true
+    },
+    "api_key_usage": {
+      "publishable_key_exposure": "client_safe",
+      "secret_key_protection": "server_only",
+      "webhook_secret_protection": "server_only"
+    },
+    "price_id_exposure": {
+      "all_price_ids": "client_safe",
+      "reasoning": "Price IDs are not sensitive and needed for display"
+    }
+  }
+}
