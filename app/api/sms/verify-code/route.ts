@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 // This would be shared with send-verification in production
 const verificationCodes = new Map<string, { code: string; expires: number; vipTier: string }>();
@@ -21,6 +21,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Phone number and verification code are required' },
         { status: 400 }
+      );
+    }
+
+    // Get Supabase client
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database unavailable' },
+        { status: 503 }
       );
     }
 

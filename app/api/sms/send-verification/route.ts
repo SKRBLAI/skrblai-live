@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { sendSms } from '../../../../utils/twilioSms';
 
 // GET handler for health check
@@ -35,6 +35,15 @@ export async function POST(req: NextRequest) {
 
     // Generate 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Get Supabase client
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json(
+        { success: false, error: 'Database unavailable' },
+        { status: 503 }
+      );
+    }
 
     // Store verification code in database with expiration
     const { error: dbError } = await supabase
