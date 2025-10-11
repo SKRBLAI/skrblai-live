@@ -67,15 +67,11 @@ export async function POST(req: NextRequest) {
 
     // Optional Supabase storage (best-effort, don't add new dependencies)
     try {
-      // Only attempt if we have existing Supabase setup
-      const { createClient } = await import("@supabase/supabase-js");
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const { getServerSupabaseAdmin } = await import("@/lib/supabase");
+      const supabase = getServerSupabaseAdmin();
 
-      if (supabaseUrl && supabaseKey) {
+      if (supabase) {
         console.log("[Business Onboarding] Storing in Supabase...");
-        
-        const supabase = createClient(supabaseUrl, supabaseKey);
         
         const { error } = await supabase
           .from("business_leads")

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 const RATE_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 const RATE_LIMIT = 10;
 const bucket = new Map<string, { count: number; resetAt: number }>();
-
 // Cleanup old entries periodically to prevent memory leaks
 setInterval(() => {
   const now = Date.now();
@@ -54,14 +53,12 @@ function checkRate(ip: string) {
 
 async function getUserSession(req: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabase = getServerSupabaseAdmin();
     
-    if (!supabaseUrl || !supabaseKey) {
+    if (!supabase) {
       return null;
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
     const authHeader = req.headers.get('authorization');
     
     if (!authHeader?.startsWith('Bearer ')) {

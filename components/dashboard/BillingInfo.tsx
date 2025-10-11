@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createCustomerPortalLink } from '../../utils/stripe';
 
 interface Subscription {
   plan: {
@@ -48,9 +47,17 @@ export default function BillingInfo() {
         setRedirecting(false);
         return;
       }
-      const result = await createCustomerPortalLink(userData.stripeCustomerId);
-      if (result.success && result.url) {
-        // Optionally, set a flag in localStorage to show a success message after return
+      
+      // Call the customer portal API endpoint
+      const response = await fetch('/api/create-customer-portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customerId: userData.stripeCustomerId })
+      });
+      
+      const result = await response.json();
+      
+      if (result.url) {
         window.location.href = result.url;
       } else {
         setError('Error creating billing portal link. Please try again.');
