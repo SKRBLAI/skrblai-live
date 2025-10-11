@@ -23,6 +23,6 @@ export interface BookPublishingResponse {
 export type FileUploadStatus = {
   uploading?: boolean;
   progress: number;
-  error?: string;
+  error?: string | null;
   success: boolean;
 };
