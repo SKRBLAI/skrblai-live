@@ -1,14 +1,22 @@
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { getErrorMessage } from '../../utils/errorHandling';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  const supabase = getServerSupabaseAdmin();
+  if (!supabase) {
+    console.warn('[Email Cron Jobs] Supabase unavailable');
+  }
+  return supabase;
+}
 
 // Simple cron job to process email queue
 export async function processEmailQueue() {
   console.log('🔄 Processing email queue...');
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return;
+  }
 
   const { data: pendingEmails, error } = await supabase
     .from('email_queue')

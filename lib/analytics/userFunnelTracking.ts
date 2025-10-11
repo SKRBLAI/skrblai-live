@@ -5,7 +5,7 @@
  * for conversion optimization and user behavior analysis.
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { type SupabaseClient } from '@supabase/supabase-js';
 
 interface FunnelEvent {
@@ -58,25 +58,13 @@ let supabaseClient: SupabaseClient | null = null;
 export function getSupabase(): SupabaseClient | null {
   if (supabaseClient !== null) return supabaseClient;
   
-  try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      console.warn('[Funnel Tracking] Missing Supabase environment variables - analytics will be disabled');
-      console.warn('Missing:', {
-        url: !supabaseUrl ? 'NEXT_PUBLIC_SUPABASE_URL' : null,
-        key: !supabaseKey ? 'NEXT_PUBLIC_SUPABASE_ANON_KEY' : null
-      });
-      return null;
-    }
-    
-    supabaseClient = createClient(supabaseUrl, supabaseKey);
-    return supabaseClient;
-  } catch (error) {
-    console.error('[Funnel Tracking] Error initializing Supabase client:', error);
-    return null;
+  supabaseClient = getServerSupabaseAdmin();
+  
+  if (!supabaseClient) {
+    console.warn('[Funnel Tracking] Supabase not available - analytics will be disabled');
   }
+  
+  return supabaseClient;
 }
 
 /**

@@ -5,12 +5,15 @@
  * and automated alerting for critical issues.
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function getSupabase() {
+  const supabase = getServerSupabaseAdmin();
+  if (!supabase) {
+    console.warn('[Performance Monitoring] Supabase unavailable');
+  }
+  return supabase;
+}
 
 interface HealthMetric {
   metric_type: 'api_response_time' | 'webhook_success_rate' | 'database_query_time' | 
@@ -73,6 +76,9 @@ interface PerformanceReport {
  * Record a health metric
  */
 export async function recordHealthMetric(metric: HealthMetric): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) return;
+
   try {
     const { error } = await supabase
       .from('system_health_metrics')
@@ -179,6 +185,9 @@ function getMetricThresholds(metricType: string): Array<{
  * Create a system alert
  */
 async function createSystemAlert(alert: Omit<SystemAlert, 'id' | 'timestamp' | 'resolved' | 'resolved_at'>): Promise<void> {
+  const supabase = getSupabase();
+  if (!supabase) return;
+
   try {
     // Check if similar alert already exists and is unresolved
     const { data: existingAlerts, error: fetchError } = await supabase
@@ -258,6 +267,11 @@ export async function getSystemHealth(): Promise<{
   activeAlerts: number;
   criticalAlerts: number;
 }> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return { status: 'unknown' as any, score: 0, activeAlerts: 0, criticalAlerts: 0 };
+  }
+
   try {
     // Get recent metrics (last 15 minutes)
     const { data: recentMetrics, error: metricsError } = await supabase
@@ -281,9 +295,9 @@ export async function getSystemHealth(): Promise<{
     }
 
     const alerts = activeAlerts || [];
-    const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
-    const highAlerts = alerts.filter(a => a.severity === 'high').length;
-    const mediumAlerts = alerts.filter(a => a.severity === 'medium').length;
+    const criticalAlerts = alerts.filter((a: any) => a.severity === 'critical').length;
+    const highAlerts = alerts.filter((a: any) => a.severity === 'high').length;
+    const mediumAlerts = alerts.filter((a: any) => a.severity === 'medium').length;
 
     // Calculate health score
     let score = 100;
@@ -341,6 +355,11 @@ function getAverageMetric(metrics: any[], metricType: string): number {
 export async function generatePerformanceReport(
   timeRange: '1h' | '24h' | '7d' | '30d' = '24h'
 ): Promise<PerformanceReport> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error('Supabase unavailable');
+  }
+
   try {
     const startTime = getReportStartTime(timeRange);
     

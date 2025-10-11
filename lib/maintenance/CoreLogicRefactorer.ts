@@ -8,7 +8,7 @@
  * @author SKRBL AI Team - Core Infrastructure
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -54,18 +54,13 @@ export interface SystemOptimization {
 // =============================================================================
 // CORE LOGIC REFACTORER CLASS
 // =============================================================================
-
 export class CoreLogicRefactorer {
   private supabase: any;
   private refactorTasks: Map<string, RefactorTask> = new Map();
   private completedTasks: Set<string> = new Set();
   
   constructor() {
-    this.supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
+    this.supabase = getServerSupabaseAdmin();
     this.initializeRefactorTasks();
   }
 

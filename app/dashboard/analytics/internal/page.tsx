@@ -78,9 +78,6 @@ interface ArrData {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-// Check if ARR dashboard feature is enabled
-const ARR_DASH_ENABLED = FEATURE_FLAGS.ENABLE_ARR_DASH;
-
 export default function InternalAnalyticsPage() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [quickWinsFunnel, setQuickWinsFunnel] = useState<QuickWinsFunnel | null>(null);
@@ -132,13 +129,11 @@ export default function InternalAnalyticsPage() {
         setAddOnMetrics(addOnData);
       }
 
-      // Load ARR data (flag-gated)
-      if (ARR_DASH_ENABLED) {
-        const arrResponse = await fetch('/api/analytics/arr');
-        if (arrResponse.ok) {
-          const arrData = await arrResponse.json();
-          setArrData(arrData);
-        }
+      // Load ARR data
+      const arrResponse = await fetch('/api/analytics/arr');
+      if (arrResponse.ok) {
+        const arrData = await arrResponse.json();
+        setArrData(arrData);
       }
 
     } catch (err: any) {
@@ -256,8 +251,8 @@ export default function InternalAnalyticsPage() {
           </div>
         </div>
 
-        {/* ARR Cards (flag-gated) */}
-        {ARR_DASH_ENABLED && arrData && (
+        {/* ARR Cards */}
+        {arrData && (
           <div className="mb-8">
             {arrData.ok ? (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

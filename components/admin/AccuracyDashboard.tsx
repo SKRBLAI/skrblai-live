@@ -8,12 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface AccuracyMetrics {
   agentId: string;
@@ -46,6 +41,13 @@ export default function AccuracyDashboard() {
   const [loading, setLoading] = useState(true);
 
   const fetchAccuracyMetrics = async () => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.warn('[AccuracyDashboard] Supabase unavailable');
+      setLoading(false);
+      return;
+    }
+
     try {
       // Fetch workflow accuracy summary
       const { data: summaryData } = await supabase

@@ -120,11 +120,13 @@ async function logWebhookError(
   attempt: number
 ): Promise<void> {
   try {
-    const { createClient } = await import('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    const { getServerSupabaseAdmin } = await import('@/lib/supabase');
+    const supabase = getServerSupabaseAdmin();
+    
+    if (!supabase) {
+      console.warn('[N8N Webhook] Supabase unavailable, cannot log error');
+      return;
+    }
 
     await supabase.from('webhook_errors').insert({
       webhook_path: webhookPath,

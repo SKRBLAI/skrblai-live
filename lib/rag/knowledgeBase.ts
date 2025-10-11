@@ -13,7 +13,7 @@
 
 import { Pinecone, PineconeRecord } from '@pinecone-database/pinecone';
 import { OpenAI } from 'openai';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 // Initialize services
 const pinecone = new Pinecone({
@@ -25,10 +25,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!
 });
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazy init for Supabase
+function getSupabase() {
+  const supabase = getServerSupabaseAdmin();
+  if (!supabase) {
+    throw new Error('[KnowledgeBase] Supabase unavailable');
+  }
+  return supabase;
+}
 
 // =============================================================================
 // KNOWLEDGE TYPES & INTERFACES
@@ -224,11 +228,11 @@ export class RAGKnowledgeBase {
           content: document.content.substring(0, 1000) // Store partial content in metadata
         }
       };
-      
       // Upsert to Pinecone
       await this.index.upsert([vectorRecord]);
       
       // Also store full document in Supabase for retrieval
+      const supabase = getSupabase();
       await supabase
         .from('agent_knowledge_base')
         .upsert({
@@ -283,6 +287,7 @@ export class RAGKnowledgeBase {
       
       // Retrieve full documents from Supabase
       const documentIds = queryResponse.matches.map((match: any) => match.id);
+      const supabase = getSupabase();
       const { data: fullDocuments } = await supabase
         .from('agent_knowledge_base')
         .select('*')
@@ -290,7 +295,7 @@ export class RAGKnowledgeBase {
       
       // Merge results with relevance scores
       const documents: KnowledgeDocument[] = queryResponse.matches.map((match: any) => {
-        const fullDoc = fullDocuments?.find(doc => doc.id === match.id);
+        const fullDoc = fullDocuments?.find((doc: any) => doc.id === match.id);
         return {
           id: match.id,
           type: fullDoc?.type || match.metadata.type,
@@ -417,6 +422,7 @@ export class RAGKnowledgeBase {
     try {
       const stats = await this.index.describeIndexStats();
       
+      const supabase = getSupabase();
       const { count: docCount } = await supabase
         .from('agent_knowledge_base')
         .select('*', { count: 'exact', head: true });

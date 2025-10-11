@@ -8,7 +8,7 @@
  * @author SKRBL AI Team - Infrastructure Maintenance
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -58,21 +58,15 @@ export interface MaintenanceTask {
 // =============================================================================
 // BACKEND HEALTH CHECKER CLASS
 // =============================================================================
-
 export class BackendHealthChecker {
   private supabase: any;
   private healthHistory: Map<string, HealthCheckResult[]> = new Map();
   private maintenanceTasks: Map<string, MaintenanceTask> = new Map();
   
   constructor() {
-    // Initialize Supabase only if environment variables are available
-    if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      this.supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-    } else {
-      this.supabase = null;
+    // Initialize Supabase using canonical helper
+    this.supabase = getServerSupabaseAdmin();
+    if (!this.supabase) {
       console.warn('[Backend Health] Supabase not configured - some health checks will be skipped');
     }
     

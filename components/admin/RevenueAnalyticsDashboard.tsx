@@ -10,19 +10,14 @@ import {
   Clock, 
   Zap, 
   Crown, 
-  ArrowUp, 
+  ArrowUp,
   ArrowDown,
   Activity,
   Calendar,
   BarChart3,
   PieChart
 } from 'lucide-react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface RevenueMetrics {
   totalRevenue: number;
@@ -93,6 +88,13 @@ export default function RevenueAnalyticsDashboard() {
 
   // Fetch analytics data
   const fetchAnalytics = useCallback(async () => {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.warn('[RevenueAnalyticsDashboard] Supabase unavailable');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       

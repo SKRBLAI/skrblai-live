@@ -1,7 +1,6 @@
-import { supabase } from '../utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import { Lead } from '../types/supabase';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -34,6 +33,12 @@ interface BrandingInput extends BaseAgentInput {
  * @returns Promise with success status, message and optional data
  */
 const runBranding = async (input: BrandingInput) => {
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    throw new Error('Database unavailable - cannot execute branding agent');
+  }
+
   try {
     // Validate input
     if (!input.userId || !input.businessName || !input.industry || !input.targetAudience) {
@@ -740,7 +745,11 @@ export async function handleBrandingOnboarding(lead: Lead): Promise<{success: bo
     if (!lead || !lead.userId) {
       return { success: false, message: 'Missing userId for onboarding.' };
     }
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      return { success: false, message: 'Database unavailable' };
+    }
 
     // Defensive: safely access properties that may not exist on Lead
     const onboarding = {

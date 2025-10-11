@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
 import AnalyticsDashboard from '../../../components/dashboard/AnalyticsDashboard';
-import { createClient } from '@supabase/supabase-js';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 // Animation variants
@@ -55,10 +55,12 @@ export const metadata: Metadata = {
 };
 
 async function getUser() {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    console.error('[Analytics] Supabase unavailable');
+    return null;
+  }
 
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
