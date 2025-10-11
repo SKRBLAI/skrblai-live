@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, ArrowRight, Zap, TrendingUp, Target, Download, Mail, Check, DollarSign } from "lucide-react";
+import Image from "next/image";
 import UniversalPromptBar from "../ui/UniversalPromptBar";
 import AttentionGrabberHero from "./AttentionGrabberHero";
 import ScanResultsBridge from "./ScanResultsBridge";
-import { useEffect } from "react";
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import UnifiedCodeModal from '@/components/codes/UnifiedCodeModal';
+import { useAuth } from '@/components/context/AuthContext';
+import toast from 'react-hot-toast';
 
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
 
@@ -17,19 +20,51 @@ type Mode = "business" | "sports";
 
 export default function HomeHeroScanFirst() {
   const router = useRouter();
+  const { user } = useAuth();
   const [mode, setMode] = useState<Mode>("business");
   const [wizardOpen, setWizardOpen] = useState(false);
   const [prefill, setPrefill] = useState<any>(null);
   const [scanResults, setScanResults] = useState<any>(null);
   const [showGuideStarHero, setShowGuideStarHero] = useState(false);
   const [showCodeModal, setShowCodeModal] = useState(false);
+  const [scansRemaining, setScansRemaining] = useState(3);
+  const [liveUsers, setLiveUsers] = useState(247);
+  const [showResultsModal, setShowResultsModal] = useState(false);
   
   // Use unified feature flags for guide star
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
-  
-  // Debug logging - kept for transparency but flag is ignored
-  console.log('NEXT_PUBLIC_HP_GUIDE_STAR:', process.env.NEXT_PUBLIC_HP_GUIDE_STAR);
-  console.log('isGuideStarEnabled:', isGuideStarEnabled);
+
+  // Live user counter animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveUsers(prev => prev + Math.floor(Math.random() * 3) - 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Check scan limits (freemium tracking)
+  useEffect(() => {
+    const checkScansRemaining = async () => {
+      if (!user) {
+        // Guest user - check localStorage
+        const guestScans = parseInt(localStorage.getItem('guest_scans_used') || '0');
+        setScansRemaining(3 - guestScans);
+      } else {
+        // Logged in user - check Supabase
+        try {
+          const response = await fetch('/api/trial/check-limits', {
+            credentials: 'include'
+          });
+          const data = await response.json();
+          setScansRemaining(data.scansRemaining || 0);
+        } catch (error) {
+          console.error('Failed to check scan limits:', error);
+        }
+      }
+    };
+    
+    checkScansRemaining();
+  }, [user]);
 
   // Mode deep-linking support (?mode=sports|business)
   useEffect(() => {
