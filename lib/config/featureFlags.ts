@@ -22,15 +22,10 @@ export const FEATURE_FLAGS = {
   HP_GUIDE_STAR: readBooleanFlag('NEXT_PUBLIC_HP_GUIDE_STAR', true), // Default enabled for progressive enhancement
   HOMEPAGE_HERO_VARIANT: (process.env.NEXT_PUBLIC_HOMEPAGE_HERO_VARIANT ?? 'scan-first') as 'scan-first' | 'split' | 'legacy',
   
-  // Agent & Service Features  
-  ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit animation on /agents
-  ENABLE_ARR_DASH: readBooleanFlag('NEXT_PUBLIC_ENABLE_ARR_DASH', false), // ARR dashboard features
-  
   // Payment & Stripe Features
   ENABLE_STRIPE: readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', true), // Global Stripe toggle
   
   // Legacy System Control
-  ENABLE_LEGACY: readBooleanFlag('NEXT_PUBLIC_ENABLE_LEGACY', false), // Gate legacy code paths
   ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
   
   // === PROGRESSIVE ENHANCEMENT FLAGS ===
