@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireStripe } from '@/lib/stripe/stripe';
-import { getSupabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
     const stripe = requireStripe();
-    const supabase = getSupabase();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Database unavailable' },
+        { status: 503 }
+      );
+    }
     const { priceId, userId, email, successUrl, cancelUrl } = await req.json();
 
     // Validate required parameters
