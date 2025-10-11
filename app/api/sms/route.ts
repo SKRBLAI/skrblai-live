@@ -28,6 +28,18 @@ interface Session {
 }
 
 const sessions = new Map<string, Session>();
+
+// GET handler for health check
+export async function GET() {
+  const isConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
+  return NextResponse.json({
+    service: 'SMS Router (Percy & SkillSmith)',
+    status: isConfigured ? 'configured' : 'not_configured',
+    message: isConfigured 
+      ? 'SMS routing service is ready' 
+      : 'SMS service requires Twilio credentials'
+  });
+}
 const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
 const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX = 4;

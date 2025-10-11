@@ -4,6 +4,15 @@ import { supabase } from '../../../../utils/supabase';
 // This would be shared with send-verification in production
 const verificationCodes = new Map<string, { code: string; expires: number; vipTier: string }>();
 
+// GET handler for health check
+export async function GET() {
+  return NextResponse.json({
+    service: 'SMS Verify Code',
+    status: 'ready',
+    message: 'Code verification service is ready'
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { phoneNumber, code, vipTier } = await req.json();

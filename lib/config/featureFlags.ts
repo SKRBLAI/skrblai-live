@@ -27,6 +27,7 @@ export const FEATURE_FLAGS = {
   
   // Legacy System Control
   ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
+  ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit League visualization
   
   // === PROGRESSIVE ENHANCEMENT FLAGS ===
   // These flags enhance base functionality but don't break the UI when disabled

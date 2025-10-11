@@ -1,0 +1,83 @@
+﻿
+> skrblai@0.1.0 build
+> cross-env NODE_OPTIONS=--max-old-space-size=4096 next build
+
+node.exe :  ΓÜá Warning: Next.js inferred your workspace root, but it may not 
+be correct.
+At C:\Program Files\nodejs\npm.ps1:29 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( ΓÜá Warning: N...not be correct 
+   .:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ We detected multiple lockfiles and selected the directory of 
+C:\Users\baked\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, 
+or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#
+caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\baked\Documents\SKRBL_AI_DEPLOY_2025\package-lock.json
+
+   Γû▓ Next.js 15.5.3
+   - Environments: .env.local
+   - Experiments (use with caution):
+     Γ£ô optimizeCss
+     Γ£ô scrollRestoration
+
+   Creating an optimized production build ...
+ ΓÜá Compiled with warnings in 10.4s
+
+./lib/supabase/index.ts
+export 'createSafeSupabaseClient' (reexported as 'createSafeSupabaseClient') 
+was not found in './server' (possible exports: createServerSupabaseClient, 
+getOptionalServerSupabase, getServerSupabaseAdmin, getServerSupabaseAnon, 
+requireServerSupabase)
+
+Import trace for requested module:
+./lib/supabase/index.ts
+./app/(auth)/sign-in/page.tsx
+
+./lib/supabase/index.ts
+export 'createSafeSupabaseClient' (reexported as 'createSafeSupabaseClient') 
+was not found in './server' (possible exports: createServerSupabaseClient, 
+getOptionalServerSupabase, getServerSupabaseAdmin, getServerSupabaseAnon, 
+requireServerSupabase)
+
+Import trace for requested module:
+./lib/supabase/index.ts
+./app/(auth)/sign-in/page.tsx
+
+./lib/supabase/index.ts
+export 'createSafeSupabaseClient' (reexported as 'createSafeSupabaseClient') 
+was not found in './server' (possible exports: createServerSupabaseClient, 
+getOptionalServerSupabase, getServerSupabaseAdmin, getServerSupabaseAnon, 
+requireServerSupabase)
+
+Import trace for requested module:
+./lib/supabase/index.ts
+./app/api/scan/route.ts
+
+   Skipping linting
+   Checking validity of types ...
+Failed to compile.
+
+./components/home/PercyOnboardingRevolution_BROKEN_BACKUP.tsx:145:89
+Type error: Declaration or statement expected.
+
+[0m [90m 143 |[39m [90m  const router = useRouter();[39m
+ [90m 144 |[39m [90m  // NEW: Use the auth context to check verification 
+status[39m
+[31m[1m>[22m[39m[90m 145 |[39m [90m  const { user, session, 
+isEmailVerified, shouldShowOnboarding /* TODO: REVIEW UNUSED 
+*/[39m[33m,[39m setOnboardingComplete [90m/* TODO: REVIEW UNUSED */[39m 
+} [33m=[39m useAuth()[33m;[39m
+ [90m     |[39m                                                             
+                            [31m[1m^[22m[39m
+ [90m 146 |[39m   [36mconst[39m { trackBehavior[33m,[39m 
+setIsOnboardingActive } [33m=[39m usePercyContext()[33m;[39m
+ [90m 147 |[39m   
+ [90m 148 |[39m   [90m// Use centralized onboarding context instead of 
+local state[39m[0m
+Next.js build worker exited with code: 1 and signal: null

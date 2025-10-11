@@ -9,16 +9,33 @@
 
 import twilio from 'twilio';
 
-// Twilio configuration
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+// Twilio configuration - lazy loaded to avoid build-time errors
+let client: any = null;
+let clientInitialized = false;
 
-if (!accountSid || !authToken || !fromNumber) {
-  console.warn('Twilio credentials not configured. SMS features will not work.');
+function getTwilioClient() {
+  if (clientInitialized) return client;
+  
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  
+  if (accountSid && authToken) {
+    try {
+      client = twilio(accountSid, authToken);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Failed to initialize Twilio client:', error);
+      }
+    }
+  }
+  
+  clientInitialized = true;
+  return client;
 }
 
-const client = accountSid && authToken ? twilio(accountSid, authToken) : null;
+function getFromNumber() {
+  return process.env.TWILIO_PHONE_NUMBER;
+}
 
 export interface SendSmsOptions {
   to: string;
@@ -34,7 +51,10 @@ export interface SendSmsOptions {
 }
 
 export async function sendSms({ to, body, message, vipTier = 'gold' }: SendSmsOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  if (!client) {
+  const twilioClient = getTwilioClient();
+  const fromNumber = getFromNumber();
+  
+  if (!twilioClient || !fromNumber) {
     return {
       success: false,
       error: 'Twilio not configured'
@@ -60,7 +80,7 @@ export async function sendSms({ to, body, message, vipTier = 'gold' }: SendSmsOp
       ? `${vipEmojis[vipTier]} SKRBL AI VIP ${vipTier.toUpperCase()}: ${smsText}`
       : `🚀 SKRBL AI: ${smsText}`;
 
-    const result = await client.messages.create({
+    const result = await twilioClient.messages.create({
       body: formattedMessage,
       from: fromNumber,
       to: formattedNumber,

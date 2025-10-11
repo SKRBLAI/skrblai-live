@@ -7,6 +7,7 @@ import { AuthProvider } from '../components/context/AuthContext';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import GlobalModalProvider from '../components/providers/GlobalModalProvider';
+import UnifiedPercyChat from '../components/percy/UnifiedPercyChat';
 import type { ReactNode } from "react";
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -51,6 +52,12 @@ export default function ClientLayout({ children }: { children: ReactNode }) {
 
               {/* Site Footer */}
               <Footer />
+
+              {/* Global Percy Chat Widget */}
+              <UnifiedPercyChat 
+                hideOnRoutes={['/']}
+                position="bottom-right"
+              />
             </GlobalModalProvider>
           </OnboardingProvider>
         </BannerProvider>

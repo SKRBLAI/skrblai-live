@@ -9,7 +9,6 @@ export { getServerSupabaseAdmin } from './server';
 
 // Legacy exports for backward compatibility (deprecated)
 export { 
-  createSafeSupabaseClient,
   getOptionalServerSupabase,
   createServerSupabaseClient 
 } from './server';

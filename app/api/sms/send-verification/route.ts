@@ -2,7 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '../../../../utils/supabase';
 import { sendSms } from '../../../../utils/twilioSms';
 
+// GET handler for health check
+export async function GET() {
+  const isConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
+  return NextResponse.json({
+    service: 'SMS Verification',
+    status: isConfigured ? 'configured' : 'not_configured',
+    message: isConfigured 
+      ? 'SMS verification service is ready' 
+      : 'SMS service requires Twilio credentials'
+  });
+}
+
 export async function POST(req: NextRequest) {
+  // Check if Twilio is configured
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    return NextResponse.json(
+      { success: false, error: 'SMS service not configured' },
+      { status: 503 }
+    );
+  }
+
   try {
     const { phoneNumber, vipTier = 'gold', message } = await req.json();
 

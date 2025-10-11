@@ -3,15 +3,47 @@ import { supabase } from '../../../../utils/supabase';
 import { Resend } from 'resend';
 import twilio from 'twilio';
 
-// Initialize services
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
-const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN 
-  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-  : null;
+// Lazy initialize services to avoid build-time errors
+let resend: Resend | null = null;
+let resendInitialized = false;
+let twilioClient: any = null;
+let twilioInitialized = false;
+
+function getResendClient() {
+  if (resendInitialized) return resend;
+  if (process.env.RESEND_API_KEY) {
+    try {
+      resend = new Resend(process.env.RESEND_API_KEY);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Percy Contact] Failed to initialize Resend:', error);
+      }
+    }
+  }
+  resendInitialized = true;
+  return resend;
+}
+
+function getTwilioClient() {
+  if (twilioInitialized) return twilioClient;
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    try {
+      twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('[Percy Contact] Failed to initialize Twilio:', error);
+      }
+    }
+  }
+  twilioInitialized = true;
+  return twilioClient;
+}
 
 // Enhanced Twilio SMS integration
 async function sendTwilioSMS(phone: string, message: string) {
   console.log(`[Percy Contact] Attempting SMS to ${phone.slice(0, 6)}***`);
+  
+  const twilioClient = getTwilioClient();
   
   if (!twilioClient) {
     console.warn('[Percy Contact] Twilio not configured - using mock mode');
@@ -62,6 +94,8 @@ async function sendTwilioSMS(phone: string, message: string) {
 // Enhanced Twilio Voice integration
 async function sendTwilioVoice(phone: string, message: string) {
   console.log(`[Percy Contact] Attempting voice call to ${phone.slice(0, 6)}***`);
+  
+  const twilioClient = getTwilioClient();
   
   if (!twilioClient) {
     console.warn('[Percy Contact] Twilio not configured - using mock mode');
@@ -118,6 +152,8 @@ async function sendTwilioVoice(phone: string, message: string) {
 // Enhanced Resend Email integration
 async function sendResendEmail(email: string, subject: string, message: string) {
   console.log(`[Percy Contact] Attempting email to ${email.replace(/(.{3}).*@/, '$1***@')}`);
+  
+  const resend = getResendClient();
   
   if (!resend) {
     console.warn('[Percy Contact] Resend not configured - using mock mode');
@@ -375,12 +411,12 @@ export async function GET(req: NextRequest) {
   if (testConnection === 'true') {
     const serviceStatus = {
       twilio: {
-        configured: !!twilioClient,
+        configured: !!getTwilioClient(),
         sandbox: !!process.env.TWILIO_SANDBOX_NUMBER,
         phone: !!process.env.TWILIO_PHONE_NUMBER
       },
       resend: {
-        configured: !!process.env.RESEND_API_KEY,
+        configured: !!getResendClient(),
         fromEmail: !!process.env.PERCY_FROM_EMAIL
       }
     };

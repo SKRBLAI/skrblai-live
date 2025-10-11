@@ -19,7 +19,27 @@ function getTwilioClient() {
   return client;
 }
 
+// GET handler for health check
+export async function GET() {
+  const isConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
+  return NextResponse.json({
+    service: 'SMS Send Message',
+    status: isConfigured ? 'configured' : 'not_configured',
+    message: isConfigured 
+      ? 'SMS send service is ready' 
+      : 'SMS service requires Twilio credentials'
+  });
+}
+
 export async function POST(request: NextRequest) {
+  // Check if Twilio is configured
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    return NextResponse.json(
+      { error: 'SMS service not configured' },
+      { status: 503 }
+    );
+  }
+
   try {
     const { phoneNumber, message } = await request.json();
 

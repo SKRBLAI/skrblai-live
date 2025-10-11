@@ -22,7 +22,7 @@ export default function SignUpPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
-  const supabase = createSafeSupabaseClient();
+  const supabase = getBrowserSupabase();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +45,12 @@ export default function SignUpPage() {
     }
 
     try {
+      if (!supabase) {
+        setError('Authentication service unavailable');
+        setLoading(false);
+        return;
+      }
+
       // Use NEXT_PUBLIC_SITE_URL if available, otherwise window.location.origin
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
       const redirectTo = `${siteUrl}/auth/callback${from ? `?from=${encodeURIComponent(from)}` : ''}`;

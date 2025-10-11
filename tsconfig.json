@@ -55,6 +55,7 @@
     ".next",
     "components/__archive__",
     "components/percy/archive",
+    "archived-app",
     "tests",
     "supabase/functions"
   ]

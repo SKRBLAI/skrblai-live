@@ -32,7 +32,27 @@ function garbageCollect() {
   });
 }
 
+// GET handler for health check
+export async function GET() {
+  const isConfigured = !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN);
+  return NextResponse.json({
+    service: 'Percy SMS Agent',
+    status: isConfigured ? 'configured' : 'not_configured',
+    message: isConfigured 
+      ? 'SMS service is ready' 
+      : 'SMS service requires Twilio credentials'
+  });
+}
+
 export async function POST(req: NextRequest) {
+  // Check if Twilio is configured
+  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+    return NextResponse.json(
+      { error: 'SMS service not configured' },
+      { status: 503 }
+    );
+  }
+
   garbageCollect();
 
   // Twilio sends x-www-form-urlencoded. Parse manually.
