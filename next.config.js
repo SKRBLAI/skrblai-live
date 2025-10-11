@@ -3,7 +3,7 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'], // Exclude archived-app pages
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   images: {
     // If cache is not writable in the container, disable optimization via env.
     unoptimized: process.env.NEXT_DISABLE_IMAGE_OPTIMIZATION === '1',
@@ -38,6 +38,13 @@ const nextConfig = {
   output: 'standalone',
   distDir: '.next',
   webpack: (config, { isServer }) => {
+    // Exclude specific file patterns from build
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: [...(config.watchOptions?.ignored || []), '**/archived-**/**', '**/legacy/**']
+    };
+    
+    // Client-side polyfills
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -49,10 +56,12 @@ const nextConfig = {
         tty: false
       };
     }
+    
     config.module = {
       ...config.module,
       exprContextCritical: false
     };
+    
     return config;
   },
   productionBrowserSourceMaps: true, // Enable source maps for debugging

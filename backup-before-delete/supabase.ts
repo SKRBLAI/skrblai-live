@@ -1,31 +1,28 @@
-// @ts-nocheck
-/**
- * LEGACY COMPATIBILITY LAYER - PLEASE USE NEW CLIENT FROM lib/supabase INSTEAD
- * 
- * This file exists only to provide backward compatibility with existing code.
- * New code should use getBrowserSupabase() or getServerSupabaseAnon() instead.
- */
+import { createSafeSupabaseClient } from '@/lib/supabase/client';
 
-import { getBrowserSupabase } from '@/lib/supabase';
+// Supabase client instance, created lazily
+export let supabase: any = null;
 
-// Create a proxy object that will lazily get the Supabase client when accessed
-export const supabase = new Proxy({}, {
-  get: function(target, prop) {
-    console.warn('[Supabase Legacy] Using deprecated supabase client - please migrate to getBrowserSupabase()');
-    const client = getBrowserSupabase();
-    if (!client) {
-      console.error('[Supabase Legacy] Failed to get Supabase client');
-      return undefined;
-    }
-    return client[prop];
-  }
-});
-
-// Compatibility function - use getBrowserSupabase() directly instead
+// Function to get (or create) the Supabase client safely
 export function getSupabase() {
-  console.warn('[Supabase Legacy] Using deprecated getSupabase() - please migrate to getBrowserSupabase()');
-  return getBrowserSupabase();
+  if (!supabase) {
+    try {
+      // Check if environment variables are available
+      if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+        console.warn('[Supabase] Environment variables not configured');
+        return null;
+      }
+      supabase = createSafeSupabaseClient();
+    } catch (error) {
+      console.warn('[Supabase] Failed to create client:', error);
+      return null;
+    }
+  }
+  return supabase;
 }
+
+// Initialize supabase safely
+supabase = getSupabase();
 
 // Helper functions to replace Firebase equivalents
 export const saveToSupabase = async (table: string, data: any) => {
