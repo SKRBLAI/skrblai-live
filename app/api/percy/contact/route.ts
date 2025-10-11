@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
 import twilio from 'twilio';
 
@@ -347,7 +347,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Enhanced logging to Supabase with more details
-    const { error: logError } = await supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.warn('[Percy Contact] Database unavailable - skipping log');
+    } else {
+      const { error: logError } = await supabase
       .from('percy_contacts')
       .insert({
         user_id: userId,
@@ -368,8 +372,9 @@ export async function POST(req: NextRequest) {
         timestamp: new Date().toISOString(),
       });
 
-    if (logError) {
-      console.error('[Percy Contact] Failed to log contact attempt:', logError);
+      if (logError) {
+        console.error('[Percy Contact] Failed to log contact attempt:', logError);
+      }
     }
 
     return NextResponse.json({

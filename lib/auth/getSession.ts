@@ -1,14 +1,15 @@
-import { createSafeSupabaseClient } from '../supabase/client';
+import { getServerSupabaseAnon } from '../supabase/server';
 
 /**
- * Lightweight session helper that matches our existing auth mechanism
+ * Lightweight session helper for SERVER-SIDE usage
  * Returns the current user session or null
+ * For client-side, use the AuthContext instead
  */
 export async function getSession() {
   try {
-    const supabase = createSafeSupabaseClient();
+    const supabase = getServerSupabaseAnon();
     if (!supabase || typeof supabase.auth?.getSession !== 'function') {
-      console.warn('[Auth] Supabase not configured');
+      console.warn('[Auth] Supabase not configured for server-side');
       return null;
     }
     

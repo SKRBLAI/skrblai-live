@@ -7,24 +7,35 @@
  */
 
 import { getBrowserSupabase } from '@/lib/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
-// Create a proxy object that will lazily get the Supabase client when accessed
-export const supabase = new Proxy({}, {
-  get: function(target, prop) {
-    console.warn('[Supabase Legacy] Using deprecated supabase client - please migrate to getBrowserSupabase()');
-    const client = getBrowserSupabase();
-    if (!client) {
-      console.error('[Supabase Legacy] Failed to get Supabase client');
-      return undefined;
-    }
-    return client[prop];
+// Detect if we're running on server or client
+function isServer() {
+  return typeof window === 'undefined';
+}
+
+// Legacy supabase client - simplified approach
+export const supabase = (() => {
+  console.warn('[Supabase Legacy] Using deprecated supabase client - please migrate to proper client');
+  
+  // Use server client when on server, browser client when on client
+  const client = isServer() ? getServerSupabaseAdmin() : getBrowserSupabase();
+  
+  if (!client) {
+    console.error('[Supabase Legacy] Failed to get Supabase client');
+    // Return a mock object to prevent crashes
+    return {
+      from: () => ({ select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }) }) }) }),
+      auth: { getSession: () => Promise.resolve({ data: { session: null }, error: new Error('Supabase not configured') }) }
+    };
   }
-});
+  return client;
+})();
 
-// Compatibility function - use getBrowserSupabase() directly instead
+// Compatibility function - returns appropriate client based on environment
 export function getSupabase() {
-  console.warn('[Supabase Legacy] Using deprecated getSupabase() - please migrate to getBrowserSupabase()');
-  return getBrowserSupabase();
+  console.warn('[Supabase Legacy] Using deprecated getSupabase() - please migrate to proper client');
+  return isServer() ? getServerSupabaseAdmin() : getBrowserSupabase();
 }
 
 // Helper functions to replace Firebase equivalents

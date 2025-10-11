@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -93,6 +93,11 @@ const runVideoAgent = async (input: VideoAgentInput): Promise<AgentResponse> => 
     };
 
     // Log agent activity
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot execute agent');
+    }
+    
     const { error: logError } = await supabase
       .from('agent-logs')
       .insert({
@@ -105,6 +110,7 @@ const runVideoAgent = async (input: VideoAgentInput): Promise<AgentResponse> => 
     if (logError) throw logError;
 
     // Save the generated video content to Supabase
+    
     const { data: videoData, error: videoError } = await supabase
       .from('video-content')
       .insert({

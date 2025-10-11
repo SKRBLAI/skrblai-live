@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -172,6 +172,12 @@ const getCategoryFromContent = (requestType: string, description: string): strin
  * @returns Client history data
  */
 const getClientHistory = async (clientId: string): Promise<any> => {
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    throw new Error('Database unavailable');
+  }
+
   try {
     // Query previous support tickets
     const { data: tickets, error: ticketsError } = await supabase
@@ -730,6 +736,11 @@ const runClientSuccessAgent = async (input: ClientSuccessInput): Promise<AgentRe
     );
 
     // Create ticket in Supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot create support ticket');
+    }
+    
     const { data: ticketData, error: ticketError } = await supabase
       .from('support-tickets')
       .insert({

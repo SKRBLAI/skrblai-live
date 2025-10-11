@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import { generateSkillSmithPDF } from '../lib/utils/pdfGenerator';
 import { sendSkillSmithAnalysisEmail } from '../lib/services/emailService';
@@ -171,6 +171,11 @@ const runSkillSmith = async (input: SkillSmithInput): Promise<AgentResponse> => 
     }
 
     // Log activity to Supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot execute agent');
+    }
+    
     const { error: logError } = await supabase
       .from('agent-logs')
       .insert({
@@ -183,6 +188,7 @@ const runSkillSmith = async (input: SkillSmithInput): Promise<AgentResponse> => 
     if (logError) throw logError;
 
     // Save skill development data
+    
     const { data: skillData, error: skillError } = await supabase
       .from('skill-development')
       .insert({
@@ -311,6 +317,11 @@ const generateQuickWins = async (input: SkillSmithInput): Promise<string[]> => {
  */
 const checkProgress = async (input: SkillSmithInput): Promise<any> => {
   // Retrieve previous assessments from database
+  const supabase = getServerSupabaseAdmin();
+  if (!supabase) {
+    throw new Error('Database unavailable - cannot retrieve assessments');
+  }
+  
   const { data: previousSessions, error } = await supabase
     .from('skill-development')
     .select('*')

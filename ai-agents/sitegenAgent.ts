@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
@@ -79,6 +79,11 @@ const runSiteGen = async (input: SiteGenInput) =>  {
     };
 
     // Log the website generation to Supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot execute agent');
+    }
+    
     const { error: logError } = await supabase
       .from('agent-logs')
       .insert({
@@ -91,6 +96,7 @@ const runSiteGen = async (input: SiteGenInput) =>  {
     if (logError) throw logError;
 
     // Save the generated website structure to Supabase
+    
     const { data: websiteData, error: websiteError } = await supabase
       .from('websites')
       .insert({

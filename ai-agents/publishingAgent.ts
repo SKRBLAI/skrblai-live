@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -26,6 +26,11 @@ interface PublishingAgentInput extends BaseAgentInput {
 
 // Supabase helper function to replace Firebase's logAgentActivity
 const logAgentActivity = async (activityData: any) => {
+  const supabase = getServerSupabaseAdmin();
+  if (!supabase) {
+    throw new Error('Database unavailable - cannot execute agent');
+  }
+  
   const { error } = await supabase
     .from('agent-activities')
     .insert({

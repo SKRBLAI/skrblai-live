@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { markJobStarted, updateJobProgress, markJobComplete, markJobFailed } from '../utils/agentJobStatus';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
@@ -125,6 +125,11 @@ const runSocialBot = async (input: SocialBotInput) =>  {
     }
     
     // Log the social content generation to Supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot execute agent');
+    }
+    
     const { error: logError } = await supabase
       .from('agent-logs')
       .insert({
@@ -142,6 +147,7 @@ const runSocialBot = async (input: SocialBotInput) =>  {
     }
     
     // Save the generated social content to Supabase
+    
     const { data: socialData, error: socialError } = await supabase
       .from('social-content')
       .insert({

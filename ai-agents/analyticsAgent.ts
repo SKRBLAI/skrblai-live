@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
@@ -49,7 +49,13 @@ interface ChartData {
  * @param input - Analytics parameters
  * @returns Promise with success status, message and optional data
  */
-const runAnalytics = async (input: AnalyticsInput) =>  {
+const runAnalytics = async (input: AnalyticsInput) => {
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    throw new Error('Database unavailable - cannot execute analytics agent');
+  }
+
   try {
     // Validate input
     if (!input.userId || !input.dataSource || !input.timeframe) {

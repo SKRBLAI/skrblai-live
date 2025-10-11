@@ -1,5 +1,5 @@
-import { supabase } from '../utils/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction } from '@/types/agent';
 
 // Define input interface for Ad Creative Agent
@@ -26,6 +26,12 @@ interface AdCreativeInput extends BaseAgentInput {
  * @returns Promise with success status, message and optional data
  */
 const runAdCreative = async (input: AdCreativeInput) => {
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    throw new Error('Database unavailable - cannot execute ad creative agent');
+  }
+
   try {
     // Validate input
     if (!input.userId || !input.productName || !input.productDescription || !input.targetAudience || !input.platform) {

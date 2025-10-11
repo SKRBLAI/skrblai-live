@@ -41,7 +41,9 @@ const nextConfig = {
     // Exclude specific file patterns from build
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: [...(config.watchOptions?.ignored || []), '**/archived-**/**', '**/legacy/**']
+      ignored: Array.isArray(config.watchOptions?.ignored)
+        ? [...config.watchOptions.ignored, '**/archived-**/**', '**/legacy/**']
+        : ['**/archived-**/**', '**/legacy/**']
     };
     
     // Client-side polyfills

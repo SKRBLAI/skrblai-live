@@ -1,5 +1,4 @@
-import agentRegistry from "../../../lib/agents/agentRegistry";
-import AgentServiceClient from "../../../components/legacy/services/services/[agent]/AgentServiceClient";
+import { redirect } from 'next/navigation';
 import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ agent: string }> }): Promise<Metadata> {
@@ -24,8 +23,9 @@ type PageProps = {
 export default async function AgentPage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
   const { agent: agentId } = resolvedParams;
-  const agent = agentRegistry.find(a => a.id === agentId && a.visible);
-  return <AgentServiceClient agent={agent} params={resolvedParams} searchParams={searchParams} />;
+  
+  // Redirect to the backstory page as the default view
+  redirect(`/agents/${agentId}/backstory`);
 }
 
 

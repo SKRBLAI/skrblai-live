@@ -1,4 +1,4 @@
-import { supabase } from '../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { validateAgentInput, callOpenAI, callOpenAIWithFallback } from '../utils/agentUtils';
 import type { Agent, AgentInput as BaseAgentInput, AgentFunction, AgentResponse } from '@/types/agent';
 
@@ -274,6 +274,11 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
     );
 
     // Log the payment processing to Supabase
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      throw new Error('Database unavailable - cannot execute agent');
+    }
+    
     const { error: logError } = await supabase
       .from('agent-logs')
       .insert({
@@ -290,6 +295,7 @@ const runPaymentAgent = async (input: PaymentAgentInput): Promise<AgentResponse>
     if (logError) throw logError;
 
     // Save the payment record to Supabase
+    
     const { data: paymentData, error: paymentError } = await supabase
       .from('payments')
       .insert({
