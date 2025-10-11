@@ -358,7 +358,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               title="Launch agent"
             >
               <Rocket className="w-4 h-4" />
-              Launch Agent
+              LAUNCH
             </motion.button>
           </motion.div>
 
