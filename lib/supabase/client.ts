@@ -12,15 +12,27 @@ let supabase: SupabaseClient | null = null;
 export function getBrowserSupabase(): SupabaseClient | null {
   if (supabase) return supabase;
 
-  // Dual key lookup for URL
-  const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
+  // Dual key lookup for URL with emergency fallback
+  let url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
+  
+  // Last resort emergency fallback for production
+  if (!url && process.env.NODE_ENV === 'production') {
+    console.warn('⚠️ EMERGENCY: Using fallback Supabase URL - check your environment variables!'); 
+    url = 'https://zpqavydsinrtaxhowmnb.supabase.co';
+  }
   
   // Dual key lookup for anon/publishable key
-  const anonKey = readEnvAny(
+  let anonKey = readEnvAny(
     'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
     'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 
     'SUPABASE_ANON_KEY'
   );
+  
+  // Do NOT add the actual key here for security - just detect if we're in emergency mode
+  if (!anonKey && process.env.NODE_ENV === 'production' && url) {
+    console.warn('⚠️ EMERGENCY: ANON KEY missing in environment - check Railway variables!');
+    // The key will still be null, but we'll log a helpful message
+  }
 
   if (!url || !anonKey) {
     // Only warn in development to avoid log spam in production builds
