@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../../components/context/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
@@ -34,6 +34,9 @@ export default function MarketingDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    
     // Fetch user-specific campaigns
     const fetchCampaigns = async () => {
       const { data, error } = await supabase

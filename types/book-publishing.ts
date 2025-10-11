@@ -21,6 +21,7 @@ export interface BookPublishingResponse {
 }
 
 export type FileUploadStatus = {
+  uploading?: boolean;
   progress: number;
   error?: string;
   success: boolean;

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { agentBackstories } from '../../../../lib/agents/agentBackstories';
 import { TrialManager } from '../../../../lib/trial/trialManager';
 
@@ -197,6 +197,15 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
 
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.warn('[Percy Scan] Database unavailable - skipping scan log');
+      return NextResponse.json({
+        success: false,
+        error: 'Database unavailable'
+      }, { status: 500 });
+    }
+
     const { data: scan, error } = await supabase
       .from('percy_scans')
       .select('*')
@@ -250,6 +259,9 @@ async function isTrialUser(userId: string): Promise<boolean> {
   if (!userId) return true; // No user = trial
   
   try {
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) return true;
+    
     const { data: profile } = await supabase
       .from('profiles')
       .select('subscription_status, trial_end_date')
@@ -274,6 +286,9 @@ async function checkTrialLimits(userId?: string, sessionId?: string): Promise<bo
   const today = new Date().toISOString().split('T')[0];
   
   try {
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) return true;
+    
     const { data: scans } = await supabase
       .from('percy_scans')
       .select('scan_id')
@@ -531,6 +546,12 @@ function generateUpsellSuggestions(analysis: any, scanType: string, isLoggedIn: 
 
 async function logScanActivity(scanData: any) {
   try {
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.warn('[Percy Scan] Database unavailable - skipping scan log');
+      return;
+    }
+    
     const { error } = await supabase
       .from('percy_scans')
       .insert({

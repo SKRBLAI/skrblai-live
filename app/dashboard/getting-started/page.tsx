@@ -9,7 +9,7 @@ import DashboardHeader from '../../../components/dashboard/DashboardHeader';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '../../../utils/supabase-helpers';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
@@ -39,7 +39,10 @@ export default function GettingStartedDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    // Fetch onboarding status for this user
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    
+    // Fetch user-specific onboarding data
     const fetchOnboarding = async () => {
       const { data, error } = await supabase
         .from('user_settings')

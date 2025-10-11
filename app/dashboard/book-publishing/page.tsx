@@ -1,4 +1,4 @@
-/** Book Publishing Enhancements - Prompt Input + File Upload - April 2025 */
+/** Book Publishing Dashboard - Clean Rewrite with Canonical Supabase Client */
 
 'use client';
 
@@ -8,21 +8,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardSidebar from '../../../components/dashboard/DashboardSidebar';
 import DashboardHeader from '../../../components/dashboard/DashboardHeader';
 import DownloadCenter from '../../../components/dashboard/DownloadCenter';
-import FileUploadCard from '../../../components/dashboard/FileUploadCard';
-import { useCallback, useEffect, useState, CSSProperties } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../../components/context/AuthContext';
 import Link from 'next/link';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import '../../../styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
-import agentRegistry from '../../../lib/agents/agentRegistry';
-import type { User } from '@supabase/supabase-js';
 
 export default function BookPublishingDashboard() {
-  const { user, session, isLoading: authIsLoading } = useAuth();
+  const { user, isLoading: authIsLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [publishingProjects, setPublishingProjects] = useState<any[]>([]);
   const [workflowLogs, setWorkflowLogs] = useState<any[]>([]);
@@ -41,10 +38,52 @@ export default function BookPublishingDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!authIsLoading && !user) { // Check for user object
+    if (!authIsLoading && !user) {
       router.push('/sign-in');
     }
+    if (user) {
+      setIsLoading(false);
+    }
   }, [authIsLoading, user, router]);
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        setUploadStatus({ uploading: false, progress: 0, error: 'Database unavailable', success: false });
+        return;
+      }
+
+      setUploadStatus({ uploading: true, progress: 0, error: null, success: false });
+
+      // Generate a unique file name
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('manuscripts')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      // Get the public URL
+      const { data: urlData } = supabase.storage
+        .from('manuscripts')
+        .getPublicUrl(fileName);
+
+      setState(prev => ({
+        ...prev,
+        uploadedFileUrl: urlData.publicUrl
+      }));
+      setUploadStatus({ uploading: false, success: true, progress: 100 });
+      toast.success('File uploaded successfully!');
+
+    } catch (error: any) {
+      setUploadStatus({ uploading: false, progress: 0, error: error.message, success: false });
+      toast.error(`Upload failed: ${error.message}`);
+    }
+  };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -56,62 +95,7 @@ export default function BookPublishingDashboard() {
       uploadedFileName: file.name
     }));
 
-    // Generate a unique file name
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-    const filePath = `manuscripts/${fileName}`;
-
-    try {
-      setUploadStatus(prev => ({ ...prev, progress: 0 }));
-      
-      // Create form data to track upload progress
-      const data = new FormData();
-      data.append('file', file);
-      
-      // Custom upload with progress tracking
-      const xhr = new XMLHttpRequest();
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          const progress = Math.round((event.loaded / event.total) * 100);
-          setUploadStatus(prev => ({ ...prev, progress }));
-        }
-      });
-      
-      xhr.addEventListener('load', async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          // Once XHR upload is complete, use Supabase to store the file
-          const { data, error } = await supabase.storage
-            .from('manuscripts')
-            .upload(fileName, file);
-            
-          if (error) throw error;
-          
-          // Get the public URL
-          const { data: urlData } = supabase.storage
-            .from('manuscripts')
-            .getPublicUrl(fileName);
-            
-          setState(prev => ({
-            ...prev,
-            uploadedFileUrl: urlData.publicUrl
-          }));
-          setUploadStatus(prev => ({ ...prev, success: true, progress: 100 }));
-        } else {
-          throw new Error('Upload failed');
-        }
-      });
-      
-      xhr.addEventListener('error', () => {
-        setUploadStatus(prev => ({ ...prev, error: 'Upload failed' }));
-      });
-      
-      // Start upload using XHR (this is just to track progress, the actual upload happens with Supabase)
-      xhr.open('POST', '/api/dummy-upload');
-      xhr.send(data);
-      
-    } catch (error: any) {
-      setUploadStatus(prev => ({ ...prev, error: error.message }));
-    }
+    await handleFileUpload(file);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -160,7 +144,7 @@ export default function BookPublishingDashboard() {
       setState(prev => ({
         ...prev,
         isSubmitting: false,
-        response: data.data // expecting steps/recommendations etc.
+        response: data.data
       }));
       toast.success('📚 AI publishing plan ready!');
 
@@ -186,16 +170,20 @@ export default function BookPublishingDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+
     // Fetch user-specific publishing projects
     const fetchPublishing = async () => {
       const { data, error } = await supabase
-        .from('publishing')
+        .from('workflowLogs')
         .select('*')
         .eq('userId', user.id)
-        .order('createdAt', { ascending: false });
+        .order('timestamp', { ascending: false });
       if (!error) setPublishingProjects(data || []);
     };
-    // Fetch workflow logs for this user
+
     const fetchLogs = async () => {
       const { data, error } = await supabase
         .from('workflowLogs')
@@ -204,22 +192,26 @@ export default function BookPublishingDashboard() {
         .order('timestamp', { ascending: false });
       if (!error) setWorkflowLogs(data || []);
     };
+    
     fetchPublishing();
     fetchLogs();
+
     // Real-time subscription for workflow logs
     const logsSub = supabase
       .channel('workflowLogs')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, (payload: any) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'workflowLogs', filter: `userId=eq.${user.id}` }, () => {
         fetchLogs();
       })
       .subscribe();
+
     // Real-time subscription for publishing
     const publishingSub = supabase
       .channel('publishing')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'publishing', filter: `userId=eq.${user.id}` }, (payload: any) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'publishing', filter: `userId=eq.${user.id}` }, () => {
         fetchPublishing();
       })
       .subscribe();
+
     return () => {
       supabase.removeChannel(logsSub);
       supabase.removeChannel(publishingSub);
@@ -236,9 +228,6 @@ export default function BookPublishingDashboard() {
       </div>
     );
   }
-
-  // Use agentRegistry for dynamic agent logic if needed
-  // All publishingProjects and workflowLogs are now user-specific and real-time
 
   return (
     <div className="min-h-screen bg-deep-navy">
@@ -302,11 +291,11 @@ export default function BookPublishingDashboard() {
                     </svg>
                     <div className="file-preview-info">
                       <p className="text-white font-medium">{state.uploadedFileName}</p>
-                      {uploadStatus.progress < 100 && (
+                      {uploadStatus.uploading && (
                         <div className="upload-progress-bar">
                           <div
                             className="upload-progress-bar-fill"
-                            data-progress={`${uploadStatus.progress}%`}
+                            style={{ width: `${uploadStatus.progress}%` }}
                           />
                         </div>
                       )}
@@ -348,57 +337,65 @@ export default function BookPublishingDashboard() {
                     <h3 className="text-xl font-semibold text-white mb-4">Your Publishing Plan</h3>
                     
                     <div className="space-y-6">
-                      <div>
-                        <h4 className="text-white font-medium mb-2">Timeline & Steps</h4>
-                        <div className="space-y-3">
-                          {state.response.steps.map((step, index) => (
-                            <div key={index} className="flex items-start">
-                              <div className="w-8 h-8 rounded-full bg-electric-blue flex items-center justify-center mr-3 flex-shrink-0">
-                                <span className="text-white font-bold">{index + 1}</span>
+                      {state.response.steps && (
+                        <div>
+                          <h4 className="text-white font-medium mb-2">Timeline & Steps</h4>
+                          <div className="space-y-3">
+                            {state.response.steps.map((step: any, index: number) => (
+                              <div key={index} className="flex items-start">
+                                <div className="w-8 h-8 rounded-full bg-electric-blue flex items-center justify-center mr-3 flex-shrink-0">
+                                  <span className="text-white font-bold">{index + 1}</span>
+                                </div>
+                                <div>
+                                  <h5 className="text-white font-medium">{step.title}</h5>
+                                  <p className="text-gray-400 text-sm">{step.description}</p>
+                                  <p className="text-electric-blue text-sm mt-1">{step.timeline}</p>
+                                </div>
                               </div>
-                              <div>
-                                <h5 className="text-white font-medium">{step.title}</h5>
-                                <p className="text-gray-400 text-sm">{step.description}</p>
-                                <p className="text-electric-blue text-sm mt-1">{step.timeline}</p>
-                              </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      <div>
-                        <h4 className="text-white font-medium mb-2">Recommendations</h4>
-                        <ul className="list-disc list-inside space-y-2 text-gray-300">
-                          {state.response.recommendations.map((rec, index) => (
-                            <li key={index}>{rec}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {state.response.recommendations && (
+                        <div>
+                          <h4 className="text-white font-medium mb-2">Recommendations</h4>
+                          <ul className="list-disc list-inside space-y-2 text-gray-300">
+                            {state.response.recommendations.map((rec: string, index: number) => (
+                              <li key={index}>{rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                      <div>
-                        <h4 className="text-white font-medium mb-2">Next Steps</h4>
-                        <ul className="list-disc list-inside space-y-2 text-gray-300">
-                          {state.response.nextSteps.map((step, index) => (
-                            <li key={index}>{step}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      {state.response.nextSteps && (
+                        <div>
+                          <h4 className="text-white font-medium mb-2">Next Steps</h4>
+                          <ul className="list-disc list-inside space-y-2 text-gray-300">
+                            {state.response.nextSteps.map((step: string, index: number) => (
+                              <li key={index}>{step}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
-                      <div className="pt-4 border-t border-white/10">
-                        <p className="text-gray-400">
-                          Estimated completion time: 
-                          <span className="text-electric-blue font-medium ml-2">
-                            {state.response.estimatedCompletion}
-                          </span>
-                        </p>
-                      </div>
+                      {state.response.estimatedCompletion && (
+                        <div className="pt-4 border-t border-white/10">
+                          <p className="text-gray-400">
+                            Estimated completion time: 
+                            <span className="text-electric-blue font-medium ml-2">
+                              {state.response.estimatedCompletion}
+                            </span>
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 mt-8">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -517,38 +514,40 @@ export default function BookPublishingDashboard() {
                 </motion.button>
               </Link>
             </motion.div>
+
+            <section className="mb-8 mt-8">
+              <h2 className="text-xl font-bold text-white mb-2">Your Publishing Projects</h2>
+              {publishingProjects.length === 0 ? (
+                <p className="text-gray-400">No publishing projects yet. Upload a manuscript or start a project to get started.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {publishingProjects.map((item: any) => (
+                    <li key={item.id} className="bg-white/10 p-3 rounded text-white">
+                      <div className="font-semibold">{item.bookTitle || 'Untitled Project'}</div>
+                      <div className="text-xs text-gray-300">{item.createdAt || item.created_at}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
+              {workflowLogs.length === 0 ? (
+                <p className="text-gray-400">No recent activity.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {workflowLogs.map((log: any) => (
+                    <li key={log.id} className="bg-white/10 p-3 rounded text-white">
+                      <div className="font-semibold">{log.agentId || 'Agent'}</div>
+                      <div className="text-xs text-gray-300">{log.result || log.status}</div>
+                      <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
           </motion.div>
-          <section className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-2">Your Publishing Projects</h2>
-            {publishingProjects.length === 0 ? (
-              <p className="text-gray-400">No publishing projects yet. Upload a manuscript or start a project to get started.</p>
-            ) : (
-              <ul className="space-y-2">
-                {publishingProjects.map((item: any) => (
-                  <li key={item.id} className="bg-white/10 p-3 rounded text-white">
-                    <div className="font-semibold">{item.bookTitle || 'Untitled Project'}</div>
-                    <div className="text-xs text-gray-300">{item.createdAt || item.created_at}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-          <section className="mb-8">
-            <h2 className="text-xl font-bold text-white mb-2">Recent Activity</h2>
-            {workflowLogs.length === 0 ? (
-              <p className="text-gray-400">No recent activity.</p>
-            ) : (
-              <ul className="space-y-2">
-                {workflowLogs.map((log: any) => (
-                  <li key={log.id} className="bg-white/10 p-3 rounded text-white">
-                    <div className="font-semibold">{log.agentId || 'Agent'}</div>
-                    <div className="text-xs text-gray-300">{log.result || log.status}</div>
-                    <div className="text-xs text-gray-400">{log.timestamp || log.created_at}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
         </main>
       </div>
     </div>

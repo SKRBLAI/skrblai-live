@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
@@ -33,7 +33,10 @@ export default function BrandingDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    // Fetch user-specific branding projects
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    
+    // Fetch user-specific branding assets
     const fetchBranding = async () => {
       const { data, error } = await supabase
         .from('branding')

@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../../components/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
@@ -35,6 +35,9 @@ export default function SocialMediaDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    
     // Fetch user-specific content
     const fetchContent = async () => {
       const { data, error } = await supabase

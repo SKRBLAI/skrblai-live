@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '../../../utils/supabase-helpers';
-import { supabase } from '../../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
 
@@ -40,6 +40,9 @@ export default function WebsiteDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    const supabase = getBrowserSupabase();
+    if (!supabase) return;
+    
     // Fetch user-specific website projects
     const fetchWebsites = async () => {
       const { data, error } = await supabase
