@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '../../../../utils/stripe';
+import { requireStripe } from '@/lib/stripe/stripe';
 import { getSupabase } from '../../../../utils/supabase';
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = requireStripe();
     const supabase = getSupabase();
     const { priceId, userId, email, successUrl, cancelUrl } = await req.json();
 

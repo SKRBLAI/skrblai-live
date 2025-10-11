@@ -3,12 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../components/context/AuthContext';
 import { trackFunnelEvent } from '../lib/analytics/userFunnelTracking';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface UsageMetrics {
   agentsUsedToday: number;
@@ -230,10 +225,11 @@ export default function useUsageBasedPricing(): UsageBasedPricingReturn {
             updated.tasksCompletedToday = isToday ? prev.tasksCompletedToday + 1 : 1;
             updated.tasksCompletedThisWeek = prev.tasksCompletedThisWeek + 1;
             break;
-          case 'session_time':
+          case 'session_time': {
             const sessionMinutes = metadata.minutes || 0;
             updated.timeSpentToday = isToday ? prev.timeSpentToday + sessionMinutes : sessionMinutes;
             break;
+          }
         }
 
         updated.lastActiveDate = new Date().toISOString();
@@ -279,6 +275,13 @@ export default function useUsageBasedPricing(): UsageBasedPricingReturn {
   const fetchUsageData = useCallback(async () => {
     if (!user?.id) return;
 
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.warn('[useUsageBasedPricing] Supabase unavailable, skipping usage fetch');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -319,7 +322,7 @@ export default function useUsageBasedPricing(): UsageBasedPricingReturn {
         };
 
         // Process events to calculate metrics
-        events.forEach(event => {
+        events.forEach((event: any) => {
           const eventDate = new Date(event.timestamp).toDateString();
           const isToday = eventDate === today;
 
@@ -342,7 +345,7 @@ export default function useUsageBasedPricing(): UsageBasedPricingReturn {
         });
 
         // Calculate consecutive days active
-        const uniqueDays = Array.from(new Set(events.map(e => new Date(e.timestamp).toDateString())));
+        const uniqueDays = Array.from(new Set(events.map((e: any) => new Date(e.timestamp).toDateString())));
         metrics.consecutiveDaysActive = uniqueDays.length;
 
         setUsage(metrics);

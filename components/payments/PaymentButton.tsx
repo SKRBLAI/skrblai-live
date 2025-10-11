@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { createCheckoutSessionCall, redirectToCheckout } from '../../utils/stripe';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
@@ -38,25 +37,27 @@ export default function PaymentButton({
     setIsLoading(true);
     
     try {
-      // Create checkout session
-      const result = await createCheckoutSessionCall({
-        priceId,
-        userId: user.id,
-        email: user.email || '',
-        successUrl: `${window.location.origin}/dashboard?payment=success`,
-        cancelUrl: `${window.location.origin}/pricing?payment=canceled`
+      // Create checkout session via API
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          customerEmail: user.email || '',
+          userId: user.id,
+          successPath: '/dashboard?payment=success',
+          cancelPath: '/pricing?payment=canceled'
+        })
       });
 
-      if (!result.success) {
-        throw new Error('Failed to create checkout session');
+      const result = await response.json();
+
+      if (!result.ok || !result.url) {
+        throw new Error(result.error || 'Failed to create checkout session');
       }
 
       // Redirect to Stripe Checkout
-      if (result.sessionId) {
-        await redirectToCheckout(result.sessionId);
-      } else if (result.url) {
-        window.location.href = result.url;
-      }
+      window.location.href = result.url;
 
     } catch (error) {
       console.error('Payment error:', error);

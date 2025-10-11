@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { stripe } from '../../../../utils/stripe';
+import { requireStripe } from '@/lib/stripe/stripe';
 import { priceMap, getPriceId, getAmount } from '../../../../lib/config/skillsmithPriceMap';
 
 export async function POST(req: NextRequest) {
@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
     const resolvedCancel = cancelUrl || `${defaultBase}/checkout/cancel`;
 
     // Create checkout session using existing Stripe price
+    const stripe = requireStripe();
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       billing_address_collection: 'required',

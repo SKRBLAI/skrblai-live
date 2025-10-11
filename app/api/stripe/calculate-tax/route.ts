@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe } from '../../../../utils/stripe';
+import { requireStripe } from '@/lib/stripe/stripe';
 import { supabase } from '../../../../utils/supabase';
 import { saveTaxCalculation, parseStripeTaxCalculation } from '../../../../utils/tax';
 
 export async function POST(req: NextRequest) {
   try {
-    const { 
-      customerId, 
+    const stripe = requireStripe();
+    const {
       priceId, 
       customerAddress, 
       taxId,
       currency = 'USD' 
     } = await req.json();
 
-    if (!customerId || !priceId) {
+    if (!priceId) {
       return NextResponse.json(
-        { error: 'Missing required parameters: customerId, priceId' },
+        { error: 'Missing required parameter: priceId' },
         { status: 400 }
       );
     }
@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function getPriceAmount(priceId: string): Promise<number> {
+  const stripe = requireStripe();
   const price = await stripe.prices.retrieve(priceId);
   return price.unit_amount || 0;
 }
