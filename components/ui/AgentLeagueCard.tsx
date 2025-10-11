@@ -102,6 +102,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   userMastery = 0,
   showIntelligence = true
 }) => {
+  // All hooks must be called first to comply with React Hooks rules
   const shouldReduceMotion = useReducedMotion();
   const [liveUsers, setLiveUsers] = useState(Math.floor(Math.random() * 89) + 12);
   const [urgencySpots, setUrgencySpots] = useState(Math.floor(Math.random() * 47) + 23);
@@ -135,6 +136,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   const detectedBadgeType = getBadgeType(agentConfig);
   const badgeType = detectedBadgeType || (isRecommended ? 'recommended' : null);
 
+  // Live activity and intelligence hooks must come after early returns but before render logic
   useEffect(() => {
     const interval = setInterval(() => {
       setLiveUsers(prev => Math.max(5, prev + Math.floor(Math.random() * 3) - 1));
