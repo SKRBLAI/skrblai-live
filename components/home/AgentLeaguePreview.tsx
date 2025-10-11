@@ -42,13 +42,25 @@ const generateLiveActivity = () => ({
     todayCreated: Math.floor(Math.random() * 350) + 2547, // 2547-2897 pieces
     competitiveEdge: '670% faster content creation vs traditional methods',
     marketShare: Math.floor(Math.random() * 6) + 78 // 78-84%
+  },
+  publishing: {
+    liveUsers: Math.floor(Math.random() * 16) + 22, // 22-38 users
+    todayCreated: Math.floor(Math.random() * 180) + 947, // 947-1127 books
+    competitiveEdge: '780% faster book publishing vs traditional methods',
+    marketShare: Math.floor(Math.random() * 5) + 73 // 73-78%
+  },
+  ira: {
+    liveUsers: Math.floor(Math.random() * 8) + 12, // 12-20 users (exclusive)
+    todayCreated: Math.floor(Math.random() * 50) + 147, // 147-197 trades
+    competitiveEdge: '920% better risk-adjusted returns vs retail traders',
+    marketShare: Math.floor(Math.random() * 4) + 91 // 91-95% (elite tier)
   }
 });
 
 
-// Get core agents from the canonical registry
+// Get core agents from the canonical registry (6 agents for even grid)
 const getCoreAgents = () => {
-  const coreAgentIds = ['branding', 'social', 'percy', 'skillsmith', 'contentcreation'];
+  const coreAgentIds = ['branding', 'social', 'percy', 'skillsmith', 'contentcreation', 'ira'];
   
   return coreAgentIds.map(id => {
     const registryAgent = agentRegistry.find(agent => agent.id === id);
@@ -84,7 +96,9 @@ const getActivityKey = (agentId: string): string => {
     'social': 'social',
     'percy': 'percy',
     'skillsmith': 'skillsmith',
-    'contentcreation': 'content'
+    'contentcreation': 'content',
+    'publishing': 'publishing',
+    'ira': 'ira'
   };
   return mapping[agentId] || 'percy';
 };
@@ -202,23 +216,8 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         </motion.div>
 
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-[1fr]">
-          {[...coreAgents, ...(allowedIRA ? [{
-  id: 'ira',
-  name: 'IRA',
-  image: getAgentImagePath('ira', "nobg"),
-  imageSlug: 'ira',
-  role: 'Trading Mentor',
-  value: 'AOIs, volume profile, options flow, earnings catalysts',
-  description: 'Inner Rod\'s Agent — trading mentor (AOIs, volume profile, options flow, earnings catalysts).',
-  freeTip: 'Always wait for confirmation at AOIs before entering a trade.',
-  action: 'Chat with IRA',
-  mode: 'business' as const,
-  intent: 'trading_mentor',
-  activityKey: 'percy', // Use a safe key for now
-  dominanceMetric: 'Market Timing Precision',
-  superheroName: 'The Risk-First Strategist',
-}] : [])].map((agent, index) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[1fr]">
+          {coreAgents.map((agent, index) => {
             const activity = liveActivity[agent.activityKey as keyof typeof liveActivity];
             const isHovered = hoveredAgent === agent.id;
             const showTip = showFreeTip === agent.id;

@@ -292,7 +292,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                 {/* Action Buttons */}
                 <motion.div 
-                    className="mt-auto"
+                    className="mt-auto px-3 pb-2"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
@@ -312,6 +312,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   className="agent-league-chat-button"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  title="Chat with agent"
                 >
                   <MessageCircle className="w-4 h-4" />
                   Chat
@@ -326,13 +327,13 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
                   } else if (onInfo) {
                     onInfo(agent);
                   } else {
-
                     router.push(agentPath(agent.id, 'backstory'));
                   }
                 }}
                 className="agent-league-info-button"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                title="View agent information"
               >
                 <Info className="w-4 h-4" />
                 Info
@@ -354,6 +355,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
               className="agent-league-launch-button"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
+              title="Launch agent"
             >
               <Rocket className="w-4 h-4" />
               Launch Agent
