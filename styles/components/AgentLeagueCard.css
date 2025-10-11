@@ -15,8 +15,8 @@
   position: relative;
   overflow: visible;
   background: linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border: 2px solid rgba(45, 212, 191, 0.5);
   box-shadow: 
     0 0 40px rgba(48, 213, 200, 0.4),
