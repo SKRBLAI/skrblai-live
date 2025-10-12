@@ -1,12 +1,17 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 export async function submitPercyFeedback(agentId: string, message: string) {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Percy Feedback:', { agentId, message });
-    return { success: true };
-  }
-
   try {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      throw new Error('Database unavailable');
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Percy Feedback:', { agentId, message });
+      return { success: true };
+    }
+
     const { error } = await supabase
       .from('percy_feedback')
       .insert({
