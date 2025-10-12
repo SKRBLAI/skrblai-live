@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PercyAvatar from '../ui/PercyAvatar';
 import { motion } from 'framer-motion';
 import { uploadFileToStorage } from '../../utils/supabase-helpers';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface FileUploadCardProps {
   title: string;
@@ -72,15 +72,17 @@ export default function FileUploadCard({
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      setError('Please select a file first');
-      return;
-    }
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
 
     try {
-      setUploading(true);
-      setProgress(10);
-      
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        throw new Error('Database unavailable');
+      }
+
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {

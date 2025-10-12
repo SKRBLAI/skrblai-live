@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { uploadFileToStorage } from '../../utils/supabase-helpers';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface FileUploadProps {
   category: string;
@@ -49,6 +49,12 @@ export default function FileUpload({
   const handleUpload = async () => {
     if (!file) return;
     
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      setError('Database unavailable');
+      return;
+    }
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
