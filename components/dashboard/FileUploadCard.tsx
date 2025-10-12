@@ -72,10 +72,10 @@ export default function FileUploadCard({
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return;
+    if (!file) return;
 
-    setIsUploading(true);
-    setUploadProgress(0);
+    setUploading(true);
+    setProgress(0);
 
     try {
       const supabase = getBrowserSupabase();
