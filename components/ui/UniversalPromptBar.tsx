@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { uploadFileToStorage } from '../../utils/supabase-helpers';
+import { uploadFileToStorage } from '../../lib/supabase/helpers';
 import { getBrowserSupabase } from '@/lib/supabase';
 import { usePercyContext } from '../assistant/PercyProvider';
 import { BEHAVIOR_TYPES } from '../../lib/percy/contextManager';

@@ -6,7 +6,6 @@ import { getBrowserSupabase } from '@/lib/supabase';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import { usePercyRouter } from '../../contexts/PercyContext';
 import { runAgentWorkflow } from '../../lib/agents/runAgentWorkflow';
-import { getCurrentUser } from '../../utils/supabase-helpers';
 import { sendEmailAction } from '../../actions/sendEmail';
 import { saveChatMemory } from '../../lib/percy/saveChatMemory';
 import { getRecentPercyMemory } from '../../lib/percy/getRecentMemory';
@@ -124,17 +123,17 @@ function PercyWidget() {
         complete = localStorage.getItem('onboardingComplete') === 'true';
       }
       try {
-        const user = await getCurrentUser();
-        if (user) {
-          const supabase = getBrowserSupabase();
-          if (!supabase) return;
-
-          const { data, error } = await supabase
-            .from('user_settings')
-            .select('onboardingComplete')
-            .eq('userId', user.id)
-            .maybeSingle();
-          if (!error && data) complete = data.onboardingComplete;
+        const supabase = getBrowserSupabase();
+        if (supabase) {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            const { data, error } = await supabase
+              .from('user_settings')
+              .select('onboardingComplete')
+              .eq('userId', user.id)
+              .maybeSingle();
+            if (!error && data) complete = data.onboardingComplete;
+          }
         }
       } catch {
         // intentionally left blank (non-critical)
@@ -250,15 +249,15 @@ function PercyWidget() {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Sorry, I couldn't find an agent for "${intent}".` }]);
       return;
     }
-    const user = await getCurrentUser();
-    if (!user) {
-      setMessages((prev) => [...prev, { role: 'assistant', text: `Please sign in to use Percy workflows.` }]);
-      return;
-    }
-
     const supabase = getBrowserSupabase();
     if (!supabase) {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Service temporarily unavailable.` }]);
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Please sign in to use Percy workflows.` }]);
       return;
     }
 

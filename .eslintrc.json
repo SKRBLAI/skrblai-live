@@ -13,9 +13,47 @@
     "jsx-a11y/aria-proptypes": "warn",
     "jsx-a11y/aria-unsupported-elements": "warn",
     "jsx-a11y/role-has-required-aria-props": "warn",
-    "jsx-a11y/role-supports-aria-props": "warn"
+    "jsx-a11y/role-supports-aria-props": "warn",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "utils/supabase",
+            "message": "Use @/lib/supabase canonical helpers instead"
+          },
+          {
+            "name": "utils/supabase-helpers", 
+            "message": "Use @/lib/supabase canonical helpers instead"
+          },
+          {
+            "name": "@/utils/supabase",
+            "message": "Use @/lib/supabase canonical helpers instead"
+          },
+          {
+            "name": "@/utils/supabase-helpers",
+            "message": "Use @/lib/supabase canonical helpers instead"
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@supabase/supabase-js"],
+            "importNames": ["createClient"],
+            "message": "Direct @supabase/supabase-js imports are not allowed outside of lib/supabase/**. Use getBrowserSupabase(), getServerSupabaseAnon(), or getServerSupabaseAdmin() from @/lib/supabase instead."
+          }
+        ]
+      }
+    ]
   },
   "overrides": [
+    {
+      "files": [
+        "lib/supabase/**/*.{ts,tsx}"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
     {
       "files": [
         "components/background/*.tsx",

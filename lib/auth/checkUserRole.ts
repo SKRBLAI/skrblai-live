@@ -1,16 +1,16 @@
 import { getServerSupabaseAdmin } from '@/lib/supabase';
-import { getCurrentUser } from '../../utils/supabase-helpers';
 
 export async function checkUserRole(): Promise<'free' | 'premium'> {
   try {
-    const user = await getCurrentUser();
-    if (!user) return 'free';
-
     const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       console.warn('Supabase client unavailable, defaulting to free tier');
       return 'free';
     }
+
+    // Get current user from server-side auth
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) return 'free';
 
     // Check user role from Supabase
     const { data, error } = await supabase

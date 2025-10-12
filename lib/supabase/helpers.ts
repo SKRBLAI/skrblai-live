@@ -1,6 +1,5 @@
-import { getBrowserSupabase, getServerSupabaseAdmin } from '@/lib/supabase';
+import { getBrowserSupabase, getServerSupabaseAdmin } from './index';
 import type { Lead, Proposal, ScheduledPost } from '@/types/supabase';
-import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 /**
  * Get the appropriate Supabase client based on environment
@@ -220,28 +219,4 @@ export const logAgentActivity = async (activityData: any) => {
   }
   
   return { success: true };
-};
-
-/**
- * Get the currently authenticated Supabase user.
- * @returns The Supabase User object if a session exists, otherwise null.
- */
-export const getCurrentUser = async (): Promise<SupabaseUser | null> => {
-  try {
-    const supabase = getSupabaseClient();
-    if (!supabase) {
-      console.error('Supabase client unavailable');
-      return null;
-    }
-
-    const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) {
-      console.error('Error fetching current user:', error.message);
-      return null;
-    }
-    return user;
-  } catch (error) {
-    console.error('Exception in getCurrentUser:', error);
-    return null;
-  }
 };
