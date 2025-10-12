@@ -1,6 +1,19 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase, getServerSupabaseAdmin } from '@/lib/supabase';
 import type { Lead, Proposal, ScheduledPost } from '@/types/supabase';
-import type { User as SupabaseUser } from '@supabase/supabase-js'; // Added SupabaseUser for clarity if local User type conflicts
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+
+/**
+ * Get the appropriate Supabase client based on environment
+ * Uses browser client when available, falls back to server admin
+ */
+function getSupabaseClient() {
+  // Try browser client first (for client-side code)
+  const browserClient = getBrowserSupabase();
+  if (browserClient) return browserClient;
+  
+  // Fall back to server admin (for server-side code)
+  return getServerSupabaseAdmin();
+}
 
 /**
  * Upload a file to Supabase storage
@@ -10,6 +23,11 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'; // Added Supa
  */
 export const uploadFileToStorage = async (file: File, path: string) => {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { success: false, error: 'Supabase client unavailable' };
+    }
+
     const { data, error } = await supabase.storage
       .from('files')
       .upload(path, file, {
@@ -44,6 +62,11 @@ export const saveToSupabase = async <T extends Record<string, any>>(
   id?: string
 ): Promise<{ success: boolean; id?: string; error?: any }> => {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { success: false, error: 'Supabase client unavailable' };
+    }
+
     const now = new Date().toISOString();
     
     if (id) {
@@ -86,6 +109,11 @@ export const saveToSupabase = async <T extends Record<string, any>>(
  */
 export const saveLeadToSupabase = async (leadData: Lead): Promise<{ success: boolean; id?: string; error?: any }> => {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return { success: false, error: 'Supabase client unavailable' };
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .insert({
@@ -126,6 +154,12 @@ export const saveProposal = async (proposalData: Proposal) => {
  */
 export const getProposals = async (): Promise<Array<Proposal & { id: string }>> => {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client unavailable');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('proposals')
       .select('*')
@@ -168,6 +202,11 @@ export const saveUser = async (userId: string, userName: string, userEmail: stri
  * @returns Save result
  */
 export const logAgentActivity = async (activityData: any) => {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return { success: false, error: 'Supabase client unavailable' };
+  }
+
   const { error } = await supabase
     .from('agent_activities')
     .insert({
@@ -189,6 +228,12 @@ export const logAgentActivity = async (activityData: any) => {
  */
 export const getCurrentUser = async (): Promise<SupabaseUser | null> => {
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      console.error('Supabase client unavailable');
+      return null;
+    }
+
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) {
       console.error('Error fetching current user:', error.message);
