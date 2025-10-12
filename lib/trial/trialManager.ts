@@ -23,6 +23,96 @@ export class TrialManager {
   }
 
   /**
+   * Get comprehensive trial status for a user
+   * Delegates to Supabase RPC function
+   */
+  static async getTrialStatus(userId: string): Promise<any> {
+    try {
+      const supabase = this.getSupabase();
+      
+      // Get user profile with trial information
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('subscription_status, trial_start_date, trial_end_date, trial_status')
+        .eq('id', userId)
+        .single();
+
+      if (error || !profile) {
+        // Return default trial status
+        return {
+          isTrialUser: true,
+          trialActive: false,
+          trialExpired: true,
+          daysRemaining: 0,
+          canAccessFeatures: false
+        };
+      }
+
+      // Check if user has active subscription
+      if (profile.subscription_status === 'active') {
+        return {
+          isTrialUser: false,
+          trialActive: false,
+          trialExpired: false,
+          daysRemaining: 0,
+          canAccessFeatures: true
+        };
+      }
+
+      // Calculate trial status
+      const now = new Date();
+      const trialEnd = profile.trial_end_date ? new Date(profile.trial_end_date) : null;
+      const trialExpired = trialEnd ? now > trialEnd : false;
+      const daysRemaining = trialEnd 
+        ? Math.max(0, Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) 
+        : 0;
+
+      return {
+        isTrialUser: true,
+        trialActive: !trialExpired && profile.trial_status === 'active',
+        trialExpired,
+        daysRemaining,
+        canAccessFeatures: !trialExpired
+      };
+    } catch (error) {
+      console.error('Error getting trial status:', error);
+      return {
+        isTrialUser: true,
+        trialActive: false,
+        trialExpired: true,
+        daysRemaining: 0,
+        canAccessFeatures: false
+      };
+    }
+  }
+
+  /**
+   * Initialize trial for a new user
+   * Delegates to Supabase RPC function
+   */
+  static async initializeTrial(userId: string, email?: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      const supabase = this.getSupabase();
+      
+      // Call Supabase RPC function that handles trial initialization
+      const { data, error } = await supabase.rpc('initialize_user_trial', {
+        p_user_id: userId,
+        p_email: email
+      });
+
+      if (error) {
+        console.error('Error initializing trial:', error);
+        return { success: false, error: error.message };
+      }
+
+      return data || { success: true };
+    } catch (error: any) {
+      console.error('Error in initializeTrial:', error);
+      return { success: false, error: error.message || 'Failed to initialize trial' };
+    }
+  }
+
+  /**
    * Check if user can perform a scan
    * Delegates to Supabase RPC function
    */
