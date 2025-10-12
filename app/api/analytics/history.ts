@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     }
 const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/analytics/history', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/analytics/history', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
   try {
@@ -61,10 +61,10 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
     if (workflow) query = query.eq('workflow', workflow);
     const { data: historyData, error: historyError } = await query;
     if (historyError) throw historyError;
-    await systemLog({ type: 'info', message: 'Agent usage history accessed', meta: { ip, userId, agentId, workflow } });
+    await systemLog('info', 'Agent usage history accessed', { ip, userId, agentId, workflow });
     return NextResponse.json({ success: true, history: historyData || [] });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Agent usage history error', meta: { error: error.message } });
+    await systemLog('error', 'Agent usage history error', { error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
