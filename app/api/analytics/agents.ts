@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     }
 const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/analytics/agents', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/analytics/agents', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
   try {
@@ -82,10 +82,10 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
     });
     const mostPopular = (popularData || []).map(item => ({ agentId: item.intent, count: item.count }));
     const sessionCount = sessionData?.length || 0;
-    await systemLog({ type: 'info', message: 'Agent analytics accessed', meta: { ip, userId } });
+    await systemLog('info', 'Agent analytics accessed', { ip, userId });
     return NextResponse.json({ success: true, usage, mostPopular, sessionCount });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Agent analytics error', meta: { error: error.message } });
+    await systemLog('error', 'Agent analytics error', { error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
