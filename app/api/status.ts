@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     }
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
-      await systemLog({ type: 'warning', message: 'Unauthorized /api/status access attempt', meta });
+      await systemLog('warning', 'Unauthorized /api/status access attempt', meta);
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     // Aggregate health checks
@@ -48,10 +48,10 @@ export async function GET(req: NextRequest) {
         agents,
       },
     };
-    await systemLog({ type: 'info', message: 'Status check', meta: { ...meta, userId: user.id, email: user.email, goNogo: status.goNogo } });
+    await systemLog('info', 'Status check', { ...meta, userId: user.id, email: user.email, goNogo: status.goNogo });
     return NextResponse.json({ success: true, ...status });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Status endpoint error', meta: { ...meta, error: error.message } });
+    await systemLog('error', 'Status endpoint error', { ...meta, error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
