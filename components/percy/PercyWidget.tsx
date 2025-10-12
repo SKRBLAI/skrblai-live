@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import AgentLeagueCard from '../ui/AgentLeagueCard';
 import { usePercyRouter } from '../../contexts/PercyContext';
 import { runAgentWorkflow } from '../../lib/agents/runAgentWorkflow';
@@ -126,6 +126,9 @@ function PercyWidget() {
       try {
         const user = await getCurrentUser();
         if (user) {
+          const supabase = getBrowserSupabase();
+          if (!supabase) return;
+
           const { data, error } = await supabase
             .from('user_settings')
             .select('onboardingComplete')
@@ -252,6 +255,13 @@ function PercyWidget() {
       setMessages((prev) => [...prev, { role: 'assistant', text: `Please sign in to use Percy workflows.` }]);
       return;
     }
+
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Service temporarily unavailable.` }]);
+      return;
+    }
+
     const { data: userData } = await supabase
       .from('user_roles')
       .select('role')
@@ -267,15 +277,17 @@ function PercyWidget() {
     const payload = { projectName: 'SKRBL AI' };
     const agentResult = await runAgentWorkflow(agent.id, payload);
 
-    await supabase
-      .from('workflowLogs')
-      .insert({
-        userId: user.id,
-        agentId: agent.id,
-        result: agentResult.result,
-        status: agentResult.status,
-        timestamp: new Date().toISOString()
-      });
+    if (supabase) {
+      await supabase
+        .from('workflowLogs')
+        .insert({
+          userId: user.id,
+          agentId: agent.id,
+          result: agentResult.result,
+          status: agentResult.status,
+          timestamp: new Date().toISOString()
+        });
+    }
 
     if (user.email) {
       await sendEmailAction(user.email, agent.id, agentResult.result);
@@ -284,7 +296,7 @@ function PercyWidget() {
     localStorage.setItem('lastUsedAgent', agent.intent ?? '');
 
     try {
-      if (user && typeof agent.intent === 'string' && agent.intent.length > 0) {
+      if (user && supabase && typeof agent.intent === 'string' && agent.intent.length > 0) {
         const { data: usageData } = await supabase
           .from('agent_usage')
           .select('count')
