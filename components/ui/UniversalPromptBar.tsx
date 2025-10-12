@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { uploadFileToStorage } from '../../utils/supabase-helpers';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { usePercyContext } from '../assistant/PercyProvider';
 import { BEHAVIOR_TYPES } from '../../lib/percy/contextManager';
 import { useOnboarding } from '../../contexts/OnboardingContext';
@@ -142,6 +142,12 @@ export default function UniversalPromptBar({
     try {
       console.log('[SKRBL_AUTH_DEBUG_PROMPT_BAR] Upload started. Checking for user...');
       setUploading(true); setProgress(10);
+      
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        throw new Error('Database unavailable');
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       console.log('[SKRBL_AUTH_DEBUG_PROMPT_BAR] supabase.auth.getUser() result:', user);
       if (!user) throw new Error('Login required');
