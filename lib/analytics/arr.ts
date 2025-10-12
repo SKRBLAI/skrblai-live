@@ -1,14 +1,13 @@
 import Stripe from "stripe";
 import { readEnvAny } from "@/lib/env/readEnvAny";
+import { requireStripe } from "@/lib/stripe/stripe";
 
 type ArrResult =
   | { ok: true; sportsARR: number; businessARR: number; totalARR: number; counts: { sportsSubs: number; businessSubs: number; unknownSubs: number } }
   | { ok: false; reason: string };
 
 function getStripe(): Stripe | null {
-  const key = process.env.STRIPE_SECRET_KEY;
-  if (!key || !key.startsWith("sk_")) return null;
-  return new Stripe(key, { apiVersion: "2023-10-16" });
+  return requireStripe();
 }
 
 function resolvedPriceIds() {
