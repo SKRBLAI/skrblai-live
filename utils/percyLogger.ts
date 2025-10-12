@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 /**
  * Fetch Percy logs from Supabase, ordered by timestamp.
@@ -6,6 +6,12 @@ import { supabase } from './supabase';
  * Returns only logs with required fields.
  */
 export async function fetchPercyLogs({ sessionId, eventType }: { sessionId?: string; eventType?: string } = {}) {
+  const supabase = getBrowserSupabase();
+  if (!supabase) {
+    console.error('Supabase client unavailable');
+    return { data: [], error: null };
+  }
+
   let query = supabase.from('percy_logs').select('*').order('timestamp', { ascending: false });
   if (sessionId) query = query.eq('meta->>sessionId', sessionId);
   if (eventType) query = query.eq('type', eventType);
