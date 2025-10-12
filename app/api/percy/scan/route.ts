@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             ? 'Your 3-day free trial has expired. Upgrade to continue using scans.'
             : 'Daily scan limit reached (3 per day). Upgrade for unlimited scans.',
           requiresUpgrade: true,
-          upgradePrompt: canScanResult.upgradePrompt
+          reason: canScanResult.reason
         }, { status: 403 });
       }
     } else {

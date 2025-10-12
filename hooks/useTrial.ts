@@ -1,8 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { TrialStatus, UpgradePrompt } from '../lib/trial/trialManager';
 import { getCurrentUser } from '../utils/supabase-helpers';
+
+// Simplified trial status (matches API response)
+interface TrialStatus {
+  isTrialUser: boolean;
+  trialActive: boolean;
+  trialExpired: boolean;
+  daysRemaining: number;
+  canAccessFeatures: boolean;
+}
 
 interface UseTrialReturn {
   trialStatus: TrialStatus | null;
@@ -11,7 +19,6 @@ interface UseTrialReturn {
   refreshTrialStatus: () => Promise<void>;
   initializeTrial: (email?: string) => Promise<boolean>;
   showUpgradeModal: boolean;
-  upgradePrompt: UpgradePrompt | null;
   setShowUpgradeModal: (show: boolean) => void;
   handleUpgrade: () => void;
 }
@@ -21,7 +28,6 @@ export function useTrial(): UseTrialReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [upgradePrompt, setUpgradePrompt] = useState<UpgradePrompt | null>(null);
 
   const refreshTrialStatus = useCallback(async () => {
     try {
@@ -83,7 +89,6 @@ export function useTrial(): UseTrialReturn {
   const handleUpgrade = useCallback(() => {
     // Close the modal
     setShowUpgradeModal(false);
-    setUpgradePrompt(null);
     
     // Redirect to pricing/upgrade page
     window.location.href = '/upgrade';
@@ -132,7 +137,6 @@ export function useTrial(): UseTrialReturn {
     refreshTrialStatus,
     initializeTrial,
     showUpgradeModal,
-    upgradePrompt,
     setShowUpgradeModal,
     handleUpgrade
   };
