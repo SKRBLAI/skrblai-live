@@ -59,7 +59,7 @@ export async function GET(req: Request) {
     }
 const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/agents', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/agents', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
   const authHeader = req.headers.get('authorization');
@@ -69,7 +69,7 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
     
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
-      await systemLog({ type: 'warning', message: 'Unauthorized /api/agents access attempt', meta });
+      await systemLog('warning', 'Unauthorized /api/agents access attempt', meta);
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     // Fetch user role
@@ -109,7 +109,7 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
     }
     // Add premium metadata to response
     const availableFeatures = getAvailableFeatures(userRole);
-    await systemLog({ type: 'info', message: 'Agents list accessed', meta: { ...meta, userId: user.id, email: user.email, grouped: !!grouped, userRole } });
+    await systemLog('info', 'Agents list accessed', { ...meta, userId: user.id, email: user.email, grouped: !!grouped, userRole });
     return NextResponse.json({ 
       agents: result,
       userRole,
@@ -117,7 +117,7 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
       premiumFeatures: availableFeatures
     });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Agent list fetch error', meta: { ...meta, error: error.message } });
+    await systemLog('error', 'Agent list fetch error', { ...meta, error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
