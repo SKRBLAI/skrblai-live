@@ -74,7 +74,7 @@ function incrementUsage(userId: string): void {
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/agents/automation', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/agents/automation', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
 
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
-      await systemLog({ type: 'warning', message: 'Unauthorized automation attempt', meta: { ip } });
+      await systemLog('warning', 'Unauthorized automation attempt', { ip });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     const { data: userRoleData } = await supabase
@@ -105,11 +105,11 @@ export async function POST(req: NextRequest) {
     // Check usage limits first
     const usageCheck = checkUsageLimits(user.id, userRole);
     if (!usageCheck.allowed) {
-      await systemLog({ 
-        type: 'warning', 
-        message: 'Usage limit exceeded', 
-        meta: { agentId, userId: user.id, userRole, reason: usageCheck.reason } 
-      });
+      await systemLog(
+        'warning',
+        'Usage limit exceeded',
+        { agentId, userId: user.id, userRole, reason: usageCheck.reason }
+      );
       return NextResponse.json({ 
         success: false, 
         error: usageCheck.reason,
@@ -121,11 +121,11 @@ export async function POST(req: NextRequest) {
     if (featureType) {
       const accessCheck = checkFeatureAccess(userRole, featureType);
       if (!accessCheck.allowed) {
-        await systemLog({ 
-          type: 'warning', 
-          message: 'Premium feature access denied', 
-          meta: { agentId, featureType, userId: user.id, userRole } 
-        });
+        await systemLog(
+          'warning',
+          'Premium feature access denied',
+          { agentId, featureType, userId: user.id, userRole }
+        );
         return NextResponse.json({ 
           success: false, 
           error: accessCheck.reason,
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
       );
 
       incrementUsage(user.id);
-      await systemLog({ type: 'info', message: 'Workflow template queued', meta: { templateId: workflowTemplate, jobId, userId: user.id } });
+      await systemLog('info', 'Workflow template queued', { templateId: workflowTemplate, jobId, userId: user.id });
       
       return NextResponse.json({ 
         success: true, 
@@ -191,7 +191,7 @@ export async function POST(req: NextRequest) {
       );
 
       incrementUsage(user.id);
-      await systemLog({ type: 'info', message: 'Agent automation queued', meta: { agentId, task, jobId, userId: user.id } });
+      await systemLog('info', 'Agent automation queued', { agentId, task, jobId, userId: user.id });
       
       return NextResponse.json({ 
         success: true, 
@@ -208,11 +208,11 @@ export async function POST(req: NextRequest) {
       incrementUsage(user.id);
     }
 
-    await systemLog({ type: 'info', message: 'Agent automation executed directly', meta: { agentId, task, userId: user.id } });
+    await systemLog('info', 'Agent automation executed directly', { agentId, task, userId: user.id });
     return NextResponse.json({ success: true, result: result.result, status: result.status });
     
   } catch (error) {
-    await systemLog({ type: 'error', message: 'Automation API error', meta: { error: getErrorMessage(error) } });
+    await systemLog('error', 'Automation API error', { error: getErrorMessage(error) });
     return NextResponse.json({ success: false, error: getErrorMessage(error) }, { status: 500 });
   }
 }
