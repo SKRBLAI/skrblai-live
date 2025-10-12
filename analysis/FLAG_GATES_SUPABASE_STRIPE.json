@@ -1,0 +1,222 @@
+{
+  "summary": {
+    "totalFlags": 11,
+    "hardGates": 2,
+    "progressiveEnhancement": 9,
+    "coreRoutesAffected": 4
+  },
+  "hardGates": [
+    {
+      "flag": "ENABLE_ARR_DASH",
+      "file": "app/dashboard/analytics/internal/page.tsx",
+      "route": "/dashboard/analytics/internal",
+      "impact": "Entire ARR dashboard disappears when disabled",
+      "supabaseImpact": "Hides user analytics data",
+      "stripeImpact": "Hides Stripe revenue analytics",
+      "recommendation": "Show 'Coming Soon' banner instead"
+    },
+    {
+      "flag": "ENABLE_LEGACY",
+      "files": ["Various legacy components"],
+      "routes": ["Multiple legacy component routes"],
+      "impact": "Components completely disappear",
+      "supabaseImpact": "May hide auth flows",
+      "stripeImpact": "May hide payment options",
+      "recommendation": "Show migration notices instead"
+    }
+  ],
+  "progressiveEnhancement": [
+    {
+      "flag": "ENABLE_STRIPE",
+      "files": [
+        "components/pricing/BuyButton.tsx",
+        "components/payments/CheckoutButton.tsx"
+      ],
+      "routes": ["All pricing and checkout pages"],
+      "pattern": "Shows disabled state with explanation",
+      "impact": "Graceful degradation"
+    },
+    {
+      "flag": "HP_GUIDE_STAR",
+      "files": [
+        "app/page.tsx",
+        "components/home/HomeHeroScanFirst.tsx",
+        "components/home/AgentLeaguePreview.tsx"
+      ],
+      "routes": ["/"],
+      "pattern": "Base UI always renders, adds enhancements when enabled",
+      "impact": "Enhanced animations"
+    },
+    {
+      "flag": "ENABLE_ORBIT",
+      "files": ["app/agents/page.tsx"],
+      "routes": ["/agents"],
+      "pattern": "Grid always shows, adds orbit animation when enabled",
+      "impact": "Enhanced animations"
+    },
+    {
+      "flag": "ENABLE_BUNDLES",
+      "files": ["components/sports/PlansAndBundles.tsx"],
+      "routes": ["/sports"],
+      "pattern": "Shows/hides bundle options",
+      "stripeImpact": "Affects available Stripe price IDs",
+      "impact": "Additional pricing options"
+    }
+  ],
+  "variantSelection": [
+    {
+      "flag": "HOMEPAGE_HERO_VARIANT",
+      "file": "app/page.tsx",
+      "routes": ["/"],
+      "pattern": "Configuration-based component selection",
+      "options": ["scan-first", "split", "legacy"],
+      "default": "scan-first"
+    }
+  ],
+  "coreRoutes": {
+    "alwaysOn": [
+      {
+        "route": "/auth/callback",
+        "flagsAffecting": [],
+        "supabaseImpact": "Uses legacy utils/supabase imports",
+        "risk": "May fail if legacy client misconfigured",
+        "status": "No gates detected"
+      },
+      {
+        "route": "/api/health/auth",
+        "flagsAffecting": [],
+        "supabaseImpact": "Likely uses legacy patterns",
+        "risk": "Health check may not reflect canonical auth state",
+        "status": "No gates detected"
+      },
+      {
+        "route": "/api/checkout",
+        "flagsAffecting": ["ENABLE_STRIPE (component level only)"],
+        "stripeImpact": "Uses canonical requireStripe()",
+        "risk": "Low - canonical implementation",
+        "status": "API route not gated"
+      },
+      {
+        "route": "/api/stripe/webhook",
+        "flagsAffecting": [],
+        "stripeImpact": "Uses canonical patterns",
+        "risk": "Low - webhook processing unaffected",
+        "status": "No gates detected"
+      }
+    ],
+    "problematic": [
+      {
+        "route": "/dashboard/analytics/internal",
+        "flagsAffecting": ["ENABLE_ARR_DASH"],
+        "gateType": "hard",
+        "stripeImpact": "HIGH - hides all Stripe revenue analytics",
+        "supabaseImpact": "May hide user analytics data",
+        "risk": "HIGH - entire dashboard disappears",
+        "status": "Hard gated"
+      }
+    ]
+  },
+  "flagImpactMatrix": [
+    {
+      "flag": "ENABLE_STRIPE",
+      "type": "Progressive",
+      "default": true,
+      "authImpact": "None",
+      "pricingImpact": "Shows disabled buttons",
+      "checkoutImpact": "None (API ungated)",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "ENABLE_ARR_DASH",
+      "type": "Hard Gate",
+      "default": false,
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "Hides entire ARR dashboard"
+    },
+    {
+      "flag": "HP_GUIDE_STAR",
+      "type": "Progressive",
+      "default": true,
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "ENABLE_ORBIT",
+      "type": "Progressive",
+      "default": false,
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "HOMEPAGE_HERO_VARIANT",
+      "type": "Variant",
+      "default": "scan-first",
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "ENABLE_BUNDLES",
+      "type": "Progressive",
+      "default": false,
+      "authImpact": "None",
+      "pricingImpact": "Hides bundle pricing",
+      "checkoutImpact": "None",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "AI_AUTOMATION_HOMEPAGE",
+      "type": "Toggle",
+      "default": true,
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "None"
+    },
+    {
+      "flag": "USE_OPTIMIZED_PERCY",
+      "type": "Toggle",
+      "default": false,
+      "authImpact": "None",
+      "pricingImpact": "None",
+      "checkoutImpact": "None",
+      "dashboardImpact": "Performance impact"
+    },
+    {
+      "flag": "ENABLE_LEGACY",
+      "type": "Hard Gate",
+      "default": false,
+      "authImpact": "May hide auth flows",
+      "pricingImpact": "May hide payment options",
+      "checkoutImpact": "None",
+      "dashboardImpact": "May hide legacy dashboards"
+    }
+  ],
+  "recommendations": {
+    "immediateFixes": [
+      {
+        "issue": "ARR Dashboard hard gate",
+        "solution": "Replace null return with fallback UI showing feature disabled message"
+      },
+      {
+        "issue": "Legacy component hard gates",
+        "solution": "Replace null returns with migration notices and links to new components"
+      }
+    ],
+    "verification": [
+      "No hard gates that return null for core routes",
+      "All Stripe-related flags use progressive enhancement",
+      "Auth routes remain always accessible",
+      "Checkout/webhook routes remain always accessible",
+      "Dashboard routes show fallback UI when features disabled",
+      "Bundle/pricing flags don't break checkout flows"
+    ]
+  }
+}

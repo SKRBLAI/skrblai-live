@@ -1,0 +1,8 @@
+File Path,Line Number,Code Snippet,Context,Owning Route,Flags,Gate Type,Risk Level
+lib/stripe/stripe.ts,9,"stripe = new Stripe(key, { apiVersion: '2023-10-16' });",Canonical helper,All Stripe operations,None,N/A,None (Canonical)
+lib/analytics/arr.ts,11,"return new Stripe(key, { apiVersion: ""2023-10-16"" });",Server utility,/dashboard/analytics/internal,FEATURE_FLAGS.ENABLE_ARR_DASH,Hard gate,High
+scripts/seed-stripe-addons.js,11,"const stripe = new Stripe(key, { apiVersion: ""2022-11-15"" });",Script,None (script only),None,N/A,Low
+lib/stripe/priceResolver.ts,29-97,"Multiple NEXT_PUBLIC_STRIPE_PRICE_* env var access",Canonical resolver,All pricing operations,None,N/A,None (Canonical)
+components/pricing/BuyButton.tsx,27,"const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;",Client component,All pricing pages,FEATURE_FLAGS.ENABLE_STRIPE,Progressive enhancement,None (Good pattern)
+components/payments/CheckoutButton.tsx,21,"const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;",Client component,All checkout flows,FEATURE_FLAGS.ENABLE_STRIPE,Progressive enhancement,None (Good pattern)
+app/dashboard/analytics/internal/page.tsx,N/A,"Uses lib/analytics/arr.ts indirectly",Server page,/dashboard/analytics/internal,FEATURE_FLAGS.ENABLE_ARR_DASH,Hard gate,Medium
