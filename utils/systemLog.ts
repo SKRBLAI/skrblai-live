@@ -1,6 +1,6 @@
 import { getBrowserSupabase } from '@/lib/supabase';
 
-const consoleMap = {
+const consoleMap: Record<string, typeof console.log> = {
   error: console.error,
   warning: console.warn,
   info: console.info,
