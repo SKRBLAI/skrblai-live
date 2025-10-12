@@ -1,10 +1,16 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 // Centralized database operations for agents
 export const agentDb = {
   // Log agent activity
   logActivity: async (agentName: string, action: string, activityData: any) => {
     try {
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        console.error('Supabase client unavailable');
+        return { success: false, error: 'Database unavailable' };
+      }
+
       const { data, error } = await supabase
         .from('agent_activities')
         .insert([{
@@ -24,6 +30,9 @@ export const agentDb = {
   // Save agent job
   saveJob: async (jobData: any) => {
     try {
+      const supabase = getBrowserSupabase();
+      if (!supabase) throw new Error('Database unavailable');
+
       const { data, error } = await supabase
         .from('agent_jobs')
         .insert([{
@@ -42,6 +51,9 @@ export const agentDb = {
   // Query agent jobs
   queryJobs: async (agentName: string, userId: string, maxResults = 10) => {
     try {
+      const supabase = getBrowserSupabase();
+      if (!supabase) throw new Error('Database unavailable');
+
       const { data, error } = await supabase
         .from('agent_jobs')
         .select('*')
