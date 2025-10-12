@@ -23,4 +23,7 @@ export async function logSystemEvent(type: string, message: string, meta?: any) 
   } catch (err) {
     console.error('[systemLog] Failed to log event:', err, { type, message, meta });
   }
-} 
+}
+
+// Alias for backwards compatibility
+export const systemLog = logSystemEvent;
