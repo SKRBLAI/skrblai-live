@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
 interface AgentStats {
@@ -46,14 +46,17 @@ export function usePercyAnalytics(): PercyAnalytics {
     let analyticsSubscription: any = null;
     
     const fetchAnalyticsData = async () => {
-      try {
-        // Get agent usage data from Supabase
-        const { data, error } = await supabase
-          .from('agent_usage')
-          .select('intent, count, updatedAt')
-          .eq('userId', user.id)
-          .order('count', { ascending: false });
-          
+      useEffect(() => {
+        async function loadAnalytics() {
+          try {
+            const supabase = getBrowserSupabase();
+            if (!supabase) return;
+
+            const { data, error } = await supabase
+              .from('agent_usage')
+              .select('intent, count, updatedAt')
+              .eq('userId', user.id)
+              .order('count', { ascending: false });
         if (error) throw error;
         
         // Transform data into the expected format

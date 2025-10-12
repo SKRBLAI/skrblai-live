@@ -1,4 +1,4 @@
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { getCurrentUser } from '../../utils/supabase-helpers';
 
 export const getRecentPercyMemory = async () => {
@@ -6,7 +6,9 @@ export const getRecentPercyMemory = async () => {
     const user = await getCurrentUser();
     if (!user) return [];
 
-    // Get recent memory from Supabase
+    const supabase = getBrowserSupabase();
+    if (!supabase) return [];
+
     const { data, error } = await supabase
       .from('percy_memory')
       .select('*')

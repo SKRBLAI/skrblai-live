@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import { AgentStats } from '../types/agent';
 import { Database } from '../types/supabase';
 
@@ -9,8 +9,15 @@ export function useAgentStats() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    async function fetchTopAgents() {
+    async function fetchStats() {
       try {
+        const supabase = getBrowserSupabase();
+        if (!supabase) {
+          setError(new Error('Database unavailable'));
+          setLoading(false);
+          return;
+        }
+
         if (process.env.NODE_ENV === 'development') {
           // Mock data for development
           setTopAgents([
