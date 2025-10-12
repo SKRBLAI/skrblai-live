@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 // Tax jurisdiction mapping
 export const TAX_JURISDICTIONS = {
@@ -89,6 +89,10 @@ export async function saveTaxCalculation(params: {
   customerAddress?: any;
 }): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      return { success: false, error: 'Database service unavailable' };
+    }
     const { data, error } = await supabase
       .from('tax_calculations')
       .insert({
@@ -126,6 +130,10 @@ export async function getUserTaxCalculations(userId: string): Promise<{
   error?: string;
 }> {
   try {
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      return { success: false, error: 'Database service unavailable' };
+    }
     const { data, error } = await supabase
       .from('tax_calculations')
       .select('*')
