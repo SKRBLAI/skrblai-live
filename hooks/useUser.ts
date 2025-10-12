@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface User {
   id: string;
@@ -24,6 +24,11 @@ export function useUser() {
             email: 'test@example.com'
           });
           return;
+        }
+
+        const supabase = getBrowserSupabase();
+        if (!supabase) {
+          throw new Error('Supabase client unavailable');
         }
 
         const { data: { user } } = await supabase.auth.getUser();
