@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { usePercyContext } from '../../contexts/PercyContext';
-import { saveLeadToSupabase } from '../../utils/supabase-helpers';
+import { saveLeadToSupabase } from '../../lib/supabase/helpers';
 import type { SupabaseTimestamp, Lead } from '@/types/supabase';
 
 interface IntakeFormData {

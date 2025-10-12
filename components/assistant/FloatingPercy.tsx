@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import PercyAvatar from '../ui/PercyAvatar';
 import { usePercyContext } from './PercyProvider';
 import { useAuth } from '../context/AuthContext';
-import { getCurrentUser } from '../../utils/supabase-helpers';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 interface Message {
   role: 'assistant' | 'user';

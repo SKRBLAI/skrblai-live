@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getCurrentUser } from '../utils/supabase-helpers';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 // Simplified trial status (matches API response)
 interface TrialStatus {
@@ -34,7 +34,12 @@ export function useTrial(): UseTrialReturn {
       setIsLoading(true);
       setError(null);
 
-      const user = await getCurrentUser();
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        throw new Error('Supabase client unavailable');
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         setTrialStatus(null);
         return;
@@ -107,7 +112,10 @@ export function useTrial(): UseTrialReturn {
       }
 
       try {
-        const user = await getCurrentUser();
+        const supabase = getBrowserSupabase();
+        if (!supabase) return;
+
+        const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
         // This would be implemented in TrialManager

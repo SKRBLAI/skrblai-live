@@ -10,7 +10,6 @@ import Link from 'next/link';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getCurrentUser } from '../../../utils/supabase-helpers';
 import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import type { User } from '@supabase/supabase-js';
@@ -24,12 +23,16 @@ export default function WebsiteDashboard() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const user = await getCurrentUser();
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        router.push('/sign-in');
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('[SKRBL AUTH] Dashboard route protection standardized.');
-        if (!user) {
-          router.push('/sign-in');
-        }
+        router.push('/sign-in');
         return;
       }
       setUser(user);

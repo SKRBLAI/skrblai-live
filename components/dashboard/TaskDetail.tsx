@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import styles from './TaskDetail.module.css';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '../../lib/supabase';
 import { JobStatus } from '../../utils/agentJobStatus';
 
 interface TaskDetailProps {

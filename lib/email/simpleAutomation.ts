@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import { getErrorMessage } from '../../utils/errorHandling';
 import { EMAIL_SEQUENCES } from './sequences';
 

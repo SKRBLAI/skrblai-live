@@ -1,13 +1,12 @@
 import { getBrowserSupabase } from '@/lib/supabase';
-import { getCurrentUser } from '../../utils/supabase-helpers';
 
 export const getRecentPercyMemory = async () => {
   try {
-    const user = await getCurrentUser();
-    if (!user) return [];
-
     const supabase = getBrowserSupabase();
     if (!supabase) return [];
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
 
     const { data, error } = await supabase
       .from('percy_memory')
