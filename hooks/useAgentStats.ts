@@ -49,7 +49,7 @@ export function useAgentStats() {
       }
     }
 
-    fetchTopAgents();
+    fetchStats();
   }, []);
 
   return { topAgents, loading, error };
