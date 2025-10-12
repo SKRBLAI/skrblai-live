@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     meta.userId = userId;
     meta.email = email;
     if (!isAdmin) {
-      await systemLog({ type: 'warning', message: 'Unauthorized system log access attempt', meta });
+      await systemLog('warning', 'Unauthorized system log access attempt', meta);
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     // Fetch recent system logs (limit 100, newest first)
@@ -63,10 +63,10 @@ export async function GET(req: NextRequest) {
       meta: row.meta ? JSON.parse(row.meta) : null,
       timestamp: row.timestamp,
     }));
-    await systemLog({ type: 'info', message: 'System logs accessed', meta });
+    await systemLog('info', 'System logs accessed', meta);
     return NextResponse.json({ success: true, logs });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'System log fetch error', meta: { ...meta, error: error.message } });
+    await systemLog('error', 'System log fetch error', { ...meta, error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
