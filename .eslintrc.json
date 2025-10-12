@@ -23,7 +23,7 @@
             "message": "Use @/lib/supabase canonical helpers instead"
           },
           {
-            "name": "utils/supabase-helpers", 
+            "name": "utils/supabase-helpers",
             "message": "Use @/lib/supabase canonical helpers instead"
           },
           {
