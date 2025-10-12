@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 // Job status options
 export type JobStatus = 'queued' | 'in_progress' | 'complete' | 'failed';
@@ -20,34 +20,35 @@ export interface JobUpdate {
  */
 export const updateJobStatus = async (jobId: string, update: JobUpdate) => {
   try {
-    // First check if the job exists
-    const { data: job, error: fetchError } = await supabase
-      .from('agent_jobs')
-      .select('*')
-      .eq('id', jobId)
-      .single();
-    
-    if (fetchError || !job) {
-      console.error(`Job ${jobId} not found`);
-      return { success: false, message: `Job ${jobId} not found` };
+    const supabase = getBrowserSupabase();
+    if (!supabase) {
+      console.error('Supabase client unavailable');
+      return { success: false, message: 'Database unavailable' };
     }
-    
-    // Prepare update data
-    const updateData = {
-      ...update,
-      updatedAt: new Date().toISOString()
+
+    const updateData: any = {
+      updated_at: new Date().toISOString()
     };
+
+    if (update.status) updateData.status = update.status;
+    if (update.progress !== undefined) updateData.progress = update.progress;
+    if (update.output) updateData.output = update.output;
+    if (update.results) updateData.results = update.results;
+    if (update.error) updateData.error = update.error;
     
-    // Update the job
+    if (update.status === 'complete' || update.status === 'failed') {
+      updateData.completed_at = new Date().toISOString();
+    }
+
     const { error: updateError } = await supabase
       .from('agent_jobs')
       .update(updateData)
       .eq('id', jobId);
-    
+
     if (updateError) throw updateError;
-    
-    console.log(`Job ${jobId} updated with status: ${update.status || 'unchanged'}`);
-    return { success: true, message: `Job ${jobId} updated successfully` };
+
+    console.log(`Job ${jobId} updated successfully`);
+    return { success: true, message: 'Job updated successfully' };
   } catch (error) {
     console.error(`Error updating job ${jobId}:`, error);
     return { 
