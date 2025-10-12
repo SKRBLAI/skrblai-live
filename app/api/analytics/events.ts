@@ -56,11 +56,7 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
       .insert([enrichedEvent]);
 
     if (error) {
-      await systemLog({ 
-        type: 'error', 
-        message: 'Failed to store analytics event', 
-        meta: { error: error.message, event: enrichedEvent } 
-      });
+      await systemLog('error', 'Failed to store analytics event', { error: error.message, event: enrichedEvent });
       return NextResponse.json({ success: false, error: 'Storage failed' }, { status: 500 });
     }
 
@@ -68,21 +64,13 @@ const ip = req.headers.get('x-forwarded-for') || 'unknown';
     await Promise.allSettled([
       // sendToMixpanel(enrichedEvent),
       // sendToAmplitude(enrichedEvent),
-      systemLog({ 
-        type: 'info', 
-        message: 'Analytics event recorded', 
-        meta: { eventType: event.eventType, userId: event.userId, source: event.source } 
-      })
+      systemLog('info', 'Analytics event recorded', { eventType: event.eventType, userId: event.userId, source: event.source }),
     ]);
 
     return NextResponse.json({ success: true });
 
   } catch (error: any) {
-    await systemLog({ 
-      type: 'error', 
-      message: 'Analytics API error', 
-      meta: { error: error.message, ip } 
-    });
+    await systemLog('error', 'Analytics API error', { error: error.message, ip });
     return NextResponse.json({ success: false, error: 'Invalid request' }, { status: 400 });
   }
 }
