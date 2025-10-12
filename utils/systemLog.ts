@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 const consoleMap = {
   error: console.error,
@@ -6,8 +6,9 @@ const consoleMap = {
   info: console.info,
 };
 
-export async function systemLog({ type, message, meta }: { type: 'error' | 'warning' | 'info'; message: string; meta?: any }) {
+export async function logSystemEvent(type: string, message: string, meta?: any) {
   try {
+    const supabase = getBrowserSupabase();
     if (supabase) {
       await supabase.from('system_logs').insert({
         type,
