@@ -105,15 +105,13 @@ try {
         error: triggerResult.error
       });
 
-      await systemLog({ 
-        type: 'info', 
-        message: 'Email sequence triggered', 
-        meta: { 
-          userId, 
-          sequenceId: sequence.id, 
-          triggerType, 
-          success: triggerResult.success 
-        } 
+      await systemLog('info', 'Email sequence triggered', {
+        userId,
+        sequence: sequence.id,
+        step: null,
+        campaignId: null,
+        ip: null,
+        elapsedSeconds: null,
       });
     }
 
@@ -124,10 +122,11 @@ try {
     });
 
   } catch (error) {
-    await systemLog({ 
-      type: 'error', 
-      message: 'Email trigger API error', 
-      meta: { error: getErrorMessage(error) } 
+    await systemLog('error', 'Email trigger failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      campaignId: null,
+      sequence: null,
+      step: null,
     });
     
     return NextResponse.json({ 

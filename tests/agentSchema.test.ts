@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { agentDashboardList } from '../lib/agents/agentRegistry';
 
 describe('Agent Dashboard Schema Compliance', () => {

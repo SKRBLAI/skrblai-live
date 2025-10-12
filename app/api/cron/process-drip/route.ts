@@ -17,11 +17,7 @@ export async function POST(req: NextRequest) {
       await marketingManager.processDripCampaignStep(enrollment.id);
     }
 
-    await systemLog({
-      type: 'info',
-      message: 'Processed drip campaign actions',
-      meta: { processed: pending.length }
-    });
+    await systemLog('info', 'Processed drip campaign actions', { processed: pending.length });
 
     return NextResponse.json({ success: true, processed: pending.length });
   } catch (error) {

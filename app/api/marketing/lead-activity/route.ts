@@ -32,20 +32,12 @@ export async function POST(req: NextRequest) {
       metadata
     } as any);
 
-    await systemLog({
-      type: 'info',
-      message: 'Lead activity recorded',
-      meta: { leadId, activityType }
-    });
+    await systemLog('info', 'Lead activity recorded', { leadId, activityType });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[Lead Activity API] Error:', error);
-    await systemLog({
-      type: 'error',
-      message: 'Lead activity API error',
-      meta: { error: getErrorMessage(error) }
-    });
+    await systemLog('error', 'Lead activity API error', { error: getErrorMessage(error) });
 
     return NextResponse.json({
       success: false,

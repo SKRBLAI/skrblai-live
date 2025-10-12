@@ -37,11 +37,15 @@ function checkRateLimit(ip: string): boolean {
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/onboarding POST', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/onboarding POST', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
+
+  let userId: string | undefined;
   try {
-    const { userId, agentId, onboarding } = await req.json();
+    const body = await req.json();
+    userId = body.userId;
+    const { agentId, onboarding } = body;
     if (!userId || !agentId || !onboarding) {
       return NextResponse.json({ success: false, error: 'Missing userId, agentId, or onboarding data' }, { status: 400 });
     }
@@ -57,16 +61,21 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
     if (error) throw error;
     let onboardingState = data?.onboarding || {};
+    const existingOnboarding = onboardingState[agentId];
     onboardingState[agentId] = onboarding;
     // Upsert onboarding JSON
     const { error: upsertError } = await supabase
       .from('user_settings')
       .upsert({ userId, onboarding: onboardingState, updatedAt: new Date().toISOString() }, { onConflict: 'userId' });
     if (upsertError) throw upsertError;
-    await systemLog({ type: 'info', message: 'Onboarding state updated', meta: { userId, agentId } });
+    if (!existingOnboarding) {
+      await systemLog('info', 'New onboarding created', { userId, agentId });
+    } else {
+      await systemLog('info', 'Onboarding state updated', { userId, agentId });
+    }
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Onboarding API error', meta: { error: error.message } });
+    await systemLog('error', 'Onboarding API error', { error: error.message, userId });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 }
@@ -74,11 +83,12 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
   if (checkRateLimit(ip)) {
-    await systemLog({ type: 'warning', message: 'Rate limit exceeded on /api/onboarding GET', meta: { ip } });
+    await systemLog('warning', 'Rate limit exceeded on /api/onboarding GET', { ip });
     return NextResponse.json({ success: false, error: 'Rate limit exceeded. Please try again later.' }, { status: 429 });
   }
   try {
-    const { searchParams } = new URL(req.url);
+    const url = new URL(req.url);
+    const searchParams = url.searchParams;
     const userId = searchParams.get('userId');
     const agentId = searchParams.get('agentId');
     if (!userId || !agentId) {
@@ -95,9 +105,17 @@ export async function GET(req: NextRequest) {
       .maybeSingle();
     if (error) throw error;
     const onboardingState = data?.onboarding || {};
-    return NextResponse.json({ success: true, onboarding: onboardingState[agentId] || null });
+    const onboarding = onboardingState[agentId];
+    if (!onboarding) {
+      await systemLog('info', 'No onboarding state found', { userId, agentId });
+      return NextResponse.json({ success: true, onboarding: null });
+    }
+    await systemLog('info', 'Onboarding state retrieved', { userId, agentId });
+    return NextResponse.json({ success: true, onboarding });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Onboarding API error', meta: { error: error.message } });
+    const url = new URL(req.url);
+    const searchParams = url.searchParams;
+    await systemLog('error', 'Onboarding GET error', { error: error.message, userId: searchParams.get('userId') });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
-} 
+}
