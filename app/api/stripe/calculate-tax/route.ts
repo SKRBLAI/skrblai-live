@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireStripe } from '@/lib/stripe/stripe';
-import { supabase } from '../../../../utils/supabase';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { saveTaxCalculation, parseStripeTaxCalculation } from '../../../../utils/tax';
 
 export async function POST(req: NextRequest) {
