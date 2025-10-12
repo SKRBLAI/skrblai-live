@@ -1,0 +1,30 @@
+File Path,Line Number,Code Snippet,Context,Owning Route,Flags,Gate Type,Risk Level
+lib/trial/trialManager.ts,6,"import { supabase } from '../../utils/supabase';",Server utility,All dashboard pages,None,N/A,High
+lib/auth/checkUserRole.ts,1-2,"import { supabase } from '../../utils/supabase'; import { getCurrentUser } from '../../utils/supabase-helpers';",Server utility,All protected routes,None,N/A,High
+hooks/useUser.ts,2,"import { supabase } from '../utils/supabase';",Client hook,All pages with user context,None,N/A,High
+hooks/useTrial.ts,5,"import { getCurrentUser } from '../utils/supabase-helpers';",Client hook,Dashboard pages with trial gating,None,N/A,High
+app/dashboard/website/page.tsx,13,"import { getCurrentUser } from '../../../utils/supabase-helpers';",Server page,/dashboard/website,None,N/A,Medium
+app/dashboard/getting-started/page.tsx,11,"import { getCurrentUser } from '../../../utils/supabase-helpers';",Server page,/dashboard/getting-started,None,N/A,Medium
+components/ui/UniversalPromptBar.tsx,6-7,"import { uploadFileToStorage } from '../../utils/supabase-helpers'; import { supabase } from '../../utils/supabase';",Client component,Multiple pages with prompt bar,None,N/A,Medium
+components/percy/PercyWidget.tsx,5-9,"import { supabase } from '../../utils/supabase'; import { getCurrentUser } from '../../utils/supabase-helpers';",Client component,Pages with Percy widget,None,N/A,Medium
+lib/percy/getRecentMemory.ts,1-2,"import { supabase } from '../../utils/supabase'; import { getCurrentUser } from '../../utils/supabase-helpers';",Server utility,Percy memory functionality,None,N/A,Medium
+lib/percy/contextManager.js,7,"import { supabase } from '../../utils/supabase';",Server utility,Percy context management,None,N/A,Medium
+lib/percy/saveChatMemory.ts,1-2,"import { supabase } from '../../utils/supabase'; import { getCurrentUser } from '../../utils/supabase-helpers';",Server utility,Percy chat functionality,None,N/A,Medium
+lib/agents/intelligenceEngine.ts,14,"import { supabase } from '../../utils/supabase';",Server utility,Agent intelligence features,None,N/A,Medium
+lib/agents/accessControl.js,7,"import { supabase } from '../../utils/supabase';",Server utility,Agent access control,None,N/A,Medium
+hooks/useAgentLeague.ts,218,"const { supabase } = await import('@/utils/supabase');",Client hook,Agent league functionality,None,N/A,Medium
+hooks/useAgentStats.ts,2,"import { supabase } from '../utils/supabase';",Client hook,Agent statistics,None,N/A,Medium
+components/hooks/usePercyAnalytics.ts,2,"import { supabase } from '../../utils/supabase';",Client hook,Percy analytics,None,N/A,Medium
+components/dashboard/TaskDetail.tsx,6,"import { supabase } from '../../utils/supabase';",Client component,Task detail views,None,N/A,Medium
+components/percy/PercyIntakeForm.tsx,7,"import { saveLeadToSupabase } from '../../utils/supabase-helpers';",Client component,Percy intake form,None,N/A,Medium
+components/book-publishing/PublishingAssistantPanel.tsx,6,"import { supabase } from '../../utils/supabase';",Client component,Publishing assistant,None,N/A,Medium
+components/assistant/FloatingPercy.tsx,9,"import { getCurrentUser } from '../../utils/supabase-helpers';",Client component,Floating Percy assistant,None,N/A,Medium
+components/dashboard/AnalyticsDashboard.tsx,5,"import { supabase } from '../../utils/supabase';",Client component,Analytics dashboard,None,N/A,Medium
+components/dashboard/FileUploadCard.tsx,6-7,"import { uploadFileToStorage } from '../../utils/supabase-helpers'; import { supabase } from '../../utils/supabase';",Client component,File upload functionality,None,N/A,Medium
+components/dashboard/FileUpload.tsx,5-6,"import { uploadFileToStorage } from '../../utils/supabase-helpers'; import { supabase } from '../../utils/supabase';",Client component,File upload functionality,None,N/A,Medium
+app/api/stripe/calculate-tax/route.ts,3,"import { supabase } from '../../../../utils/supabase';",API route,/api/stripe/calculate-tax,None,N/A,Medium
+supabase/functions/post-payment-automation/index.ts,30,"const supabase = createClient(supabaseUrl, supabaseAnonKey)",Edge function,/api/stripe/webhook automation,None,N/A,Low
+scripts/create-marketing-promo-codes.js,25,"const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);",Script,None (script only),None,N/A,Low
+utils/supabase-helpers.ts,1,"import { supabase } from './supabase';",Utility file,Multiple routes via helpers,None,N/A,High
+lib/email/simpleAutomation.ts,1,"import { createClient } from '@supabase/supabase-js';",Server utility,Email automation,None,N/A,Medium
+tests/auth/dashboardAuth.test.ts,15-647,"Multiple createClient mock calls",Test file,None (test only),None,N/A,Low
