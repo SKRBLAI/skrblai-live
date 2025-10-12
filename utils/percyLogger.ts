@@ -9,7 +9,7 @@ export async function fetchPercyLogs({ sessionId, eventType }: { sessionId?: str
   const supabase = getBrowserSupabase();
   if (!supabase) {
     console.error('Supabase client unavailable');
-    return { data: [], error: null };
+    return [];
   }
 
   let query = supabase.from('percy_logs').select('*').order('timestamp', { ascending: false });
