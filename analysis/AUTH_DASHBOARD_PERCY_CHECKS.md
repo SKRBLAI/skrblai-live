@@ -18,7 +18,7 @@ This document verifies the complete Auth → Dashboard → Percy memory flows af
    - ✅ Redirects to dashboard on success
 
 2. **Session Persistence** (`lib/auth/getSession.ts`)
-   - ✅ Uses canonical `getServerSupabaseAnon()` 
+   - ✅ Uses canonical `getServerSupabaseAnon()`
    - ✅ Provides `getCurrentUser()` helper using canonical client
    - ✅ Maintains server-side session validation
 
