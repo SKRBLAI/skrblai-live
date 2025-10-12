@@ -59,7 +59,7 @@ const authHeader = req.headers.get('authorization');
     
     const { data: { user } } = await supabase.auth.getUser(token);
     if (!user) {
-      await systemLog({ type: 'warning', message: 'Unauthorized /api/agents/featured access attempt', meta });
+      await systemLog('warning', 'Unauthorized /api/agents/featured access attempt', meta);
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
     const featuredAgents = agentRegistry
@@ -71,10 +71,10 @@ const authHeader = req.headers.get('authorization');
         return a.displayInOrbit === true;
       })
       .map(selfHealAgent);
-    await systemLog({ type: 'info', message: 'Featured agents accessed', meta: { ...meta, userId: user.id, email: user.email } });
+    await systemLog('info', 'Featured agents accessed', { ...meta, userId: user.id, email: user.email });
     return NextResponse.json({ agents: featuredAgents });
   } catch (error: any) {
-    await systemLog({ type: 'error', message: 'Featured agent list fetch error', meta: { ...meta, error: error.message } });
+    await systemLog('error', 'Featured agent list fetch error', { ...meta, error: error.message });
     return NextResponse.json({ success: false, error: error.message || 'Unknown error' }, { status: 500 });
   }
 } 
