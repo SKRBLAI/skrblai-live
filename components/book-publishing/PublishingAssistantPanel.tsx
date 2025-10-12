@@ -3,7 +3,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDropzone } from 'react-dropzone';
-import { supabase } from '../../utils/supabase';
+import { getBrowserSupabase } from '@/lib/supabase';
 import PercyAvatar from '../ui/PercyAvatar';
 import type { BookPublishingState, FileUploadStatus, BookPublishingResponse } from '@/types/book-publishing';
 import classNames from 'classnames';
@@ -62,6 +62,11 @@ export default function PublishingAssistantPanel({ className = '' }: { className
       xhr.addEventListener('load', async () => {
         if (xhr.status >= 200 && xhr.status < 300) {
           // Upload to Supabase storage
+          const supabase = getBrowserSupabase();
+          if (!supabase) {
+            throw new Error('Database unavailable');
+          }
+
           const { data, error } = await supabase.storage
             .from('public-manuscripts')
             .upload(fileName, file);
