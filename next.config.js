@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 
-
+// Force rebuild - Oct 14, 2025 1:03 PM
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
