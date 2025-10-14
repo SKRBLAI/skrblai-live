@@ -12,6 +12,11 @@ let supabase: SupabaseClient | null = null;
 export function getBrowserSupabase(): SupabaseClient | null {
   if (supabase) return supabase;
 
+  // DEBUG: Log what we're checking
+  console.log('[supabase] Checking environment variables...');
+  console.log('[supabase] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Present' : '❌ Missing');
+  console.log('[supabase] NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Present' : '❌ Missing');
+
   // Dual key lookup for URL with emergency fallback
   let url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
   
@@ -40,10 +45,13 @@ export function getBrowserSupabase(): SupabaseClient | null {
       const missing = [];
       if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL');
       if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
-      console.warn("[supabase] Missing environment variables:", missing.join(', '));
+      console.error("[supabase] ❌ Missing environment variables:", missing.join(', '));
+      console.error("[supabase] ❌ Make sure .env.local exists and dev server was restarted");
     }
     return null;
   }
+  
+  console.log('[supabase] ✅ Environment variables found, creating client...');
 
   try {
     supabase = createClient(url, anonKey, {

@@ -35,8 +35,9 @@ export function validateEnvSafe() {
     typeof url === "string" &&
     /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url);
 
-  const anonPrefixOk = !!anon && (/^sbp_/.test(anon) || /^sb_publishable_/i.test(anon));
-  const serviceRolePrefixOk = !!service && (/^sbs_/.test(service) || /^sb_secret_/i.test(service));
+  // Accept both legacy JWT (eyJ...) and new format (sbp_/sb_publishable_)
+  const anonPrefixOk = !!anon && (/^eyJ/.test(anon) || /^sbp_/.test(anon) || /^sb_publishable_/i.test(anon));
+  const serviceRolePrefixOk = !!service && (/^eyJ/.test(service) || /^sbs_/.test(service) || /^sb_secret_/i.test(service));
 
   return {
     env: {
@@ -79,27 +80,35 @@ export function assertEnvAtRuntime(): SupabaseEnv {
     }
   }
 
-  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY (supporting both legacy and new formats)
+  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY (supporting both legacy JWT and new formats)
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!anonKey) {
     errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
   } else {
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY = anonKey;
     
-    if (!anonKey.startsWith('sbp_') && !anonKey.startsWith('sb_publishable_')) {
-      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY must start with "sbp_" or "sb_publishable_"');
+    // Accept legacy JWT format (eyJ...) OR new format (sbp_/sb_publishable_)
+    const isLegacyJWT = anonKey.startsWith('eyJ');
+    const isNewFormat = anonKey.startsWith('sbp_') || anonKey.startsWith('sb_publishable_');
+    
+    if (!isLegacyJWT && !isNewFormat) {
+      errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY must start with "eyJ" (legacy JWT), "sbp_", or "sb_publishable_"');
     }
   }
 
-  // Check SUPABASE_SERVICE_ROLE_KEY (supporting both legacy and new formats)
+  // Check SUPABASE_SERVICE_ROLE_KEY (supporting both legacy JWT and new formats)
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) {
     errors.push('SUPABASE_SERVICE_ROLE_KEY is required');
   } else {
     env.SUPABASE_SERVICE_ROLE_KEY = serviceKey;
     
-    if (!serviceKey.startsWith('sbs_') && !serviceKey.startsWith('sb_secret_')) {
-      errors.push('SUPABASE_SERVICE_ROLE_KEY must start with "sbs_" or "sb_secret_"');
+    // Accept legacy JWT format (eyJ...) OR new format (sbs_/sb_secret_)
+    const isLegacyJWT = serviceKey.startsWith('eyJ');
+    const isNewFormat = serviceKey.startsWith('sbs_') || serviceKey.startsWith('sb_secret_');
+    
+    if (!isLegacyJWT && !isNewFormat) {
+      errors.push('SUPABASE_SERVICE_ROLE_KEY must start with "eyJ" (legacy JWT), "sbs_", or "sb_secret_"');
     }
   }
 

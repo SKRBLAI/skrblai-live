@@ -19,10 +19,8 @@ const nextConfig = {
     optimizeCss: true,
     scrollRestoration: true
   },
-  env: {
-    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
-    NEXT_PUBLIC_RAILWAY_ENV: process.env.NEXT_PUBLIC_RAILWAY_ENV
-  },
+  // Removed env block - Next.js automatically exposes NEXT_PUBLIC_* variables
+  // Having an explicit env block BLOCKS all other variables!
   compiler: {
     styledComponents: true,
     removeConsole: process.env.NODE_ENV === 'production',
