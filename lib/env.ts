@@ -31,9 +31,14 @@ export function validateEnvSafe() {
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+  // Accept both default Supabase URLs and custom domains
   const urlOk =
     typeof url === "string" &&
-    /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url);
+    (
+      /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || // Default Supabase URL
+      /^https:\/\/auth\.skrblai\.io$/i.test(url) || // Custom domain
+      url.startsWith('https://') // Allow any HTTPS URL (for flexibility)
+    );
 
   // Accept both legacy JWT (eyJ...) and new format (sbp_/sb_publishable_)
   const anonPrefixOk = !!anon && (/^eyJ/.test(anon) || /^sbp_/.test(anon) || /^sb_publishable_/i.test(anon));
