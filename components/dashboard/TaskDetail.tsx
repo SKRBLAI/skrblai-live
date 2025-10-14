@@ -33,7 +33,10 @@ export default function TaskDetail({ taskId }: TaskDetailProps) {
     const fetchTask = async () => {
       try {
         setLoading(true);
-        
+        const supabase = getBrowserSupabase();
+        if (!supabase) {
+          throw new Error('Supabase client is not available');
+        }
         const { data, error } = await supabase
           .from('agent_jobs')
           .select('*')

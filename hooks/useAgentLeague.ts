@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../components/context/AuthContext';
+import { getBrowserSupabase } from '@/lib/supabase';
 
 // =============================================================================
 // TYPES & INTERFACES
@@ -215,7 +216,10 @@ export function useAgentLeague(options: UseAgentLeagueOptions = {}): UseAgentLea
   const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     try {
       // Get token from Supabase session
-      const { supabase } = await import('@/utils/supabase');
+      const supabase = getBrowserSupabase();
+      if (!supabase) {
+        throw new Error('Supabase client is not available');
+      }
       const { data } = await supabase.auth.getSession();
       const token = data?.session?.access_token;
       
