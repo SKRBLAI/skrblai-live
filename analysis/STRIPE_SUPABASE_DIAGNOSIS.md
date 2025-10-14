@@ -53,16 +53,18 @@ Paste sanitized raw JSON from runtime here after running the probes in your envi
 - Uses singular `STRIPE_WEBHOOK_SECRET` and path `/api/stripe/webhook`.
 - Implementation file: `app/api/stripe/webhook/route.ts`.
 
-## 7) PASS/FAIL summary
+## 7) Live Probe Results – 2025-10-14
 
-| Check | Result |
-| --- | --- |
-| Env presence | TBD (from `/api/_probe/env`) |
-| Live project assert | TBD (from `/api/_probe/env.notes.assertLiveProject`) |
-| Supabase connectivity | TBD (from `/api/_probe/supabase.ok`) |
-| Stripe connectivity | TBD (from `/api/_probe/stripe.ok`) |
-| Core route gating | PASS (no flag gating on listed routes) |
-| RLS block | TBD (from `/api/_probe/supabase.rlsBlocked`) |
+| Check | Local | Prod | Notes |
+| --- | --- | --- | --- |
+| Supabase connectivity | FAIL | FAIL | Prod `_probe` 404; local dev not running |
+| Stripe keys presence | FAIL | FAIL | Prod `_probe` 404; cannot assess keys |
+| SKU resolution | FAIL | FAIL | Prod `_probe` 404; unresolved due to missing probe |
+| Auth session cookie | FAIL | FAIL | Prod `_probe` 404; local dev not running |
+| Feature flags | FAIL | FAIL | Prod `_probe` 404; local dev not running |
+| Core routes present | n/a | PASS | GET /api/stripe/webhook → 405; HEAD/GET /api/checkout → 405 |
+
+Artifacts: see `analysis/PROBE_SUMMARY.md` for JSON paths.
 
 ### Top 5 fixes (if any fail)
 

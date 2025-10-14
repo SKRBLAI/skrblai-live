@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
+import { readEnvAny } from '@/lib/env/readEnvAny';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
-function readEnvAny(...keys: string[]): string | undefined {
-  for (const key of keys) {
-    const value = process.env[key];
-    if (value && value.trim().length > 0) return value.trim();
-  }
-  return undefined;
-}
-
-function presence(value: string | undefined | null): 'PRESENT' | 'MISSING' {
-  return value && value.trim().length > 0 ? 'PRESENT' : 'MISSING';
+function fingerprint(value?: string | null) {
+  if (!value) return { present: false } as const;
+  const trimmed = value.trim();
+  if (!trimmed) return { present: false } as const;
+  const underscoreIdx = trimmed.indexOf('_');
+  const prefix = underscoreIdx > 0 ? trimmed.slice(0, underscoreIdx + 1) : trimmed.slice(0, 8);
+  const tail8 = trimmed.slice(-8);
+  return { present: true, prefix, tail8 } as const;
 }
 
 function getProjectInfo(url?: string) {
@@ -18,10 +18,8 @@ function getProjectInfo(url?: string) {
     const u = new URL(url);
     const host = u.hostname;
     const parts = host.split('.');
-    // Typical pattern: <projectRef>.supabase.co
     const ref = parts[0] || '';
-    // Basic assertion: ensure we're not hitting Boost/staging. Live known refs may include 'zpqavydsinrtaxhowmnb' or custom domain auth.skrblai.io
-    const assertLive = host.includes('skrblai.io') || host.includes('zpqavydsinrtaxhowmnb') || host.includes('auth.skrblai.io');
+    const assertLive = host.includes('skrblai.io') || host.includes('auth.skrblai.io');
     return { projectHost: host, projectRef: ref, assertLiveProject: assertLive };
   } catch {
     return { projectHost: '', projectRef: '', assertLiveProject: false };
@@ -41,30 +39,29 @@ export async function GET() {
 
   const notes = getProjectInfo(supabaseUrl);
 
-  const toBool = (v: string | undefined) => v === '1' || v === 'true';
-  const flags = {
-    NEXT_PUBLIC_ENABLE_STRIPE: toBool(process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? '1'),
-    NEXT_PUBLIC_HP_GUIDE_STAR: toBool(process.env.NEXT_PUBLIC_HP_GUIDE_STAR ?? '1'),
-    NEXT_PUBLIC_ENABLE_ORBIT: toBool(process.env.NEXT_PUBLIC_ENABLE_ORBIT ?? '0'),
-    NEXT_PUBLIC_ENABLE_BUNDLES: toBool(process.env.NEXT_PUBLIC_ENABLE_BUNDLES ?? '0'),
-    NEXT_PUBLIC_ENABLE_LEGACY: toBool(process.env.NEXT_PUBLIC_ENABLE_LEGACY ?? '0'),
-    NEXT_PUBLIC_ENABLE_ARR_DASH: toBool(process.env.NEXT_PUBLIC_ENABLE_ARR_DASH ?? '0'),
-    NEXT_PUBLIC_SHOW_PERCY_WIDGET: toBool(process.env.NEXT_PUBLIC_SHOW_PERCY_WIDGET ?? '0'),
-  } as const;
-
   const payload = {
     supabase: {
-      url: presence(supabaseUrl),
-      anon: presence(anon),
-      service: presence(service),
+      urlPresent: !!supabaseUrl,
+      anonPresent: !!anon,
+      servicePresent: !!service,
+      projectRef: notes.projectRef,
+      urlFp: fingerprint(supabaseUrl),
+      anonFp: fingerprint(anon),
+      serviceFp: fingerprint(service),
     },
     stripe: {
-      pk: presence(stripePk),
-      sk: presence(stripeSk),
-      whsec: presence(stripeWh),
+      pkPresent: !!stripePk,
+      skPresent: !!stripeSk,
+      whPresent: !!stripeWh,
+      pkFp: fingerprint(stripePk),
+      skFp: fingerprint(stripeSk),
+      whFp: fingerprint(stripeWh),
     },
-    siteUrl: presence(siteUrl),
-    flags,
+    site: {
+      siteUrlPresent: !!siteUrl,
+      siteUrlFp: fingerprint(siteUrl),
+    },
+    featureFlags: FEATURE_FLAGS,
     notes,
   } as const;
 
