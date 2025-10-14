@@ -7,6 +7,7 @@ import { Inter } from 'next/font/google';
 import { Metadata } from 'next';
 import ClientLayout from './ClientLayout';
 import { getBaseUrl } from '../lib/url';
+import GoogleAnalytics from '../components/analytics/GoogleAnalytics';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="theme-color" content="#0b1220" media="(prefers-color-scheme: dark)" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <GoogleAnalytics />
       </head>
       <body className="text-white min-h-[100svh] antialiased font-sans overflow-x-hidden page-layout">
         {/* Skip to main content link for accessibility */}
