@@ -18,22 +18,17 @@
       "error",
       {
         "paths": [
-          {
-            "name": "utils/supabase",
-            "message": "Use @/lib/supabase canonical helpers instead"
-          },
-          {
-            "name": "utils/supabase-helpers",
-            "message": "Use @/lib/supabase canonical helpers instead"
-          },
-          {
-            "name": "@/utils/supabase",
-            "message": "Use @/lib/supabase canonical helpers instead"
-          },
-          {
-            "name": "@/utils/supabase-helpers",
-            "message": "Use @/lib/supabase canonical helpers instead"
-          }
+          { "name": "components/legacy/*", "message": "Legacy components are disallowed in v2." },
+          { "name": "archived-app/*", "message": "Archived app code is disallowed in v2." },
+          { "name": "@/archived-app/*", "message": "Archived app code is disallowed in v2." },
+          { "name": "utils/*", "message": "Generic utils are disallowed in v2. Use canonical modules." },
+          { "name": "@/utils/*", "message": "Generic utils are disallowed in v2. Use canonical modules." },
+          { "name": "utils/supabase", "message": "Use @/lib/supabase canonical helpers instead" },
+          { "name": "utils/supabase-helpers", "message": "Use @/lib/supabase canonical helpers instead" },
+          { "name": "@/utils/supabase", "message": "Use @/lib/supabase canonical helpers instead" },
+          { "name": "@/utils/supabase-helpers", "message": "Use @/lib/supabase canonical helpers instead" },
+          { "name": "featureFlags.ts", "message": "Feature flags are not allowed in v2." },
+          { "name": "@/lib/config/featureFlags", "message": "Feature flags are not allowed in v2." }
         ],
         "patterns": [
           {
@@ -63,6 +58,44 @@
       ],
       "rules": {
         "react-hooks/exhaustive-deps": "off"
+      }
+    },
+    {
+      "files": [
+        "app/v2/**/*.{ts,tsx}"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "components/legacy/**",
+                  "archived-app/**",
+                  "@/archived-app/**",
+                  "utils/**",
+                  "@/utils/**",
+                  "**/featureFlags.ts",
+                  "@/lib/config/featureFlags"
+                ],
+                "message": "v2 must not import legacy, archived, utils, or feature flags."
+              },
+              {
+                "group": [
+                  "@/lib/**"
+                ],
+                "message": "Only allow @/lib/supabase and @/lib/stripe/** in v2."
+              }
+            ],
+            "paths": [
+              { "name": "@/lib/supabase" },
+              { "name": "@/lib/stripe/stripe" },
+              { "name": "@/lib/stripe/priceResolver" },
+              { "name": "@/components/v2/*" }
+            ]
+          }
+        ]
       }
     },
     {
