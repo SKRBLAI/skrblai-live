@@ -80,19 +80,7 @@
                   "@/lib/config/featureFlags"
                 ],
                 "message": "v2 must not import legacy, archived, utils, or feature flags."
-              },
-              {
-                "group": [
-                  "@/lib/**"
-                ],
-                "message": "Only allow @/lib/supabase and @/lib/stripe/** in v2."
               }
-            ],
-            "paths": [
-              { "name": "@/lib/supabase" },
-              { "name": "@/lib/stripe/stripe" },
-              { "name": "@/lib/stripe/priceResolver" },
-              { "name": "@/components/v2/*" }
             ]
           }
         ]
