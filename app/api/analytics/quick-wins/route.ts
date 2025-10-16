@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getServerSupabaseAdmin } from "@/lib/supabase/server";
 import { withLogging } from "@/lib/observability/logger";
 
 export const runtime = "nodejs";
@@ -18,7 +18,14 @@ async function handleQuickWinsAnalytics(req: NextRequest) {
       '90d': 90
     }[range] || 7;
 
-    const supabase = createServerSupabaseClient();
+    const supabase = getServerSupabaseAdmin();
+    
+    if (!supabase) {
+      return NextResponse.json(
+        { ok: false, error: 'Supabase not configured' },
+        { status: 503 }
+      );
+    }
     
     // Calculate date range
     const endDate = new Date();
