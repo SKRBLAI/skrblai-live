@@ -38,7 +38,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [vipStatus, setVipStatus] = useState<any>(null);
   const [benefits, setBenefits] = useState<any>(null);
   const router = useRouter();
-  const supabase = getBrowserSupabase();
+  
+  // Lazy-initialize Supabase client to avoid build-time env reads
+  const getSupabase = useCallback(() => {
+    try {
+      return getBrowserSupabase();
+    } catch (err) {
+      console.error('[AUTH] Failed to initialize Supabase:', err);
+      return null;
+    }
+  }, []);
 
   // NEW: Percy onboarding state
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -115,6 +124,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
+    const supabase = getSupabase();
+    
     if (!supabase || !supabase.auth || typeof supabase.auth.onAuthStateChange !== "function") {
       if (process.env.NODE_ENV !== "production") {
         console.warn(
@@ -163,7 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // @ts-ignore - optional legacy
       data?.unsubscribe?.();
     };
-  }, [supabase, checkEmailVerification]);
+  }, [getSupabase, checkEmailVerification]);
 
   // Add dashboard access check on auth state change
   useEffect(() => {
@@ -208,6 +219,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
+      const supabase = getSupabase();
       if (!supabase) {
         const errorMsg = 'Authentication not available - Supabase not configured';
         setError(errorMsg);
@@ -308,6 +320,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
+      const supabase = getSupabase();
       if (!supabase) {
         const errorMsg = 'Authentication not available - Supabase not configured';
         setError(errorMsg);
@@ -339,6 +352,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
+      const supabase = getSupabase();
       if (!supabase) {
         const errorMsg = 'Authentication not available - Supabase not configured';
         setError(errorMsg);
@@ -370,6 +384,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setError(null);
       
+      const supabase = getSupabase();
       if (!supabase) {
         const errorMsg = 'Authentication not available - Supabase not configured';
         setError(errorMsg);
@@ -457,6 +472,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       console.log('[AUTH] Signing out user');
       
+      const supabase = getSupabase();
       if (supabase) {
         await supabase.auth.signOut();
       }
@@ -473,6 +489,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const validatePromoCode = async (code: string) => {
     try {
+      const supabase = getSupabase();
       if (!supabase) {
         return { isValid: false, type: 'PROMO' as const, benefits: null, error: 'Supabase not configured' };
       }
