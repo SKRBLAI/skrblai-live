@@ -150,7 +150,10 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
     }
 
     // optional: forward to n8n
-    if (process.env.N8N_STRIPE_WEBHOOK_URL) {
+    // MMM: n8n noop shim. Replace with AgentKit or queues later.
+    const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+    
+    if (process.env.N8N_STRIPE_WEBHOOK_URL && !FF_N8N_NOOP) {
       try {
         const r = await fetch(process.env.N8N_STRIPE_WEBHOOK_URL, {
           method: 'POST',
@@ -166,6 +169,11 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
       } catch (e) {
         console.warn('Error forwarding to n8n:', e);
       }
+    } else if (FF_N8N_NOOP && process.env.N8N_STRIPE_WEBHOOK_URL) {
+      console.log('[NOOP] Skipping n8n Stripe webhook (FF_N8N_NOOP=true)', {
+        event: 'skillsmith_purchase',
+        orderId: orderData?.id
+      });
     }
   } catch (error) {
     console.error('Error handling SkillSmith purchase:', error);
