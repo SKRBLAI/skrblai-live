@@ -2,6 +2,8 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // MMM: Single-source Supabase env reads (no fallbacks)
 // Accepts ONLY NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY
+// IMPORTANT: Env vars are read ONLY when the factory functions are called (lazy),
+// not at module import time, to prevent build-time crashes.
 
 // Cached clients to avoid recreation
 let adminClient: SupabaseClient | null = null;
@@ -11,10 +13,12 @@ let anonClient: SupabaseClient | null = null;
  * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
  * This client bypasses RLS and should ONLY be used in server-side code.
  * NEVER expose this client to the browser.
+ * Env vars are read lazily at call time, not import time.
  */
 export function getServerSupabaseAdmin(): SupabaseClient | null {
   if (adminClient) return adminClient;
 
+  // Lazy env read - happens only when function is called, not at import
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
@@ -48,10 +52,12 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
 /**
  * Returns a Supabase client for server-side code with ANON permissions.
  * This client respects RLS and is safer for general server-side operations.
+ * Env vars are read lazily at call time, not import time.
  */
 export function getServerSupabaseAnon(): SupabaseClient | null {
   if (anonClient) return anonClient;
 
+  // Lazy env read - happens only when function is called, not at import
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
