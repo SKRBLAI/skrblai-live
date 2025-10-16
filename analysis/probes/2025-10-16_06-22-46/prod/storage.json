@@ -1,0 +1,6 @@
+{
+  "status": 404,
+  "ok": false,
+  "error": "HTTP 404: Not Found",
+  "probePath": "/api/_probe/storage"
+}

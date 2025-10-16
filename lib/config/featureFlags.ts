@@ -9,10 +9,11 @@
 import { readEnvAny } from '@/lib/env/readEnvAny';
 
 // Helper function to read boolean flags with fallback
+// MMM: Supports "1"/"0" and "true"/"false" (case-insensitive)
 function readBooleanFlag(envKey: string, defaultValue: boolean = false): boolean {
   const value = process.env[envKey];
   if (value === undefined) return defaultValue;
-  return value === '1' || value === 'true';
+  return value === '1' || value.toLowerCase() === 'true';
 }
 
 export const FEATURE_FLAGS = {

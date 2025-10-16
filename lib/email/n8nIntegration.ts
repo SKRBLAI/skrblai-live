@@ -48,6 +48,14 @@ export class N8nEmailAutomation {
 
   async triggerEmailSequence(sequenceId: string, payload: EmailTriggerPayload) {
     try {
+      // MMM: n8n noop shim - protects against n8n downtime
+      const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+      
+      if (FF_N8N_NOOP) {
+        console.log(`[NOOP] Skipping n8n email sequence: ${sequenceId} (FF_N8N_NOOP=true)`);
+        return { success: true, workflowId: `noop_${sequenceId}_${Date.now()}` };
+      }
+
       const workflow = this.workflows.find(w => w.id === sequenceId);
       if (!workflow || !workflow.active) {
         return { success: false, error: 'Workflow not found or inactive' };

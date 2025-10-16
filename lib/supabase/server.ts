@@ -1,8 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { readEnvAny } from '@/lib/env/readEnvAny';
 
-// Supports dual key lookup for Supabase configuration
-// Accepts NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (dual-key support)
+// MMM: Single-source Supabase env reads (no fallbacks)
+// Accepts ONLY NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY
 
 // Cached clients to avoid recreation
 let adminClient: SupabaseClient | null = null;
@@ -16,12 +15,10 @@ let anonClient: SupabaseClient | null = null;
 export function getServerSupabaseAdmin(): SupabaseClient | null {
   if (adminClient) return adminClient;
 
-  // Dual key lookup for URL
-  const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!url || !serviceKey) {
-    // Only warn in development to avoid log spam in production builds
     if (process.env.NODE_ENV === 'development') {
       const missing = [];
       if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
@@ -55,20 +52,14 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
 export function getServerSupabaseAnon(): SupabaseClient | null {
   if (anonClient) return anonClient;
 
-  // Dual key lookup for URL and anon key
-  const url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
-  const anonKey = readEnvAny(
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
-    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 
-    'SUPABASE_ANON_KEY'
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!url || !anonKey) {
-    // Only warn in development to avoid log spam in production builds
     if (process.env.NODE_ENV === 'development') {
       const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
+      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
       console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
     }
     return null;

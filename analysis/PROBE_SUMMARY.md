@@ -270,13 +270,29 @@ curl http://localhost:3000/api/_probe/storage
 **Response Format**:
 ```json
 {
-  "ok": boolean,
-  "timestamp": "ISO-8601",
-  "categories": {
-    "supabase": { "configured": boolean, "missing": [] },
-    "stripe": { "configured": boolean, "missing": [] },
-    "n8n": { "configured": boolean, "missing": [] },
-    "auth": { "configured": boolean, "missing": [] }
+  "supabase": {
+    "url": "PRESENT" | "MISSING",
+    "anon": "PRESENT" | "MISSING",
+    "service": "PRESENT" | "MISSING"
+  },
+  "stripe": {
+    "pk": "PRESENT" | "MISSING",
+    "sk": "PRESENT" | "MISSING",
+    "whsec": "PRESENT" | "MISSING"
+  },
+  "siteUrl": "PRESENT" | "MISSING",
+  "flags": {
+    "NEXT_PUBLIC_ENABLE_STRIPE": boolean,
+    "NEXT_PUBLIC_HP_GUIDE_STAR": boolean,
+    "NEXT_PUBLIC_ENABLE_ORBIT": boolean,
+    "NEXT_PUBLIC_ENABLE_BUNDLES": boolean,
+    "NEXT_PUBLIC_SHOW_PERCY_WIDGET": boolean,
+    "FF_N8N_NOOP": boolean
+  },
+  "notes": {
+    "projectHost": "string (hostname only)",
+    "projectRef": "string (project slug)",
+    "assertLiveProject": boolean
   }
 }
 ```
@@ -284,6 +300,35 @@ curl http://localhost:3000/api/_probe/storage
 **Usage**:
 ```bash
 curl http://localhost:3000/api/_probe/env
+```
+
+---
+
+## Flags Probe ⭐ NEW
+
+**Endpoint**: `GET /api/_probe/flags`  
+**Purpose**: Show resolved boolean values for all feature flags  
+**Status**: ✅ Implemented (2025-10-16)  
+
+**Response Format**:
+```json
+{
+  "ok": true,
+  "flags": {
+    "NEXT_PUBLIC_ENABLE_STRIPE": boolean,
+    "NEXT_PUBLIC_HP_GUIDE_STAR": boolean,
+    "NEXT_PUBLIC_ENABLE_ORBIT": boolean,
+    "NEXT_PUBLIC_ENABLE_BUNDLES": boolean,
+    "NEXT_PUBLIC_SHOW_PERCY_WIDGET": boolean,
+    "FF_N8N_NOOP": boolean
+  },
+  "timestamp": "ISO-8601"
+}
+```
+
+**Usage**:
+```bash
+curl http://localhost:3000/api/_probe/flags
 ```
 
 ---
@@ -412,13 +457,29 @@ async function checkSystemHealth() {
 
 | Probe | Path | Status | Purpose |
 |-------|------|--------|---------|
-| Auth | `/api/_probe/auth` | ✅ | Verify Supabase Auth |
-| Supabase | `/api/_probe/supabase` | ✅ | Test DB connectivity |
+| Env | `/api/_probe/env` | ✅ | Check env vars + flags snapshot |
+| Supabase | `/api/_probe/supabase` | ✅ | Test DB connectivity + DNS fingerprint |
 | Stripe | `/api/_probe/stripe` | ✅ | Check payment integration |
-| Storage | `/api/_probe/storage` | ⭐ NEW | Verify storage buckets |
-| Env | `/api/_probe/env` | ✅ | Check env vars |
+| Auth | `/api/_probe/auth` | ✅ | Verify Supabase Auth flow |
+| Flags | `/api/_probe/flags` | ⭐ NEW | Show resolved boolean flags |
+| Storage | `/api/_probe/storage` | ✅ | Verify storage buckets |
+
+---
+
+## Probe Runner Script
+
+Run all probes against production and local:
+
+```bash
+node scripts/run-probes.mjs
+```
+
+This will:
+1. Hit all 6 probe endpoints
+2. Save JSON artifacts to `analysis/probes/<timestamp>/prod/*.json`
+3. Generate a summary with PASS/FAIL status
 
 ---
 
 **Last Updated**: 2025-10-16  
-**Storage Probe Added**: 2025-10-16
+**Phase 3 Updates**: Single-source env reads, Stripe API version lock, N8N noop guards, Flags probe added

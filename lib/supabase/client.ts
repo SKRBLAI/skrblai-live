@@ -1,57 +1,25 @@
 "use client";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { readEnvAny } from "@/lib/env/readEnvAny";
 
-// Supports dual key lookup for Supabase configuration
-// Accepts NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (dual-key support)
+// MMM: Single-source Supabase env reads (no fallbacks)
+// Accepts ONLY NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 let supabase: SupabaseClient | null = null;
 
-/** Returns a real Supabase client when public envs are present, otherwise returns null. Warns in dev only. */
+/** Returns a real Supabase client when public envs are present, otherwise throws. */
 export function getBrowserSupabase(): SupabaseClient | null {
   if (supabase) return supabase;
 
-  // DEBUG: Log what we're checking
-  console.log('[supabase] Checking environment variables...');
-  console.log('[supabase] NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅ Present' : '❌ Missing');
-  console.log('[supabase] NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ Present' : '❌ Missing');
-
-  // Dual key lookup for URL with emergency fallback
-  let url = readEnvAny('NEXT_PUBLIC_SUPABASE_URL', 'SUPABASE_URL');
-  
-  // Last resort emergency fallback for production
-  if (!url && process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ EMERGENCY: Using fallback Supabase URL - check your environment variables!'); 
-    url = 'https://zpqavydsinrtaxhowmnb.supabase.co';
-  }
-  
-  // Dual key lookup for anon/publishable key
-  let anonKey = readEnvAny(
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
-    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 
-    'SUPABASE_ANON_KEY'
-  );
-  
-  // Do NOT add the actual key here for security - just detect if we're in emergency mode
-  if (!anonKey && process.env.NODE_ENV === 'production' && url) {
-    console.warn('⚠️ EMERGENCY: ANON KEY missing in environment - check Railway variables!');
-    // The key will still be null, but we'll log a helpful message
-  }
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    // Only warn in development to avoid log spam in production builds
-    if (process.env.NODE_ENV === 'development') {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
-      console.error("[supabase] ❌ Missing environment variables:", missing.join(', '));
-      console.error("[supabase] ❌ Make sure .env.local exists and dev server was restarted");
-    }
-    return null;
+    const missing = [];
+    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    throw new Error(`[supabase] Missing required environment variables: ${missing.join(', ')}`);
   }
-  
-  console.log('[supabase] ✅ Environment variables found, creating client...');
 
   try {
     supabase = createClient(url, anonKey, {
@@ -64,39 +32,13 @@ export function getBrowserSupabase(): SupabaseClient | null {
     return supabase;
   } catch (error) {
     console.error("[supabase] Failed to create client:", error);
-    return null;
+    throw error;
   }
 }
 
-// Legacy function for backward compatibility - returns client or mock
+// Legacy function for backward compatibility - now throws clear error
 export function createSafeSupabaseClient() {
-  const client = getBrowserSupabase();
-  
-  if (client) {
-    return client;
-  }
-  
-  // Return a mock client that prevents build errors
-  return {
-    from: () => ({
-      select: () => ({ data: null, error: new Error('Supabase not configured') }),
-      insert: () => ({ data: null, error: new Error('Supabase not configured') }),
-      update: () => ({ data: null, error: new Error('Supabase not configured') }),
-      delete: () => ({ data: null, error: new Error('Supabase not configured') }),
-      upsert: () => ({ data: null, error: new Error('Supabase not configured') }),
-    }),
-    auth: {
-      getUser: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase not configured') }),
-      signOut: () => Promise.resolve({ error: new Error('Supabase not configured') }),
-      signInWithPassword: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-    },
-    storage: {
-      from: () => ({
-        upload: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-        download: () => Promise.resolve({ data: null, error: new Error('Supabase not configured') }),
-      }),
-    },
-  } as any;
+  return getBrowserSupabase();
 }
 
 // Legacy export for backward compatibility
