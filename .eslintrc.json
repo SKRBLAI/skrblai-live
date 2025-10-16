@@ -1,9 +1,11 @@
 {
   "extends": [
     "next/core-web-vitals",
-    "eslint:recommended"
+    "eslint:recommended",
+    "./.eslintrc.cjs"
   ],
   "rules": {
+    "no-direct-stripe-new": "error",
     "no-unused-vars": "off",
     "no-undef": "error",
     "react/no-unescaped-entities": "off",
@@ -44,7 +46,7 @@
           {
             "group": ["stripe"],
             "importNames": ["default", "Stripe"],
-            "message": "Direct Stripe imports are not allowed outside of lib/stripe/**. Use requireStripe() or getOptionalStripe() from @/lib/stripe/stripe instead."
+            "message": "Direct Stripe imports are not allowed outside of lib/stripe/**. Use requireStripe() or getOptionalStripe() from @/lib/stripe/stripe instead. CRITICAL: All Stripe instances must use the canonical helper to ensure consistent API version (STRIPE_API_VERSION env var)."
           }
         ]
       }
