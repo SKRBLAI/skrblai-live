@@ -218,10 +218,17 @@ export default function AgentsPage() {
           transition={{ duration: 0.5 }}
           className="min-h-screen relative"
         >
+          {/* Enhanced Cosmic Background */}
+          <div className="fixed inset-0 pointer-events-none">
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-transparent to-cyan-900/20"></div>
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse [animation-delay:1s]"></div>
+          </div>
+          
           <div className="relative z-10 pt-16 sm:pt-20 lg:pt-24 px-4 md:px-8 lg:px-12">
             
             {/* Hero Section */}
-            <CosmicCardGlow size="xl" className="text-center mb-16">
+            <CosmicCardGlow size="xl" className="text-center mb-20">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -235,30 +242,30 @@ export default function AgentsPage() {
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
 
-                <CosmicHeading className="text-4xl md:text-6xl lg:text-7xl mb-8">
+                <CosmicHeading className="text-4xl md:text-6xl lg:text-7xl mb-6">
                   Meet Your AI
                   <br />
-                  <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">
                     Superhero League
                   </span>
                 </CosmicHeading>
 
-                <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto">
-                  14 specialized AI agents, each with unique superpowers designed to automate, 
-                  optimize, and dominate every aspect of your business.
+                <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
+                  14 specialized AI agents, each with <span className="text-cyan-400 font-bold">unique superpowers</span> designed to automate, 
+                  optimize, and <span className="text-purple-400 font-bold">dominate</span> every aspect of your business.
                 </p>
 
               {/* Search and Filter Controls */}
               <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-8 max-w-4xl mx-auto">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400 w-5 h-5 transition-colors" />
                   <input
                     type="text"
                     aria-label="Search agents"
                     placeholder="Search agents..."
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:border-blue-500 focus:outline-none w-64 backdrop-blur-sm"
+                    className="pl-10 pr-4 py-3 bg-gray-900/70 border border-cyan-500/30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 w-64 backdrop-blur-sm transition-all duration-300"
                   />
                 </div>
 
@@ -266,7 +273,7 @@ export default function AgentsPage() {
                   aria-label="Filter by category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
+                  className="px-4 py-3 bg-gray-900/70 border border-purple-500/30 rounded-lg text-white focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/30 backdrop-blur-sm transition-all duration-300 cursor-pointer"
                 >
                   {categories.map(category => (
                     <option key={category} value={category}>{category}</option>
@@ -277,7 +284,7 @@ export default function AgentsPage() {
                   aria-label="Sort agents"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'category' | 'popularity')}
-                  className="px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:border-blue-500 focus:outline-none backdrop-blur-sm"
+                  className="px-4 py-3 bg-gray-900/70 border border-pink-500/30 rounded-lg text-white focus:border-pink-400 focus:outline-none focus:ring-2 focus:ring-pink-400/30 backdrop-blur-sm transition-all duration-300 cursor-pointer"
                 >
                   <option value="popularity">Most Popular</option>
                   <option value="name">Name A-Z</option>
@@ -311,7 +318,7 @@ export default function AgentsPage() {
               variants={container}
               initial="hidden"
               animate="show"
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-16"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto mb-20"
             >
               {isLoading ? (
                 <div className="col-span-full flex items-center justify-center py-16">
@@ -363,46 +370,81 @@ export default function AgentsPage() {
             >
               {/* Cosmic background (subtle, behind card) */}
               <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-cyan-900/40 to-transparent rounded-2xl blur-2xl opacity-70"></div>
-                <div className="absolute left-1/4 top-0 w-48 h-48 bg-fuchsia-500/20 rounded-full blur-3xl animate-pulse-slow"></div>
-                <div className="absolute right-1/4 bottom-0 w-60 h-40 bg-cyan-400/20 rounded-full blur-2xl animate-pulse-slow"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-cyan-900/40 to-transparent rounded-3xl blur-3xl opacity-70"></div>
+                <div className="absolute left-1/4 top-0 w-64 h-64 bg-fuchsia-500/20 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute right-1/4 bottom-0 w-64 h-64 bg-cyan-400/20 rounded-full blur-3xl animate-pulse [animation-delay:0.5s]"></div>
               </div>
               {/* CTA Card */}
               <motion.div
-                className="relative z-10 bg-gradient-to-r from-purple-700/30 to-cyan-700/20 rounded-2xl px-4 py-10 sm:px-12 sm:py-16 border border-purple-500/30 shadow-2xl flex flex-col items-center"
+                className="relative z-10 bg-gradient-to-br from-purple-800/40 via-purple-900/30 to-cyan-900/30 rounded-3xl px-6 py-12 sm:px-12 sm:py-16 border-2 border-purple-400/40 shadow-[0_0_60px_rgba(168,85,247,0.3)] backdrop-blur-xl flex flex-col items-center"
                 initial={{ scale: 0.98, opacity: 0.8 }}
-                whileHover={{ scale: 1.01, boxShadow: '0 0 64px 0 #7f1fff55' }}
+                whileHover={{ scale: 1.01, boxShadow: '0 0 80px rgba(168,85,247,0.5)' }}
                 transition={{ type: 'spring', stiffness: 220, damping: 24 }}
               >
-                <h2 className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-electric-blue via-teal-400 to-fuchsia-500 bg-clip-text text-transparent mb-4 antialiased drop-shadow-lg">
-                  Ready To Unleash Your AI Superhero Team?
-                </h2>
-                <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Join <span className="text-electric-blue font-bold">{liveMetrics.liveUsers}+</span> users already training with these powerful AI agents.
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-lg mx-auto mb-4">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  viewport={{ once: true }}
+                >
+                  <h2 className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent mb-6 antialiased drop-shadow-2xl leading-tight">
+                    Ready To Unleash Your AI
+                    <br />
+                    <span className="text-5xl sm:text-6xl md:text-7xl">Superhero Team?</span>
+                  </h2>
+                  <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Join <span className="text-cyan-400 font-bold text-2xl md:text-3xl">{liveMetrics.liveUsers}+</span> users already <span className="text-purple-400 font-semibold">dominating</span> with these powerful AI agents.
+                  </p>
+                </motion.div>
+                <motion.div
+                  className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-2xl mx-auto mb-6"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  viewport={{ once: true }}
+                >
                   <motion.button
                     onClick={() => router.push('/sign-up')}
-                    className="flex-1 px-6 py-4 rounded-xl font-bold text-lg shadow-glow bg-gradient-to-r from-cyan-600/90 to-blue-600/90 hover:from-cyan-400 hover:to-blue-400 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
+                    className="w-full sm:flex-1 px-8 py-5 rounded-2xl font-bold text-lg shadow-[0_0_30px_rgba(6,182,212,0.4)] bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white border-2 border-cyan-400/50 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/60 transition-all duration-300"
+                    whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(6,182,212,0.6)' }}
+                    whileTap={{ scale: 0.98 }}
                     aria-label="Start Free Trial (No Credit Card)"
                   >
-                    🚀 Start Free Trial (No Credit Card)
+                    <span className="flex items-center justify-center gap-2">
+                      🚀 Start Free Trial
+                      <span className="text-sm opacity-90">(No Card Required)</span>
+                    </span>
                   </motion.button>
                   <motion.button
                     onClick={() => router.push('/features')}
-                    className="flex-1 px-6 py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-fuchsia-600/80 to-purple-600/80 hover:from-fuchsia-400 hover:to-purple-400 text-white shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-400/80 focus:ring-offset-2 focus:ring-offset-transparent transition-all duration-200"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.97 }}
+                    className="w-full sm:flex-1 px-8 py-5 rounded-2xl font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white shadow-[0_0_30px_rgba(168,85,247,0.4)] border-2 border-purple-400/50 focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-400/60 transition-all duration-300"
+                    whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(168,85,247,0.6)' }}
+                    whileTap={{ scale: 0.98 }}
                     aria-label="See Business Solutions"
                   >
                     🎯 See Business Solutions
                   </motion.button>
-                </div>
-                <div className="mt-2 text-xs sm:text-sm text-gray-400">
-                  ⚡ Setup in under 5 minutes • 🎯 See results in 7 days • 💰 Cancel anytime
-                </div>
+                </motion.div>
+                <motion.div
+                  className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm sm:text-base text-gray-300 font-medium"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  viewport={{ once: true }}
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-green-400 text-xl">⚡</span>
+                    Setup in under 5 minutes
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-cyan-400 text-xl">🎯</span>
+                    See results in 7 days
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-purple-400 text-xl">💰</span>
+                    Cancel anytime
+                  </span>
+                </motion.div>
               </motion.div>
             </motion.div>
           </div>
