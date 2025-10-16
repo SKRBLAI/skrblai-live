@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Button Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        #result {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Direct Checkout Test</h1>
+    <p>This bypasses your React app and calls the API directly.</p>
+    
+    <button onclick="testCheckout('biz_plan_starter_m')">
+        Test Business Starter ($19.99/mo)
+    </button>
+    
+    <button onclick="testCheckout('sports_plan_elite_m')">
+        Test Sports Elite ($59.99/mo)
+    </button>
+    
+    <div id="result">Click a button to test...</div>
+
+    <script>
+        async function testCheckout(sku) {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = `Testing ${sku}...\n`;
+            resultEl.className = '';
+
+            try {
+                console.log('Calling API with SKU:', sku);
+                
+                const response = await fetch('https://skrblai.io/api/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sku: sku,
+                        vertical: sku.startsWith('biz') ? 'business' : 'sports'
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.ok && data.url) {
+                    resultEl.textContent = `✅ SUCCESS!\n\nCheckout URL received:\n${data.url}\n\nRedirecting to Stripe in 2 seconds...`;
+                    resultEl.className = 'success';
+                    
+                    setTimeout(() => {
+                        window.location.href = data.url;
+                    }, 2000);
+                } else {
+                    resultEl.textContent = `❌ API returned error:\n\n${JSON.stringify(data, null, 2)}`;
+                    resultEl.className = 'error';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultEl.textContent = `❌ ERROR:\n\n${error.message}\n\nCheck browser console for details.`;
+                resultEl.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>

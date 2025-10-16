@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Stripe Checkout</title>
+</head>
+<body>
+    <h1>Direct Stripe Checkout Test</h1>
+    <button onclick="testCheckout()">Click to Test Checkout</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function testCheckout() {
+            const resultEl = document.getElementById('result');
+            resultEl.textContent = 'Testing...';
+
+            try {
+                const response = await fetch('https://skrblai.io/api/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        sku: 'biz_plan_starter_m',
+                        vertical: 'business'
+                    })
+                });
+
+                const data = await response.json();
+                resultEl.textContent = JSON.stringify(data, null, 2);
+
+                if (data.url) {
+                    resultEl.textContent += '\n\nRedirecting to Stripe...';
+                    window.location.href = data.url;
+                }
+            } catch (error) {
+                resultEl.textContent = 'ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
