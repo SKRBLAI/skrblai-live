@@ -16,6 +16,9 @@ function readBooleanFlag(envKey: string, defaultValue: boolean = false): boolean
   return value === '1' || value.toLowerCase() === 'true';
 }
 
+// Export for use in other modules
+export { readBooleanFlag };
+
 export const FEATURE_FLAGS = {
   // === CORE FEATURE FLAGS ===
   
@@ -52,6 +55,11 @@ export const FEATURE_FLAGS = {
   PERCY_PERFORMANCE_MONITORING: readBooleanFlag('NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING', true),
   PERCY_AUTO_FALLBACK: readBooleanFlag('NEXT_PUBLIC_PERCY_AUTO_FALLBACK', true),
   PERCY_LOG_SWITCHES: readBooleanFlag('NEXT_PUBLIC_PERCY_LOG_SWITCHES', true),
+  
+  // === STRIPE PAYMENT FALLBACK ===
+  // MMM: Default false; set true to use Payment Links instead of Checkout Sessions
+  // Use this if Stripe Checkout is failing in production to allow sales to continue
+  FF_STRIPE_FALLBACK_LINKS: readBooleanFlag('NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS', false),
   
 } as const;
 
