@@ -17,9 +17,6 @@ import {
 import { getServerSupabaseAnon } from '../../../../../lib/supabase/server';
 import { callOpenAI } from '../../../../../utils/agentUtils';
 
-// Initialize Supabase client with safe fallback
-const supabase = getServerSupabaseAnon();
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -370,6 +367,7 @@ async function logConversation(
   agentResponse: any
 ): Promise<void> {
   try {
+    const supabase = getServerSupabaseAnon();
     if (supabase) {
       await supabase
         .from('agent_conversations')

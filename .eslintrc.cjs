@@ -1,4 +1,4 @@
-// ESLint custom rules
+// ESLint custom rules for build-time safety
 module.exports = {
   rules: {
     'no-direct-stripe-new': {

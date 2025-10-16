@@ -14,6 +14,9 @@ let anonClient: SupabaseClient | null = null;
  * This client bypasses RLS and should ONLY be used in server-side code.
  * NEVER expose this client to the browser.
  * Env vars are read lazily at call time, not import time.
+ * 
+ * In production: throws on missing env vars
+ * In development/build: returns null to avoid build-time crashes
  */
 export function getServerSupabaseAdmin(): SupabaseClient | null {
   if (adminClient) return adminClient;
@@ -23,12 +26,17 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!url || !serviceKey) {
-    if (process.env.NODE_ENV === 'development') {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-      console.warn('[server-supabase] Missing environment variables:', missing.join(', '));
+    const missing = [];
+    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
+    
+    // In production, throw to catch misconfigurations early
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
     }
+    
+    // In development/build, warn and return null
+    console.warn('[server-supabase] Missing environment variables:', missing.join(', '));
     return null;
   }
 
@@ -45,6 +53,9 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
     return adminClient;
   } catch (error) {
     console.error('[server-supabase] Failed to create admin client:', error);
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    }
     return null;
   }
 }
@@ -53,6 +64,9 @@ export function getServerSupabaseAdmin(): SupabaseClient | null {
  * Returns a Supabase client for server-side code with ANON permissions.
  * This client respects RLS and is safer for general server-side operations.
  * Env vars are read lazily at call time, not import time.
+ * 
+ * In production: throws on missing env vars
+ * In development/build: returns null to avoid build-time crashes
  */
 export function getServerSupabaseAnon(): SupabaseClient | null {
   if (anonClient) return anonClient;
@@ -62,12 +76,17 @@ export function getServerSupabaseAnon(): SupabaseClient | null {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   
   if (!url || !anonKey) {
-    if (process.env.NODE_ENV === 'development') {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-      console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
+    const missing = [];
+    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
+    if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+    
+    // In production, throw to catch misconfigurations early
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
     }
+    
+    // In development/build, warn and return null
+    console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
     return null;
   }
 
@@ -83,6 +102,9 @@ export function getServerSupabaseAnon(): SupabaseClient | null {
     return anonClient;
   } catch (error) {
     console.error('[server-supabase] Failed to create anon client:', error);
+    if (process.env.NODE_ENV === 'production') {
+      throw error;
+    }
     return null;
   }
 }

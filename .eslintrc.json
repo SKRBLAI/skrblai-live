@@ -40,6 +40,10 @@
         ],
         "patterns": [
           {
+            "group": ["**/app/api/**"],
+            "message": "CRITICAL: Do NOT import from app/api/** in pages/components. This causes build-time env explosion. Extract shared code to lib/shared/** instead."
+          },
+          {
             "group": ["@supabase/supabase-js"],
             "importNames": ["createClient"],
             "message": "Direct @supabase/supabase-js imports are not allowed outside of lib/supabase/**. Use getBrowserSupabase(), getServerSupabaseAnon(), or getServerSupabaseAdmin() from @/lib/supabase instead."
@@ -51,7 +55,8 @@
           }
         ]
       }
-    ]
+    ],
+    "no-module-scope-supabase": "warn"
   },
   "overrides": [
     {

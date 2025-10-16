@@ -1,6 +1,7 @@
-// Force static generation for this route
-export const dynamic = 'force-static';
-export const revalidate = false;
+// Force dynamic rendering to avoid build-time env issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 // Ensure this page has no server dependencies
 export const runtime = 'nodejs';

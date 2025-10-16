@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { downloadLeadsCSV } from '../../../lib/utils/leadExport';
 
+// Note: Client components are inherently dynamic - no need for route config exports
+
 export default function PercyAdminDashboard() {
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);

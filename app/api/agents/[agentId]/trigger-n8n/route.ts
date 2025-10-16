@@ -3,9 +3,6 @@ import { getAgentWorkflowConfig, ensureAgentWebhook } from '../../../../../lib/a
 import { withSafeJson } from '../../../../../utils/withSafeJson';
 import { getServerSupabaseAnon } from '../../../../../lib/supabase/server';
 
-// Initialize Supabase client for execution logging with safe fallback
-const supabase = getServerSupabaseAnon();
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +54,7 @@ export const POST = withSafeJson(async (request: NextRequest, { params }: { para
 
   // Log execution to Supabase for analytics
   try {
+    const supabase = getServerSupabaseAnon();
     if (supabase) {
       await supabase.from('agent_executions').insert({
       agent_id: config.agentId,
@@ -122,6 +120,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     // Log status check to Supabase for analytics
     try {
+      const supabase = getServerSupabaseAnon();
       if (supabase) {
         await supabase.from('agent_executions').update({ 
           status: status.status,
