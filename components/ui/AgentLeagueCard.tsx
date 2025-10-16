@@ -158,7 +158,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   return (
     <AgentErrorBoundary agentId={agent.id}>
       <motion.div
-          className={`relative rounded-2xl overflow-hidden aspect-[4/5] md:aspect-[5/6] bg-gradient-to-b from-white/5 to-white/0 h-full ${className}`}
+          className={`relative rounded-2xl overflow-hidden aspect-[3/4] md:aspect-[4/5] bg-gradient-to-b from-white/5 to-white/0 h-full ${className}`}
           initial={{ 
             opacity: 0, 
             y: 30,
@@ -294,7 +294,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
 
                 {/* Action Buttons */}
                 <motion.div 
-                    className="mt-auto px-3 pb-2"
+                    className="mt-auto px-3 pb-4"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
