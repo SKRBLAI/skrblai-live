@@ -2,6 +2,10 @@ import { redirect } from 'next/navigation';
 import { getOptionalServerSupabase } from '@/lib/supabase/server';
 import { getUserAndRole, routeForRole } from '@/lib/auth/roles';
 
+// Force dynamic rendering - this page needs auth context at runtime
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface SearchParams {
   from?: string;
 }

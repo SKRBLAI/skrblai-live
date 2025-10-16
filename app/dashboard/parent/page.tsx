@@ -3,6 +3,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { UserCheck, BarChart3, Trophy, Star, Settings, ArrowRight } from 'lucide-react';
 
+// Force dynamic rendering - requires auth at runtime
+export const dynamic = 'force-dynamic';
+
 export default async function ParentPortalPage() {
   const supabase = getOptionalServerSupabase();
   
