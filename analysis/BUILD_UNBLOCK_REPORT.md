@@ -144,16 +144,23 @@ Sample of verified patterns (all inside functions):
 export default function PercyAdminDashboard() {
 ```
 
-**After:** Forced dynamic rendering
+**After (Initial Attempt - FAILED):** Tried to add route config exports
 ```typescript
 'use client';
-// Force dynamic rendering to avoid build-time env issues
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic';  // ❌ ERROR: Can't export from client components!
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+```
+
+**After (Final Fix - SUCCESS):** Removed route config (client components are already dynamic)
+```typescript
+'use client';
+// Note: Client components are inherently dynamic - no need for route config exports
 
 export default function PercyAdminDashboard() {
 ```
+
+**Lesson Learned:** Route segment config exports (`dynamic`, `revalidate`, `fetchCache`) are **server-only** and cause build errors when used in `'use client'` components. Client components are already dynamic by nature.
 
 ### `app/not-found.tsx`
 
@@ -325,8 +332,8 @@ $ npm run build
 ### Configuration (4 files)
 4. `lib/supabase/client.ts` - Made dev-tolerant
 5. `lib/supabase/server.ts` - Made dev-tolerant, prod-strict
-6. `app/admin/percy/page.tsx` - Marked dynamic
-7. `app/not-found.tsx` - Marked dynamic
+6. `app/admin/percy/page.tsx` - Removed invalid route config exports (client component)
+7. `app/not-found.tsx` - Marked dynamic (server component)
 
 ### Guardrails (2 files)
 8. `.eslintrc.json` - Added app/api import restriction
