@@ -73,31 +73,47 @@ serve(async (req) => {
       // Don't fail the function for logging errors
     }
 
-    // Trigger n8n workflow for post-payment automation
-    const n8nPayload = {
-      userId,
-      email: user.email,
-      paymentIntentId,
-      amount,
-      currency,
-      plan: metadata?.plan || 'premium',
-      isFirstPayment: metadata?.isFirstPayment || false,
-      timestamp: new Date().toISOString(),
-      metadata
-    }
+    // MMM: n8n noop shim. Replace with AgentKit or queues later.
+    // Check if NOOP mode is enabled (protects against n8n downtime)
+    const FF_N8N_NOOP = Deno.env.get('FF_N8N_NOOP') === 'true' || Deno.env.get('FF_N8N_NOOP') === '1';
+    
+    let n8nResponse: Response | { ok: boolean };
+    
+    if (FF_N8N_NOOP) {
+      console.log('[NOOP] Skipping n8n payment webhook (FF_N8N_NOOP=true)', {
+        userId,
+        paymentIntentId,
+        amount,
+        plan: metadata?.plan
+      });
+      n8nResponse = { ok: true }; // Mock success
+    } else {
+      // Trigger n8n workflow for post-payment automation
+      const n8nPayload = {
+        userId,
+        email: user.email,
+        paymentIntentId,
+        amount,
+        currency,
+        plan: metadata?.plan || 'premium',
+        isFirstPayment: metadata?.isFirstPayment || false,
+        timestamp: new Date().toISOString(),
+        metadata
+      }
 
-    const n8nResponse = await fetch(`${n8nWebhookUrl}/payment-completed`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': n8nApiKey
-      },
-      body: JSON.stringify(n8nPayload)
-    })
+      n8nResponse = await fetch(`${n8nWebhookUrl}/payment-completed`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': n8nApiKey
+        },
+        body: JSON.stringify(n8nPayload)
+      })
 
-    if (!n8nResponse.ok) {
-      console.error('Failed to trigger n8n workflow:', await n8nResponse.text())
-      // Don't fail the function for n8n errors, but log them
+      if (!n8nResponse.ok) {
+        console.error('Failed to trigger n8n workflow:', await n8nResponse.text())
+        // Don't fail the function for n8n errors, but log them
+      }
     }
 
     // Grant access to premium features
@@ -140,8 +156,8 @@ serve(async (req) => {
       payload: { userId }
     })
 
-    // Queue follow-up tasks (if n8n is available)
-    if (n8nResponse.ok) {
+    // Queue follow-up tasks (if n8n is available and not in NOOP mode)
+    if (n8nResponse.ok && !FF_N8N_NOOP) {
       for (const task of followUpTasks) {
         try {
           await fetch(`${n8nWebhookUrl}/schedule-task`, {
@@ -156,6 +172,10 @@ serve(async (req) => {
           console.error(`Failed to schedule task ${task.type}:`, error)
         }
       }
+    } else if (FF_N8N_NOOP) {
+      console.log('[NOOP] Skipping n8n follow-up task scheduling (FF_N8N_NOOP=true)', {
+        taskCount: followUpTasks.length
+      });
     }
 
     return new Response(

@@ -47,6 +47,22 @@ async function fireWebhook(
   payload: WebhookPayload,
   retries = 2
 ): Promise<WebhookResponse> {
+  // MMM: n8n noop shim. Replace with AgentKit or queues later.
+  // Check if NOOP mode is enabled (protects against n8n downtime)
+  const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+  
+  if (FF_N8N_NOOP) {
+    console.log(`[NOOP] Skipping n8n webhook: ${webhookPath} (FF_N8N_NOOP=true)`, {
+      event: payload.event,
+      userId: payload.user.id,
+      agentId: payload.agent?.id
+    });
+    return { 
+      success: true, 
+      executionId: `noop_${Date.now()}_${Math.random().toString(36).substr(2, 6)}` 
+    };
+  }
+  
   if (!N8N_WEBHOOK_BASE) {
     console.warn('[N8N Webhook] Base URL not configured, skipping webhook');
     return { success: false, error: 'N8N webhook base URL not configured' };

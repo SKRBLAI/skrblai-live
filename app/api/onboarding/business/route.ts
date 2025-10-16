@@ -31,34 +31,44 @@ export async function POST(req: NextRequest) {
 
     // Best-effort N8N webhook forward (don't fail UX if down)
     try {
-      const n8nUrl = process.env.N8N_BUSINESS_ONBOARDING_URL;
-      if (n8nUrl) {
-        console.log("[Business Onboarding] Forwarding to N8N...");
-        
-        const n8nPayload = {
-          event: "business_onboarding_completed",
-          timestamp: Date.now(),
-          ...payload
-        };
-
-        const response = await fetch(n8nUrl, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "User-Agent": "SKRBL-AI-Business-Onboarding/1.0"
-          },
-          body: JSON.stringify(n8nPayload),
-          // Don't wait too long for N8N
-          signal: AbortSignal.timeout(5000)
+      // MMM: n8n noop shim. Replace with AgentKit or queues later.
+      const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+      
+      if (FF_N8N_NOOP) {
+        console.log("[NOOP] Skipping n8n business onboarding webhook (FF_N8N_NOOP=true)", {
+          goals: payload.goals?.length,
+          industry: payload.industry
         });
-
-        if (response.ok) {
-          console.log("[Business Onboarding] N8N webhook successful");
-        } else {
-          console.warn("[Business Onboarding] N8N webhook failed:", response.status);
-        }
       } else {
-        console.log("[Business Onboarding] N8N URL not configured, skipping webhook");
+        const n8nUrl = process.env.N8N_BUSINESS_ONBOARDING_URL;
+        if (n8nUrl) {
+          console.log("[Business Onboarding] Forwarding to N8N...");
+          
+          const n8nPayload = {
+            event: "business_onboarding_completed",
+            timestamp: Date.now(),
+            ...payload
+          };
+
+          const response = await fetch(n8nUrl, {
+            method: "POST",
+            headers: { 
+              "Content-Type": "application/json",
+              "User-Agent": "SKRBL-AI-Business-Onboarding/1.0"
+            },
+            body: JSON.stringify(n8nPayload),
+            // Don't wait too long for N8N
+            signal: AbortSignal.timeout(5000)
+          });
+
+          if (response.ok) {
+            console.log("[Business Onboarding] N8N webhook successful");
+          } else {
+            console.warn("[Business Onboarding] N8N webhook failed:", response.status);
+          }
+        } else {
+          console.log("[Business Onboarding] N8N URL not configured, skipping webhook");
+        }
       }
     } catch (error) {
       console.warn("[Business Onboarding] N8N webhook error (non-blocking):", error);

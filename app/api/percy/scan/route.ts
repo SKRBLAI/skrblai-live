@@ -143,18 +143,29 @@ export async function POST(request: NextRequest) {
     }
 
     // Trigger N8N workflow if available
-    try {
-      await triggerN8nBusinessScan({
+    // MMM: n8n noop shim. Replace with AgentKit or queues later.
+    const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+    
+    if (FF_N8N_NOOP) {
+      console.log('[NOOP] Skipping n8n Percy scan webhook (FF_N8N_NOOP=true)', {
         scanId,
         type,
-        url,
-        analysis,
-        userId,
-        agentRecommendations
+        userId
       });
-    } catch (n8nError) {
-      console.warn('[Percy Scan] N8N business scan workflow failed:', n8nError);
-      // Don't fail the request if N8N fails
+    } else {
+      try {
+        await triggerN8nBusinessScan({
+          scanId,
+          type,
+          url,
+          analysis,
+          userId,
+          agentRecommendations
+        });
+      } catch (n8nError) {
+        console.warn('[Percy Scan] N8N business scan workflow failed:', n8nError);
+        // Don't fail the request if N8N fails
+      }
     }
 
     const result: ScanResult = {

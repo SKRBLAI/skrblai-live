@@ -75,8 +75,11 @@ export const POST = withSafeJson(async (req: Request) => {
     const result = await runAgentWorkflow(agentId, payload, userRole);
 
     // If workflow execution is successful, trigger n8n webhook
+    // MMM: n8n noop shim. Replace with AgentKit or queues later.
+    const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
     const N8N_WEBHOOK_URL = process.env.N8N_AGENT_LAUNCH_WEBHOOK_URL;
-    if (result.status === 'success' && N8N_WEBHOOK_URL) {
+    
+    if (result.status === 'success' && N8N_WEBHOOK_URL && !FF_N8N_NOOP) {
       const webhookPayload = {
         launchId,
         agentId,
@@ -107,11 +110,26 @@ export const POST = withSafeJson(async (req: Request) => {
         result: result.result 
       }).eq('id', launchId);
     } else {
-      // Update log to failed
-      await supabase.from('agent_launches').update({
-        status: 'failed',
-        error_message: result.result
-      }).eq('id', launchId);
+      if (FF_N8N_NOOP && N8N_WEBHOOK_URL) {
+        console.log('[NOOP] Skipping n8n agent launch webhook (FF_N8N_NOOP=true)', {
+          agentId,
+          launchId
+        });
+      }
+      
+      // Update log based on actual result status
+      if (result.status === 'success') {
+        await supabase.from('agent_launches').update({ 
+          status: 'success', 
+          result: result.result 
+        }).eq('id', launchId);
+      } else {
+        // Update log to failed
+        await supabase.from('agent_launches').update({
+          status: 'failed',
+          error_message: result.result
+        }).eq('id', launchId);
+      }
     }
 
     return NextResponse.json(result);

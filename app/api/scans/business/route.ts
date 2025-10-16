@@ -33,20 +33,30 @@ export async function POST(req: Request) {
 
     // Persist lead (best-effort; don't throw if not configured)
     try {
-      const url = process.env.N8N_BUSINESS_SCAN_URL;
-      if (url) {
-        await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "business_scan_started",
-            email: email || null,
-            urls,
-            source: source || "home_hero",
-            ua: req.headers.get("user-agent") || "",
-            ts: Date.now(),
-          }),
+      // MMM: n8n noop shim. Replace with AgentKit or queues later.
+      const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+      
+      if (FF_N8N_NOOP) {
+        console.log("[NOOP] Skipping n8n business scan webhook (FF_N8N_NOOP=true)", {
+          urlCount: urls.length,
+          source
         });
+      } else {
+        const url = process.env.N8N_BUSINESS_SCAN_URL;
+        if (url) {
+          await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event: "business_scan_started",
+              email: email || null,
+              urls,
+              source: source || "home_hero",
+              ua: req.headers.get("user-agent") || "",
+              ts: Date.now(),
+            }),
+          });
+        }
       }
     } catch (e) {
       console.error("n8n_forward_failed", e);

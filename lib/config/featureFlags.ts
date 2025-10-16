@@ -29,6 +29,11 @@ export const FEATURE_FLAGS = {
   ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
   ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit League visualization
   
+  // === N8N INTEGRATION CONTROL ===
+  // MMM: Default true to prevent n8n downtime from blocking user flows.
+  // Set FF_N8N_NOOP=false to re-enable n8n webhooks when ready.
+  FF_N8N_NOOP: readBooleanFlag('FF_N8N_NOOP', true), // n8n NOOP mode (safe default)
+  
   // === PROGRESSIVE ENHANCEMENT FLAGS ===
   // These flags enhance base functionality but don't break the UI when disabled
   

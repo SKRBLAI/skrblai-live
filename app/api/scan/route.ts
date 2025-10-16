@@ -205,6 +205,35 @@ export async function POST(req: NextRequest) {
     type: payload.type || 'free-scan'
   };
 
+  // MMM: n8n noop shim. Replace with AgentKit or queues later.
+  // Check if NOOP mode is enabled (protects against n8n downtime)
+  const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+  
+  if (FF_N8N_NOOP) {
+    console.log('[NOOP] Skipping n8n free scan webhook (FF_N8N_NOOP=true)', {
+      userId: user?.id,
+      source: payload.source,
+      type: payload.type
+    });
+    
+    // Return mock success response immediately
+    return NextResponse.json({
+      ok: true,
+      message: 'Scan queued for processing',
+      scanId: `noop_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      status: 'queued',
+      timestamp: new Date().toISOString(),
+      note: 'Processing via background queue'
+    }, { 
+      status: 200,
+      headers: {
+        'X-RateLimit-Limit': RATE_LIMIT.toString(),
+        'X-RateLimit-Remaining': rl.remaining.toString(),
+        'X-RateLimit-Reset': Math.ceil(rl.resetAt / 1000).toString()
+      }
+    });
+  }
+
   // Check if webhook URL is configured
   const webhookUrl = process.env.N8N_WEBHOOK_FREE_SCAN;
   if (!webhookUrl) {
