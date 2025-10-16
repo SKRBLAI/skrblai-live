@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 
-// Prevent static generation for this auth page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+// Note: Client components are inherently dynamic - no route config exports needed
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
