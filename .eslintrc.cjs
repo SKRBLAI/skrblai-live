@@ -41,50 +41,62 @@ module.exports = {
       meta: {
         type: 'problem',
         docs: {
-          description: 'Disallow module-scope Supabase client creation in app/** and components/**',
+          description: 'Disallow calling Supabase factory functions at module scope in app/** (causes build-time crashes)',
           category: 'Best Practices',
         },
         messages: {
           noModuleScopeSupabase: 
-            'CRITICAL: Do NOT create Supabase clients at module scope. This causes build-time env explosion. Move client creation inside functions, useEffect, or request handlers.'
+            'Calling {{name}}() at module scope in app/** causes build-time crashes. Move the call inside a function, useEffect, or event handler. For pages, add: export const dynamic = \'force-dynamic\';'
         },
         schema: []
       },
       create(context) {
         const filename = context.getFilename();
-        // Only check app/** and components/** files, skip lib/supabase/**
-        const shouldCheck = (filename.includes('/app/') || filename.includes('\\app\\') || 
-                           filename.includes('/components/') || filename.includes('\\components\\')) &&
-                           !(filename.includes('/lib/supabase/') || filename.includes('\\lib\\supabase\\'));
         
-        if (!shouldCheck) {
+        // Only check files in app/** directory
+        if (!filename.includes('/app/') && !filename.includes('\\app\\')) {
+          return {};
+        }
+        
+        // Skip lib/supabase/** files
+        if (filename.includes('/lib/supabase/') || filename.includes('\\lib\\supabase\\')) {
           return {};
         }
 
+        const supabaseFunctions = [
+          'getBrowserSupabase',
+          'getServerSupabaseAdmin',
+          'getServerSupabaseAnon',
+          'createBrowserSupabaseClient',
+          'createServerSupabaseClient',
+          'getOptionalServerSupabase'
+        ];
+
+        let scopeDepth = 0;
+
         return {
-          VariableDeclarator(node) {
-            // Check if it's a top-level variable declaration calling Supabase functions
-            if (node.init && 
-                node.init.type === 'CallExpression' &&
-                node.init.callee &&
-                node.init.callee.type === 'Identifier') {
-              const callName = node.init.callee.name;
-              if (callName === 'getBrowserSupabase' || 
-                  callName === 'getServerSupabaseAdmin' || 
-                  callName === 'getServerSupabaseAnon' ||
-                  callName === 'createClient') {
-                // Check if this is at module scope (not inside a function)
-                let scope = context.getScope();
-                while (scope.upper) {
-                  scope = scope.upper;
-                }
-                if (scope.type === 'module' || scope.type === 'global') {
-                  context.report({
-                    node,
-                    messageId: 'noModuleScopeSupabase'
-                  });
-                }
-              }
+          // Track function/method entry
+          ':function'() {
+            scopeDepth++;
+          },
+          ':function:exit'() {
+            scopeDepth--;
+          },
+          
+          CallExpression(node) {
+            // Only flag calls at module scope (scopeDepth === 0)
+            if (scopeDepth > 0) return;
+
+            const calleeName = node.callee.type === 'Identifier' 
+              ? node.callee.name 
+              : null;
+
+            if (calleeName && supabaseFunctions.includes(calleeName)) {
+              context.report({
+                node,
+                messageId: 'noModuleScopeSupabase',
+                data: { name: calleeName }
+              });
             }
           }
         };

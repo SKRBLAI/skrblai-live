@@ -36,8 +36,6 @@ const MISSIONS = [
 
 type MissionState = Record<string, boolean>;
 
-export const dynamic = 'force-dynamic';
-
 export default function PercyAcademyPage() {
   // Mission completion state (local only for now)
   const [missionState, setMissionState] = useState<MissionState>({

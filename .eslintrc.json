@@ -6,6 +6,7 @@
   ],
   "rules": {
     "no-direct-stripe-new": "error",
+    "no-module-scope-supabase": "error",
     "no-unused-vars": "off",
     "no-undef": "error",
     "react/no-unescaped-entities": "off",

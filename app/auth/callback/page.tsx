@@ -2,6 +2,10 @@ import { redirect } from 'next/navigation';
 import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { getUserAndRole, routeForRole } from '@/lib/auth/roles';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 interface SearchParams {
   from?: string;
   code?: string;

@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { ProductKey } from '@/lib/pricing/types';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+import { getPaymentLink } from '@/lib/stripe/paymentLinks';
 
 export default function CheckoutButton(
   { label, sku, priceId, mode="subscription", className, metadata, vertical, addons }:
@@ -19,12 +20,31 @@ export default function CheckoutButton(
 ){
   const [loading,setLoading]=useState(false);
   const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;
+  const useFallbackLinks = FEATURE_FLAGS.FF_STRIPE_FALLBACK_LINKS;
+  
   if (!stripeEnabled) {
     return (
       <button type="button" disabled className={"btn-solid-grad h-11 w-full rounded-xl opacity-50 cursor-not-allowed"}>
         Stripe Disabled
       </button>
     );
+  }
+  
+  // If fallback is enabled and we have a payment link, use it directly
+  if (useFallbackLinks && sku) {
+    const paymentLink = getPaymentLink(sku as string);
+    if (paymentLink) {
+      return (
+        <a 
+          href={paymentLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className || "btn-solid-grad h-11 w-full rounded-xl flex items-center justify-center"}
+        >
+          {label}
+        </a>
+      );
+    }
   }
   async function start(){
     try{

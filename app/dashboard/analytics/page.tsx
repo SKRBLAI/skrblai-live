@@ -4,6 +4,10 @@ import AnalyticsDashboard from '../../../components/dashboard/AnalyticsDashboard
 import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 // Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
