@@ -71,31 +71,67 @@ curl http://localhost:3000/api/_probe/supabase
 
 ---
 
-### 3. Stripe Probe
+### 3. Stripe Probe ⭐ ENHANCED
 
 **Endpoint**: `GET /api/_probe/stripe`  
-**Purpose**: Verify Stripe integration and webhook configuration  
-**Status**: ✅ Implemented  
+**Purpose**: Verify Stripe integration, API version, and webhook configuration  
+**Status**: ✅ Enhanced (2025-10-16)  
+**Changes**: Now reports actual API version in use, verifies all env vars, checks webhook endpoints
 
 **Response Format**:
 ```json
 {
   "ok": boolean,
-  "timestamp": "ISO-8601",
-  "stripe": {
-    "configured": boolean,
-    "webhookSecretPresent": boolean,
-    "publishableKeyPresent": boolean,
-    "canInitialize": boolean
-  },
-  "environment": "test" | "live" | "unknown"
+  "hasSk": boolean,
+  "hasPk": boolean,
+  "apiVersion": "2025-09-30.clover",
+  "webhookConfigured": boolean | "unknown",
+  "webhookSecretSet": boolean,
+  "mode": "live" | "test",
+  "accountId": "acct_1234..." // redacted
+}
+```
+
+**Success Response Example**:
+```json
+{
+  "ok": true,
+  "hasSk": true,
+  "hasPk": true,
+  "apiVersion": "2025-09-30.clover",
+  "webhookConfigured": true,
+  "webhookSecretSet": true,
+  "mode": "live",
+  "accountId": "acct_1A2B..."
+}
+```
+
+**Error Response Example** (missing key):
+```json
+{
+  "ok": false,
+  "error": "STRIPE_SECRET_KEY missing",
+  "hasSk": false,
+  "hasPk": true,
+  "apiVersion": "2025-09-30.clover",
+  "webhookConfigured": false
 }
 ```
 
 **Usage**:
 ```bash
 curl http://localhost:3000/api/_probe/stripe
+# or production
+curl https://skrblai.io/api/_probe/stripe | jq '.'
 ```
+
+**Verification Checklist**:
+- ✅ `STRIPE_SECRET_KEY` present
+- ✅ `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` present
+- ✅ `STRIPE_WEBHOOK_SECRET` present
+- ✅ `STRIPE_API_VERSION` matches expected version
+- ✅ Stripe API connectivity working
+- ✅ Webhook endpoint registered (if permissions allow)
 
 ---
 
@@ -482,4 +518,5 @@ This will:
 ---
 
 **Last Updated**: 2025-10-16  
-**Phase 3 Updates**: Single-source env reads, Stripe API version lock, N8N noop guards, Flags probe added
+**Phase 3 Updates**: Single-source env reads, Stripe API version unification, N8N noop guards, Flags probe added  
+**Latest Change**: Enhanced Stripe probe with API version reporting and comprehensive diagnostics (feat/stripe-api-version-unify)

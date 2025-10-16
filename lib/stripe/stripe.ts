@@ -6,7 +6,14 @@ export function getOptionalStripe(options?: { apiVersion?: Stripe.LatestApiVersi
   if (!stripe) {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) return null;
-    stripe = new Stripe(key, { apiVersion: options?.apiVersion || '2023-10-16' });
+    
+    // Use env-driven API version with fallback to latest stable
+    const apiVersion = 
+      (options?.apiVersion ?? 
+       (process.env.STRIPE_API_VERSION as Stripe.LatestApiVersion)) || 
+      '2025-09-30.clover';
+    
+    stripe = new Stripe(key, { apiVersion });
   }
   return stripe;
 }
