@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Prevent static generation for this auth page
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getBrowserSupabase } from '@/lib/supabase';
@@ -18,11 +21,21 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [supabase, setSupabase] = useState<any>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
-  const supabase = getBrowserSupabase();
+
+  // Initialize Supabase client only on client after mount
+  useEffect(() => {
+    try {
+      const client = getBrowserSupabase();
+      setSupabase(client);
+    } catch (error) {
+      console.error('Failed to initialize Supabase:', error);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

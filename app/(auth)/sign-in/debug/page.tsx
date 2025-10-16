@@ -1,6 +1,7 @@
 'use client';
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -8,45 +9,37 @@ import Link from 'next/link';
 
 /**
  * Debug page to help diagnose Supabase environment variable issues
+ * Uses runtime fetch to /api/_probe/env to avoid build-time env checks
  */
 export default function SignInDebugPage() {
   const [debugInfo, setDebugInfo] = useState<Record<string, any>>({
     checking: true,
-    env: {}
+    probe: null
   });
   
   useEffect(() => {
     async function checkEnvironment() {
-      // Safe check for environment variables
-      const envCheck = {
-        // Next.js public env vars
-        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '[missing]',
-        NEXT_PUBLIC_SUPABASE_URL_LENGTH: process.env.NEXT_PUBLIC_SUPABASE_URL?.length || 0,
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY 
-          ? `${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.substring(0, 10)}...` 
-          : '[missing]',
-        NEXT_PUBLIC_SUPABASE_ANON_KEY_LENGTH: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length || 0,
-        
-        // Check if other public envs are loading
-        NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || '[missing]',
-        NODE_ENV: process.env.NODE_ENV || '[missing]',
-      };
-
-      // Try to import the Supabase client dynamically
       try {
-        const { getBrowserSupabase } = await import('@/lib/supabase');
-        const supabase = getBrowserSupabase();
+        // Fetch env probe from API route at runtime
+        const response = await fetch('/api/_probe/env', {
+          cache: 'no-store'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`API probe failed: ${response.status}`);
+        }
+        
+        const probeData = await response.json();
         
         setDebugInfo({
           checking: false,
-          env: envCheck,
-          supabaseClientCreated: !!supabase,
+          probe: probeData,
           timestamp: new Date().toISOString(),
         });
       } catch (error: any) {
         setDebugInfo({
           checking: false,
-          env: envCheck,
+          probe: null,
           error: error.message,
           timestamp: new Date().toISOString(),
         });
@@ -65,26 +58,57 @@ export default function SignInDebugPage() {
           <div className="animate-pulse">Checking environment...</div>
         ) : (
           <div className="space-y-4">
-            <div>
-              <h2 className="text-xl text-teal-400 mb-2">Environment Variables:</h2>
-              <pre className="bg-gray-800 p-4 rounded overflow-auto text-sm max-h-60">
-                {JSON.stringify(debugInfo.env, null, 2)}
-              </pre>
-            </div>
-            
-            {debugInfo.supabaseClientCreated !== undefined && (
-              <div className="p-4 rounded-lg bg-opacity-20 border"
-                   style={{ 
-                     backgroundColor: debugInfo.supabaseClientCreated ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                     borderColor: debugInfo.supabaseClientCreated ? 'rgba(16, 185, 129, 0.5)' : 'rgba(239, 68, 68, 0.5)'
-                   }}>
-                <h3 className="font-bold">
-                  Supabase Client: {debugInfo.supabaseClientCreated ? 'Created ✅' : 'Failed ❌'}
-                </h3>
-                {!debugInfo.supabaseClientCreated && debugInfo.error && (
-                  <div className="mt-2 text-red-400">Error: {debugInfo.error}</div>
-                )}
+            {debugInfo.error && (
+              <div className="p-4 rounded-lg bg-red-500/20 border border-red-500/50">
+                <h3 className="font-bold text-red-300">Error</h3>
+                <div className="mt-2 text-red-400">{debugInfo.error}</div>
               </div>
+            )}
+            
+            {debugInfo.probe && (
+              <>
+                <div>
+                  <h2 className="text-xl text-teal-400 mb-2">Supabase Configuration:</h2>
+                  <div className="bg-gray-800 p-4 rounded space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">URL:</span>
+                      <span className={debugInfo.probe.supabase.url === 'PRESENT' ? 'text-green-400' : 'text-red-400'}>
+                        {debugInfo.probe.supabase.url}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Anon Key:</span>
+                      <span className={debugInfo.probe.supabase.anon === 'PRESENT' ? 'text-green-400' : 'text-red-400'}>
+                        {debugInfo.probe.supabase.anon}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-300">Service Role:</span>
+                      <span className={debugInfo.probe.supabase.service === 'PRESENT' ? 'text-green-400' : 'text-red-400'}>
+                        {debugInfo.probe.supabase.service}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h2 className="text-xl text-teal-400 mb-2">Project Info:</h2>
+                  <div className="bg-gray-800 p-4 rounded space-y-1 text-sm">
+                    <div className="text-gray-300">Host: <span className="text-white font-mono">{debugInfo.probe.notes.projectHost || 'N/A'}</span></div>
+                    <div className="text-gray-300">Ref: <span className="text-white font-mono">{debugInfo.probe.notes.projectRef || 'N/A'}</span></div>
+                    <div className="text-gray-300">Live Project: <span className={debugInfo.probe.notes.assertLiveProject ? 'text-green-400' : 'text-yellow-400'}>
+                      {debugInfo.probe.notes.assertLiveProject ? 'Yes ✅' : 'No ⚠️'}
+                    </span></div>
+                  </div>
+                </div>
+                
+                <div>
+                  <h2 className="text-xl text-teal-400 mb-2">Full Probe Response:</h2>
+                  <pre className="bg-gray-800 p-4 rounded overflow-auto text-xs max-h-60">
+                    {JSON.stringify(debugInfo.probe, null, 2)}
+                  </pre>
+                </div>
+              </>
             )}
             
             <div className="text-sm text-gray-400 mt-4">

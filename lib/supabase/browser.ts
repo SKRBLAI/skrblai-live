@@ -2,9 +2,11 @@ import { createClient } from '@supabase/supabase-js';
 
 /**
  * Browser-safe Supabase client - ONLY uses anon key
- * This client is safe to use in client-side components
+ * This client is safe to use in client-side components.
+ * Env vars are read lazily at call time, not import time.
  */
 export function createBrowserSupabaseClient() {
+  // Lazy env read - happens only when function is called, not at import
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
