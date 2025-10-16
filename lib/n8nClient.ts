@@ -107,6 +107,19 @@ export function getQuotaStatus(): N8nQuotaStatus {
 }
 
 export async function triggerN8nWorkflow(workflowId: string, payload: Record<string, any>): Promise<N8nWorkflowResult> {
+  // MMM: n8n noop shim - protects against n8n downtime
+  const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+  
+  if (FF_N8N_NOOP) {
+    console.log(`[NOOP] Skipping n8n workflow: ${workflowId} (FF_N8N_NOOP=true)`);
+    return {
+      success: true,
+      message: 'n8n noop mode active',
+      status: 'success',
+      executionId: `noop_${Date.now()}_${workflowId}_${Math.random().toString(36).substr(2, 6)}`
+    };
+  }
+
   // Check quota before execution
   const quotaCheck = await checkWorkflowQuota();
   if (!quotaCheck.allowed) {

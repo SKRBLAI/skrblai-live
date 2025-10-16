@@ -1,0 +1,42 @@
+{
+  "timestamp": "2025-10-16_06-22-46",
+  "prod": {
+    "/api/_probe/env": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/env"
+    },
+    "/api/_probe/supabase": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/supabase"
+    },
+    "/api/_probe/stripe": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/stripe"
+    },
+    "/api/_probe/auth": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/auth"
+    },
+    "/api/_probe/flags": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/flags"
+    },
+    "/api/_probe/storage": {
+      "status": 404,
+      "ok": false,
+      "error": "HTTP 404: Not Found",
+      "probePath": "/api/_probe/storage"
+    }
+  },
+  "outputDir": "analysis/probes/2025-10-16_06-22-46"
+}

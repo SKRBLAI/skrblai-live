@@ -40,6 +40,11 @@
             "group": ["@supabase/supabase-js"],
             "importNames": ["createClient"],
             "message": "Direct @supabase/supabase-js imports are not allowed outside of lib/supabase/**. Use getBrowserSupabase(), getServerSupabaseAnon(), or getServerSupabaseAdmin() from @/lib/supabase instead."
+          },
+          {
+            "group": ["stripe"],
+            "importNames": ["default", "Stripe"],
+            "message": "Direct Stripe imports are not allowed outside of lib/stripe/**. Use requireStripe() or getOptionalStripe() from @/lib/stripe/stripe instead."
           }
         ]
       }
@@ -48,7 +53,8 @@
   "overrides": [
     {
       "files": [
-        "lib/supabase/**/*.{ts,tsx}"
+        "lib/supabase/**/*.{ts,tsx}",
+        "lib/stripe/**/*.{ts,tsx}"
       ],
       "rules": {
         "no-restricted-imports": "off"
