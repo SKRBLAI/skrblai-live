@@ -1,23 +1,112 @@
+// Enhanced auth probe with cookie and session diagnosis
 import { NextResponse } from 'next/server';
 import { getServerSupabaseAnon } from '@/lib/supabase';
+import { cookies } from 'next/headers';
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
+    const cookieStore = cookies();
+    
+    // Check cookie configuration
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    let cookieDomain = '';
+    let sameSite = '';
+    let customAuthDomainDetected = false;
+    
+    try {
+      if (supabaseUrl) {
+        const url = new URL(supabaseUrl);
+        cookieDomain = url.hostname;
+        customAuthDomainDetected = cookieDomain.includes('auth.skrblai.io');
+      }
+    } catch {}
+
+    // Check for auth cookies
+    const authCookies = cookieStore.getAll().filter(cookie => 
+      cookie.name.includes('supabase') || 
+      cookie.name.includes('auth') ||
+      cookie.name.includes('sb-')
+    );
+
+    // Test session
     const supabase = getServerSupabaseAnon();
-    if (!supabase) {
-      return NextResponse.json({ ok: false, sawUser: false, error: 'supabase-not-configured' }, { status: 503 });
+    let sessionPresent = false;
+    let user = null;
+    let sessionError = null;
+    let getUserResult = null;
+
+    if (supabase) {
+      try {
+        const { data: { session }, error: sessionErr } = await supabase.auth.getSession();
+        sessionPresent = !!session;
+        user = session?.user || null;
+        sessionError = sessionErr?.message || null;
+        
+        if (session) {
+          const { data: { user: currentUser }, error: userErr } = await supabase.auth.getUser();
+          getUserResult = {
+            success: !userErr,
+            user: currentUser,
+            error: userErr?.message || null
+          };
+        }
+      } catch (e: any) {
+        sessionError = e?.message || 'session-exception';
+      }
     }
 
-    try {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        return NextResponse.json({ ok: false, sawUser: false, error: error.message?.slice(0, 120) || 'auth-error' }, { headers: { 'Cache-Control': 'no-store' } });
-      }
-      return NextResponse.json({ ok: true, sawUser: !!data?.user, error: null }, { headers: { 'Cache-Control': 'no-store' } });
-    } catch (e: any) {
-      return NextResponse.json({ ok: false, sawUser: false, error: e?.message?.slice(0, 120) || 'auth-exception' }, { headers: { 'Cache-Control': 'no-store' } });
+    // Check for common cookie issues
+    const cookieWarnings: string[] = [];
+    if (authCookies.length === 0) {
+      cookieWarnings.push('No auth cookies found');
     }
+    if (customAuthDomainDetected && !supabaseUrl?.includes('auth.skrblai.io')) {
+      cookieWarnings.push('Custom auth domain detected but URL mismatch');
+    }
+
+    return NextResponse.json({
+      // Cookie config
+      cookieDomain,
+      sameSite,
+      customAuthDomainDetected,
+      authCookiesFound: authCookies.length,
+      authCookieNames: authCookies.map(c => c.name),
+      
+      // Session status
+      sessionPresent,
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        email_confirmed_at: user.email_confirmed_at,
+        created_at: user.created_at
+      } : null,
+      sessionError,
+      getUserResult,
+      
+      // Warnings
+      warnings: cookieWarnings,
+      
+      // Timestamp
+      timestamp: new Date().toISOString()
+    }, { 
+      headers: { 'Cache-Control': 'no-store' }
+    });
   } catch (e: any) {
-    return NextResponse.json({ ok: false, sawUser: false, error: e?.message?.slice(0, 120) || 'init-error' }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({
+      cookieDomain: '',
+      sameSite: '',
+      customAuthDomainDetected: false,
+      authCookiesFound: 0,
+      authCookieNames: [],
+      sessionPresent: false,
+      user: null,
+      sessionError: e?.message || 'auth-probe-exception',
+      getUserResult: null,
+      warnings: ['Auth probe failed'],
+      timestamp: new Date().toISOString()
+    }, { 
+      status: 500, 
+      headers: { 'Cache-Control': 'no-store' } 
+    });
   }
 }

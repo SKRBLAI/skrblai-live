@@ -81,7 +81,27 @@ export default function SignUpPage() {
       // Check if user is immediately signed in (email confirmation disabled)
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // User is signed in immediately, redirect to auth/redirect
+        // User is signed in immediately, ensure profile exists
+        try {
+          const profileResponse = await fetch('/api/user/profile-sync', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+            }
+          });
+          
+          if (profileResponse.ok) {
+            console.log('[SIGN_UP] Profile sync successful');
+          } else {
+            console.warn('[SIGN_UP] Profile sync failed:', await profileResponse.text());
+          }
+        } catch (profileError) {
+          console.warn('[SIGN_UP] Profile sync error (non-critical):', profileError);
+          // Don't fail sign-up if profile sync fails
+        }
+        
+        // Redirect to auth/redirect
         const redirectUrl = '/auth/redirect' + (from ? `?from=${encodeURIComponent(from)}` : '');
         window.location.href = redirectUrl;
       } else {
