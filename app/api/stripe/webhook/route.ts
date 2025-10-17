@@ -6,6 +6,7 @@ import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { requireStripe } from '@/lib/stripe/stripe';
 import { withSafeJson } from '@/lib/api/safe';
 import { logger } from '@/lib/observability/logger';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -151,7 +152,7 @@ async function handleSkillSmithPurchase(supabase: SupabaseClient, session: any) 
 
     // optional: forward to n8n
     // MMM: n8n noop shim. Replace with AgentKit or queues later.
-    const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+    const FF_N8N_NOOP = FEATURE_FLAGS.FF_N8N_NOOP;
     
     if (process.env.N8N_STRIPE_WEBHOOK_URL && !FF_N8N_NOOP) {
       try {

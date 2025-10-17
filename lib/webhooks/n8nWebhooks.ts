@@ -5,6 +5,8 @@
  * with comprehensive error logging and retry logic.
  */
 
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+
 interface WebhookPayload {
   event: 'signup' | 'signin' | 'agent_launch';
   timestamp: string;
@@ -49,7 +51,7 @@ async function fireWebhook(
 ): Promise<WebhookResponse> {
   // MMM: n8n noop shim. Replace with AgentKit or queues later.
   // Check if NOOP mode is enabled (protects against n8n downtime)
-  const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+  const FF_N8N_NOOP = FEATURE_FLAGS.FF_N8N_NOOP;
   
   if (FF_N8N_NOOP) {
     console.log(`[NOOP] Skipping n8n webhook: ${webhookPath} (FF_N8N_NOOP=true)`, {

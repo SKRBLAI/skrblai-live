@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     // Persist lead (best-effort; don't throw if not configured)
     try {
       // MMM: n8n noop shim. Replace with AgentKit or queues later.
-      const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+      const FF_N8N_NOOP = FEATURE_FLAGS.FF_N8N_NOOP;
       
       if (FF_N8N_NOOP) {
         console.log("[NOOP] Skipping n8n business scan webhook (FF_N8N_NOOP=true)", {

@@ -12,15 +12,15 @@ const AgentLeaguePreview = dynamic(() => import("@/components/home/AgentLeaguePr
 const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLauncher"), { ssr: false });
 const PercyOnboardingRevolution = dynamic(() => import("@/components/home/PercyOnboardingRevolution"), { ssr: false });
 
-// Hero variant selector (env-driven)
-const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;
-const Hero = variant === 'split'
-  ? require('@/components/home/HomeHeroSplit').default
-  : variant === 'legacy'
-    ? require('@/components/home/Hero').default
-    : require('@/components/home/HomeHeroScanFirst').default;
-
 export default function Page() {
+  // Hero variant selector (env-driven) - moved to runtime
+  const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;
+  const Hero = variant === 'split'
+    ? require('@/components/home/HomeHeroScanFirst').default // Default to scan-first
+    : variant === 'legacy'
+      ? require('@/components/home/Hero').default
+      : require('@/components/home/HomeHeroScanFirst').default;
+
   // Use unified feature flags for guide star
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const searchParams = useSearchParams();

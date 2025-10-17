@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { resolvePriceId } from '@/lib/stripe/priceResolver';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
+import { getPaymentLink } from '@/lib/stripe/paymentLinks';
 
 export function BuyButton({
   sku,
@@ -25,6 +26,7 @@ export function BuyButton({
 }) {
   const [loading, setLoading] = useState(false);
   const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;
+  const useFallbackLinks = FEATURE_FLAGS.FF_STRIPE_FALLBACK_LINKS;
 
   // Check if SKU resolves to a valid price ID using unified resolver
   const resolvedPriceId = sku ? resolvePriceId(sku) : null;
@@ -43,6 +45,26 @@ export function BuyButton({
     );
   }
 
+  // If fallback is enabled and we have a payment link, use it directly
+  if (useFallbackLinks && sku) {
+    const paymentLink = getPaymentLink(sku);
+    if (paymentLink) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[BuyButton] Using Payment Link fallback for SKU:', sku);
+      }
+      return (
+        <a 
+          href={paymentLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-white font-bold rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl text-center block ${className}`}
+        >
+          {children}
+        </a>
+      );
+    }
+  }
+
   const handleClick = async () => {
     if (loading) return;
     
@@ -57,6 +79,10 @@ export function BuyButton({
         mode = "contact";
       } else {
         mode = isSubscription ? "subscription" : "payment";
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[BuyButton] Checkout mode:', mode, 'SKU:', sku, 'Vertical:', vertical);
       }
       
       const response = await fetch("/api/checkout", {

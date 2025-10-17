@@ -6,18 +6,101 @@
  * Base UI always renders; enhanced pieces toggle based on flags
  */
 
+import { readBooleanFlag } from './flags';
 import { readEnvAny } from '@/lib/env/readEnvAny';
 
-// Helper function to read boolean flags with fallback
-// MMM: Supports "1"/"0" and "true"/"false" (case-insensitive)
-function readBooleanFlag(envKey: string, defaultValue: boolean = false): boolean {
-  const value = process.env[envKey];
-  if (value === undefined) return defaultValue;
-  return value === '1' || value.toLowerCase() === 'true';
-}
-
-// Export for use in other modules
+// Re-export the enhanced flag parser
 export { readBooleanFlag };
+
+/**
+ * Centralized list of all known feature flags with documentation
+ * This serves as the single source of truth for flag names and defaults
+ */
+export const KNOWN_FLAGS = {
+  // === CLIENT FLAGS (NEXT_PUBLIC_*) ===
+  NEXT_PUBLIC_ENABLE_STRIPE: { 
+    default: true, 
+    description: 'Global Stripe payment toggle - disables all payment buttons when false' 
+  },
+  NEXT_PUBLIC_HP_GUIDE_STAR: { 
+    default: true, 
+    description: 'Homepage guide star component visibility' 
+  },
+  NEXT_PUBLIC_ENABLE_ORBIT: { 
+    default: false, 
+    description: 'Orbit League visualization component' 
+  },
+  NEXT_PUBLIC_ENABLE_BUNDLES: { 
+    default: false, 
+    description: 'Legacy bundle pricing system' 
+  },
+  NEXT_PUBLIC_ENABLE_LEGACY: { 
+    default: false, 
+    description: 'Legacy system features and components' 
+  },
+  NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS: { 
+    default: false, 
+    description: 'Use Stripe Payment Links instead of Checkout Sessions' 
+  },
+  NEXT_PUBLIC_SHOW_PERCY_WIDGET: { 
+    default: false, 
+    description: 'Percy widget visibility on pages' 
+  },
+  NEXT_PUBLIC_USE_OPTIMIZED_PERCY: { 
+    default: false, 
+    description: 'Use optimized Percy component instead of legacy' 
+  },
+  NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS: { 
+    default: true, 
+    description: 'Enable Percy component animations' 
+  },
+  NEXT_PUBLIC_ENABLE_PERCY_AVATAR: { 
+    default: true, 
+    description: 'Show Percy avatar in components' 
+  },
+  NEXT_PUBLIC_ENABLE_PERCY_CHAT: { 
+    default: true, 
+    description: 'Enable Percy chat functionality' 
+  },
+  NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF: { 
+    default: true, 
+    description: 'Show Percy social proof elements' 
+  },
+  NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING: { 
+    default: true, 
+    description: 'Enable Percy performance monitoring' 
+  },
+  NEXT_PUBLIC_PERCY_AUTO_FALLBACK: { 
+    default: true, 
+    description: 'Enable Percy automatic fallback to legacy' 
+  },
+  NEXT_PUBLIC_PERCY_LOG_SWITCHES: { 
+    default: true, 
+    description: 'Log Percy component switches for debugging' 
+  },
+  NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE: { 
+    default: true, 
+    description: 'AI automation homepage features' 
+  },
+  NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN: { 
+    default: true, 
+    description: 'Enhanced business scan functionality' 
+  },
+  NEXT_PUBLIC_URGENCY_BANNERS: { 
+    default: true, 
+    description: 'Urgency banners and promotional elements' 
+  },
+  NEXT_PUBLIC_LIVE_METRICS: { 
+    default: true, 
+    description: 'Live metrics and counters' 
+  },
+  
+  // === SERVER FLAGS (no NEXT_PUBLIC_ prefix) ===
+  FF_N8N_NOOP: { 
+    default: true, 
+    description: 'n8n NOOP mode - prevents n8n downtime from blocking user flows' 
+  },
+} as const;
 
 export const FEATURE_FLAGS = {
   // === CORE FEATURE FLAGS ===
@@ -28,10 +111,12 @@ export const FEATURE_FLAGS = {
   
   // Payment & Stripe Features
   ENABLE_STRIPE: readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', true), // Global Stripe toggle
+  FF_STRIPE_FALLBACK_LINKS: readBooleanFlag('NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS', false), // Use Payment Links fallback
   
   // Legacy System Control
   ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
   ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit League visualization
+  ENABLE_LEGACY: readBooleanFlag('NEXT_PUBLIC_ENABLE_LEGACY', false), // Legacy system features
   
   // === N8N INTEGRATION CONTROL ===
   // MMM: Default true to prevent n8n downtime from blocking user flows.
@@ -56,10 +141,8 @@ export const FEATURE_FLAGS = {
   PERCY_AUTO_FALLBACK: readBooleanFlag('NEXT_PUBLIC_PERCY_AUTO_FALLBACK', true),
   PERCY_LOG_SWITCHES: readBooleanFlag('NEXT_PUBLIC_PERCY_LOG_SWITCHES', true),
   
-  // === STRIPE PAYMENT FALLBACK ===
-  // MMM: Default false; set true to use Payment Links instead of Checkout Sessions
-  // Use this if Stripe Checkout is failing in production to allow sales to continue
-  FF_STRIPE_FALLBACK_LINKS: readBooleanFlag('NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS', false),
+  // === ADDITIONAL FLAGS ===
+  SHOW_PERCY_WIDGET: readBooleanFlag('NEXT_PUBLIC_SHOW_PERCY_WIDGET', false), // Percy widget visibility
   
 } as const;
 
