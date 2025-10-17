@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { resolvePriceId } from '@/lib/stripe/priceResolver';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { getPaymentLink } from '@/lib/stripe/paymentLinks';
 
@@ -28,11 +27,8 @@ export function BuyButton({
   const stripeEnabled = FEATURE_FLAGS.ENABLE_STRIPE;
   const useFallbackLinks = FEATURE_FLAGS.FF_STRIPE_FALLBACK_LINKS;
 
-  // Check if SKU resolves to a valid price ID using unified resolver
-  const resolvedPriceId = sku ? resolvePriceId(sku) : null;
-  
-  // Button enablement: disabled only if Stripe not enabled, missing SKU, or no price ID resolved
-  const isDisabled = !stripeEnabled || !sku || !resolvedPriceId;
+  // Let the server resolve price IDs; only disable when Stripe is off or SKU missing
+  const isDisabled = !stripeEnabled || !sku;
 
   if (isDisabled) {
     return (
