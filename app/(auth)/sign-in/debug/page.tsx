@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 /**
  * Debug page to help diagnose Supabase environment variable issues
  * Uses runtime fetch to /api/_probe/env to avoid build-time env checks

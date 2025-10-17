@@ -24,7 +24,7 @@ export async function getUserAndRole(supabase: any): Promise<{ user?: any | null
     const { data: roleRows } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('userId', user.id);
+      .eq('user_id', user.id);
 
     const roles: string[] = (roleRows || []).map((r: any) => r.role?.toLowerCase?.() || '');
     // Priority order: founder > heir > vip > parent > user

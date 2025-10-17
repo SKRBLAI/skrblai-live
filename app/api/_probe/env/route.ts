@@ -13,8 +13,8 @@ function getProjectInfo(url?: string) {
     const parts = host.split('.');
     // Typical pattern: <projectRef>.supabase.co
     const ref = parts[0] || '';
-    // Basic assertion: ensure we're not hitting Boost/staging. Live known refs may include 'zpqavydsinrtaxhowmnb' or custom domain auth.skrblai.io
-    const assertLive = host.includes('skrblai.io') || host.includes('zpqavydsinrtaxhowmnb') || host.includes('auth.skrblai.io');
+    // Basic assertion: ensure we're not hitting Boost/staging. Live known refs may include 'zpqavydsinrtaxhowmnb'
+    const assertLive = host.includes('skrblai.io') || host.includes('zpqavydsinrtaxhowmnb');
     return { projectHost: host, projectRef: ref, assertLiveProject: assertLive };
   } catch {
     return { projectHost: '', projectRef: '', assertLiveProject: false };

@@ -17,7 +17,7 @@ export async function GET() {
       if (supabaseUrl) {
         const url = new URL(supabaseUrl);
         cookieDomain = url.hostname;
-        customAuthDomainDetected = cookieDomain.includes('auth.skrblai.io');
+        customAuthDomainDetected = false; // Removed custom auth domain support
       }
     } catch {}
 
@@ -60,9 +60,7 @@ export async function GET() {
     if (authCookies.length === 0) {
       cookieWarnings.push('No auth cookies found');
     }
-    if (customAuthDomainDetected && !supabaseUrl?.includes('auth.skrblai.io')) {
-      cookieWarnings.push('Custom auth domain detected but URL mismatch');
-    }
+    // Removed custom auth domain checks
 
     return NextResponse.json({
       // Cookie config

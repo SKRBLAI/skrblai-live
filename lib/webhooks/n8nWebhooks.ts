@@ -138,6 +138,7 @@ async function logWebhookError(
   attempt: number
 ): Promise<void> {
   try {
+    // Lazy import to avoid build-time errors
     const { getServerSupabaseAdmin } = await import('@/lib/supabase');
     const supabase = getServerSupabaseAdmin();
     

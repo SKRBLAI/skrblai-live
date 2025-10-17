@@ -14,7 +14,7 @@ export async function GET() {
       if (url) {
         const u = new URL(url);
         dnsHost = u.hostname;
-        customAuthDomain = dnsHost.includes('auth.skrblai.io');
+        customAuthDomain = false; // Removed custom auth domain support
       }
     } catch {}
 
