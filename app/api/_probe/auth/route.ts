@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function GET() {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     
     // Check cookie configuration
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
