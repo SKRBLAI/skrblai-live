@@ -3,15 +3,16 @@
 /* Main card base */
 .agent-league-card-base {
   height: 100%;
+  min-height: 620px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   float: slow;
 }
 
 /* Card container with cosmic theme */
 .agent-league-card-container {
   height: 100%;
-  min-height: 580px;
+  min-height: 620px;
   position: relative;
   overflow: visible;
   background: linear-gradient(135deg, rgba(139, 69, 19, 0.1) 0%, rgba(75, 0, 130, 0.3) 25%, rgba(138, 43, 226, 0.4) 50%, rgba(72, 61, 139, 0.3) 75%, rgba(25, 25, 112, 0.2) 100%);
@@ -27,7 +28,7 @@
   transition: all 500ms ease;
   display: flex;
   flex-direction: column;
-  padding-bottom: 1rem;
+  padding-bottom: 1.5rem;
 }
 
 .agent-league-card-container:hover {
@@ -293,8 +294,12 @@
 
 /* Mobile responsive adjustments */
 @media (max-width: 640px) {
+  .agent-league-card-base {
+    min-height: 560px;
+  }
+  
   .agent-league-card-container {
-    min-height: 540px;
+    min-height: 560px;
   }
   
   .agent-league-name {
@@ -309,8 +314,12 @@
 }
 
 @media (min-width: 768px) {
+  .agent-league-card-base {
+    min-height: 640px;
+  }
+  
   .agent-league-card-container {
-    min-height: 600px;
+    min-height: 640px;
   }
   
   .agent-league-name {
@@ -338,6 +347,14 @@
 }
 
 @media (min-width: 1024px) {
+  .agent-league-card-base {
+    min-height: 660px;
+  }
+  
+  .agent-league-card-container {
+    min-height: 660px;
+  }
+  
   .agent-league-chat-button,
   .agent-league-info-button {
     padding: 0.625rem 1rem;

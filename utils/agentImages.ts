@@ -1,10 +1,11 @@
 // Canonical image resolution for agent assets.
 // Priority:
-//  1) /images/agents/{slug}-skrblai.webp
-//  2) /images/agents/{slug}.webp
-//  3) /images/agents/{slug}-nobg.png
-//  4) /images/agents/{slug}.png
-//  5) /images/agents/default.png
+//  1) /images/agents/{slug}.webp
+//  2) /images/agents/{slug}-nobg.png
+//  3) /images/agents/{slug}.png
+//  4) /images/agents/{slug}-skrblai.webp
+//  5) /images/agents/default.webp
+//  6) /images/agents/default.png
 //
 // Slugs are treated case-insensitively for filesystem-compatibility.
 
@@ -17,14 +18,14 @@ export function getAgentImagePaths(rawSlug: string): AgentImageSet {
   const slug = (rawSlug || '').trim().toLowerCase();
   const base = `/images/agents/${slug}`;
   const set: string[] = [
-    `${base}-skrblai.webp`,
     `${base}.webp`,
     `${base}-nobg.png`,
     `${base}.png`,
+    `${base}-skrblai.webp`,
   ];
   return {
     primary: set[0],
-    fallbacks: [...set.slice(1), '/images/agents/default.png'],
+    fallbacks: [...set.slice(1), '/images/agents/default.webp', '/images/agents/default.png'],
   };
 }
 
