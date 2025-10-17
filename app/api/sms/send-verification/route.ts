@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { sendSms } from '../../../../utils/twilioSms';
 
 // GET handler for health check
@@ -36,7 +35,8 @@ export async function POST(req: NextRequest) {
     // Generate 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Get Supabase client
+    // Get Supabase client (lazy import to avoid build-time errors)
+    const { getServerSupabaseAdmin } = await import('@/lib/supabase');
     const supabase = getServerSupabaseAdmin();
     if (!supabase) {
       return NextResponse.json(

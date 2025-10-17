@@ -1,9 +1,11 @@
 // Server-side profile sync endpoint - creates/updates user profile
 import { NextResponse } from 'next/server';
-import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase';
 
 export async function POST() {
   try {
+    // Lazy import to avoid build-time errors
+    const { getServerSupabaseAnon, getServerSupabaseAdmin } = await import('@/lib/supabase');
+    
     // Get user session using anon client (respects RLS)
     const anonClient = getServerSupabaseAnon();
     const adminClient = getServerSupabaseAdmin();
