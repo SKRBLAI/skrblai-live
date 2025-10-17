@@ -158,7 +158,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
   return (
     <AgentErrorBoundary agentId={agent.id}>
       <motion.div
-          className={`relative rounded-2xl overflow-hidden aspect-[3/4] md:aspect-[4/5] bg-gradient-to-b from-white/5 to-white/0 h-full ${className}`}
+          className={`relative rounded-2xl overflow-visible bg-gradient-to-b from-white/5 to-white/0 h-full min-h-[560px] sm:min-h-[620px] md:min-h-[640px] lg:min-h-[660px] ${className}`}
           initial={{ 
             opacity: 0, 
             y: 30,
@@ -178,7 +178,7 @@ const AgentLeagueCard: React.FC<AgentLeagueCardProps & { selected?: boolean }> =
         >
         {/* Power Rangers Cosmic Glass Card */}
         <CardBase 
-          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full flex flex-col md:min-h-[340px]" 
+          className="agent-league-card-base hover:shadow-[0_0_40px_rgba(0,0,0,0.35)] hover:ring-white/20 cursor-pointer h-full flex flex-col" 
           ariaLabel={`Agent: ${agentConfig.personality.superheroName || agent.name}`}
           onClick={() => router.push(agentPath(agent.id, 'backstory'))}
         >

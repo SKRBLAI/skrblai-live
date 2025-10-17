@@ -235,9 +235,9 @@ export default function SportsPage(): JSX.Element {
             subhead="Upload your sports footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
             keywords={["Analysis","Mastery of Emotion","Nutrition","Training Plans"]}
             images={[
-              { src: "/images/skillsmith/skillsmith-athlete-stand.png",   alt: "Skill Smith athlete standing pose" },
-              { src: "/images/skillsmith/skillsmith-soccer-dribble.png",  alt: "Skill Smith soccer dribble" },
-              { src: "/images/skillsmith/skillsmith-coach-hoodie.png",    alt: "Skill Smith coach hoodie pose" },
+              { src: "/images/skillsmith-hoops-nobg-skrblai.png",   alt: "Skill Smith basketball athlete" },
+              { src: "/images/skillsmith-soccer-nobg-skrblai.png",  alt: "Skill Smith soccer athlete" },
+              { src: "/images/skillsmith-baseball-nobg.png",    alt: "Skill Smith baseball athlete" },
             ]}
             onUploadClick={handleUploadClick}
             onSampleAnalysisClick={handleSampleAnalysisClick}
