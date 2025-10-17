@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { runAgentWorkflow } from '../../../../../lib/agents/runAgentWorkflow';
 import { withSafeJson } from '@/lib/api/safe';
 import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -76,7 +77,7 @@ export const POST = withSafeJson(async (req: Request) => {
 
     // If workflow execution is successful, trigger n8n webhook
     // MMM: n8n noop shim. Replace with AgentKit or queues later.
-    const FF_N8N_NOOP = process.env.FF_N8N_NOOP === 'true' || process.env.FF_N8N_NOOP === '1';
+    const FF_N8N_NOOP = FEATURE_FLAGS.FF_N8N_NOOP;
     const N8N_WEBHOOK_URL = process.env.N8N_AGENT_LAUNCH_WEBHOOK_URL;
     
     if (result.status === 'success' && N8N_WEBHOOK_URL && !FF_N8N_NOOP) {
