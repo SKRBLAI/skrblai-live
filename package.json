@@ -55,6 +55,7 @@
     "dotenv": "^17.2.2",
     "focus-trap-react": "^11.0.3",
     "framer-motion": "^12.6.3",
+    "globby": "^15.0.0",
     "html2canvas": "^1.4.1",
     "ioredis": "^5.6.1",
     "jspdf": "^3.0.1",

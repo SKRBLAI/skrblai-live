@@ -1,5 +1,5 @@
 #!/usr/bin/env ts-node
-import globby from 'globby';
+import { globby } from 'globby';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
