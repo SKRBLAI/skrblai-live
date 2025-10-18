@@ -1,11 +1,11 @@
 'use client';
-// Note: Client components are inherently dynamic - no route config exports needed
-
-import React, { useState, useEffect } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { useCallback, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getBrowserSupabase } from '@/lib/supabase';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, Sparkles } from 'lucide-react';
+
+export const dynamic = 'force-dynamic';
 
 type AuthMode = 'password' | 'magic-link';
 
@@ -15,34 +15,21 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [ready, setReady] = useState(false);
-  const [supabase, setSupabase] = useState<any>(null);
-  const [showGoogleButton, setShowGoogleButton] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const reason = searchParams.get('reason');
 
-  useEffect(() => {
-    // Initialize Supabase client only on client after mount
-    // Progressive enhancement: always render UI, show status inline if unavailable
-    try {
-      const client = getBrowserSupabase();
-      setSupabase(client);
-      setReady(true);
-      
-      // Check if Google OAuth is configured (don't block on failure)
-      const hasGoogleClient = !!process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      setShowGoogleButton(hasGoogleClient);
-    } catch (error) {
-      console.error('Failed to initialize Supabase:', error);
-      // Still set ready=true so UI renders with inline status
-      setReady(true);
-    }
-  }, []);
+  // Create Supabase client inside component to avoid build-time issues
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { persistSession: true, autoRefreshToken: true } }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,13 +38,8 @@ export default function SignInPage() {
     setSuccess('');
 
     try {
-      if (!supabase) {
-        setError('Authentication service is not available. Please check your configuration.');
-        return;
-      }
-
       if (authMode === 'magic-link') {
-        // Magic link sign-in - use NEXT_PUBLIC_SITE_URL if available
+        // Magic link sign-in
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
         const redirectTo = `${siteUrl}/auth/callback${from ? `?from=${encodeURIComponent(from)}` : ''}`;
         const { error } = await supabase.auth.signInWithOtp({
@@ -97,30 +79,23 @@ export default function SignInPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    if (!supabase) {
-      setError('Authentication service is not available.');
-      return;
-    }
-
+  const handleGoogle = useCallback(async () => {
+    setLoadingGoogle(true);
     try {
-      // Use NEXT_PUBLIC_SITE_URL if available, otherwise window.location.origin
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const redirectTo = `${siteUrl}/auth/callback${from ? `?from=${encodeURIComponent(from)}` : ''}`;
+      const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: {
-          redirectTo,
-        },
+        options: { redirectTo, queryParams: { prompt: 'consent' } }
       });
-
-      if (error) {
-        setError(error.message);
-      }
+      if (error) throw error;
+      // Redirect happens automatically on success
     } catch (err) {
-      setError('Failed to initiate Google sign-in.');
+      console.error('google-oauth-start-failed', err);
+      alert('Google sign-in could not start. Verify Supabase Google provider and redirect URIs.');
+    } finally {
+      setLoadingGoogle(false);
     }
-  };
+  }, []);
 
   // Progressive enhancement: always render, show inline status if unavailable
   return (
@@ -136,11 +111,6 @@ export default function SignInPage() {
             {reason === 'session-expired' && (
               <div className="mt-4 p-3 bg-orange-500/20 border border-orange-500/30 rounded-lg">
                 <p className="text-orange-300 text-sm">Your session has expired. Please sign in again.</p>
-              </div>
-            )}
-            {!supabase && ready && (
-              <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
-                <p className="text-yellow-300 text-sm">⚠️ Auth service unavailable. Check configuration.</p>
               </div>
             )}
           </div>
@@ -248,7 +218,7 @@ export default function SignInPage() {
             {/* Sign In Button */}
             <button
               type="submit"
-              disabled={loading || !supabase}
+              disabled={loading}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 disabled:from-gray-600 disabled:to-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -262,30 +232,18 @@ export default function SignInPage() {
             </button>
           </form>
 
-          {/* Google OAuth (conditional) */}
-          {showGoogleButton && supabase && (
-            <>
-              <div className="my-6 flex items-center gap-4">
-                <div className="flex-1 h-px bg-slate-600"></div>
-                <span className="text-gray-400 text-sm">or</span>
-                <div className="flex-1 h-px bg-slate-600"></div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                className="w-full bg-white hover:bg-gray-100 text-gray-900 font-semibold py-3 px-6 rounded-lg transition-all duration-300 flex items-center justify-center gap-3"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Continue with Google
-              </button>
-            </>
-          )}
+          {/* Google OAuth - Always visible */}
+          <div className="pt-4">
+            <button
+              type="button"
+              onClick={handleGoogle}
+              disabled={loadingGoogle}
+              className="w-full rounded-md px-4 py-2 bg-white text-black hover:opacity-90 transition"
+              aria-label="Continue with Google"
+            >
+              {loadingGoogle ? 'Connecting…' : 'Continue with Google'}
+            </button>
+          </div>
 
           {/* Sign Up Link */}
           <div className="mt-6 text-center">

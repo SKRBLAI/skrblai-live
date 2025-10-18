@@ -56,22 +56,14 @@ export default async function AuthCallbackPage({ searchParams }: AuthCallbackPag
 
   // Ensure user profile exists (server-side profile sync)
   try {
-    const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/user/profile-sync`, {
+    await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/profile-sync`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
-      }
+      headers: { 'content-type': 'application/json' },
+      cache: 'no-store'
     });
-    
-    if (profileResponse.ok) {
-      console.log('[AUTH_CALLBACK] Profile sync successful');
-    } else {
-      console.warn('[AUTH_CALLBACK] Profile sync failed:', await profileResponse.text());
-    }
-  } catch (profileError) {
-    console.warn('[AUTH_CALLBACK] Profile sync error (non-critical):', profileError);
-    // Don't fail auth if profile sync fails
+  } catch (e) {
+    console.error('profile-sync-failed', e);
+    // proceed anyway, UI should still work
   }
 
   // Check if there's a 'from' parameter and if it's safe to redirect to

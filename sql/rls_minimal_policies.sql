@@ -1,71 +1,34 @@
--- Minimal RLS Policies for SKRBL AI
--- Idempotent SQL - safe to run multiple times
--- Run this in Supabase SQL Editor
+-- enable RLS
+alter table if exists public.profiles enable row level security;
+alter table if exists public.user_roles enable row level security;
 
--- ============================================
--- PART 1: PROFILES TABLE
--- ============================================
+-- profiles
+do $$
+begin
+  if not exists (select 1 from pg_policies where polname = 'profiles_select_owner') then
+    create policy "profiles_select_owner" on public.profiles
+    for select to authenticated using (user_id = auth.uid());
+  end if;
 
--- Enable RLS on profiles table
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+  if not exists (select 1 from pg_policies where polname = 'profiles_insert_self') then
+    create policy "profiles_insert_self" on public.profiles
+    for insert to authenticated with check (user_id = auth.uid());
+  end if;
 
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "profiles_select_owner" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_insert_self" ON public.profiles;
-DROP POLICY IF EXISTS "profiles_update_owner" ON public.profiles;
+  if not exists (select 1 from pg_policies where polname = 'profiles_update_owner') then
+    create policy "profiles_update_owner" on public.profiles
+    for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+  end if;
+end$$;
 
--- Create policies for profiles
-DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='profiles_select_owner'
-  ) THEN
-    CREATE POLICY "profiles_select_owner"
-      ON public.profiles FOR SELECT TO authenticated
-      USING (user_id = auth.uid());
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='profiles_insert_self'
-  ) THEN
-    CREATE POLICY "profiles_insert_self"
-      ON public.profiles FOR INSERT TO authenticated
-      WITH CHECK (user_id = auth.uid());
-  END IF;
-END $$;
-
-DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='profiles' AND policyname='profiles_update_owner'
-  ) THEN
-    CREATE POLICY "profiles_update_owner"
-      ON public.profiles FOR UPDATE TO authenticated
-      USING (user_id = auth.uid())
-      WITH CHECK (user_id = auth.uid());
-  END IF;
-END $$;
-
--- ============================================
--- PART 2: USER_ROLES TABLE
--- ============================================
-
--- Enable RLS on user_roles table
-ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies if they exist
-DROP POLICY IF EXISTS "user_roles_select_owner" ON public.user_roles;
-
--- Create policy for user_roles (read-only to owner; writes remain server-side)
-DO $$ BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='user_roles' AND policyname='user_roles_select_owner'
-  ) THEN
-    CREATE POLICY "user_roles_select_owner"
-      ON public.user_roles FOR SELECT TO authenticated
-      USING (user_id = auth.uid());
-  END IF;
-END $$;
+-- user_roles (read-only for owner)
+do $$
+begin
+  if not exists (select 1 from pg_policies where polname = 'user_roles_select_owner') then
+    create policy "user_roles_select_owner" on public.user_roles
+    for select to authenticated using (user_id = auth.uid());
+  end if;
+end$$;
 
 -- ============================================
 -- PART 3: HELPFUL INDEXES
