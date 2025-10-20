@@ -58,29 +58,25 @@ export const metadata: Metadata = {
   description: 'Comprehensive analytics and performance monitoring for your AI agents',
 };
 
-async function getUser() {
-  const supabase = getServerSupabaseAdmin();
-  
-  if (!supabase) {
-    console.error('[Analytics] Supabase unavailable');
-    return null;
-  }
-
-  try {
-    const { data: { user }, error } = await supabase.auth.getUser();
-    return user;
-  } catch (error) {
-    console.error('Error getting user:', error);
-    return null;
-  }
-}
-
 export default async function AnalyticsPage({
   searchParams
 }: {
   searchParams: { timeRange?: string; tab?: string }
 }) {
-  const user = await getUser();
+  const supabase = getServerSupabaseAdmin();
+  
+  if (!supabase) {
+    console.error('[Analytics] Supabase unavailable');
+    redirect('/sign-in');
+  }
+
+  let user = null;
+  try {
+    const { data: { user: authUser }, error } = await supabase.auth.getUser();
+    user = authUser;
+  } catch (error) {
+    console.error('Error getting user:', error);
+  }
   
   if (!user) {
     redirect('/sign-in');

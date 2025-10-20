@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { 
   BarChart, 
   Bar, 

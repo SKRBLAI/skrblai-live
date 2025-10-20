@@ -1,8 +1,14 @@
-'use client';
-
 import React from 'react';
+import { requireUser } from '@/lib/auth/requireUser';
 
-export default function UserDashboardPage() {
+// Force dynamic rendering - requires auth at runtime
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export default async function UserDashboardPage() {
+  // Server-side auth guard - redirects if not authenticated
+  const user = await requireUser();
+
   return (
     <div className="p-8 text-white">
       <h1 className="text-3xl font-bold mb-4">User Dashboard</h1>

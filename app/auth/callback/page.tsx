@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { getServerSupabaseAdmin } from '@/lib/supabase';
-import { getUserAndRole, routeForRole } from '@/lib/auth/roles';
+import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { routeForRole } from '@/lib/auth/roles';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -17,7 +17,7 @@ interface AuthCallbackPageProps {
 }
 
 export default async function AuthCallbackPage({ searchParams }: AuthCallbackPageProps) {
-  const supabase = getServerSupabaseAdmin();
+  const supabase = getServerSupabaseAnon();
   
   // If Supabase is not configured, redirect to sign-in
   if (!supabase) {
@@ -45,46 +45,83 @@ export default async function AuthCallbackPage({ searchParams }: AuthCallbackPag
     return redirect('/sign-in?error=' + encodeURIComponent(searchParams.error));
   }
 
-  // Get user and role
-  const { user, role } = await getUserAndRole(supabase);
+  // Get user using anon client
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
   
   // If no user, redirect to sign-in
-  if (!user) {
+  if (userError || !user) {
     console.log('[AUTH_CALLBACK] No user found, redirecting to sign-in');
     return redirect('/sign-in');
   }
 
-  // Ensure user profile exists (server-side profile sync)
-  try {
-    await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/user/profile-sync`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      cache: 'no-store'
-    });
-  } catch (e) {
-    console.error('profile-sync-failed', e);
-    // proceed anyway, UI should still work
+  // Server-upsert profiles with admin client
+  const adminSupabase = getServerSupabaseAdmin();
+  if (adminSupabase) {
+    try {
+      // Upsert user profile
+      await adminSupabase
+        .from('profiles')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || null,
+          avatar_url: user.user_metadata?.avatar_url || null,
+          updated_at: new Date().toISOString()
+        });
+
+      // Get role from user_roles table (fallback to profiles.role if needed)
+      const { data: roleRows } = await adminSupabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
+
+      let role = 'user';
+      if (roleRows && roleRows.length > 0) {
+        const roles: string[] = roleRows.map((r: any) => r.role?.toLowerCase?.() || '');
+        // Priority order: founder > heir > vip > parent > user
+        const priority: string[] = ['founder', 'heir', 'vip', 'parent', 'user'];
+        role = priority.find(r => roles.includes(r)) || 'user';
+      } else {
+        // Fallback to profiles.role if no user_roles entry
+        const { data: profile } = await adminSupabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        if (profile?.role) {
+          role = profile.role.toLowerCase();
+        }
+      }
+
+      // Check if there's a 'from' parameter and if it's safe to redirect to
+      const from = searchParams?.from;
+      const safeFrom = from && 
+        from.startsWith('/') && 
+        !from.startsWith('/sign-in') && 
+        !from.startsWith('/sign-up') &&
+        !from.startsWith('/auth/callback') &&
+        !from.startsWith('/auth/redirect')
+        ? from 
+        : null;
+
+      // If there's a safe 'from' parameter, redirect there
+      if (safeFrom) {
+        console.log('[AUTH_CALLBACK] Redirecting to safe from parameter:', safeFrom);
+        return redirect(safeFrom);
+      }
+
+      // Otherwise, redirect based on user role
+      const roleRoute = routeForRole(role as any);
+      console.log('[AUTH_CALLBACK] Redirecting based on role:', role, '→', roleRoute);
+      return redirect(roleRoute);
+    } catch (error) {
+      console.error('[AUTH_CALLBACK] Error processing user profile/role:', error);
+      // Fallback to default dashboard
+      return redirect('/dashboard');
+    }
+  } else {
+    console.warn('[AUTH_CALLBACK] Admin client not available, redirecting to default dashboard');
+    return redirect('/dashboard');
   }
-
-  // Check if there's a 'from' parameter and if it's safe to redirect to
-  const from = searchParams?.from;
-  const safeFrom = from && 
-    from.startsWith('/') && 
-    !from.startsWith('/sign-in') && 
-    !from.startsWith('/sign-up') &&
-    !from.startsWith('/auth/callback') &&
-    !from.startsWith('/auth/redirect')
-    ? from 
-    : null;
-
-  // If there's a safe 'from' parameter, redirect there
-  if (safeFrom) {
-    console.log('[AUTH_CALLBACK] Redirecting to safe from parameter:', safeFrom);
-    return redirect(safeFrom);
-  }
-
-  // Otherwise, redirect based on user role
-  const roleRoute = routeForRole(role);
-  console.log('[AUTH_CALLBACK] Redirecting based on role:', role, '→', roleRoute);
-  return redirect(roleRoute);
 }
