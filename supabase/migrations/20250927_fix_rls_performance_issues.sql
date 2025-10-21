@@ -40,74 +40,86 @@ BEGIN
     FOR SELECT USING ((select auth.uid()) = user_id);
 END $$;
 
--- Fix agent_permissions table policies
+-- Fix agent_permissions table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing problematic policies for agent_permissions table
-  DROP POLICY IF EXISTS "read own agent permissions" ON agent_permissions;
-  
-  -- Create optimized policy for agent_permissions table
-  CREATE POLICY "read own agent permissions" ON agent_permissions
-    FOR SELECT USING ((select auth.uid()) = user_id);
-END $$;
-
--- Fix sports_intake table policies
-DO $$
-BEGIN
-  -- Drop existing problematic policy for sports_intake table
-  DROP POLICY IF EXISTS "owner read intake" ON sports_intake;
-  
-  -- Create optimized policy for sports_intake table
-  CREATE POLICY "owner read intake" ON sports_intake
-    FOR SELECT USING ((select auth.uid()) = user_id);
-END $$;
-
--- Fix parent_profiles table policies
-DO $$
-BEGIN
-  -- Drop existing problematic policies for parent_profiles table
-  DROP POLICY IF EXISTS "read own parent profile" ON parent_profiles;
-  DROP POLICY IF EXISTS "upsert own parent profile" ON parent_profiles;
-  
-  -- Create optimized policies for parent_profiles table
-  CREATE POLICY "read own parent profile" ON parent_profiles
-    FOR SELECT USING ((select auth.uid()) = user_id);
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'agent_permissions') THEN
+    -- Drop existing problematic policies for agent_permissions table
+    DROP POLICY IF EXISTS "read own agent permissions" ON agent_permissions;
     
-  CREATE POLICY "upsert own parent profile" ON parent_profiles
-    FOR ALL USING ((select auth.uid()) = user_id);
+    -- Create optimized policy for agent_permissions table
+    CREATE POLICY "read own agent permissions" ON agent_permissions
+      FOR SELECT USING ((select auth.uid()) = user_id);
+  END IF;
 END $$;
 
--- Fix app_sessions table policies
+-- Fix sports_intake table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing problematic policy for app_sessions table
-  DROP POLICY IF EXISTS "select_own_sessions" ON app_sessions;
-  
-  -- Create optimized policy for app_sessions table
-  CREATE POLICY "select_own_sessions" ON app_sessions
-    FOR SELECT USING ((select auth.uid()) = user_id);
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'sports_intake') THEN
+    -- Drop existing problematic policy for sports_intake table
+    DROP POLICY IF EXISTS "owner read intake" ON sports_intake;
+    
+    -- Create optimized policy for sports_intake table
+    CREATE POLICY "owner read intake" ON sports_intake
+      FOR SELECT USING ((select auth.uid()) = user_id);
+  END IF;
 END $$;
 
--- Fix app_events table policies
+-- Fix parent_profiles table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing problematic policy for app_events table
-  DROP POLICY IF EXISTS "select_own_events" ON app_events;
-  
-  -- Create optimized policy for app_events table
-  CREATE POLICY "select_own_events" ON app_events
-    FOR SELECT USING ((select auth.uid()) = user_id);
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'parent_profiles') THEN
+    -- Drop existing problematic policies for parent_profiles table
+    DROP POLICY IF EXISTS "read own parent profile" ON parent_profiles;
+    DROP POLICY IF EXISTS "upsert own parent profile" ON parent_profiles;
+    
+    -- Create optimized policies for parent_profiles table
+    CREATE POLICY "read own parent profile" ON parent_profiles
+      FOR SELECT USING ((select auth.uid()) = user_id);
+      
+    CREATE POLICY "upsert own parent profile" ON parent_profiles
+      FOR ALL USING ((select auth.uid()) = user_id);
+  END IF;
 END $$;
 
--- Fix founder_codes table policies
+-- Fix app_sessions table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing problematic policy for founder_codes table
-  DROP POLICY IF EXISTS "service_role_all" ON founder_codes;
-  
-  -- Create optimized policy for founder_codes table
-  CREATE POLICY "service_role_all" ON founder_codes
-    FOR ALL USING ((select auth.jwt() ->> 'role') = 'service_role');
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'app_sessions') THEN
+    -- Drop existing problematic policy for app_sessions table
+    DROP POLICY IF EXISTS "select_own_sessions" ON app_sessions;
+    
+    -- Create optimized policy for app_sessions table
+    CREATE POLICY "select_own_sessions" ON app_sessions
+      FOR SELECT USING ((select auth.uid()) = user_id);
+  END IF;
+END $$;
+
+-- Fix app_events table policies (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'app_events') THEN
+    -- Drop existing problematic policy for app_events table
+    DROP POLICY IF EXISTS "select_own_events" ON app_events;
+    
+    -- Create optimized policy for app_events table
+    CREATE POLICY "select_own_events" ON app_events
+      FOR SELECT USING ((select auth.uid()) = user_id);
+  END IF;
+END $$;
+
+-- Fix founder_codes table policies (only if table exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'founder_codes') THEN
+    -- Drop existing problematic policy for founder_codes table
+    DROP POLICY IF EXISTS "service_role_all" ON founder_codes;
+    
+    -- Create optimized policy for founder_codes table
+    CREATE POLICY "service_role_all" ON founder_codes
+      FOR ALL USING ((select auth.jwt() ->> 'role') = 'service_role');
+  END IF;
 END $$;
 
 -- ============================================================================
@@ -117,69 +129,75 @@ END $$;
 -- The issue: Multiple permissive policies for the same role and action cause performance overhead
 -- The fix: Consolidate multiple policies into single policies using OR conditions
 
--- Fix founder_memberships table policies
+-- Fix founder_memberships table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing duplicate policies for founder_memberships table
-  DROP POLICY IF EXISTS "own_membership_select" ON founder_memberships;
-  DROP POLICY IF EXISTS "service_role_membership_all" ON founder_memberships;
-  DROP POLICY IF EXISTS "service_role_membership_insert" ON founder_memberships;
-  
-  -- Create consolidated policies for founder_memberships table
-  CREATE POLICY "founder_memberships_select" ON founder_memberships
-    FOR SELECT USING (
-      (select auth.uid()) = user_id OR 
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'founder_memberships') THEN
+    -- Drop existing problematic policies for founder_memberships table
+    DROP POLICY IF EXISTS "founder_member_select" ON founder_memberships;
+    DROP POLICY IF EXISTS "service_role_membership_select" ON founder_memberships;
+    DROP POLICY IF EXISTS "founder_member_insert" ON founder_memberships;
+    DROP POLICY IF EXISTS "service_role_membership_insert" ON founder_memberships;
     
-  CREATE POLICY "founder_memberships_insert" ON founder_memberships
-    FOR INSERT WITH CHECK (
-      (select auth.uid()) = user_id OR 
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
-    
-  CREATE POLICY "founder_memberships_update" ON founder_memberships
-    FOR UPDATE USING (
-      (select auth.uid()) = user_id OR 
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
-    
-  CREATE POLICY "founder_memberships_delete" ON founder_memberships
-    FOR DELETE USING (
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
+    -- Create consolidated policies for founder_memberships table
+    CREATE POLICY "founder_memberships_select" ON founder_memberships
+      FOR SELECT USING (
+        (select auth.uid()) = user_id OR 
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_memberships_insert" ON founder_memberships
+      FOR INSERT WITH CHECK (
+        (select auth.uid()) = user_id OR 
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_memberships_update" ON founder_memberships
+      FOR UPDATE USING (
+        (select auth.uid()) = user_id OR 
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_memberships_delete" ON founder_memberships
+      FOR DELETE USING (
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+  END IF;
 END $$;
 
--- Fix founder_usage_logs table policies
+-- Fix founder_usage_logs table policies (only if table exists)
 DO $$
 BEGIN
-  -- Drop existing duplicate policies for founder_usage_logs table
-  DROP POLICY IF EXISTS "own_logs_select" ON founder_usage_logs;
-  DROP POLICY IF EXISTS "service_role_logs_all" ON founder_usage_logs;
-  DROP POLICY IF EXISTS "service_role_logs_insert" ON founder_usage_logs;
-  
-  -- Create consolidated policies for founder_usage_logs table
-  CREATE POLICY "founder_usage_logs_select" ON founder_usage_logs
-    FOR SELECT USING (
-      (select auth.uid()) = user_id OR 
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
+  IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'founder_usage_logs') THEN
+    -- Drop existing problematic policies for founder_usage_logs table
+    DROP POLICY IF EXISTS "founder_usage_select" ON founder_usage_logs;
+    DROP POLICY IF EXISTS "service_role_logs_select" ON founder_usage_logs;
+    DROP POLICY IF EXISTS "founder_usage_insert" ON founder_usage_logs;
+    DROP POLICY IF EXISTS "service_role_logs_insert" ON founder_usage_logs;
     
-  CREATE POLICY "founder_usage_logs_insert" ON founder_usage_logs
-    FOR INSERT WITH CHECK (
-      (select auth.uid()) = user_id OR 
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
-    
-  CREATE POLICY "founder_usage_logs_update" ON founder_usage_logs
-    FOR UPDATE USING (
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
-    
-  CREATE POLICY "founder_usage_logs_delete" ON founder_usage_logs
-    FOR DELETE USING (
-      (select auth.jwt() ->> 'role') = 'service_role'
-    );
+    -- Create consolidated policies for founder_usage_logs table
+    CREATE POLICY "founder_usage_logs_select" ON founder_usage_logs
+      FOR SELECT USING (
+        (select auth.uid()) = user_id OR 
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_usage_logs_insert" ON founder_usage_logs
+      FOR INSERT WITH CHECK (
+        (select auth.uid()) = user_id OR 
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_usage_logs_update" ON founder_usage_logs
+      FOR UPDATE USING (
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+      
+    CREATE POLICY "founder_usage_logs_delete" ON founder_usage_logs
+      FOR DELETE USING (
+        (select auth.jwt() ->> 'role') = 'service_role'
+      );
+  END IF;
 END $$;
 
 -- ============================================================================
