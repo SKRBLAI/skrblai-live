@@ -83,6 +83,30 @@ interface DashboardClientProps {
 export default function DashboardClient({ user }: DashboardClientProps) {
   const router = useRouter();
   const [quickWins, setQuickWins] = useState<string[]>([]);
+  const [profileSynced, setProfileSynced] = useState(false);
+
+  // Profile sync fallback - ensure profile exists when dashboard loads
+  useEffect(() => {
+    if (user && !profileSynced) {
+      fetch('/api/user/profile-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            console.log('[DASHBOARD] Profile sync successful');
+          } else {
+            console.warn('[DASHBOARD] Profile sync failed (non-critical):', data.error);
+          }
+          setProfileSynced(true);
+        })
+        .catch(err => {
+          console.warn('[DASHBOARD] Profile sync error (non-critical):', err);
+          setProfileSynced(true);
+        });
+    }
+  }, [user, profileSynced]);
 
   // Load quick wins from localStorage if present
   useEffect(() => {
