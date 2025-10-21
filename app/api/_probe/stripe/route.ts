@@ -1,11 +1,20 @@
 // MMM: Comprehensive Stripe probe - uses canonical helper with env-driven version
 import { requireStripe } from '@/lib/stripe/stripe';
 import { NextResponse } from 'next/server';
+import { requireRole } from '@/lib/auth/roles';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
+  }
   const headers = { 'Cache-Control': 'no-store' };
   
   // Check environment variables

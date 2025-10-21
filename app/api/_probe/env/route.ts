@@ -1,5 +1,6 @@
 // MMM: Single-source env reads (no fallbacks)
 import { NextResponse } from 'next/server';
+import { requireRole } from '@/lib/auth/roles';
 
 function presence(value: string | undefined | null): 'PRESENT' | 'MISSING' {
   return value && value.trim().length > 0 ? 'PRESENT' : 'MISSING';
@@ -22,6 +23,14 @@ function getProjectInfo(url?: string) {
 }
 
 export async function GET() {
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
+  }
   // MMM: Only canonical env vars (no dual lookups)
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

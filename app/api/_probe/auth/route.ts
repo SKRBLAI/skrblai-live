@@ -2,8 +2,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSupabaseAnon } from '@/lib/supabase';
 import { cookies } from 'next/headers';
+import { requireRole } from '@/lib/auth/roles';
 
 export async function GET() {
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
+  }
   try {
     const cookieStore = await cookies();
     

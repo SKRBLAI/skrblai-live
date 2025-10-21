@@ -1,15 +1,16 @@
 // Profile upsert probe - dev-only endpoint for testing profile creation
 import { NextResponse } from 'next/server';
 import { getServerSupabaseAdmin } from '@/lib/supabase';
+import { requireRole } from '@/lib/auth/roles';
 
 export async function POST() {
-  // Only allow in development or with explicit flag
-  if (process.env.NODE_ENV === 'production' && !process.env.ENABLE_PROFILE_UPSERT_PROBE) {
-    return NextResponse.json({
-      success: false,
-      error: 'Profile upsert probe disabled in production',
-      timestamp: new Date().toISOString()
-    }, { status: 403, headers: { 'Cache-Control': 'no-store' } });
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
   }
 
   try {
