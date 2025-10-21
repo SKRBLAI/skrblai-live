@@ -23,15 +23,15 @@ export async function POST() {
     const email = user.email ?? null;
     const displayName = user.user_metadata?.full_name || user.user_metadata?.name || null;
 
-    // Upsert profile
+    // Upsert profile (using 'id' to match production schema)
     const { error: upsertProfile } = await admin
       .from('profiles')
       .upsert({ 
-        user_id: user.id, 
+        id: user.id, 
         email,
         display_name: displayName,
         updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' });
+      }, { onConflict: 'id' });
 
     // Upsert user role (default to 'user' if not exists)
     const { error: upsertRole } = await admin
