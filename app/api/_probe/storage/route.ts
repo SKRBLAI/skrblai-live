@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getServerSupabaseAdmin } from '@/lib/supabase';
+import { requireRole } from '@/lib/auth/roles';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
  * Storage Bucket Probe
- * 
+ *
  * Checks existence and accessibility of expected Supabase Storage buckets.
  * Returns PRESENT/MISSING status for each bucket without exposing secrets.
- * 
+ *
  * GET /api/_probe/storage
  */
 export async function GET() {
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
+  }
   const timestamp = new Date().toISOString();
   
   try {

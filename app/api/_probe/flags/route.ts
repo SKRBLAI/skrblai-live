@@ -2,8 +2,17 @@
 import { NextResponse } from 'next/server';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import { getFlagsSnapshot } from '@/lib/config/flags';
+import { requireRole } from '@/lib/auth/roles';
 
 export async function GET() {
+  // Lock down in production - admin/founder only
+  if (process.env.NODE_ENV === 'production') {
+    try {
+      await requireRole(['admin', 'founder']);
+    } catch {
+      return new Response('Not found', { status: 404 });
+    }
+  }
   const flags = {
     NEXT_PUBLIC_ENABLE_STRIPE: FEATURE_FLAGS.ENABLE_STRIPE,
     NEXT_PUBLIC_HP_GUIDE_STAR: FEATURE_FLAGS.HP_GUIDE_STAR,
