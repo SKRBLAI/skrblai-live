@@ -4,7 +4,8 @@ import { cn } from '../../lib/utils';
 export default function CardShell({
   className,
   children,
-}: React.PropsWithChildren<{ className?: string }>) {
+  ...props
+}: React.PropsWithChildren<{ className?: string }> & React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
@@ -13,6 +14,7 @@ export default function CardShell({
         "hover:shadow-[0_16px_60px_rgba(56,189,248,.18)] transition-shadow",
         className
       )}
+      {...props}
     >
       {children}
     </div>
