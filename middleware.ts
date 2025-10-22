@@ -9,7 +9,9 @@ const APEX = "skrblai.io";
 
 export const config = {
   matcher: [
-    "/((?!_next|images|favicon.ico|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp)|api/stripe/webhooks|api/health).*)",
+    '/dashboard/:path*',
+    '/admin/:path*',
+    // Add other private routes here only if necessary
   ],
 };
 
