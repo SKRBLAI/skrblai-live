@@ -614,6 +614,11 @@ const brandingAgent: Agent = {
   description: 'AI-powered brand identity and guidelines generation',
   visible: true,
   agentCategory: ['branding'],
+  // NEW: Mission tracking and archetype fields
+  archetype: 'creator',
+  missionTypes: ['branding', 'logo', 'identity', 'design', 'brand strategy', 'visual design'],
+  currentStatus: 'available',
+  missionStatement: 'Transform businesses with powerful brand identities that resonate and endure',
   config: {
     name: 'Branding',
     description: 'AI-powered brand identity and guidelines generation',

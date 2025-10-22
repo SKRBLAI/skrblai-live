@@ -24,6 +24,8 @@ interface AgentCardProps {
   isRecommended?: boolean;
   gender: 'male' | 'female' | 'neutral';
   role?: string;
+  currentStatus?: 'working' | 'idle' | 'available';
+  onRecruit?: (agent: Agent) => void;
 }
 
 // Utility: Provide a default/fake Agent for image fallback
@@ -46,6 +48,8 @@ export default function AgentCard({
   isRecommended = false,
   gender,
   role,
+  currentStatus = 'available',
+  onRecruit,
 }: AgentCardProps) {
   const silhouettePath = `/images/${gender === 'neutral' ? 'male' : gender}-silhouette.png`;
 
@@ -76,6 +80,19 @@ export default function AgentCard({
       {/* Lock overlay for locked agents */}
       {isLocked && <LockOverlay badge="Pro" tooltip="Upgrade to unlock" showBadge />}
 
+      {/* Mission Status Badge */}
+      {!isLocked && currentStatus === 'working' && (
+        <motion.div
+          className="absolute top-2 right-2 flex items-center gap-1 bg-green-500/20 px-2 py-1 rounded-full z-20 border border-green-400/40"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2, type: 'spring' }}
+        >
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span className="text-green-400 text-xs font-bold">Active</span>
+        </motion.div>
+      )}
+
       {/* Animated Glow Border */}
       <motion.div
         className="absolute inset-0 pointer-events-none rounded-2xl"
@@ -94,7 +111,11 @@ export default function AgentCard({
         }}
         style={{ zIndex: 1 }}
       />
-      <div className="relative p-6 flex flex-col justify-between items-center z-10">
+      <motion.div 
+        className="relative p-6 flex flex-col justify-between items-center z-10"
+        whileHover={!isLocked ? { scale: 1.02 } : {}}
+        transition={{ type: 'spring', stiffness: 300 }}
+      >
         {/* Agent Image */}
         <div
           className={`relative mb-4 ${isPercy ? 'w-64 h-64' : 'w-48 h-48'} ${isRecommendedFlag ? 'ring-4 ring-fuchsia-400/60 ring-offset-2' : ''}`}
@@ -136,21 +157,36 @@ export default function AgentCard({
             {role}
           </span>
         )}
-        {/* Summon Button */}
-        <motion.button
-          whileHover={{ scale: 1.09 }}
-          whileTap={{ scale: 0.95 }}
-          className={`
-            px-6 py-2 rounded-lg font-medium transition-all duration-200
-            ${isPercy
-              ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'
-              : 'bg-white/10 text-white hover:bg-white/20 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'}
-          `}
-          aria-label="Summon Agent"
-        >
-          Summon Agent
-        </motion.button>
-      </div>
+        {/* Recruit Agent Button */}
+        {onRecruit && !isLocked && (
+          <motion.button
+            onClick={() => onRecruit({ id: imageSlug, name, description: role || '', category: 'ai', capabilities: [], visible: true, imageSlug })}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="px-6 py-2 rounded-lg font-bold transition-all duration-200 bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:shadow-[0_0_30px_rgba(168,85,247,0.6)]"
+            aria-label={`Recruit ${name}`}
+          >
+            🎯 Recruit {name}
+          </motion.button>
+        )}
+        
+        {/* Summon Button (fallback when no onRecruit) */}
+        {!onRecruit && !isLocked && (
+          <motion.button
+            whileHover={{ scale: 1.09 }}
+            whileTap={{ scale: 0.95 }}
+            className={`
+              px-6 py-2 rounded-lg font-medium transition-all duration-200
+              ${isPercy
+                ? 'bg-electric-blue text-white hover:bg-electric-blue/90 shadow-glow hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'
+                : 'bg-white/10 text-white hover:bg-white/20 hover:shadow-[0_0_12px_rgba(0,255,255,0.6)] hover:scale-105'}
+            `}
+            aria-label="Summon Agent"
+          >
+            Summon Agent
+          </motion.button>
+        )}
+      </motion.div>
     </motion.div>
   );
 }

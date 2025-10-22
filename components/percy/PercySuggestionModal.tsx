@@ -21,6 +21,7 @@ export interface PercySuggestionProps {
     urgencyMessage?: string;
   };
   onEngagement?: (action: string, data?: any) => void;
+  variant?: 'percy' | 'skillsmith';
 }
 
 interface BusinessAnalysis {
@@ -40,13 +41,22 @@ export default function PercySuggestionModal({
   featureDescription = "Advanced AI automation",
   primaryColor = "from-cyan-500 to-blue-600",
   customCopy,
-  onEngagement
+  onEngagement,
+  variant = 'percy'
 }: PercySuggestionProps) {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const [businessAnalysis, setBusinessAnalysis] = useState<BusinessAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // Determine avatar and name based on variant
+  const avatarSrc = variant === 'skillsmith' 
+    ? "/images/agents/skillsmith-skrblai.webp"
+    : "/images/agents-percy-nobg-skrblai.webp";
+  
+  const agentName = variant === 'skillsmith' ? "SkillSmith" : "Percy";
 
   // Simulate business type analysis based on feature and user context
   const analyzeBusinessType = async (): Promise<BusinessAnalysis> => {
@@ -147,13 +157,19 @@ export default function PercySuggestionModal({
       return;
     }
     
-    // If authenticated, go to recommended agent
-    if (businessAnalysis?.agentRoute) {
-      router.push(businessAnalysis.agentRoute);
-    } else {
-      router.push('/');
-    }
-    onClose();
+    // Show celebration animation
+    setShowCelebration(true);
+    
+    // Navigate after celebration
+    setTimeout(() => {
+      if (businessAnalysis?.agentRoute) {
+        router.push(businessAnalysis.agentRoute);
+      } else {
+        router.push('/');
+      }
+      onClose();
+      setShowCelebration(false);
+    }, 1000);
   };
 
   // Handle authentication redirect
@@ -186,6 +202,7 @@ export default function PercySuggestionModal({
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-10 p-2 rounded-full bg-slate-800/50 hover:bg-slate-700/70 transition-colors text-gray-400 hover:text-white border border-cyan-400/30"
+            aria-label="Close modal"
           >
             <X className="w-5 h-5" />
           </button>
@@ -194,8 +211,8 @@ export default function PercySuggestionModal({
           <div className="p-6 border-b border-cyan-400/20">
             <div className="flex items-start gap-4">
               <Image
-                src="/images/agents-percy-nobg-skrblai.webp"
-                alt="Percy the AI Concierge"
+                src={avatarSrc}
+                alt={`${agentName} AI Agent`}
                 width={60}
                 height={60}
                 className="rounded-full border-2 border-cyan-400/50"
@@ -209,7 +226,7 @@ export default function PercySuggestionModal({
                   transition={{ delay: 0.3 }}
                 >
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 font-bold text-sm">PERCY AI ANALYZING...</span>
+                  <span className="text-green-400 font-bold text-sm">{agentName.toUpperCase()} AI ANALYZING...</span>
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white mb-2">
                   {customCopy?.title || `${featureName} Intelligence Report`}
@@ -324,8 +341,50 @@ export default function PercySuggestionModal({
             )}
           </div>
 
+          {/* Celebration Animation */}
+          {showCelebration && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: [0, 1.2, 1] }}
+                transition={{ duration: 0.6 }}
+                className="text-center"
+              >
+                <div className="text-6xl mb-4">🎉</div>
+                <h3 className="text-3xl font-bold text-transparent bg-gradient-to-r from-green-400 to-cyan-400 bg-clip-text mb-2">
+                  Agent Recruited!
+                </h3>
+                <p className="text-gray-300">Preparing your {agentName} experience...</p>
+                
+                {/* Confetti particles */}
+                {[...Array(12)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-full"
+                    style={{
+                      background: ['#fbbf24', '#34d399', '#60a5fa', '#f472b6'][i % 4],
+                      left: '50%',
+                      top: '50%'
+                    }}
+                    animate={{
+                      x: Math.cos((i * Math.PI * 2) / 12) * 200,
+                      y: Math.sin((i * Math.PI * 2) / 12) * 200,
+                      opacity: [1, 0],
+                      scale: [0, 1.5, 0]
+                    }}
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                  />
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+
           {/* Action Buttons */}
-          {!isAnalyzing && businessAnalysis && !showAuthPrompt && (
+          {!isAnalyzing && businessAnalysis && !showAuthPrompt && !showCelebration && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -480,6 +480,11 @@ const contentCreatorAgent: Agent = {
   imageSlug: 'contentcreation',
   visible: true,
   agentCategory: ['content'],
+  // NEW: Mission tracking and archetype fields
+  archetype: 'creator',
+  missionTypes: ['content', 'writing', 'blogging', 'copywriting', 'seo', 'content marketing'],
+  currentStatus: 'available',
+  missionStatement: 'Craft compelling content that engages, informs, and converts',
   config: {
     name: 'Content Creator',
     description: 'AI-powered content generation for various platforms',

@@ -10,6 +10,8 @@ import agentRegistry from '../../lib/agents/agentRegistry';
 import { getAgentImagePath } from '../../utils/agentUtils';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 import AgentImage from '../shared/AgentImage';
+import PercySuggestionModal from '../percy/PercySuggestionModal';
+import { agentBackstories } from '../../lib/agents/agentBackstories';
 
 // Generate dynamic activity data for competitive edge
 const generateLiveActivity = () => ({
@@ -110,6 +112,8 @@ interface AgentLeaguePreviewProps {
 export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewProps) {
   const [allowedIRA, setAllowedIRA] = useState(false);
   const [coreAgents, setCoreAgents] = useState<any[]>([]);
+  const [percySuggestionOpen, setPercySuggestionOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<any | null>(null);
   
   useEffect(() => {
     const checkIRAAccess = async () => {
@@ -152,6 +156,19 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
   const showAdvancedFeatures = isGuideStarEnabled;
 
 
+  const handleAgentClick = (agent: any) => {
+    setSelectedAgent(agent);
+    setPercySuggestionOpen(true);
+    
+    // Analytics
+    if (typeof window !== 'undefined') {
+      (window as any).gtag?.('event', 'agent_card_click', { 
+        agent: agent.id,
+        source: 'homepage_league'
+      });
+    }
+  };
+
   const handleAgentInteraction = (agent: any, action: 'learn' | 'chat' | 'demo') => {
     // Analytics
     if (typeof window !== 'undefined') {
@@ -167,12 +184,10 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
         setShowFreeTip(showFreeTip === agent.id ? null : agent.id);
         break;
       case 'chat':
-        // Route to agent backstory page using canonical routing
-        router.push(agentPath(agent.id, 'backstory'));
+        handleAgentClick(agent);
         break;
       case 'demo':
-        // Route to agent backstory page using canonical routing
-        router.push(agentPath(agent.id, 'backstory'));
+        handleAgentClick(agent);
         break;
     }
   };
@@ -232,7 +247,10 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                 onMouseLeave={() => setHoveredAgent(null)}
                 className="relative"
               >
-                <CardShell className="relative overflow-hidden group h-full flex flex-col">
+                <CardShell 
+                  className="relative overflow-hidden group h-full flex flex-col cursor-pointer"
+                  onClick={() => handleAgentClick(agent)}
+                >
                   {/* Live Activity Indicator - only show when advanced features enabled */}
                   {showAdvancedFeatures && (
                     <div className="absolute top-2 left-2 right-2 z-10">
@@ -251,6 +269,19 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
                         </div>
                       </div>
                     </div>
+                  )}
+
+                  {/* Mission Status Badge */}
+                  {activity.liveUsers > 20 && (
+                    <motion.div 
+                      className="absolute top-2 right-2 flex items-center gap-1 bg-green-500/20 px-2 py-1 rounded-full z-20"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-green-400 text-xs font-bold">Active</span>
+                    </motion.div>
                   )}
 
                   {/* Free Tip Overlay */}
@@ -377,6 +408,27 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           </div>
         </motion.div>
       </div>
+
+      {/* Percy Suggestion Modal */}
+      <PercySuggestionModal
+        isOpen={percySuggestionOpen}
+        onClose={() => {
+          setPercySuggestionOpen(false);
+          setSelectedAgent(null);
+        }}
+        featureName={selectedAgent?.name || ""}
+        featureDescription={selectedAgent?.description || selectedAgent?.value || ""}
+        variant={selectedAgent?.id === 'skillsmith' ? 'skillsmith' : 'percy'}
+        customCopy={{
+          title: `${selectedAgent?.name} is Ready!`,
+          benefits: agentBackstories[selectedAgent?.id]?.powers || [
+            'AI-powered automation',
+            'Real-time insights',
+            'Expert-level results'
+          ],
+          urgencyMessage: agentBackstories[selectedAgent?.id]?.catchphrase || 'Start automating today!'
+        }}
+      />
     </section>
   );
 }

@@ -16,6 +16,8 @@ import {
 } from '../../../../../lib/agents/agentLeague';
 import { getServerSupabaseAnon } from '../../../../../lib/supabase/server';
 import { callOpenAI } from '../../../../../utils/agentUtils';
+import { agentBackstories } from '../../../../../lib/agents/agentBackstories';
+import OpenAI from 'openai';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,7 +39,7 @@ export async function POST(
     const body = await req.json();
     
     // Validate required fields
-    const { message, conversationHistory = [], context = {} } = body;
+    const { message, conversationHistory = [], context = {}, stream = false } = body;
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json({
@@ -68,7 +70,12 @@ export async function POST(
       console.log('[AgentChat] No auth context, proceeding as anonymous');
     }
 
-    // Handle the chat conversation
+    // NEW: Handle streaming response if requested
+    if (stream) {
+      return handleStreamingChat(agentId, message, conversationHistory, { ...context, userId });
+    }
+
+    // Handle the chat conversation (non-streaming)
     const chatResponse = await handleAgentChatWithOpenAI(
       agentId,
       message,
@@ -141,6 +148,135 @@ export async function GET(
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
+}
+
+// =============================================================================
+// STREAMING CHAT IMPLEMENTATION
+// =============================================================================
+
+/**
+ * Handle streaming chat with SSE (Server-Sent Events)
+ */
+async function handleStreamingChat(
+  agentId: string,
+  message: string,
+  conversationHistory: any[] = [],
+  context: any = {}
+): Promise<Response> {
+  const agent = getAgent(agentId);
+  if (!agent) {
+    return new Response(
+      JSON.stringify({ error: `Agent not found: ${agentId}` }),
+      { status: 404, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Get backstory for personality injection
+  const backstory = agentBackstories[agentId];
+  if (!backstory) {
+    return new Response(
+      JSON.stringify({ error: 'Agent backstory not found' }),
+      { status: 404, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Create SSE stream
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        // Build system prompt with personality
+        const systemPrompt = `You are ${backstory.superheroName}, ${agent.description}.
+
+PERSONALITY CONTEXT:
+- Origin: ${backstory.origin}
+- Powers: ${backstory.powers.join(', ')}
+- Weakness: ${backstory.weakness}
+- Catchphrase: "${backstory.catchphrase}"
+- Nemesis: ${backstory.nemesis}
+
+BACKSTORY: ${backstory.backstory}
+
+INSTRUCTIONS:
+1. Respond in character as ${backstory.superheroName}
+2. Use your powers and abilities naturally in responses
+3. Incorporate your catchphrase when appropriate (but not every response)
+4. Stay true to your personality and origin
+5. Be helpful while maintaining your unique superhero persona
+6. Keep responses concise but engaging (2-4 sentences ideal)
+
+Respond as ${backstory.superheroName}:`;
+
+        // Initialize OpenAI
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        const openai = new OpenAI({ apiKey });
+
+        // Build messages array
+        const messages: any[] = [
+          { role: 'system', content: systemPrompt },
+          ...conversationHistory.map((msg: any) => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          { role: 'user', content: message }
+        ];
+
+        // Create streaming completion
+        const completion = await openai.chat.completions.create({
+          model: context.model || 'gpt-4o-mini',
+          messages,
+          stream: true,
+          temperature: 0.7,
+          max_tokens: 800
+        });
+
+        // Stream chunks to client
+        for await (const chunk of completion) {
+          const text = chunk.choices[0]?.delta?.content || '';
+          if (text) {
+            const data = JSON.stringify({ 
+              type: 'chunk',
+              text,
+              agentId,
+              agentName: agent.name,
+              superheroName: backstory.superheroName
+            });
+            controller.enqueue(encoder.encode(`data: ${data}\n\n`));
+          }
+        }
+
+        // Send completion event
+        const completeData = JSON.stringify({ 
+          type: 'complete',
+          agentId,
+          timestamp: new Date().toISOString()
+        });
+        controller.enqueue(encoder.encode(`data: ${completeData}\n\n`));
+
+        controller.close();
+      } catch (error: any) {
+        console.error('[Streaming Chat] Error:', error);
+        const errorData = JSON.stringify({ 
+          type: 'error',
+          error: error.message || 'Streaming failed'
+        });
+        controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+        controller.close();
+      }
+    }
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }
+  });
 }
 
 // =============================================================================

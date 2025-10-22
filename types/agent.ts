@@ -130,6 +130,13 @@ export interface Agent {
   nemesis?: string;
   backstory?: string;
   
+  // NEW: Mission tracking and status fields
+  currentStatus?: 'idle' | 'working' | 'available';
+  missionStatement?: string;
+  lastActivity?: Date;
+  archetype?: 'athlete' | 'creator' | 'entrepreneur' | 'analyst' | 'integrator';
+  missionTypes?: string[]; // e.g., ['branding', 'logo', 'identity']
+  
   // Standardized action handlers
   onInfo?: () => void;
   onChat?: () => void;

@@ -694,6 +694,11 @@ const skillSmithAgent: Agent = {
   imageSlug: 'skillsmith',
   visible: true,
   agentCategory: ['training', 'education'],
+  // NEW: Mission tracking and archetype fields
+  archetype: 'athlete',
+  missionTypes: ['sports', 'fitness', 'training', 'skill development', 'performance', 'coaching'],
+  currentStatus: 'available',
+  missionStatement: 'Forge champions through data-driven skill development and performance optimization',
   config: {
     name: 'Skill Smith',
     description: 'AI-powered skill development mentor with video analysis, instant feedback, and personalized training plans',
