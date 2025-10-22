@@ -84,6 +84,17 @@ export default function DashboardClient({ user }: DashboardClientProps) {
   const router = useRouter();
   const [quickWins, setQuickWins] = useState<string[]>([]);
   const [profileSynced, setProfileSynced] = useState(false);
+  const [agentActivity, setAgentActivity] = useState<Array<{
+    agentName: string;
+    action: string;
+    timestamp: Date;
+    status: 'working' | 'completed';
+  }>>([
+    // Mock data - will be replaced with real-time Supabase data
+    { agentName: 'BrandAlexander', action: 'Created brand identity kit', timestamp: new Date(Date.now() - 5 * 60000), status: 'completed' },
+    { agentName: 'Content Carltig', action: 'Generated 3 blog posts', timestamp: new Date(Date.now() - 15 * 60000), status: 'completed' },
+    { agentName: 'Social Nino', action: 'Analyzing social trends', timestamp: new Date(), status: 'working' }
+  ]);
 
   // Profile sync fallback - ensure profile exists when dashboard loads
   useEffect(() => {
@@ -170,6 +181,61 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </CardShell>
           </motion.div>
         )}
+
+        {/* NEW: Agent Activity Feed */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mb-8"
+        >
+          <CardShell className="p-6">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Zap className="w-5 h-5 text-cyan-400" />
+              Live Agent Activity
+            </h3>
+            <div className="space-y-3">
+              {agentActivity.map((activity, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:border-cyan-400/30 transition-colors"
+                >
+                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
+                    activity.status === 'working' ? 'bg-green-400 animate-pulse' : 'bg-gray-400'
+                  }`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-medium text-sm truncate">
+                        {activity.agentName}
+                      </span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        activity.status === 'working'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {activity.status === 'working' ? 'Working' : 'Completed'}
+                      </span>
+                    </div>
+                    <p className="text-white/70 text-sm mb-1">{activity.action}</p>
+                    <p className="text-white/40 text-xs">
+                      {activity.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <button
+              onClick={() => router.push('/agents')}
+              className="mt-4 text-cyan-400 text-sm hover:text-cyan-300 transition-colors flex items-center gap-1"
+            >
+              <span>View all agents</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          </CardShell>
+        </motion.div>
 
         {/* Recommended Agents */}
         <motion.div

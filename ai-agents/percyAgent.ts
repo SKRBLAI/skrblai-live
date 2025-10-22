@@ -201,7 +201,7 @@ const generateSuggestions = (intent: string): string[] => {
  */
 const determineNextSteps = (service: string): any => {
   const serviceLower = service.toLowerCase();
-  
+
   if (serviceLower.includes('content') || serviceLower.includes('writing')) {
     return {
       recommendedAgent: 'contentCreatorAgent',
@@ -239,6 +239,116 @@ const determineNextSteps = (service: string): any => {
       timeframe: '1-2 business days'
     };
   }
+}
+
+/**
+ * NEW: Recommend agents based on mission/intent
+ * Universal recommendation engine for Percy
+ * @param mission - The mission type (branding, marketing, sports, etc.)
+ * @param type - The category type (business, sports, agent)
+ * @returns Recommended agent IDs and routing info
+ */
+export const recommendAgentsForMission = (mission: string, type: 'business' | 'sports' | 'agent' = 'business'): {
+  primaryAgent: string;
+  supportingAgents: string[];
+  route: string;
+  reasoning: string;
+} => {
+  const missionLower = mission.toLowerCase();
+
+  // Sports missions always route to SkillSmith
+  if (type === 'sports' || missionLower.includes('sport') || missionLower.includes('athletic') || missionLower.includes('training')) {
+    return {
+      primaryAgent: 'skillsmith',
+      supportingAgents: [],
+      route: '/sports',
+      reasoning: 'SkillSmith specializes in athletic performance and sports training'
+    };
+  }
+
+  // Business mission routing
+  const missionMap: Record<string, { primary: string; supporting: string[]; route: string; reasoning: string }> = {
+    branding: {
+      primary: 'branding',
+      supporting: ['contentcreation', 'adcreative'],
+      route: '/agents/branding/chat',
+      reasoning: 'BrandAlexander specializes in brand identity, logos, and visual design'
+    },
+    publishing: {
+      primary: 'publishing',
+      supporting: ['contentcreation', 'branding'],
+      route: '/agents/publishing/chat',
+      reasoning: 'PublishPete handles book publishing, manuscripts, and content distribution'
+    },
+    marketing: {
+      primary: 'social',
+      supporting: ['adcreative', 'analytics'],
+      route: '/agents/social/chat',
+      reasoning: 'SocialNino is your viral marketing and social media expert'
+    },
+    content: {
+      primary: 'contentcreation',
+      supporting: ['social', 'publishing'],
+      route: '/agents/contentcreation/chat',
+      reasoning: 'ContentCarltig creates compelling content across all platforms'
+    },
+    automation: {
+      primary: 'sync',
+      supporting: ['biz', 'percy'],
+      route: '/agents/sync/chat',
+      reasoning: 'SyncMaster automates workflows and integrates your systems'
+    },
+    analytics: {
+      primary: 'analytics',
+      supporting: ['biz'],
+      route: '/agents/analytics/chat',
+      reasoning: 'The Don of Data provides insights and predictive analytics'
+    },
+    website: {
+      primary: 'site',
+      supporting: ['branding', 'contentcreation'],
+      route: '/agents/site/chat',
+      reasoning: 'SiteOnzite builds high-converting websites and landing pages'
+    },
+    proposal: {
+      primary: 'proposal',
+      supporting: ['biz', 'analytics'],
+      route: '/agents/proposal/chat',
+      reasoning: 'Pro Pose G4 crafts winning proposals and pitch decks'
+    },
+    ads: {
+      primary: 'adcreative',
+      supporting: ['analytics', 'social'],
+      route: '/agents/adcreative/chat',
+      reasoning: 'AdmEthen creates high-converting ad campaigns'
+    },
+    business: {
+      primary: 'biz',
+      supporting: ['analytics', 'proposal'],
+      route: '/agents/biz/chat',
+      reasoning: 'Biz Z. provides strategic business planning and growth strategies'
+    }
+  };
+
+  // Find matching mission
+  for (const [key, value] of Object.entries(missionMap)) {
+    if (missionLower.includes(key)) {
+      return {
+        primaryAgent: value.primary,
+        supportingAgents: value.supporting,
+        route: value.route,
+        reasoning: value.reasoning
+      };
+    }
+  }
+
+  // Default to Percy for general inquiries
+  return {
+    primaryAgent: 'percy',
+    supportingAgents: [],
+    route: '/agents/percy/chat',
+    reasoning: "Percy will help you find the perfect agent for your needs"
+  };
 }
 
 const percyAgent: Agent = {

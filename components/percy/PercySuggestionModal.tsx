@@ -15,6 +15,8 @@ export interface PercySuggestionProps {
   featureName?: string;
   featureDescription?: string;
   primaryColor?: string;
+  variant?: 'percy' | 'skillsmith'; // NEW: Support for SkillSmith recommendations
+  recommendationType?: 'business' | 'sports' | 'agent'; // NEW: Type of recommendation
   customCopy?: {
     title?: string;
     benefits?: string[];
@@ -39,6 +41,8 @@ export default function PercySuggestionModal({
   featureName = "AI Feature",
   featureDescription = "Advanced AI automation",
   primaryColor = "from-cyan-500 to-blue-600",
+  variant = 'percy',
+  recommendationType = 'business',
   customCopy,
   onEngagement
 }: PercySuggestionProps) {
@@ -47,6 +51,16 @@ export default function PercySuggestionModal({
   const [businessAnalysis, setBusinessAnalysis] = useState<BusinessAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+  // NEW: Variant-specific configuration
+  const avatarSrc = variant === 'skillsmith'
+    ? "/images/agents/skillsmith-skrblai.webp"
+    : "/images/agents-percy-nobg-skrblai.webp";
+
+  const agentName = variant === 'skillsmith' ? "SkillSmith" : "Percy";
+  const agentTitle = variant === 'skillsmith'
+    ? "SKILLSMITH AI ANALYZING..."
+    : "PERCY AI ANALYZING...";
 
   // Simulate business type analysis based on feature and user context
   const analyzeBusinessType = async (): Promise<BusinessAnalysis> => {
@@ -194,8 +208,8 @@ export default function PercySuggestionModal({
           <div className="p-6 border-b border-cyan-400/20">
             <div className="flex items-start gap-4">
               <Image
-                src="/images/agents-percy-nobg-skrblai.webp"
-                alt="Percy the AI Concierge"
+                src={avatarSrc}
+                alt={`${agentName} the AI Assistant`}
                 width={60}
                 height={60}
                 className="rounded-full border-2 border-cyan-400/50"
@@ -209,7 +223,7 @@ export default function PercySuggestionModal({
                   transition={{ delay: 0.3 }}
                 >
                   <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <span className="text-green-400 font-bold text-sm">PERCY AI ANALYZING...</span>
+                  <span className="text-green-400 font-bold text-sm">{agentTitle}</span>
                 </motion.div>
                 <h2 className="text-2xl font-bold text-white mb-2">
                   {customCopy?.title || `${featureName} Intelligence Report`}
