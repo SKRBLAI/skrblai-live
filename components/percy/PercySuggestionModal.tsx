@@ -22,6 +22,8 @@ export interface PercySuggestionProps {
   };
   onEngagement?: (action: string, data?: any) => void;
   variant?: 'percy' | 'skillsmith';
+  agentId?: string;
+  agentRoute?: string;
 }
 
 interface BusinessAnalysis {
@@ -42,7 +44,9 @@ export default function PercySuggestionModal({
   primaryColor = "from-cyan-500 to-blue-600",
   customCopy,
   onEngagement,
-  variant = 'percy'
+  variant = 'percy',
+  agentId,
+  agentRoute
 }: PercySuggestionProps) {
   const router = useRouter();
   const { user, isLoading } = useAuth();
@@ -118,9 +122,42 @@ export default function PercySuggestionModal({
   // Run analysis when modal opens
   useEffect(() => {
     if (isOpen && !businessAnalysis) {
-      analyzeBusinessType().then(setBusinessAnalysis);
+      // If we have agent-specific data, use it directly
+      if (agentId && customCopy) {
+        setIsAnalyzing(true);
+        setTimeout(() => {
+          // Create compelling agent-specific recommendation
+          const agentRecommendations: Record<string, string> = {
+            'branding': `${featureName} is THE branding powerhouse! Transform your visual identity and make your brand unforgettable. Perfect for businesses that want to stand out and dominate their market.`,
+            'social': `${featureName} is your viral content machine! Create engagement that skyrockets across all platforms. Perfect for brands ready to capture massive social attention.`,
+            'contentcreation': `${featureName} is your 24/7 content factory! Generate compelling content at lightning speed. Perfect for businesses that need professional content without the overhead.`,
+            'skillsmith': `${featureName} is your athletic performance accelerator! Get AI-powered analysis that takes your game to the next level. Perfect for athletes serious about improvement.`,
+            'percy': `${featureName} is your AI orchestration genius! Navigate any challenge with the perfect agent for every task. Perfect for businesses ready to automate everything.`,
+            'ira': `${featureName} is your trading mentor! Master risk-first strategies and identify high-probability setups. Perfect for traders ready to think like pros.`,
+            'publishing': `${featureName} is your publishing powerhouse! Transform manuscripts into interactive masterpieces. Perfect for authors and publishers ready to innovate.`
+          };
+
+          setBusinessAnalysis({
+            type: 'general',
+            confidence: 95,
+            recommendation: agentRecommendations[agentId] || `${featureName} is your perfect AI partner! This agent specializes in delivering exactly what you need.`,
+            bestAgent: featureName,
+            agentRoute: agentRoute || `/agents/${agentId}`,
+            urgencyMessage: customCopy.urgencyMessage || `${featureName} is ready to transform your workflow!`,
+            benefits: customCopy.benefits || [
+              'AI-powered automation',
+              'Professional results instantly',
+              'Scale without limits'
+            ]
+          });
+          setIsAnalyzing(false);
+        }, 1500);
+      } else {
+        // Fallback to generic business analysis
+        analyzeBusinessType().then(setBusinessAnalysis);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, agentId, customCopy, featureName, agentRoute]);
 
   // Handle action tracking
   const trackEngagement = (action: string, data?: any) => {
@@ -311,7 +348,7 @@ export default function PercySuggestionModal({
                     <span className="text-cyan-400 font-bold">RECOMMENDED AGENT</span>
                   </div>
                   <p className="text-white font-semibold">
-                    <span className="text-teal-400">{businessAnalysis.bestAgent}</span> is your perfect match for maximum results!
+                    <span className="text-teal-400">{businessAnalysis.bestAgent}</span> {agentId ? 'is ready to deliver exceptional results!' : 'is your perfect match for maximum results!'}
                   </p>
                 </div>
               </motion.div>

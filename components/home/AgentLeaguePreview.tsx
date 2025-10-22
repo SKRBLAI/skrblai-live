@@ -416,11 +416,13 @@ export default function AgentLeaguePreview({ onAgentClick }: AgentLeaguePreviewP
           setPercySuggestionOpen(false);
           setSelectedAgent(null);
         }}
-        featureName={selectedAgent?.name || ""}
+        featureName={selectedAgent?.superheroName || selectedAgent?.name || ""}
         featureDescription={selectedAgent?.description || selectedAgent?.value || ""}
         variant={selectedAgent?.id === 'skillsmith' ? 'skillsmith' : 'percy'}
+        agentId={selectedAgent?.id}
+        agentRoute={agentPath(selectedAgent?.id || '', 'backstory')}
         customCopy={{
-          title: `${selectedAgent?.name} is Ready!`,
+          title: `${selectedAgent?.superheroName || selectedAgent?.name} is Ready!`,
           benefits: agentBackstories[selectedAgent?.id]?.powers || [
             'AI-powered automation',
             'Real-time insights',
