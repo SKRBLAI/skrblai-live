@@ -10,6 +10,9 @@ import {
 import CardShell from '../../components/ui/CardShell';
 import PageLayout from '../../components/layout/PageLayout';
 import { DashboardWithActivityFeed } from '../../components/dashboard/DashboardWithActivityFeed';
+import { PercyRecommendationsWidget } from '../../components/dashboard/PercyRecommendationsWidget';
+import { ActivityFeedWidget } from '../../components/dashboard/ActivityFeedWidget';
+import { QuickLaunchPanel } from '../../components/dashboard/QuickLaunchPanel';
 
 const RECOMMENDED_AGENTS = [
   {
@@ -97,6 +100,29 @@ export default function DashboardClient({ user }: DashboardClientProps) {
     { agentName: 'Social Nino', action: 'Analyzing social trends', timestamp: new Date(), status: 'working' }
   ]);
 
+  /**
+   * Dashboard Analytics Tracking
+   * Track user interactions with widgets and dashboard elements
+   */
+  const trackWidgetInteraction = (widget: string, action: string, data?: any) => {
+    console.log('[Dashboard Analytics]', {
+      widget,
+      action,
+      data,
+      userId: user?.id,
+      timestamp: Date.now(),
+      page: 'dashboard'
+    });
+
+    // TODO: Send to analytics service (Google Analytics, Mixpanel, etc.)
+    // Example:
+    // gtag('event', action, {
+    //   event_category: 'dashboard_widget',
+    //   event_label: widget,
+    //   value: data
+    // });
+  };
+
   // Profile sync fallback - ensure profile exists when dashboard loads
   useEffect(() => {
     if (user && !profileSynced) {
@@ -153,91 +179,81 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </p>
           </motion.div>
 
-        {/* Quick Wins Teaser */}
-        {quickWins.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mb-8"
-          >
-            <CardShell className="p-6">
-              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-emerald-400" />
-                Your Quick Wins
-              </h3>
-              <div className="space-y-2">
-                {quickWins.map((win, i) => (
-                  <div key={i} className="flex items-start gap-3 text-white/80 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
-                    <span>{win}</span>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => router.push('/?action=scan')}
-                className="mt-4 text-cyan-400 text-sm hover:text-cyan-300 transition-colors"
+          {/* Main Grid Layout - Left Column + Right Sidebar */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Left column - Main content (2/3 width on desktop) */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Quick Launch Panel */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
               >
-                Run another scan →
-              </button>
-            </CardShell>
-          </motion.div>
-        )}
+                <QuickLaunchPanel />
+              </motion.div>
 
-        {/* NEW: Agent Activity Feed */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-8"
-        >
-          <CardShell className="p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-cyan-400" />
-              Live Agent Activity
-            </h3>
-            <div className="space-y-3">
-              {agentActivity.map((activity, i) => (
+              {/* Quick Wins Teaser */}
+              {quickWins.length > 0 && (
                 <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + i * 0.1 }}
-                  className="flex items-start gap-3 p-3 rounded-lg bg-white/5 border border-white/10 hover:border-cyan-400/30 transition-colors"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
                 >
-                  <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                    activity.status === 'working' ? 'bg-green-400 animate-pulse' : 'bg-gray-400'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white font-medium text-sm truncate">
-                        {activity.agentName}
-                      </span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        activity.status === 'working'
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-gray-500/20 text-gray-400'
-                      }`}>
-                        {activity.status === 'working' ? 'Working' : 'Completed'}
-                      </span>
+                  <CardShell className="p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-emerald-400" />
+                      Your Quick Wins
+                    </h3>
+                    <div className="space-y-2">
+                      {quickWins.map((win, i) => (
+                        <div key={i} className="flex items-start gap-3 text-white/80 text-sm">
+                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
+                          <span>{win}</span>
+                        </div>
+                      ))}
                     </div>
-                    <p className="text-white/70 text-sm mb-1">{activity.action}</p>
-                    <p className="text-white/40 text-xs">
-                      {activity.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
-                  </div>
+                    <button
+                      onClick={() => router.push('/?action=scan')}
+                      className="mt-4 text-cyan-400 text-sm hover:text-cyan-300 transition-colors"
+                    >
+                      Run another scan →
+                    </button>
+                  </CardShell>
                 </motion.div>
-              ))}
+              )}
+
+              {/* Existing content can go here */}
             </div>
-            <button
-              onClick={() => router.push('/agents')}
-              className="mt-4 text-cyan-400 text-sm hover:text-cyan-300 transition-colors flex items-center gap-1"
-            >
-              <span>View all agents</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </CardShell>
-        </motion.div>
+
+            {/* Right sidebar (1/3 width on desktop) */}
+            <div className="space-y-6">
+              {/* Percy Recommendations Widget */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <PercyRecommendationsWidget
+                  onRecommendationClick={(rec) => {
+                    trackWidgetInteraction('percy_recommendations', 'click', { 
+                      service: rec.service?.id,
+                      serviceName: rec.service?.name,
+                      confidence: rec.confidence
+                    });
+                  }}
+                />
+              </motion.div>
+
+              {/* Activity Feed Widget */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <ActivityFeedWidget limit={5} />
+              </motion.div>
+            </div>
+          </div>
 
         {/* Recommended Agents */}
         <motion.div

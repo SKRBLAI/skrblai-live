@@ -8,12 +8,13 @@ export const fetchCache = 'force-no-store';
 
 /**
  * Helper function to route user to appropriate dashboard based on role
+ * Note: redirect() throws, so this function never returns normally
  */
-async function routeUserToDashboard(userId: string) {
+async function routeUserToDashboard(userId: string): Promise<never> {
   const adminSupabase = getServerSupabaseAdmin();
   if (!adminSupabase) {
     console.warn('[SIGNIN] Admin client not available, redirecting to default dashboard');
-    return redirect('/dashboard');
+    redirect('/dashboard');
   }
 
   try {
@@ -28,20 +29,16 @@ async function routeUserToDashboard(userId: string) {
     const priority: string[] = ['founder', 'heir', 'vip', 'parent', 'user'];
     const found = priority.find(r => roles.includes(r)) || 'user';
     
-    // Route based on role
+    // Route based on role - redirect() throws and stops execution
     switch (found) {
       case 'founder':
         redirect('/dashboard/founders');
-        break;
       case 'heir':
         redirect('/dashboard/heir');
-        break;
       case 'vip':
         redirect('/dashboard/vip');
-        break;
       case 'parent':
         redirect('/dashboard/parent');
-        break;
       default:
         redirect('/dashboard');
     }
@@ -64,7 +61,9 @@ export default async function SignInPage() {
   if (user) {
     console.log('[SIGNIN] User already authenticated, redirecting to dashboard');
     // Server-side redirect based on role - no client-side flicker
-    routeUserToDashboard(user.id);
+    // This will throw and prevent rendering SignInForm
+    await routeUserToDashboard(user.id);
+    // The line below will never execute due to redirect() throwing
   }
 
   return <SignInForm />;
