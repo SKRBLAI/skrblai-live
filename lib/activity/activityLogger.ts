@@ -4,7 +4,7 @@
  * Populates tables consumed by the live-feed SSE endpoint
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase/server';
 
 export interface AgentLaunchParams {
   agentId: string;
@@ -44,7 +44,11 @@ export interface WorkflowCompleteParams {
  */
 export async function logAgentLaunch(params: AgentLaunchParams): Promise<string | null> {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.error('[Activity Logger] Supabase admin client not available');
+      return null;
+    }
 
     const { data, error } = await supabase
       .from('agent_launches')
@@ -78,7 +82,11 @@ export async function logAgentLaunch(params: AgentLaunchParams): Promise<string 
  */
 export async function logAgentComplete(params: AgentCompleteParams): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.error('[Activity Logger] Supabase admin client not available');
+      return false;
+    }
 
     const { error } = await supabase
       .from('agent_launches')
@@ -109,7 +117,11 @@ export async function logAgentComplete(params: AgentCompleteParams): Promise<boo
  */
 export async function logWorkflowExecution(params: WorkflowExecutionParams): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.error('[Activity Logger] Supabase admin client not available');
+      return false;
+    }
 
     const { error } = await supabase
       .from('n8n_executions')
@@ -143,7 +155,11 @@ export async function logWorkflowExecution(params: WorkflowExecutionParams): Pro
  */
 export async function logWorkflowComplete(params: WorkflowCompleteParams): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.error('[Activity Logger] Supabase admin client not available');
+      return false;
+    }
 
     const { error } = await supabase
       .from('n8n_executions')
@@ -179,7 +195,11 @@ export async function logSystemHealth(
   componentStatuses: Record<string, any> = {}
 ): Promise<boolean> {
   try {
-    const supabase = createClient();
+    const supabase = getServerSupabaseAdmin();
+    if (!supabase) {
+      console.error('[Activity Logger] Supabase admin client not available');
+      return false;
+    }
 
     const { error } = await supabase
       .from('system_health_logs')
