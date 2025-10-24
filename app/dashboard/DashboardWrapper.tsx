@@ -49,38 +49,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     }
   }, [error, isClient]);
 
-  // Handle authentication check
-  useEffect(() => {
-    if (!isClient || (isLoading && !loadingTimeout)) {
-      console.log('[DASHBOARD] Waiting for client/loading to complete...', { isClient, isLoading });
-      return;
-    }
-
-    console.log('[DASHBOARD] Authentication check:', {
-      hasUser: !!user,
-      userEmail: user?.email,
-      isLoading,
-      error,
-      accessLevel
-    });
-
-    if (!user && !isLoading) {
-      console.log('[DASHBOARD] User not authenticated, redirecting to sign-in');
-      toast.error('Please sign in to access the dashboard');
-      router.push('/sign-in?reason=session-expired');
-      return;
-    }
-
-    if (user) {
-      console.log('[DASHBOARD] User authenticated successfully:', {
-        email: user.email,
-        accessLevel,
-        isVIP: vipStatus?.isVIP,
-        vipLevel: vipStatus?.vipLevel,
-        hasFeatures: Object.keys(vipStatus?.features || {}).length
-      });
-    }
-  }, [user, isLoading, router, isClient, accessLevel, vipStatus, error, loadingTimeout]);
+  // Authentication is now handled server-side, no client-side redirects needed
 
   // Show loading state
   if ((!isClient || isLoading) && !loadingTimeout) {
@@ -95,7 +64,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     );
   }
 
-  // Error state - show error and redirect
+  // Error state - show error (no client-side redirects)
   if (error) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
@@ -103,12 +72,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-white text-2xl font-bold mb-4">Access Error</h2>
           <p className="text-gray-300 mb-6">{error}</p>
-          <button 
-            onClick={() => router.push('/sign-in')}
-            className="px-4 py-2 bg-electric-blue text-white rounded-md hover:bg-electric-blue/80"
-          >
-            Return to Sign In
-          </button>
+          <p className="text-gray-400 text-sm">Please refresh the page or contact support.</p>
         </div>
       </div>
     );

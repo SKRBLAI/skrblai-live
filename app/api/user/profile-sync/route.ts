@@ -29,7 +29,8 @@ export async function POST() {
       .upsert({ 
         id: user.id, 
         email,
-        display_name: displayName,
+        full_name: displayName,
+        avatar_url: user.user_metadata?.avatar_url || null,
         updated_at: new Date().toISOString()
       }, { onConflict: 'id' });
 

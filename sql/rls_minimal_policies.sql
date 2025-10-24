@@ -7,17 +7,17 @@ do $$
 begin
   if not exists (select 1 from pg_policies where polname = 'profiles_select_owner') then
     create policy "profiles_select_owner" on public.profiles
-    for select to authenticated using (user_id = auth.uid());
+    for select to authenticated using (id = auth.uid());
   end if;
 
   if not exists (select 1 from pg_policies where polname = 'profiles_insert_self') then
     create policy "profiles_insert_self" on public.profiles
-    for insert to authenticated with check (user_id = auth.uid());
+    for insert to authenticated with check (id = auth.uid());
   end if;
 
   if not exists (select 1 from pg_policies where polname = 'profiles_update_owner') then
     create policy "profiles_update_owner" on public.profiles
-    for update to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+    for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
   end if;
 end$$;
 
@@ -35,7 +35,7 @@ end$$;
 -- ============================================
 
 -- Create indexes for performance
-CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_id ON public.profiles(id);
 CREATE INDEX IF NOT EXISTS idx_user_roles_user_id ON public.user_roles(user_id);
 
 -- ============================================

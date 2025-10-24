@@ -103,8 +103,8 @@ export default function SignUpForm() {
           // Don't fail sign-up if profile sync fails
         }
         
-        // Redirect to auth/redirect
-        const redirectUrl = '/auth/redirect' + (from ? `?from=${encodeURIComponent(from)}` : '');
+        // Redirect to auth callback for proper server-side handling
+        const redirectUrl = '/auth/callback' + (from ? `?from=${encodeURIComponent(from)}` : '');
         window.location.href = redirectUrl;
       } else {
         // Email confirmation required

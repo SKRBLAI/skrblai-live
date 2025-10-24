@@ -67,8 +67,8 @@ export default function SignInForm() {
           return;
         }
 
-        // Redirect to auth/redirect to handle role-based routing
-        const redirectUrl = '/auth/redirect' + (from ? `?from=${encodeURIComponent(from)}` : '');
+        // Redirect to auth callback for proper server-side handling
+        const redirectUrl = '/auth/callback' + (from ? `?from=${encodeURIComponent(from)}` : '');
         window.location.href = redirectUrl;
       }
       

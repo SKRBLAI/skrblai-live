@@ -8,11 +8,7 @@ import { NextResponse } from "next/server";
 const APEX = "skrblai.io";
 
 export const config = {
-  matcher: [
-    '/dashboard/:path*',
-    '/admin/:path*',
-    // Add other private routes here only if necessary
-  ],
+  matcher: ['/dashboard/:path*', '/admin/:path*']
 };
 
 /**

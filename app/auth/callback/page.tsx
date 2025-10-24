@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
 import { routeForRole } from '@/lib/auth/roles';
 
@@ -54,74 +55,67 @@ export default async function AuthCallbackPage({ searchParams }: AuthCallbackPag
     return redirect('/sign-in');
   }
 
-  // Server-upsert profiles with admin client
+  // Call profile sync API to ensure user profile and role are created
+  try {
+    const headersList = await headers();
+    const cookieHeader = headersList.get('cookie') || '';
+    
+    const profileResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/user/profile-sync`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader
+      }
+    });
+
+    if (!profileResponse.ok) {
+      console.warn('[AUTH_CALLBACK] Profile sync failed, but continuing with auth');
+    }
+  } catch (error) {
+    console.warn('[AUTH_CALLBACK] Profile sync error (non-critical):', error);
+  }
+
+  // Get user role for routing
   const adminSupabase = getServerSupabaseAdmin();
+  let role = 'user';
+  
   if (adminSupabase) {
     try {
-      // Upsert user profile
-      await adminSupabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || null,
-          avatar_url: user.user_metadata?.avatar_url || null,
-          updated_at: new Date().toISOString()
-        });
-
-      // Get role from user_roles table (fallback to profiles.role if needed)
       const { data: roleRows } = await adminSupabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id);
 
-      let role = 'user';
       if (roleRows && roleRows.length > 0) {
         const roles: string[] = roleRows.map((r: any) => r.role?.toLowerCase?.() || '');
         // Priority order: founder > heir > vip > parent > user
         const priority: string[] = ['founder', 'heir', 'vip', 'parent', 'user'];
         role = priority.find(r => roles.includes(r)) || 'user';
-      } else {
-        // Fallback to profiles.role if no user_roles entry
-        const { data: profile } = await adminSupabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .maybeSingle();
-        
-        if (profile?.role) {
-          role = profile.role.toLowerCase();
-        }
       }
-
-      // Check if there's a 'from' parameter and if it's safe to redirect to
-      const from = searchParams?.from;
-      const safeFrom = from && 
-        from.startsWith('/') && 
-        !from.startsWith('/sign-in') && 
-        !from.startsWith('/sign-up') &&
-        !from.startsWith('/auth/callback') &&
-        !from.startsWith('/auth/redirect')
-        ? from 
-        : null;
-
-      // If there's a safe 'from' parameter, redirect there
-      if (safeFrom) {
-        console.log('[AUTH_CALLBACK] Redirecting to safe from parameter:', safeFrom);
-        return redirect(safeFrom);
-      }
-
-      // Otherwise, redirect based on user role
-      const roleRoute = routeForRole(role as any);
-      console.log('[AUTH_CALLBACK] Redirecting based on role:', role, '→', roleRoute);
-      return redirect(roleRoute);
     } catch (error) {
-      console.error('[AUTH_CALLBACK] Error processing user profile/role:', error);
-      // Fallback to default dashboard
-      return redirect('/dashboard');
+      console.warn('[AUTH_CALLBACK] Error checking user role:', error);
     }
-  } else {
-    console.warn('[AUTH_CALLBACK] Admin client not available, redirecting to default dashboard');
-    return redirect('/dashboard');
   }
+
+  // Check if there's a 'from' parameter and if it's safe to redirect to
+  const from = searchParams?.from;
+  const safeFrom = from && 
+    from.startsWith('/') && 
+    !from.startsWith('/sign-in') && 
+    !from.startsWith('/sign-up') &&
+    !from.startsWith('/auth/callback') &&
+    !from.startsWith('/auth/redirect')
+    ? from 
+    : null;
+
+  // If there's a safe 'from' parameter, redirect there
+  if (safeFrom) {
+    console.log('[AUTH_CALLBACK] Redirecting to safe from parameter:', safeFrom);
+    return redirect(safeFrom);
+  }
+
+  // Otherwise, redirect based on user role
+  const roleRoute = routeForRole(role as any);
+  console.log('[AUTH_CALLBACK] Redirecting based on role:', role, '→', roleRoute);
+  return redirect(roleRoute);
 }
