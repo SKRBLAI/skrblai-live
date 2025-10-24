@@ -1,43 +1,20 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Clock, User } from 'lucide-react';
-import { AgentAvatar } from './AgentAvatar';
-import { StatusBadge, ActivityStatus } from './StatusBadge';
+import { CheckCircle, XCircle, Loader, Clock } from 'lucide-react';
 
 export interface ActivityFeedItemProps {
   id: string;
   agentId: string;
   agentName: string;
-  status: ActivityStatus;
+  status: 'running' | 'success' | 'failed' | 'pending';
   startedAt: string;
   completedAt?: string;
-  source: string;
+  source?: string;
   errorMessage?: string;
   result?: any;
-  userId?: string;
-  onClick?: () => void;
-}
-
-function formatTimeAgo(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return 'just now';
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  return `${Math.floor(seconds / 86400)}d ago`;
-}
-
-function getActivityMessage(agentName: string, status: ActivityStatus): string {
-  const messages = {
-    running: `${agentName} is analyzing your request...`,
-    success: `${agentName} completed analysis`,
-    failed: `${agentName} encountered an error`,
-    pending: `${agentName} is queued...`
-  };
-  return messages[status];
+  type: 'agent_launch' | 'agent_complete' | 'agent_error';
+  index?: number;
 }
 
 export function ActivityFeedItem({
@@ -49,106 +26,124 @@ export function ActivityFeedItem({
   completedAt,
   source,
   errorMessage,
-  result,
-  userId,
-  onClick
+  type,
+  index = 0
 }: ActivityFeedItemProps) {
-  const timeAgo = formatTimeAgo(startedAt);
-  const message = getActivityMessage(agentName, status);
+  // Get icon based on status/type
+  const getStatusIcon = () => {
+    if (type === 'agent_launch' || status === 'running') {
+      return <Loader className="w-4 h-4 text-blue-400 animate-spin" />;
+    }
+    if (type === 'agent_complete' || status === 'success') {
+      return <CheckCircle className="w-4 h-4 text-green-400" />;
+    }
+    if (type === 'agent_error' || status === 'failed') {
+      return <XCircle className="w-4 h-4 text-red-400" />;
+    }
+    return <Clock className="w-4 h-4 text-gray-400" />;
+  };
+
+  // Get status text
+  const getStatusText = () => {
+    if (type === 'agent_launch' || status === 'running') {
+      return 'started';
+    }
+    if (type === 'agent_complete' || status === 'success') {
+      return 'completed';
+    }
+    if (type === 'agent_error' || status === 'failed') {
+      return 'failed';
+    }
+    return 'pending';
+  };
+
+  // Get status badge styling
+  const getStatusBadge = () => {
+    const statusText = getStatusText();
+    let badgeClasses = 'text-xs px-2 py-0.5 rounded-full font-medium';
+
+    if (statusText === 'started' || status === 'running') {
+      badgeClasses += ' bg-blue-500/20 text-blue-400 animate-pulse';
+    } else if (statusText === 'completed' || status === 'success') {
+      badgeClasses += ' bg-green-500/20 text-green-400';
+    } else if (statusText === 'failed' || status === 'failed') {
+      badgeClasses += ' bg-red-500/20 text-red-400';
+    } else {
+      badgeClasses += ' bg-gray-500/20 text-gray-400';
+    }
+
+    return <span className={badgeClasses}>{statusText}</span>;
+  };
+
+  // Get agent emoji/avatar
+  const getAgentEmoji = () => {
+    const emojiMap: Record<string, string> = {
+      percy: '🤖',
+      skillsmith: '🏅',
+      'brand-alexander': '🎨',
+      'content-carltig': '✍️',
+      'social-nino': '📱',
+      sync: '🔄',
+      analytics: '📊'
+    };
+    return emojiMap[agentId?.toLowerCase()] || '⚡';
+  };
+
+  // Format timestamp - simple time ago without external dependencies
+  const getTimeAgo = () => {
+    try {
+      const timestamp = startedAt || completedAt || new Date().toISOString();
+      const date = new Date(timestamp);
+      const now = new Date();
+      const secondsAgo = Math.floor((now.getTime() - date.getTime()) / 1000);
+      
+      if (secondsAgo < 60) return `${secondsAgo}s ago`;
+      if (secondsAgo < 3600) return `${Math.floor(secondsAgo / 60)}m ago`;
+      if (secondsAgo < 86400) return `${Math.floor(secondsAgo / 3600)}h ago`;
+      return `${Math.floor(secondsAgo / 86400)}d ago`;
+    } catch {
+      const timestamp = startedAt || completedAt || new Date().toISOString();
+      return new Date(timestamp).toLocaleTimeString();
+    }
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      onClick={onClick}
-      className={`
-        group relative
-        bg-[rgba(21,23,30,0.50)] 
-        border border-teal-400/20
-        rounded-lg p-4
-        backdrop-blur-sm
-        transition-all duration-300
-        ${onClick ? 'cursor-pointer hover:border-teal-400/40 hover:shadow-[0_0_16px_rgba(45,212,191,0.2)]' : ''}
-        ${status === 'running' ? 'animate-pulse-subtle' : ''}
-      `}
+      transition={{ delay: index * 0.05 }}
+      className="flex items-start gap-3 p-3 bg-black/40 rounded-lg border border-gray-700 hover:border-gray-600 transition-all"
     >
-      {/* Hover glow effect */}
-      {onClick && (
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-teal-400/0 via-teal-400/5 to-teal-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      )}
+      {/* Agent Avatar */}
+      <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center text-lg">
+        {getAgentEmoji()}
+      </div>
 
-      <div className="relative flex items-start gap-3">
-        {/* Agent Avatar */}
-        <AgentAvatar agentId={agentId} agentName={agentName} size="md" />
+      {/* Content */}
+      <div className="flex-grow min-w-0">
+        {/* Header: Agent name + Status badge */}
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-semibold text-white truncate">
+            {agentName || agentId}
+          </span>
+          {getStatusBadge()}
+        </div>
 
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          {/* Header: Agent Name + Time */}
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <h3 className="font-semibold text-white text-sm truncate">
-              {agentName}
-            </h3>
-            <div className="flex items-center gap-1 text-xs text-gray-400 whitespace-nowrap">
-              <Clock className="w-3 h-3" />
-              <span>{timeAgo}</span>
-            </div>
-          </div>
+        {/* Action text */}
+        <p className="text-xs text-gray-400 mb-1">
+          {type === 'agent_launch' && 'Analyzing your business needs...'}
+          {type === 'agent_complete' && 'Analysis complete'}
+          {type === 'agent_error' && (errorMessage || 'Encountered an error')}
+        </p>
 
-          {/* Message */}
-          <p className="text-sm text-gray-300 mb-3 leading-relaxed">
-            {message}
-          </p>
-
-          {/* Error Message */}
-          {errorMessage && status === 'failed' && (
-            <p className="text-xs text-red-400 mb-3 p-2 rounded bg-red-500/10 border border-red-500/20">
-              {errorMessage}
-            </p>
-          )}
-
-          {/* Footer: Status + Source */}
-          <div className="flex items-center justify-between gap-2">
-            <StatusBadge status={status} />
-            
-            {/* Source/User Info */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-500">
-              {source && (
-                <span className="px-2 py-0.5 rounded bg-gray-500/10 border border-gray-500/20">
-                  {source}
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* View Details Hint */}
-          {onClick && (
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-xs text-teal-400">View Details →</span>
-            </div>
-          )}
+        {/* Footer: Status icon + Timestamp + Source */}
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          {getStatusIcon()}
+          <span>{getTimeAgo()}</span>
+          {source && <span>• {source}</span>}
         </div>
       </div>
     </motion.div>
   );
-}
-
-// Add subtle pulse animation to CSS
-const styles = `
-@keyframes pulse-subtle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.95; }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-`;
-
-// Inject styles (will only run once)
-if (typeof document !== 'undefined') {
-  const styleTag = document.createElement('style');
-  styleTag.textContent = styles;
-  document.head.appendChild(styleTag);
 }

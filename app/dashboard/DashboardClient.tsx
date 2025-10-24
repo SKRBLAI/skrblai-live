@@ -11,7 +11,7 @@ import CardShell from '../../components/ui/CardShell';
 import PageLayout from '../../components/layout/PageLayout';
 import { DashboardWithActivityFeed } from '../../components/dashboard/DashboardWithActivityFeed';
 import { PercyRecommendationsWidget } from '../../components/dashboard/PercyRecommendationsWidget';
-import { ActivityFeedWidget } from '../../components/dashboard/ActivityFeedWidget';
+import { ActivityFeed } from '../../components/activity/ActivityFeed';
 import { QuickLaunchPanel } from '../../components/dashboard/QuickLaunchPanel';
 
 const RECOMMENDED_AGENTS = [
@@ -250,7 +250,7 @@ export default function DashboardClient({ user }: DashboardClientProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <ActivityFeedWidget limit={5} />
+                <ActivityFeed userId={user?.id} limit={50} />
               </motion.div>
             </div>
           </div>

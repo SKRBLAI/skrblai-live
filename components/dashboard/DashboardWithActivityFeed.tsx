@@ -78,7 +78,7 @@ export function DashboardWithActivityFeed({
                     <ChevronRight className="w-4 h-4" />
                   </button>
 
-                  <ActivityFeed userId={userId} maxEvents={50} />
+                  <ActivityFeed userId={userId} limit={50} />
                 </div>
               </div>
             </motion.aside>
@@ -187,7 +187,7 @@ export function DashboardWithActivityFeed({
 
                   {/* Content */}
                   <div className="p-4 h-[calc(80vh-3rem)] overflow-y-auto">
-                    <ActivityFeed userId={userId} maxEvents={30} />
+                    <ActivityFeed userId={userId} limit={30} />
                   </div>
 
                   {/* Close Button */}
