@@ -123,6 +123,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 10 }}>
       <Link
         href={href}
+        prefetch={false}
         className={`group relative min-h-[44px] min-w-[44px] whitespace-nowrap rounded-lg border px-4 py-2 text-base font-medium transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80 focus-visible:ring-offset-2 flex items-center justify-center ${
           isActive
             ? "border-cyan-400/60 bg-slate-700/80 text-white shadow-[0_0_20px_rgba(56,189,248,0.5)]"

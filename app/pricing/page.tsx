@@ -316,6 +316,7 @@ const socialProofMetrics = [
                     alt="Percy the Cosmic Concierge"
                     width={100}
                     height={100}
+                    sizes="100px"
                     className="relative rounded-full border-3 border-cyan-400/60 shadow-[0_0_40px_#22d3ee66] group-hover:border-cyan-400/80 group-hover:shadow-[0_0_60px_#22d3ee88] transition-all duration-300"
                     priority
                   />
