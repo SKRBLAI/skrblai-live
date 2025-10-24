@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import CardShell from '../../components/ui/CardShell';
 import PageLayout from '../../components/layout/PageLayout';
+import { DashboardWithActivityFeed } from '../../components/dashboard/DashboardWithActivityFeed';
 
 const RECOMMENDED_AGENTS = [
   {
@@ -136,20 +137,21 @@ export default function DashboardClient({ user }: DashboardClientProps) {
 
   return (
     <PageLayout>
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
-        {/* Welcome Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            Welcome back! 👋
-          </h1>
-          <p className="text-white/60">
-            Your AI automation command center is ready to dominate
-          </p>
-        </motion.div>
+      <DashboardWithActivityFeed userId={user?.id} showActivityFeed={true}>
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
+          {/* Welcome Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              Welcome back! 👋
+            </h1>
+            <p className="text-white/60">
+              Your AI automation command center is ready to dominate
+            </p>
+          </motion.div>
 
         {/* Quick Wins Teaser */}
         {quickWins.length > 0 && (
@@ -334,7 +336,8 @@ export default function DashboardClient({ user }: DashboardClientProps) {
             </button>
           </CardShell>
         </motion.div>
-      </div>
+        </div>
+      </DashboardWithActivityFeed>
     </PageLayout>
   );
 }
