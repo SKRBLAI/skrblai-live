@@ -169,8 +169,10 @@ export function PercyRecommendsBadge({
 
 /**
  * Compact badge for use in tight spaces (e.g., card corners)
+ * Task 6: Enhanced with hover tooltip
  */
 export function PercyRecommendsCornerBadge({ confidence }: { confidence: number }) {
+  const [showTooltip, setShowTooltip] = React.useState(false);
   const confidenceLevel = confidence > 0.8 ? 'high' : confidence > 0.5 ? 'medium' : 'low';
 
   const colors = {
@@ -180,20 +182,42 @@ export function PercyRecommendsCornerBadge({ confidence }: { confidence: number 
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className={`
-        absolute top-2 right-2 z-10
-        flex items-center justify-center
-        w-8 h-8 rounded-full
-        bg-gradient-to-br ${colors[confidenceLevel]}
-        shadow-lg
-        ${confidenceLevel === 'high' ? 'animate-pulse' : ''}
-      `}
-      title={`Percy Recommends (${Math.round(confidence * 100)}% confidence)`}
+    <div
+      className="relative"
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
     >
-      <Sparkles className="w-4 h-4 text-white" />
-    </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className={`
+          absolute top-2 right-2 z-10
+          flex items-center justify-center
+          w-8 h-8 rounded-full
+          bg-gradient-to-br ${colors[confidenceLevel]}
+          shadow-lg
+          ${confidenceLevel === 'high' ? 'animate-pulse' : ''}
+        `}
+        title={`Percy Recommends (${Math.round(confidence * 100)}% confidence)`}
+      >
+        <Sparkles className="w-4 h-4 text-white" />
+      </motion.div>
+
+      {/* Task 6: Hover Tooltip */}
+      {showTooltip && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="absolute top-full right-0 mt-2 w-48 p-3 bg-gray-900 border border-blue-500/30 rounded-lg shadow-xl z-50"
+        >
+          <p className="text-xs text-gray-200 font-semibold mb-1">
+            Percy Recommends This
+          </p>
+          <p className="text-xs text-gray-400">
+            {Math.round(confidence * 100)}% confidence match based on your business needs
+          </p>
+        </motion.div>
+      )}
+    </div>
   );
 }

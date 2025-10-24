@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import PercyFigure from '../home/PercyFigure';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -8,6 +8,9 @@ import AgentLeagueCard from '../ui/AgentLeagueCard';
 import Image from 'next/image';
 import AgentImage from '../shared/AgentImage';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { usePercyRecommendation } from '@/hooks/usePercyRecommendation';
+import { PercyRecommendsCornerBadge } from '@/components/percy/PercyRecommendsBadge';
+import { PercyRecommendationsSection } from './PercyRecommendationsSection';
 
 import type { Agent } from '@/types/agent';
 import { toSafeAgent, type SafeAgent } from '@/utils/safeAgent';
@@ -45,6 +48,12 @@ export default function AgentLeagueDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [handoffSuggestions, setHandoffSuggestions] = useState<any[]>([]);
+  
+  // Task 1: Add Percy recommendation hook
+  const { recommendation, getRecommendation, loading: recommendationLoading } = usePercyRecommendation();
+  
+  // Task 5: Add sort mode state
+  const [sortMode, setSortMode] = useState<'default' | 'recommended'>('default');
 
   // Phase 3: Mock user data for demonstration
   const [userAgentData] = useState({
@@ -72,6 +81,28 @@ export default function AgentLeagueDashboard() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Task 1: Fetch Percy recommendations on mount
+  useEffect(() => {
+    getRecommendation('contextual', {
+      businessType: 'saas', // TODO: Get from user profile
+      urgencyLevel: 'medium',
+      userHistory: [] // TODO: Get from user's past agent launches
+    });
+  }, [getRecommendation]);
+
+  // Task 1: Extract recommended agent IDs
+  const recommendedAgentIds = useMemo(() => {
+    if (!recommendation?.recommendation) return [];
+
+    const recs = Array.isArray(recommendation.recommendation) 
+      ? recommendation.recommendation 
+      : [recommendation.recommendation];
+
+    return recs
+      .filter(rec => rec.agentHandoff?.agentId)
+      .map(rec => rec.agentHandoff!.agentId);
+  }, [recommendation]);
 
   useEffect(() => {
     const loadAgents = async () => {
@@ -122,6 +153,20 @@ export default function AgentLeagueDashboard() {
   const percy = agents.find(a => a.id === 'percy' || a.name === 'Percy');
   const allVisibleAgents = agents; // Show all agents in the grid
 
+  // Task 5: Sort agents based on recommendations
+  const sortedAgents = useMemo(() => {
+    if (sortMode === 'default') return allVisibleAgents;
+
+    return [...allVisibleAgents].sort((a, b) => {
+      const aRecommended = recommendedAgentIds.includes(a.id);
+      const bRecommended = recommendedAgentIds.includes(b.id);
+
+      if (aRecommended && !bRecommended) return -1;
+      if (!aRecommended && bRecommended) return 1;
+      return 0;
+    });
+  }, [allVisibleAgents, sortMode, recommendedAgentIds]);
+
   // Mobile slider controls
   const agentsPerPage = isMobile ? 1 : allVisibleAgents.length;
   const totalSlides = isMobile ? allVisibleAgents.length : 1;
@@ -138,8 +183,28 @@ export default function AgentLeagueDashboard() {
     setCurrentSlide(index);
   };
 
+  // Task 7: Analytics tracking for recommendation interactions
+  const trackRecommendationClick = (agentId: string, isRecommended: boolean, action: string) => {
+    // TODO: Send to analytics service (e.g., Mixpanel, Amplitude, GA4)
+    console.log('[Percy Analytics] Agent interaction:', {
+      agentId,
+      isRecommended,
+      action,
+      confidence: recommendation?.metadata?.confidence,
+      timestamp: Date.now(),
+      sortMode,
+      recommendationType: 'contextual'
+    });
+
+    // Example integration points:
+    // analytics.track('percy_recommendation_click', { agentId, isRecommended, ... })
+    // window.gtag?.('event', 'percy_recommendation_click', { ... })
+    // mixpanel.track('Percy Recommendation Click', { ... })
+  };
+
   // Recommendation handoff logic
   function handleHandoff(agent: SafeAgent) {
+    trackRecommendationClick(agent.id, recommendedAgentIds.includes(agent.id), 'handoff');
     setSelectedAgent(agent);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Handoff to:', agent.name);
@@ -148,6 +213,7 @@ export default function AgentLeagueDashboard() {
 
   // Navigation to dedicated agent backstory page
   function handleAgentInfo(agent: SafeAgent) {
+    trackRecommendationClick(agent.id, recommendedAgentIds.includes(agent.id), 'view_info');
     router.push(agentPath(agent.id, 'backstory'));
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] View backstory for:', agent.name);
@@ -156,6 +222,7 @@ export default function AgentLeagueDashboard() {
 
   // Chat with agent - route to unified page with chat tab
   function handleAgentChat(agent: SafeAgent) {
+    trackRecommendationClick(agent.id, recommendedAgentIds.includes(agent.id), 'chat');
     router.push(`${agentPath(agent.id)}?tab=chat`);
     if (process.env.NODE_ENV === 'development') {
       console.log('[AgentLeagueDashboard] Chat with:', agent.name);
@@ -165,6 +232,7 @@ export default function AgentLeagueDashboard() {
   // Launch agent functionality: trigger N8N workflow then navigate
   const handleAgentLaunch = async (agent: SafeAgent) => {
     try {
+      trackRecommendationClick(agent.id, recommendedAgentIds.includes(agent.id), 'launch');
       if (process.env.NODE_ENV === 'development') {
         console.log('[AgentLeagueDashboard] Triggering N8N workflow for:', agent.name);
       }
@@ -269,11 +337,25 @@ export default function AgentLeagueDashboard() {
         </div>
       ) : (
         <>
-          {/* Debug info - show agent count */}
-          <div className="text-center mb-6">
-            <p className="text-cyan-400 font-semibold">
-              {allVisibleAgents.length} Agents Available
-            </p>
+          {/* Task 4: Add Percy Recommendations Section */}
+          <PercyRecommendationsSection
+            userContext={{
+              businessType: 'saas', // TODO: Get from user profile
+              urgencyLevel: 'medium'
+            }}
+          />
+
+          {/* Task 5: Add sort toggle header */}
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white">
+              Agent League ({allVisibleAgents.length} Available)
+            </h3>
+            <button
+              onClick={() => setSortMode(prev => prev === 'default' ? 'recommended' : 'default')}
+              className="px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            >
+              {sortMode === 'recommended' ? '✨ Showing Recommended First' : 'Show Recommended First'}
+            </button>
           </div>
           <div className="relative" role="region" aria-label="Agent League">
           {isMobile ? (
@@ -305,8 +387,14 @@ export default function AgentLeagueDashboard() {
                   animate={{ x: `-${currentSlide * 100}%` }} 
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 >
-                  {allVisibleAgents.map((agent, index) => (
-                    <div key={agent.id} className="agent-league-card-wrapper">
+                  {sortedAgents.map((agent, index) => (
+                    <div key={agent.id} className="agent-league-card-wrapper relative">
+                      {/* Task 2: Add Percy Recommends badge */}
+                      {recommendedAgentIds.includes(agent.id) && (
+                        <PercyRecommendsCornerBadge
+                          confidence={recommendation?.metadata?.confidence || 0.9}
+                        />
+                      )}
                       <AgentLeagueCard 
                         agent={toSafeAgent(agent)} 
                         index={index}
@@ -327,20 +415,27 @@ export default function AgentLeagueDashboard() {
           ) : (
             /* Desktop Grid - Standardized Card Heights */
             <div className="agent-league-desktop-grid">
-              {allVisibleAgents.map((agent, index) => (
-                <AgentLeagueCard 
-                  key={agent.id} 
-                  agent={toSafeAgent(agent)} 
-                  index={index}
-                  onInfo={handleAgentInfo}
-                  onChat={handleAgentChat}
-                  onLaunch={handleAgentLaunch}
-                  onHandoff={handleHandoff}
-                  isRecommended={recommendations.includes(agent.id)}
-                  userProgress={userAgentData.progress[agent.id as keyof typeof userAgentData.progress] || 0}
-                  userMastery={userAgentData.mastery[agent.id as keyof typeof userAgentData.mastery] || 0}
-                  className="h-full"
-                />
+              {sortedAgents.map((agent, index) => (
+                <div key={agent.id} className="relative">
+                  {/* Task 2: Add Percy Recommends badge */}
+                  {recommendedAgentIds.includes(agent.id) && (
+                    <PercyRecommendsCornerBadge
+                      confidence={recommendation?.metadata?.confidence || 0.9}
+                    />
+                  )}
+                  <AgentLeagueCard 
+                    agent={toSafeAgent(agent)} 
+                    index={index}
+                    onInfo={handleAgentInfo}
+                    onChat={handleAgentChat}
+                    onLaunch={handleAgentLaunch}
+                    onHandoff={handleHandoff}
+                    isRecommended={recommendations.includes(agent.id)}
+                    userProgress={userAgentData.progress[agent.id as keyof typeof userAgentData.progress] || 0}
+                    userMastery={userAgentData.mastery[agent.id as keyof typeof userAgentData.mastery] || 0}
+                    className="h-full"
+                  />
+                </div>
               ))}
             </div>
           )}
