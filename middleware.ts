@@ -9,9 +9,10 @@ const APEX = "skrblai.io";
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
+    '/udash/:path*',
     '/admin/:path*',
-    // Add other private routes here only if necessary
+    // Legacy dashboard routes still protected for backward compatibility
+    '/dashboard/:path*',
   ],
 };
 
