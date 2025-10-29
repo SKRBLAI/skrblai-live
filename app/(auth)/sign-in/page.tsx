@@ -1,10 +1,13 @@
 import { redirect } from 'next/navigation';
 import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { SignIn } from '@clerk/nextjs';
 import SignInForm from './SignInForm';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+
+const CLERK_ENABLED = process.env.NEXT_PUBLIC_FF_CLERK === '1';
 
 /**
  * Helper function to route user to appropriate dashboard based on role
@@ -49,6 +52,35 @@ async function routeUserToDashboard(userId: string): Promise<never> {
 }
 
 export default async function SignInPage() {
+  // Feature flag: Use Clerk or Legacy Supabase auth
+  if (CLERK_ENABLED) {
+    // Clerk SSR sign-in (no client redirects, no flicker)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0b1220] via-[#0d1525] to-[#0f1a2e] p-4">
+        <div className="w-full max-w-md">
+          <SignIn 
+            routing="path" 
+            path="/sign-in"
+            appearance={{
+              baseTheme: undefined,
+              variables: {
+                colorPrimary: '#2dd4bf',
+                colorBackground: '#0b1220',
+                colorText: '#ffffff',
+                colorTextSecondary: '#94a3b8',
+              },
+              elements: {
+                rootBox: 'mx-auto',
+                card: 'bg-[rgba(21,23,30,0.70)] border border-teal-400/40 shadow-[0_0_32px_#30d5c899] backdrop-blur-xl',
+              }
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Legacy Supabase auth flow
   const supabase = getServerSupabaseAnon();
   
   if (!supabase) {

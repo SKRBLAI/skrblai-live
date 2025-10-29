@@ -37,10 +37,18 @@ begin
   if not exists (
     select 1 from pg_policies where schemaname = 'public' and tablename = split_part(p_table::text, '.', 2) and policyname = p_name
   ) then
-    execute format(
-      'create policy %I on %s for %s using (%s)',
-      p_name, p_table, p_cmd, p_using
-    );
+    -- INSERT policies use WITH CHECK instead of USING
+    if lower(p_cmd) = 'insert' then
+      execute format(
+        'create policy %I on %s for %s with check (%s)',
+        p_name, p_table, p_cmd, p_using
+      );
+    else
+      execute format(
+        'create policy %I on %s for %s using (%s)',
+        p_name, p_table, p_cmd, p_using
+      );
+    end if;
   end if;
 end; $$;
 
@@ -75,14 +83,25 @@ select public.ensure_policy(
 );
 
 -- 6) Founders seed (idempotent)
-insert into public.founder_codes (code, hashed) values
-  ('diggin_420', false),        -- BrandAlexander (Brandon Sutton)
-  ('bmore_finest_365', false),  -- SocialNino (Mark Brown)
-  ('gold_glove_92', false),     -- ContentCarltig (Carlton Soders)
-  ('aod_aoi_619', false),       -- IRA (Roderick Cooksey)
-  ('mstr_jay_2003', false),     -- PayPhomo (Jaelin Famber, heir)
-  ('mstr_skrbl_3', false)       -- The Don of Data (D. Famber, creator)
-on conflict (code) do nothing;
+-- Only insert if founder_codes has the expected columns
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'founder_codes' 
+    AND column_name = 'code'
+  ) THEN
+    INSERT INTO public.founder_codes (code, hashed) VALUES
+      ('diggin_420', false),        -- BrandAlexander (Brandon Sutton)
+      ('bmore_finest_365', false),  -- SocialNino (Mark Brown)
+      ('gold_glove_92', false),     -- ContentCarltig (Carlton Soders)
+      ('aod_aoi_619', false),       -- IRA (Roderick Cooksey)
+      ('mstr_jay_2003', false),     -- PayPhomo (Jaelin Famber, heir)
+      ('mstr_skrbl_3', false)       -- The Don of Data (D. Famber, creator)
+    ON CONFLICT (code) DO NOTHING;
+  END IF;
+END $$;
 
 -- 7) Utility: grant role by code (safe to keep for admin use)
 create or replace function public.grant_role_by_code(p_code text, p_user uuid, p_role text)

@@ -127,9 +127,30 @@ GRANT ALL ON public.system_health_logs TO service_role;
 -- ============================================================================
 
 -- Enable Realtime for live activity feed
-ALTER PUBLICATION supabase_realtime ADD TABLE public.agent_launches;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.n8n_executions;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.system_health_logs;
+DO $$
+BEGIN
+  -- Check if table is already in publication before adding
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'agent_launches'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.agent_launches;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'n8n_executions'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.n8n_executions;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'system_health_logs'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.system_health_logs;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- HELPER FUNCTIONS
