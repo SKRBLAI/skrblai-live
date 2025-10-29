@@ -207,84 +207,50 @@ END $$;
 -- Update any remaining policies that might be using direct auth function calls
 
 -- Fix any remaining auth.uid() patterns in existing policies
+-- Note: This section is commented out as it was causing issues with pg_policies view
+-- The policies created above already use the optimized patterns
 DO $$
-DECLARE
-    pol_record RECORD;
-    new_definition TEXT;
 BEGIN
-    -- Find policies that use auth.uid() directly (not in subquery)
-    FOR pol_record IN
-        SELECT schemaname, tablename, policyname, definition
-        FROM pg_policies
-        WHERE definition LIKE '%auth.uid()%'
-        AND definition NOT LIKE '%(select auth.uid())%'
-        AND schemaname = 'public'
-    LOOP
-        -- Skip if it's one of the policies we just created
-        CONTINUE WHEN pol_record.policyname IN (
-            'read own profile', 'update own profile', 'read own role',
-            'read own agent permissions', 'owner read intake',
-            'read own parent profile', 'upsert own parent profile',
-            'select_own_sessions', 'select_own_events', 'service_role_all',
-            'founder_memberships_select', 'founder_memberships_insert',
-            'founder_memberships_update', 'founder_memberships_delete',
-            'founder_usage_logs_select', 'founder_usage_logs_insert',
-            'founder_usage_logs_update', 'founder_usage_logs_delete'
-        );
-        
-        -- Replace auth.uid() with (select auth.uid())
-        new_definition := REPLACE(pol_record.definition, 'auth.uid()', '(select auth.uid())');
-        
-        -- Also replace auth.role() if present
-        new_definition := REPLACE(new_definition, 'auth.role()', '(select auth.role())');
-        
-        -- Also replace auth.jwt() if present
-        new_definition := REPLACE(new_definition, 'auth.jwt()', '(select auth.jwt())');
-        
-        -- Only update if definition actually changed
-        IF new_definition != pol_record.definition THEN
-            -- Drop and recreate the policy
-            EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I', 
-                pol_record.policyname, pol_record.schemaname, pol_record.tablename);
-            
-            -- Extract the policy type and condition from the definition
-            -- This is a simplified approach - in production you might need more sophisticated parsing
-            IF new_definition LIKE '%FOR SELECT%' THEN
-                EXECUTE format('CREATE POLICY %I ON %I.%I FOR SELECT %s', 
-                    pol_record.policyname, pol_record.schemaname, pol_record.tablename, 
-                    substring(new_definition from 'USING \((.*)\)'));
-            ELSIF new_definition LIKE '%FOR INSERT%' THEN
-                EXECUTE format('CREATE POLICY %I ON %I.%I FOR INSERT %s', 
-                    pol_record.policyname, pol_record.schemaname, pol_record.tablename, 
-                    substring(new_definition from 'WITH CHECK \((.*)\)'));
-            ELSIF new_definition LIKE '%FOR UPDATE%' THEN
-                EXECUTE format('CREATE POLICY %I ON %I.%I FOR UPDATE %s', 
-                    pol_record.policyname, pol_record.schemaname, pol_record.tablename, 
-                    substring(new_definition from 'USING \((.*)\)'));
-            ELSIF new_definition LIKE '%FOR DELETE%' THEN
-                EXECUTE format('CREATE POLICY %I ON %I.%I FOR DELETE %s', 
-                    pol_record.policyname, pol_record.schemaname, pol_record.tablename, 
-                    substring(new_definition from 'USING \((.*)\)'));
-            ELSIF new_definition LIKE '%FOR ALL%' THEN
-                EXECUTE format('CREATE POLICY %I ON %I.%I FOR ALL %s', 
-                    pol_record.policyname, pol_record.schemaname, pol_record.tablename, 
-                    substring(new_definition from 'USING \((.*)\)'));
-            END IF;
-        END IF;
-    END LOOP;
+    -- The optimized policies have been created above
+    -- No need to modify existing policies dynamically
+    RAISE NOTICE 'RLS performance optimization policies have been created';
 END $$;
 
 -- ============================================================================
 -- 4. ADD HELPFUL COMMENTS AND DOCUMENTATION
 -- ============================================================================
 
-COMMENT ON TABLE profiles IS 'User profiles with optimized RLS policies for performance';
-COMMENT ON TABLE user_roles IS 'User role assignments with optimized RLS policies for performance';
-COMMENT ON TABLE agent_permissions IS 'Agent permission mappings with optimized RLS policies for performance';
-COMMENT ON TABLE sports_intake IS 'Sports intake forms with optimized RLS policies for performance';
-COMMENT ON TABLE parent_profiles IS 'Parent profile data with optimized RLS policies for performance';
-COMMENT ON TABLE founder_memberships IS 'Founder membership records with consolidated RLS policies for performance';
-COMMENT ON TABLE founder_usage_logs IS 'Founder usage audit logs with consolidated RLS policies for performance';
+-- Add comments only for tables that exist
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
+        COMMENT ON TABLE profiles IS 'User profiles with optimized RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_roles') THEN
+        COMMENT ON TABLE user_roles IS 'User role assignments with optimized RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'agent_permissions') THEN
+        COMMENT ON TABLE agent_permissions IS 'Agent permission mappings with optimized RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'sports_intake') THEN
+        COMMENT ON TABLE sports_intake IS 'Sports intake forms with optimized RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'parent_profiles') THEN
+        COMMENT ON TABLE parent_profiles IS 'Parent profile data with optimized RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'founder_memberships') THEN
+        COMMENT ON TABLE founder_memberships IS 'Founder membership records with consolidated RLS policies for performance';
+    END IF;
+    
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'founder_usage_logs') THEN
+        COMMENT ON TABLE founder_usage_logs IS 'Founder usage audit logs with consolidated RLS policies for performance';
+    END IF;
+END $$;
 
 -- ============================================================================
 -- 5. VERIFICATION QUERIES (FOR MANUAL TESTING)

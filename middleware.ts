@@ -1,6 +1,6 @@
 // middleware.ts
 // Note: General auth protection (user logged in) is handled at page/layout level via server components.
-// This middleware focuses on: 1) host canonicalization, 2) legacy redirects, 3) founder-role gates.
+// This middleware focuses on: 1) host canonicalization, 2) legacy redirects, 3) founder-role gates, 4) dual auth routing.
 // See app/dashboard/*/page.tsx and lib/auth/roles.ts for user authentication + RBAC.
 
 import type { NextRequest } from "next/server";
@@ -9,9 +9,10 @@ const APEX = "skrblai.io";
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
+    '/udash/:path*',
     '/admin/:path*',
-    // Add other private routes here only if necessary
+    // Legacy dashboard routes still protected for backward compatibility
+    '/dashboard/:path*',
   ],
 };
 
@@ -76,7 +77,47 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(currentUrl, 301);
   }
 
-  // 3) Founder access gates (non-breaking)
+  // 3) Dual auth routing based on feature flags
+  const useClerk = process.env.NEXT_PUBLIC_FF_CLERK === '1';
+  const useBoost = process.env.FF_USE_BOOST_FOR_AUTH === '1';
+  
+  // Check if this is a protected route that needs auth
+  const isProtectedRoute = path.startsWith('/dashboard/') || 
+                          path.startsWith('/admin/') || 
+                          (useBoost && path.startsWith('/udash/'));
+  
+  if (isProtectedRoute) {
+    // Determine which auth system to use
+    if (useClerk) {
+      // Clerk auth - redirect to auth2 routes
+      if (path.startsWith('/udash/')) {
+        // /udash routes should use Clerk auth
+        // This will be handled by Clerk middleware when implemented
+        return NextResponse.next();
+      } else {
+        // Legacy routes redirect to auth2
+        const currentUrl = request.nextUrl.clone();
+        currentUrl.pathname = '/auth2/sign-in';
+        currentUrl.searchParams.set('redirect', path);
+        return NextResponse.redirect(currentUrl, 302);
+      }
+    } else if (useBoost) {
+      // Boost Supabase auth - redirect to auth2 routes
+      if (path.startsWith('/udash/')) {
+        // /udash routes should use Boost auth
+        return NextResponse.next();
+      } else {
+        // Legacy routes redirect to auth2
+        const currentUrl = request.nextUrl.clone();
+        currentUrl.pathname = '/auth2/sign-in';
+        currentUrl.searchParams.set('redirect', path);
+        return NextResponse.redirect(currentUrl, 302);
+      }
+    }
+    // Legacy Supabase auth - continue with existing logic
+  }
+
+  // 4) Founder access gates (non-breaking)
   const response = NextResponse.next();
   
   // Check if this is a founder-specific route

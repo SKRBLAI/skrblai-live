@@ -70,7 +70,19 @@ begin
 end $$;
 
 -- 6) Optional indexes
-create index if not exists idx_profiles_email on public.profiles (email);
+-- Only create index if email column exists
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'profiles' 
+    AND column_name = 'email'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles (email);
+  END IF;
+END $$;
+
 create index if not exists idx_user_roles_user on public.user_roles (user_id);
 
 -- 7) Cleanup helper
