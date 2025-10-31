@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { getUserAndRole, routeForRole } from '@/lib/auth/roles';
 
 // Force dynamic rendering - this page needs auth context at runtime

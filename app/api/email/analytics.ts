@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { getErrorMessage } from '../../../utils/errorHandling';
 
 export async function GET(req: NextRequest) {

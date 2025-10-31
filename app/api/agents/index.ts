@@ -2,7 +2,7 @@ import agentRegistry from '../../../lib/agents/agentRegistry';
 import { NextResponse } from 'next/server';
 import { getAgentImagePath, getAgentSets, getAgentImageSlug } from '../../../utils/agentUtils';
 import type { Agent } from '../../../types/agent';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { systemLog } from '../../../utils/systemLog';
 import { checkPremiumAccess, getAvailableFeatures } from '../../../lib/premiumGating';
 

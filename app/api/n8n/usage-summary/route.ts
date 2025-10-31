@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { getQuotaStatus } from '../../../../lib/n8nClient';
 
 // Initialize Supabase client
@@ -325,22 +325,22 @@ function formatForSlack(summary: any) {
   const overview = summary.overview;
   const alerts = summary.quotaStatus.alerts;
 
-  let text = `📊 *N8N Daily Execution Summary*\n\n`;
-  text += `• Total Executions: ${overview.totalExecutions}\n`;
-  text += `• Success Rate: ${overview.successRate}\n`;
-  text += `• Average Daily: ${overview.averageDaily}\n`;
-  text += `• Period: ${overview.periodDays} days\n\n`;
+  let text = `?? *N8N Daily Execution Summary*\n\n`;
+  text += `? Total Executions: ${overview.totalExecutions}\n`;
+  text += `? Success Rate: ${overview.successRate}\n`;
+  text += `? Average Daily: ${overview.averageDaily}\n`;
+  text += `? Period: ${overview.periodDays} days\n\n`;
 
   if (alerts.length > 0) {
-    text += `🚨 *Alerts:*\n`;
+    text += `?? *Alerts:*\n`;
     alerts.forEach((alert: any) => {
-      const emoji = alert.type === 'critical' ? '🔴' : '⚠️';
+      const emoji = alert.type === 'critical' ? '??' : '??';
       text += `${emoji} ${alert.message}\n`;
     });
     text += `\n`;
   }
 
-  text += `🔝 *Top Agents:*\n`;
+  text += `?? *Top Agents:*\n`;
   summary.topAgents.slice(0, 3).forEach((agent: any, idx: number) => {
     text += `${idx + 1}. ${agent.agentId}: ${agent.total} executions (${agent.successRate}% success)\n`;
   });
@@ -383,11 +383,11 @@ function generateEmailHTML(summary: any) {
   const alerts = summary.quotaStatus.alerts;
 
   return `
-    <h2>🚀 N8N Execution Summary</h2>
+    <h2>?? N8N Execution Summary</h2>
     <p><strong>Period:</strong> Last ${overview.periodDays} days</p>
     
     <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 15px 0;">
-      <h3>📊 Overview</h3>
+      <h3>?? Overview</h3>
       <ul>
         <li><strong>Total Executions:</strong> ${overview.totalExecutions}</li>
         <li><strong>Success Rate:</strong> ${overview.successRate}</li>
@@ -398,7 +398,7 @@ function generateEmailHTML(summary: any) {
 
     ${alerts.length > 0 ? `
       <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #ffc107;">
-        <h3>⚠️ Alerts</h3>
+        <h3>?? Alerts</h3>
         <ul>
           ${alerts.map((alert: any) => `
             <li style="color: ${alert.type === 'critical' ? '#dc3545' : '#856404'};">
@@ -411,7 +411,7 @@ function generateEmailHTML(summary: any) {
     ` : ''}
 
     <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
-      <h3>🔝 Top Performing Agents</h3>
+      <h3>?? Top Performing Agents</h3>
       <ol>
         ${summary.topAgents.slice(0, 5).map((agent: any) => `
           <li><strong>${agent.agentId}:</strong> ${agent.total} executions (${agent.successRate}% success)</li>

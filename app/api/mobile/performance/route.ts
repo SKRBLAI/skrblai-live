@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 // Initialize Supabase client
 interface PerformanceMetric {
@@ -536,5 +536,5 @@ function generatePerformanceRecommendations(performanceStats: any[], criticalIss
     recommendations.push('High memory usage detected - check for memory leaks');
   }
   
-  return recommendations.length ? recommendations : ['Performance looks good! 🚀'];
+  return recommendations.length ? recommendations : ['Performance looks good! ??'];
 } 

@@ -1,359 +1,70 @@
+// lib/supabase/server.ts
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { NextRequest } from 'next/server';
 
-// MMM: Single-source Supabase env reads (no fallbacks)
-// Accepts ONLY NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY
-// IMPORTANT: Env vars are read ONLY when the factory functions are called (lazy),
-// not at module import time, to prevent build-time crashes.
+/** Admin (service role) ? SERVER ONLY. Uses Boost keys. */
+export function getBoostClientAdmin(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL_BOOST;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY_BOOST;
+  const missing: string[] = [];
+  if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL_BOOST');
+  if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY_BOOST');
 
-// Cached clients to avoid recreation
-let adminClient: SupabaseClient | null = null;
-let anonClient: SupabaseClient | null = null;
-let boostAdminClient: SupabaseClient | null = null;
-let boostAnonClient: SupabaseClient | null = null;
-
-/**
- * Returns a Supabase client for server-side code with SERVICE ROLE permissions.
- * This client bypasses RLS and should ONLY be used in server-side code.
- * NEVER expose this client to the browser.
- * Env vars are read lazily at call time, not import time.
- * 
- * In production: throws on missing env vars
- * In development/build: returns null to avoid build-time crashes
- * @deprecated Use getServerSupabaseAdmin(variant) instead
- */
-export function getServerSupabaseAdminLegacy(): SupabaseClient | null {
-  if (adminClient) return adminClient;
-
-  // Lazy env read - happens only when function is called, not at import
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!url || !serviceKey) {
-    const missing = [];
-    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-    if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-    
-    // In production, throw to catch misconfigurations early
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
-    }
-    
-    // In development/build, warn and return null
-    console.warn('[server-supabase] Missing environment variables:', missing.join(', '));
-    return null;
+  if (missing.length) {
+    const msg = `[boost-supabase] Missing env: ${missing.join(', ')}`;
+    if (process.env.NODE_ENV === 'production') throw new Error(msg);
+    console.warn(msg);
+    return null as any;
   }
 
-  try {
-    adminClient = createClient(url, serviceKey, {
-      auth: { persistSession: false },
-      global: { 
-        headers: { 
-          'X-Client-Source': 'server-admin',
-          'Authorization': `Bearer ${serviceKey}`
-        } 
+  return createClient(url!, serviceKey!, {
+    auth: { persistSession: false },
+    global: {
+      headers: {
+        'X-Client-Source': 'boost-admin',
+        Authorization: `Bearer ${serviceKey}`,
       },
-    });
-    return adminClient;
-  } catch (error) {
-    console.error('[server-supabase] Failed to create admin client:', error);
-    if (process.env.NODE_ENV === 'production') {
-      throw error;
-    }
-    return null;
-  }
+    },
+  });
 }
 
-/**
- * Returns a Supabase client for server-side code with ANON permissions.
- * This client respects RLS and is safer for general server-side operations.
- * Env vars are read lazily at call time, not import time.
- * 
- * In production: throws on missing env vars
- * In development/build: returns null to avoid build-time crashes
- * @deprecated Use getServerSupabaseAnon(variant) instead
- */
-export function getServerSupabaseAnonLegacy(): SupabaseClient | null {
-  if (anonClient) return anonClient;
+/** Anon (RLS) ? server-side usage that should respect policies. */
+export function getBoostClientPublic(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL_BOOST;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST;
+  const missing: string[] = [];
+  if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL_BOOST');
+  if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST');
 
-  // Lazy env read - happens only when function is called, not at import
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!url || !anonKey) {
-    const missing = [];
-    if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-    if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-    
-    // In production, throw to catch misconfigurations early
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
-    }
-    
-    // In development/build, warn and return null
-    console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
-    return null;
+  if (missing.length) {
+    const msg = `[boost-supabase] Missing env: ${missing.join(', ')}`;
+    if (process.env.NODE_ENV === 'production') throw new Error(msg);
+    console.warn(msg);
+    return null as any;
   }
 
-  try {
-    anonClient = createClient(url, anonKey, {
-      auth: { persistSession: false },
-      global: { 
-        headers: { 
-          'X-Client-Source': 'server-anon'
-        } 
-      },
-    });
-    return anonClient;
-  } catch (error) {
-    console.error('[server-supabase] Failed to create anon client:', error);
-    if (process.env.NODE_ENV === 'production') {
-      throw error;
-    }
-    return null;
+  return createClient(url!, anonKey!, {
+    auth: { persistSession: false },
+    global: { headers: { 'X-Client-Source': 'boost-anon' } },
+  });
+}
+
+/** Backward-compat surface: map legacy call-sites to Boost. */
+export function getServerSupabaseAdminWithVariant(): SupabaseClient {
+  if (process.env.NEXT_PUBLIC_FF_USE_BOOST !== '1') {
+    const msg = '[boost-supabase] NEXT_PUBLIC_FF_USE_BOOST must be 1.';
+    if (process.env.NODE_ENV === 'production') throw new Error(msg);
+    console.warn(msg);
+    return null as any;
   }
+  return getBoostClientAdmin();
 }
 
-/**
- * Backward compatibility functions
- */
-export function getServerSupabaseAdmin(variant?: 'boost' | 'legacy'): SupabaseClient | null {
-  if (variant) {
-    return getServerSupabaseAdminWithVariant(variant);
+export function getServerSupabaseAnonWithVariant(): SupabaseClient {
+  if (process.env.NEXT_PUBLIC_FF_USE_BOOST !== '1') {
+    const msg = '[boost-supabase] NEXT_PUBLIC_FF_USE_BOOST must be 1.';
+    if (process.env.NODE_ENV === 'production') throw new Error(msg);
+    console.warn(msg);
+    return null as any;
   }
-  return getServerSupabaseAdminLegacy();
-}
-
-export function getServerSupabaseAnon(variant?: 'boost' | 'legacy'): SupabaseClient | null {
-  if (variant) {
-    return getServerSupabaseAnonWithVariant(variant);
-  }
-  return getServerSupabaseAnonLegacy();
-}
-
-/**
- * Legacy function - returns admin client for backwards compatibility
- * @deprecated Use getServerSupabaseAdmin() or getServerSupabaseAnon() instead
- */
-export function getOptionalServerSupabase(): SupabaseClient | null {
-  return getServerSupabaseAdmin();
-}
-
-/** Convenience: throw an explicit error if missing (use only if you catch it). */
-export function requireServerSupabase(): SupabaseClient {
-  const c = getOptionalServerSupabase();
-  if (!c) throw new Error('Supabase not configured on server (missing URL/KEY envs).');
-  return c;
-}
-
-/**
- * Create a server-side Supabase client (alias for getServerSupabaseAdmin)
- * Used by API routes that need service role access
- * @deprecated Use getServerSupabaseAdmin() directly and handle null returns
- */
-export function createServerSupabaseClient(): SupabaseClient {
-  const client = getServerSupabaseAdmin();
-  if (!client) {
-    throw new Error('Failed to create server Supabase client - check environment variables');
-  }
-  return client;
-}
-
-/**
- * Utility to determine if Boost should be used for a given route
- */
-export function canUseBoostForRoute(req: NextRequest): boolean {
-  const pathname = req.nextUrl.pathname;
-  return pathname.startsWith('/auth2/') || pathname.startsWith('/udash/');
-}
-
-/**
- * Returns a Supabase client for server-side code with SERVICE ROLE permissions (Boost variant).
- * This client bypasses RLS and should ONLY be used in server-side code.
- * NEVER expose this client to the browser.
- * Env vars are read lazily at call time, not import time.
- * 
- * In production: throws on missing env vars
- * In development/build: returns null to avoid build-time crashes
- */
-export function getServerSupabaseAdminWithVariant(variant?: 'boost' | 'legacy'): SupabaseClient | null {
-  // Use Boost if explicitly requested or if FF_USE_BOOST_FOR_AUTH=1
-  const useBoost = variant === 'boost' || process.env.FF_USE_BOOST_FOR_AUTH === '1';
-  
-  if (useBoost) {
-    if (boostAdminClient) return boostAdminClient;
-
-    // Lazy env read - happens only when function is called, not at import
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL_BOOST;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY_BOOST;
-    
-    if (!url || !serviceKey) {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL_BOOST');
-      if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY_BOOST');
-      
-      // In production, throw to catch misconfigurations early
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error(`[server-supabase-boost] Missing required environment variables: ${missing.join(', ')}`);
-      }
-      
-      // In development/build, warn and return null
-      console.warn('[server-supabase-boost] Missing environment variables:', missing.join(', '));
-      return null;
-    }
-
-    try {
-      boostAdminClient = createClient(url, serviceKey, {
-        auth: { persistSession: false },
-        global: { 
-          headers: { 
-            'X-Client-Source': 'server-admin-boost',
-            'Authorization': `Bearer ${serviceKey}`
-          } 
-        },
-      });
-      return boostAdminClient;
-    } catch (error) {
-      console.error('[server-supabase-boost] Failed to create admin client:', error);
-      if (process.env.NODE_ENV === 'production') {
-        throw error;
-      }
-      return null;
-    }
-  } else {
-    // Use legacy client
-    if (adminClient) return adminClient;
-
-    // Lazy env read - happens only when function is called, not at import
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    if (!url || !serviceKey) {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
-      
-      // In production, throw to catch misconfigurations early
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
-      }
-      
-      // In development/build, warn and return null
-      console.warn('[server-supabase] Missing environment variables:', missing.join(', '));
-      return null;
-    }
-
-    try {
-      adminClient = createClient(url, serviceKey, {
-        auth: { persistSession: false },
-        global: { 
-          headers: { 
-            'X-Client-Source': 'server-admin',
-            'Authorization': `Bearer ${serviceKey}`
-          } 
-        },
-      });
-      return adminClient;
-    } catch (error) {
-      console.error('[server-supabase] Failed to create admin client:', error);
-      if (process.env.NODE_ENV === 'production') {
-        throw error;
-      }
-      return null;
-    }
-  }
-}
-
-/**
- * Returns a Supabase client for server-side code with ANON permissions (Boost variant).
- * This client respects RLS and is safer for general server-side operations.
- * Env vars are read lazily at call time, not import time.
- * 
- * In production: throws on missing env vars
- * In development/build: returns null to avoid build-time crashes
- */
-export function getServerSupabaseAnonWithVariant(variant?: 'boost' | 'legacy'): SupabaseClient | null {
-  // Use Boost if explicitly requested or if FF_USE_BOOST_FOR_AUTH=1
-  const useBoost = variant === 'boost' || process.env.FF_USE_BOOST_FOR_AUTH === '1';
-  
-  if (useBoost) {
-    if (boostAnonClient) return boostAnonClient;
-
-    // Lazy env read - happens only when function is called, not at import
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL_BOOST;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST;
-    
-    if (!url || !anonKey) {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL_BOOST');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST');
-      
-      // In production, throw to catch misconfigurations early
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error(`[server-supabase-boost] Missing required environment variables: ${missing.join(', ')}`);
-      }
-      
-      // In development/build, warn and return null
-      console.warn('[server-supabase-boost] Missing environment variables for anon client:', missing.join(', '));
-      return null;
-    }
-
-    try {
-      boostAnonClient = createClient(url, anonKey, {
-        auth: { persistSession: false },
-        global: { 
-          headers: { 
-            'X-Client-Source': 'server-anon-boost'
-          } 
-        },
-      });
-      return boostAnonClient;
-    } catch (error) {
-      console.error('[server-supabase-boost] Failed to create anon client:', error);
-      if (process.env.NODE_ENV === 'production') {
-        throw error;
-      }
-      return null;
-    }
-  } else {
-    // Use legacy client
-    if (anonClient) return anonClient;
-
-    // Lazy env read - happens only when function is called, not at import
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!url || !anonKey) {
-      const missing = [];
-      if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
-      if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-      
-      // In production, throw to catch misconfigurations early
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
-      }
-      
-      // In development/build, warn and return null
-      console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
-      return null;
-    }
-
-    try {
-      anonClient = createClient(url, anonKey, {
-        auth: { persistSession: false },
-        global: { 
-          headers: { 
-            'X-Client-Source': 'server-anon'
-          } 
-        },
-      });
-      return anonClient;
-    } catch (error) {
-      console.error('[server-supabase] Failed to create anon client:', error);
-      if (process.env.NODE_ENV === 'production') {
-        throw error;
-      }
-      return null;
-    }
-  }
+  return getBoostClientPublic();
 }

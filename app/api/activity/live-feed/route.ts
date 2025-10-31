@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs'; // Use Node.js runtime for this route
 export const dynamic = 'force-dynamic'; // Force dynamic rendering, prevent static analysis

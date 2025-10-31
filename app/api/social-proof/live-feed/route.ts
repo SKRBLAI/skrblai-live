@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { withSafeJson } from '@/lib/api/safe';
 
 export const runtime = 'nodejs';

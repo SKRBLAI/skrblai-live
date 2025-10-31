@@ -4,7 +4,7 @@
  * Populates tables consumed by the live-feed SSE endpoint
  */
 
-import { getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 export interface AgentLaunchParams {
   agentId: string;

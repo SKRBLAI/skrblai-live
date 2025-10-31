@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import n8nClient from '../../../lib/n8nClient';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import { systemLog } from '../../../utils/systemLog';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export async function GET(req: Request) {
   

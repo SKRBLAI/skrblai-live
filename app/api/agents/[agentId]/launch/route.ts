@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runAgentWorkflow } from '../../../../../lib/agents/runAgentWorkflow';
 import { withSafeJson } from '@/lib/api/safe';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { FEATURE_FLAGS } from '@/lib/config/featureFlags';
 
 export const runtime = 'nodejs';

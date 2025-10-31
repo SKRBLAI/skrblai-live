@@ -5,7 +5,7 @@
  */
 
 import bcrypt from 'bcryptjs';
-import { getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import type { FounderRole } from './roles';
 
 export interface FounderCode {
