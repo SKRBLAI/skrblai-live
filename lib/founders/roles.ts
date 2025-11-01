@@ -4,7 +4,7 @@
  * Role precedence: creator > heir > founder > vip > user
  */
 
-import { getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 export type FounderRole = 'creator' | 'founder' | 'heir';
 export type UserRole = 'creator' | 'founder' | 'heir' | 'vip' | 'user';

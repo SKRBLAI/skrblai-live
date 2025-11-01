@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { triggerN8nWorkflow, getWorkflowStatus } from '../../../lib/n8nClient';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 // Initialize Supabase client for execution logging
 export async function POST(req: NextRequest) {

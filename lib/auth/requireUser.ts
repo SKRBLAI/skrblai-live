@@ -1,4 +1,4 @@
-import { getServerSupabaseAnon, getLegacyClient, getBoostClientPublic } from '@/lib/supabase/server';
+import { getServerSupabaseAnon, getBoostClientPublic } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 export interface NormalizedUser {

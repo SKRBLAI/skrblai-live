@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import jsPDF from 'jspdf';
 import puppeteer from 'puppeteer';
 
@@ -489,7 +489,7 @@ function generateProposalHTML(proposalContent: any): string {
     </head>
     <body>
       <div class="header">
-        <div class="logo">🚀 SKRBL AI</div>
+        <div class="logo">?? SKRBL AI</div>
         <h1>AI Automation Proposal</h1>
         <p>For ${companyName}</p>
         <span class="vip-badge">${vipLevel.toUpperCase()} VIP</span>

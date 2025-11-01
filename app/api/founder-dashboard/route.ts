@@ -1,6 +1,6 @@
 /* eslint-disable no-unreachable */
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { getFunnelMetrics } from '../../../lib/analytics/userFunnelTracking';
 
 // Master codes configuration - extensible for future codes

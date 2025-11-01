@@ -5,6 +5,7 @@
   "scripts": {
     "verify:env": "tsx scripts/verifyEnv.ts",
     "check:env": "node scripts/check-env.mjs",
+    "env:check": "node scripts/check-env.mjs",
     "dev": "next dev",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "analyze": "node scripts/analyze-bundle.mjs",

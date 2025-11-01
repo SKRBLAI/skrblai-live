@@ -1,33 +1,12 @@
-/** MMM: Canonical Supabase client exports. Single source of truth for all Supabase client access. */
-
-// Browser client (for client-side components)
-export { getBrowserSupabase } from './client';
-
-// Server clients (for API routes and server-side code)
-export { getServerSupabaseAnon } from './server';
-export { getServerSupabaseAdmin } from './server';
-
-// Legacy exports for backward compatibility (deprecated)
-export { 
-  getOptionalServerSupabase,
-  createServerSupabaseClient 
+export {
+  getBoostClientAdmin,
+  getBoostClientPublic,
+  getServerSupabaseAdminWithVariant as getServerSupabaseAdmin,
+  getServerSupabaseAnonWithVariant as getServerSupabaseAnon,
+  // legacy aliases routed to Boost variants to avoid touching callers
+  getServerSupabaseAdminWithVariant as getOptionalServerSupabase,
+  getServerSupabaseAdminWithVariant as createServerSupabaseClient,
 } from './server';
 
-/**
- * Usage Guide:
- * 
- * Browser Components:
- *   import { getBrowserSupabase } from '@/lib/supabase';
- *   const supabase = getBrowserSupabase();
- *   if (!supabase) return; // Handle null case
- * 
- * Server API Routes (Admin):
- *   import { getServerSupabaseAdmin } from '@/lib/supabase';
- *   const supabase = getServerSupabaseAdmin();
- *   if (!supabase) return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
- * 
- * Server API Routes (RLS-respecting):
- *   import { getServerSupabaseAnon } from '@/lib/supabase';
- *   const supabase = getServerSupabaseAnon();
- *   if (!supabase) return NextResponse.json({ error: 'Database unavailable' }, { status: 503 });
- */
+// if you already have a browser client file, re-export it here:
+export * from './client'; // no-op if not present

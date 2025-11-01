@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export interface AuthAuditEvent {
   eventType: 'signin_attempt' | 'signin_success' | 'signin_failure' | 'promo_redemption' | 'promo_validation' | 'vip_check' | 'security_violation' | 'rate_limit' | 'suspicious_activity' | 'system_health_check';

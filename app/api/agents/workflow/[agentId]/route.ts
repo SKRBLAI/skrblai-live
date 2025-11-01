@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { triggerAgentWorkflow } from '../../../../../lib/agents/powerEngine';
 import { getAgentWorkflowConfig, getHandoffSuggestions } from '../../../../../lib/agents/workflows/workflowLookup';
 import type { WorkflowExecutionContext } from '../../../../../lib/agents/workflows/workflowLookup';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 // Initialize Supabase client
 

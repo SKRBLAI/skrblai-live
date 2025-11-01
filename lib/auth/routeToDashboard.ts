@@ -1,4 +1,4 @@
-import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 /**

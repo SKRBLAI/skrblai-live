@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase';
 import { SignIn } from '@clerk/nextjs';
 import SignInForm from './SignInForm';
 

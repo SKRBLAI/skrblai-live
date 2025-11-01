@@ -32,7 +32,7 @@ import {
   type HandoffContext 
 } from '../../../../lib/agents/handoffs/handoffSystem';
 import { withSafeJson } from '@/lib/api/safe';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSupabaseAdmin } from "@/lib/supabase/server";
+import { getServerSupabaseAdmin } from "@/lib/supabase";
 import { withLogging } from "@/lib/observability/logger";
 
 export const runtime = "nodejs";

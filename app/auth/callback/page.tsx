@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase';
 import { routeForRole } from '@/lib/auth/roles';
 
 export const dynamic = 'force-dynamic';

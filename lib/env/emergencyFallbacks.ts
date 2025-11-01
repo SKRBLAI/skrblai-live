@@ -5,7 +5,11 @@
  * when environment variables are not loading properly in Railway/Vercel.
  * 
  * The correct approach is to properly set environment variables in the deployment platform.
+ * 
+ * NOTE: Prioritizes Boost environment variables first, then falls back to legacy, then emergency fallbacks.
  */
+
+import { getEnvSafe } from './getEnvSafe';
 
 // If environment variables suddenly disappear, use these as fallbacks
 const EMERGENCY_ENV_FALLBACKS: Record<string, string> = {
@@ -31,13 +35,14 @@ const EMERGENCY_ENV_FALLBACKS: Record<string, string> = {
 };
 
 /**
- * Get an environment variable with emergency fallback
- * Only used when the primary environment variable is missing
+ * Get an environment variable with Boost-first priority and emergency fallback
+ * Checks in order: Boost vars → Legacy vars → Emergency fallback
  * @param key Environment variable key
  * @returns Value from process.env or emergency fallback
  */
 export function getEnvWithFallback(key: string): string | undefined {
-  const value = process.env[key];
+  // Try Boost-first with automatic legacy fallback via getEnvSafe
+  const value = getEnvSafe(key);
   
   // If the value exists, use it
   if (value !== undefined && value !== null && value !== '') {

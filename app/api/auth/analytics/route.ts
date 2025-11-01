@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authAuditLogger } from '../../../../lib/auth/authAuditLogger';
 import { withSafeJson } from '@/lib/api/safe';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

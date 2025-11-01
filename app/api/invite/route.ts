@@ -2,7 +2,7 @@
 BACKUP OF ORIGINAL /api/invite LOGIC (restore when ready):
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { randomBytes } from 'crypto';
 
 function generateInviteCode(length = 8) {
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
 // Placeholder handler for all HTTP methods
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
   
