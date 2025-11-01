@@ -2,7 +2,10 @@
  * Environment validation and utilities for Supabase configuration
  * Validates required env vars and provides redaction helpers
  * Supports new Supabase keys: sb_publishable_*, sb_secret_* (and legacy sbp_/sbs_)
+ * Prioritizes Boost environment variables with automatic fallback to legacy
  */
+
+import { getEnvSafe } from './env/getEnvSafe';
 
 export interface SupabaseEnv {
   NEXT_PUBLIC_SUPABASE_URL: string;
@@ -27,9 +30,9 @@ export function redact(v?: string, keep = 4) {
 }
 
 export function validateEnvSafe() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const url = getEnvSafe('NEXT_PUBLIC_SUPABASE_URL');
+  const anon = getEnvSafe('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  const service = getEnvSafe('SUPABASE_SERVICE_ROLE_KEY');
 
   // Accept both default Supabase URLs and custom domains
   const urlOk =
@@ -64,8 +67,8 @@ export function assertEnvAtRuntime(): SupabaseEnv {
   const errors: string[] = [];
   const env: Partial<SupabaseEnv> = {};
 
-  // Check NEXT_PUBLIC_SUPABASE_URL
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  // Check NEXT_PUBLIC_SUPABASE_URL (Boost-first with fallback)
+  const url = getEnvSafe('NEXT_PUBLIC_SUPABASE_URL');
   if (!url) {
     errors.push('NEXT_PUBLIC_SUPABASE_URL is required');
   } else {
@@ -85,8 +88,8 @@ export function assertEnvAtRuntime(): SupabaseEnv {
     }
   }
 
-  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY (supporting both legacy JWT and new formats)
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Check NEXT_PUBLIC_SUPABASE_ANON_KEY (Boost-first with fallback, supporting both legacy JWT and new formats)
+  const anonKey = getEnvSafe('NEXT_PUBLIC_SUPABASE_ANON_KEY');
   if (!anonKey) {
     errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
   } else {
@@ -101,8 +104,8 @@ export function assertEnvAtRuntime(): SupabaseEnv {
     }
   }
 
-  // Check SUPABASE_SERVICE_ROLE_KEY (supporting both legacy JWT and new formats)
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Check SUPABASE_SERVICE_ROLE_KEY (Boost-first with fallback, supporting both legacy JWT and new formats)
+  const serviceKey = getEnvSafe('SUPABASE_SERVICE_ROLE_KEY');
   if (!serviceKey) {
     errors.push('SUPABASE_SERVICE_ROLE_KEY is required');
   } else {
@@ -144,9 +147,9 @@ export function validateSupabaseEnvSafe(): ValidationResult {
       isValid: false,
       errors: error instanceof Error ? error.message.split('\n').slice(1) : ['Unknown validation error'],
       env: {
-        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-        SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+        NEXT_PUBLIC_SUPABASE_URL: getEnvSafe('NEXT_PUBLIC_SUPABASE_URL'),
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: getEnvSafe('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
+        SUPABASE_SERVICE_ROLE_KEY: getEnvSafe('SUPABASE_SERVICE_ROLE_KEY'),
       }
     };
   }
