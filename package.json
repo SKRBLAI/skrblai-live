@@ -26,7 +26,8 @@
     "type-check": "tsc --noEmit",
     "diag:supabase": "npx tsx scripts/diagnostics/check-supabase.ts",
     "diag:auth": "echo 'Visit /ops/diag in development mode'",
-    "smoke:arr": "tsx scripts/smoke-arr.ts"
+    "smoke:arr": "tsx scripts/smoke-arr.ts",
+    "audit:flags": "node scripts/audit-feature-flags.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.56.0",
