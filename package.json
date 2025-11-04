@@ -5,8 +5,9 @@
   "scripts": {
     "verify:env": "tsx scripts/verifyEnv.ts",
     "check:env": "node scripts/check-env.mjs",
+    "preflight": "node scripts/preflight.mjs",
     "dev": "next dev",
-    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "build": "npm run preflight && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "analyze": "node scripts/analyze-bundle.mjs",
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "next lint",
