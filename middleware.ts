@@ -5,16 +5,10 @@
 
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { siteVersion } from '@/lib/flags/siteVersion';
 const APEX = "skrblai.io";
 
-export const config = {
-  matcher: [
-    '/udash/:path*',
-    '/admin/:path*',
-    // Legacy dashboard routes still protected for backward compatibility
-    '/dashboard/:path*',
-  ],
-};
+export const config = { matcher: ['/'] };
 
 /**
  * Check if user has founder access via cookie
@@ -55,6 +49,13 @@ function isPremiumPath(pathname: string): boolean {
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname.toLowerCase();
+
+  // 0) Root split routing: rewrite only '/'
+  if (path === '/') {
+    const dest = request.nextUrl.clone();
+    dest.pathname = siteVersion() === 'new' ? '/new' : '/legacy';
+    return NextResponse.rewrite(dest);
+  }
   
   // 1) Canonicalize host: www → apex
   const host = request.headers.get("host") || "";

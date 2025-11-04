@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, CreditCard, Lock, Zap } from 'lucide-react';
 import Link from 'next/link';
 import PageLayout from '../../components/layout/PageLayout';
+import { getPriceId } from '@/lib/pricing/getPriceId';
 import FloatingParticles from '../../components/ui/FloatingParticles';
 
 export default function CheckoutPage() {
@@ -165,19 +166,19 @@ export default function CheckoutPage() {
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Rookie Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE || 'Not Set'}</span>
+                      <span className="text-orange-300">{(() => { try { return getPriceId('rookie') || 'Not Set'; } catch { return 'Not Set'; } })()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Pro Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || 'Not Set'}</span>
+                      <span className="text-orange-300">{(() => { try { return getPriceId('pro') || 'Not Set'; } catch { return 'Not Set'; } })()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">All-Star Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR || 'Not Set'}</span>
+                      <span className="text-orange-300">{(() => { try { return getPriceId('allstar') || 'Not Set'; } catch { return 'Not Set'; } })()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Yearly Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY || 'Not Set'}</span>
+                      <span className="text-orange-300">{(() => { try { return getPriceId('yearly') || 'Not Set'; } catch { return 'Not Set'; } })()}</span>
                     </div>
                   </div>
                 </div>

@@ -1,200 +1,152 @@
-/** MMM: Canonical source for feature flags. Do not duplicate. */
+/** Canonical flag registry for client-side usage. */
 
-/**
- * Unified Feature Flag Configuration
- * Single source of truth for all feature flags with progressive enhancement approach
- * Base UI always renders; enhanced pieces toggle based on flags
- */
+export type SiteVersion = 'legacy' | 'new';
 
-import { readBooleanFlag } from './flags';
-import { readEnvAny } from '@/lib/env/readEnvAny';
+export interface FlagRegistry {
+  FF_BOOST: boolean;
+  FF_CLERK: boolean;
+  FF_N8N_NOOP: boolean;
+  FF_SITE_VERSION: SiteVersion;
+  FF_STRIPE_FALLBACK: boolean;
+}
 
-// Re-export the enhanced flag parser
-export { readBooleanFlag };
+type RegistryKey = keyof FlagRegistry;
 
-/**
- * Centralized list of all known feature flags with documentation
- * This serves as the single source of truth for flag names and defaults
- */
-export const KNOWN_FLAGS = {
-  // === CLIENT FLAGS (NEXT_PUBLIC_*) ===
-  NEXT_PUBLIC_ENABLE_STRIPE: { 
-    default: true, 
-    description: 'Global Stripe payment toggle - disables all payment buttons when false' 
-  },
-  NEXT_PUBLIC_HP_GUIDE_STAR: { 
-    default: true, 
-    description: 'Homepage guide star component visibility' 
-  },
-  NEXT_PUBLIC_ENABLE_ORBIT: { 
-    default: false, 
-    description: 'Orbit League visualization component' 
-  },
-  NEXT_PUBLIC_ENABLE_BUNDLES: { 
-    default: false, 
-    description: 'Legacy bundle pricing system' 
-  },
-  NEXT_PUBLIC_ENABLE_LEGACY: { 
-    default: false, 
-    description: 'Legacy system features and components' 
-  },
-  NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS: { 
-    default: false, 
-    description: 'Use Stripe Payment Links instead of Checkout Sessions' 
-  },
-  NEXT_PUBLIC_SHOW_PERCY_WIDGET: { 
-    default: false, 
-    description: 'Percy widget visibility on pages' 
-  },
-  NEXT_PUBLIC_USE_OPTIMIZED_PERCY: { 
-    default: false, 
-    description: 'Use optimized Percy component instead of legacy' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS: { 
-    default: true, 
-    description: 'Enable Percy component animations' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_AVATAR: { 
-    default: true, 
-    description: 'Show Percy avatar in components' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_CHAT: { 
-    default: true, 
-    description: 'Enable Percy chat functionality' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF: { 
-    default: true, 
-    description: 'Show Percy social proof elements' 
-  },
-  NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING: { 
-    default: true, 
-    description: 'Enable Percy performance monitoring' 
-  },
-  NEXT_PUBLIC_PERCY_AUTO_FALLBACK: { 
-    default: true, 
-    description: 'Enable Percy automatic fallback to legacy' 
-  },
-  NEXT_PUBLIC_PERCY_LOG_SWITCHES: { 
-    default: true, 
-    description: 'Log Percy component switches for debugging' 
-  },
-  NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE: { 
-    default: true, 
-    description: 'AI automation homepage features' 
-  },
-  NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN: { 
-    default: true, 
-    description: 'Enhanced business scan functionality' 
-  },
-  NEXT_PUBLIC_URGENCY_BANNERS: { 
-    default: true, 
-    description: 'Urgency banners and promotional elements' 
-  },
-  NEXT_PUBLIC_LIVE_METRICS: { 
-    default: true, 
-    description: 'Live metrics and counters' 
-  },
-  
-  // === SERVER FLAGS (no NEXT_PUBLIC_ prefix) ===
-  FF_N8N_NOOP: { 
-    default: true, 
-    description: 'n8n NOOP mode - prevents n8n downtime from blocking user flows' 
-  },
-} as const;
+const TRUE_LITERALS = new Set(['1', 'true', 'yes', 'on']);
+const FALSE_LITERALS = new Set(['0', 'false', 'no', 'off']);
 
-export const FEATURE_FLAGS = {
-  // === CORE FEATURE FLAGS ===
-  
-  // Homepage & UI Features
-  HP_GUIDE_STAR: readBooleanFlag('NEXT_PUBLIC_HP_GUIDE_STAR', true), // Default enabled for progressive enhancement
-  HOMEPAGE_HERO_VARIANT: (process.env.NEXT_PUBLIC_HOMEPAGE_HERO_VARIANT ?? 'scan-first') as 'scan-first' | 'split' | 'legacy',
-  
-  // Payment & Stripe Features
-  ENABLE_STRIPE: readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', true), // Global Stripe toggle
-  FF_STRIPE_FALLBACK_LINKS: readBooleanFlag('NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS', false), // Use Payment Links fallback
-  
-  // Legacy System Control
-  ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
-  ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit League visualization
-  ENABLE_LEGACY: readBooleanFlag('NEXT_PUBLIC_ENABLE_LEGACY', false), // Legacy system features
-  
-  // === N8N INTEGRATION CONTROL ===
-  // MMM: Default true to prevent n8n downtime from blocking user flows.
-  // Set FF_N8N_NOOP=false to re-enable n8n webhooks when ready.
-  FF_N8N_NOOP: readBooleanFlag('FF_N8N_NOOP', true), // n8n NOOP mode (safe default)
-  
-  // === PROGRESSIVE ENHANCEMENT FLAGS ===
-  // These flags enhance base functionality but don't break the UI when disabled
-  
-  AI_AUTOMATION_HOMEPAGE: readBooleanFlag('NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE', true),
-  ENHANCED_BUSINESS_SCAN: readBooleanFlag('NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN', true),
-  URGENCY_BANNERS: readBooleanFlag('NEXT_PUBLIC_URGENCY_BANNERS', true),
-  LIVE_METRICS: readBooleanFlag('NEXT_PUBLIC_LIVE_METRICS', true),
-  
-  // Percy Component Flags (consolidated from percyFeatureFlags.ts)
-  USE_OPTIMIZED_PERCY: readBooleanFlag('NEXT_PUBLIC_USE_OPTIMIZED_PERCY', false),
-  ENABLE_PERCY_ANIMATIONS: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS', true),
-  ENABLE_PERCY_AVATAR: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_AVATAR', true),
-  ENABLE_PERCY_CHAT: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_CHAT', true),
-  ENABLE_PERCY_SOCIAL_PROOF: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF', true),
-  PERCY_PERFORMANCE_MONITORING: readBooleanFlag('NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING', true),
-  PERCY_AUTO_FALLBACK: readBooleanFlag('NEXT_PUBLIC_PERCY_AUTO_FALLBACK', true),
-  PERCY_LOG_SWITCHES: readBooleanFlag('NEXT_PUBLIC_PERCY_LOG_SWITCHES', true),
-  
-  // === ADDITIONAL FLAGS ===
-  SHOW_PERCY_WIDGET: readBooleanFlag('NEXT_PUBLIC_SHOW_PERCY_WIDGET', false), // Percy widget visibility
-  
-} as const;
-
-// Helper types for strong typing of boolean vs non-boolean flags
-type FeatureFlags = typeof FEATURE_FLAGS;
-type BooleanFlagKeys = { [K in keyof FeatureFlags]: FeatureFlags[K] extends boolean ? K : never }[keyof FeatureFlags];
-
-// Helper function to check boolean feature flags
-export const isFeatureEnabled = (flag: BooleanFlagKeys): boolean => {
-  return FEATURE_FLAGS[flag] as boolean;
+const PRIMARY_ENV: Record<RegistryKey, string> = {
+  FF_BOOST: 'FF_BOOST',
+  FF_CLERK: 'FF_CLERK',
+  FF_N8N_NOOP: 'FF_N8N_NOOP',
+  FF_SITE_VERSION: 'FF_SITE_VERSION',
+  FF_STRIPE_FALLBACK: 'FF_STRIPE_FALLBACK',
 };
 
-// Helper function to get any feature flag with proper typing
-export const getFeatureFlag = <K extends keyof FeatureFlags>(flag: K, fallback?: FeatureFlags[K]): FeatureFlags[K] => {
-  const value = FEATURE_FLAGS[flag];
-  return (value ?? fallback) as FeatureFlags[K];
+const DEPRECATED_ENV: Partial<Record<RegistryKey, string[]>> = {
+  FF_BOOST: ['NEXT_PUBLIC_FF_USE_BOOST'],
+  FF_CLERK: ['NEXT_PUBLIC_FF_CLERK'],
+  FF_N8N_NOOP: ['NEXT_PUBLIC_FF_N8N'],
+  FF_SITE_VERSION: ['NEXT_PUBLIC_SITE_VERSION', 'NEXT_PUBLIC_FF_SITE_VERSION'],
 };
 
-// Percy-specific helper functions (consolidated from percyFeatureFlags.ts)
-export const getPercyConfig = () => {
-  return {
-    USE_OPTIMIZED_PERCY: FEATURE_FLAGS.USE_OPTIMIZED_PERCY,
-    ENABLE_PERCY_AVATAR: FEATURE_FLAGS.ENABLE_PERCY_AVATAR,
-    ENABLE_PERCY_CHAT: FEATURE_FLAGS.ENABLE_PERCY_CHAT,
-    ENABLE_PERCY_SOCIAL_PROOF: FEATURE_FLAGS.ENABLE_PERCY_SOCIAL_PROOF,
-    ENABLE_PERCY_ANIMATIONS: FEATURE_FLAGS.ENABLE_PERCY_ANIMATIONS,
-    PERCY_PERFORMANCE_MONITORING: FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING,
-    PERCY_AUTO_FALLBACK: FEATURE_FLAGS.PERCY_AUTO_FALLBACK,
-    PERCY_LOG_SWITCHES: FEATURE_FLAGS.PERCY_LOG_SWITCHES,
-  };
-};
+const loggedDeprecations = new Set<string>();
 
-export const logPercySwitch = (component: string, version: 'legacy' | 'optimized') => {
-  if (FEATURE_FLAGS.PERCY_LOG_SWITCHES) {
-    console.log(`🔄 Percy ${component}: Using ${version} version`);
+function maybeLogDeprecated(oldKey: string, newKey: string) {
+  if (process.env.NODE_ENV === 'production') return;
+  const cacheKey = `${oldKey}->${newKey}`;
+  if (loggedDeprecations.has(cacheKey)) return;
+  loggedDeprecations.add(cacheKey);
+  console.warn(
+    `[featureFlags] Environment variable "${oldKey}" is deprecated. Please migrate to "${newKey}".`
+  );
+}
+
+function readEnvValue(key: string | undefined): string | undefined {
+  return key ? process.env[key] : undefined;
+}
+
+function parseBoolean(value: string | undefined, fallback: boolean): boolean {
+  if (!value) return fallback;
+  const normalized = value.trim().toLowerCase();
+  if (TRUE_LITERALS.has(normalized)) return true;
+  if (FALSE_LITERALS.has(normalized)) return false;
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `[featureFlags] Unable to parse boolean value "${value}". Falling back to ${fallback}.`
+    );
   }
-};
+  return fallback;
+}
 
-export const showPerformanceWarning = () => {
-  if (FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING) {
-    console.warn(`
-🔥 PERFORMANCE WARNING: Using Legacy Percy Component
-   - 2,827 lines of code with 25+ useState hooks
-   - Multiple intervals causing potential CPU overheating
-   - Consider enabling optimized version: FEATURE_FLAGS.USE_OPTIMIZED_PERCY = true
-   
-📍 Configuration: lib/config/featureFlags.ts
-    `);
+function readBooleanFlag(key: RegistryKey, fallback: boolean): boolean {
+  const primary = readEnvValue(PRIMARY_ENV[key]);
+  if (primary !== undefined) {
+    return parseBoolean(primary, fallback);
   }
+
+  const deprecatedKeys = DEPRECATED_ENV[key] ?? [];
+  for (const deprecatedKey of deprecatedKeys) {
+    const deprecatedValue = readEnvValue(deprecatedKey);
+    if (deprecatedValue !== undefined) {
+      maybeLogDeprecated(deprecatedKey, PRIMARY_ENV[key]);
+      return parseBoolean(deprecatedValue, fallback);
+    }
+  }
+
+  return fallback;
+}
+
+function readSiteVersionFlag(fallback: SiteVersion): SiteVersion {
+  const primary = readEnvValue(PRIMARY_ENV.FF_SITE_VERSION);
+  if (primary !== undefined) {
+    return normalizeSiteVersion(primary, fallback);
+  }
+
+  const deprecatedKeys = DEPRECATED_ENV.FF_SITE_VERSION ?? [];
+  for (const deprecatedKey of deprecatedKeys) {
+    const deprecatedValue = readEnvValue(deprecatedKey);
+    if (deprecatedValue !== undefined) {
+      maybeLogDeprecated(deprecatedKey, PRIMARY_ENV.FF_SITE_VERSION);
+      return normalizeSiteVersion(deprecatedValue, fallback);
+    }
+  }
+
+  return fallback;
+}
+
+function normalizeSiteVersion(value: string, fallback: SiteVersion): SiteVersion {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === 'legacy' || normalized === 'new') {
+    return normalized;
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `[featureFlags] Invalid FF_SITE_VERSION value "${value}". Falling back to "${fallback}".`
+    );
+  }
+  return fallback;
+}
+
+// Single source of truth (client-safe). Never read process.env in components.
+const registry: FlagRegistry = {
+  FF_BOOST: readBooleanFlag('FF_BOOST', true),
+  FF_CLERK: readBooleanFlag('FF_CLERK', false),
+  FF_N8N_NOOP: readBooleanFlag('FF_N8N_NOOP', true),
+  FF_SITE_VERSION: readSiteVersionFlag('legacy'),
+  FF_STRIPE_FALLBACK: readBooleanFlag('FF_STRIPE_FALLBACK', false),
 };
 
-// Usage examples:
-// const showNewHomepage = isFeatureEnabled('AI_AUTOMATION_HOMEPAGE');
-// const useUrgencyBanners = getFeatureFlag('URGENCY_BANNERS', false);
-// const percyConfig = getPercyConfig();
+export function isBoost(): boolean {
+  return registry.FF_BOOST;
+}
+
+export function isClerk(): boolean {
+  return registry.FF_CLERK;
+}
+
+export function isN8nNoop(): boolean {
+  return registry.FF_N8N_NOOP;
+}
+
+export function siteVersion(): SiteVersion {
+  return registry.FF_SITE_VERSION;
+}
+
+export function isStripeFallback(): boolean {
+  return registry.FF_STRIPE_FALLBACK;
+}
+
+export function getFlagRegistry(): Readonly<FlagRegistry> {
+  return { ...registry };
+}
+
+// Optional runtime updater for dev-only diagnostics overlay.
+export function __devSetFlags(patch: Partial<FlagRegistry>): void {
+  if (process.env.NODE_ENV !== 'production') {
+    Object.assign(registry, patch);
+  }
+}
+
+export type { FlagRegistry as FeatureFlagRegistry };
