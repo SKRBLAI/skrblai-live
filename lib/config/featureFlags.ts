@@ -64,7 +64,6 @@ function readBooleanFlag(key: RegistryKey, fallback: boolean): boolean {
   if (primary !== undefined) {
     return parseBoolean(primary, fallback);
   }
-
   const deprecatedKeys = DEPRECATED_ENV[key] ?? [];
   for (const deprecatedKey of deprecatedKeys) {
     const deprecatedValue = readEnvValue(deprecatedKey);
