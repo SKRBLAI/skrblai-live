@@ -9,7 +9,7 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { validateCreatorAccess } from '@/lib/founders/roles';
 import { getRecentFounderLogs, logFounderAction } from '@/lib/founders/codes';
-import { getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   try {

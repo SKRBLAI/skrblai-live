@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerSupabaseAnon } from '@/lib/supabase/server';
+import { getServerSupabaseAnon } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

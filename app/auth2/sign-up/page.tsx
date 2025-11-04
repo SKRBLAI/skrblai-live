@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { getServerSupabaseAnon } from '@/lib/supabase/server';
+import { getServerSupabaseAnon } from '@/lib/supabase';
 import SignUpForm from '@/app/(auth)/sign-up/SignUpForm';
 
 export const dynamic = 'force-dynamic';

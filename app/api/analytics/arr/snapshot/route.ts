@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { calculateARR } from "@/lib/analytics/arr";
-import { getServerSupabaseAdmin } from "@/lib/supabase/server";
+import { getServerSupabaseAdmin } from "@/lib/supabase";
 
 export async function POST() {
   try {

@@ -1,23 +1,23 @@
 #!/usr/bin/env node
 
-/**
- * Environment variable validation script
- * Exits with non-zero code if any required variables are missing
- */
+// Canonical environment validation for SKRBL AI
+// Validates presence of required keys and that NEXT_PUBLIC_PRICE_MAP_JSON is valid JSON.
+// Exits non-zero if invalid.
 
 const REQUIRED_KEYS = [
-  // BASE
+  // Base
   'NODE_ENV',
   'NEXT_TELEMETRY_DISABLED',
   'NEXT_PUBLIC_SITE_URL',
   'NEXT_PUBLIC_BASE_URL',
   'APP_BASE_URL',
-  // AUTH - Clerk
+
+  // Auth - Clerk
   'NEXT_PUBLIC_FF_CLERK',
   'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
   'CLERK_SECRET_KEY',
   'CLERK_WEBHOOK_SECRET',
-  // AUTH - Supabase Boost
+  // Auth - Supabase Boost
   'NEXT_PUBLIC_FF_USE_BOOST',
   'NEXT_PUBLIC_SUPABASE_URL_BOOST',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST',
@@ -57,7 +57,7 @@ const REQUIRED_KEYS = [
 ];
 
 function main() {
-  const missing = REQUIRED_KEYS.filter(key => !process.env[key] || process.env[key].trim() === '');
+  const missing = REQUIRED_KEYS.filter(key => !process.env[key] || String(process.env[key]).trim() === '');
   let priceMapOk = true;
   try {
     JSON.parse(process.env['NEXT_PUBLIC_PRICE_MAP_JSON'] || '');
@@ -65,36 +65,18 @@ function main() {
     priceMapOk = false;
   }
   if (missing.length > 0) {
-    console.error('\u274C Missing required environment variables:');
+    console.error('❌ Missing required environment variables:');
     missing.forEach(varName => {
       console.error(`   - ${varName}`);
     });
     process.exit(1);
   }
   if (!priceMapOk) {
-    console.error('\u274C NEXT_PUBLIC_PRICE_MAP_JSON is not valid JSON');
+    console.error('❌ NEXT_PUBLIC_PRICE_MAP_JSON is not valid JSON');
     process.exit(1);
   }
-  console.log('\u2705 All required environment variables are present and valid.');
+  console.log('✅ All required environment variables are present and valid.');
   process.exit(0);
 }
 
 main();
-
-
-const missingVars = requiredVars.filter(varName => {
-  const value = process.env[varName];
-  return !value || value.trim() === '';
-});
-
-if (missingVars.length > 0) {
-  console.error('❌ Missing required environment variables:');
-  missingVars.forEach(varName => {
-    console.error(`   - ${varName}`);
-  });
-  console.error('\nPlease check your .env file and ensure all required variables are set.');
-  process.exit(1);
-}
-
-console.log('✅ All required environment variables are present');
-process.exit(0);

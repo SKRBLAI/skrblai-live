@@ -6,10 +6,11 @@
 import fs from 'fs';
 import path from 'path';
 
-// Categories and keys
+// Categories and keys (Boost-first priority)
 const ENV_CATEGORIES: Record<string, string[]> = {
-  FEATURE_FLAGS: ["NEXT_PUBLIC_HP_GUIDE_STAR"],
-  SUPABASE_PUBLIC: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+  FEATURE_FLAGS: ["NEXT_PUBLIC_HP_GUIDE_STAR", "NEXT_PUBLIC_FF_USE_BOOST"],
+  SUPABASE_BOOST: ["NEXT_PUBLIC_SUPABASE_URL_BOOST", "NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST", "SUPABASE_SERVICE_ROLE_KEY_BOOST"],
+  SUPABASE_LEGACY: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
   SUPABASE_SERVER: ["SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
   AUTH: [], // Removed deprecated NextAuth variables
   STRIPE: ["NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"],
@@ -57,6 +58,23 @@ if (priceKeys.length) {
   ENV_CATEGORIES["PRICING"] = priceKeys;
 }
 
+// Helper to check if either legacy or Boost key is present
+function checkEnvPresence(key: string): boolean {
+  if (process.env[key]) return true;
+  
+  // Boost-first mapping for automatic fallback detection
+  const boostMap: Record<string, string> = {
+    'NEXT_PUBLIC_SUPABASE_URL': 'NEXT_PUBLIC_SUPABASE_URL_BOOST',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY': 'NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST',
+    'SUPABASE_SERVICE_ROLE_KEY': 'SUPABASE_SERVICE_ROLE_KEY_BOOST',
+  };
+  
+  const boostKey = boostMap[key];
+  if (boostKey && process.env[boostKey]) return true;
+  
+  return false;
+}
+
 const results: Record<string, Record<string, boolean>> = {};
 let missingCount = 0;
 let presentCount = 0;
@@ -64,7 +82,7 @@ let presentCount = 0;
 for (const [group, keys] of Object.entries(ENV_CATEGORIES)) {
   results[group] = {};
   for (const key of keys) {
-    const present = Boolean(process.env[key]);
+    const present = checkEnvPresence(key);
     results[group][key] = present;
     if (present) presentCount++;
     else missingCount++;

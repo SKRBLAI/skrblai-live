@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { getServerSupabaseAdmin } from '@/lib/supabase/server';
+import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { getUserRoleInfo, getHighestRole, type UserRole } from '@/lib/founders/roles';
 import { track } from '@/lib/analytics/track';
 

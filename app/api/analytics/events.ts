@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { systemLog } from '../../../utils/systemLog';
 
 // Rate limiting for analytics (more permissive than other APIs)

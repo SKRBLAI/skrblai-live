@@ -1,4 +1,4 @@
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 
 // ==========================================
 // TYPES & INTERFACES

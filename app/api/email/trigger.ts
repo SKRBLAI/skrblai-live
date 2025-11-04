@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOptionalServerSupabase } from '@/lib/supabase/server';
+import { getOptionalServerSupabase } from '@/lib/supabase';
 import { emailAutomation } from '../../../lib/email/n8nIntegration';
 import { EMAIL_SEQUENCES } from '../../../lib/email/sequences';
 import { systemLog } from '../../../utils/systemLog';
