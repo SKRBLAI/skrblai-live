@@ -1,0 +1,179 @@
+graph TB
+    subgraph "SKRBL AI Platform Architecture"
+        direction TB
+        
+        subgraph "1. ENTRY LAYER"
+            USER[👤 User Request]
+            MIDDLEWARE[🚦 middleware.ts<br/>Feature Flag Router]
+            
+            USER --> MIDDLEWARE
+        end
+        
+        subgraph "2. AUTH SYSTEM (Triple Stack)"
+            MIDDLEWARE --> AUTH_GATE{Auth Flag<br/>Check}
+            
+            AUTH_GATE -->|FF_CLERK=1| CLERK[Clerk Auth<br/>🚧 Prepared]
+            AUTH_GATE -->|FF_USE_BOOST=1| BOOST[Supabase Boost<br/>✅ Ready]
+            AUTH_GATE -->|default| LEGACY[Supabase Legacy<br/>✅ Active]
+            
+            CLERK --> CLERK_PROVIDER[ConditionalClerkProvider.tsx]
+            BOOST --> BOOST_CLIENT[getBoostClientPublic]
+            LEGACY --> LEGACY_CLIENT[getLegacyClient]
+            
+            CLERK_PROVIDER --> REQUIRE[requireUser.ts<br/>Normalizer]
+            BOOST_CLIENT --> REQUIRE
+            LEGACY_CLIENT --> REQUIRE
+        end
+        
+        subgraph "3. FEATURE FLAGS (23+)"
+            FF_CONFIG[lib/config/featureFlags.ts<br/>Single Source of Truth]
+            
+            FF_CONFIG --> FF_AUTH[Auth Flags]
+            FF_CONFIG --> FF_PAYMENT[Payment Flags]
+            FF_CONFIG --> FF_PERCY[Percy Flags 8x]
+            FF_CONFIG --> FF_N8N[n8n Flags]
+            FF_CONFIG --> FF_UI[UI Flags]
+            
+            FF_N8N --> N8N_NOOP[FF_N8N_NOOP=1<br/>🔇 NOOP Mode]
+            FF_PERCY --> PERCY_OPT[USE_OPTIMIZED_PERCY=0<br/>⚠️ Legacy Active]
+        end
+        
+        subgraph "4. DATABASE LAYER"
+            SUPABASE_SERVER[lib/supabase/server.ts<br/>Client Factory]
+            
+            REQUIRE --> SUPABASE_SERVER
+            
+            SUPABASE_SERVER --> DB_LEGACY[🗄️ Supabase Legacy DB<br/>Original Instance]
+            SUPABASE_SERVER --> DB_BOOST[🗄️ Supabase Boost DB<br/>New Instance]
+            
+            DB_LEGACY --> TABLES[Tables:<br/>profiles, agent_logs,<br/>promo_codes, vip_status,<br/>analytics_*, leads]
+            DB_BOOST --> TABLES
+        end
+        
+        subgraph "5. ROUTING LAYER"
+            REQUIRE --> ROUTES{Route Type}
+            
+            ROUTES --> PUBLIC[Public Routes<br/>/, /features, /pricing]
+            ROUTES --> PROTECTED[Protected Routes<br/>/dashboard, /admin]
+            ROUTES --> UDASH[Universal Dashboard<br/>/udash]
+            
+            PUBLIC --> HOME_HERO[HomeHeroScanFirst.tsx]
+            PUBLIC --> PERCY_FIG[PercyFigure.tsx]
+            PUBLIC --> AGENT_PREVIEW[AgentLeaguePreview.tsx]
+            
+            PROTECTED --> DASH_HOME[DashboardHome.tsx]
+            PROTECTED --> DASH_CLIENT[DashboardClient.tsx]
+            
+            UDASH --> UDASH_PAGE[Universal Dashboard<br/>Boost-Powered]
+        end
+        
+        subgraph "6. PERCY AI SYSTEM (151 files)"
+            PERCY_WIDGET[PercyWidget.tsx<br/>573 lines]
+            
+            DASH_HOME --> PERCY_WIDGET
+            HOME_HERO --> PERCY_WIDGET
+            
+            PERCY_WIDGET --> PERCY_FLAG_CHECK{USE_OPTIMIZED<br/>_PERCY?}
+            
+            PERCY_FLAG_CHECK -->|flag=0| PERCY_LEGACY[⚠️ PercyOnboarding<br/>Revolution.tsx<br/>2,827 lines<br/>25+ useState]
+            PERCY_FLAG_CHECK -->|flag=1| PERCY_OPT_COMP[✓ PercyOnboarding<br/>RevolutionOptimized<br/>Clean Refactor]
+            
+            PERCY_LEGACY --> PERCY_CHAT[UnifiedPercyChat.tsx<br/>StreamingPercyChat.tsx]
+            PERCY_OPT_COMP --> PERCY_CHAT
+            
+            PERCY_CHAT --> PERCY_API[/api/percy/chat]
+            PERCY_API --> PERCY_AGENT[ai-agents/percyAgent.ts]
+        end
+        
+        subgraph "7. AGENT SYSTEM"
+            AGENT_GRID[AgentGrid.tsx]
+            AGENT_CARD[AgentCard.tsx<br/>293 lines]
+            AGENT_LEAGUE[AgentLeagueDashboard.tsx]
+            
+            AGENT_PREVIEW --> AGENT_GRID
+            AGENT_GRID --> AGENT_CARD
+            AGENT_CARD --> AGENT_LAUNCH[/api/agents/[id]/launch]
+            
+            AGENT_LAUNCH --> AGENT_LOG[Log to Supabase]
+            AGENT_LAUNCH --> AGENT_N8N_CHECK{FF_N8N_NOOP?}
+            
+            AGENT_N8N_CHECK -->|=1| NOOP_LOG[🔇 Log & Return<br/>Success]
+            AGENT_N8N_CHECK -->|=0| N8N_TRIGGER[Trigger n8n<br/>Workflow]
+        end
+        
+        subgraph "8. N8N AUTOMATION (57 files)"
+            N8N_CLIENT[lib/n8nClient.ts]
+            N8N_WEBHOOKS[lib/webhooks/n8nWebhooks.ts]
+            
+            N8N_TRIGGER --> N8N_CLIENT
+            N8N_CLIENT --> N8N_WEBHOOKS
+            
+            N8N_WEBHOOKS --> N8N_WORKFLOWS[n8n Cloud Workflows]
+            N8N_WORKFLOWS --> N8N_PUBLISH[Publishing Workflow]
+            N8N_WORKFLOWS --> N8N_PROPOSAL[Proposal Workflow]
+            N8N_WORKFLOWS --> N8N_SYNC[Content Sync]
+            N8N_WORKFLOWS --> N8N_ONBOARD[Onboarding]
+        end
+        
+        subgraph "9. PAYMENT SYSTEM"
+            BUY_BTN[BuyButton.tsx]
+            PRICE_RESOLVER[lib/stripe/priceResolver.ts<br/>50+ Price IDs]
+            
+            BUY_BTN --> PRICE_RESOLVER
+            PRICE_RESOLVER --> STRIPE_FLAG{FF_STRIPE<br/>_FALLBACK_LINKS?}
+            
+            STRIPE_FLAG -->|=0| CHECKOUT_SESSION[Checkout Sessions API]
+            STRIPE_FLAG -->|=1| PAYMENT_LINKS[Payment Links]
+            
+            CHECKOUT_SESSION --> STRIPE_PROCESS[Stripe Processing]
+            PAYMENT_LINKS --> STRIPE_PROCESS
+            
+            STRIPE_PROCESS --> WEBHOOK[/api/stripe/webhook]
+            WEBHOOK --> UPDATE_DB[Update Supabase Profile]
+            WEBHOOK --> WEBHOOK_N8N_CHECK{FF_N8N_NOOP?}
+            
+            WEBHOOK_N8N_CHECK -->|=0| FORWARD_N8N[Forward to n8n<br/>Post-Payment]
+            WEBHOOK_N8N_CHECK -->|=1| SKIP_N8N[Skip n8n]
+        end
+        
+        subgraph "10. EXTERNAL SERVICES"
+            EXT_CLERK[☁️ Clerk]
+            EXT_SUPABASE_L[☁️ Supabase Legacy]
+            EXT_SUPABASE_B[☁️ Supabase Boost]
+            EXT_N8N[☁️ n8n Cloud]
+            EXT_STRIPE[☁️ Stripe]
+            EXT_OPENAI[☁️ OpenAI GPT-4]
+            EXT_PINECONE[☁️ Pinecone Vector DB]
+            EXT_RESEND[☁️ Resend Email]
+            EXT_TWILIO[☁️ Twilio SMS]
+            
+            CLERK --> EXT_CLERK
+            DB_LEGACY --> EXT_SUPABASE_L
+            DB_BOOST --> EXT_SUPABASE_B
+            N8N_WEBHOOKS --> EXT_N8N
+            STRIPE_PROCESS --> EXT_STRIPE
+            PERCY_AGENT --> EXT_OPENAI
+            PERCY_AGENT --> EXT_PINECONE
+        end
+        
+        subgraph "11. MONITORING"
+            SENTRY[Sentry Error Tracking]
+            ANALYTICS[Analytics APIs<br/>9 routes]
+            HEALTH[Health Probes<br/>/_probe/*]
+            ACTIVITY[Activity Logger]
+            
+            MIDDLEWARE --> SENTRY
+            DASH_HOME --> ANALYTICS
+            ANALYTICS --> HEALTH
+        end
+    end
+    
+    style MIDDLEWARE fill:#ff6b6b,stroke:#333,stroke-width:2px,color:#fff
+    style N8N_NOOP fill:#ffd93d,stroke:#333,stroke-width:2px,color:#000
+    style PERCY_LEGACY fill:#ff8787,stroke:#333,stroke-width:2px,color:#fff
+    style PERCY_OPT_COMP fill:#6bcf7f,stroke:#333,stroke-width:2px,color:#fff
+    style REQUIRE fill:#95e1d3,stroke:#333,stroke-width:2px,color:#000
+    style FF_CONFIG fill:#a8e6cf,stroke:#333,stroke-width:2px,color:#000
+    style NOOP_LOG fill:#ffd93d,stroke:#333,stroke-width:2px,color:#000
+    style BOOST fill:#95e1d3,stroke:#333,stroke-width:2px,color:#000
+    style CLERK fill:#dfe4ea,stroke:#333,stroke-width:2px,color:#000
