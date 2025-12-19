@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "preflight": "tsx scripts/verifyEnv.ts",
     "verify:env": "tsx scripts/verifyEnv.ts",
     "check:env": "node scripts/check-env.mjs",
     "preflight": "node scripts/preflight.mjs",
