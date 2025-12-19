@@ -13,15 +13,10 @@ const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLaunc
 const PercyOnboardingRevolution = dynamic(() => import("@/components/home/PercyOnboardingRevolution"), { ssr: false });
 
 export default function Page() {
-  // Hero variant selector (env-driven) - moved to runtime
-  const variant = FEATURE_FLAGS.HOMEPAGE_HERO_VARIANT;
-  const Hero = variant === 'split'
-    ? require('@/components/home/HomeHeroScanFirst').default // Default to scan-first
-    : variant === 'legacy'
-      ? require('@/components/home/Hero').default
-      : require('@/components/home/HomeHeroScanFirst').default;
+  // Hero is always scan-first now (variant selection removed)
+  const Hero = require('@/components/home/HomeHeroScanFirst').default;
 
-  // Use unified feature flags for guide star
+  // Guide star is always enabled now (constant)
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
   const searchParams = useSearchParams();
   const { setAnalysisIntent, analysisIntent } = useOnboarding();

@@ -1,5 +1,6 @@
-import { getServerSupabaseAnon, getLegacyClient, getBoostClientPublic } from '@/lib/supabase/server';
+import { getServerSupabaseAnon, getServerSupabaseAnonWithVariant } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { FLAGS } from '@/lib/config/featureFlags';
 
 export interface NormalizedUser {
   id: string;
@@ -12,8 +13,9 @@ export interface NormalizedUser {
 
 /**
  * Server-side auth guard that requires a signed-in user
- * Supports both Supabase and Clerk authentication based on feature flags
- * Redirects to appropriate sign-in page if no user is found
+ * 
+ * v1: Supabase-only (FF_CLERK and FF_BOOST are quarantined)
+ * v2: Will support Clerk when FF_CLERK=1
  * 
  * Usage in page components:
  * export default async function MyPage() {
@@ -22,17 +24,24 @@ export interface NormalizedUser {
  * }
  */
 export async function requireUser(): Promise<NormalizedUser> {
-  // Check if Clerk is enabled
-  const useClerk = process.env.NEXT_PUBLIC_FF_CLERK === '1';
-  const useBoost = process.env.FF_USE_BOOST_FOR_AUTH === '1';
+  // v1: Supabase-only behavior
+  // Clerk and Boost are quarantined - flags exist but behavior is disabled
+  const useBoost = FLAGS.FF_BOOST;
+  const useClerk = FLAGS.FF_CLERK;
   
+  // For v1, we always use Supabase legacy regardless of flags
+  // This ensures stable auth behavior until Clerk is fully configured
   if (useClerk) {
-    return await requireUserFromClerk();
-  } else if (useBoost) {
-    return await requireUserFromSupabaseBoost();
-  } else {
-    return await requireUserFromSupabaseLegacy();
+    // Clerk is quarantined in v1 - fall back to Supabase
+    console.log('[requireUser] FF_CLERK is set but quarantined in v1, using Supabase');
   }
+  
+  if (useBoost) {
+    // Boost is available but optional
+    return await requireUserFromSupabaseBoost();
+  }
+  
+  return await requireUserFromSupabaseLegacy();
 }
 
 /**
@@ -42,14 +51,14 @@ async function requireUserFromSupabaseLegacy(): Promise<NormalizedUser> {
   const supabase = getServerSupabaseAnon();
   
   if (!supabase) {
-    console.warn('[requireUser] Legacy Supabase not configured, redirecting to sign-in');
+    console.warn('[requireUser] Supabase not configured, redirecting to sign-in');
     redirect('/sign-in');
   }
 
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
-    console.log('[requireUser] No authenticated user found in legacy Supabase, redirecting to sign-in');
+    console.log('[requireUser] No authenticated user found, redirecting to sign-in');
     redirect('/sign-in');
   }
 
@@ -64,21 +73,21 @@ async function requireUserFromSupabaseLegacy(): Promise<NormalizedUser> {
 }
 
 /**
- * Get user from Supabase Boost
+ * Get user from Supabase Boost (optional alternative Supabase project)
  */
 async function requireUserFromSupabaseBoost(): Promise<NormalizedUser> {
-  const supabase = getBoostClientPublic();
+  const supabase = getServerSupabaseAnonWithVariant('boost');
   
   if (!supabase) {
-    console.warn('[requireUser] Boost Supabase not configured, redirecting to auth2/sign-in');
-    redirect('/auth2/sign-in');
+    console.warn('[requireUser] Boost Supabase not configured, falling back to legacy');
+    return await requireUserFromSupabaseLegacy();
   }
 
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
-    console.log('[requireUser] No authenticated user found in Boost Supabase, redirecting to auth2/sign-in');
-    redirect('/auth2/sign-in');
+    console.log('[requireUser] No authenticated user found in Boost, redirecting to sign-in');
+    redirect('/sign-in');
   }
 
   return {
@@ -89,15 +98,4 @@ async function requireUserFromSupabaseBoost(): Promise<NormalizedUser> {
     created_at: user.created_at,
     updated_at: user.updated_at
   };
-}
-
-/**
- * Get user from Clerk
- * This is a placeholder - Clerk integration will be added when Clerk is installed
- */
-async function requireUserFromClerk(): Promise<NormalizedUser> {
-  // TODO: Implement Clerk user retrieval
-  // For now, redirect to auth2/sign-in
-  console.log('[requireUser] Clerk auth not yet implemented, redirecting to auth2/sign-in');
-  redirect('/auth2/sign-in');
 }

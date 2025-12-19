@@ -12,10 +12,10 @@ import toast from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
 import '../../../styles/components/BookPublishing.css';
 import type { BookPublishingState, FileUploadStatus } from '@/types/book-publishing';
-import type { User } from '@supabase/supabase-js';
+import type { NormalizedUser } from '@/lib/auth/requireUser';
 
 interface BookPublishingClientProps {
-  user: User;
+  user: NormalizedUser;
 }
 
 export default function BookPublishingClient({ user }: BookPublishingClientProps) {

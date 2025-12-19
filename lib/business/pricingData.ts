@@ -314,7 +314,7 @@ export function getBusinessPlansLegacy(): LegacyPlan[] {
       displayPrice: currentPrice === 0 ? '$0' : `$${currentPrice}`,
       originalPriceText: plan.promoPrice && plan.priceUsd ? `$${plan.priceUsd.toFixed(2)}` : undefined,
       promoLabel: plan.isPromoActive ? 'Limited Time' : undefined,
-      sku: plan.envPriceVar ? process.env[plan.envPriceVar] : undefined,
+      sku: plan.sku,
       isSubscription: plan.billingInterval === 'month',
       perks: plan.includes,
       ctaKind: displayConfig?.ctaKind || 'buy'

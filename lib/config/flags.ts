@@ -63,41 +63,26 @@ export function readServerFlag(name: string, defaultVal: boolean = false): boole
 // === FLAG SNAPSHOT ===
 
 /**
- * Get a snapshot of all known flags with their current values
- * Useful for debugging and monitoring
+ * CANONICAL FLAGS ONLY - Get a snapshot of all canonical flags
+ * Only includes the 5 canonical flags, not deprecated ones
  */
 export function getFlagsSnapshot() {
-  const knownFlags = [
-    // Client flags
-    'NEXT_PUBLIC_ENABLE_STRIPE',
-    'NEXT_PUBLIC_HP_GUIDE_STAR', 
-    'NEXT_PUBLIC_ENABLE_ORBIT',
-    'NEXT_PUBLIC_ENABLE_BUNDLES',
-    'NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS',
-    'NEXT_PUBLIC_SHOW_PERCY_WIDGET',
-    'NEXT_PUBLIC_USE_OPTIMIZED_PERCY',
-    'NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS',
-    'NEXT_PUBLIC_ENABLE_PERCY_AVATAR',
-    'NEXT_PUBLIC_ENABLE_PERCY_CHAT',
-    'NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF',
-    'NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING',
-    'NEXT_PUBLIC_PERCY_AUTO_FALLBACK',
-    'NEXT_PUBLIC_PERCY_LOG_SWITCHES',
-    'NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE',
-    'NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN',
-    'NEXT_PUBLIC_URGENCY_BANNERS',
-    'NEXT_PUBLIC_LIVE_METRICS',
-    
-    // Server flags
+  const canonicalFlags = [
+    'FF_BOOST',
+    'FF_CLERK',
+    'FF_SITE_VERSION',
     'FF_N8N_NOOP',
+    'ENABLE_STRIPE',
   ];
   
-  const snapshot: Record<string, { value: boolean; raw: string | undefined; source: string }> = {};
+  const snapshot: Record<string, { value: boolean | string; raw: string | undefined; source: string }> = {};
   
-  for (const flag of knownFlags) {
+  for (const flag of canonicalFlags) {
     const raw = process.env[flag];
-    const value = readBooleanFlag(flag, false);
-    const source = raw ? (flag.startsWith('NEXT_PUBLIC_') ? 'NEXT_PUBLIC_' : 'server') : 'default';
+    const value = flag === 'FF_SITE_VERSION' 
+      ? (raw ?? 'v1') 
+      : readBooleanFlag(flag, flag === 'FF_N8N_NOOP' || flag === 'ENABLE_STRIPE');
+    const source = raw ? 'env' : 'default';
     
     snapshot[flag] = { value, raw, source };
   }
@@ -108,30 +93,28 @@ export function getFlagsSnapshot() {
 // === VALIDATION HELPERS ===
 
 /**
- * Validate that all required flags are set
- * Throws in production if critical flags are missing
+ * Validate that all required canonical flags are set
+ * Warns if flags are missing (uses defaults)
  */
 export function validateFlags() {
-  const criticalFlags = [
-    'NEXT_PUBLIC_ENABLE_STRIPE',
+  const canonicalFlags = [
+    { name: 'FF_BOOST', required: false },
+    { name: 'FF_CLERK', required: false },
+    { name: 'FF_SITE_VERSION', required: false },
+    { name: 'FF_N8N_NOOP', required: false },
+    { name: 'ENABLE_STRIPE', required: false },
   ];
   
   const missing: string[] = [];
   
-  for (const flag of criticalFlags) {
-    if (process.env[flag] === undefined) {
-      missing.push(flag);
+  for (const flag of canonicalFlags) {
+    if (process.env[flag.name] === undefined) {
+      missing.push(flag.name);
     }
   }
   
-  if (missing.length > 0) {
-    const message = `Missing critical flags: ${missing.join(', ')}`;
-    
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(message);
-    } else {
-      console.warn(`[FLAG] ${message}`);
-    }
+  if (missing.length > 0 && process.env.NODE_ENV !== 'production') {
+    console.debug(`[FLAG] Using defaults for: ${missing.join(', ')}`);
   }
 }
 

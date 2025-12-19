@@ -1,200 +1,153 @@
 /** MMM: Canonical source for feature flags. Do not duplicate. */
 
 /**
- * Unified Feature Flag Configuration
- * Single source of truth for all feature flags with progressive enhancement approach
- * Base UI always renders; enhanced pieces toggle based on flags
+ * Unified Feature Flag Configuration - DE-CURSED VERSION
+ * 
+ * CANONICAL FLAGS ONLY (5 total):
+ * - FF_BOOST: Supabase Boost auth toggle
+ * - FF_CLERK: Clerk auth toggle (v2 only, quarantined for v1)
+ * - FF_SITE_VERSION: Legacy/new split (v1 only)
+ * - FF_N8N_NOOP: N8N workflow kill switch
+ * - ENABLE_STRIPE: Global Stripe kill switch
+ * 
+ * All other flags have been converted to constants or removed.
  */
 
 import { readBooleanFlag } from './flags';
-import { readEnvAny } from '@/lib/env/readEnvAny';
 
 // Re-export the enhanced flag parser
 export { readBooleanFlag };
 
 /**
- * Centralized list of all known feature flags with documentation
- * This serves as the single source of truth for flag names and defaults
+ * CANONICAL FLAGS - The only flags that should be read from environment
  */
-export const KNOWN_FLAGS = {
-  // === CLIENT FLAGS (NEXT_PUBLIC_*) ===
-  NEXT_PUBLIC_ENABLE_STRIPE: { 
-    default: true, 
-    description: 'Global Stripe payment toggle - disables all payment buttons when false' 
-  },
-  NEXT_PUBLIC_HP_GUIDE_STAR: { 
-    default: true, 
-    description: 'Homepage guide star component visibility' 
-  },
-  NEXT_PUBLIC_ENABLE_ORBIT: { 
-    default: false, 
-    description: 'Orbit League visualization component' 
-  },
-  NEXT_PUBLIC_ENABLE_BUNDLES: { 
-    default: false, 
-    description: 'Legacy bundle pricing system' 
-  },
-  NEXT_PUBLIC_ENABLE_LEGACY: { 
-    default: false, 
-    description: 'Legacy system features and components' 
-  },
-  NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS: { 
-    default: false, 
-    description: 'Use Stripe Payment Links instead of Checkout Sessions' 
-  },
-  NEXT_PUBLIC_SHOW_PERCY_WIDGET: { 
-    default: false, 
-    description: 'Percy widget visibility on pages' 
-  },
-  NEXT_PUBLIC_USE_OPTIMIZED_PERCY: { 
-    default: false, 
-    description: 'Use optimized Percy component instead of legacy' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS: { 
-    default: true, 
-    description: 'Enable Percy component animations' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_AVATAR: { 
-    default: true, 
-    description: 'Show Percy avatar in components' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_CHAT: { 
-    default: true, 
-    description: 'Enable Percy chat functionality' 
-  },
-  NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF: { 
-    default: true, 
-    description: 'Show Percy social proof elements' 
-  },
-  NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING: { 
-    default: true, 
-    description: 'Enable Percy performance monitoring' 
-  },
-  NEXT_PUBLIC_PERCY_AUTO_FALLBACK: { 
-    default: true, 
-    description: 'Enable Percy automatic fallback to legacy' 
-  },
-  NEXT_PUBLIC_PERCY_LOG_SWITCHES: { 
-    default: true, 
-    description: 'Log Percy component switches for debugging' 
-  },
-  NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE: { 
-    default: true, 
-    description: 'AI automation homepage features' 
-  },
-  NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN: { 
-    default: true, 
-    description: 'Enhanced business scan functionality' 
-  },
-  NEXT_PUBLIC_URGENCY_BANNERS: { 
-    default: true, 
-    description: 'Urgency banners and promotional elements' 
-  },
-  NEXT_PUBLIC_LIVE_METRICS: { 
-    default: true, 
-    description: 'Live metrics and counters' 
-  },
+export const FLAGS = {
+  // === AUTH FLAGS ===
+  /** Supabase Boost auth toggle. Default: false (use legacy Supabase) */
+  FF_BOOST: readBooleanFlag('FF_BOOST', false),
   
-  // === SERVER FLAGS (no NEXT_PUBLIC_ prefix) ===
-  FF_N8N_NOOP: { 
-    default: true, 
-    description: 'n8n NOOP mode - prevents n8n downtime from blocking user flows' 
-  },
+  /** Clerk auth toggle. Default: false (Supabase-only for v1) */
+  FF_CLERK: readBooleanFlag('FF_CLERK', false),
+  
+  // === SYSTEM FLAGS ===
+  /** Site version for legacy/new split. Default: 'v1' */
+  FF_SITE_VERSION: (process.env.FF_SITE_VERSION ?? 'v1') as 'v1' | 'v2',
+  
+  /** N8N NOOP mode - prevents n8n downtime from blocking user flows. Default: true */
+  FF_N8N_NOOP: readBooleanFlag('FF_N8N_NOOP', true),
+  
+  // === PAYMENT FLAGS ===
+  /** Global Stripe kill switch. Default: true (enabled) */
+  ENABLE_STRIPE: readBooleanFlag('ENABLE_STRIPE', true),
 } as const;
 
+/**
+ * CONSTANTS - Former flags that are now always on/off
+ * These are NOT read from environment - they're compile-time constants
+ */
+export const CONSTANTS = {
+  // Always ON (progressive enhancement, always enabled)
+  HP_GUIDE_STAR: true,
+  AI_AUTOMATION_HOMEPAGE: true,
+  ENHANCED_BUSINESS_SCAN: true,
+  URGENCY_BANNERS: true,
+  LIVE_METRICS: true,
+  ENABLE_PERCY_ANIMATIONS: true,
+  ENABLE_PERCY_AVATAR: true,
+  ENABLE_PERCY_CHAT: true,
+  ENABLE_PERCY_SOCIAL_PROOF: true,
+  
+  // Always OFF (dead/deprecated features)
+  ENABLE_ORBIT: false,
+  ENABLE_BUNDLES: false,
+  ENABLE_LEGACY: false,
+  FF_STRIPE_FALLBACK_LINKS: false,
+  SHOW_PERCY_WIDGET: false,
+  USE_OPTIMIZED_PERCY: false,
+  PERCY_PERFORMANCE_MONITORING: false,
+  PERCY_AUTO_FALLBACK: false,
+  PERCY_LOG_SWITCHES: false,
+  
+  // Homepage variant is always 'scan-first' now
+  HOMEPAGE_HERO_VARIANT: 'scan-first' as const,
+} as const;
+
+/**
+ * FEATURE_FLAGS - Legacy compatibility export
+ * Maps old flag names to new canonical flags or constants
+ * @deprecated Use FLAGS for canonical flags, CONSTANTS for fixed values
+ */
 export const FEATURE_FLAGS = {
-  // === CORE FEATURE FLAGS ===
+  // Canonical flags (read from env)
+  FF_N8N_NOOP: FLAGS.FF_N8N_NOOP,
+  ENABLE_STRIPE: FLAGS.ENABLE_STRIPE,
   
-  // Homepage & UI Features
-  HP_GUIDE_STAR: readBooleanFlag('NEXT_PUBLIC_HP_GUIDE_STAR', true), // Default enabled for progressive enhancement
-  HOMEPAGE_HERO_VARIANT: (process.env.NEXT_PUBLIC_HOMEPAGE_HERO_VARIANT ?? 'scan-first') as 'scan-first' | 'split' | 'legacy',
+  // Constants (always on)
+  HP_GUIDE_STAR: CONSTANTS.HP_GUIDE_STAR,
+  AI_AUTOMATION_HOMEPAGE: CONSTANTS.AI_AUTOMATION_HOMEPAGE,
+  ENHANCED_BUSINESS_SCAN: CONSTANTS.ENHANCED_BUSINESS_SCAN,
+  URGENCY_BANNERS: CONSTANTS.URGENCY_BANNERS,
+  LIVE_METRICS: CONSTANTS.LIVE_METRICS,
+  ENABLE_PERCY_ANIMATIONS: CONSTANTS.ENABLE_PERCY_ANIMATIONS,
+  ENABLE_PERCY_AVATAR: CONSTANTS.ENABLE_PERCY_AVATAR,
+  ENABLE_PERCY_CHAT: CONSTANTS.ENABLE_PERCY_CHAT,
+  ENABLE_PERCY_SOCIAL_PROOF: CONSTANTS.ENABLE_PERCY_SOCIAL_PROOF,
   
-  // Payment & Stripe Features
-  ENABLE_STRIPE: readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', true), // Global Stripe toggle
-  FF_STRIPE_FALLBACK_LINKS: readBooleanFlag('NEXT_PUBLIC_FF_STRIPE_FALLBACK_LINKS', false), // Use Payment Links fallback
+  // Constants (always off)
+  ENABLE_ORBIT: CONSTANTS.ENABLE_ORBIT,
+  ENABLE_BUNDLES: CONSTANTS.ENABLE_BUNDLES,
+  ENABLE_LEGACY: CONSTANTS.ENABLE_LEGACY,
+  FF_STRIPE_FALLBACK_LINKS: CONSTANTS.FF_STRIPE_FALLBACK_LINKS,
+  SHOW_PERCY_WIDGET: CONSTANTS.SHOW_PERCY_WIDGET,
+  USE_OPTIMIZED_PERCY: CONSTANTS.USE_OPTIMIZED_PERCY,
+  PERCY_PERFORMANCE_MONITORING: CONSTANTS.PERCY_PERFORMANCE_MONITORING,
+  PERCY_AUTO_FALLBACK: CONSTANTS.PERCY_AUTO_FALLBACK,
+  PERCY_LOG_SWITCHES: CONSTANTS.PERCY_LOG_SWITCHES,
   
-  // Legacy System Control
-  ENABLE_BUNDLES: readBooleanFlag('NEXT_PUBLIC_ENABLE_BUNDLES', false), // Legacy bundle pricing
-  ENABLE_ORBIT: readBooleanFlag('NEXT_PUBLIC_ENABLE_ORBIT', false), // Orbit League visualization
-  ENABLE_LEGACY: readBooleanFlag('NEXT_PUBLIC_ENABLE_LEGACY', false), // Legacy system features
-  
-  // === N8N INTEGRATION CONTROL ===
-  // MMM: Default true to prevent n8n downtime from blocking user flows.
-  // Set FF_N8N_NOOP=false to re-enable n8n webhooks when ready.
-  FF_N8N_NOOP: readBooleanFlag('FF_N8N_NOOP', true), // n8n NOOP mode (safe default)
-  
-  // === PROGRESSIVE ENHANCEMENT FLAGS ===
-  // These flags enhance base functionality but don't break the UI when disabled
-  
-  AI_AUTOMATION_HOMEPAGE: readBooleanFlag('NEXT_PUBLIC_AI_AUTOMATION_HOMEPAGE', true),
-  ENHANCED_BUSINESS_SCAN: readBooleanFlag('NEXT_PUBLIC_ENHANCED_BUSINESS_SCAN', true),
-  URGENCY_BANNERS: readBooleanFlag('NEXT_PUBLIC_URGENCY_BANNERS', true),
-  LIVE_METRICS: readBooleanFlag('NEXT_PUBLIC_LIVE_METRICS', true),
-  
-  // Percy Component Flags (consolidated from percyFeatureFlags.ts)
-  USE_OPTIMIZED_PERCY: readBooleanFlag('NEXT_PUBLIC_USE_OPTIMIZED_PERCY', false),
-  ENABLE_PERCY_ANIMATIONS: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_ANIMATIONS', true),
-  ENABLE_PERCY_AVATAR: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_AVATAR', true),
-  ENABLE_PERCY_CHAT: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_CHAT', true),
-  ENABLE_PERCY_SOCIAL_PROOF: readBooleanFlag('NEXT_PUBLIC_ENABLE_PERCY_SOCIAL_PROOF', true),
-  PERCY_PERFORMANCE_MONITORING: readBooleanFlag('NEXT_PUBLIC_PERCY_PERFORMANCE_MONITORING', true),
-  PERCY_AUTO_FALLBACK: readBooleanFlag('NEXT_PUBLIC_PERCY_AUTO_FALLBACK', true),
-  PERCY_LOG_SWITCHES: readBooleanFlag('NEXT_PUBLIC_PERCY_LOG_SWITCHES', true),
-  
-  // === ADDITIONAL FLAGS ===
-  SHOW_PERCY_WIDGET: readBooleanFlag('NEXT_PUBLIC_SHOW_PERCY_WIDGET', false), // Percy widget visibility
-  
+  // Fixed values
+  HOMEPAGE_HERO_VARIANT: CONSTANTS.HOMEPAGE_HERO_VARIANT,
 } as const;
 
-// Helper types for strong typing of boolean vs non-boolean flags
+// Helper types for strong typing
 type FeatureFlags = typeof FEATURE_FLAGS;
 type BooleanFlagKeys = { [K in keyof FeatureFlags]: FeatureFlags[K] extends boolean ? K : never }[keyof FeatureFlags];
 
-// Helper function to check boolean feature flags
+/** Check if a feature flag is enabled */
 export const isFeatureEnabled = (flag: BooleanFlagKeys): boolean => {
   return FEATURE_FLAGS[flag] as boolean;
 };
 
-// Helper function to get any feature flag with proper typing
+/** Get any feature flag value with proper typing */
 export const getFeatureFlag = <K extends keyof FeatureFlags>(flag: K, fallback?: FeatureFlags[K]): FeatureFlags[K] => {
   const value = FEATURE_FLAGS[flag];
   return (value ?? fallback) as FeatureFlags[K];
 };
 
-// Percy-specific helper functions (consolidated from percyFeatureFlags.ts)
-export const getPercyConfig = () => {
-  return {
-    USE_OPTIMIZED_PERCY: FEATURE_FLAGS.USE_OPTIMIZED_PERCY,
-    ENABLE_PERCY_AVATAR: FEATURE_FLAGS.ENABLE_PERCY_AVATAR,
-    ENABLE_PERCY_CHAT: FEATURE_FLAGS.ENABLE_PERCY_CHAT,
-    ENABLE_PERCY_SOCIAL_PROOF: FEATURE_FLAGS.ENABLE_PERCY_SOCIAL_PROOF,
-    ENABLE_PERCY_ANIMATIONS: FEATURE_FLAGS.ENABLE_PERCY_ANIMATIONS,
-    PERCY_PERFORMANCE_MONITORING: FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING,
-    PERCY_AUTO_FALLBACK: FEATURE_FLAGS.PERCY_AUTO_FALLBACK,
-    PERCY_LOG_SWITCHES: FEATURE_FLAGS.PERCY_LOG_SWITCHES,
-  };
+/**
+ * Percy config - now returns constants only
+ * @deprecated Percy component is deprecated
+ */
+export const getPercyConfig = () => ({
+  USE_OPTIMIZED_PERCY: CONSTANTS.USE_OPTIMIZED_PERCY,
+  ENABLE_PERCY_AVATAR: CONSTANTS.ENABLE_PERCY_AVATAR,
+  ENABLE_PERCY_CHAT: CONSTANTS.ENABLE_PERCY_CHAT,
+  ENABLE_PERCY_SOCIAL_PROOF: CONSTANTS.ENABLE_PERCY_SOCIAL_PROOF,
+  ENABLE_PERCY_ANIMATIONS: CONSTANTS.ENABLE_PERCY_ANIMATIONS,
+  PERCY_PERFORMANCE_MONITORING: CONSTANTS.PERCY_PERFORMANCE_MONITORING,
+  PERCY_AUTO_FALLBACK: CONSTANTS.PERCY_AUTO_FALLBACK,
+  PERCY_LOG_SWITCHES: CONSTANTS.PERCY_LOG_SWITCHES,
+});
+
+/**
+ * @deprecated Percy logging is disabled
+ */
+export const logPercySwitch = (_component: string, _version: 'legacy' | 'optimized') => {
+  // No-op: Percy logging disabled
 };
 
-export const logPercySwitch = (component: string, version: 'legacy' | 'optimized') => {
-  if (FEATURE_FLAGS.PERCY_LOG_SWITCHES) {
-    console.log(`🔄 Percy ${component}: Using ${version} version`);
-  }
-};
-
+/**
+ * @deprecated Percy performance warning is disabled
+ */
 export const showPerformanceWarning = () => {
-  if (FEATURE_FLAGS.PERCY_PERFORMANCE_MONITORING) {
-    console.warn(`
-🔥 PERFORMANCE WARNING: Using Legacy Percy Component
-   - 2,827 lines of code with 25+ useState hooks
-   - Multiple intervals causing potential CPU overheating
-   - Consider enabling optimized version: FEATURE_FLAGS.USE_OPTIMIZED_PERCY = true
-   
-📍 Configuration: lib/config/featureFlags.ts
-    `);
-  }
+  // No-op: Percy performance monitoring disabled
 };
-
-// Usage examples:
-// const showNewHomepage = isFeatureEnabled('AI_AUTOMATION_HOMEPAGE');
-// const useUrgencyBanners = getFeatureFlag('URGENCY_BANNERS', false);
-// const percyConfig = getPercyConfig();

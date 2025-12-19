@@ -158,29 +158,6 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Environment Variables Status */}
-                <div className="mt-6 pt-6 border-t border-gray-600/50">
-                  <h3 className="text-sm font-semibold text-gray-400 mb-3">Stripe Configuration</h3>
-                  <div className="space-y-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Rookie Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_ROOKIE || 'Not Set'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Pro Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO || 'Not Set'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">All-Star Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_ALLSTAR || 'Not Set'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Yearly Price ID:</span>
-                      <span className="text-orange-300">{process.env.NEXT_PUBLIC_STRIPE_PRICE_YEARLY || 'Not Set'}</span>
-                    </div>
-                  </div>
-                </div>
               </motion.div>
             </div>
           </div>

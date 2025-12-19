@@ -10,10 +10,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
-import type { User } from '@supabase/supabase-js';
+import type { NormalizedUser } from '@/lib/auth/requireUser';
 
 interface WebsiteClientProps {
-  user: User;
+  user: NormalizedUser;
 }
 
 export default function WebsiteClient({ user }: WebsiteClientProps) {

@@ -11,10 +11,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
-import type { User } from '@supabase/supabase-js';
+import type { NormalizedUser } from '@/lib/auth/requireUser';
 
 interface MarketingClientProps {
-  user: User;
+  user: NormalizedUser;
 }
 
 export default function MarketingClient({ user }: MarketingClientProps) {

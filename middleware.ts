@@ -77,44 +77,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(currentUrl, 301);
   }
 
-  // 3) Dual auth routing based on feature flags
-  const useClerk = process.env.NEXT_PUBLIC_FF_CLERK === '1';
-  const useBoost = process.env.FF_USE_BOOST_FOR_AUTH === '1';
-  
-  // Check if this is a protected route that needs auth
+  // 3) Auth routing - v1 is Supabase-only
+  // FF_CLERK and FF_BOOST exist but are quarantined for v1
+  // All protected routes use legacy Supabase auth via /sign-in
   const isProtectedRoute = path.startsWith('/dashboard/') || 
-                          path.startsWith('/admin/') || 
-                          (useBoost && path.startsWith('/udash/'));
+                          path.startsWith('/admin/');
   
+  // v1: All auth goes through /sign-in (Supabase)
+  // Protected routes are handled at page level via requireUser()
   if (isProtectedRoute) {
-    // Determine which auth system to use
-    if (useClerk) {
-      // Clerk auth - redirect to auth2 routes
-      if (path.startsWith('/udash/')) {
-        // /udash routes should use Clerk auth
-        // This will be handled by Clerk middleware when implemented
-        return NextResponse.next();
-      } else {
-        // Legacy routes redirect to auth2
-        const currentUrl = request.nextUrl.clone();
-        currentUrl.pathname = '/auth2/sign-in';
-        currentUrl.searchParams.set('redirect', path);
-        return NextResponse.redirect(currentUrl, 302);
-      }
-    } else if (useBoost) {
-      // Boost Supabase auth - redirect to auth2 routes
-      if (path.startsWith('/udash/')) {
-        // /udash routes should use Boost auth
-        return NextResponse.next();
-      } else {
-        // Legacy routes redirect to auth2
-        const currentUrl = request.nextUrl.clone();
-        currentUrl.pathname = '/auth2/sign-in';
-        currentUrl.searchParams.set('redirect', path);
-        return NextResponse.redirect(currentUrl, 302);
-      }
-    }
-    // Legacy Supabase auth - continue with existing logic
+    // Continue to page - requireUser() will handle auth check
+    // This middleware only handles redirects and founder gates
   }
 
   // 4) Founder access gates (non-breaking)

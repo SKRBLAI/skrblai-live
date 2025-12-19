@@ -9,10 +9,10 @@ import { useRouter } from 'next/navigation';
 import { getBrowserSupabase } from '@/lib/supabase';
 import agentRegistry from '../../../lib/agents/agentRegistry';
 import Link from 'next/link';
-import type { User } from '@supabase/supabase-js';
+import type { NormalizedUser } from '@/lib/auth/requireUser';
 
 interface GettingStartedClientProps {
-  user: User;
+  user: NormalizedUser;
 }
 
 export default function GettingStartedClient({ user }: GettingStartedClientProps) {
