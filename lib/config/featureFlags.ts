@@ -38,7 +38,10 @@ export const FLAGS = {
   
   // === PAYMENT FLAGS ===
   /** Global Stripe kill switch. Default: true (enabled) */
-  ENABLE_STRIPE: readBooleanFlag('ENABLE_STRIPE', true),
+  ENABLE_STRIPE:
+    process.env.ENABLE_STRIPE === undefined
+      ? readBooleanFlag('NEXT_PUBLIC_ENABLE_STRIPE', false)
+      : readBooleanFlag('ENABLE_STRIPE', false),
 } as const;
 
 /**

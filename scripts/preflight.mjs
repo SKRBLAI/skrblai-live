@@ -12,6 +12,54 @@ import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const rootDir = join(__dirname, '..');
+
+function parseEnvLine(line) {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('#')) return null;
+
+  const noExport = trimmed.startsWith('export ') ? trimmed.slice('export '.length).trim() : trimmed;
+  const eqIndex = noExport.indexOf('=');
+  if (eqIndex <= 0) return null;
+
+  const key = noExport.slice(0, eqIndex).trim();
+  let value = noExport.slice(eqIndex + 1).trim();
+
+  const isQuoted =
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"));
+  if (!isQuoted) {
+    const hashIndex = value.indexOf(' #');
+    if (hashIndex !== -1) value = value.slice(0, hashIndex).trim();
+  }
+
+  if (value.startsWith('"') && value.endsWith('"')) value = value.slice(1, -1);
+  if (value.startsWith("'") && value.endsWith("'")) value = value.slice(1, -1);
+
+  if (!key) return null;
+  return { key, value };
+}
+
+function loadEnvFiles() {
+  const envPaths = [
+    join(rootDir, '.env.local'),
+    join(rootDir, '.env.production'),
+    join(rootDir, '.env'),
+  ];
+
+  for (const envPath of envPaths) {
+    if (!fs.existsSync(envPath)) continue;
+    const content = fs.readFileSync(envPath, 'utf8');
+    content.split('\n').forEach((line) => {
+      const parsed = parseEnvLine(line);
+      if (!parsed) return;
+      if (process.env[parsed.key] === undefined) {
+        process.env[parsed.key] = parsed.value;
+      }
+    });
+  }
+}
 
 function isTruthy(value) {
   if (value === undefined || value === null) return false;
@@ -122,21 +170,55 @@ function scanDirsForSubstring(rootDir, dirs, needle) {
   return violations;
 }
 
-function validatePricingConfiguration() {
-  console.log('🔍 Checking for hardcoded NEXT_PUBLIC_STRIPE_PRICE_ references...\n');
+function scanDirsForRegex(rootDir, dirs, pattern) {
+  const violations = [];
 
-  const rootDir = join(__dirname, '..');
-  const dirsToCheck = ['app', 'components', 'lib', 'contexts', 'hooks', 'utils'];
-  const violations = scanDirsForSubstring(rootDir, dirsToCheck, 'NEXT_PUBLIC_STRIPE_PRICE_');
+  function scanDir(relativeDir) {
+    const fullPath = join(rootDir, relativeDir);
+    if (!fs.existsSync(fullPath)) return;
 
-  if (violations.length > 0) {
-    console.error('❌ FAIL: Hardcoded NEXT_PUBLIC_STRIPE_PRICE_ references found in:');
-    violations.forEach((f) => console.error(`   - ${f}`));
-    console.error('');
-    throw new Error('Hardcoded price env usage found');
+    const entries = fs.readdirSync(fullPath, { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue;
+      if (entry.name === 'node_modules' || entry.name === '.next') continue;
+
+      const entryRel = join(relativeDir, entry.name);
+      const entryPath = join(rootDir, entryRel);
+
+      if (entry.isDirectory()) {
+        scanDir(entryRel);
+      } else if (entry.isFile()) {
+        if (!/\.(ts|tsx|js|jsx)$/.test(entry.name)) continue;
+        const content = fs.readFileSync(entryPath, 'utf8');
+        const lines = content.split('\n');
+        lines.forEach((line, idx) => {
+          const match = line.match(pattern);
+          if (!match) return;
+          violations.push({ file: entryRel, line: idx + 1, match: match[0] });
+        });
+      }
+    }
   }
 
-  console.log('✅ PASS: No hardcoded NEXT_PUBLIC_STRIPE_PRICE_ references found\n');
+  for (const dir of dirs) scanDir(dir);
+  return violations;
+}
+
+function validatePricingConfiguration() {
+  console.log('🔍 Checking for client-side NEXT_PUBLIC_STRIPE_PRICE_* env reads...\n');
+
+  const dirsToCheck = ['app', 'components', 'lib', 'contexts', 'hooks', 'utils'];
+  const pattern = /process\.env\.NEXT_PUBLIC_STRIPE_PRICE_[A-Z0-9_]+/g;
+  const violations = scanDirsForRegex(rootDir, dirsToCheck, pattern);
+
+  if (violations.length > 0) {
+    console.error('❌ FAIL: Client-side NEXT_PUBLIC_STRIPE_PRICE_* env reads found:');
+    violations.forEach((v) => console.error(`   - ${v.file}:${v.line} → ${v.match}`));
+    console.error('');
+    throw new Error('Client-side price env usage found');
+  }
+
+  console.log('✅ PASS: No client-side NEXT_PUBLIC_STRIPE_PRICE_* env reads found\n');
 }
 
 const CHECKS = [
@@ -165,6 +247,7 @@ function runCheck(check) {
 
 function main() {
   console.log('\n🚀 SKRBL AI - Preflight Build Validation\n');
+  loadEnvFiles();
   
   let allPassed = true;
   

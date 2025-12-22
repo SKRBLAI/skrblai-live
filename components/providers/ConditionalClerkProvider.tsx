@@ -5,15 +5,15 @@ import type { ReactNode } from 'react';
 
 interface ConditionalClerkProviderProps {
   children: ReactNode;
+  clerkEnabled: boolean;
 }
 
 /**
  * Wraps children with ClerkProvider only when NEXT_PUBLIC_FF_CLERK=1
  * Otherwise renders children directly (legacy Supabase auth)
  */
-export function ConditionalClerkProvider({ children }: ConditionalClerkProviderProps) {
-  const clerkEnabled = process.env.NEXT_PUBLIC_FF_CLERK === '1';
 
+export function ConditionalClerkProvider({ children, clerkEnabled }: ConditionalClerkProviderProps) {
   if (!clerkEnabled) {
     // Feature flag OFF: Use legacy Supabase auth
     return <>{children}</>;

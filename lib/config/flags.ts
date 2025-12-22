@@ -81,7 +81,7 @@ export function getFlagsSnapshot() {
     const raw = process.env[flag];
     const value = flag === 'FF_SITE_VERSION' 
       ? (raw ?? 'v1') 
-      : readBooleanFlag(flag, flag === 'FF_N8N_NOOP' || flag === 'ENABLE_STRIPE');
+      : readBooleanFlag(flag, flag === 'FF_N8N_NOOP');
     const source = raw ? 'env' : 'default';
     
     snapshot[flag] = { value, raw, source };

@@ -80,6 +80,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const clerkEnabled = process.env.FF_CLERK === '1';
   return (
     <html lang="en" className={`${inter.variable} dark overflow-x-hidden h-full`}>
       <head>
@@ -91,7 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <GoogleAnalytics />
       </head>
       <body className="text-white min-h-[100svh] antialiased font-sans overflow-x-hidden page-layout">
-        <ConditionalClerkProvider>
+        <ConditionalClerkProvider clerkEnabled={clerkEnabled}>
           {/* Skip to main content link for accessibility */}
           <a 
             href="#main-content" 

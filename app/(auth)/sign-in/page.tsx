@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
-const CLERK_ENABLED = process.env.NEXT_PUBLIC_FF_CLERK === '1';
+const CLERK_ENABLED = process.env.FF_CLERK === '1';
 
 /**
  * Helper function to route user to appropriate dashboard based on role
