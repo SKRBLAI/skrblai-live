@@ -1,41 +1,5 @@
 // Windsurf: Skill Smith/Percy SMS Agent Flows [2025-07-02]
-// Utility helpers for sending SMS via Twilio and basic VIP verification
-// -------------------------------------------------------------------
-// NOTE: Twilio credentials must be present in environment variables:
-//  - TWILIO_ACCOUNT_SID
-//  - TWILIO_AUTH_TOKEN
-//  - TWILIO_PHONE_NUMBER (the verified / purchased From number)
-//  - VIP_SMS_WHITELIST (comma-separated E.164 numbers, optional)
-
-import twilio from 'twilio';
-
-// Twilio configuration - lazy loaded to avoid build-time errors
-let client: any = null;
-let clientInitialized = false;
-
-function getTwilioClient() {
-  if (clientInitialized) return client;
-  
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-  
-  if (accountSid && authToken) {
-    try {
-      client = twilio(accountSid, authToken);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Failed to initialize Twilio client:', error);
-      }
-    }
-  }
-  
-  clientInitialized = true;
-  return client;
-}
-
-function getFromNumber() {
-  return process.env.TWILIO_PHONE_NUMBER;
-}
+// NOTE: SMS is disabled (Twilio removed). This file remains as a compatibility shim.
 
 export interface SendSmsOptions {
   to: string;
@@ -51,52 +15,11 @@ export interface SendSmsOptions {
 }
 
 export async function sendSms({ to, body, message, vipTier = 'gold' }: SendSmsOptions): Promise<{ success: boolean; messageId?: string; error?: string }> {
-  const twilioClient = getTwilioClient();
-  const fromNumber = getFromNumber();
-  
-  if (!twilioClient || !fromNumber) {
-    return {
-      success: false,
-      error: 'Twilio not configured'
-    };
-  }
-
-  try {
-    // Format phone number
-    const formattedNumber = to.startsWith('+') ? to : `+1${to.replace(/\D/g, '')}`;
-
-    // VIP-specific message formatting
-    const vipEmojis = {
-      gold: '🥇',
-      platinum: '🔥', 
-      diamond: '💎'
-    };
-
-    const smsText = body ?? message;
-    if (!smsText) {
-      return { success: false, error: 'SMS body is required' };
-    }
-    const formattedMessage = vipTier
-      ? `${vipEmojis[vipTier]} SKRBL AI VIP ${vipTier.toUpperCase()}: ${smsText}`
-      : `🚀 SKRBL AI: ${smsText}`;
-
-    const result = await twilioClient.messages.create({
-      body: formattedMessage,
-      from: fromNumber,
-      to: formattedNumber,
-    });
-
-    return {
-      success: true,
-      messageId: result.sid
-    };
-  } catch (error: any) {
-    console.error('Twilio SMS Error:', error);
-    return {
-      success: false,
-      error: error.message || 'Failed to send SMS'
-    };
-  }
+  void to;
+  void body;
+  void message;
+  void vipTier;
+  return { success: false, error: 'SMS disabled (Twilio removed)' };
 }
 
 export async function sendVerificationCode(phoneNumber: string, code: string, vipTier: 'gold' | 'platinum' | 'diamond' = 'gold'): Promise<{ success: boolean; error?: string }> {

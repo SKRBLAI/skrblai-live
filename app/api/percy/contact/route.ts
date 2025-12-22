@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSupabaseAdmin } from '@/lib/supabase';
 import { Resend } from 'resend';
-import twilio from 'twilio';
 
 // Lazy initialize services to avoid build-time errors
 let resend: Resend | null = null;
 let resendInitialized = false;
-let twilioClient: any = null;
-let twilioInitialized = false;
+
+const SMS_DISABLED_RESPONSE = { ok: false, error: 'SMS disabled (Twilio removed)' };
 
 function getResendClient() {
   if (resendInitialized) return resend;
@@ -22,131 +21,6 @@ function getResendClient() {
   }
   resendInitialized = true;
   return resend;
-}
-
-function getTwilioClient() {
-  if (twilioInitialized) return twilioClient;
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-    try {
-      twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('[Percy Contact] Failed to initialize Twilio:', error);
-      }
-    }
-  }
-  twilioInitialized = true;
-  return twilioClient;
-}
-
-// Enhanced Twilio SMS integration
-async function sendTwilioSMS(phone: string, message: string) {
-  console.log(`[Percy Contact] Attempting SMS to ${phone.slice(0, 6)}***`);
-  
-  const twilioClient = getTwilioClient();
-  
-  if (!twilioClient) {
-    console.warn('[Percy Contact] Twilio not configured - using mock mode');
-    return { 
-      success: true, 
-      messageId: `mock_sms_${Date.now()}`,
-      status: 'mock_sent',
-      provider: 'twilio_mock'
-    };
-  }
-  
-  try {
-    // Use Twilio sandbox number for development/testing
-    const fromNumber = process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_SANDBOX_NUMBER;
-    
-    if (!fromNumber) {
-      throw new Error('No Twilio phone number configured');
-    }
-
-    const result = await twilioClient.messages.create({
-      body: message,
-      from: fromNumber,
-      to: phone
-    });
-    
-    console.log(`[Percy Contact] SMS sent successfully - SID: ${result.sid}`);
-    
-    return { 
-      success: true, 
-      messageId: result.sid,
-      status: result.status,
-      provider: 'twilio_live'
-    };
-  } catch (error: any) {
-    console.error('[Percy Contact] Twilio SMS failed:', error.message);
-    
-    // Fallback to mock for testing if real Twilio fails
-    return { 
-      success: false, 
-      error: error.message,
-      messageId: `failed_sms_${Date.now()}`,
-      status: 'failed',
-      provider: 'twilio_error'
-    };
-  }
-}
-
-// Enhanced Twilio Voice integration
-async function sendTwilioVoice(phone: string, message: string) {
-  console.log(`[Percy Contact] Attempting voice call to ${phone.slice(0, 6)}***`);
-  
-  const twilioClient = getTwilioClient();
-  
-  if (!twilioClient) {
-    console.warn('[Percy Contact] Twilio not configured - using mock mode');
-    return { 
-      success: true, 
-      messageId: `mock_voice_${Date.now()}`,
-      status: 'mock_scheduled',
-      provider: 'twilio_mock'
-    };
-  }
-  
-  try {
-    const fromNumber = process.env.TWILIO_PHONE_NUMBER || process.env.TWILIO_SANDBOX_NUMBER;
-    
-    if (!fromNumber) {
-      throw new Error('No Twilio phone number configured');
-    }
-
-    // Create TwiML for voice message
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-      <Response>
-        <Say voice="Polly.Amy-Neural">
-          ${message.replace(/[<>&"']/g, '')} // Sanitize for TwiML
-        </Say>
-      </Response>`;
-
-    const call = await twilioClient.calls.create({
-      twiml: twiml,
-      to: phone,
-      from: fromNumber
-    });
-    
-    console.log(`[Percy Contact] Voice call initiated - SID: ${call.sid}`);
-    
-    return { 
-      success: true, 
-      messageId: call.sid,
-      status: call.status,
-      provider: 'twilio_live'
-    };
-  } catch (error: any) {
-    console.error('[Percy Contact] Twilio Voice failed:', error.message);
-    
-    return { 
-      success: false, 
-      error: error.message,
-      messageId: `failed_voice_${Date.now()}`,
-      status: 'failed',
-      provider: 'twilio_error'
-    };
-  }
 }
 
 // Enhanced Resend Email integration
@@ -279,14 +153,7 @@ export async function POST(req: NextRequest) {
     // Handle different contact methods with real integrations
     switch (contactMethod) {
       case 'sms':
-        if (!contactInfo.phone) {
-          return NextResponse.json(
-            { success: false, error: 'Phone number required for SMS contact' },
-            { status: 400 }
-          );
-        }
-        contactResult = await sendTwilioSMS(contactInfo.phone, finalMessage);
-        break;
+        return NextResponse.json(SMS_DISABLED_RESPONSE, { status: 410 });
         
       case 'email': {
         if (!contactInfo.email) {
@@ -319,20 +186,7 @@ export async function POST(req: NextRequest) {
       }
         
       case 'voice': {
-        if (!contactInfo.phone) {
-          return NextResponse.json(
-            { success: false, error: 'Phone number required for voice contact' },
-            { status: 400 }
-          );
-        }
-        // Simplify message for voice (remove emojis and formatting)
-        const voiceMessage = finalMessage
-          .replace(/[\u2600-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '') // Remove emojis
-          .replace(/\n+/g, ' ') // Replace line breaks with spaces
-          .replace(/https?:\/\/[^\s]+/g, 'Visit our website') // Replace URLs
-          .trim();
-        contactResult = await sendTwilioVoice(contactInfo.phone, voiceMessage);
-        break;
+        return NextResponse.json(SMS_DISABLED_RESPONSE, { status: 410 });
       }
         
       case 'chat':
@@ -415,11 +269,6 @@ export async function GET(req: NextRequest) {
   // Test service connections
   if (testConnection === 'true') {
     const serviceStatus = {
-      twilio: {
-        configured: !!getTwilioClient(),
-        sandbox: !!process.env.TWILIO_SANDBOX_NUMBER,
-        phone: !!process.env.TWILIO_PHONE_NUMBER
-      },
       resend: {
         configured: !!getResendClient(),
         fromEmail: !!process.env.PERCY_FROM_EMAIL
@@ -443,11 +292,11 @@ export async function GET(req: NextRequest) {
     percy: {
       name: 'Percy the Cosmic Concierge',
       catchphrase: 'Your wish is my command protocol!',
-      availableContactMethods: ['email', 'sms', 'voice', 'chat'],
+      availableContactMethods: ['email', 'chat'],
       supportedMessageTypes: ['welcome', 'onboarding', 'followup', 'custom'],
       urgencyLevels: ['low', 'normal', 'high'],
-      features: ['real-twilio-sms', 'real-twilio-voice', 'real-resend-email', 'enhanced-logging']
+      features: ['real-resend-email', 'enhanced-logging']
     },
     timestamp: new Date().toISOString()
   });
-} 
+}
