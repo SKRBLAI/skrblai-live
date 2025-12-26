@@ -5,10 +5,9 @@ Local "CI" validation system that fails fast on Railway before attempting to bui
 
 ## Implementation Summary
 
-### Files Created
+### Files
 1. **scripts/preflight.mjs** - Orchestrator that runs all validation checks
-2. **scripts/validate-env.mjs** - Validates required environment variables (Boost-first)
-3. **scripts/validate-pricing.mjs** - Validates pricing configuration and checks for hardcoded references
+2. **scripts/validate-pricing.mjs** - Validates pricing configuration and checks for hardcoded references
 
 ### package.json Changes
 ```json
@@ -20,25 +19,22 @@ Local "CI" validation system that fails fast on Railway before attempting to bui
 
 ## Validation Checks
 
-### Environment Variables (validate-env.mjs)
+### Environment Variables (preflight.mjs)
 **Required:**
-- `FF_BOOST` - Feature flag for Boost mode
 - `FF_CLERK` - Feature flag for Clerk auth
 - `FF_SITE_VERSION` - Site version feature flag
 - `FF_N8N_NOOP` - N8N no-op feature flag
-- `NEXT_PUBLIC_PRICE_MAP_JSON` - JSON price map configuration
-- `NEXT_PUBLIC_SUPABASE_URL_BOOST` - Supabase URL (Boost)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST` - Supabase anon key (Boost)
-- `SUPABASE_SERVICE_ROLE_KEY_BOOST` - Supabase service role key (Boost)
-- `CLERK_PUBLISHABLE_KEY` - Clerk publishable key
-- `CLERK_SECRET_KEY` - Clerk secret key
-- `STRIPE_SECRET_KEY` - Stripe secret key
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
+- `OPENAI_API_KEY` - OpenAI API key
+- `NEXT_PUBLIC_ENABLE_STRIPE` / `ENABLE_STRIPE` - Stripe gate (when enabled)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key (when Stripe enabled)
+- `STRIPE_SECRET_KEY` - Stripe secret key (when Stripe enabled)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk publishable key (when Clerk enabled)
+- `CLERK_SECRET_KEY` - Clerk secret key (when Clerk enabled)
 
-**Optional:**
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook secret (logged if present)
-
-**Additional Validation:**
-- Parses `NEXT_PUBLIC_PRICE_MAP_JSON` to ensure it's valid JSON
+**Notes:**
+- Pricing JSON is validated only if `PRICE_MAP_JSON` is provided (server-only).
 
 ### Pricing Configuration (validate-pricing.mjs)
 **Deny-list Check:**
@@ -73,10 +69,9 @@ npm run build
   Environment Variables
 ============================================================
 
-🔍 Validating environment variables...
+🔍 Validating environment variables (conditional contract)...
 
-✅ NEXT_PUBLIC_PRICE_MAP_JSON is valid JSON
-✅ PASS: All 11 required environment variables present
+✅ PASS: Environment variables satisfy conditional contract
 
 ============================================================
   Pricing Configuration
@@ -106,13 +101,13 @@ npm run build
   Environment Variables
 ============================================================
 
-🔍 Validating environment variables...
+🔍 Validating environment variables (conditional contract)...
 
 ❌ FAIL: Missing required environment variables:
 
-   - FF_BOOST
-   - CLERK_SECRET_KEY
-   - STRIPE_SECRET_KEY
+   - NEXT_PUBLIC_SUPABASE_URL
+   - NEXT_PUBLIC_SUPABASE_ANON_KEY
+   - OPENAI_API_KEY
 
 ============================================================
 ❌ PREFLIGHT FAILED: Fix issues above before building

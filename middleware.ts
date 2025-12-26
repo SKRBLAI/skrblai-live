@@ -78,7 +78,7 @@ export function middleware(request: NextRequest) {
   }
 
   // 3) Auth routing - v1 is Supabase-only
-  // FF_CLERK and FF_BOOST exist but are quarantined for v1
+  // FF_CLERK exists but is quarantined for v1
   // All protected routes use legacy Supabase auth via /sign-in
   const isProtectedRoute = path.startsWith('/dashboard/') || 
                           path.startsWith('/admin/');

@@ -3,7 +3,7 @@
 /**
  * preflight.mjs
  * Orchestrates all preflight checks before build
- * Runs validate-env and validate-pricing, exits with 1 on any failure
+ * Runs environment + pricing checks, exits with 1 on any failure
  */
 
 import { fileURLToPath } from 'url';
@@ -95,17 +95,6 @@ function validateEnvContract() {
       ...requireEnv([
         'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
         'STRIPE_SECRET_KEY',
-      ])
-    );
-  }
-
-  const boostEnabled = isTruthy(process.env.FF_BOOST);
-  if (boostEnabled) {
-    missing.push(
-      ...requireEnv([
-        'NEXT_PUBLIC_SUPABASE_URL_BOOST',
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY_BOOST',
-        'SUPABASE_SERVICE_ROLE_KEY_BOOST',
       ])
     );
   }
