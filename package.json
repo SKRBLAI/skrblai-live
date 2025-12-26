@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "verify:env": "tsx scripts/verifyEnv.ts",
-    "check:env": "node scripts/check-env.mjs",
+    "check:env": "node scripts/preflight.mjs",
     "preflight": "node scripts/preflight.mjs",
     "dev": "next dev",
     "build": "npm run preflight && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
