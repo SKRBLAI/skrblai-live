@@ -64,11 +64,10 @@ export function readServerFlag(name: string, defaultVal: boolean = false): boole
 
 /**
  * CANONICAL FLAGS ONLY - Get a snapshot of all canonical flags
- * Only includes the 5 canonical flags, not deprecated ones
+ * Only includes the canonical flags, not deprecated ones
  */
 export function getFlagsSnapshot() {
   const canonicalFlags = [
-    'FF_BOOST',
     'FF_CLERK',
     'FF_SITE_VERSION',
     'FF_N8N_NOOP',
@@ -98,7 +97,6 @@ export function getFlagsSnapshot() {
  */
 export function validateFlags() {
   const canonicalFlags = [
-    { name: 'FF_BOOST', required: false },
     { name: 'FF_CLERK', required: false },
     { name: 'FF_SITE_VERSION', required: false },
     { name: 'FF_N8N_NOOP', required: false },

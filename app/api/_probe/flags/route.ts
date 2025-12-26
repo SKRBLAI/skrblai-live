@@ -14,9 +14,8 @@ export async function GET() {
     }
   }
 
-  // Only show canonical flags (5 total)
+  // Only show canonical flags
   const canonicalFlags = {
-    FF_BOOST: FLAGS.FF_BOOST,
     FF_CLERK: FLAGS.FF_CLERK,
     FF_SITE_VERSION: FLAGS.FF_SITE_VERSION,
     FF_N8N_NOOP: FLAGS.FF_N8N_NOOP,
@@ -49,10 +48,6 @@ function getWarnings(flags: Record<string, any>): string[] {
   
   if (flags.FF_CLERK) {
     warnings.push('FF_CLERK is enabled - using Clerk auth instead of Supabase');
-  }
-  
-  if (flags.FF_BOOST) {
-    warnings.push('FF_BOOST is enabled - using Supabase Boost instead of legacy');
   }
   
   return warnings;

@@ -16,7 +16,6 @@ import path from 'path';
 
 // Canonical flags (the only flags that should be read from env)
 const CANONICAL_FLAGS = [
-  'FF_BOOST',
   'FF_CLERK', 
   'FF_SITE_VERSION',
   'FF_N8N_NOOP',

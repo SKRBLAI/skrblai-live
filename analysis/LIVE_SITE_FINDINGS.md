@@ -184,7 +184,7 @@ const nextConfig = {
 - [ ] Test error handling and recovery
 
 ### Post-Migration Testing
-- [ ] Verify all functionality works with Boost
+- [ ] Verify all functionality works with the current Supabase project
 - [ ] Test performance improvements
 - [ ] Verify monitoring and logging
 - [ ] Test error handling and recovery
@@ -213,4 +213,4 @@ const nextConfig = {
 3. **After Migration**: Implement monitoring and optimization
 4. **Ongoing**: Regular health checks and performance monitoring
 
-This analysis provides a clear picture of the current site status and the fixes needed to ensure a smooth migration to Supabase Boost.
+This analysis provides a clear picture of the current site status and the fixes needed to ensure a smooth deployment on the current Supabase project.
