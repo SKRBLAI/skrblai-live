@@ -3,12 +3,8 @@ import { getServerSupabaseAnon, getServerSupabaseAdmin } from '@/lib/supabase/se
 
 export async function POST(request: Request) {
   try {
-    // Check for variant parameter (boost or legacy)
-    const url = new URL(request.url);
-    const variant = url.searchParams.get('variant') as 'boost' | 'legacy' | null;
-    
     // Get the authenticated user from cookies using anon client
-    const anon = getServerSupabaseAnon(variant || 'legacy');
+    const anon = getServerSupabaseAnon();
     if (!anon) {
       return NextResponse.json({ ok: false, error: 'Supabase not configured' }, { status: 503 });
     }
@@ -19,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Use service role client to bypass RLS and create/update profile
-    const admin = getServerSupabaseAdmin(variant || 'legacy');
+    const admin = getServerSupabaseAdmin();
     if (!admin) {
       return NextResponse.json({ ok: false, error: 'Admin client not available' }, { status: 503 });
     }

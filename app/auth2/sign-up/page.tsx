@@ -7,10 +7,10 @@ export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 
 export default async function SignUpPage() {
-  const supabase = getServerSupabaseAnon('boost');
+  const supabase = getServerSupabaseAnon();
   
   if (!supabase) {
-    console.warn('[AUTH2-SIGNUP] Boost Supabase not configured');
+    console.warn('[AUTH2-SIGNUP] Supabase not configured');
     return <SignUpForm />;
   }
 

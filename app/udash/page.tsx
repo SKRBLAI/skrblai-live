@@ -28,10 +28,10 @@ interface UserRole {
 }
 
 export default async function UniversalDashboardPage() {
-  const supabase = getServerSupabaseAnon('boost');
+  const supabase = getServerSupabaseAnon();
   
   if (!supabase) {
-    console.error('[UDASH] Boost Supabase not configured');
+    console.error('[UDASH] Supabase not configured');
     redirect('/auth2/sign-in?error=configuration');
   }
 
@@ -43,7 +43,7 @@ export default async function UniversalDashboardPage() {
   }
 
   // Get user roles and tasks
-  const admin = getServerSupabaseAdmin('boost');
+  const admin = getServerSupabaseAdmin();
   if (!admin) {
     console.error('[UDASH] Admin client not available');
     redirect('/auth2/sign-in?error=configuration');

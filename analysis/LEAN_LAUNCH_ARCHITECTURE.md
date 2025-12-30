@@ -1,7 +1,7 @@
 # Lean Launch Architecture
 
 ## Overview
-This document defines the simplified, revenue-ready architecture for SKRBL AI after migrating to Supabase Boost. The focus is on a minimal, functional product that can generate revenue immediately while maintaining clean growth paths.
+This document defines the simplified, revenue-ready architecture for SKRBL AI on a single Supabase project. The focus is on a minimal, functional product that can generate revenue immediately while maintaining clean growth paths.
 
 ## Target Routes (Minimal Set)
 

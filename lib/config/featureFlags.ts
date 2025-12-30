@@ -3,8 +3,7 @@
 /**
  * Unified Feature Flag Configuration - DE-CURSED VERSION
  * 
- * CANONICAL FLAGS ONLY (5 total):
- * - FF_BOOST: Supabase Boost auth toggle
+ * CANONICAL FLAGS ONLY (4 total):
  * - FF_CLERK: Clerk auth toggle (v2 only, quarantined for v1)
  * - FF_SITE_VERSION: Legacy/new split (v1 only)
  * - FF_N8N_NOOP: N8N workflow kill switch
@@ -23,9 +22,6 @@ export { readBooleanFlag };
  */
 export const FLAGS = {
   // === AUTH FLAGS ===
-  /** Supabase Boost auth toggle. Default: false (use legacy Supabase) */
-  FF_BOOST: readBooleanFlag('FF_BOOST', false),
-  
   /** Clerk auth toggle. Default: false (Supabase-only for v1) */
   FF_CLERK: readBooleanFlag('FF_CLERK', false),
   

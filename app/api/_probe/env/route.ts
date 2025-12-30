@@ -14,7 +14,7 @@ function getProjectInfo(url?: string) {
     const parts = host.split('.');
     // Typical pattern: <projectRef>.supabase.co
     const ref = parts[0] || '';
-    // Basic assertion: ensure we're not hitting Boost/staging. Live known refs may include 'zpqavydsinrtaxhowmnb'
+    // Basic assertion: ensure we're not hitting a stale/non-production project. Live known refs may include 'zpqavydsinrtaxhowmnb'
     const assertLive = host.includes('skrblai.io') || host.includes('zpqavydsinrtaxhowmnb');
     return { projectHost: host, projectRef: ref, assertLiveProject: assertLive };
   } catch {
