@@ -20,22 +20,30 @@ export interface UnifiedSportsHeroProps {
   headline?: string;
   highlight?: string;
   subhead?: string;
+  microline?: string;
   keywords?: string[];
   images: { src: string; alt: string }[];
   onUploadClick?: () => void;
   onSampleAnalysisClick?: () => void;
   onParentPortalClick?: () => void;
+  showCtas?: boolean;
+  showPromptBar?: boolean;
+  showChatToggle?: boolean;
 }
 
 export default function UnifiedSportsHero({
   headline = "Master Your Sport with",
   highlight = "AI Skill Smith",
   subhead = "Upload your game footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith.",
+  microline,
   keywords = ["Analysis", "Mental Health", "Nutrition", "Training Plans"],
   images,
   onUploadClick,
   onSampleAnalysisClick,
-  onParentPortalClick
+  onParentPortalClick,
+  showCtas = true,
+  showPromptBar = true,
+  showChatToggle = true
 }: UnifiedSportsHeroProps) {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -73,103 +81,120 @@ export default function UnifiedSportsHero({
                 >
                   {subhead}
                 </motion.p>
+
+                {!!microline && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.25 }}
+                    className="text-sm md:text-base text-white/70"
+                  >
+                    {microline}
+                  </motion.p>
+                )}
               </div>
 
-              {/* CTA Trio */}
+              {/* Pills Row */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row gap-3"
-              >
-                <button
-                  onClick={onUploadClick}
-                  className={`${btnPrimary} w-full sm:w-auto flex items-center justify-center gap-2`}
-                >
-                  <Upload className="w-4 h-4" />
-                  Upload Video
-                </button>
-                
-                <button
-                  onClick={onSampleAnalysisClick}
-                  className={`${btnGhost} w-full sm:w-auto flex items-center justify-center gap-2`}
-                >
-                  <Play className="w-4 h-4" />
-                  Sample Analysis
-                </button>
-                
-                <button
-                  onClick={onParentPortalClick}
-                  className={`${btnGhost} w-full sm:w-auto flex items-center justify-center gap-2`}
-                >
-                  <UserCheck className="w-4 h-4" />
-                  Parent Portal
-                </button>
-              </motion.div>
-
-              {/* Keywords Row */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
                 className="flex flex-wrap gap-2"
               >
                 {keywords.map((keyword, index) => (
                   <span
                     key={index}
-                    className={`${chip} text-white/80`}
+                    className={`${chip} max-w-none px-3 py-1 text-xs md:text-sm text-white/80`}
                   >
                     {keyword}
                   </span>
                 ))}
               </motion.div>
 
+              {/* CTA Trio */}
+              {showCtas && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.35 }}
+                  className="flex flex-col sm:flex-row gap-3"
+                >
+                  <button
+                    onClick={onUploadClick}
+                    className={`${btnPrimary} w-full sm:w-auto flex items-center justify-center gap-2`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    Upload Video
+                  </button>
+                  
+                  <button
+                    onClick={onSampleAnalysisClick}
+                    className={`${btnGhost} w-full sm:w-auto flex items-center justify-center gap-2`}
+                  >
+                    <Play className="w-4 h-4" />
+                    Sample Analysis
+                  </button>
+                  
+                  <button
+                    onClick={onParentPortalClick}
+                    className={`${btnGhost} w-full sm:w-auto flex items-center justify-center gap-2`}
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    Parent Portal
+                  </button>
+                </motion.div>
+              )}
+
               {/* Prompt Bar */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                data-upload-section
-              >
-                <SkillSmithPromptBar />
-              </motion.div>
+              {showPromptBar && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  data-upload-section
+                >
+                  <SkillSmithPromptBar />
+                </motion.div>
+              )}
 
               {/* Mini-Chat Toggle */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-              >
-                <button
-                  onClick={() => setIsChatOpen(!isChatOpen)}
-                  className={`${btnGhost} w-full flex items-center justify-center gap-2`}
+              {showChatToggle && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
                 >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Chat with SkillSmith</span>
-                  {isChatOpen ? (
-                    <ChevronUp className="w-4 h-4" />
-                  ) : (
-                    <ChevronDown className="w-4 h-4" />
-                  )}
-                </button>
+                  <button
+                    onClick={() => setIsChatOpen(!isChatOpen)}
+                    className={`${btnGhost} w-full flex items-center justify-center gap-2`}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Chat with SkillSmith</span>
+                    {isChatOpen ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                  </button>
 
-                {/* Collapsible Chat */}
-                <AnimatePresence>
-                  {isChatOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="overflow-hidden mt-4"
-                    >
-                      <div className="max-h-[40vh] overflow-y-auto">
-                        <AgentChat agentId="skillsmith" />
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                  {/* Collapsible Chat */}
+                  <AnimatePresence>
+                    {isChatOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden mt-4"
+                      >
+                        <div className="max-h-[40vh] overflow-y-auto">
+                          <AgentChat agentId="skillsmith" />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
             </div>
 
             {/* Right Column - Carousel */}

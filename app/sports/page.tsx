@@ -1,26 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import type { JSX } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useDashboardAuth } from '../../hooks/useDashboardAuth';
 import { useSkillSmithGuest } from '../../lib/skillsmith/guestTracker';
 import PageLayout from 'components/layout/PageLayout';
 import FloatingParticles from '../../components/ui/FloatingParticles';
 import UnifiedSportsHero from '../../components/sports/UnifiedSportsHero';
-import PricingGrid from '../../components/pricing/PricingGrid';
 import SportsPricingGrid from '../../components/pricing/SportsPricingGrid';
 import MetricsStrip from '../../components/sports/MetricsStrip';
-// Removed separate IntakeSheet in favor of unified form inside SkillSmithPromptBar
-import EncouragementFooter from '../../components/sports/EncouragementFooter';
 import VideoUploadModal from '../../components/skillsmith/VideoUploadModal';
 import EmailCaptureModal from '../../components/skillsmith/EmailCaptureModal';
 import AnalysisResultsModal from '../../components/skillsmith/AnalysisResultsModal';
-import SkillSmithOnboardingFlow from '../../components/skillsmith/SkillSmithOnboardingFlow';
-import { getSportsAddons, getSportsPlans } from '../../lib/sports/pricingData';
+import SkillSmithPromptBar from '../../components/sports/SkillSmithPromptBar';
+import AgentChat from '../../components/chat/AgentChat';
+import CardShell from '../../components/ui/CardShell';
+import { getSportsPlans } from '../../lib/sports/pricingData';
 import { PricingItem } from '../../lib/pricing/catalogShared';
-import { X, Star } from 'lucide-react';
-import type { Product } from '../../lib/config/skillsmithProducts';
+import { ChevronDown, ChevronUp, MessageCircle, X, Star } from 'lucide-react';
 
 interface AnalysisResult {
   feedback: string;
@@ -39,12 +37,13 @@ interface QuickWin {
   category: 'technique' | 'training' | 'nutrition' | 'mental';
 }
 
+type SportsHubTab = 'skillsmith' | 'ntntns' | 'air';
+
 export default function SportsPage(): JSX.Element {
-  const { user, isLoading } = useDashboardAuth();
+  const { user } = useDashboardAuth();
   const { 
     scansRemaining, 
     shouldShowUpgradeOffer, 
-    usageStats, 
     session 
   } = useSkillSmithGuest();
 
@@ -53,14 +52,20 @@ export default function SportsPage(): JSX.Element {
   const [emailCaptureModalOpen, setEmailCaptureModalOpen] = useState(false);
   const [resultsModalOpen, setResultsModalOpen] = useState(false);
   const [showUpsell, setShowUpsell] = useState(false);
-  const [previewFlowOpen, setPreviewFlowOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const [intakeData, setIntakeData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<SportsHubTab>('skillsmith');
+  const [isSkillSmithChatOpen, setIsSkillSmithChatOpen] = useState(false);
+  const [comingSoon, setComingSoon] = useState<{ isOpen: boolean; title: string; description?: string }>({
+    isOpen: false,
+    title: '',
+    description: ''
+  });
+
+  const skillSmithPanelRef = useRef<HTMLDivElement | null>(null);
+  const plansSectionRef = useRef<HTMLDivElement | null>(null);
 
   // Get pricing data
-  const addOns = getSportsAddons();
   const subscriptions = getSportsPlans();
 
   // Check for successful purchase from URL params
@@ -94,6 +99,29 @@ export default function SportsPage(): JSX.Element {
       return () => clearTimeout(timer);
     }
   }, [shouldShowUpgradeOffer, userType]);
+
+  const tabs = useMemo(
+    () =>
+      [
+        { id: 'skillsmith' as const, label: 'SkillSmith' },
+        { id: 'ntntns' as const, label: 'NTNTNS × MSTRY' },
+        { id: 'air' as const, label: 'AIR Studio' }
+      ] satisfies Array<{ id: SportsHubTab; label: string }>,
+    []
+  );
+
+  const setTabAndScroll = (tab: SportsHubTab, target: React.RefObject<HTMLDivElement | null>) => {
+    setActiveTab(tab);
+    requestAnimationFrame(() => {
+      const el = target.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
+  const openComingSoon = (title: string, description?: string) => {
+    setComingSoon({ isOpen: true, title, description });
+  };
 
   const handleUploadClick = () => {
     // Analytics stub
@@ -174,7 +202,6 @@ export default function SportsPage(): JSX.Element {
     }
   };
 
-
   // Handle pricing item purchases using unified checkout
   const handlePricingPurchase = async (item: PricingItem) => {
     console.log("Purchase initiated for:", item);
@@ -228,87 +255,397 @@ export default function SportsPage(): JSX.Element {
         
         {/* Main Content */}
         <div className="relative z-10 pt-8">
-          {/* Unified Sports Hero */}
+          {/* Sports Hub Hero */}
           <UnifiedSportsHero
-            headline="Master Your Sport with"
-            highlight="Skill Smith AI"
-            subhead="Upload your sports footage and get instant AI analysis, personalized training plans, and coach-level feedback from your personal Skill Smith."
-            keywords={["Analysis","Mastery of Emotion","Nutrition","Training Plans"]}
+            headline="Sports HQ:"
+            highlight="SkillSmith × NTNTNS × AIR"
+            subhead="Upload a clip. Build mindset. Create identity. One league for youth athletes."
+            microline="Built for parents, coaches, and athletes ages 7–18."
+            keywords={["Video Analysis", "Mindset Score", "Avatar Identity"]}
             images={[
               { src: "/images/skillsmith-hoops-nobg-skrblai.png",   alt: "Skill Smith basketball athlete" },
               { src: "/images/skillsmith-soccer-nobg-skrblai.png",  alt: "Skill Smith soccer athlete" },
               { src: "/images/skillsmith-baseball-nobg.png",    alt: "Skill Smith baseball athlete" },
             ]}
-            onUploadClick={handleUploadClick}
-            onSampleAnalysisClick={handleSampleAnalysisClick}
-            onParentPortalClick={handleParentPortalClick}
+            showCtas={false}
+            showPromptBar={false}
+            showChatToggle={false}
           />
 
-          {/* Unified intake is now part of the plan builder inside the hero prompt bar */}
-
-          {/* Sports Pricing Section - Only for standalone users */}
-          {(userType === 'guest' || userType === 'auth') && (
-            <motion.section
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative mb-24"
-            >
-              <SportsPricingGrid />
-            </motion.section>
-          )}
-
-          {/* Platform users see original content */}
-          {userType === 'platform' && (
-            <motion.section
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative mb-24"
-            >
-              <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center">
-                  <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                    Welcome back to <span className="bg-gradient-to-r from-purple-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">SkillSmith</span>
-                  </h2>
-                  <p className="text-purple-200 text-lg max-w-2xl mx-auto mb-8">
-                    Continue your athletic journey with our full suite of training tools
-                  </p>
-                  <a 
-                    href="/agents/skillsmith?track=sports" 
-                    className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-500 hover:via-blue-500 hover:to-indigo-500 text-white font-bold rounded-lg transition-colors shadow-lg hover:shadow-xl"
-                  >
-                    Access Full Platform →
-                  </a>
+          {/* Segmented Control */}
+          <section className="relative mb-10">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="mx-auto w-full max-w-3xl rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-2 shadow-[0_10px_40px_rgba(0,0,0,0.25)]">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {tabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={[
+                          "relative rounded-xl px-4 py-3 text-sm md:text-base font-semibold transition-all",
+                          "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/80",
+                          isActive
+                            ? "text-white bg-gradient-to-r from-cyan-500/30 via-blue-500/25 to-purple-500/25 border border-cyan-400/30 shadow-[0_0_30px_rgba(56,189,248,0.18)]"
+                            : "text-white/70 hover:text-white hover:bg-white/[0.04] border border-transparent"
+                        ].join(' ')}
+                        aria-pressed={isActive}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </motion.section>
-          )}
+            </div>
+          </section>
 
-          {/* Encouragement Footer - Only for standalone users */}
-          {(userType === 'guest' || userType === 'auth') && (
-            <EncouragementFooter 
-              isU13Mode={intakeData?.age === '8-18'}
-              onStartQuickWin={() => {
-                // Scroll to upload section
-                const uploadSection = document.querySelector('[data-upload-section]');
-                if (uploadSection) {
-                  uploadSection.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  handleUploadClick();
-                }
-              }}
-              onSeePlans={() => {
-                // Scroll to plans section
-                const plansSection = document.querySelector('[data-plans-section]');
-                if (plansSection) {
-                  plansSection.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            />
-          )}
+          {/* Tab Content */}
+          <section className="relative mb-16">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <AnimatePresence mode="wait">
+                {activeTab === 'skillsmith' && (
+                  <motion.div
+                    key="skillsmith"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-8"
+                  >
+                    <div ref={skillSmithPanelRef} data-upload-section>
+                      <CardShell className="p-6 md:p-8">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+                          <div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-white">
+                              SkillSmith Analysis
+                            </h2>
+                            <p className="text-white/70">
+                              Upload game or training footage for instant coaching feedback.
+                            </p>
+                          </div>
+                          {userType === 'platform' && (
+                            <a
+                              href="/agents/skillsmith?track=sports_hub"
+                              className="inline-flex items-center justify-center rounded-xl border border-cyan-400/30 bg-gradient-to-r from-purple-600/30 via-blue-600/25 to-cyan-600/25 px-4 py-2 font-semibold text-white hover:border-cyan-400/50 hover:bg-white/[0.06] transition-colors"
+                            >
+                              Access Full Platform →
+                            </a>
+                          )}
+                        </div>
+
+                        <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                          <button
+                            onClick={handleUploadClick}
+                            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 px-6 py-3 font-bold text-white shadow-lg hover:shadow-xl transition-shadow"
+                          >
+                            Upload a Clip
+                          </button>
+                          <button
+                            onClick={handleSampleAnalysisClick}
+                            className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                          >
+                            Sample Analysis
+                          </button>
+                          <button
+                            onClick={handleParentPortalClick}
+                            className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                          >
+                            Parent Portal
+                          </button>
+                        </div>
+
+                        {/* Existing SkillSmith plan builder / intake form (preserved) */}
+                        <div className="mt-8">
+                          <SkillSmithPromptBar />
+                        </div>
+
+                        {/* Optional SkillSmith chat (preserved UX, collapsible) */}
+                        <div className="mt-6">
+                          <button
+                            onClick={() => setIsSkillSmithChatOpen((v) => !v)}
+                            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-left text-white/80 hover:text-white hover:bg-white/[0.05] transition-colors flex items-center justify-between"
+                          >
+                            <span className="inline-flex items-center gap-2 font-semibold">
+                              <MessageCircle className="w-4 h-4" />
+                              Chat with SkillSmith
+                            </span>
+                            {isSkillSmithChatOpen ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            )}
+                          </button>
+                          <AnimatePresence>
+                            {isSkillSmithChatOpen && (
+                              <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: 'auto', opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.25 }}
+                                className="overflow-hidden"
+                              >
+                                <div className="mt-4 max-h-[46vh] overflow-y-auto rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+                                  <AgentChat agentId="skillsmith" />
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </CardShell>
+                    </div>
+
+                    {/* 3-card row beneath the upload panel (UI only) */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Quick Win Drill</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          One drill you can run today to tighten fundamentals fast.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Quick Win Drill', 'Preview drills and quick wins (coming online).')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview
+                        </button>
+                      </CardShell>
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Mechanics Breakdown</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Frame-by-frame notes on movement, timing, and control.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Mechanics Breakdown', 'Breakdowns and annotated clips (coming online).')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview
+                        </button>
+                      </CardShell>
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">7-Day Micro Plan</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          A simple week plan: reps, recovery, and mindset prompts.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('7-Day Micro Plan', 'Weekly micro-plans and checklists (coming online).')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview
+                        </button>
+                      </CardShell>
+                    </div>
+
+                    {/* Plans */}
+                    {(userType === 'guest' || userType === 'auth') && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        ref={plansSectionRef}
+                        data-plans-section
+                      >
+                        <SportsPricingGrid />
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {activeTab === 'ntntns' && (
+                  <motion.div
+                    key="ntntns"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-6"
+                  >
+                    <CardShell className="p-6 md:p-8">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">NTNTNS Score</h2>
+                      <p className="text-white/70 mb-5">
+                        Measure focus, confidence, composure, and resilience — then generate a weekly plan.
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {['Focus', 'Confidence', 'Composure', 'Consistency'].map((chipText) => (
+                          <span
+                            key={chipText}
+                            className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-sm font-semibold text-white/80"
+                          >
+                            {chipText}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={() => openComingSoon('Take the NTNTNS Intake', 'The NTNTNS intake flow is coming online.')}
+                          className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 px-6 py-3 font-bold text-white shadow-lg hover:shadow-xl transition-shadow"
+                        >
+                          Take the NTNTNS Intake
+                        </button>
+                        <button
+                          onClick={() => openComingSoon('Sample Scorecard', 'Sample scorecards are coming online.')}
+                          className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          See Sample Scorecard
+                        </button>
+                      </div>
+                    </CardShell>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Coach &amp; Parent Insights</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Shared notes + weekly checkpoints for support at home and in practice.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Preview Insights', 'Insights previews are coming online.')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview Insights
+                        </button>
+                      </CardShell>
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Focus Packs</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Short guided routines: pre-game, between innings, after mistakes.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('View Focus Packs', 'Focus Packs are coming online.')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          View Focus Packs
+                        </button>
+                      </CardShell>
+                    </div>
+
+                    <CardShell className="p-6 md:p-8">
+                      <h3 className="text-xl font-bold text-white mb-2">Performance Reports</h3>
+                      <p className="text-white/70 mb-4">
+                        Monthly growth report: habits, mindset trend, and training consistency.
+                      </p>
+                      <button
+                        onClick={() => openComingSoon('Preview Report', 'Performance reports are coming online.')}
+                        className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                      >
+                        Preview Report
+                      </button>
+                    </CardShell>
+                  </motion.div>
+                )}
+
+                {activeTab === 'air' && (
+                  <motion.div
+                    key="air"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.25 }}
+                    className="space-y-6"
+                  >
+                    <CardShell className="p-6 md:p-8">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Avatar Builder</h2>
+                      <p className="text-white/70 mb-6">
+                        Create your athlete identity: style, gear, vibe, and evolving character.
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button
+                          onClick={() => openComingSoon('Build My AIR Avatar', 'AIR Avatar Builder is coming online.')}
+                          className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 px-6 py-3 font-bold text-white shadow-lg hover:shadow-xl transition-shadow"
+                        >
+                          Build My AIR Avatar
+                        </button>
+                        <button
+                          onClick={() => openComingSoon('AIR Examples', 'Example galleries are coming online.')}
+                          className="w-full sm:w-auto rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          See Examples
+                        </button>
+                      </div>
+                    </CardShell>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">AIR Cards (QR-linked)</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Shareable player card with highlights + growth storyline.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Preview AIR Card', 'AIR Cards are coming online.')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview AIR Card
+                        </button>
+                      </CardShell>
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">Marketplace</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Avatars, gear, clips, and templates (future).
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Explore Marketplace', 'Marketplace is coming online.')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Explore Marketplace
+                        </button>
+                      </CardShell>
+                      <CardShell className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-2">AIR Academy</h3>
+                        <p className="text-white/70 text-sm mb-4">
+                          Branding + storytelling for athletes and families.
+                        </p>
+                        <button
+                          onClick={() => openComingSoon('Preview Academy', 'AIR Academy is coming online.')}
+                          className="w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                        >
+                          Preview Academy
+                        </button>
+                      </CardShell>
+                    </div>
+
+                    <div className="text-center">
+                      <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-white/70">
+                        AIR Studio connects to NTNTNS profiles (coming online).
+                      </span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </section>
+
+          {/* Bottom CTA */}
+          <section className="relative mb-14">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="rounded-3xl border border-cyan-400/20 bg-gradient-to-r from-slate-900/70 via-blue-900/20 to-slate-900/70 backdrop-blur-xl p-7 md:p-10 shadow-[0_0_60px_rgba(56,189,248,0.10)]">
+                <div className="flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-white">Start with one clip.</h3>
+                    <p className="text-white/70 mt-1">
+                      Get a SkillSmith analysis, then unlock NTNTNS × AIR.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={() => {
+                        setTabAndScroll('skillsmith', skillSmithPanelRef);
+                        setTimeout(() => handleUploadClick(), 250);
+                      }}
+                      className="rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 px-6 py-3 font-bold text-white shadow-lg hover:shadow-xl transition-shadow"
+                    >
+                      Upload a Clip
+                    </button>
+                    <button
+                      onClick={() => setTabAndScroll('skillsmith', plansSectionRef)}
+                      className="rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                    >
+                      View Plans
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* Metrics Strip in Footer with subtle page grounding */}
           <section className="relative mt-8">
@@ -349,6 +686,40 @@ export default function SportsPage(): JSX.Element {
               </button>
             </div>
           </motion.div>
+        )}
+
+        {/* Coming soon modal (lightweight placeholder) */}
+        {comingSoon.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/70"
+              onClick={() => setComingSoon({ isOpen: false, title: '', description: '' })}
+            />
+            <div className="relative max-w-lg w-full mx-4 p-6 rounded-2xl bg-gradient-to-b from-gray-900/95 via-gray-800/95 to-gray-900/95 border border-cyan-400/30 backdrop-blur-xl shadow-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xl font-bold text-white">{comingSoon.title}</h3>
+                <button
+                  onClick={() => setComingSoon({ isOpen: false, title: '', description: '' })}
+                  className="text-gray-400 hover:text-white transition-colors"
+                  aria-label="Close"
+                  title="Close"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-gray-300">
+                {comingSoon.description || 'Coming online.'}
+              </p>
+              <div className="mt-5 flex justify-end">
+                <button
+                  onClick={() => setComingSoon({ isOpen: false, title: '', description: '' })}
+                  className="rounded-xl border border-white/10 bg-white/[0.04] px-5 py-2.5 font-semibold text-white/80 hover:text-white hover:bg-white/[0.06] transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         <VideoUploadModal
@@ -414,13 +785,6 @@ export default function SportsPage(): JSX.Element {
             </div>
           </div>
         )}
-
-        <SkillSmithOnboardingFlow
-          isOpen={previewFlowOpen}
-          onClose={() => setPreviewFlowOpen(false)}
-          product={selectedProduct}
-          onBuyNow={(p: any) => { console.log('Buy now:', p); }}
-        />
       </div>
     </PageLayout>
   );
