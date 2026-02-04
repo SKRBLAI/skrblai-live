@@ -24,28 +24,28 @@ const storyMilestones = [
   {
     year: "2023",
     title: "The Vision",
-    description: "Started with a simple question: Why are businesses still doing manual work when AI can handle it all?",
+    description: "Started with a mission: democratize world-class coaching for young athletes through AI technology.",
     icon: <Lightbulb className="w-6 h-6" />,
     color: "from-yellow-500 to-orange-500"
   },
   {
     year: "2024", 
-    title: "AI Agent League",
-    description: "Assembled 14 specialized AI agents, each designed to dominate specific business functions.",
+    title: "AI Coach League",
+    description: "Assembled 14 AI coaches specializing in skill development, mental toughness, and athlete identity.",
     icon: <Users className="w-6 h-6" />,
     color: "from-blue-500 to-purple-500"
   },
   {
     year: "2024",
-    title: "Market Disruption", 
-    description: "Launched Percy the Cosmic Concierge and revolutionized how businesses interact with AI automation.",
+    title: "Sports Tech Launch", 
+    description: "Launched SkillSmith, NTNTNS, and AIR Studio - the complete youth performance platform.",
     icon: <Rocket className="w-6 h-6" />,
     color: "from-green-500 to-teal-500"
   },
   {
     year: "2025",
-    title: "Global Scale",
-    description: "Empowering thousands of businesses worldwide to automate, scale, and dominate their industries.",
+    title: "Youth Performance Revolution",
+    description: "Empowering thousands of young athletes and families worldwide to reach their full potential.",
     icon: <Award className="w-6 h-6" />,
     color: "from-purple-500 to-pink-500"
   }
@@ -54,18 +54,18 @@ const storyMilestones = [
 // Core values
 const coreValues = [
   {
-    title: "Automation First",
-    description: "Every feature built to eliminate manual work and maximize efficiency.",
+    title: "Athlete-First",
+    description: "Every feature built to help young athletes grow, not just perform.",
     icon: <Zap className="w-8 h-8" />
   },
   {
-    title: "Results Driven",
-    description: "Focus on measurable business outcomes, not just pretty interfaces.",
+    title: "Results You Can See",
+    description: "Measurable progress in skills, confidence, and mental toughness.",
     icon: <Target className="w-8 h-8" />
   },
   {
-    title: "Enterprise Security",
-    description: "Bank level security standards with enterprise grade reliability.",
+    title: "Safe + Trusted",
+    description: "Privacy-first, age-appropriate, parent-approved platform for youth athletes.",
     icon: <Shield className="w-8 h-8" />
   }
 ];
@@ -134,10 +134,10 @@ export default function AboutPage(): JSX.Element {
                 </motion.div>
 
                 <CosmicHeading className="text-4xl md:text-6xl mb-8">
-                  The AI Revolution
+                  Building Confident,
                   <br />
                   <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                    Starts Here
+                    Resilient Athletes
                   </span>
                 </CosmicHeading>
 
@@ -147,7 +147,7 @@ export default function AboutPage(): JSX.Element {
                   whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.2 }}
                 >
-                  While others talk about AI, we deliver it. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> is the platform disrupting how businesses automate, create, and scale.
+                  We believe every young athlete deserves access to world-class coaching. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> combines video analysis, mental toughness training, and identity building into one powerful platform.
                 </motion.p>
 
                 <motion.p
@@ -156,8 +156,8 @@ export default function AboutPage(): JSX.Element {
                   whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.3 }}
                   transition={{ delay: 0.3 }}
                 >
-                  Built by entrepreneurs, for entrepreneurs. Led by Percy the Cosmic Concierge and powered by 14 specialized AI agents, 
-                  we are not just another AI tool - we are your business transformation partner.
+                  Built for athletes ages 7-18, parents, and coaches. Led by Percy the Head Coach and powered by 14 specialized AI coaches, 
+                  we are not just another sports app - we are your athlete development partner for skills, mindset, and identity.
                 </motion.p>
 
                 <motion.div

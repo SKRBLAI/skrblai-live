@@ -76,9 +76,9 @@ export default function Navbar() {
               {/* Enhanced Navigation Links (Desktop Only) */}
               <div className="hidden items-center space-x-3 py-1 lg:flex">
                 <NavLink href="/about">About</NavLink>
-                <NavLink href="/sports">Sports</NavLink>
-                <NavLink href="/features">Features</NavLink>
-                <NavLink href="/pricing">Pricing</NavLink>
+                <NavLink href="/academy">Academy</NavLink>
+                <NavLink href="/sports">Sports HQ</NavLink>
+                <NavLink href="/pricing">Store</NavLink>
                 <MoreNavDropdown pathname={pathname} />
               </div>
 
@@ -163,7 +163,7 @@ function MoreNavDropdown({ pathname }: { pathname: string | null }) {
   }, []);
 
   const moreNavItems = [
-    { href: "/agents", label: "Agent League" },  
+    { href: "/agents", label: "Coach League" },  
     { href: "/contact", label: "Contact" },
   ];
 
@@ -274,11 +274,11 @@ function MobileMenu({ pathname, onSmartLogin }: MobileMenuProps) {
   const navItems = [
     // Main nav items for mobile
     { href: "/about", label: "About" },
-    { href: "/sports", label: "Sports" },  
-    { href: "/features", label: "Features" },
-    { href: "/pricing", label: "Pricing" },
+    { href: "/academy", label: "Academy" },  
+    { href: "/sports", label: "Sports HQ" },
+    { href: "/pricing", label: "Store" },
     // Hamburger menu items
-    { href: "/agents", label: "Agent League", section: "More" },
+    { href: "/agents", label: "Coach League", section: "More" },
     { href: "/contact", label: "Contact", section: "More" },
   ];
 

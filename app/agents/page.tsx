@@ -246,13 +246,13 @@ export default function AgentsPage() {
                   Meet Your AI
                   <br />
                   <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">
-                    Superhero League
+                    Coach League
                   </span>
                 </CosmicHeading>
 
                 <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-                  14 specialized AI agents, each with <span className="text-cyan-400 font-bold">unique superpowers</span> designed to automate, 
-                  optimize, and <span className="text-purple-400 font-bold">dominate</span> every aspect of your business.
+                  14 specialized AI coaches, each with <span className="text-cyan-400 font-bold">unique expertise</span> designed to develop skills, 
+                  build confidence, and <span className="text-purple-400 font-bold">unlock potential</span> in every athlete and creator.
                 </p>
 
               {/* Search and Filter Controls */}
@@ -388,12 +388,12 @@ export default function AgentsPage() {
                   viewport={{ once: true }}
                 >
                   <h2 className="text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 bg-clip-text text-transparent mb-6 antialiased drop-shadow-2xl leading-tight">
-                    Ready To Unleash Your AI
+                    Ready To Build Your
                     <br />
-                    <span className="text-5xl sm:text-6xl md:text-7xl">Superhero Team?</span>
+                    <span className="text-5xl sm:text-6xl md:text-7xl">Ultimate Coach Team?</span>
                   </h2>
                   <p className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    Join <span className="text-cyan-400 font-bold text-2xl md:text-3xl">{liveMetrics.liveUsers}+</span> users already <span className="text-purple-400 font-semibold">dominating</span> with these powerful AI agents.
+                    Join <span className="text-cyan-400 font-bold text-2xl md:text-3xl">{liveMetrics.liveUsers}+</span> athletes and creators already <span className="text-purple-400 font-semibold">leveling up</span> with these AI coaches.
                   </p>
                 </motion.div>
                 <motion.div

@@ -43,52 +43,52 @@ const useLiveContactMetrics = () => {
 
 const urgentContactOptions = [
   {
-    title: 'Enterprise & Custom Solutions',
-    description: 'Custom AI automation for enterprise transformation and ROI maximization.',
-    icon: <Rocket className="w-8 h-8" />,
-    action: 'enterprise',
+    title: 'Parent Inquiry',
+    description: 'Questions about youth safety, features, account setup, and supporting your athlete.',
+    icon: <Users className="w-8 h-8" />,
+    action: 'parent',
     urgency: '< 2 hours',
-    valueProposition: 'ROI 300%+ in 90 days',
-    color: 'from-green-600 to-emerald-500',
-    priority: 'URGENT',
-    href: '/enterprise',
-    liveActivity: { users: 23, status: "🔥 Hot" }
+    valueProposition: 'Safe + trusted',
+    color: 'from-blue-600 to-cyan-500',
+    priority: 'HIGH',
+    href: '/parent-resources',
+    liveActivity: { users: 34, status: "👨‍👩‍👦 Active" }
   },
   {
-    title: 'Partnership & Integration',
-    description: 'Strategic partnerships that create market disruption and competitive advantage.',
-    icon: <Users className="w-8 h-8" />,
-    action: 'partnership',
+    title: 'Coach Partnership',
+    description: 'Team accounts, bulk access, and custom training plans for your athletes.',
+    icon: <Target className="w-8 h-8" />,
+    action: 'coach',
     urgency: '< 4 hours', 
-    valueProposition: 'Exclusive AI access',
-    color: 'from-purple-600 to-pink-500',
-    priority: 'HIGH',
-    href: '/partnership',
-    liveActivity: { users: 18, status: "🎯 Trending" }
+    valueProposition: 'Team discounts',
+    color: 'from-green-600 to-emerald-500',
+    priority: 'URGENT',
+    href: '/coach-portal',
+    liveActivity: { users: 18, status: "⚽ Coaching" }
   },
   {
     title: 'Media & Press',
-    description: 'Cover the AI automation revolution and exclusive industry insights.',
+    description: 'Cover youth sports innovation and AI-powered athlete development stories.',
     icon: <Star className="w-8 h-8" />,
     action: 'media',
     urgency: '< 1 hour',
-    valueProposition: 'Exclusive insights',
+    valueProposition: 'Exclusive access',
     color: 'from-orange-600 to-red-500',
     priority: 'IMMEDIATE',
     href: '/media',
-    liveActivity: { users: 12, status: "📝 Creating" }
+    liveActivity: { users: 12, status: "📝 Writing" }
   },
   {
-    title: 'Investment & Funding',
-    description: 'Invest in proven AI revenue generation with documented market success.',
+    title: 'Business Inquiries',
+    description: 'Creator platform, business automation, partnerships, and investment opportunities.',
     icon: <DollarSign className="w-8 h-8" />,
-    action: 'investment',
-    urgency: '< 2 hours',
-    valueProposition: 'Proven revenue model',
-    color: 'from-yellow-600 to-orange-500',
+    action: 'business',
+    urgency: '< 4 hours',
+    valueProposition: 'ROI-focused',
+    color: 'from-purple-600 to-pink-500',
     priority: 'URGENT',
-    href: '/investment',
-    liveActivity: { users: 31, status: "🚀 Converting" }
+    href: '/business',
+    liveActivity: { users: 23, status: "🚀 Creating" }
   }
 ];
 
@@ -360,7 +360,7 @@ export default function ContactPage() {
                   </motion.div>
 
                   <CosmicHeading className="text-4xl md:text-6xl mb-8">
-                    Ready to <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">Dominate</span> Your Market?
+                    Ready to <span className="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">Transform</span> Your Athlete Journey?
                   </CosmicHeading>
 
                   <motion.p
@@ -369,7 +369,7 @@ export default function ContactPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                   >
-                    Whether you're ready to scale, disrupt, or explore AI automation. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> delivers real solutions, real results, real fast.
+                    Whether you're a parent, coach, or athlete ready to level up. <SkrblAiText variant="wave" size="lg">SKRBL AI</SkrblAiText> delivers real coaching, real results, real fast.
                   </motion.p>
 
                   <motion.p
@@ -378,8 +378,8 @@ export default function ContactPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    Percy's Contact Intelligence connects you directly to the right team member for immediate action. 
-                    No forms, no waiting - just instant business transformation.
+                    Percy's Contact Intelligence connects you directly to the right team member for immediate support. 
+                    Safe, trusted, and built for youth athletes and families.
                   </motion.p>
 
                   <motion.div
