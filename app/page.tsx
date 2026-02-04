@@ -13,8 +13,8 @@ const WizardLauncher = dynamic(() => import("@/components/onboarding/WizardLaunc
 const PercyOnboardingRevolution = dynamic(() => import("@/components/home/PercyOnboardingRevolution"), { ssr: false });
 
 export default function Page() {
-  // Hero is always scan-first now (variant selection removed)
-  const Hero = require('@/components/home/HomeHeroScanFirst').default;
+  // Youth sports hero (Athletics pivot)
+  const Hero = require('@/components/home/HomeHeroYouthSports').default;
 
   // Guide star is always enabled now (constant)
   const isGuideStarEnabled = FEATURE_FLAGS.HP_GUIDE_STAR;
