@@ -15,19 +15,21 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl() || 'https://skrblai.io'),
   title: {
-    default: 'SKRBL AI - AI-Powered Business Automation & Content Creation',
+    default: 'SKRBL AI - Youth Sports Performance + AI Coaching Platform',
     template: '%s | SKRBL AI'
   },
-  description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents to streamline your operations and boost productivity.',
+  description: 'AI-powered coaching for young athletes. Video analysis, mental toughness training, and identity building. Built for athletes ages 7-18, parents, and coaches. Also serving creators and businesses.',
   keywords: [
-    'AI automation',
-    'business intelligence',
-    'content creation',
-    'AI agents',
-    'digital transformation',
-    'productivity tools',
-    'artificial intelligence',
-    'business optimization'
+    'youth sports coaching',
+    'AI sports training',
+    'athlete mental toughness',
+    'video analysis',
+    'youth athlete development',
+    'sports performance',
+    'AI coaching platform',
+    'NTNTNS mindset training',
+    'SkillSmith',
+    'AI content creation'
   ],
   authors: [{ name: 'SKRBL AI Team' }],
   creator: 'SKRBL AI',
@@ -42,21 +44,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: '/',
     siteName: 'SKRBL AI',
-    title: 'SKRBL AI - AI-Powered Business Automation & Content Creation',
-    description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents to streamline your operations.',
+    title: 'SKRBL AI - Youth Sports Performance + AI Coaching',
+    description: 'AI-powered coaching for young athletes. Video analysis, mental toughness, and identity building. Built for athletes ages 7-18, parents, and coaches.',
     images: [
       {
         url: '/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'SKRBL AI - AI-Powered Business Automation',
+        alt: 'SKRBL AI - Youth Sports Performance Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SKRBL AI - AI-Powered Business Automation',
-    description: 'Transform your business with AI automation. From content creation to business intelligence, SKRBL AI provides cutting-edge AI agents.',
+    title: 'SKRBL AI - Youth Sports Performance + AI Coaching',
+    description: 'AI-powered coaching for young athletes. Video analysis, mental toughness, identity building for athletes ages 7-18.',
     images: ['/images/og-image.png'],
     creator: '@skrblai',
   },
