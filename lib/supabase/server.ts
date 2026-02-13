@@ -31,12 +31,19 @@ export function getServerSupabaseAdminLegacy(): SupabaseClient | null {
     if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
     if (!serviceKey) missing.push('SUPABASE_SERVICE_ROLE_KEY');
     
-    // In production, throw to catch misconfigurations early
+    // During build time, always return null (Clerk-only migration support)
+    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PHASE === 'phase-export';
+    if (isBuildTime) {
+      console.warn('[server-supabase] Build time: Missing Supabase env vars, returning null (Clerk-only mode)');
+      return null;
+    }
+    
+    // In production runtime, throw to catch misconfigurations early
     if (process.env.NODE_ENV === 'production') {
       throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
     }
     
-    // In development/build, warn and return null
+    // In development, warn and return null
     console.warn('[server-supabase] Missing environment variables:', missing.join(', '));
     return null;
   }
@@ -82,12 +89,19 @@ export function getServerSupabaseAnonLegacy(): SupabaseClient | null {
     if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
     if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
     
-    // In production, throw to catch misconfigurations early
+    // During build time, always return null (Clerk-only migration support)
+    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PHASE === 'phase-export';
+    if (isBuildTime) {
+      console.warn('[server-supabase] Build time: Missing Supabase env vars, returning null (Clerk-only mode)');
+      return null;
+    }
+    
+    // In production runtime, throw to catch misconfigurations early
     if (process.env.NODE_ENV === 'production') {
       throw new Error(`[server-supabase] Missing required environment variables: ${missing.join(', ')}`);
     }
     
-    // In development/build, warn and return null
+    // In development, warn and return null
     console.warn('[server-supabase] Missing environment variables for anon client:', missing.join(', '));
     return null;
   }
