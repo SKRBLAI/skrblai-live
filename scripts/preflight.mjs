@@ -78,9 +78,8 @@ function requireEnv(keys) {
 function validateEnvContract() {
   console.log('🔍 Validating environment variables (conditional contract)...\n');
 
+  // Core required vars (always needed)
   const alwaysRequired = [
-    'NEXT_PUBLIC_SUPABASE_URL',
-    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
     'OPENAI_API_KEY',
     'FF_SITE_VERSION',
     'FF_N8N_NOOP',
@@ -89,22 +88,36 @@ function validateEnvContract() {
   const missing = [];
   missing.push(...requireEnv(alwaysRequired));
 
+  // Auth: Clerk (default/primary) OR Supabase (legacy)
+  const clerkEnabled = isTruthy(process.env.FF_CLERK);
+  
+  if (clerkEnabled) {
+    // Clerk mode: require Clerk keys
+    console.log('  🔐 Auth Mode: Clerk (FF_CLERK=1)');
+    missing.push(
+      ...requireEnv([
+        'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+        'CLERK_SECRET_KEY',
+      ])
+    );
+  } else {
+    // Legacy mode: require Supabase keys
+    console.log('  🔐 Auth Mode: Supabase (legacy, FF_CLERK!=1)');
+    missing.push(
+      ...requireEnv([
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+      ])
+    );
+  }
+
+  // Stripe (conditional)
   const enableStripe = isTruthy(process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? process.env.ENABLE_STRIPE);
   if (enableStripe) {
     missing.push(
       ...requireEnv([
         'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
         'STRIPE_SECRET_KEY',
-      ])
-    );
-  }
-
-  const clerkEnabled = isTruthy(process.env.FF_CLERK);
-  if (clerkEnabled) {
-    missing.push(
-      ...requireEnv([
-        'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
-        'CLERK_SECRET_KEY',
       ])
     );
   }
