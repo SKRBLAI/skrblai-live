@@ -78,7 +78,31 @@ function requireEnv(keys) {
 function validateEnvContract() {
   console.log('🔍 Validating environment variables (conditional contract)...\n');
 
-  // Core required vars (always needed)
+  // Detect auth mode based on which credentials are present
+  const hasClerkPublishable = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const hasClerkSecret = !!process.env.CLERK_SECRET_KEY;
+  const hasSupabaseUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const hasSupabaseAnon = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  const isClerkMode = hasClerkPublishable || hasClerkSecret;
+  const isSupabaseMode = hasSupabaseUrl && hasSupabaseAnon;
+  
+  // Log detected auth mode with reasoning
+  console.log('🔐 Auth Mode Detection:');
+  console.log(`   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${hasClerkPublishable ? '✓ present' : '✗ missing'}`);
+  console.log(`   CLERK_SECRET_KEY: ${hasClerkSecret ? '✓ present' : '✗ missing'}`);
+  console.log(`   NEXT_PUBLIC_SUPABASE_URL: ${hasSupabaseUrl ? '✓ present' : '✗ missing'}`);
+  console.log(`   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${hasSupabaseAnon ? '✓ present' : '✗ missing'}`);
+  
+  if (isClerkMode) {
+    console.log(`   → Auth Mode: CLERK (Clerk credentials detected)\n`);
+  } else if (isSupabaseMode) {
+    console.log(`   → Auth Mode: SUPABASE (Supabase credentials detected, no Clerk)\n`);
+  } else {
+    console.log(`   → Auth Mode: NONE (⚠️  No auth credentials detected - build will proceed but auth may not work)\n`);
+  }
+
+  // Core required vars (not auth-related)
   const alwaysRequired = [
     'OPENAI_API_KEY',
     'FF_SITE_VERSION',
@@ -88,30 +112,32 @@ function validateEnvContract() {
   const missing = [];
   missing.push(...requireEnv(alwaysRequired));
 
-  // Auth: Clerk (default/primary) OR Supabase (legacy)
-  const clerkEnabled = isTruthy(process.env.FF_CLERK);
+  // Require Clerk vars if in Clerk mode
+  if (isClerkMode) {
+    const clerkMissing = requireEnv([
+      'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
+      'CLERK_SECRET_KEY',
+    ]);
+    if (clerkMissing.length > 0) {
+      console.log('⚠️  Clerk mode detected but missing some Clerk credentials:');
+      clerkMissing.forEach(key => console.log(`   - ${key}`));
+      missing.push(...clerkMissing);
+    }
+  }
   
-  if (clerkEnabled) {
-    // Clerk mode: require Clerk keys
-    console.log('  🔐 Auth Mode: Clerk (FF_CLERK=1)');
-    missing.push(
-      ...requireEnv([
-        'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
-        'CLERK_SECRET_KEY',
-      ])
-    );
-  } else {
-    // Legacy mode: require Supabase keys
-    console.log('  🔐 Auth Mode: Supabase (legacy, FF_CLERK!=1)');
-    missing.push(
-      ...requireEnv([
-        'NEXT_PUBLIC_SUPABASE_URL',
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-      ])
-    );
+  // Require Supabase vars ONLY if in Supabase mode (not Clerk)
+  if (!isClerkMode && isSupabaseMode) {
+    const supabaseMissing = requireEnv([
+      'NEXT_PUBLIC_SUPABASE_URL',
+      'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    ]);
+    if (supabaseMissing.length > 0) {
+      console.log('⚠️  Supabase mode detected but missing some Supabase credentials:');
+      supabaseMissing.forEach(key => console.log(`   - ${key}`));
+      missing.push(...supabaseMissing);
+    }
   }
 
-  // Stripe (conditional)
   const enableStripe = isTruthy(process.env.NEXT_PUBLIC_ENABLE_STRIPE ?? process.env.ENABLE_STRIPE);
   if (enableStripe) {
     missing.push(
