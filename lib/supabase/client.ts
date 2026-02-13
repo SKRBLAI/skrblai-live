@@ -29,20 +29,9 @@ export function getBrowserSupabase(): SupabaseClient | null {
     if (!url) missing.push('NEXT_PUBLIC_SUPABASE_URL');
     if (!anonKey) missing.push('NEXT_PUBLIC_SUPABASE_ANON_KEY');
     
-    // During build time, always return null (Clerk-only migration support)
-    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || process.env.NEXT_PHASE === 'phase-export';
-    if (isBuildTime) {
-      console.warn('[supabase] Build time: Missing Supabase env vars, returning null (Clerk-only mode)');
-      return null;
-    }
-    
-    // In production runtime, throw to catch misconfigurations early
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(`[supabase] Missing required environment variables: ${missing.join(', ')}`);
-    }
-    
-    // In development/build, return null to avoid build-time crashes
-    console.warn(`[supabase] Missing environment variables: ${missing.join(', ')}. Returning null.`);
+    // Always return null when Supabase env vars missing (Clerk-only migration support)
+    // This allows the app to run without Supabase - features that need it will gracefully degrade
+    console.warn(`[supabase] Missing environment variables: ${missing.join(', ')}. Returning null (Clerk-only mode).`);
     return null;
   }
 
